@@ -1,0 +1,52 @@
+name: Test - Python
+
+on:
+  push:
+    branches: [main]
+    paths: 
+      - 'chatlas/*'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/py-test.yml'
+  pull_request:
+    paths: 
+      - 'chatlas/*'
+      - 'pyproject.toml'
+      - 'uv.lock'
+      - '.github/workflows/py-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🚀 Install uv
+        uses: astral-sh/setup-uv@v2
+
+      - name: 🐍 Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: 📦 Install the project
+        run: uv sync --python ${{ matrix.python-version }} --no-dev --extra test
+
+      - name: 🧪 Check tests
+        run: make py-check-tests
+
+      - name: 📝 Check types
+        run: make py-check-types
+
+      - name: 📐 Check formatting
+        run: make py-check-format
