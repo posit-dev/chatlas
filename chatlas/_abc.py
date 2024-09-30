@@ -2,10 +2,6 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Any, AsyncGenerator, Generic, Optional, TypeVar
 
-from rich.console import Console
-from rich.live import Live
-from rich.markdown import Markdown
-
 from ._utils import ToolFunction
 
 MessageType = TypeVar("MessageType")
@@ -29,9 +25,13 @@ class LLMClient(ABC, Generic[MessageType]):
         *,
         stream: bool = True,
     ):
+        from rich.console import Console
+        from rich.live import Live
+        from rich.markdown import Markdown
+
         response = self.response_generator(user_input, stream=stream)
 
-        async def stream_markdown():
+        async def _send_response_to_console():
             console = Console()
             content = ""
 
@@ -41,7 +41,7 @@ class LLMClient(ABC, Generic[MessageType]):
                     live.update(Markdown(content))
                     await asyncio.sleep(0.01)
 
-        asyncio.run(stream_markdown())
+        asyncio.run(_send_response_to_console())
 
     # @abstractmethod
     # def token_usage(self, message: MessageType) -> int: ...
