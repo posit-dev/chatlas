@@ -25,7 +25,9 @@ class Ollama(LLMClientWithTools["Message"]):
 
     def __init__(
         self,
+        *,
         client: "AsyncClient | None" = None,
+        # TODO: add system_prompt
         model: Optional[str] = None,
         tools: Iterable[ToolFunction] = (),
     ) -> None:

@@ -5,6 +5,7 @@
             "source.fixAll": "explicit",
             "source.organizeImports": "explicit"
         },
-        "editor.defaultFormatter": "charliermarsh.ruff"
-    }
+        "editor.defaultFormatter": "charliermarsh.ruff",
+    },
+    "flake8.args": ["--max-line-length=120"]
 }

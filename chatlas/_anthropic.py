@@ -24,24 +24,30 @@ class Anthropic(LLMClientWithTools["MessageParam"]):
 
     def __init__(
         self,
-        client: "AsyncAnthropic | None" = None,
+        *,
         api_key: Optional[str] = None,
         model: "Model" = "claude-3-5-sonnet-20240620",
+        system_prompt: Optional[str] = None,
         max_tokens: int = 1024,
         tools: Iterable[ToolFunction] = (),
+        client: "AsyncAnthropic | None" = None,
     ):
-        if client is None:
-            self.client = self._get_client(api_key)
         self._model = model
+        self._system_prompt = system_prompt
         self._max_tokens = max_tokens
         for tool in tools:
             self.register_tool(tool)
+        if client is None:
+            client = self._get_client()
+        if api_key is not None:
+            client.api_key = api_key
+        self.client = client
 
-    def _get_client(self, api_key: Optional[str]) -> "AsyncAnthropic":
+    def _get_client(self) -> "AsyncAnthropic":
         try:
             from anthropic import AsyncAnthropic
 
-            return AsyncAnthropic(api_key=api_key)
+            return AsyncAnthropic()
         except ImportError:
             raise ImportError(
                 f"The {self.__class__.__name__} class requires the `anthropic` package. "
@@ -65,10 +71,12 @@ class Anthropic(LLMClientWithTools["MessageParam"]):
     async def _submit_messages(
         self, stream: bool, **kwargs: Any
     ) -> AsyncGenerator[str, None]:
-        model = kwargs.pop("model", self._model)
-        max_tokens = kwargs.pop("max_tokens", self._max_tokens)
+        model: "Model" = kwargs.pop("model", self._model)
+        max_tokens: int = kwargs.pop("max_tokens", self._max_tokens)
         if len(self._tool_schemas) > 0:
             kwargs["tools"] = kwargs.get("tools", []) + self._tool_schemas
+        if self._system_prompt is not None:
+            kwargs["system"] = kwargs.get("system", self._system_prompt)
 
         if stream:
             response = await self.client.messages.create(
@@ -98,9 +106,7 @@ class Anthropic(LLMClientWithTools["MessageParam"]):
                             current_content.input = ""
                         current_content.input += chunk.delta.partial_json
                     else:
-                        raise ValueError(
-                            f"Unknown delta type: {chunk.delta.type}"
-                        )
+                        raise ValueError(f"Unknown delta type: {chunk.delta.type}")
                 elif chunk.type == "content_block_stop":
                     if current_content is None:
                         continue
@@ -108,9 +114,7 @@ class Anthropic(LLMClientWithTools["MessageParam"]):
                         current_content.input, str
                     ):
                         try:
-                            current_content.input = json.loads(
-                                current_content.input
-                            )
+                            current_content.input = json.loads(current_content.input)
                         except json.JSONDecodeError as e:
                             raise ValueError(f"Invalid JSON input: {e}")
                     contents.append(current_content)
@@ -162,9 +166,7 @@ class Anthropic(LLMClientWithTools["MessageParam"]):
 
         name = final_schema["name"]
 
-        self._tool_schemas = [
-            x for x in self._tool_schemas if x["name"] != name
-        ]
+        self._tool_schemas = [x for x in self._tool_schemas if x["name"] != name]
         self._tool_schemas.append(final_schema)
         self._tool_functions[name] = func
 
@@ -193,9 +195,7 @@ class Anthropic(LLMClientWithTools["MessageParam"]):
                 return True
         return False
 
-    def _call_tools(
-        self, last_message: "MessageParam"
-    ) -> "MessageParam | None":
+    def _call_tools(self, last_message: "MessageParam") -> "MessageParam | None":
         from anthropic.types import ToolUseBlock
 
         contents = last_message["content"]

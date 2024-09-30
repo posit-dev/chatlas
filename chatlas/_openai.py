@@ -1,12 +1,5 @@
 import json
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    AsyncGenerator,
-    Iterable,
-    Optional,
-    Sequence,
-)
+from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, Sequence
 
 from ._abc import LLMClientWithTools
 from ._merge import merge_dicts
@@ -31,22 +24,28 @@ class OpenAI(LLMClientWithTools["ChatCompletionMessageParam"]):
 
     def __init__(
         self,
-        client: "AsyncOpenAI | None" = None,
+        *,
         api_key: Optional[str] = None,
         model: "ChatModel" = "gpt-4o",
+        system_prompt: Optional[str] = None,
         tools: Iterable[ToolFunction] = (),
+        client: "AsyncOpenAI | None" = None,
     ):
-        if client is None:
-            self.client = self._get_client(api_key)
         self._model = model
+        self._system_prompt = system_prompt
         for tool in tools:
             self.register_tool(tool)
+        if client is None:
+            client = self._get_client()
+        if api_key is not None:
+            client.api_key = api_key
+        self.client = client
 
-    def _get_client(self, api_key: Optional[str]) -> "AsyncOpenAI":
+    def _get_client(self) -> "AsyncOpenAI":
         try:
             from openai import AsyncOpenAI
 
-            return AsyncOpenAI(api_key=api_key)
+            return AsyncOpenAI()
         except ImportError:
             raise ImportError(
                 f"The {self.__class__.__name__} class requires the `openai` package. "
@@ -82,7 +81,7 @@ class OpenAI(LLMClientWithTools["ChatCompletionMessageParam"]):
 
         if stream:
             response = await self.client.chat.completions.create(
-                messages=self.messages(),
+                messages=self.messages(include_system_prompt=True),
                 model=model,
                 tools=tools if tools else None,  # type: ignore
                 stream=True,
@@ -103,7 +102,7 @@ class OpenAI(LLMClientWithTools["ChatCompletionMessageParam"]):
                 self._add_message(ChatCompletionAssistantMessageParam(**result))
         else:
             response = await self.client.chat.completions.create(
-                messages=self.messages(),
+                messages=self.messages(include_system_prompt=True),
                 model=model,
                 tools=tools if tools else None,  # type: ignore
                 stream=False,
@@ -117,7 +116,11 @@ class OpenAI(LLMClientWithTools["ChatCompletionMessageParam"]):
             if message.content:
                 yield message.content
 
-    def messages(self) -> list["ChatCompletionMessageParam"]:
+    def messages(
+        self, *, include_system_prompt: bool = False
+    ) -> list["ChatCompletionMessageParam"]:
+        if include_system_prompt and self._system_prompt is not None:
+            return [{"role": "system", "content": self._system_prompt}, *self._messages]
         return self._messages
 
     def _add_messages(self, messages: Sequence["ChatCompletionMessageParam"]):
