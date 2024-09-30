@@ -5,7 +5,11 @@ Working directly with the Python packages from these LLM providers is suprisingl
 Projects like LangChain and LiteLLM help in this regard, but even they can be a bit much for simple use cases.
 `chatlas` provides an even simpler interface for chatting with multiple LLMs, while still supporting important capabilities like streaming, tool calling, and async.
 
-TODO: gif of chatlas in action
+
+
+
+https://github.com/user-attachments/assets/7a57f25c-b49f-41cf-bd4b-cd3a8b0e6f30
+
 
 ## Install
 
