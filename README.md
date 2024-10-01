@@ -4,9 +4,6 @@ Easily chat with various LLM models from Ollama, Anthropic, OpenAI, and more.
 `chatlas` is intentionally minimal, making it easy to get started, while also supporting advanced features like tool calling, streaming, and async. 
 It also provides an interactive chat console, web app, and more general programmatic extension points.
 
-https://github.com/user-attachments/assets/7a57f25c-b49f-41cf-bd4b-cd3a8b0e6f30
-
-
 ## Install
 
 `chatlas` isn't yet on pypi, but you can install from Github:
@@ -22,13 +19,13 @@ For example, to use [Ollama](#ollama), first create the `OllamaChat` object:
 
 ```python
 from chatlas import OllamaChat
-chat = OllamaChat(model="llama-3.2")
+chat = OllamaChat(model="llama3.2")
 ```
 
 Then, you start chatting by calling the `.chat()` method:
 
 ```python
-chat.chat("What is 1+1?")
+chat.chat("Show me a short Python snippet")
 ```
 
 Or, better yet, for multi-turn conversations, start a Python `.console()`:
@@ -37,11 +34,15 @@ Or, better yet, for multi-turn conversations, start a Python `.console()`:
 chat.console()
 ```
 
-And, if you'd rather chat in a web app (for a better copy/paste and browsing experience), you can use the `.app()` method (which launches a [Shiny](https://shiny.posit.co/py/) web app):
+TODO: image
+
+And, for a better copy/paste and browsing experience, consider using the `.app()` method to launch a [Shiny](https://shiny.posit.co/py/) web app:
 
 ```python
 chat.app()
 ```
+
+TODO: image
 
 Also, at any point, you can access the chat history via `.messages()`:
 
@@ -76,7 +77,7 @@ Now, you're read to chat via `chatlas`:
 
 ```python
 from chatlas import OllamaChat
-chat = OllamaChat(model="llama-3.2")
+chat = OllamaChat(model="llama3.2")
 chat.console()
 ```
 
@@ -147,6 +148,7 @@ pip install python-dotenv
 # .env
 ANTHROPIC_API_KEY=...
 OPENAI_API_KEY=...
+GOOGLE_API_KEY=...
 ```
 
 ```python

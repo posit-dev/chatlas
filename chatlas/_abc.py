@@ -50,12 +50,17 @@ class Chat(ABC, Generic[MessageType]):
         """
 
         print("\nEntering chat console. Press Ctrl+C to quit.\n")
+
+        # Create event loop once
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
         while True:
             user_input = input("?> ")
             if user_input.strip().lower() in ("exit", "exit()"):
                 break
             print("")
-            self.chat(user_input)
+            self._chat(user_input, loop=loop)
             print("")
 
     def app(self, *, launch_browser: bool = True, port: int = 0):
@@ -107,6 +112,17 @@ class Chat(ABC, Generic[MessageType]):
         -------
         None
         """
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        return self._chat(user_input, stream=stream, loop=loop)
+
+    def _chat(
+        self,
+        user_input: str,
+        *,
+        stream: bool = True,
+        loop: asyncio.AbstractEventLoop,
+    ):
         from rich.console import Console
         from rich.live import Live
         from rich.markdown import Markdown
@@ -123,7 +139,7 @@ class Chat(ABC, Generic[MessageType]):
                     live.update(Markdown(content))
                     await asyncio.sleep(0.001)
 
-        asyncio.run(_send_response_to_console())
+        return loop.run_until_complete(_send_response_to_console())
 
 
 class ChatWithTools(Chat[MessageType]):
