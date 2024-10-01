@@ -26,17 +26,18 @@ class Ollama(LLMClientWithTools["Message"]):
     def __init__(
         self,
         *,
-        client: "AsyncClient | None" = None,
-        # TODO: add system_prompt
         model: Optional[str] = None,
+        system_prompt: Optional[str] = None,
         tools: Iterable[ToolFunction] = (),
+        client: "AsyncClient | None" = None,
     ) -> None:
+        self._model = model
+        self._system_prompt = system_prompt
+        for tool in tools:
+            self.register_tool(tool)
         if client is None:
             client = self._get_client()
         self.client = client
-        self._model = model
-        for tool in tools:
-            self.register_tool(tool)
 
     def _get_client(self) -> "AsyncClient":
         try:
@@ -81,7 +82,7 @@ class Ollama(LLMClientWithTools["Message"]):
 
             response = await self.client.chat(
                 model=model,
-                messages=self.messages(),
+                messages=self.messages(include_system_prompt=True),
                 tools=tools,
                 stream=True,
             )
@@ -107,7 +108,7 @@ class Ollama(LLMClientWithTools["Message"]):
         else:
             response = await self.client.chat(
                 model=model,
-                messages=self.messages(),
+                messages=self.messages(include_system_prompt=True),
                 tools=tools,
                 stream=False,
             )
@@ -124,7 +125,9 @@ class Ollama(LLMClientWithTools["Message"]):
                     yield message["content"]
                 self._add_message(message)
 
-    def messages(self) -> list["Message"]:
+    def messages(self, *, include_system_prompt: bool = False) -> list["Message"]:
+        if include_system_prompt and self._system_prompt is not None:
+            return [{"role": "system", "content": self._system_prompt}, *self._messages]
         return self._messages
 
     def _add_message(self, message: "Message") -> None:
