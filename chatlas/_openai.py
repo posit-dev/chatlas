@@ -1,7 +1,7 @@
 import json
 from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, Sequence
 
-from ._abc import ChatWithTools
+from ._abc import BaseChatWithTools
 from ._merge import merge_dicts
 from ._utils import ToolFunction, ToolSchema, func_to_schema
 
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from openai.types.chat_model import ChatModel
 
 
-class OpenAIChat(ChatWithTools["ChatCompletionMessageParam"]):
+class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
     _messages: list["ChatCompletionMessageParam"] = []
     _tool_schemas: list["ChatCompletionToolParam"] = []
     _tool_functions: dict[str, ToolFunction] = {}

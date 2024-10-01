@@ -7,7 +7,7 @@ from ._utils import ToolFunction
 MessageType = TypeVar("MessageType")
 
 
-class Chat(ABC, Generic[MessageType]):
+class BaseChat(ABC, Generic[MessageType]):
     @abstractmethod
     async def response_generator(
         self,
@@ -142,7 +142,7 @@ class Chat(ABC, Generic[MessageType]):
         return loop.run_until_complete(_send_response_to_console())
 
 
-class ChatWithTools(Chat[MessageType]):
+class BaseChatWithTools(BaseChat[MessageType]):
     @abstractmethod
     def register_tool(
         self,

@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Iterable, Optional
 
-from ._abc import ChatWithTools
+from ._abc import BaseChatWithTools
 from ._utils import ToolFunction
 
 if TYPE_CHECKING:
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     FunctionLibraryType = gtypes.FunctionLibraryType
 
 
-class GoogleChat(ChatWithTools["ContentDict"]):
+class GoogleChat(BaseChatWithTools["ContentDict"]):
     _messages: list["ContentDict"] = []
     _tool_schemas: list["FunctionLibraryType"] = []
     _tool_functions: dict[str, ToolFunction] = {}

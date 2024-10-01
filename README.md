@@ -34,7 +34,9 @@ Or, better yet, for multi-turn conversations, start a Python `.console()`:
 chat.console()
 ```
 
-<img width="600" alt="Screenshot 2024-10-01 at 4 16 19 PM" src="https://github.com/user-attachments/assets/df10b558-867a-407e-affe-3aa80cc18bb7">
+<div align="center">
+<img width="600" alt="Using chatlas at the Python console" src="https://github.com/user-attachments/assets/df10b558-867a-407e-affe-3aa80cc18bb7">
+</div>
 
 
 And, for a better copy/paste and browsing experience, consider using the `.app()` method to launch a [Shiny](https://shiny.posit.co/py/) web app:
@@ -43,7 +45,9 @@ And, for a better copy/paste and browsing experience, consider using the `.app()
 chat.app()
 ```
 
-<img width="784" alt="Screenshot 2024-10-01 at 4 19 00 PM" src="https://github.com/user-attachments/assets/be4c1328-d7ff-49a9-9ac4-d1cf9a68b80d">
+<div align="center">
+<img width="600" alt="Using chatlas in a Shiny web app" src="https://github.com/user-attachments/assets/be4c1328-d7ff-49a9-9ac4-d1cf9a68b80d">
+</div>
 
 
 Also, at any point, you can access the chat history via `.messages()`:
@@ -92,7 +96,7 @@ You'll also want the Python package:
 pip install anthropic
 ```
 
-Now, simply paste your API key into the `chatlas.Anthropic` constructor (consider securely [managing your credentials](#managing-credentials) if sharing your code), and start chatting!
+Paste your API key into the `AnthropicChat()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
 
 ```python
 from chatlas import AnthropicChat
@@ -110,7 +114,7 @@ You'll also want the Python package:
 pip install openai
 ```
 
-Now, simply paste your API key into the `chatlas.OpenAI` constructor (consider securely [managing your credentials](#managing-credentials) if sharing your code), and start chatting!
+Paste your API key into the `OpenAIChat()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
 
 ```python
 from chatlas import OpenAIChat
@@ -128,13 +132,31 @@ You'll also want the Python package:
 pip install google-generativeai
 ```
 
-Now, simply paste your API key into the `chatlas.Google` constructor (consider securely [managing your credentials](#managing-credentials) if sharing your code), and start chatting!
+Paste your API key into the `GoogleChat()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
 
 ```python
 from chatlas import GoogleChat
 chat = GoogleChat(api_key="...")
 chat.console()
 ```
+
+### Role your own
+
+You can also use your own models by implementing the `BaseChat` interface.
+This is a good option if you're motivated to add support for model(s) not yet supported by `chatlas`.
+At a minimum, you'll need to implement the `response_generator()` and `messages()` methods.
+
+```python
+from chatlas import BaseChat
+
+class MyCustomChat(BaseChat):
+    async def response_generator(self, user_input: str):
+        ...
+
+    def messages(self):
+        ...
+```
+
 
 ## Managing credentials
 
@@ -197,12 +219,11 @@ chat.chat("What's the weather like in Boston, New York, and London today?")
 ```
 
 
+### Response generators
 
-## Program with chatlas
-
-So far, we've been using the `chat()` method to interact with LLMs, which is designed for interactive use at the Python console.
-Instead of `chat()`, you can use `response_generator()` to get an async generator that yields strings, allowing you to send the LLM's response to some other destination.
-For example, let's write a simple program that writes the LLM's response to a file:
+For more control over what happens with the LLM's response, use the `response_generator()` method.
+This method returns an [async generator](https://superfastpython.com/asynchronous-generators-in-python/) that yields strings, allowing you to send the LLM's response to some other destination.
+For example, here's some code to write the LLM's response to a (temporary) file:
 
 ```python
 import asyncio

@@ -9,7 +9,7 @@ from typing import (
     cast,
 )
 
-from ._abc import ChatWithTools
+from ._abc import BaseChatWithTools
 from ._merge import merge_dicts
 from ._utils import ToolFunction, ToolSchema, func_to_schema
 
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from ollama._types import ChatResponse, Tool, ToolCall
 
 
-class OllamaChat(ChatWithTools["Message"]):
+class OllamaChat(BaseChatWithTools["Message"]):
     _messages: list["Message"] = []
     _tool_schemas: list["Tool"] = []
     _tool_functions: dict[str, ToolFunction] = {}
