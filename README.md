@@ -34,7 +34,8 @@ Or, better yet, for multi-turn conversations, start a Python `.console()`:
 chat.console()
 ```
 
-TODO: image
+<img width="600" alt="Screenshot 2024-10-01 at 4 16 19 PM" src="https://github.com/user-attachments/assets/df10b558-867a-407e-affe-3aa80cc18bb7">
+
 
 And, for a better copy/paste and browsing experience, consider using the `.app()` method to launch a [Shiny](https://shiny.posit.co/py/) web app:
 
@@ -42,7 +43,8 @@ And, for a better copy/paste and browsing experience, consider using the `.app()
 chat.app()
 ```
 
-TODO: image
+<img width="784" alt="Screenshot 2024-10-01 at 4 19 00 PM" src="https://github.com/user-attachments/assets/be4c1328-d7ff-49a9-9ac4-d1cf9a68b80d">
+
 
 Also, at any point, you can access the chat history via `.messages()`:
 
