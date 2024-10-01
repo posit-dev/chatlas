@@ -7,17 +7,85 @@ from ._utils import ToolFunction
 MessageType = TypeVar("MessageType")
 
 
-class LLMClient(ABC, Generic[MessageType]):
+class Chat(ABC, Generic[MessageType]):
     @abstractmethod
     async def response_generator(
         self,
         user_input: str,
         *,
         stream: bool = True,
-    ) -> AsyncGenerator[str, None]: ...
+    ) -> AsyncGenerator[str, None]:
+        """
+        Generate a response from user input.
+
+        Parameters
+        ----------
+        user_input
+            The user input to generate a response from.
+        stream
+            Whether to stream the response (i.e., have the response appear in chunks).
+
+        Yields
+        ------
+        str
+            The response content.
+        """
+        ...
 
     @abstractmethod
-    def messages(self) -> list[MessageType]: ...
+    def messages(self) -> list[MessageType]:
+        """
+        Get messages from the chat conversation.
+
+        Returns
+        -------
+        list[MessageType]
+            The messages from the chat conversation.
+        """
+        ...
+
+    def console(self):
+        """
+        Enter a chat console to interact with the LLM.
+        """
+
+        print("\nEntering chat console. Press Ctrl+C to quit.\n")
+        while True:
+            user_input = input("?> ")
+            if user_input.strip().lower() in ("exit", "exit()"):
+                break
+            print("")
+            self.chat(user_input)
+            print("")
+
+    def app(self, *, launch_browser: bool = True, port: int = 0):
+        """
+        Enter a chat browser to interact with the LLM.
+        """
+
+        try:
+            from shiny import App, run_app, ui
+        except ImportError:
+            raise ImportError(
+                "The `shiny` package is required for the `browser` method. "
+                "Install it with `pip install shiny`."
+            )
+
+        app_ui = ui.page_fillable(
+            ui.chat_ui("chat"),
+            fillable_mobile=True,
+        )
+
+        def server(input):
+            chat = ui.Chat("chat", messages=self.messages())
+
+            @chat.on_user_submit
+            async def _():
+                user_input = chat.user_input()
+                response = self.response_generator(user_input)  # type: ignore
+                await chat.append_message_stream(response)
+
+        run_app(App(app_ui, server), launch_browser=launch_browser)
 
     def chat(
         self,
@@ -25,6 +93,20 @@ class LLMClient(ABC, Generic[MessageType]):
         *,
         stream: bool = True,
     ):
+        """
+        Chat with the LLM.
+
+        Parameters
+        ----------
+        user_input
+            The user input to chat with.
+        stream
+            Whether to stream the response (i.e., have the response appear in chunks).
+
+        Returns
+        -------
+        None
+        """
         from rich.console import Console
         from rich.live import Live
         from rich.markdown import Markdown
@@ -35,19 +117,16 @@ class LLMClient(ABC, Generic[MessageType]):
             console = Console()
             content = ""
 
-            with Live(console=console, refresh_per_second=100) as live:
+            with Live(console=console, refresh_per_second=10) as live:
                 async for part in response:
                     content += part
                     live.update(Markdown(content))
-                    await asyncio.sleep(0.01)
+                    await asyncio.sleep(0.001)
 
         asyncio.run(_send_response_to_console())
 
-    # @abstractmethod
-    # def token_usage(self, message: MessageType) -> int: ...
 
-
-class LLMClientWithTools(LLMClient[MessageType]):
+class ChatWithTools(Chat[MessageType]):
     @abstractmethod
     def register_tool(
         self,

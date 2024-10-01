@@ -1,14 +1,14 @@
-from ._anthropic import Anthropic
-from ._google import Google
+from ._anthropic import AnthropicChat
+from ._google import GoogleChat
 
 # from ._langchain import LangChainClient
-from ._ollama import Ollama
-from ._openai import OpenAI
+from ._ollama import OllamaChat
+from ._openai import OpenAIChat
 
 __all__ = (
-    "Anthropic",
-    "Google",
-    "Ollama",
-    "OpenAI",
+    "AnthropicChat",
+    "GoogleChat",
+    "OllamaChat",
+    "OpenAIChat",
     # "LangChainClient",
 )

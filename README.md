@@ -1,12 +1,8 @@
 # chatlas
 
-A simple and consistent interface for chatting with various LLMs from Ollama, Anthropic, OpenAI, and others.
-Working directly with the Python packages from these LLM providers is suprisingly complicated since they support such a wide range of use cases. 
-Projects like LangChain and LiteLLM help in this regard, but even they can be a bit much for simple use cases.
-`chatlas` provides an even simpler interface for chatting with multiple LLMs, while still supporting important capabilities like streaming, tool calling, and async.
-
-
-
+Easily chat with various LLM models from Ollama, Anthropic, OpenAI, and more.
+`chatlas` is intentionally minimal, making it easy to get started, while also supporting advanced features like tool calling, streaming, and async. 
+It also provides an interactive chat console, web app, and more general programmatic extension points.
 
 https://github.com/user-attachments/assets/7a57f25c-b49f-41cf-bd4b-cd3a8b0e6f30
 
@@ -19,11 +15,48 @@ https://github.com/user-attachments/assets/7a57f25c-b49f-41cf-bd4b-cd3a8b0e6f30
 pip install git+https://github.com/posit-dev/chatlas
 ```
 
-## Getting started
+## Get started
 
-To start chatting with an LLM, you'll first need to choose a provider. 
-Options like [Anthropic](#anthropic) and [OpenAI](#openai) require an account and API key to use, and also send your input to a remote server for processing.
-[Ollama](#ollama), on the other hand, is a local model that can run on your own machine for free.
+To start, you'll need to create an instance of a particular `Chat` [implementation](#implementations).
+For example, to use [Ollama](#ollama), first create the `OllamaChat` object:
+
+```python
+from chatlas import OllamaChat
+chat = OllamaChat(model="llama-3.2")
+```
+
+Then, you start chatting by calling the `.chat()` method:
+
+```python
+chat.chat("What is 1+1?")
+```
+
+Or, better yet, for multi-turn conversations, start a Python `.console()`:
+
+```python
+chat.console()
+```
+
+And, if you'd rather chat in a web app (for a better copy/paste and browsing experience), you can use the `.app()` method (which launches a [Shiny](https://shiny.posit.co/py/) web app):
+
+```python
+chat.app()
+```
+
+Also, at any point, you can access the chat history via `.messages()`:
+
+```python
+chat.messages()
+```
+
+See the [advanced features](#advanced-features) section below for more involved features like tool calling, async, and streaming.
+
+
+## Chat implementations {#implementations}
+
+`chatlas` supports various LLM models from Ollama, Anthropic, OpenAI, and Google out of the box.
+Options like `AnthropicChat` and `OpenAIChat` require an account and API key to use, and also send your input to a remote server for response generation.
+[Ollama](#ollama), on the other hand, provides a way to run open source models that run locally on your own machine, so is a good option for privacy and cost reasons.
 
 ### Ollama
 
@@ -42,9 +75,9 @@ pip install olama
 Now, you're read to chat via `chatlas`:
 
 ```python
-import chatlas
-llm = chatlas.Ollama(model="llama-3.2")
-llm.chat("What is 1+1?")
+from chatlas import OllamaChat
+chat = OllamaChat(model="llama-3.2")
+chat.console()
 ```
 
 ### Anthropic
@@ -59,9 +92,9 @@ pip install anthropic
 Now, simply paste your API key into the `chatlas.Anthropic` constructor (consider securely [managing your credentials](#managing-credentials) if sharing your code), and start chatting!
 
 ```python
-import chatlas
-llm = chatlas.Anthropic(api_key="...")
-llm.chat("What is 1+1?")
+from chatlas import AnthropicChat
+chat = AnthropicChat(api_key="...")
+chat.console()
 ```
 
 
@@ -77,9 +110,9 @@ pip install openai
 Now, simply paste your API key into the `chatlas.OpenAI` constructor (consider securely [managing your credentials](#managing-credentials) if sharing your code), and start chatting!
 
 ```python
-import chatlas
-llm = chatlas.OpenAI(api_key="...")
-llm.chat("What is 1+1?")
+from chatlas import OpenAIChat
+chat = OpenAIChat(api_key="...")
+chat.console()
 ```
 
 
@@ -95,14 +128,14 @@ pip install google-generativeai
 Now, simply paste your API key into the `chatlas.Google` constructor (consider securely [managing your credentials](#managing-credentials) if sharing your code), and start chatting!
 
 ```python
-import chatlas
-llm = chatlas.Google(api_key="...")
-llm.chat("What is 1+1?")
+from chatlas import GoogleChat
+chat = GoogleChat(api_key="...")
+chat.console()
 ```
 
 ## Managing credentials
 
-Pasting an API key into `chatlas` constructor (e.g., `chatlas.OpenAI(api_key="...")`) is the simplest way to get started, and is fine for interactive use, but it's not OK for code that may be shared with others.
+Pasting an API key into a chat constructor (e.g., `OpenAIChat(api_key="...")`) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.
 Instead, consider using environment variables or a configuration file to manage your credentials.
 One popular way to manage credentials is to use a `.env` file to store your credentials, and then use the `python-dotenv` package to load them into your environment.
 
@@ -117,12 +150,12 @@ OPENAI_API_KEY=...
 ```
 
 ```python
-import chatlas
+from chatlas import Anthropic
 from dotenv import load_dotenv
 
 load_dotenv()
-llm = chatlas.Anthropic()
-llm.chat("What is 1+1?")
+chat = AnthropicChat()
+chat.console()
 ```
 
 Another option, which makes interactive use easier, is to load your environment variables into the shell before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
@@ -132,8 +165,9 @@ export ANTHROPIC_API_KEY=...
 export OPENAI_API_KEY=...
 ```
 
+## Advanced features
 
-## Tool (function) calling
+### Tool (function) calling
 
 Tool calling is a powerful feature enabling the LLM to call external programs to help answer your questions.
 `chatlas` makes it easy to provide Python functions as tools for the LLM to call, and handles the communication between the LLM and your function.
@@ -143,7 +177,7 @@ Make sure to annotate your function with types to help the LLM understand what i
 Also provide a docstring to help the LLM understand what your function does.
 
 ```python
-import chatlas
+from chatlas import AnthropicChat
 
 def get_current_weather(location: str, unit: str = "fahrenheit") -> int:
     """Get the current weather in a location."""
@@ -154,9 +188,10 @@ def get_current_weather(location: str, unit: str = "fahrenheit") -> int:
     else:
         return 72 if unit == "fahrenheit" else 22
 
-llm = chatlas.OpenAI(tools=[get_current_weather])
-llm.chat("What's the weather like in Boston, New York, and London today?")
+chat = AnthropicChat(tools=[get_current_weather])
+chat.chat("What's the weather like in Boston, New York, and London today?")
 ```
+
 
 
 ## Program with chatlas
@@ -167,34 +202,20 @@ For example, let's write a simple program that writes the LLM's response to a fi
 
 ```python
 import asyncio
-import chatlas
-llm = chatlas.Anthropic()
-response = llm.response_generator("What is 1+1?")
+from chatlas import Anthropic
+import tempfile
+chat = AnthropicChat()
+response = chat.response_generator("What is 1+1?")
 
 async def main():
-    async for chunk in response:
-        with open("response.txt", "a") as f:
-            f.write(chunk)
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+        async for line in response:
+            f.write(line + "\n")
+        
+        temp_file_name = f.name
+
+    with open(temp_file_name) as f:
+        print(f.read())
 
 asyncio.run(main())
-```
-
-## Shiny (web) application
-
-`chatlas` can be used inside a [Shiny](https://shiny.posit.co/py/) app to provide a chat interface to your LLM.
-
-```python
-import chatlas
-from shiny.express import ui
-
-llm = chatlas.Anthropic()
-
-chat = ui.Chat(id = "chat")
-
-chat.ui()
-
-@chat.on_user_submit
-def on_user_submit(input):
-    response = llm.response_generator(input)
-    chat.append_message_stream(response)
 ```

@@ -15,11 +15,15 @@ test = [
 ]
 full = [
   "python-dotenv",
+  "shiny",
   "openai",
   "anthropic",
   "ollama",
   "google-generativeai",
   "langchain",
+]
+shiny = [
+  "shiny"
 ]
 openai = [
     "openai",

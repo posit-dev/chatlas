@@ -1,7 +1,7 @@
 import json
 from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, cast
 
-from ._abc import LLMClientWithTools
+from ._abc import ChatWithTools
 from ._utils import ToolFunction, ToolSchema, func_to_schema
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     )
 
 
-class Anthropic(LLMClientWithTools["MessageParam"]):
+class AnthropicChat(ChatWithTools["MessageParam"]):
     _messages: list["MessageParam"] = []
     _tool_schemas: list["ToolParam"] = []
     _tool_functions: dict[str, ToolFunction] = {}
