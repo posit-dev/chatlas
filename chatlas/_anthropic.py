@@ -32,6 +32,30 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
         tools: Iterable[ToolFunction] = (),
         client: "AsyncAnthropic | None" = None,
     ):
+        """
+        Start a chat powered by Anthropic
+
+        Parameters
+        ----------
+        api_key
+            Your Anthropic API key.
+        model
+            The model to use for the chat.
+        system_prompt
+            A system prompt to use for the chat.
+        max_tokens
+            The maximum number of tokens to generate for each response.
+        tools
+            A list of tools (i.e., function calls) to use for the chat.
+        client
+            An `anthropic.AsyncAnthropic` client instance to use for the chat.
+            Use this to customize stuff like `base_url`, `timeout`, etc.
+
+        Raises
+        ------
+        ImportError
+            If the `anthropic` package is not installed.
+        """
         self._model = model
         self._system_prompt = system_prompt
         self._max_tokens = max_tokens
@@ -61,6 +85,19 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
         stream: bool = True,
         **kwargs: Any,
     ) -> AsyncGenerator[str, None]:
+        """
+        Generate response(s) given a user input.
+
+        Parameters
+        ----------
+        user_input
+            The user input to generate responses for.
+        stream
+            Whether to stream the responses.
+        kwargs
+            Additional arguments to pass to the Anthropic's `messages.create()`
+            method.
+        """
         self._add_message({"role": "user", "content": user_input})
         while True:
             async for chunk in self._submit_messages(stream, **kwargs):
@@ -143,6 +180,14 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
             self._add_message(msg)
 
     def messages(self) -> list["MessageParam"]:
+        """
+        Get the messages in the chat.
+
+        Returns
+        -------
+        list[MessageParam]
+            The messages in the chat.
+        """
         return self._messages
 
     def _add_message(self, message: "MessageParam"):
@@ -157,6 +202,24 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
         description: Optional[str] = None,
         parameter_descriptions: Optional[dict[str, str]] = None,
     ) -> None:
+        """
+        Register a tool to use in the chat.
+
+        Parameters
+        ----------
+        func
+            The tool function (i.e., a Python function).
+        schema
+            The schema for the tool. If not provided, it will be auto-generated from
+            the function.
+        name
+            The name of the tool. If not provided, it will be taken from the function.
+        description
+            The description of the tool. If not provided, it will be taken from the
+            function's docstring.
+        parameter_descriptions
+            The descriptions of the parameters of the tool.
+        """
         if schema is None:
             final_schema = self._transform_tool_schema(
                 func_to_schema(func, name, description, parameter_descriptions)

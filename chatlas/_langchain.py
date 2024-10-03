@@ -21,6 +21,19 @@ class LangChainChat(BaseChat["BaseMessage"]):
         system_prompt: Optional[str] = None,
         tools: Iterable[ToolFunction] = (),
     ) -> None:
+        """
+        Start a chat powered by LangChain.
+
+        Parameters
+        ----------
+        model
+            The chat model or runnable to use for the chat.
+        system_prompt
+            A system prompt to use for the chat.
+        tools
+            A list of tools (i.e., function calls) to use for the chat.
+        """
+
         try:
             import langchain_core  # noqa: F401
         except ImportError:
@@ -55,6 +68,20 @@ class LangChainChat(BaseChat["BaseMessage"]):
         stream: bool = True,
         **kwargs: Any,
     ) -> AsyncGenerator[str, None]:
+        """
+        Generate response(s) given a user input.
+
+        Parameters
+        ----------
+        user_input
+            The user input to generate responses for.
+        stream
+            Whether to stream the responses or not.
+        kwargs
+            Additional keyword arguments passed to the chat model's
+            `ainvoke()`/`astream()` method.
+        """
+
         from langchain_core.messages import HumanMessage
 
         self._add_message(HumanMessage(content=user_input))
@@ -115,6 +142,20 @@ class LangChainChat(BaseChat["BaseMessage"]):
                 yield content
 
     def messages(self, *, include_system_prompt: bool = False) -> list["BaseMessage"]:
+        """
+        Get the messages in the chat.
+
+        Parameters
+        ----------
+        include_system_prompt
+            Whether to include the system prompt in the messages or not.
+
+        Returns
+        -------
+        list[BaseMessage]
+            The messages in the chat.
+        """
+
         if not include_system_prompt:
             return self._messages
         if not self._system_prompt:

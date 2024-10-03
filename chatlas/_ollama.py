@@ -31,6 +31,22 @@ class OllamaChat(BaseChatWithTools["Message"]):
         tools: Iterable[ToolFunction] = (),
         client: "AsyncClient | None" = None,
     ) -> None:
+        """
+        Start a chat powered by Ollama.
+
+        Parameters
+        ----------
+        model
+            The model to use for the chat.
+        system_prompt
+            A system prompt to use for the chat.
+        tools
+            A list of tools (i.e., function calls) to make available in the
+            chat.
+        client
+            An `ollama.AsyncClient` instance to use for the chat. Use this to
+            customize stuff like `host`, `timeout`, etc.
+        """
         self._model = model
         self._system_prompt = system_prompt
         for tool in tools:
@@ -57,6 +73,20 @@ class OllamaChat(BaseChatWithTools["Message"]):
         stream: bool = True,
         **kwargs: Any,
     ) -> AsyncGenerator[str, None]:
+        """
+        Generate response(s) given a user input.
+
+        Parameters
+        ----------
+        user_input
+            The user input to generate a response for.
+        stream
+            Whether to stream the response.
+        kwargs
+            Additional keyword arguments to pass to the Ollama client's
+            `.chat()` method.
+        """
+
         self._add_message({"role": "user", "content": user_input})
         while True:
             async for chunk in self._submit_messages(stream, **kwargs):
@@ -85,6 +115,7 @@ class OllamaChat(BaseChatWithTools["Message"]):
                 messages=self.messages(include_system_prompt=True),
                 tools=tools,
                 stream=True,
+                **kwargs,
             )
 
             result: "Message | None" = None
@@ -111,6 +142,7 @@ class OllamaChat(BaseChatWithTools["Message"]):
                 messages=self.messages(include_system_prompt=True),
                 tools=tools,
                 stream=False,
+                **kwargs,
             )
 
             # .chat() returns a generic dict, but it seems safe to assume it's a ChatResponse
@@ -126,9 +158,27 @@ class OllamaChat(BaseChatWithTools["Message"]):
                 self._add_message(message)
 
     def messages(self, *, include_system_prompt: bool = False) -> list["Message"]:
+        """
+        Get the messages in the chat.
+
+        Parameters
+        ----------
+        include_system_prompt
+            Whether to include the system prompt in the messages.
+
+        Returns
+        -------
+        list[Message]
+            The messages in the chat
+        """
+
         if include_system_prompt and self._system_prompt is not None:
-            return [{"role": "system", "content": self._system_prompt}, *self._messages]
-        return self._messages
+            return [
+                {"role": "system", "content": self._system_prompt},
+                *self._messages,
+            ]
+        else:
+            return self._messages
 
     def _add_message(self, message: "Message") -> None:
         self._messages.append(message)
@@ -145,6 +195,25 @@ class OllamaChat(BaseChatWithTools["Message"]):
         description: Optional[str] = None,
         parameter_descriptions: Optional[dict[str, str]] = None,
     ):
+        """
+        Register a tool to use in the chat.
+
+        Parameters
+        ----------
+        func
+            The tool function to register.
+        schema
+            The tool schema to use. If not provided, it will be auto-generated from
+            the function.
+        name
+            The name of the tool. If not provided, it will be taken from the
+            function.
+        description
+            The description of the tool. If not provided, it will be taken from
+            the function's docstring.
+        parameter_descriptions
+            Descriptions for the parameters of the tool function
+        """
         if schema is None:
             final_schema = self._transform_tool_schema(
                 func_to_schema(func, name, description, parameter_descriptions)

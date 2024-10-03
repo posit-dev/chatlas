@@ -31,6 +31,28 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
         tools: Iterable[ToolFunction] = (),
         client: "AsyncOpenAI | None" = None,
     ):
+        """
+        Start a chat powered by OpenAI
+
+        Parameters
+        ----------
+        api_key
+            Your OpenAI API key.
+        model
+            The model to use for the chat.
+        system_prompt
+            A system prompt to use for the chat.
+        tools
+            A list of tools (i.e., function calls) to use for the chat.
+        client
+            An `openai.AsyncOpenAI` client instance to use for the chat. Use
+            this to customize stuff like `base_url`, `timeout`, etc.
+
+        Raises
+        ------
+        ImportError
+            If the `openai` package is not installed.
+        """
         self._model = model
         self._system_prompt = system_prompt
         for tool in tools:
@@ -61,6 +83,19 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
         stream: bool = True,
         **kwargs: Any,
     ) -> AsyncGenerator[str, None]:
+        """
+        Generate response(s) given a user input.
+
+        Parameters
+        ----------
+        user_input
+            The user input to the chat.
+        stream
+            Whether to stream the responses.
+        kwargs
+            Additional parameters to pass to the OpenAI's
+            `chat.completions.create` method.
+        """
         self._add_message({"role": "user", "content": user_input})
         while True:
             async for chunk in self._submit_messages(stream, **kwargs):
@@ -87,7 +122,6 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
                 stream=True,
                 **kwargs,
             )
-            # TODO: refusal handler?
             result = None
             async for chunk in response:
                 d = chunk.choices[0].delta
@@ -108,7 +142,6 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
                 stream=False,
                 **kwargs,
             )
-            # TODO: refusal handler?
             message = response.choices[0].message
             msg = ChatCompletionAssistantMessageParam(**message.model_dump())
             self._add_message(msg)
@@ -119,6 +152,20 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
     def messages(
         self, *, include_system_prompt: bool = False
     ) -> list["ChatCompletionMessageParam"]:
+        """
+        Get the messages in the chat.
+
+        Parameters
+        ----------
+        include_system_prompt
+            Whether to include the system prompt in the messages.
+
+        Returns
+        -------
+        list[ChatCompletionMessageParam]
+            The messages in the chat.
+        """
+
         if include_system_prompt and self._system_prompt is not None:
             return [{"role": "system", "content": self._system_prompt}, *self._messages]
         return self._messages
@@ -139,6 +186,36 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
         parameter_descriptions: Optional[dict[str, str]] = None,
         strict: bool = False,
     ):
+        """
+        Register a tool to use in the chat.
+
+        Parameters
+        ----------
+        func
+            The tool function (i.e., a Python function).
+        schema
+            The tool schema to use. If not provided, it will be auto-generated from
+            the function.
+        name
+            The name of the tool. If not provided, it will be taken from the
+            function.
+        description
+            The description of the tool. If not provided, it will be taken from
+            the function's docstring.
+        parameter_descriptions
+            Descriptions for the parameters of the tool function.
+        strict
+            Whether to use strict mode for the tool.
+
+        Raises
+        ------
+        ValueError
+            If the tool name is already registered
+        ValueError
+            If the tool schema is invalid
+        ValueError
+            If the result of calling the tool results in an error
+        """
         if schema is None:
             final_schema = self._transform_tool_schema(
                 func_to_schema(func, name, description, parameter_descriptions),
