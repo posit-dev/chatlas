@@ -87,7 +87,7 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
                 stream=True,
                 **kwargs,
             )
-            # TODO: handle refusal?
+            # TODO: refusal handler?
             result = None
             async for chunk in response:
                 d = chunk.choices[0].delta
@@ -108,7 +108,7 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
                 stream=False,
                 **kwargs,
             )
-            # TODO: handle refusal?
+            # TODO: refusal handler?
             message = response.choices[0].message
             msg = ChatCompletionAssistantMessageParam(**message.model_dump())
             self._add_message(msg)

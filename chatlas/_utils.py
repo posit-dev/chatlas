@@ -132,12 +132,12 @@ def type_to_json_schema(
 
 
 def type_dict(
-    type: str,
+    type_: str,
     description: str | None,
     **kwargs: Any,
 ) -> ToolSchemaProperty:
     res: ToolSchemaProperty = {
-        "type": type,
+        "type": type_,
         "description": description or "",
         **kwargs,  # type: ignore
     }

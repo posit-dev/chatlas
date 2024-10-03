@@ -101,7 +101,7 @@ def merge_lists(
                         # TODO: Remove this once merge_dict is updated with special
                         # handling for 'type'.
                         if "type" in e:
-                            e: dict[str, Any] = {
+                            e: dict[str, Any] = {  # noqa: PLW2901
                                 k: v for k, v in e.items() if k != "type"
                             }
                         merged[to_merge[0]] = merge_dicts(merged[to_merge[0]], e)

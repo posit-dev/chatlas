@@ -81,7 +81,7 @@ class BaseChat(ABC, Generic[MessageType]):
             fillable_mobile=True,
         )
 
-        def server(input):
+        def server(input):  # noqa: A002
             chat = ui.Chat("chat", messages=self.messages())
 
             @chat.on_user_submit

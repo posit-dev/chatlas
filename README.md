@@ -14,7 +14,7 @@ pip install git+https://github.com/posit-dev/chatlas
 
 ## Get started
 
-To start, you'll need to create an instance of a particular `Chat` [implementation](#implementations).
+To start, you'll need to create an instance of a particular `Chat` [implementation](#chat-implementations).
 For example, to use [Ollama](#ollama), first create the `OllamaChat` object:
 
 ```python
@@ -59,7 +59,7 @@ chat.messages()
 See the [advanced features](#advanced-features) section below for more involved features like tool calling, async, and streaming.
 
 
-## Chat implementations {#implementations}
+## Chat implementations
 
 `chatlas` supports various LLM models from Ollama, Anthropic, OpenAI, and Google out of the box.
 Options like `AnthropicChat` and `OpenAIChat` require an account and API key to use, and also send your input to a remote server for response generation.
@@ -189,6 +189,7 @@ Another option, which makes interactive use easier, is to load your environment 
 ```shell
 export ANTHROPIC_API_KEY=...
 export OPENAI_API_KEY=...
+export GOOGLE_API_KEY=...
 ```
 
 ## Advanced features
@@ -227,7 +228,7 @@ For example, here's some code to write the LLM's response to a (temporary) file:
 
 ```python
 import asyncio
-from chatlas import Anthropic
+from chatlas import AnthropicChat
 import tempfile
 chat = AnthropicChat()
 response = chat.response_generator("What is 1+1?")
@@ -243,4 +244,26 @@ async def main():
         print(f.read())
 
 asyncio.run(main())
+```
+
+
+### Build your own Shiny app
+
+Pass user input from a Shiny `Chat()` component to a `chatlas` response generator to embed a chat interface in your own Shiny app.
+
+```python
+from chatlas import AnthropicChat
+from shiny import ui
+
+chat = ui.Chat(
+  id="chat", 
+  messages=["Hi! How can I help you today?"],
+)
+
+llm = AnthropicChat()
+
+@chat.on_user_submit
+def _(input):
+    response = llm.response_generator(input)
+    chat.append_message_stream(response)
 ```
