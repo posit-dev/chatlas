@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, AsyncGenerator, Optional
 
 from ._abc import BaseChat
-from ._utils import ToolFunction
 
 if TYPE_CHECKING:
     from google.generativeai.types import (
@@ -18,8 +17,6 @@ if TYPE_CHECKING:
 
 class GoogleChat(BaseChat["Content"]):
     _messages: list["Content"] = []
-    _tool_schemas: list["FunctionLibraryType"] = []
-    _tool_functions: dict[str, ToolFunction] = {}
 
     def __init__(
         self,

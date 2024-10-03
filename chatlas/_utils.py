@@ -1,9 +1,16 @@
+import functools
 import inspect
 from types import NoneType
 from typing import (
     Annotated,
     Any,
+    Awaitable,
     Callable,
+    ParamSpec,
+    TypeGuard,
+    TypeVar,
+    Union,
+    cast,
     get_args,
     get_origin,
     get_type_hints,
@@ -12,9 +19,16 @@ from typing import (
 
 from typing_extensions import Literal, Required, TypedDict
 
-__all__ = ("ToolFunction", "ToolSchema", "ToolSchemaFunction", "func_to_schema",)
+__all__ = (
+    "ToolFunction",
+    "ToolSchema",
+    "ToolSchemaFunction",
+    "func_to_schema",
+)
 
-ToolFunction = Callable[..., Any]
+ToolFunctionSync = Callable[..., Any]
+ToolFunctionAsync = Callable[..., Awaitable[Any]]
+ToolFunction = Union[ToolFunctionSync, ToolFunctionAsync]
 
 
 class ToolSchemaProperty(TypedDict, total=False):
@@ -142,3 +156,54 @@ def type_dict(
         **kwargs,  # type: ignore
     }
     return res
+
+
+# Copied from shiny/_utils.py
+
+R = TypeVar("R")  # Return type
+P = ParamSpec("P")
+
+
+def wrap_async(
+    fn: Callable[P, R] | Callable[P, Awaitable[R]],
+) -> Callable[P, Awaitable[R]]:
+    """
+    Given a synchronous function that returns R, return an async function that wraps the
+    original function. If the input function is already async, then return it unchanged.
+    """
+
+    if is_async_callable(fn):
+        return fn
+
+    fn = cast(Callable[P, R], fn)
+
+    @functools.wraps(fn)
+    async def fn_async(*args: P.args, **kwargs: P.kwargs) -> R:
+        return fn(*args, **kwargs)
+
+    return fn_async
+
+
+def is_async_callable(
+    obj: Callable[P, R] | Callable[P, Awaitable[R]],
+) -> TypeGuard[Callable[P, Awaitable[R]]]:
+    """
+    Determine if an object is an async function.
+
+    This is a more general version of `inspect.iscoroutinefunction()`, which only works
+    on functions. This function works on any object that has a `__call__` method, such
+    as a class instance.
+
+    Returns
+    -------
+    :
+        Returns True if `obj` is an `async def` function, or if it's an object with a
+        `__call__` method which is an `async def` function.
+    """
+    if inspect.iscoroutinefunction(obj):
+        return True
+    if hasattr(obj, "__call__"):  # noqa: B004
+        if inspect.iscoroutinefunction(obj.__call__):  # type: ignore
+            return True
+
+    return False

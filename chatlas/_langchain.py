@@ -1,6 +1,7 @@
 import json
 from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, Sequence
 
+from . import _utils
 from ._abc import BaseChat
 from ._utils import ToolFunction
 
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
 
 class LangChainChat(BaseChat["BaseMessage"]):
     _messages: list["BaseMessage"] = []
-    _tool_functions: dict[str, ToolFunction] = {}
+    _tool_functions: dict[str, _utils.ToolFunctionAsync] = {}
 
     def __init__(
         self,
@@ -56,7 +57,7 @@ class LangChainChat(BaseChat["BaseMessage"]):
             model = model.bind_tools([tool(func) for func in tools])
             for func in tools:
                 name = func.__name__
-                self._tool_functions[name] = func
+                self._tool_functions[name] = _utils.wrap_async(func)
 
         self._system_prompt = system_prompt
         self.model = model
@@ -88,7 +89,7 @@ class LangChainChat(BaseChat["BaseMessage"]):
         while True:
             async for chunk in self._submit_messages(stream, **kwargs):
                 yield chunk
-            if not self._invoke_tools():
+            if not await self._invoke_tools():
                 break
 
     async def _submit_messages(
@@ -179,27 +180,27 @@ class LangChainChat(BaseChat["BaseMessage"]):
     def _add_message(self, message: "BaseMessage") -> None:
         self._messages.append(message)
 
-    def _invoke_tools(self) -> bool:
+    async def _invoke_tools(self) -> bool:
         if self._tool_functions:
             from langchain_core.messages import AIMessage
 
             last = self.messages()[-1]
             assert isinstance(last, AIMessage)
-            tool_messages = self._call_tools(last)
+            tool_messages = await self._call_tools(last)
             if len(tool_messages) > 0:
                 self._add_messages(tool_messages)
                 return True
         return False
 
-    def _call_tools(self, last_message: "AIMessage") -> list["ToolMessage"]:
+    async def _call_tools(self, last_message: "AIMessage") -> list["ToolMessage"]:
         tool_calls = last_message.tool_calls
         res: list["ToolMessage"] = []
         for x in tool_calls:
-            msg = self._call_tool(x)
+            msg = await self._call_tool(x)
             res.append(msg)
         return res
 
-    def _call_tool(self, tool_call: "ToolCall") -> "ToolMessage":
+    async def _call_tool(self, tool_call: "ToolCall") -> "ToolMessage":
         from langchain_core.messages import ToolMessage
 
         name = tool_call["name"]
@@ -215,7 +216,7 @@ class LangChainChat(BaseChat["BaseMessage"]):
             )
 
         try:
-            result = tool_fun(**args)
+            result = await tool_fun(**args)
         except Exception as e:
             raise ValueError(f"Error calling tool {name}: {e}")
 

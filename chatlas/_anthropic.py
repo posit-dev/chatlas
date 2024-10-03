@@ -1,8 +1,9 @@
 import json
 from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, cast
 
+from . import _utils
 from ._abc import BaseChatWithTools
-from ._utils import ToolFunction, ToolSchema, func_to_schema
+from ._utils import ToolFunction
 
 if TYPE_CHECKING:
     from anthropic import AsyncAnthropic
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 class AnthropicChat(BaseChatWithTools["MessageParam"]):
     _messages: list["MessageParam"] = []
     _tool_schemas: list["ToolParam"] = []
-    _tool_functions: dict[str, ToolFunction] = {}
+    _tool_functions: dict[str, _utils.ToolFunctionAsync] = {}
 
     def __init__(
         self,
@@ -102,7 +103,7 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
         while True:
             async for chunk in self._submit_messages(stream, **kwargs):
                 yield chunk
-            if not self._invoke_tools():
+            if not await self._invoke_tools():
                 break
 
     async def _submit_messages(
@@ -222,7 +223,7 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
         """
         if schema is None:
             final_schema = self._transform_tool_schema(
-                func_to_schema(func, name, description, parameter_descriptions)
+                _utils.func_to_schema(func, name, description, parameter_descriptions)
             )
         else:
             final_schema = schema
@@ -231,11 +232,11 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
 
         self._tool_schemas = [x for x in self._tool_schemas if x["name"] != name]
         self._tool_schemas.append(final_schema)
-        self._tool_functions[name] = func
+        self._tool_functions[name] = _utils.wrap_async(func)
 
     @staticmethod
     def _transform_tool_schema(
-        tool: ToolSchema,
+        tool: _utils.ToolSchema,
     ) -> "ToolParam":
         fn = tool["function"]
         name = fn["name"]
@@ -248,17 +249,17 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
             },
         }
 
-    def _invoke_tools(self) -> bool:
+    async def _invoke_tools(self) -> bool:
         if self._tool_functions:
             last = self.messages()[-1]
             assert last["role"] == "assistant"
-            tool_messages = self._call_tools(last)
+            tool_messages = await self._call_tools(last)
             if tool_messages:
                 self._add_message(tool_messages)
                 return True
         return False
 
-    def _call_tools(self, last_message: "MessageParam") -> "MessageParam | None":
+    async def _call_tools(self, last_message: "MessageParam") -> "MessageParam | None":
         from anthropic.types import ToolUseBlock
 
         contents = last_message["content"]
@@ -267,14 +268,14 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
         tool_calls = [x for x in contents if isinstance(x, ToolUseBlock)]
         results: list["ToolResultBlockParam"] = []
         for x in tool_calls:
-            msg = self._call_tool(x)
+            msg = await self._call_tool(x)
             results.append(msg)
         if len(results) == 0:
             return None
         res: "MessageParam" = {"content": results, "role": "user"}
         return res
 
-    def _call_tool(
+    async def _call_tool(
         self,
         tool_call: "ToolUseBlock",
     ) -> "ToolResultBlockParam":
@@ -297,7 +298,7 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
             )
 
         try:
-            result = tool_fun(**args)
+            result = await tool_fun(**args)
         except Exception as e:
             raise ValueError(f"Error calling tool {name}: {e}")
 

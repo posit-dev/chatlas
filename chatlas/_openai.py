@@ -1,9 +1,10 @@
 import json
 from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, Sequence
 
+from . import _utils
 from ._abc import BaseChatWithTools
 from ._merge import merge_dicts
-from ._utils import ToolFunction, ToolSchema, func_to_schema
+from ._utils import ToolFunction
 
 if TYPE_CHECKING:
     from openai import AsyncOpenAI
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
 class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
     _messages: list["ChatCompletionMessageParam"] = []
     _tool_schemas: list["ChatCompletionToolParam"] = []
-    _tool_functions: dict[str, ToolFunction] = {}
+    _tool_functions: dict[str, _utils.ToolFunctionAsync] = {}
 
     def __init__(
         self,
@@ -100,7 +101,7 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
         while True:
             async for chunk in self._submit_messages(stream, **kwargs):
                 yield chunk
-            if not self._invoke_tools():
+            if not await self._invoke_tools():
                 break
 
     async def _submit_messages(
@@ -218,7 +219,7 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
         """
         if schema is None:
             final_schema = self._transform_tool_schema(
-                func_to_schema(func, name, description, parameter_descriptions),
+                _utils.func_to_schema(func, name, description, parameter_descriptions),
                 strict=strict,
             )
         else:
@@ -230,11 +231,11 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
             x for x in self._tool_schemas if x["function"]["name"] != name
         ]
         self._tool_schemas.append(final_schema)
-        self._tool_functions[name] = func
+        self._tool_functions[name] = _utils.wrap_async(func)
 
     @staticmethod
     def _transform_tool_schema(
-        tool: "ToolSchema", strict: bool = False
+        tool: "_utils.ToolSchema", strict: bool = False
     ) -> "ChatCompletionToolParam":
         fn = tool["function"]
         name = fn["name"]
@@ -252,17 +253,17 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
             },
         }
 
-    def _invoke_tools(self) -> bool:
+    async def _invoke_tools(self) -> bool:
         if self._tool_functions:
             last = self.messages()[-1]
             assert last["role"] == "assistant"
-            tool_messages = self._call_tools(last)
+            tool_messages = await self._call_tools(last)
             if len(tool_messages) > 0:
                 self._add_messages(tool_messages)
                 return True
         return False
 
-    def _call_tools(
+    async def _call_tools(
         self, last_message: "ChatCompletionAssistantMessageParam"
     ) -> Sequence["ChatCompletionToolMessageParam"]:
         tool_calls = last_message.get("tool_calls", None)
@@ -270,11 +271,11 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
             return []
         res: list["ChatCompletionToolMessageParam"] = []
         for x in tool_calls:
-            msg = self._call_tool(x)
+            msg = await self._call_tool(x)
             res.append(msg)
         return res
 
-    def _call_tool(
+    async def _call_tool(
         self,
         tool_call: "ChatCompletionMessageToolCallParam",
     ) -> "ChatCompletionToolMessageParam":
@@ -290,7 +291,7 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
             raise ValueError(f"Invalid JSON arguments for tool {name}")
 
         try:
-            result = tool_fun(**args)
+            result = await tool_fun(**args)
         except Exception as e:
             raise ValueError(f"Error calling tool {name}: {e}")
 
