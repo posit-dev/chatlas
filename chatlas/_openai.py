@@ -1,9 +1,10 @@
 import json
-from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, Sequence
+from typing import TYPE_CHECKING, AsyncGenerator, Iterable, Optional, Sequence
 
 from . import _utils
 from ._abc import BaseChatWithTools
 from ._merge import merge_dicts
+from ._openai_types import CreateCompletion
 from ._utils import ToolFunction
 
 if TYPE_CHECKING:
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
     from openai.types.chat_model import ChatModel
 
 
-class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
+class OpenAIChat(BaseChatWithTools["CreateCompletion"]):
     _messages: list["ChatCompletionMessageParam"] = []
     _tool_schemas: list["ChatCompletionToolParam"] = []
     _tool_functions: dict[str, _utils.ToolFunctionAsync] = {}
@@ -75,14 +76,12 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
                 "Install it with `pip install openai`."
             )
 
-    # TODO: make this an overloads (based on stream) and
-    # suitable TypeDicts on kwargs
     async def response_generator(
         self,
         user_input: str,
         *,
         stream: bool = True,
-        **kwargs: Any,
+        kwargs: Optional[CreateCompletion] = None,
     ) -> AsyncGenerator[str, None]:
         """
         Generate response(s) given a user input.
@@ -99,7 +98,7 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
         """
         self._add_message({"role": "user", "content": user_input})
         while True:
-            async for chunk in self._submit_messages(stream, **kwargs):
+            async for chunk in self._submit_messages(stream, kwargs):
                 yield chunk
             if not await self._invoke_tools():
                 break
@@ -107,21 +106,25 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
     async def _submit_messages(
         self,
         stream: bool,
-        **kwargs: Any,
+        kwargs: Optional[CreateCompletion] = None,
     ) -> AsyncGenerator[str, None]:
         from openai.types.chat import ChatCompletionAssistantMessageParam
 
+        if kwargs is None:
+            kwargs = {}
+
         model = kwargs.pop("model", self._model)
-        tools: list["ChatCompletionToolParam"] = kwargs.pop("tools", [])
+        tools = kwargs.pop("tools", [])
+        tools = list(tools or [])
         tools.extend(self._tool_schemas)
 
         if stream:
             response = await self.client.chat.completions.create(
                 messages=self.messages(include_system_prompt=True),
                 model=model,
-                tools=tools if tools else None,  # type: ignore
+                tools=tools,
                 stream=True,
-                **kwargs,
+                **kwargs,  # type: ignore
             )
             result = None
             async for chunk in response:
@@ -139,9 +142,9 @@ class OpenAIChat(BaseChatWithTools["ChatCompletionMessageParam"]):
             response = await self.client.chat.completions.create(
                 messages=self.messages(include_system_prompt=True),
                 model=model,
-                tools=tools if tools else None,  # type: ignore
+                tools=tools,
                 stream=False,
-                **kwargs,
+                **kwargs,  # type: ignore
             )
             message = response.choices[0].message
             msg = ChatCompletionAssistantMessageParam(**message.model_dump())

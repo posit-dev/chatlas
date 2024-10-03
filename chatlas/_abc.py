@@ -4,16 +4,17 @@ from typing import Any, AsyncGenerator, Generic, Optional, TypeVar
 
 from ._utils import ToolFunction
 
-MessageType = TypeVar("MessageType")
+Kwargs = TypeVar("Kwargs")
 
 
-class BaseChat(ABC, Generic[MessageType]):
+class BaseChat(ABC, Generic[Kwargs]):
     @abstractmethod
     async def response_generator(
         self,
         user_input: str,
         *,
         stream: bool = True,
+        kwargs: Kwargs = None,
     ) -> AsyncGenerator[str, None]:
         """
         Generate a response from user input.
@@ -24,6 +25,9 @@ class BaseChat(ABC, Generic[MessageType]):
             The user input to generate a response from.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
+        kwargs
+            Additional keyword arguments to pass to the method used for requesting
+            the response.
 
         Yields
         ------
@@ -33,7 +37,7 @@ class BaseChat(ABC, Generic[MessageType]):
         ...
 
     @abstractmethod
-    def messages(self) -> list[MessageType]:
+    def messages(self) -> list[Any]:
         """
         Get messages from the chat conversation.
 
@@ -44,9 +48,20 @@ class BaseChat(ABC, Generic[MessageType]):
         """
         ...
 
-    def console(self):
+    def console(
+        self,
+        *,
+        stream: bool = True,
+        kwargs: Kwargs = None,
+    ):
         """
         Enter a chat console to interact with the LLM.
+
+        Press Ctrl+C to quit.
+
+        Returns
+        -------
+        None
         """
 
         print("\nEntering chat console. Press Ctrl+C to quit.\n")
@@ -60,10 +75,16 @@ class BaseChat(ABC, Generic[MessageType]):
             if user_input.strip().lower() in ("exit", "exit()"):
                 break
             print("")
-            self._chat(user_input, loop=loop)
+            self._chat(user_input, loop=loop, stream=stream, kwargs=kwargs)
             print("")
 
-    def app(self, *, launch_browser: bool = True, port: int = 0):
+    def app(
+        self,
+        *,
+        launch_browser: bool = True,
+        port: int = 0,
+        kwargs: Kwargs = None,
+    ):
         """
         Enter a chat browser to interact with the LLM.
         """
@@ -87,16 +108,21 @@ class BaseChat(ABC, Generic[MessageType]):
             @chat.on_user_submit
             async def _():
                 user_input = chat.user_input()
-                response = self.response_generator(user_input)  # type: ignore
+                response = self.response_generator(user_input, kwargs=kwargs)
                 await chat.append_message_stream(response)
 
-        run_app(App(app_ui, server), launch_browser=launch_browser)
+        run_app(
+            App(app_ui, server),
+            launch_browser=launch_browser,
+            port=port,
+        )
 
     def chat(
         self,
         user_input: str,
         *,
         stream: bool = True,
+        kwargs: Kwargs = None,
     ):
         """
         Chat with the LLM.
@@ -107,6 +133,9 @@ class BaseChat(ABC, Generic[MessageType]):
             The user input to chat with.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
+        kwargs
+            Additional keyword arguments to pass to the method used for requesting
+            the response.
 
         Returns
         -------
@@ -114,7 +143,7 @@ class BaseChat(ABC, Generic[MessageType]):
         """
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        return self._chat(user_input, stream=stream, loop=loop)
+        return self._chat(user_input, stream=stream, loop=loop, kwargs=kwargs)
 
     def _chat(
         self,
@@ -122,12 +151,17 @@ class BaseChat(ABC, Generic[MessageType]):
         *,
         stream: bool = True,
         loop: asyncio.AbstractEventLoop,
+        kwargs: Kwargs = None,
     ):
         from rich.console import Console
         from rich.live import Live
         from rich.markdown import Markdown
 
-        response = self.response_generator(user_input, stream=stream)
+        response = self.response_generator(
+            user_input,
+            stream=stream,
+            kwargs=kwargs,
+        )
 
         async def _send_response_to_console():
             console = Console()
@@ -142,7 +176,7 @@ class BaseChat(ABC, Generic[MessageType]):
         return loop.run_until_complete(_send_response_to_console())
 
 
-class BaseChatWithTools(BaseChat[MessageType]):
+class BaseChatWithTools(BaseChat[Kwargs]):
     @abstractmethod
     def register_tool(
         self,
@@ -152,7 +186,23 @@ class BaseChatWithTools(BaseChat[MessageType]):
         name: Optional[str] = None,
         description: Optional[str] = None,
         parameter_descriptions: Optional[dict[str, str]] = None,
-    ) -> None: ...
+    ) -> None:
+        """
+        Register a tool with the chat.
+
+        Parameters
+        ----------
+        func
+            The tool function to register.
+        schema
+            The schema of the tool.
+        name
+            The name of the tool. If not provided, the name of the function is used.
+        description
+            The description of the tool. If not provided, the docstring of the function is used.
+        parameter_descriptions
+            The descriptions of the parameters of the tool.
+        """
 
 
 # def _get_token_count(

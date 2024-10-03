@@ -1,17 +1,10 @@
 import json
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    AsyncGenerator,
-    Iterable,
-    Optional,
-    Sequence,
-    cast,
-)
+from typing import TYPE_CHECKING, AsyncGenerator, Iterable, Optional, Sequence, cast
 
 from . import _utils
 from ._abc import BaseChatWithTools
 from ._merge import merge_dicts
+from ._ollama_types import ChatCompletion
 from ._utils import ToolFunction
 
 if TYPE_CHECKING:
@@ -19,7 +12,7 @@ if TYPE_CHECKING:
     from ollama._types import ChatResponse, Tool, ToolCall
 
 
-class OllamaChat(BaseChatWithTools["Message"]):
+class OllamaChat(BaseChatWithTools["ChatCompletion"]):
     _messages: list["Message"] = []
     _tool_schemas: list["Tool"] = []
     _tool_functions: dict[str, _utils.ToolFunctionAsync] = {}
@@ -72,7 +65,7 @@ class OllamaChat(BaseChatWithTools["Message"]):
         user_input: str,
         *,
         stream: bool = True,
-        **kwargs: Any,
+        kwargs: Optional[ChatCompletion] = None,
     ) -> AsyncGenerator[str, None]:
         """
         Generate response(s) given a user input.
@@ -90,7 +83,7 @@ class OllamaChat(BaseChatWithTools["Message"]):
 
         self._add_message({"role": "user", "content": user_input})
         while True:
-            async for chunk in self._submit_messages(stream, **kwargs):
+            async for chunk in self._submit_messages(stream, kwargs):
                 yield chunk
             if not await self._invoke_tools():
                 break
@@ -98,10 +91,14 @@ class OllamaChat(BaseChatWithTools["Message"]):
     async def _submit_messages(
         self,
         stream: bool,
-        **kwargs: Any,
+        kwargs: Optional[ChatCompletion] = None,
     ) -> AsyncGenerator[str, None]:
+        if kwargs is None:
+            kwargs = {}
+
         model = kwargs.pop("model", self._model)
-        tools: list["Tool"] = kwargs.pop("tools", [])
+        tools = kwargs.pop("tools", [])
+        tools = list(tools or [])
         tools.extend(self._tool_schemas)
 
         if stream:
@@ -116,7 +113,7 @@ class OllamaChat(BaseChatWithTools["Message"]):
                 messages=self.messages(include_system_prompt=True),
                 tools=tools,
                 stream=True,
-                **kwargs,
+                **kwargs,  # type: ignore
             )
 
             result: "Message | None" = None
@@ -143,7 +140,7 @@ class OllamaChat(BaseChatWithTools["Message"]):
                 messages=self.messages(include_system_prompt=True),
                 tools=tools,
                 stream=False,
-                **kwargs,
+                **kwargs,  # type: ignore
             )
 
             # .chat() returns a generic dict, but it seems safe to assume it's a ChatResponse

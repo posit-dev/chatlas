@@ -1,8 +1,9 @@
 import json
-from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, cast
+from typing import TYPE_CHECKING, AsyncGenerator, Iterable, Optional, cast
 
 from . import _utils
 from ._abc import BaseChatWithTools
+from ._anthropic_types import CreateCompletion
 from ._utils import ToolFunction
 
 if TYPE_CHECKING:
@@ -18,7 +19,7 @@ if TYPE_CHECKING:
     )
 
 
-class AnthropicChat(BaseChatWithTools["MessageParam"]):
+class AnthropicChat(BaseChatWithTools["CreateCompletion"]):
     _messages: list["MessageParam"] = []
     _tool_schemas: list["ToolParam"] = []
     _tool_functions: dict[str, _utils.ToolFunctionAsync] = {}
@@ -84,7 +85,7 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
         user_input: str,
         *,
         stream: bool = True,
-        **kwargs: Any,
+        kwargs: Optional[CreateCompletion] = None,
     ) -> AsyncGenerator[str, None]:
         """
         Generate response(s) given a user input.
@@ -101,18 +102,25 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
         """
         self._add_message({"role": "user", "content": user_input})
         while True:
-            async for chunk in self._submit_messages(stream, **kwargs):
+            async for chunk in self._submit_messages(stream, kwargs):
                 yield chunk
             if not await self._invoke_tools():
                 break
 
     async def _submit_messages(
-        self, stream: bool, **kwargs: Any
+        self,
+        stream: bool = True,
+        kwargs: Optional[CreateCompletion] = None,
     ) -> AsyncGenerator[str, None]:
-        model: "Model" = kwargs.pop("model", self._model)
-        max_tokens: int = kwargs.pop("max_tokens", self._max_tokens)
-        if len(self._tool_schemas) > 0:
-            kwargs["tools"] = kwargs.get("tools", []) + self._tool_schemas
+        if kwargs is None:
+            kwargs = {}
+
+        model = kwargs.pop("model", self._model)
+        max_tokens = kwargs.pop("max_tokens", self._max_tokens)
+        tools = kwargs.pop("tools", [])
+        tools = list(tools or [])
+        tools.extend(self._tool_schemas)
+
         if self._system_prompt is not None:
             kwargs["system"] = kwargs.get("system", self._system_prompt)
 
@@ -121,8 +129,9 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
                 model=model,
                 messages=self.messages(),
                 max_tokens=max_tokens,
+                tools=tools,
                 stream=True,
-                **kwargs,
+                **kwargs,  # type: ignore
             )
 
             # Accumulate content blocks until the end of the stream
@@ -165,8 +174,9 @@ class AnthropicChat(BaseChatWithTools["MessageParam"]):
                 model=model,
                 messages=self.messages(),
                 max_tokens=max_tokens,
+                tools=tools,
                 stream=False,
-                **kwargs,
+                **kwargs,  # type: ignore
             )
 
             for x in response.content:

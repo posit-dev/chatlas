@@ -13,6 +13,9 @@ test = [
     "pyright>=1.1.379",
     "pytest>=8.3.2",
 ]
+dev = [
+    "ruff>=0.6.5"
+]
 full = [
   "python-dotenv",
   "shiny",
