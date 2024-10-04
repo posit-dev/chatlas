@@ -76,7 +76,7 @@ ollama run llama-3.2
 You'll also want the Python package:
 
 ```shell
-pip install olama
+pip install ollama
 ```
 
 Now, you're read to chat via `chatlas`:
@@ -140,7 +140,26 @@ chat = GoogleChat(api_key="...")
 chat.console()
 ```
 
-### Role your own
+### LangChain
+
+To use LangChain's [chat models](https://python.langchain.com/docs/integrations/chat/), you'll need to follow the relevant setup instructions ([for example](https://python.langchain.com/docs/integrations/chat/openai/#setup))
+You'll also want the relevant Python packages:
+
+```shell
+pip install langchain langchain-openai
+```
+
+Then, once you have a chat model instance, pass it to the `LangChainChat` constructor:
+
+```python
+from chatlas import LangChainChat
+from langchain_openai import OpenAIChat
+
+chat = LangChainChat(OpenAIChat())
+chat.console()
+```
+
+### Roll your own
 
 You can also use your own models by implementing the `BaseChat` interface.
 This is a good option if you're motivated to add support for model(s) not yet supported by `chatlas`.
