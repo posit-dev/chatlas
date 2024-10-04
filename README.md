@@ -263,7 +263,7 @@ chat = ui.Chat(
 llm = AnthropicChat()
 
 @chat.on_user_submit
-def _(input):
-    response = llm.response_generator(input)
+def _(message):
+    response = llm.response_generator(message)
     chat.append_message_stream(response)
 ```
