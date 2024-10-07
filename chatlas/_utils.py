@@ -1,5 +1,7 @@
+import asyncio
 import functools
 import inspect
+from contextlib import contextmanager
 from types import NoneType
 from typing import (
     Annotated,
@@ -207,3 +209,17 @@ def is_async_callable(
             return True
 
     return False
+
+
+@contextmanager
+def temporary_event_loop():
+    """A context manager that sets the event loop for the duration of the context."""
+    old_loop = asyncio.get_event_loop()
+    new_loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(new_loop)
+    try:
+        yield new_loop
+    finally:
+        asyncio.set_event_loop(old_loop)
+        if not new_loop:
+            new_loop.close()

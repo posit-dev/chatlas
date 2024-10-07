@@ -2,7 +2,7 @@ import asyncio
 from abc import ABC, abstractmethod
 from typing import Any, AsyncGenerator, Generic, Optional, TypeVar
 
-from ._utils import ToolFunction
+from ._utils import ToolFunction, temporary_event_loop
 
 Kwargs = TypeVar("Kwargs")
 
@@ -66,17 +66,14 @@ class BaseChat(ABC, Generic[Kwargs]):
 
         print("\nEntering chat console. Press Ctrl+C to quit.\n")
 
-        # Create event loop once
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-        while True:
-            user_input = input("?> ")
-            if user_input.strip().lower() in ("exit", "exit()"):
-                break
-            print("")
-            self._chat(user_input, loop=loop, stream=stream, kwargs=kwargs)
-            print("")
+        with temporary_event_loop() as loop:
+            while True:
+                user_input = input("?> ")
+                if user_input.strip().lower() in ("exit", "exit()"):
+                    break
+                print("")
+                self._chat(user_input, stream=stream, loop=loop, kwargs=kwargs)
+                print("")
 
     def app(
         self,
@@ -108,6 +105,8 @@ class BaseChat(ABC, Generic[Kwargs]):
             @chat.on_user_submit
             async def _():
                 user_input = chat.user_input()
+                if user_input is None:
+                    return
                 response = self.response_generator(user_input, kwargs=kwargs)
                 await chat.append_message_stream(response)
 
@@ -141,9 +140,8 @@ class BaseChat(ABC, Generic[Kwargs]):
         -------
         None
         """
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        return self._chat(user_input, stream=stream, loop=loop, kwargs=kwargs)
+        with temporary_event_loop() as loop:
+            return self._chat(user_input, stream=stream, loop=loop, kwargs=kwargs)
 
     def _chat(
         self,
@@ -167,11 +165,10 @@ class BaseChat(ABC, Generic[Kwargs]):
             console = Console()
             content = ""
 
-            with Live(console=console, refresh_per_second=10) as live:
+            with Live(console=console, auto_refresh=False) as live:
                 async for part in response:
                     content += part
-                    live.update(Markdown(content))
-                    await asyncio.sleep(0.001)
+                    live.update(Markdown(content), refresh=True)
 
         return loop.run_until_complete(_send_response_to_console())
 
