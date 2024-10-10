@@ -1,16 +1,11 @@
-from typing import TYPE_CHECKING, AsyncGenerator, Optional
+from typing import TYPE_CHECKING, Any, AsyncGenerator, Optional
 
 from ._abc import BaseChat
+from ._utils import ToolFunction
 
 if TYPE_CHECKING:
-    from google.generativeai.types import (
-        ContentType,
-        FunctionLibraryType,
-        GenerationConfigType,
-        RequestOptionsType,
-    )
-    from google.generativeai.types.content_types import ToolConfigType, protos
-    from google.generativeai.types.safety_types import SafetySettingOptions
+    from google.generativeai.types import RequestOptionsType
+    from google.generativeai.types.content_types import protos
 
     Content = protos.Content
 
@@ -23,11 +18,10 @@ class GoogleChat(BaseChat["Content"]):
         *,
         api_key: Optional[str] = None,
         model: str = "gemini-1.5-flash",
-        system_prompt: Optional["ContentType"] = None,
-        tools: Optional["FunctionLibraryType"] = None,
-        tool_config: Optional["ToolConfigType"] = None,
-        safety_settings: Optional["SafetySettingOptions"] = None,
-        generation_config: Optional["GenerationConfigType"] = None,
+        system_prompt: Optional[str] = None,
+        tools: Optional[ToolFunction] = None,
+        api_endpoint: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
         """
         Start a chat powered by Google Generative AI.
@@ -42,12 +36,10 @@ class GoogleChat(BaseChat["Content"]):
             A system prompt to use for the chat.
         tools
             A list of tools (i.e., function calls) to use for the chat.
-        tool_config
-            Configuration for the tools (see `google.generativeai.GenerativeModel` for details).
-        safety_settings
-            Safety settings for the chat (see `google.generativeai.GenerativeModel` for details).
-        generation_config
-            Configuration for the generation process (see `google.generativeai.GenerativeModel` for details).
+        api_endpoint
+            The API endpoint to use.
+        kwargs
+            Additional keyword arguments to pass to the `google.generativeai.GenerativeModel` constructor.
         """
         try:
             from google.generativeai import GenerativeModel
@@ -60,15 +52,13 @@ class GoogleChat(BaseChat["Content"]):
         if api_key is not None:
             import google.generativeai as genai
 
-            genai.configure(api_key=api_key)
+            genai.configure(api_key=api_key, client_options={"api_endpoint": api_endpoint})
 
         self.client = GenerativeModel(
             model_name=model,
             system_instruction=system_prompt,
             tools=tools,
-            tool_config=tool_config,
-            safety_settings=safety_settings,
-            generation_config=generation_config,
+            **kwargs,
         )
 
         # https://github.com/google-gemini/cookbook/blob/main/quickstarts/Function_calling.ipynb

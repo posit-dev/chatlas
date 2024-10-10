@@ -1,5 +1,5 @@
 import json
-from typing import TYPE_CHECKING, AsyncGenerator, Iterable, Optional, cast
+from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, cast
 
 from . import _utils
 from ._abc import BaseChatWithTools
@@ -7,7 +7,6 @@ from ._anthropic_types import CreateCompletion
 from ._utils import ToolFunction
 
 if TYPE_CHECKING:
-    from anthropic import AsyncAnthropic
     from anthropic.types import (
         ContentBlock,
         MessageParam,
@@ -17,6 +16,7 @@ if TYPE_CHECKING:
         ToolResultBlockParam,
         ToolUseBlock,
     )
+    from httpx import URL
 
 
 class AnthropicChat(BaseChatWithTools["CreateCompletion"]):
@@ -29,10 +29,11 @@ class AnthropicChat(BaseChatWithTools["CreateCompletion"]):
         *,
         api_key: Optional[str] = None,
         model: "Model" = "claude-3-5-sonnet-20240620",
-        system_prompt: Optional[str] = None,
         max_tokens: int = 1024,
+        system_prompt: Optional[str] = None,
         tools: Iterable[ToolFunction] = (),
-        client: "AsyncAnthropic | None" = None,
+        base_url: Optional[str | URL] = None,
+        **kwargs: Any,
     ):
         """
         Start a chat powered by Anthropic
@@ -43,42 +44,39 @@ class AnthropicChat(BaseChatWithTools["CreateCompletion"]):
             Your Anthropic API key.
         model
             The model to use for the chat.
-        system_prompt
-            A system prompt to use for the chat.
         max_tokens
             The maximum number of tokens to generate for each response.
+        system_prompt
+            A system prompt to use for the chat.
         tools
             A list of tools (i.e., function calls) to use for the chat.
-        client
-            An `anthropic.AsyncAnthropic` client instance to use for the chat.
-            Use this to customize stuff like `base_url`, `timeout`, etc.
+        base_url
+            The base URL to use for requests.
+        kwargs
+            Additional keyword arguments to pass to the `anthropic.AsyncAnthropic` constructor.
 
         Raises
         ------
         ImportError
             If the `anthropic` package is not installed.
         """
-        self._model = model
-        self._system_prompt = system_prompt
-        self._max_tokens = max_tokens
-        for tool in tools:
-            self.register_tool(tool)
-        if client is None:
-            client = self._get_client()
-        if api_key is not None:
-            client.api_key = api_key
-        self.client = client
-
-    def _get_client(self) -> "AsyncAnthropic":
         try:
             from anthropic import AsyncAnthropic
-
-            return AsyncAnthropic()
         except ImportError:
             raise ImportError(
                 f"The {self.__class__.__name__} class requires the `anthropic` package. "
                 "Please install it with `pip install anthropic`."
             )
+        self._model = model
+        self._system_prompt = system_prompt
+        self._max_tokens = max_tokens
+        for tool in tools:
+            self.register_tool(tool)
+        self.client = AsyncAnthropic(
+            api_key=api_key,
+            base_url=base_url,
+            **kwargs,
+        )
 
     async def response_generator(
         self,

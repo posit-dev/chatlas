@@ -1,5 +1,5 @@
 import json
-from typing import TYPE_CHECKING, AsyncGenerator, Iterable, Optional, Sequence
+from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, Sequence
 
 from . import _utils
 from ._abc import BaseChatWithTools
@@ -8,7 +8,7 @@ from ._openai_types import CreateCompletion
 from ._utils import ToolFunction
 
 if TYPE_CHECKING:
-    from openai import AsyncOpenAI
+    from httpx import URL
     from openai.types.chat import (
         ChatCompletionAssistantMessageParam,
         ChatCompletionMessageParam,
@@ -31,7 +31,8 @@ class OpenAIChat(BaseChatWithTools["CreateCompletion"]):
         model: "ChatModel" = "gpt-4o",
         system_prompt: Optional[str] = None,
         tools: Iterable[ToolFunction] = (),
-        client: "AsyncOpenAI | None" = None,
+        base_url: Optional[str | URL] = None,
+        **kwargs: Any,
     ):
         """
         Start a chat powered by OpenAI
@@ -46,35 +47,34 @@ class OpenAIChat(BaseChatWithTools["CreateCompletion"]):
             A system prompt to use for the chat.
         tools
             A list of tools (i.e., function calls) to use for the chat.
-        client
-            An `openai.AsyncOpenAI` client instance to use for the chat. Use
-            this to customize stuff like `base_url`, `timeout`, etc.
+        base_url
+            The base URL to use for requests.
+        kwargs
+            Additional keyword arguments to pass to the `openai.AsyncOpenAI` constructor.
 
         Raises
         ------
         ImportError
             If the `openai` package is not installed.
         """
-        self._model = model
-        self._system_prompt = system_prompt
-        for tool in tools:
-            self.register_tool(tool)
-        if client is None:
-            client = self._get_client()
-        if api_key is not None:
-            client.api_key = api_key
-        self.client = client
-
-    def _get_client(self) -> "AsyncOpenAI":
         try:
             from openai import AsyncOpenAI
-
-            return AsyncOpenAI()
         except ImportError:
             raise ImportError(
                 f"The {self.__class__.__name__} class requires the `openai` package. "
                 "Install it with `pip install openai`."
             )
+
+        self._model = model
+        self._system_prompt = system_prompt
+        for tool in tools:
+            self.register_tool(tool)
+
+        self.client = AsyncOpenAI(
+            api_key=api_key,
+            base_url=base_url,
+            **kwargs,
+        )
 
     async def response_generator(
         self,

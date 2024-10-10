@@ -30,7 +30,9 @@ __all__ = (
 
 ToolFunctionSync = Callable[..., Any]
 ToolFunctionAsync = Callable[..., Awaitable[Any]]
-ToolFunction = Union[ToolFunctionSync, ToolFunctionAsync]
+ToolFunction = Union[
+    ToolFunctionSync, ToolFunctionAsync
+]  # TODO: support pydantic types?
 
 
 class ToolSchemaProperty(TypedDict, total=False):

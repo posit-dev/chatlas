@@ -1,5 +1,13 @@
 import json
-from typing import TYPE_CHECKING, AsyncGenerator, Iterable, Optional, Sequence, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncGenerator,
+    Iterable,
+    Optional,
+    Sequence,
+    cast,
+)
 
 from . import _utils
 from ._abc import BaseChatWithTools
@@ -8,7 +16,7 @@ from ._ollama_types import ChatCompletion
 from ._utils import ToolFunction
 
 if TYPE_CHECKING:
-    from ollama import AsyncClient, Message
+    from ollama import Message
     from ollama._types import ChatResponse, Tool, ToolCall
 
 
@@ -23,7 +31,8 @@ class OllamaChat(BaseChatWithTools["ChatCompletion"]):
         model: Optional[str] = None,
         system_prompt: Optional[str] = None,
         tools: Iterable[ToolFunction] = (),
-        client: "AsyncClient | None" = None,
+        host: Optional[str] = None,
+        **kwargs: Any,
     ) -> None:
         """
         Start a chat powered by Ollama.
@@ -37,23 +46,17 @@ class OllamaChat(BaseChatWithTools["ChatCompletion"]):
         tools
             A list of tools (i.e., function calls) to make available in the
             chat.
-        client
-            An `ollama.AsyncClient` instance to use for the chat. Use this to
-            customize stuff like `host`, `timeout`, etc.
+        kwargs
+            Additional keyword arguments to pass to the `ollama.AsyncClient` constructor.
         """
         self._model = model
         self._system_prompt = system_prompt
         for tool in tools:
             self.register_tool(tool)
-        if client is None:
-            client = self._get_client()
-        self.client = client
-
-    def _get_client(self) -> "AsyncClient":
         try:
             from ollama import AsyncClient
 
-            return AsyncClient()
+            self.client = AsyncClient(host=host, **kwargs)
         except ImportError:
             raise ImportError(
                 f"The {self.__class__.__name__} class requires the `ollama` package. "
