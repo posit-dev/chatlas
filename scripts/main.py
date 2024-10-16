@@ -2,9 +2,9 @@ import subprocess
 from pathlib import Path
 
 scripts = [
-    "_generate_openai_types.py",
     "_generate_anthropic_types.py",
-    "_generate_ollama_types.py",
+    "_generate_google_types.py",
+    "_generate_openai_types.py",
 ]
 
 absolute_scripts = [Path(__file__).parent / script for script in scripts]

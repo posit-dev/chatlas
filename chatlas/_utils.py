@@ -1,166 +1,8 @@
-import asyncio
 import functools
 import inspect
-from contextlib import contextmanager
-from types import NoneType
-from typing import (
-    Annotated,
-    Any,
-    Awaitable,
-    Callable,
-    ParamSpec,
-    TypeGuard,
-    TypeVar,
-    Union,
-    cast,
-    get_args,
-    get_origin,
-    get_type_hints,
-    is_typeddict,
-)
-
-from typing_extensions import Literal, Required, TypedDict
-
-__all__ = (
-    "ToolFunction",
-    "ToolSchema",
-    "ToolSchemaFunction",
-    "func_to_schema",
-)
-
-ToolFunctionSync = Callable[..., Any]
-ToolFunctionAsync = Callable[..., Awaitable[Any]]
-ToolFunction = Union[
-    ToolFunctionSync, ToolFunctionAsync
-]  # TODO: support pydantic types?
-
-
-class ToolSchemaProperty(TypedDict, total=False):
-    type: Required[str]
-    description: Required[str]
-
-
-class ToolSchemaParams(TypedDict):
-    type: Literal["object"]
-    properties: dict[str, ToolSchemaProperty]
-    required: list[str]
-
-
-class ToolSchemaFunction(TypedDict):
-    name: str
-    description: str
-    parameters: ToolSchemaParams
-
-
-class ToolSchema(TypedDict):
-    type: Literal["function"]
-    function: ToolSchemaFunction
-
-
-def func_to_schema(
-    func: ToolFunction,
-    name: str | None = None,
-    description: str | None = None,
-    parameter_descriptions: dict[str, str] | None = None,
-) -> ToolSchema:
-    signature = inspect.signature(func)
-    required: list[str] = []
-
-    for nm, param in signature.parameters.items():
-        if param.default is param.empty and param.kind not in [
-            inspect.Parameter.VAR_POSITIONAL,
-            inspect.Parameter.VAR_KEYWORD,
-        ]:
-            required.append(nm)
-
-    annotations = get_type_hints(func, include_extras=True)
-
-    param_desc = parameter_descriptions or {}
-
-    params: ToolSchemaParams = {
-        "type": "object",
-        "properties": {
-            k: type_to_json_schema(v, param_desc.get(k, None))
-            for k, v in annotations.items()
-            if k != "return"
-        },
-        "required": required,
-    }
-
-    desc = description or func.__doc__
-
-    res: ToolSchema = {
-        "type": "function",
-        "function": {
-            "name": name or func.__name__,
-            "description": desc or "",
-            "parameters": params,
-        },
-    }
-
-    return res
-
-
-def type_to_json_schema(
-    t: type,
-    desc: str | None = None,
-) -> ToolSchemaProperty:
-    origin = get_origin(t)
-    args = get_args(t)
-    if origin is Annotated:
-        assert len(args) == 2
-        assert desc is None or desc == ""
-        assert isinstance(args[1], str)
-        return type_to_json_schema(args[0], args[1])
-
-    if origin is list:
-        assert len(args) == 1
-        return type_dict("array", desc, items=type_to_json_schema(args[0]))
-
-    if origin is dict:
-        assert len(args) == 2
-        assert args[0] is str
-        return type_dict(
-            "object", desc, additionalProperties=type_to_json_schema(args[1])
-        )
-
-    if is_typeddict(t):
-        annotations = get_type_hints(t, include_extras=True)
-        return type_dict(
-            "object",
-            desc,
-            properties={k: type_to_json_schema(v) for k, v in annotations.items()},
-        )
-
-    if t is dict:
-        return type_dict("object", desc)
-    if t is list:
-        return type_dict("array", desc)
-    if t is str:
-        return type_dict("string", desc)
-    if t is int:
-        return type_dict("integer", desc)
-    if t is float:
-        return type_dict("number", desc)
-    if t is bool:
-        return type_dict("boolean", desc)
-    if t is NoneType:
-        return type_dict("null", desc)
-    raise ValueError(f"Unsupported type: {t}")
-
-
-def type_dict(
-    type_: str,
-    description: str | None,
-    **kwargs: Any,
-) -> ToolSchemaProperty:
-    res: ToolSchemaProperty = {
-        "type": type_,
-        "description": description or "",
-        **kwargs,  # type: ignore
-    }
-    return res
-
+import os
+import warnings
+from typing import Awaitable, Callable, ParamSpec, TypeGuard, TypeVar, cast
 
 # Copied from shiny/_utils.py
 
@@ -213,15 +55,23 @@ def is_async_callable(
     return False
 
 
-@contextmanager
-def temporary_event_loop():
-    """A context manager that sets the event loop for the duration of the context."""
-    old_loop = asyncio.get_event_loop()
-    new_loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(new_loop)
-    try:
-        yield new_loop
-    finally:
-        asyncio.set_event_loop(old_loop)
-        if not new_loop:
-            new_loop.close()
+# https://docs.pytest.org/en/latest/example/simple.html#pytest-current-test-environment-variable
+def is_testing():
+    return os.environ.get("PYTEST_CURRENT_TEST", None) is not None
+
+
+class MISSING_TYPE:
+    pass
+
+
+MISSING = MISSING_TYPE()
+
+
+class DefaultModelWarning(Warning):
+    pass
+
+
+def inform_model_default(model: str, stacklevel: int = 3) -> str:
+    msg = f"Defaulting to `model = '{model}'`."
+    warnings.warn(msg, DefaultModelWarning, stacklevel=stacklevel)
+    return model

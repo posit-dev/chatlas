@@ -1,45 +1,59 @@
 # chatlas
 
 Easily chat with various LLM models from Ollama, Anthropic, OpenAI, and more.
-`chatlas` is intentionally minimal, making it easy to get started, while also supporting advanced features like tool calling, streaming, and async. 
-It also provides an interactive chat console, web app, and more general programmatic extension points.
+`chatlas` is intentionally minimal -- making it easy to get started, while also supporting important features like streaming, tool calling, images, async, and more.
 
 ## Install
 
 `chatlas` isn't yet on pypi, but you can install from Github:
 
 ```
-pip install git+https://github.com/posit-dev/chatlas
+pip install git+https://github.com/cpsievert/chatlas
 ```
 
-## Get started
+After installing, you'll want to pick a [model provider](#model-providers), and get [credentials](#managing-credentials) set up (if necessary). Here, we demonstrate usage with OpenAI, but the concepts here apply to other implementations as well.
 
-To start, you'll need to create an instance of a particular `Chat` [implementation](#chat-implementations).
-For example, to use [Ollama](#ollama), first create the `OllamaChat` object:
+
+## Using chatlas
+
+You can chat via `chatlas` in several different ways, depending on whether you are working interactively or programmatically. They all start with creating a new chat object:
 
 ```python
-from chatlas import OllamaChat
-chat = OllamaChat(model="llama3.2")
+from chatlas import ChatOpenAI
+
+chat = ChatOpenAI(
+  model = "gpt-4o-mini",
+  system_prompt = "You are a friendly but terse assistant.",
+)
 ```
 
-Then, you start chatting by calling the `.chat()` method:
+Chat objects are stateful: they retain the context of the conversation, so each new query can build on the previous ones. This is true regardless of which of the various ways of chatting you use.
 
-```python
-chat.chat("Show me a short Python snippet")
-```
+### Interactive console
 
-Or, better yet, for multi-turn conversations, start a Python `.console()`:
+The most interactive, least programmatic way of using `chatlas` is to chat with it directly in your console with `chat.console()` or in your browser with `chat.app()`.
 
 ```python
 chat.console()
 ```
 
-<div align="center">
-<img width="600" alt="Using chatlas at the Python console" src="https://github.com/user-attachments/assets/df10b558-867a-407e-affe-3aa80cc18bb7">
-</div>
+```
+Entering chat console. Press Ctrl+C to quit.
 
+?> Who created Python?
 
-And, for a better copy/paste and browsing experience, consider using the `.app()` method to launch a [Shiny](https://shiny.posit.co/py/) web app:
+Python was created by Guido van Rossum. He began development in the late 1980s and released the first     
+version in 1991. 
+
+?> Where did he develop it?
+
+Guido van Rossum developed Python while working at Centrum Wiskunde & Informatica (CWI) in the            
+Netherlands.     
+```
+
+The chat console is useful for quickly exploring the capabilities of the model, especially when you’ve customized the chat object with tool integrations (covered later).
+
+The chat app is similar to the chat console, but it runs in your browser. It's useful if need more interactive capabilities like easy copy-paste.
 
 ```python
 chat.app()
@@ -50,20 +64,135 @@ chat.app()
 </div>
 
 
-Also, at any point, you can access the chat history via `.messages()`:
+Again, keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist even after you exit back to the Python prompt.
+
+
+### Interactive chat
+
+The second most interactive way to chat is by calling the `chat()` method (from the normal Python prompt or in a script):
 
 ```python
-chat.messages()
+chat.chat("What preceding languages most influenced Python?")
 ```
 
-See the [advanced features](#advanced-features) section below for more involved features like tool calling, async, and streaming.
+```
+Python was primarily influenced by ABC, with additional inspiration from C,
+Modula-3, and various other languages.
+```
+
+Since `chat()` is designed for interactive use, it prints the response to the console as it arrives rather than returning anything. This is useful when you want to display the response as it arrives, but don't need an interactive console. 
+
+If you want to do something with the (last) response, you can use `last_turn()` or `turns()` to access conversation "turns". A turn contains various information about what happens during a "user" or "assistant" turn, but usually you'll just want the text of the response:
+
+```python
+chat.last_turn().text
+```
+
+```
+"Python was primarily influenced by ABC, with additional inspiration from C, Modula-3, and various other languages."
+```
+
+### Programmatic Chat
+
+For a more programming friendly interface, you can `submit()` a user turn and get a [generator](https://wiki.python.org/moin/Generators) of strings back. In the default case of `stream=True`, the generator yields strings as they arrive from the API (in small chunks). This is useful when you want to process the response as it arrives and/or when the response is too long to fit in memory.
+
+```python
+response = chat.submit("What is 1+1?", stream=True)
+for x in response:
+    print(x, end="")
+```
+
+```
+1 + 1 equals 2.
+```
+
+With `stream=False` you still get a generator, but it yields the entire response at once. This is primarily useful as workaround: some models happen to not support certain features (like tools) when streaming. Also, more generally, sometimes it's useful to have response before displaying anything.
+
+```python
+response = chat.submit("What is 1+1?", stream=False)
+for x in response:
+    print(x)
+```
+
+```
+1 + 1 equals 2.
+```
+
+### Vision (Image Input)
+
+To ask questions about images, you can pass one or more additional input arguments using `content_image_file()` and/or `content_image_url()`:
+
+```python
+chat.chat(
+    content_image_url("https://www.python.org/static/img/python-logo.png"),
+    "Can you explain this logo?"
+)
+```
+
+```
+The Python logo features two intertwined snakes in yellow and blue,
+representing the Python programming language. The design symbolizes...
+```
+
+The `content_image_url()` function takes a URL to an image file and sends that URL directly to the API. The `content_image_file()` function takes a path to a local image file and encodes it as a base64 string to send to the API. Note that by default, `content_image_file()` automatically resizes the image to fit within 512x512 pixels; set the `resize` parameter to "high" if higher resolution is needed.
 
 
-## Chat implementations
+## Model providers
 
-`chatlas` supports various LLM models from Ollama, Anthropic, OpenAI, and Google out of the box.
-Options like `AnthropicChat` and `OpenAIChat` require an account and API key to use, and also send your input to a remote server for response generation.
+`chatlas` supports various LLM models from Anthropic, OpenAI, Google, and Ollama.
+Options like Anthropic, OpenAI, and Google require an account and API key to use, and also send your input to a remote server for response generation.
 [Ollama](#ollama), on the other hand, provides a way to run open source models that run locally on your own machine, so is a good option for privacy and cost reasons.
+
+
+### Anthropic
+
+To use Anthropic's models (i.e., Claude), you'll need to sign up for an account and [get an API key](https://docs.anthropic.com/en/api/getting-started).
+You'll also want the Python package:
+
+```shell
+pip install anthropic
+```
+
+Paste your API key into the `ChatAnthropic()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+
+```python
+from chatlas import ChatAnthropic
+chat = ChatAnthropic(api_key="...")
+```
+
+
+### OpenAI
+
+To use OpenAI's models (i.e., GPT), you'll need to sign up for an account and [get an API key](https://platform.openai.com/docs/quickstart).
+You'll also want the Python package:
+
+```shell
+pip install openai
+```
+
+Paste your API key into the `ChatOpenAI()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+
+```python
+from chatlas import ChatOpenAI
+chat = ChatOpenAI(api_key="...")
+```
+
+
+### Google
+
+To use Google's models (i.e., Gemini), you'll need to sign up for an account and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python).
+You'll also want the Python package:
+
+```shell
+pip install google-generativeai
+```
+
+Paste your API key into the `ChatGoogle()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+
+```python
+from chatlas import ChatGoogle
+chat = ChatGoogle(api_key="...")
+```
 
 ### Ollama
 
@@ -82,63 +211,40 @@ pip install ollama
 Now, you're read to chat via `chatlas`:
 
 ```python
-from chatlas import OllamaChat
-chat = OllamaChat(model="llama3.2")
-chat.console()
+from chatlas import ChatOllama
+chat = ChatOllama(model="llama3.2")
 ```
 
-### Anthropic
+<!--
+### AWS Bedrock
 
-To use Anthropic's models (i.e., Claude), you'll need to sign up for an account and [get an API key](https://docs.anthropic.com/en/api/getting-started).
-You'll also want the Python package:
-
-```shell
-pip install anthropic
-```
-
-Paste your API key into the `AnthropicChat()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import AnthropicChat
-chat = AnthropicChat(api_key="...")
-chat.console()
-```
+TODO: Implement Anthropic Bedrock
+-->
 
 
-### OpenAI
+### Azure
 
-To use OpenAI's models (i.e., GPT), you'll need to sign up for an account and [get an API key](https://platform.openai.com/docs/quickstart).
-You'll also want the Python package:
+To use [Azure](https://azure.microsoft.com/en-us/products/ai-services/openai-service), you'll need the `openai` Python package:
 
 ```shell
 pip install openai
 ```
 
-Paste your API key into the `OpenAIChat()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+Then, pass along information about your Azure deployment to the `ChatAzureOpenAI` constructor:
 
 ```python
-from chatlas import OpenAIChat
-chat = OpenAIChat(api_key="...")
-chat.console()
+import os
+from chatlas import ChatAzureOpenAI
+
+chat = ChatAzureOpenAI(
+  endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+  deployment_id='REPLACE_WITH_YOUR_DEPLOYMENT_ID',
+  api_version="YYYY-MM-DD",
+  api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
+)
 ```
 
-
-### Google
-
-To use Google's models (i.e., Gemini), you'll need to sign up for an account and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python).
-You'll also want the Python package:
-
-```shell
-pip install google-generativeai
-```
-
-Paste your API key into the `GoogleChat()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import GoogleChat
-chat = GoogleChat(api_key="...")
-chat.console()
-```
+<!--
 
 ### LangChain
 
@@ -153,33 +259,16 @@ Then, once you have a chat model instance, pass it to the `LangChainChat` constr
 
 ```python
 from chatlas import LangChainChat
-from langchain_openai import OpenAIChat
+from langchain_openai import ChatOpenAI
 
-chat = LangChainChat(OpenAIChat())
-chat.console()
+chat = LangChainChat(ChatOpenAI())
 ```
-
-### Roll your own
-
-You can also use your own models by implementing the `BaseChat` interface.
-This is a good option if you're motivated to add support for model(s) not yet supported by `chatlas`.
-At a minimum, you'll need to implement the `response_generator()` and `messages()` methods.
-
-```python
-from chatlas import BaseChat
-
-class MyCustomChat(BaseChat):
-    async def response_generator(self, user_input: str):
-        ...
-
-    def messages(self):
-        ...
-```
+-->
 
 
 ## Managing credentials
 
-Pasting an API key into a chat constructor (e.g., `OpenAIChat(api_key="...")`) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.
+Pasting an API key into a chat constructor (e.g., `ChatOpenAI(api_key="...")`) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.
 Instead, consider using environment variables or a configuration file to manage your credentials.
 One popular way to manage credentials is to use a `.env` file to store your credentials, and then use the `python-dotenv` package to load them into your environment.
 
@@ -199,7 +288,7 @@ from chatlas import Anthropic
 from dotenv import load_dotenv
 
 load_dotenv()
-chat = AnthropicChat()
+chat = ChatAnthropic()
 chat.console()
 ```
 
@@ -223,7 +312,7 @@ Make sure to annotate your function with types to help the LLM understand what i
 Also provide a docstring to help the LLM understand what your function does.
 
 ```python
-from chatlas import AnthropicChat
+from chatlas import ChatAnthropic
 
 def get_current_weather(location: str, unit: str = "fahrenheit") -> int:
     """Get the current weather in a location."""
@@ -234,35 +323,9 @@ def get_current_weather(location: str, unit: str = "fahrenheit") -> int:
     else:
         return 72 if unit == "fahrenheit" else 22
 
-chat = AnthropicChat(tools=[get_current_weather])
+chat = ChatAnthropic()
+chat.register_tool(get_current_weather)
 chat.chat("What's the weather like in Boston, New York, and London today?")
-```
-
-
-### Response generators
-
-For more control over what happens with the LLM's response, use the `response_generator()` method.
-This method returns an [async generator](https://superfastpython.com/asynchronous-generators-in-python/) that yields strings, allowing you to send the LLM's response to some other destination.
-For example, here's some code to write the LLM's response to a (temporary) file:
-
-```python
-import asyncio
-from chatlas import AnthropicChat
-import tempfile
-chat = AnthropicChat()
-response = chat.response_generator("What is 1+1?")
-
-async def main():
-    with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
-        async for line in response:
-            f.write(line + "\n")
-        
-        temp_file_name = f.name
-
-    with open(temp_file_name) as f:
-        print(f.read())
-
-asyncio.run(main())
 ```
 
 
@@ -271,7 +334,7 @@ asyncio.run(main())
 Pass user input from a Shiny `Chat()` component to a `chatlas` response generator to embed a chat interface in your own Shiny app.
 
 ```python
-from chatlas import AnthropicChat
+from chatlas import ChatAnthropic
 from shiny import ui
 
 chat = ui.Chat(
@@ -279,10 +342,10 @@ chat = ui.Chat(
   messages=["Hi! How can I help you today?"],
 )
 
-llm = AnthropicChat()
+llm = ChatAnthropic()
 
 @chat.on_user_submit
 def _(message):
-    response = llm.response_generator(message)
+    response = llm.submit(message)
     chat.append_message_stream(response)
 ```

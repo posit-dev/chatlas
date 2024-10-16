@@ -12,38 +12,21 @@ dependencies = [
 test = [
     "pyright>=1.1.379",
     "pytest>=8.3.2",
+    "pytest-asyncio"
 ]
 dev = [
-    "ruff>=0.6.5"
-]
-full = [
-  "python-dotenv",
-  "shiny",
-  "openai",
-  "anthropic",
-  "ollama",
-  "google-generativeai",
-  "langchain",
-  "langchain-core",
-]
-shiny = [
-  "shiny"
-]
-openai = [
+    "ruff>=0.6.5",
+    "python-dotenv",
+    "matplotlib",
+    "Pillow",
+    "shiny",
     "openai",
-]
-anthropic = [
     "anthropic",
-]
-ollama = [
     "ollama",
-]
-google = [
     "google-generativeai",
-]
-langchain= [
     "langchain",
     "langchain-core",
+    "numpy>1.24.4"
 ]
 
 [tool.uv]

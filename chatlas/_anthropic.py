@@ -1,252 +1,326 @@
 import json
-from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, cast
+from typing import TYPE_CHECKING, Literal, Optional, Union, cast, overload
 
-from . import _utils
-from ._abc import BaseChatWithTools
-from ._anthropic_types import CreateCompletion
-from ._utils import ToolFunction
+from ._chat import Chat
+from ._content import (
+    Content,
+    ContentImageInline,
+    ContentImageRemote,
+    ContentText,
+    ContentToolRequest,
+    ContentToolResult,
+)
+from ._provider import Provider, ToolDef
+from ._tokens import tokens_log
+from ._turn import Turn, normalize_turns
+from ._utils import inform_model_default
 
 if TYPE_CHECKING:
     from anthropic.types import (
-        ContentBlock,
+        Message,
         MessageParam,
-        Model,
+        RawMessageStreamEvent,
         TextBlock,
         ToolParam,
-        ToolResultBlockParam,
         ToolUseBlock,
     )
-    from httpx import URL
+    from anthropic.types.image_block_param import ImageBlockParam
+    from anthropic.types.model_param import ModelParam
+    from anthropic.types.text_block_param import TextBlockParam
+    from anthropic.types.tool_result_block_param import ToolResultBlockParam
+    from anthropic.types.tool_use_block_param import ToolUseBlockParam
+
+    from .types._anthropic_client import ProviderClientArgs
+    from .types._anthropic_create import CreateCompletionArgs
+
+    ContentBlockParam = Union[
+        TextBlockParam,
+        ImageBlockParam,
+        ToolUseBlockParam,
+        ToolResultBlockParam,
+    ]
+else:
+    Message = object
+    RawMessageStreamEvent = object
 
 
-class AnthropicChat(BaseChatWithTools["CreateCompletion"]):
-    _messages: list["MessageParam"] = []
-    _tool_schemas: list["ToolParam"] = []
-    _tool_functions: dict[str, _utils.ToolFunctionAsync] = {}
+def ChatAnthropic(
+    *,
+    system_prompt: Optional[str] = None,
+    turns: Optional[list[Turn]] = None,
+    model: "Optional[ModelParam]" = None,
+    api_key: Optional[str] = None,
+    max_tokens: int = 4096,
+    kwargs: Optional["ProviderClientArgs"] = None,
+) -> Chat["CreateCompletionArgs"]:
+    """
+    Chat with an Anthropic Claude model.
 
+    Anthropic (https://www.anthropic.com) provides a number of chat based
+    models under the Claude (https://www.anthropic.com/claude) moniker.
+
+    Note that a Claude Prop membership does not give you the ability to call
+    models via the API. You will need to go to the developer console
+    (https://console.anthropic.com/account/keys) to sign up (and pay for)
+    a developer account that will give you an API key that you can use with
+    this package.
+
+    Parameters
+    ----------
+    system_prompt
+        A system prompt to set the behavior of the assistant.
+    turns
+        A list of turns to start the chat with (i.e., continuing a previous
+        conversation). If not provided, the conversation begins from scratch.
+        Do not provide non-None values for both `turns` and `system_prompt`.
+        Each message in the list should be a dictionary with at least `role`
+        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
+        Normally there is also a `content` field, which is a string.
+    model
+        The model to use for the chat. The default, None, will pick a reasonable
+        default, and warn you about it. We strongly recommend explicitly choosing
+        a model for all but the most casual use.
+    api_key
+        The API key to use for authentication. You generally should not supply
+        this directly, but instead set the `ANTHROPIC_API_KEY` environment variable.
+    max_tokens
+        Maximum number of tokens to generate before stopping.
+    kwargs
+        Additional arguments to pass to the `anthropic.Anthropic()` client constructor.
+
+    Returns
+    -------
+    Chat
+        A Chat object.
+    """
+
+    if model is None:
+        model = inform_model_default("claude-3-5-sonnet-latest")
+
+    return Chat(
+        provider=ClaudeProvider(
+            api_key=api_key,
+            model=model,
+            max_tokens=max_tokens,
+            kwargs=kwargs,
+        ),
+        turns=normalize_turns(
+            turns or [],
+            system_prompt,
+        ),
+    )
+
+
+class ClaudeProvider(Provider[Message, RawMessageStreamEvent, Message]):
     def __init__(
         self,
         *,
-        api_key: Optional[str] = None,
-        model: "Model" = "claude-3-5-sonnet-20240620",
-        max_tokens: int = 1024,
-        system_prompt: Optional[str] = None,
-        tools: Iterable[ToolFunction] = (),
-        base_url: Optional[str | URL] = None,
-        **kwargs: Any,
+        max_tokens: int,
+        model: str,
+        api_key: str | None,
+        kwargs: Optional["ProviderClientArgs"] = None,
     ):
-        """
-        Start a chat powered by Anthropic
-
-        Parameters
-        ----------
-        api_key
-            Your Anthropic API key.
-        model
-            The model to use for the chat.
-        max_tokens
-            The maximum number of tokens to generate for each response.
-        system_prompt
-            A system prompt to use for the chat.
-        tools
-            A list of tools (i.e., function calls) to use for the chat.
-        base_url
-            The base URL to use for requests.
-        kwargs
-            Additional keyword arguments to pass to the `anthropic.AsyncAnthropic` constructor.
-
-        Raises
-        ------
-        ImportError
-            If the `anthropic` package is not installed.
-        """
         try:
-            from anthropic import AsyncAnthropic
+            from anthropic import Anthropic, AsyncAnthropic
         except ImportError:
             raise ImportError(
-                f"The {self.__class__.__name__} class requires the `anthropic` package. "
-                "Please install it with `pip install anthropic`."
+                "`ChatAnthropic()` requires the `anthropic` package. "
+                "You can install it with 'pip install anthropic'."
             )
+
         self._model = model
-        self._system_prompt = system_prompt
         self._max_tokens = max_tokens
-        for tool in tools:
-            self.register_tool(tool)
-        self.client = AsyncAnthropic(
-            api_key=api_key,
-            base_url=base_url,
-            **kwargs,
-        )
 
-    async def response_generator(
+        kwargs_full: "ProviderClientArgs" = {
+            "api_key": api_key,
+            **(kwargs or {}),
+        }
+
+        # TODO: worth bringing in sync types?
+        self._client = Anthropic(**kwargs_full)  # type: ignore
+        self._async_client = AsyncAnthropic(**kwargs_full)
+
+    @overload
+    def chat_perform(
         self,
-        user_input: str,
         *,
-        stream: bool = True,
-        kwargs: Optional[CreateCompletion] = None,
-    ) -> AsyncGenerator[str, None]:
-        """
-        Generate response(s) given a user input.
+        stream: Literal[False],
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["CreateCompletionArgs"] = None,
+    ): ...
 
-        Parameters
-        ----------
-        user_input
-            The user input to generate responses for.
-        stream
-            Whether to stream the responses.
-        kwargs
-            Additional arguments to pass to the Anthropic's `messages.create()`
-            method.
-        """
-        self._add_message({"role": "user", "content": user_input})
-        while True:
-            async for chunk in self._submit_messages(stream, kwargs):
-                yield chunk
-            if not await self._invoke_tools():
-                break
-
-    async def _submit_messages(
+    @overload
+    def chat_perform(
         self,
-        stream: bool = True,
-        kwargs: Optional[CreateCompletion] = None,
-    ) -> AsyncGenerator[str, None]:
-        if kwargs is None:
-            kwargs = {}
-
-        model = kwargs.pop("model", self._model)
-        max_tokens = kwargs.pop("max_tokens", self._max_tokens)
-        tools = kwargs.pop("tools", [])
-        tools = list(tools or [])
-        tools.extend(self._tool_schemas)
-
-        if self._system_prompt is not None:
-            kwargs["system"] = kwargs.get("system", self._system_prompt)
-
-        if stream:
-            response = await self.client.messages.create(
-                model=model,
-                messages=self.messages(),
-                max_tokens=max_tokens,
-                tools=tools,
-                stream=True,
-                **kwargs,  # type: ignore
-            )
-
-            # Accumulate content blocks until the end of the stream
-            # (and yield the text content)
-            # TODO: handle stop_reasons (i.e., type = "message_delta" events)
-            contents: list["ContentBlock"] = []
-            current_content: Optional["ContentBlock"] = None
-            async for chunk in response:
-                if chunk.type == "content_block_start":
-                    current_content = chunk.content_block
-                elif chunk.type == "content_block_delta":
-                    if chunk.delta.type == "text_delta":
-                        current_content = cast("TextBlock", current_content)
-                        current_content.text += chunk.delta.text
-                        yield chunk.delta.text
-                    elif chunk.delta.type == "input_json_delta":
-                        current_content = cast("ToolUseBlock", current_content)
-                        if not isinstance(current_content.input, str):
-                            current_content.input = ""
-                        current_content.input += chunk.delta.partial_json
-                    else:
-                        raise ValueError(f"Unknown delta type: {chunk.delta.type}")
-                elif chunk.type == "content_block_stop":
-                    if current_content is None:
-                        continue
-                    if current_content.type == "tool_use" and isinstance(
-                        current_content.input, str
-                    ):
-                        try:
-                            current_content.input = json.loads(current_content.input)
-                        except json.JSONDecodeError as e:
-                            raise ValueError(f"Invalid JSON input: {e}")
-                    contents.append(current_content)
-
-            msg: "MessageParam" = {"content": contents, "role": "assistant"}
-            self._add_message(msg)
-
-        else:
-            response = await self.client.messages.create(
-                model=model,
-                messages=self.messages(),
-                max_tokens=max_tokens,
-                tools=tools,
-                stream=False,
-                **kwargs,  # type: ignore
-            )
-
-            for x in response.content:
-                if x.type == "text":
-                    yield x.text
-
-            # TODO: handle stop_reasons?
-            msg: "MessageParam" = {
-                "content": response.content,
-                "role": "assistant",
-            }
-            self._add_message(msg)
-
-    def messages(self) -> list["MessageParam"]:
-        """
-        Get the messages in the chat.
-
-        Returns
-        -------
-        list[MessageParam]
-            The messages in the chat.
-        """
-        return self._messages
-
-    def _add_message(self, message: "MessageParam"):
-        self._messages.append(message)
-
-    def register_tool(
-        self,
-        func: ToolFunction,
         *,
-        schema: Optional["ToolParam"] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        parameter_descriptions: Optional[dict[str, str]] = None,
-    ) -> None:
-        """
-        Register a tool to use in the chat.
+        stream: Literal[True],
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["CreateCompletionArgs"] = None,
+    ): ...
 
-        Parameters
-        ----------
-        func
-            The tool function (i.e., a Python function).
-        schema
-            The schema for the tool. If not provided, it will be auto-generated from
-            the function.
-        name
-            The name of the tool. If not provided, it will be taken from the function.
-        description
-            The description of the tool. If not provided, it will be taken from the
-            function's docstring.
-        parameter_descriptions
-            The descriptions of the parameters of the tool.
-        """
-        if schema is None:
-            final_schema = self._transform_tool_schema(
-                _utils.func_to_schema(func, name, description, parameter_descriptions)
-            )
-        else:
-            final_schema = schema
+    def chat_perform(
+        self,
+        *,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["CreateCompletionArgs"] = None,
+    ):
+        kwargs = self._chat_perform_args(stream, turns, tools, kwargs)
+        return self._client.messages.create(**kwargs)  # type: ignore
 
-        name = final_schema["name"]
+    @overload
+    async def chat_perform_async(
+        self,
+        *,
+        stream: Literal[False],
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["CreateCompletionArgs"] = None,
+    ): ...
 
-        self._tool_schemas = [x for x in self._tool_schemas if x["name"] != name]
-        self._tool_schemas.append(final_schema)
-        self._tool_functions[name] = _utils.wrap_async(func)
+    @overload
+    async def chat_perform_async(
+        self,
+        *,
+        stream: Literal[True],
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["CreateCompletionArgs"] = None,
+    ): ...
+
+    async def chat_perform_async(
+        self,
+        *,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["CreateCompletionArgs"] = None,
+    ):
+        kwargs = self._chat_perform_args(stream, turns, tools, kwargs)
+        return await self._async_client.messages.create(**kwargs)  # type: ignore
+
+    def _chat_perform_args(
+        self,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["CreateCompletionArgs"],
+    ) -> "CreateCompletionArgs":
+        tool_schemas = [self._get_tool_schema(tool) for tool in tools.values()]
+
+        kwargs_full: "CreateCompletionArgs" = {
+            "stream": stream,
+            "messages": self._as_message_params(turns),
+            "model": self._model,
+            "max_tokens": self._max_tokens,
+            "tools": tool_schemas,
+            **(kwargs or {}),
+        }
+
+        if "system" not in kwargs_full:
+            if len(turns) > 0 and turns[0].role == "system":
+                kwargs_full["system"] = turns[0].text
+
+        return kwargs_full
+
+    def stream_text(self, chunk) -> Optional[str]:
+        if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":
+            return chunk.delta.text
+        return None
+
+    def stream_merge_chunks(self, completion, chunk):
+        if chunk.type == "message_start":
+            return chunk.message
+        completion = cast("Message", completion)
+
+        if chunk.type == "content_block_start":
+            completion.content.append(chunk.content_block)
+        elif chunk.type == "content_block_delta":
+            this_content = completion.content[chunk.index]
+            if chunk.delta.type == "text_delta":
+                this_content = cast("TextBlock", this_content)
+                this_content.text += chunk.delta.text
+            elif chunk.delta.type == "input_json_delta":
+                this_content = cast("ToolUseBlock", this_content)
+                if not isinstance(this_content.input, str):
+                    this_content.input = ""
+                this_content.input += chunk.delta.partial_json
+        elif chunk.type == "content_block_stop":
+            this_content = completion.content[chunk.index]
+            if this_content.type == "tool_use" and isinstance(this_content.input, str):
+                try:
+                    this_content.input = json.loads(this_content.input or "{}")
+                except json.JSONDecodeError as e:
+                    raise ValueError(f"Invalid JSON input: {e}")
+        elif chunk.type == "message_delta":
+            completion.stop_reason = chunk.delta.stop_reason
+            completion.stop_sequence = chunk.delta.stop_sequence
+            completion.usage.output_tokens = chunk.usage.output_tokens
+
+        return completion
+
+    def stream_turn(self, completion) -> Turn:
+        return self._as_turn(completion)
+
+    def value_turn(self, completion) -> Turn:
+        return self._as_turn(completion)
+
+    def _as_message_params(self, turns: list[Turn]) -> list["MessageParam"]:
+        messages: list["MessageParam"] = []
+        for turn in turns:
+            if turn.role == "system":
+                continue  # system prompt passed as separate arg
+            if turn.role not in ["user", "assistant"]:
+                raise ValueError(f"Unknown role {turn.role}")
+
+            content = [self._as_content_block(c) for c in turn.contents]
+            role = "user" if turn.role == "user" else "assistant"
+            messages.append({"role": role, "content": content})
+        return messages
 
     @staticmethod
-    def _transform_tool_schema(
-        tool: _utils.ToolSchema,
-    ) -> "ToolParam":
-        fn = tool["function"]
+    def _as_content_block(content: Content) -> "ContentBlockParam":
+        if isinstance(content, ContentText):
+            return {"text": content.text, "type": "text"}
+        elif isinstance(content, ContentImageInline):
+            return {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": content.content_type,
+                    "data": content.data or "",
+                },
+            }
+        elif isinstance(content, ContentImageRemote):
+            raise NotImplementedError(
+                "Remote images aren't supported by Anthropic (Claude). "
+                "Consider downloading the image and using content_image_file() instead."
+            )
+        elif isinstance(content, ContentToolRequest):
+            return {
+                "type": "tool_use",
+                "id": content.id,
+                "name": content.name,
+                "input": content.arguments,
+            }
+        elif isinstance(content, ContentToolResult):
+            content_ = (
+                str(content.value) if content.value is not None else content.error
+            )
+            return {
+                "type": "tool_result",
+                "tool_use_id": content.id,
+                "content": content_ or "",
+                "is_error": content.error is not None,
+            }
+        raise ValueError(f"Unknown content type: {type(content)}")
+
+    @staticmethod
+    def _get_tool_schema(tool: ToolDef) -> "ToolParam":
+        fn = tool.schema["function"]
         name = fn["name"]
         return {
             "name": name,
@@ -257,63 +331,28 @@ class AnthropicChat(BaseChatWithTools["CreateCompletion"]):
             },
         }
 
-    async def _invoke_tools(self) -> bool:
-        if self._tool_functions:
-            last = self.messages()[-1]
-            assert last["role"] == "assistant"
-            tool_messages = await self._call_tools(last)
-            if tool_messages:
-                self._add_message(tool_messages)
-                return True
-        return False
+    @staticmethod
+    def _as_turn(completion: Message) -> Turn:
+        contents = []
+        for content in completion.content:
+            if content.type == "text":
+                contents.append(ContentText(content.text))
+            elif content.type == "tool_use":
+                # For some reason, the type is a general object?
+                if not isinstance(content.input, dict):
+                    raise ValueError(
+                        f"Expected a dictionary of input arguments, got {type(content.input)}."
+                    )
+                contents.append(
+                    ContentToolRequest(
+                        content.id,
+                        name=content.name,
+                        arguments=content.input,
+                    )
+                )
 
-    async def _call_tools(self, last_message: "MessageParam") -> "MessageParam | None":
-        from anthropic.types import ToolUseBlock
+        tokens = completion.usage.input_tokens, completion.usage.output_tokens
 
-        contents = last_message["content"]
-        if isinstance(contents, str):
-            return None
-        tool_calls = [x for x in contents if isinstance(x, ToolUseBlock)]
-        results: list["ToolResultBlockParam"] = []
-        for x in tool_calls:
-            msg = await self._call_tool(x)
-            results.append(msg)
-        if len(results) == 0:
-            return None
-        res: "MessageParam" = {"content": results, "role": "user"}
-        return res
+        tokens_log("Anthropic", tokens)
 
-    async def _call_tool(
-        self,
-        tool_call: "ToolUseBlock",
-    ) -> "ToolResultBlockParam":
-        name = tool_call.name
-        tool_fun = self._tool_functions.get(name, None)
-        if tool_fun is None:
-            raise ValueError(f"Tool {name} not found.")
-
-        args = tool_call.input
-
-        if isinstance(args, str):
-            try:
-                args = json.loads(args)
-            except json.JSONDecodeError as e:
-                raise ValueError(f"Invalid JSON arguments for tool {name}: {e}")
-
-        if not isinstance(args, dict):
-            raise ValueError(
-                f"Expected a dictionary of arguments, got {type(args).__name__}."
-            )
-
-        try:
-            result = await tool_fun(**args)
-        except Exception as e:
-            raise ValueError(f"Error calling tool {name}: {e}")
-
-        res: "ToolResultBlockParam" = {
-            "type": "tool_result",
-            "tool_use_id": tool_call.id,
-            "content": str(result),
-        }
-
-        return res
+        return Turn("assistant", contents, tokens=tokens)

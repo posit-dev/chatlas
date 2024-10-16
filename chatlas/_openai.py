@@ -1,246 +1,371 @@
 import json
-from typing import TYPE_CHECKING, Any, AsyncGenerator, Iterable, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
-from . import _utils
-from ._abc import BaseChatWithTools
+from ._chat import Chat
+from ._content import (
+    Content,
+    ContentImageInline,
+    ContentImageRemote,
+    ContentText,
+    ContentToolRequest,
+    ContentToolResult,
+)
 from ._merge import merge_dicts
-from ._openai_types import CreateCompletion
-from ._utils import ToolFunction
+from ._provider import Provider, ToolDef
+from ._tokens import tokens_log
+from ._turn import Turn, normalize_turns
+from ._utils import MISSING, MISSING_TYPE, inform_model_default, is_testing
 
 if TYPE_CHECKING:
-    from httpx import URL
     from openai.types.chat import (
-        ChatCompletionAssistantMessageParam,
+        ChatCompletion,
+        ChatCompletionChunk,
         ChatCompletionMessageParam,
-        ChatCompletionMessageToolCallParam,
-        ChatCompletionToolMessageParam,
         ChatCompletionToolParam,
+    )
+    from openai.types.chat.chat_completion_assistant_message_param import (
+        ContentArrayOfContentPart,
+    )
+    from openai.types.chat.chat_completion_content_part_param import (
+        ChatCompletionContentPartParam,
     )
     from openai.types.chat_model import ChatModel
 
+    from .types._openai_client import ProviderClientArgs
+    from .types._openai_client_azure import ProviderClientArgs as AzureProviderArgs
+    from .types._openai_create import ChatCompletionArgs
+else:
+    ChatCompletion = object
+    ChatCompletionChunk = object
 
-class OpenAIChat(BaseChatWithTools["CreateCompletion"]):
-    _messages: list["ChatCompletionMessageParam"] = []
-    _tool_schemas: list["ChatCompletionToolParam"] = []
-    _tool_functions: dict[str, _utils.ToolFunctionAsync] = {}
 
+# The dictionary form of ChatCompletion (TODO: stronger typing)?
+ChatCompletionDict = dict[str, Any]
+
+
+def ChatOpenAI(
+    *,
+    system_prompt: Optional[str] = None,
+    turns: Optional[list[Turn]] = None,
+    model: "Optional[ChatModel | str]" = None,
+    api_key: Optional[str] = None,
+    base_url: str = "https://api.openai.com/v1",
+    seed: int | None | MISSING_TYPE = MISSING,
+    kwargs: Optional["ProviderClientArgs"] = None,
+) -> Chat["ChatCompletionArgs"]:
+    """
+    Chat with an OpenAI model.
+
+    OpenAI (https://openai.com/) provides a number of chat based models under
+    the ChatGPT (https://chatgpt.com) moniker.
+
+    Note that a ChatGPT Plus membership does not give you the ability to call
+    models via the API. You will need to go to the developer platform
+    (https://platform.openai.com) to sign up (and pay for) a developer account
+    that will give you an API key that you can use with this package.
+
+    Parameters
+    ----------
+    system_prompt
+        A system prompt to set the behavior of the assistant.
+    turns
+        A list of turns to start the chat with (i.e., continuing a previous
+        conversation). If not provided, the conversation begins from scratch.
+        Do not provide non-`None` values for both `turns` and `system_prompt`.
+        Each message in the list should be a dictionary with at least `role`
+        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
+        Normally there is also a `content` field, which is a string.
+    model
+        The model to use for the chat. The default, None, will pick a reasonable
+        default, and warn you about it. We strongly recommend explicitly choosing
+        a model for all but the most casual use.
+    api_key
+        The API key to use for authentication. You generally should not supply
+        this directly, but instead set the `OPENAI_API_KEY` environment variable.
+    base_url
+        The base URL to the endpoint; the default uses OpenAI.
+    seed
+        Optional integer seed that ChatGPT uses to try and make output more
+        reproducible.
+    kwargs
+        Additional arguments to pass to the `openai.OpenAI()` client constructor.
+
+    Returns
+    -------
+    Chat
+        A Chat object.
+
+    Examples
+    --------
+    >>> chat = chat_openai()
+    >>> chat.chat('''
+    ...     What is the difference between a tibble and a data frame?
+    ...     Answer with a bulleted list
+    ... ''')
+
+    """
+    if isinstance(seed, MISSING_TYPE):
+        seed = 1014 if is_testing() else None
+
+    if model is None:
+        model = inform_model_default("gpt-4o-mini")
+
+    return Chat(
+        provider=OpenAIProvider(
+            api_key=api_key,
+            model=model,
+            base_url=base_url,
+            seed=seed,
+            kwargs=kwargs,
+        ),
+        turns=normalize_turns(
+            turns or [],
+            system_prompt,
+        ),
+    )
+
+
+class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict]):
     def __init__(
         self,
         *,
         api_key: Optional[str] = None,
-        model: "ChatModel" = "gpt-4o",
-        system_prompt: Optional[str] = None,
-        tools: Iterable[ToolFunction] = (),
-        base_url: Optional[str | URL] = None,
-        **kwargs: Any,
+        model: str,
+        base_url: str = "https://api.openai.com/v1",
+        seed: Optional[int] = None,
+        kwargs: Optional["ProviderClientArgs"] = None,
     ):
-        """
-        Start a chat powered by OpenAI
-
-        Parameters
-        ----------
-        api_key
-            Your OpenAI API key.
-        model
-            The model to use for the chat.
-        system_prompt
-            A system prompt to use for the chat.
-        tools
-            A list of tools (i.e., function calls) to use for the chat.
-        base_url
-            The base URL to use for requests.
-        kwargs
-            Additional keyword arguments to pass to the `openai.AsyncOpenAI` constructor.
-
-        Raises
-        ------
-        ImportError
-            If the `openai` package is not installed.
-        """
         try:
-            from openai import AsyncOpenAI
+            from openai import AsyncOpenAI, OpenAI
         except ImportError:
             raise ImportError(
-                f"The {self.__class__.__name__} class requires the `openai` package. "
+                "`ChatOpenAI()` requires the `openai` package. "
                 "Install it with `pip install openai`."
             )
 
         self._model = model
-        self._system_prompt = system_prompt
-        for tool in tools:
-            self.register_tool(tool)
+        self._seed = seed
 
-        self.client = AsyncOpenAI(
-            api_key=api_key,
-            base_url=base_url,
-            **kwargs,
-        )
+        kwargs_full: "ProviderClientArgs" = {
+            "api_key": api_key,
+            "base_url": base_url,
+            **(kwargs or {}),
+        }
 
-    async def response_generator(
+        # TODO: worth bringing in AsyncOpenAI types?
+        self._client = OpenAI(**kwargs_full)  # type: ignore
+        self._async_client = AsyncOpenAI(**kwargs_full)
+
+    @overload
+    def chat_perform(
         self,
-        user_input: str,
         *,
-        stream: bool = True,
-        kwargs: Optional[CreateCompletion] = None,
-    ) -> AsyncGenerator[str, None]:
-        """
-        Generate response(s) given a user input.
+        stream: Literal[False],
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["ChatCompletionArgs"] = None,
+    ): ...
 
-        Parameters
-        ----------
-        user_input
-            The user input to the chat.
-        stream
-            Whether to stream the responses.
-        kwargs
-            Additional parameters to pass to the OpenAI's
-            `chat.completions.create` method.
-        """
-        self._add_message({"role": "user", "content": user_input})
-        while True:
-            async for chunk in self._submit_messages(stream, kwargs):
-                yield chunk
-            if not await self._invoke_tools():
-                break
+    @overload
+    def chat_perform(
+        self,
+        *,
+        stream: Literal[True],
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["ChatCompletionArgs"] = None,
+    ): ...
 
-    async def _submit_messages(
+    def chat_perform(
+        self,
+        *,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["ChatCompletionArgs"] = None,
+    ):
+        kwargs = self._chat_perform_args(stream, turns, tools, kwargs)
+        return self._client.chat.completions.create(**kwargs)  # type: ignore
+
+    @overload
+    async def chat_perform_async(
+        self,
+        *,
+        stream: Literal[False],
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["ChatCompletionArgs"] = None,
+    ): ...
+
+    @overload
+    async def chat_perform_async(
+        self,
+        *,
+        stream: Literal[True],
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["ChatCompletionArgs"] = None,
+    ): ...
+
+    async def chat_perform_async(
+        self,
+        *,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["ChatCompletionArgs"] = None,
+    ):
+        kwargs = self._chat_perform_args(stream, turns, tools, kwargs)
+        return await self._async_client.chat.completions.create(**kwargs)  # type: ignore
+
+    def _chat_perform_args(
         self,
         stream: bool,
-        kwargs: Optional[CreateCompletion] = None,
-    ) -> AsyncGenerator[str, None]:
-        from openai.types.chat import ChatCompletionAssistantMessageParam
+        turns: list[Turn],
+        tools: dict[str, ToolDef],
+        kwargs: Optional["ChatCompletionArgs"] = None,
+    ) -> "ChatCompletionArgs":
+        tool_schemas = [self._get_tool_schema(tool) for tool in tools.values()]
+        # OpenAI's typing is wrong (an empty list isn't allowed)
+        # If they fix it, we can remove this if statement
+        if not tool_schemas:
+            tool_schemas = cast(list, None)
 
-        if kwargs is None:
-            kwargs = {}
+        kwargs_full: "ChatCompletionArgs" = {
+            "stream": stream,
+            "messages": self._as_message_param(turns),
+            "tools": tool_schemas,
+            "model": self._model,
+            "seed": self._seed,
+            **(kwargs or {}),
+        }
 
-        model = kwargs.pop("model", self._model)
-        tools = kwargs.pop("tools", [])
-        tools = list(tools or [])
-        tools.extend(self._tool_schemas)
+        if "stream_options" not in kwargs_full:
+            kwargs_full["stream_options"] = {"include_usage": True}
 
-        if stream:
-            response = await self.client.chat.completions.create(
-                messages=self.messages(include_system_prompt=True),
-                model=model,
-                tools=tools,
-                stream=True,
-                **kwargs,  # type: ignore
-            )
-            result = None
-            async for chunk in response:
-                d = chunk.choices[0].delta
-                if result is None:
-                    result = d.model_dump()
-                else:
-                    result = merge_dicts(result, d.model_dump())
-                if d.content:
-                    yield d.content
+        return kwargs_full
 
-            if result is not None:
-                self._add_message(ChatCompletionAssistantMessageParam(**result))
-        else:
-            response = await self.client.chat.completions.create(
-                messages=self.messages(include_system_prompt=True),
-                model=model,
-                tools=tools,
-                stream=False,
-                **kwargs,  # type: ignore
-            )
-            message = response.choices[0].message
-            msg = ChatCompletionAssistantMessageParam(**message.model_dump())
-            self._add_message(msg)
+    def stream_text(self, chunk):
+        if not chunk.choices:
+            return None
+        return chunk.choices[0].delta.content
 
-            if message.content:
-                yield message.content
+    def stream_merge_chunks(self, completion, chunk):
+        chunkd = chunk.model_dump()
+        if completion is None:
+            return chunkd
+        return merge_dicts(completion, chunkd)
 
-    def messages(
-        self, *, include_system_prompt: bool = False
-    ) -> list["ChatCompletionMessageParam"]:
-        """
-        Get the messages in the chat.
+    def stream_turn(self, completion) -> Turn:
+        from openai.types.chat import ChatCompletion
 
-        Parameters
-        ----------
-        include_system_prompt
-            Whether to include the system prompt in the messages.
+        delta = completion["choices"][0].pop("delta")  # type: ignore
+        completion["choices"][0]["message"] = delta  # type: ignore
+        completion = ChatCompletion.construct(**completion)
+        return self._as_turn(completion)
 
-        Returns
-        -------
-        list[ChatCompletionMessageParam]
-            The messages in the chat.
-        """
-
-        if include_system_prompt and self._system_prompt is not None:
-            return [{"role": "system", "content": self._system_prompt}, *self._messages]
-        return self._messages
-
-    def _add_messages(self, messages: Sequence["ChatCompletionMessageParam"]):
-        self._messages.extend(messages)
-
-    def _add_message(self, message: "ChatCompletionMessageParam"):
-        self._messages.append(message)
-
-    def register_tool(
-        self,
-        func: ToolFunction,
-        *,
-        schema: Optional["ChatCompletionToolParam"] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        parameter_descriptions: Optional[dict[str, str]] = None,
-        strict: bool = False,
-    ):
-        """
-        Register a tool to use in the chat.
-
-        Parameters
-        ----------
-        func
-            The tool function (i.e., a Python function).
-        schema
-            The tool schema to use. If not provided, it will be auto-generated from
-            the function.
-        name
-            The name of the tool. If not provided, it will be taken from the
-            function.
-        description
-            The description of the tool. If not provided, it will be taken from
-            the function's docstring.
-        parameter_descriptions
-            Descriptions for the parameters of the tool function.
-        strict
-            Whether to use strict mode for the tool.
-
-        Raises
-        ------
-        ValueError
-            If the tool name is already registered
-        ValueError
-            If the tool schema is invalid
-        ValueError
-            If the result of calling the tool results in an error
-        """
-        if schema is None:
-            final_schema = self._transform_tool_schema(
-                _utils.func_to_schema(func, name, description, parameter_descriptions),
-                strict=strict,
-            )
-        else:
-            final_schema = schema
-
-        name = final_schema["function"]["name"]
-
-        self._tool_schemas = [
-            x for x in self._tool_schemas if x["function"]["name"] != name
-        ]
-        self._tool_schemas.append(final_schema)
-        self._tool_functions[name] = _utils.wrap_async(func)
+    def value_turn(self, completion) -> Turn:
+        return self._as_turn(completion)
 
     @staticmethod
-    def _transform_tool_schema(
-        tool: "_utils.ToolSchema", strict: bool = False
+    def _as_message_param(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
+        from openai.types.chat import (
+            ChatCompletionAssistantMessageParam,
+            ChatCompletionMessageToolCallParam,
+            ChatCompletionSystemMessageParam,
+            ChatCompletionToolMessageParam,
+            ChatCompletionUserMessageParam,
+        )
+
+        res: list["ChatCompletionMessageParam"] = []
+        for turn in turns:
+            if turn.role == "system":
+                res.append(
+                    ChatCompletionSystemMessageParam(content=turn.text, role="system")
+                )
+            elif turn.role == "assistant":
+                content_parts: list["ContentArrayOfContentPart"] = []
+                tool_calls: list["ChatCompletionMessageToolCallParam"] = []
+                for x in turn.contents:
+                    if isinstance(x, ContentText):
+                        content_parts.append({"type": "text", "text": x.text})
+                    elif isinstance(x, ContentToolRequest):
+                        tool_calls.append(
+                            {
+                                "id": x.id,
+                                "function": {
+                                    "name": x.name,
+                                    "arguments": json.dumps(x.arguments),
+                                },
+                                "type": "function",
+                            }
+                        )
+                    else:
+                        raise ValueError(
+                            f"Don't know how to handle content type {type(x)} for role='assistant'."
+                        )
+
+                # OpenAI's typing is wrong (an empty list isn't allowed)
+                # If they fix it, we can remove this if statement
+                if not tool_calls:
+                    tool_calls = cast(list, None)
+
+                res.append(
+                    ChatCompletionAssistantMessageParam(
+                        content=content_parts,
+                        tool_calls=tool_calls,
+                        role="assistant",
+                    )
+                )
+            elif turn.role == "user":
+                contents: list["ChatCompletionContentPartParam"] = []
+                tool_results: list["ChatCompletionToolMessageParam"] = []
+                for x in turn.contents:
+                    if isinstance(x, ContentText):
+                        contents.append({"type": "text", "text": x.text})
+                    elif isinstance(x, ContentImageRemote):
+                        contents.append(
+                            {"type": "image_url", "image_url": {"url": x.url}}
+                        )
+                    elif isinstance(x, ContentImageInline):
+                        contents.append(
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:{x.content_type};base64,{x.data}"
+                                },
+                            }
+                        )
+                    elif isinstance(x, ContentToolResult):
+                        tool_results.append(
+                            ChatCompletionToolMessageParam(
+                                # TODO: a tool could return an image!
+                                content=str(x.value),
+                                tool_call_id=x.id,
+                                role="tool",
+                            )
+                        )
+                    else:
+                        raise ValueError(
+                            f"Don't know how to handle content type {type(x)} for role='user'."
+                        )
+
+                if contents:
+                    res.append(
+                        ChatCompletionUserMessageParam(content=contents, role="user")
+                    )
+                res.extend(tool_results)
+
+            else:
+                raise ValueError(f"Unknown role: {turn.role}")
+
+        return res
+
+    @staticmethod
+    def _get_tool_schema(
+        tool: ToolDef, strict: bool = False
     ) -> "ChatCompletionToolParam":
-        fn = tool["function"]
+        fn = tool.schema["function"]
         name = fn["name"]
         return {
             "type": "function",
@@ -256,50 +381,136 @@ class OpenAIChat(BaseChatWithTools["CreateCompletion"]):
             },
         }
 
-    async def _invoke_tools(self) -> bool:
-        if self._tool_functions:
-            last = self.messages()[-1]
-            assert last["role"] == "assistant"
-            tool_messages = await self._call_tools(last)
-            if len(tool_messages) > 0:
-                self._add_messages(tool_messages)
-                return True
-        return False
+    @staticmethod
+    def _as_turn(completion: "ChatCompletion") -> Turn:
+        message = completion.choices[0].message
 
-    async def _call_tools(
-        self, last_message: "ChatCompletionAssistantMessageParam"
-    ) -> Sequence["ChatCompletionToolMessageParam"]:
-        tool_calls = last_message.get("tool_calls", None)
-        if tool_calls is None:
-            return []
-        res: list["ChatCompletionToolMessageParam"] = []
-        for x in tool_calls:
-            msg = await self._call_tool(x)
-            res.append(msg)
-        return res
+        contents: list[Content] = []
+        if message.content is not None:
+            contents = [ContentText(message.content)]
 
-    async def _call_tool(
+        tool_calls = message.tool_calls
+
+        if tool_calls is not None:
+            for call in tool_calls:
+                func = call.function
+                if func is None:
+                    continue
+                # TODO: record parsing error
+                args = json.loads(func.arguments) if func.arguments else {}
+                contents.append(
+                    ContentToolRequest(
+                        call.id,
+                        name=func.name,
+                        arguments=args,
+                    )
+                )
+
+        usage = completion.usage
+        if usage is None:
+            tokens = (0, 0)
+        else:
+            tokens = usage.prompt_tokens, usage.completion_tokens
+
+        tokens_log("OpenAI", tokens)
+
+        return Turn(
+            "assistant",
+            contents,
+            json_data=completion.model_dump(),
+            tokens=tokens,
+        )
+
+
+def ChatAzureOpenAI(
+    *,
+    endpoint: str,
+    deployment_id: str,
+    api_version: str,
+    api_key: Optional[str] = None,
+    system_prompt: Optional[str] = None,
+    turns: Optional[list[Turn]] = None,
+    kwargs: Optional["AzureProviderArgs"] = None,
+) -> Chat["AzureProviderArgs"]:
+    """
+    Chat with a model hosted on Azure OpenAI.
+
+    The Azure OpenAI server (https://azure.microsoft.com/en-us/products/ai-services/openai-service)
+    hosts a number of open source models as well as proprietary models
+    from OpenAI.
+
+    Parameters
+    ----------
+    endpoint
+        Azure OpenAI endpoint url with protocol and hostname, i.e.
+        `https://{your-resource-name}.openai.azure.com`. Defaults to using the
+        value of the `AZURE_OPENAI_ENDPOINT` envinronment variable.
+    deployment_id
+        Deployment id for the model you want to use.
+    api_version
+        The API version to use.
+    api_key
+        The API key to use for authentication. You generally should not supply
+        this directly, but instead set the `AZURE_OPENAI_API_KEY` environment
+        variable.
+    system_prompt
+        A system prompt to set the behavior of the assistant.
+    turns
+        A list of turns to start the chat with (i.e., continuing a previous
+        conversation). If not provided, the conversation begins from scratch.
+        Do not provide non-None values for both `turns` and `system_prompt`.
+        Each message in the list should be a dictionary with at least `role`
+        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
+        Normally there is also a `content` field, which is a string.
+    kwargs
+        Additional arguments to pass to the `openai.AzureOpenAI()` client constructor.
+
+    Returns
+    -------
+    Chat
+        A Chat object.
+
+    """
+    return Chat(
+        provider=OpenAIAzureProvider(
+            endpoint=endpoint,
+            deployment_id=deployment_id,
+            api_version=api_version,
+            api_key=api_key,
+            kwargs=kwargs,
+        ),
+        turns=normalize_turns(
+            turns or [],
+            system_prompt,
+        ),
+    )
+
+
+class OpenAIAzureProvider(OpenAIProvider):
+    def __init__(
         self,
-        tool_call: "ChatCompletionMessageToolCallParam",
-    ) -> "ChatCompletionToolMessageParam":
-        name = tool_call["function"]["name"]
-        tool_fun = self._tool_functions.get(name, None)
-        if tool_fun is None:
-            raise ValueError(f"Tool {name} not found.")
-
-        args_str = tool_call["function"]["arguments"]
+        *,
+        endpoint: Optional[str] = None,
+        deployment_id: Optional[str] = None,
+        api_version: Optional[str] = None,
+        api_key: Optional[str] = None,
+        kwargs: Optional["AzureProviderArgs"] = None,
+    ):
         try:
-            args = json.loads(args_str)
-        except json.JSONDecodeError:
-            raise ValueError(f"Invalid JSON arguments for tool {name}")
+            from openai import AsyncAzureOpenAI, AzureOpenAI
+        except ImportError:
+            raise ImportError(
+                "`ChatAzureOpenAI()` requires the `openai` package. "
+                "Install it with `pip install openai`."
+            )
 
-        try:
-            result = await tool_fun(**args)
-        except Exception as e:
-            raise ValueError(f"Error calling tool {name}: {e}")
-
-        return {
-            "role": "tool",
-            "content": json.dumps({name: result, **args}),
-            "tool_call_id": tool_call["id"],
+        kwargs_full: "AzureProviderArgs" = {
+            "azure_endpoint": endpoint,
+            "azure_deployment": deployment_id,
+            "api_version": api_version,
+            "api_key": api_key,
+            **(kwargs or {}),
         }
+
+        self._client = AzureOpenAI(**kwargs_full)  # type: ignore
+        self._async_client = AsyncAzureOpenAI(**kwargs_full)  # type: ignore
