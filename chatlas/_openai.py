@@ -431,7 +431,7 @@ def ChatAzureOpenAI(
     system_prompt: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
     kwargs: Optional["AzureProviderArgs"] = None,
-) -> Chat["AzureProviderArgs"]:
+) -> Chat["ChatCompletionArgs"]:
     """
     Chat with a model hosted on Azure OpenAI.
 

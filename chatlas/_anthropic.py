@@ -31,6 +31,9 @@ if TYPE_CHECKING:
     from anthropic.types.tool_use_block_param import ToolUseBlockParam
 
     from .types._anthropic_client import ProviderClientArgs
+    from .types._anthropic_client_bedrock import (
+        ProviderClientArgs as BedrockProviderArgs,
+    )
     from .types._anthropic_create import CreateCompletionArgs
 
     ContentBlockParam = Union[
@@ -98,7 +101,7 @@ def ChatAnthropic(
         model = inform_model_default("claude-3-5-sonnet-latest")
 
     return Chat(
-        provider=ClaudeProvider(
+        provider=AnthropicProvider(
             api_key=api_key,
             model=model,
             max_tokens=max_tokens,
@@ -111,7 +114,7 @@ def ChatAnthropic(
     )
 
 
-class ClaudeProvider(Provider[Message, RawMessageStreamEvent, Message]):
+class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
     def __init__(
         self,
         *,
@@ -356,3 +359,125 @@ class ClaudeProvider(Provider[Message, RawMessageStreamEvent, Message]):
         tokens_log("Anthropic", tokens)
 
         return Turn("assistant", contents, tokens=tokens)
+
+
+def ChatBedrockAnthropic(
+    *,
+    model: Optional[str] = None,
+    aws_secret_key: Optional[str] = None,
+    aws_access_key: Optional[str] = None,
+    aws_region: Optional[str] = None,
+    aws_profile: Optional[str] = None,
+    aws_session_token: Optional[str] = None,
+    base_url: Optional[str] = None,
+    system_prompt: Optional[str] = None,
+    turns: Optional[list[Turn]] = None,
+    kwargs: Optional["BedrockProviderArgs"] = None,
+) -> Chat["CreateCompletionArgs"]:
+    """
+    Chat with an AWS bedrock model
+
+    [AWS Bedrock](https://aws.amazon.com/bedrock/) provides a number of chat
+    based models, including those Anthropic's
+    [Claude](https://aws.amazon.com/bedrock/claude/).
+
+    Parameters
+    ----------
+    model
+        The model to use for the chat.
+    aws_secret_key
+        The AWS secret key to use for authentication.
+    aws_access_key
+        The AWS access key to use for authentication.
+    aws_region
+        The AWS region to use. Defaults to the AWS_REGION environment variable.
+        If that is not set, defaults to `'us-east-1'`.
+    aws_profile
+        The AWS profile to use.
+    aws_session_token
+        The AWS session token to use.
+    base_url
+        The base URL to use. Defaults to the ANTHROPIC_BEDROCK_BASE_URL
+        environment variable. If that is not set, defaults to
+        `f"https://bedrock-runtime.{aws_region}.amazonaws.com"`.
+    system_prompt
+        A system prompt to set the behavior of the assistant.
+    turns
+        A list of turns to start the chat with (i.e., continuing a previous
+        conversation). If not provided, the conversation begins from scratch. Do
+        not provide non-None values for both `turns` and `system_prompt`. Each
+        message in the list should be a dictionary with at least `role` (usually
+        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
+        there is also a `content` field, which is a string.
+    kwargs
+        Additional arguments to pass to the `anthropic.AnthropicBedrock()`
+        client constructor.
+
+    Returns
+    -------
+    Chat
+        A Chat object.
+
+    Note
+    ----
+    For more information on configuring AWS credentials, see
+    <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html>
+    """
+
+    if model is None:
+        # Default model from https://github.com/anthropics/anthropic-sdk-python?tab=readme-ov-file#aws-bedrock
+        model = inform_model_default("anthropic.claude-3-sonnet-20240229-v1:0")
+
+    return Chat(
+        provider=AnthropicBedrockProvider(
+            model=model,
+            aws_secret_key=aws_secret_key,
+            aws_access_key=aws_access_key,
+            aws_region=aws_region,
+            aws_profile=aws_profile,
+            aws_session_token=aws_session_token,
+            base_url=base_url,
+            kwargs=kwargs,
+        ),
+        turns=normalize_turns(
+            turns or [],
+            system_prompt,
+        ),
+    )
+
+
+class AnthropicBedrockProvider(AnthropicProvider):
+    def __init__(
+        self,
+        *,
+        model: str,
+        aws_secret_key: str | None,
+        aws_access_key: str | None,
+        aws_region: str | None,
+        aws_profile: str | None,
+        aws_session_token: str | None,
+        base_url: str | None,
+        kwargs: Optional["BedrockProviderArgs"] = None,
+    ):
+        try:
+            from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
+        except ImportError:
+            raise ImportError(
+                "`ChatBedrockAnthropic()` requires the `anthropic` package. "
+                "Install it with `pip install anthropic[bedrock]`."
+            )
+
+        self._model = model
+
+        kwargs_full: "BedrockProviderArgs" = {
+            "aws_secret_key": aws_secret_key,
+            "aws_access_key": aws_access_key,
+            "aws_region": aws_region,
+            "aws_profile": aws_profile,
+            "aws_session_token": aws_session_token,
+            "base_url": base_url,
+            **(kwargs or {}),
+        }
+
+        self._client = AnthropicBedrock(**kwargs_full)  # type: ignore
+        self._async_client = AsyncAnthropicBedrock(**kwargs_full)  # type: ignore

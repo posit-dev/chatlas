@@ -7,9 +7,11 @@ from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
 
 import anthropic
 import anthropic._types
-import anthropic.types.message_create_params
 import anthropic.types.message_param
 import anthropic.types.text_block_param
+import anthropic.types.tool_choice_any_param
+import anthropic.types.tool_choice_auto_param
+import anthropic.types.tool_choice_tool_param
 import anthropic.types.tool_param
 
 
@@ -19,7 +21,10 @@ class CreateCompletionArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "claude-3-5-sonnet-latest",
+            "claude-3-5-sonnet-20241022",
             "claude-3-5-sonnet-20240620",
+            "claude-3-opus-latest",
             "claude-3-opus-20240229",
             "claude-3-sonnet-20240229",
             "claude-3-haiku-20240307",
@@ -37,9 +42,9 @@ class CreateCompletionArgs(TypedDict, total=False):
     ]
     temperature: float | anthropic.NotGiven
     tool_choice: Union[
-        anthropic.types.message_create_params.ToolChoiceToolChoiceAuto,
-        anthropic.types.message_create_params.ToolChoiceToolChoiceAny,
-        anthropic.types.message_create_params.ToolChoiceToolChoiceTool,
+        anthropic.types.tool_choice_auto_param.ToolChoiceAutoParam,
+        anthropic.types.tool_choice_any_param.ToolChoiceAnyParam,
+        anthropic.types.tool_choice_tool_param.ToolChoiceToolParam,
         anthropic.NotGiven,
     ]
     tools: Union[Iterable[anthropic.types.tool_param.ToolParam], anthropic.NotGiven]

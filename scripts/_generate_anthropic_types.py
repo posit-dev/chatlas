@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import httpx
-from anthropic import AsyncAnthropic
+from anthropic import AsyncAnthropic, AsyncAnthropicBedrock
 from anthropic.resources import AsyncMessages
 
 from _utils import generate_typeddict_code, write_code_to_file
@@ -33,4 +33,18 @@ init_args = generate_typeddict_code(
 write_code_to_file(
     init_args,
     src_dir / "types" / "_anthropic_client.py",
+)
+
+
+init_args = generate_typeddict_code(
+    AsyncAnthropicBedrock.__init__,
+    "ProviderClientArgs",
+    excluded_fields={"self"},
+    localns={"URL": httpx.URL},
+)
+
+write_code_to_file(
+    init_args,
+    src_dir / "types" / "_anthropic_client_bedrock.py",
+    setup_code="import anthropic",
 )

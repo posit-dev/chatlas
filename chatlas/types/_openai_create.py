@@ -8,6 +8,7 @@ from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
 import openai
 import openai._types
 import openai.types.chat.chat_completion_assistant_message_param
+import openai.types.chat.chat_completion_audio_param
 import openai.types.chat.chat_completion_function_call_option_param
 import openai.types.chat.chat_completion_function_message_param
 import openai.types.chat.chat_completion_named_tool_choice_param
@@ -42,7 +43,10 @@ class ChatCompletionArgs(TypedDict, total=False):
             "gpt-4o",
             "gpt-4o-2024-08-06",
             "gpt-4o-2024-05-13",
+            "gpt-4o-realtime-preview",
             "gpt-4o-realtime-preview-2024-10-01",
+            "gpt-4o-audio-preview",
+            "gpt-4o-audio-preview-2024-10-01",
             "chatgpt-4o-latest",
             "gpt-4o-mini",
             "gpt-4o-mini-2024-07-18",
@@ -67,6 +71,11 @@ class ChatCompletionArgs(TypedDict, total=False):
             "gpt-3.5-turbo-16k-0613",
         ],
     ]
+    audio: Union[
+        openai.types.chat.chat_completion_audio_param.ChatCompletionAudioParam,
+        None,
+        openai.NotGiven,
+    ]
     frequency_penalty: Union[float, None, openai.NotGiven]
     function_call: Union[
         Literal["none", "auto"],
@@ -81,6 +90,7 @@ class ChatCompletionArgs(TypedDict, total=False):
     max_completion_tokens: Union[int, None, openai.NotGiven]
     max_tokens: Union[int, None, openai.NotGiven]
     metadata: Union[dict[str, str], None, openai.NotGiven]
+    modalities: Union[list[Literal["text", "audio"]], None, openai.NotGiven]
     n: Union[int, None, openai.NotGiven]
     parallel_tool_calls: bool | openai.NotGiven
     presence_penalty: Union[float, None, openai.NotGiven]

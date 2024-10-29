@@ -215,11 +215,27 @@ from chatlas import ChatOllama
 chat = ChatOllama(model="llama3.2")
 ```
 
-<!--
 ### AWS Bedrock
 
-TODO: Implement Anthropic Bedrock
--->
+[AWS Bedrock](https://aws.amazon.com/bedrock/) provides a number of chat based models, including those Anthropic's [Claude](https://aws.amazon.com/bedrock/claude/). To use AWS Bedrock, you'll need the `anthropic` Python package:
+
+```python
+pip install anthropic[bedrock]
+```
+
+Then, pass along information about your AWS deployment to the `ChatBedrockAnthropic` constructor. Also, see [here](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html) for a more detailed explanation of how to properly manage your AWS credentials.
+
+```python
+from chatlas import ChatBedrockAnthropic
+
+chat = ChatBedrockAnthropic(
+  aws_profile='...',
+  aws_region='us-east'
+  aws_secret_key='...',
+  aws_access_key='...',
+  aws_session_token='...',
+)
+```
 
 
 ### Azure
