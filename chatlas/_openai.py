@@ -167,7 +167,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         stream: Literal[False],
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]] = None,
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ): ...
 
@@ -178,7 +178,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         stream: Literal[True],
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]] = None,
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ): ...
 
@@ -188,10 +188,10 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         stream: bool,
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]] = None,
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ):
-        kwargs = self._chat_perform_args(stream, turns, tools, spec, kwargs)
+        kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return self._client.chat.completions.create(**kwargs)  # type: ignore
 
     @overload
@@ -201,7 +201,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         stream: Literal[False],
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]] = None,
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ): ...
 
@@ -212,7 +212,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         stream: Literal[True],
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]] = None,
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ): ...
 
@@ -222,10 +222,10 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         stream: bool,
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]] = None,
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ):
-        kwargs = self._chat_perform_args(stream, turns, tools, spec, kwargs)
+        kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return await self._async_client.chat.completions.create(**kwargs)  # type: ignore
 
     def _chat_perform_args(
@@ -233,7 +233,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         stream: bool,
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]] = None,
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ) -> "ChatCompletionArgs":
         tool_schemas = [
@@ -253,8 +253,8 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             **(kwargs or {}),
         }
 
-        if spec is not None and "response_format" not in kwargs_full:
-            schema = self._openai_tool_schema(basemodel_to_tool_schema(spec))
+        if data_model is not None and "response_format" not in kwargs_full:
+            schema = self._openai_tool_schema(basemodel_to_tool_schema(data_model))
             if "parameters" not in schema["function"]:
                 raise ValueError("Model schema must have parameters")
             kwargs_full["response_format"] = {
@@ -282,16 +282,16 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             return chunkd
         return merge_dicts(completion, chunkd)
 
-    def stream_turn(self, completion, has_spec) -> Turn:
+    def stream_turn(self, completion, has_data_model) -> Turn:
         from openai.types.chat import ChatCompletion
 
         delta = completion["choices"][0].pop("delta")  # type: ignore
         completion["choices"][0]["message"] = delta  # type: ignore
         completion = ChatCompletion.construct(**completion)
-        return self._as_turn(completion, has_spec)
+        return self._as_turn(completion, has_data_model)
 
-    def value_turn(self, completion, has_spec) -> Turn:
-        return self._as_turn(completion, has_spec)
+    def value_turn(self, completion, has_data_model) -> Turn:
+        return self._as_turn(completion, has_data_model)
 
     @staticmethod
     def _as_message_param(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
@@ -410,12 +410,12 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         }
 
     @staticmethod
-    def _as_turn(completion: "ChatCompletion", has_spec: bool) -> Turn:
+    def _as_turn(completion: "ChatCompletion", has_data_model: bool) -> Turn:
         message = completion.choices[0].message
 
         contents: list[Content] = []
         if message.content is not None:
-            if has_spec:
+            if has_data_model:
                 data = json.loads(message.content)
                 contents = [ContentJson(data)]
             else:

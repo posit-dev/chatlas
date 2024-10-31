@@ -32,7 +32,7 @@ class Provider(
         stream: Literal[False],
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]],
+        data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> ChatCompletionT: ...
 
@@ -44,7 +44,7 @@ class Provider(
         stream: Literal[True],
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]],
+        data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> Iterable[ChatCompletionChunkT]: ...
 
@@ -55,7 +55,7 @@ class Provider(
         stream: bool,
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]],
+        data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> Iterable[ChatCompletionChunkT] | ChatCompletionT: ...
 
@@ -67,7 +67,7 @@ class Provider(
         stream: Literal[False],
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]],
+        data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> ChatCompletionT: ...
 
@@ -79,7 +79,7 @@ class Provider(
         stream: Literal[True],
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]],
+        data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> AsyncIterable[ChatCompletionChunkT]: ...
 
@@ -90,7 +90,7 @@ class Provider(
         stream: bool,
         turns: list[Turn],
         tools: dict[str, ToolDef],
-        spec: Optional[type[BaseModel]],
+        data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> AsyncIterable[ChatCompletionChunkT] | ChatCompletionT: ...
 
@@ -108,12 +108,12 @@ class Provider(
     def stream_turn(
         self,
         completion: ChatCompletionDictT,
-        has_spec: bool,
+        has_data_model: bool,
     ) -> Turn: ...
 
     @abstractmethod
     def value_turn(
         self,
         completion: ChatCompletionT,
-        has_spec: bool,
+        has_data_model: bool,
     ) -> Turn: ...

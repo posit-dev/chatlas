@@ -319,8 +319,7 @@ class Chat(Generic[ChatRequestArgsT]):
     def extract_data(
         self,
         *args: Content | str,
-        spec: type[BaseModel],
-        stream: bool = False,
+        data_model: type[BaseModel],
     ) -> dict[str, Any]:
         """
         Extract structured data from the given input.
@@ -329,7 +328,7 @@ class Chat(Generic[ChatRequestArgsT]):
         ----------
         args
             The input to extract data from.
-        spec
+        data_model
             A Pydantic model describing the structure of the data to extract.
 
         Returns
@@ -340,8 +339,8 @@ class Chat(Generic[ChatRequestArgsT]):
 
         generator = self._submit_turns(
             user_turn(*args),
-            spec=spec,
-            stream=stream,  # TODO: echo != "none"?
+            data_model=data_model,
+            stream=False,
         )
 
         for _ in generator:
@@ -366,8 +365,7 @@ class Chat(Generic[ChatRequestArgsT]):
     async def extract_data_async(
         self,
         *args: Content | str,
-        spec: type[BaseModel],
-        stream: bool = False,
+        data_model: type[BaseModel],
     ) -> dict[str, Any]:
         """
         Extract structured data from the given input asynchronously.
@@ -376,7 +374,7 @@ class Chat(Generic[ChatRequestArgsT]):
         ----------
         args
             The input to extract data from.
-        spec
+        data_model
             A Pydantic model describing the structure of the data to extract.
 
         Returns
@@ -387,8 +385,8 @@ class Chat(Generic[ChatRequestArgsT]):
 
         generator = self._submit_turns_async(
             user_turn(*args),
-            spec=spec,
-            stream=stream,
+            data_model=data_model,
+            stream=False,
         )
 
         async for _ in generator:
@@ -505,7 +503,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         user_turn: Turn,
         stream: bool,
-        spec: type[BaseModel] | None = None,
+        data_model: type[BaseModel] | None = None,
         kwargs: Optional[ChatRequestArgsT] = None,
     ) -> Generator[str, None, None]:
         if any(x._is_async for x in self.tools.values()):
@@ -516,7 +514,7 @@ class Chat(Generic[ChatRequestArgsT]):
                 stream=True,
                 turns=[*self._turns, user_turn],
                 tools=self.tools,
-                spec=spec,
+                data_model=data_model,
                 kwargs=kwargs,
             )
 
@@ -527,18 +525,22 @@ class Chat(Generic[ChatRequestArgsT]):
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
-            turn = self.provider.stream_turn(result, has_spec=spec is not None)
+            turn = self.provider.stream_turn(
+                result, has_data_model=data_model is not None
+            )
 
         else:
             response = self.provider.chat_perform(
                 stream=False,
                 turns=[*self._turns, user_turn],
                 tools=self.tools,
-                spec=spec,
+                data_model=data_model,
                 kwargs=kwargs,
             )
 
-            turn = self.provider.value_turn(response, has_spec=spec is not None)
+            turn = self.provider.value_turn(
+                response, has_data_model=data_model is not None
+            )
             if turn.text:
                 yield turn.text
 
@@ -548,7 +550,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         user_turn: Turn,
         stream: bool,
-        spec: type[BaseModel] | None = None,
+        data_model: type[BaseModel] | None = None,
         kwargs: Optional[ChatRequestArgsT] = None,
     ) -> AsyncGenerator[str, None]:
         if stream:
@@ -556,7 +558,7 @@ class Chat(Generic[ChatRequestArgsT]):
                 stream=True,
                 turns=[*self._turns, user_turn],
                 tools=self.tools,
-                spec=spec,
+                data_model=data_model,
                 kwargs=kwargs,
             )
 
@@ -567,18 +569,22 @@ class Chat(Generic[ChatRequestArgsT]):
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
-            turn = self.provider.stream_turn(result, has_spec=spec is not None)
+            turn = self.provider.stream_turn(
+                result, has_data_model=data_model is not None
+            )
 
         else:
             response = await self.provider.chat_perform_async(
                 stream=False,
                 turns=[*self._turns, user_turn],
                 tools=self.tools,
-                spec=spec,
+                data_model=data_model,
                 kwargs=kwargs,
             )
 
-            turn = self.provider.value_turn(response, has_spec=spec is not None)
+            turn = self.provider.value_turn(
+                response, has_data_model=data_model is not None
+            )
             if turn.text:
                 yield turn.text
 

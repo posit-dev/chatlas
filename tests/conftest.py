@@ -168,14 +168,16 @@ def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = 
 
 def assert_data_extraction(chat_fun: ChatFun):
     chat = chat_fun()
-    data = chat.extract_data(article, spec=ArticleSummary)
+    data = chat.extract_data(article, data_model=ArticleSummary)
     assert isinstance(data, dict)
     assert data == {"title": "Apples are tasty", "author": "Hadley Wickham"}
+    data2 = chat.extract_data(article, data_model=ArticleSummary)
+    assert data2 == data
 
 
 async def assert_data_extraction_async(chat_fun: ChatFun):
     chat = chat_fun()
-    data = await chat.extract_data_async(article, spec=ArticleSummary)
+    data = await chat.extract_data_async(article, data_model=ArticleSummary)
     assert isinstance(data, dict)
     assert data == {"title": "Apples are tasty", "author": "Hadley Wickham"}
 
