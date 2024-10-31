@@ -40,7 +40,7 @@ jobs:
         run: uv python install ${{ matrix.python-version }}
 
       - name: 📦 Install the project
-        run: uv sync --python ${{ matrix.python-version }} --dev --extra test
+        run: uv sync --python ${{ matrix.python-version }} --all-extras
 
       - name: 🧪 Check tests
         run: make py-check-tests
