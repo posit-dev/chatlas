@@ -514,6 +514,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_region: str | None,
         aws_profile: str | None,
         aws_session_token: str | None,
+        max_tokens: int = 1024,
         base_url: str | None,
         kwargs: Optional["BedrockProviderArgs"] = None,
     ):
@@ -526,6 +527,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
             )
 
         self._model = model
+        self._max_tokens = max_tokens
 
         kwargs_full: "BedrockProviderArgs" = {
             "aws_secret_key": aws_secret_key,

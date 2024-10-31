@@ -462,6 +462,7 @@ def ChatAzureOpenAI(
     api_key: Optional[str] = None,
     system_prompt: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
+    seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["AzureProviderArgs"] = None,
 ) -> Chat["ChatCompletionArgs"]:
     """
@@ -494,6 +495,9 @@ def ChatAzureOpenAI(
         Each message in the list should be a dictionary with at least `role`
         (usually `system`, `user`, or `assistant`, but `tool` is also possible).
         Normally there is also a `content` field, which is a string.
+    seed
+        Optional integer seed that ChatGPT uses to try and make output more
+        reproducible.
     kwargs
         Additional arguments to pass to the `openai.AzureOpenAI()` client constructor.
 
@@ -501,14 +505,18 @@ def ChatAzureOpenAI(
     -------
     Chat
         A Chat object.
-
     """
+
+    if isinstance(seed, MISSING_TYPE):
+        seed = 1014 if is_testing() else None
+
     return Chat(
         provider=OpenAIAzureProvider(
             endpoint=endpoint,
             deployment_id=deployment_id,
             api_version=api_version,
             api_key=api_key,
+            seed=seed,
             kwargs=kwargs,
         ),
         turns=normalize_turns(
@@ -526,6 +534,7 @@ class OpenAIAzureProvider(OpenAIProvider):
         deployment_id: Optional[str] = None,
         api_version: Optional[str] = None,
         api_key: Optional[str] = None,
+        seed: int | None = None,
         kwargs: Optional["AzureProviderArgs"] = None,
     ):
         try:
@@ -535,6 +544,9 @@ class OpenAIAzureProvider(OpenAIProvider):
                 "`ChatAzureOpenAI()` requires the `openai` package. "
                 "Install it with `pip install openai`."
             )
+
+        self._model = deployment_id
+        self._seed = seed
 
         kwargs_full: "AzureProviderArgs" = {
             "azure_endpoint": endpoint,

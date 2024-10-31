@@ -4,6 +4,7 @@ import pytest
 from chatlas import ChatOpenAI, Turn
 
 
+@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_simple_batch_chat():
     chat = ChatOpenAI()
     chat.chat("What's 1 + 1. Just give me the answer, no punctuation")
@@ -12,6 +13,7 @@ def test_simple_batch_chat():
     assert turn.text == "2"
 
 
+@pytest.mark.filterwarnings("ignore:Defaulting to")
 @pytest.mark.asyncio
 async def test_simple_async_batch_chat():
     chat = ChatOpenAI()
@@ -23,6 +25,7 @@ async def test_simple_async_batch_chat():
     assert turn.text == "2"
 
 
+@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_simple_streaming_chat():
     chat = ChatOpenAI()
     res = chat.submit("""
@@ -39,6 +42,7 @@ def test_simple_streaming_chat():
     assert re.match(rainbow_re, turn.text.lower())
 
 
+@pytest.mark.filterwarnings("ignore:Defaulting to")
 @pytest.mark.asyncio
 async def test_simple_streaming_chat_async():
     chat = ChatOpenAI()
@@ -56,6 +60,7 @@ async def test_simple_streaming_chat_async():
     assert re.match(rainbow_re, turn.text.lower())
 
 
+@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_basic_print_method():
     chat = ChatOpenAI(
         system_prompt="You're a helpful assistant that returns very minimal output",
@@ -70,6 +75,7 @@ def test_basic_print_method():
     assert "2  3" in out
 
 
+@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_last_turn_retrieval():
     chat = ChatOpenAI()
     assert chat.last_turn("user") is None
@@ -93,6 +99,7 @@ def test_system_prompt_retrieval():
     assert turn is not None and turn.text == "You are from New Zealand"
 
 
+@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_modify_system_prompt():
     chat = ChatOpenAI(
         turns=[

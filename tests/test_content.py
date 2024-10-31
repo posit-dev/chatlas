@@ -2,6 +2,7 @@ import pytest
 from chatlas import ChatOpenAI
 
 
+@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_invalid_inputs_give_useful_errors():
     chat = ChatOpenAI()
 

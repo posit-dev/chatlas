@@ -1,9 +1,11 @@
 version = 1
 requires-python = ">=3.9"
 resolution-markers = [
-    "python_full_version < '3.11' and platform_system != 'Emscripten'",
+    "python_full_version < '3.10' and platform_system != 'Emscripten'",
+    "python_full_version == '3.10.*' and platform_system != 'Emscripten'",
     "python_full_version == '3.11.*' and platform_system != 'Emscripten'",
-    "python_full_version < '3.11' and platform_system == 'Emscripten'",
+    "python_full_version < '3.10' and platform_system == 'Emscripten'",
+    "python_full_version == '3.10.*' and platform_system == 'Emscripten'",
     "python_full_version == '3.11.*' and platform_system == 'Emscripten'",
     "python_full_version >= '3.12' and python_full_version < '3.12.4' and platform_system != 'Emscripten'",
     "python_full_version >= '3.12' and python_full_version < '3.12.4' and platform_system == 'Emscripten'",
@@ -209,6 +211,35 @@ wheels = [
 ]
 
 [[package]]
+name = "boto3"
+version = "1.35.53"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "botocore" },
+    { name = "jmespath" },
+    { name = "s3transfer" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/12/c1/1dc34b322d2f022d190c34dd4aa7f1a242d73633c25061bf56bd1319fe05/boto3-1.35.53.tar.gz", hash = "sha256:f4124548bb831e13504e805f2fbbfcee06df42fffea0655862c6eb9b95d6d1be", size = 111004 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/38/03/e76ff94253472c6aa7942b3efc726ca8e9c62fdebf884e017633258b7ba4/boto3-1.35.53-py3-none-any.whl", hash = "sha256:a9c0955df0b52b43749d81bde159343a40ea2a3537a46049336fe8193871b18e", size = 139159 },
+]
+
+[[package]]
+name = "botocore"
+version = "1.35.53"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "jmespath" },
+    { name = "python-dateutil" },
+    { name = "urllib3", version = "1.26.20", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "urllib3", version = "2.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/48/c9/d5a1f5ad4024eda0d5d1b4103d28085c13cf42ca377fc141f7df4ad1cec9/botocore-1.35.53.tar.gz", hash = "sha256:e610ae076ad1eaed5680d3990493659bbabdffd67b15c61d8373a23e4bc41062", size = 12918621 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/7f/1e/65687ed2cbc57ba64a5e1100e769d8cccd8532cfba66695e2815ca775b97/botocore-1.35.53-py3-none-any.whl", hash = "sha256:12869640f2f9fab3152ea312a6906d5bc6ae15522cc74b6367ee1c273269a28b", size = 12706469 },
+]
+
+[[package]]
 name = "cachetools"
 version = "5.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -331,6 +362,7 @@ dependencies = [
 [package.optional-dependencies]
 dev = [
     { name = "anthropic" },
+    { name = "boto3" },
     { name = "google-generativeai" },
     { name = "langchain" },
     { name = "langchain-core" },
@@ -358,6 +390,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anthropic", marker = "extra == 'dev'" },
+    { name = "boto3", marker = "extra == 'dev'" },
     { name = "google-generativeai", marker = "extra == 'dev'" },
     { name = "langchain", marker = "extra == 'dev'" },
     { name = "langchain-core", marker = "extra == 'dev'" },
@@ -1078,6 +1111,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/8e/80/7d1c6b7166667ccea4efe4a274264e2f3891c33ded54e98c1f682724f385/jiter-0.6.1-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:db459ed22d0208940d87f614e1f0ea5a946d29a3cfef71f7e1aab59b6c6b2afb", size = 496959 },
     { url = "https://files.pythonhosted.org/packages/c0/06/5e3317f8a62e09507efe384710cb0de8dff9b80200122d93b3e83a14a2a1/jiter-0.6.1-cp39-none-win32.whl", hash = "sha256:d71c962f0971347bd552940ab96aa42ceefcd51b88c4ced8a27398182efa8d80", size = 198317 },
     { url = "https://files.pythonhosted.org/packages/b4/ee/6d9873144f860391fd1130be0e1e5a1dbd7e9d128da1c7baf1ae71babb99/jiter-0.6.1-cp39-none-win_amd64.whl", hash = "sha256:d465db62d2d10b489b7e7a33027c4ae3a64374425d757e963f86df5b5f2e7fc5", size = 202278 },
+]
+
+[[package]]
+name = "jmespath"
+version = "1.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/00/2a/e867e8531cf3e36b41201936b7fa7ba7b5702dbef42922193f05c8976cd6/jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe", size = 25843 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/31/b4/b9b800c45527aadd64d5b442f9b932b00648617eb5d63d2c7a6587b7cafc/jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980", size = 20256 },
 ]
 
 [[package]]
@@ -2143,7 +2185,8 @@ dependencies = [
     { name = "certifi" },
     { name = "charset-normalizer" },
     { name = "idna" },
-    { name = "urllib3" },
+    { name = "urllib3", version = "1.26.20", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "urllib3", version = "2.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/63/70/2bf7780ad2d390a8d301ad0b550f1581eadbd9a20f896afe06353c2a2913/requests-2.32.3.tar.gz", hash = "sha256:55365417734eb18255590a9ff9eb97e9e1da868d4ccd6402399eaf68af20a760", size = 131218 }
 wheels = [
@@ -2211,6 +2254,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/fb/c39cbf32d1f3e318674b8622f989417231794926b573f76dd4d0ca49f0f1/ruff-0.7.1-py3-none-win32.whl", hash = "sha256:b517a2011333eb7ce2d402652ecaa0ac1a30c114fbbd55c6b8ee466a7f600ee9", size = 8594180 },
     { url = "https://files.pythonhosted.org/packages/5a/71/ec8cdea34ecb90c830ca60d54ac7b509a7b5eab50fae27e001d4470fe813/ruff-0.7.1-py3-none-win_amd64.whl", hash = "sha256:f38c41fcde1728736b4eb2b18850f6d1e3eedd9678c914dede554a70d5241307", size = 9419751 },
     { url = "https://files.pythonhosted.org/packages/79/7b/884553415e9f0a9bf358ed52fb68b934e67ef6c5a62397ace924a1afdf9a/ruff-0.7.1-py3-none-win_arm64.whl", hash = "sha256:19aa200ec824c0f36d0c9114c8ec0087082021732979a359d6f3c390a6ff2a37", size = 8717402 },
+]
+
+[[package]]
+name = "s3transfer"
+version = "0.10.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "botocore" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a0/a8/e0a98fd7bd874914f0608ef7c90ffde17e116aefad765021de0f012690a2/s3transfer-0.10.3.tar.gz", hash = "sha256:4f50ed74ab84d474ce614475e0b8d5047ff080810aac5d01ea25231cfc944b0c", size = 144591 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e5/c0/b0fba8259b61c938c9733da9346b9f93e00881a9db22aafdd72f6ae0ec05/s3transfer-0.10.3-py3-none-any.whl", hash = "sha256:263ed587a5803c6c708d3ce44dc4dfedaab4c1a32e8329bab818933d79ddcf5d", size = 82625 },
 ]
 
 [[package]]
@@ -2505,8 +2560,33 @@ wheels = [
 
 [[package]]
 name = "urllib3"
+version = "1.26.20"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.10' and platform_system != 'Emscripten'",
+    "python_full_version < '3.10' and platform_system == 'Emscripten'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e4/e8/6ff5e6bc22095cfc59b6ea711b687e2b7ed4bdb373f7eeec370a97d7392f/urllib3-1.26.20.tar.gz", hash = "sha256:40c2dc0c681e47eb8f90e7e27bf6ff7df2e677421fd46756da1161c39ca70d32", size = 307380 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/33/cf/8435d5a7159e2a9c83a95896ed596f68cf798005fe107cc655b5c5c14704/urllib3-1.26.20-py2.py3-none-any.whl", hash = "sha256:0ed14ccfbf1c30a9072c7ca157e4319b70d65f623e91e7b32fadb2853431016e", size = 144225 },
+]
+
+[[package]]
+name = "urllib3"
 version = "2.2.3"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version == '3.10.*' and platform_system != 'Emscripten'",
+    "python_full_version == '3.11.*' and platform_system != 'Emscripten'",
+    "python_full_version == '3.10.*' and platform_system == 'Emscripten'",
+    "python_full_version == '3.11.*' and platform_system == 'Emscripten'",
+    "python_full_version >= '3.12' and python_full_version < '3.12.4' and platform_system != 'Emscripten'",
+    "python_full_version >= '3.12' and python_full_version < '3.12.4' and platform_system == 'Emscripten'",
+    "python_full_version >= '3.12.4' and python_full_version < '3.13' and platform_system != 'Emscripten'",
+    "python_full_version >= '3.12.4' and python_full_version < '3.13' and platform_system == 'Emscripten'",
+    "python_full_version >= '3.13' and platform_system != 'Emscripten'",
+    "python_full_version >= '3.13' and platform_system == 'Emscripten'",
+]
 sdist = { url = "https://files.pythonhosted.org/packages/ed/63/22ba4ebfe7430b76388e7cd448d5478814d3032121827c12a2cc287e2260/urllib3-2.2.3.tar.gz", hash = "sha256:e7d814a81dad81e6caf2ec9fdedb284ecc9c73076b62654547cc64ccdcae26e9", size = 300677 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ce/d9/5f4c13cecde62396b0d3fe530a50ccea91e7dfc1ccf0e09c228841bb5ba8/urllib3-2.2.3-py3-none-any.whl", hash = "sha256:ca899ca043dcb1bafa3e262d73aa25c465bfb49e0bd9dd5d59f1d0acba2f8fac", size = 126338 },
