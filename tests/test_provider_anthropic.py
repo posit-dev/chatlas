@@ -11,6 +11,7 @@ from .conftest import (
     assert_tools_simple,
     assert_turns_existing,
     assert_turns_system,
+    retryassert,
 )
 
 
@@ -49,7 +50,12 @@ def test_anthropic_tool_variations():
     chat_fun = ChatAnthropic
     assert_tools_simple(chat_fun)
     assert_tools_parallel(chat_fun)
-    assert_tools_sequential(chat_fun, total_calls=6)
+
+    # Fails occassionally returning "" instead of Susan
+    def run_sequentialassert():
+        assert_tools_sequential(chat_fun, total_calls=6)
+
+    retryassert(run_sequentialassert)
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
