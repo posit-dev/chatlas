@@ -484,7 +484,7 @@ def ChatBedrockAnthropic(
 
     if model is None:
         # Default model from https://github.com/anthropics/anthropic-sdk-python?tab=readme-ov-file#aws-bedrock
-        model = inform_model_default("anthropic.claude-3-sonnet-20240229-v1:0")
+        model = inform_model_default("anthropic.claude-3-5-sonnet-20241022-v2:0")
 
     return Chat(
         provider=AnthropicBedrockProvider(
