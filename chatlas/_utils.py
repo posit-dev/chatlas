@@ -2,7 +2,9 @@ import functools
 import inspect
 import os
 import warnings
-from typing import Awaitable, Callable, ParamSpec, TypeGuard, TypeVar, cast
+from typing import Awaitable, Callable, TypeVar, cast
+
+from ._typing_extensions import ParamSpec, TypeGuard
 
 # Copied from shiny/_utils.py
 

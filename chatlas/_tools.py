@@ -1,5 +1,4 @@
 import inspect
-import sys
 from typing import (
     Annotated,
     Any,
@@ -11,15 +10,11 @@ from typing import (
     get_type_hints,
 )
 
-if sys.version_info >= (3, 10):
-    from typing import is_typeddict
-else:
-    from typing_extensions import is_typeddict
-
 from pydantic import BaseModel
-from typing_extensions import Literal, Required, TypedDict
+from typing_extensions import Literal
 
 from . import _utils
+from ._typing_extensions import Required, TypedDict, is_typeddict
 
 __all__ = ("ToolDef",)
 
