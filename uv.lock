@@ -176,6 +176,7 @@ name = "chatlas"
 version = "0.0.1"
 source = { editable = "." }
 dependencies = [
+    { name = "pydantic" },
     { name = "rich" },
 ]
 
@@ -215,8 +216,9 @@ requires-dist = [
     { name = "matplotlib", marker = "extra == 'dev'" },
     { name = "numpy", marker = "extra == 'dev'", specifier = ">1.24.4" },
     { name = "ollama", marker = "extra == 'dev'" },
-    { name = "openai", marker = "extra == 'dev'" },
+    { name = "openai", marker = "extra == 'dev'", specifier = "==1.52.2" },
     { name = "pillow", marker = "extra == 'dev'" },
+    { name = "pydantic", specifier = ">=2.0" },
     { name = "pyright", marker = "extra == 'test'", specifier = ">=1.1.379" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.3.2" },
     { name = "pytest-asyncio", marker = "extra == 'test'" },
@@ -1174,7 +1176,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "1.50.1"
+version = "1.52.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -1186,9 +1188,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ba/41/9bef10cdc095d63655bfdff7485555fe419951ecc037082ec4cd7d39687d/openai-1.50.1.tar.gz", hash = "sha256:80cbdf275488894c70bfbad711dbba6f31ea71d579b97e364bfd99cdf030158e", size = 303995 }
+sdist = { url = "https://files.pythonhosted.org/packages/a5/78/1c4658043cdbb7faf7f388cbb3902d5f8b9a307e10f2021b1a8a4b0b8b15/openai-1.52.2.tar.gz", hash = "sha256:87b7d0f69d85f5641678d414b7ee3082363647a5c66a462ed7f3ccb59582da0d", size = 310119 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0b/fa/9fc9811917fe47ae3e0f8d4b4443e0ad6d754e1f97971b67daf64b0ca175/openai-1.50.1-py3-none-any.whl", hash = "sha256:7967fc8372d5e005ad61514586fb286d593facafccedbee00416bc38ee07c2e6", size = 378940 },
+    { url = "https://files.pythonhosted.org/packages/55/4c/906b5b32c4c01402ac3b4c3fc28f601443ac5c6f13c84a95dd178c8d545d/openai-1.52.2-py3-none-any.whl", hash = "sha256:57e9e37bc407f39bb6ec3a27d7e8fb9728b2779936daa1fcf95df17d3edfaccc", size = 386947 },
 ]
 
 [[package]]

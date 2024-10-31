@@ -2,6 +2,8 @@ import pytest
 from chatlas import ChatOpenAI
 
 from .conftest import (
+    assert_data_extraction,
+    assert_data_extraction_async,
     assert_images_inline,
     assert_images_remote,
     assert_tools_async,
@@ -55,6 +57,17 @@ def test_openai_tool_variations():
 @pytest.mark.asyncio
 async def test_openai_tool_variations_async():
     await assert_tools_async(ChatOpenAI)
+
+
+@pytest.mark.filterwarnings("ignore:Defaulting to")
+def test_data_extraction():
+    assert_data_extraction(ChatOpenAI)
+
+
+@pytest.mark.filterwarnings("ignore:Defaulting to")
+@pytest.mark.asyncio
+async def test_data_extraction_async():
+    await assert_data_extraction_async(ChatOpenAI)
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")

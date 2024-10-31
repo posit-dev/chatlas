@@ -11,7 +11,9 @@ from typing import (
     TypeVar,
 )
 
-from ._content import Content, ContentToolRequest, ContentToolResult
+from pydantic import BaseModel
+
+from ._content import Content, ContentJson, ContentToolRequest, ContentToolResult
 from ._provider import Provider
 from ._tools import ToolDef
 from ._turn import Turn, user_turn
@@ -314,6 +316,100 @@ class Chat(Generic[ChatRequestArgsT]):
         async for chunk in self._chat_impl_async(turn, stream=stream, kwargs=kwargs):
             yield chunk
 
+    def extract_data(
+        self,
+        *args: Content | str,
+        spec: type[BaseModel],
+        stream: bool = False,
+    ) -> dict[str, Any]:
+        """
+        Extract structured data from the given input.
+
+        Parameters
+        ----------
+        args
+            The input to extract data from.
+        spec
+            A Pydantic model describing the structure of the data to extract.
+
+        Returns
+        -------
+        Any
+            The extracted data.
+        """
+
+        generator = self._submit_turns(
+            user_turn(*args),
+            spec=spec,
+            stream=stream,  # TODO: echo != "none"?
+        )
+
+        for _ in generator:
+            pass
+
+        turn = self.last_turn()
+        assert turn is not None
+
+        res: list[ContentJson] = []
+        for x in turn.contents:
+            if isinstance(x, ContentJson):
+                res.append(x)
+
+        if len(res) != 1:
+            raise ValueError(
+                f"Data extraction failed: {len(res)} data results received."
+            )
+
+        json = res[0]
+        return json.value
+
+    async def extract_data_async(
+        self,
+        *args: Content | str,
+        spec: type[BaseModel],
+        stream: bool = False,
+    ) -> dict[str, Any]:
+        """
+        Extract structured data from the given input asynchronously.
+
+        Parameters
+        ----------
+        args
+            The input to extract data from.
+        spec
+            A Pydantic model describing the structure of the data to extract.
+
+        Returns
+        -------
+        Any
+            The extracted data.
+        """
+
+        generator = self._submit_turns_async(
+            user_turn(*args),
+            spec=spec,
+            stream=stream,
+        )
+
+        async for _ in generator:
+            pass
+
+        turn = self.last_turn()
+        assert turn is not None
+
+        res: list[ContentJson] = []
+        for x in turn.contents:
+            if isinstance(x, ContentJson):
+                res.append(x)
+
+        if len(res) != 1:
+            raise ValueError(
+                f"Data extraction failed: {len(res)} data results received."
+            )
+
+        json = res[0]
+        return json.value
+
     def register_tool(
         self,
         tool: Callable[..., Any] | Callable[..., Awaitable[Any]] | ToolDef,
@@ -409,6 +505,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         user_turn: Turn,
         stream: bool,
+        spec: type[BaseModel] | None = None,
         kwargs: Optional[ChatRequestArgsT] = None,
     ) -> Generator[str, None, None]:
         if any(x._is_async for x in self.tools.values()):
@@ -419,6 +516,7 @@ class Chat(Generic[ChatRequestArgsT]):
                 stream=True,
                 turns=[*self._turns, user_turn],
                 tools=self.tools,
+                spec=spec,
                 kwargs=kwargs,
             )
 
@@ -429,17 +527,18 @@ class Chat(Generic[ChatRequestArgsT]):
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
-            turn = self.provider.stream_turn(result)
+            turn = self.provider.stream_turn(result, has_spec=spec is not None)
 
         else:
             response = self.provider.chat_perform(
                 stream=False,
                 turns=[*self._turns, user_turn],
                 tools=self.tools,
+                spec=spec,
                 kwargs=kwargs,
             )
 
-            turn = self.provider.value_turn(response)
+            turn = self.provider.value_turn(response, has_spec=spec is not None)
             if turn.text:
                 yield turn.text
 
@@ -449,6 +548,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         user_turn: Turn,
         stream: bool,
+        spec: type[BaseModel] | None = None,
         kwargs: Optional[ChatRequestArgsT] = None,
     ) -> AsyncGenerator[str, None]:
         if stream:
@@ -456,6 +556,7 @@ class Chat(Generic[ChatRequestArgsT]):
                 stream=True,
                 turns=[*self._turns, user_turn],
                 tools=self.tools,
+                spec=spec,
                 kwargs=kwargs,
             )
 
@@ -466,17 +567,18 @@ class Chat(Generic[ChatRequestArgsT]):
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
-            turn = self.provider.stream_turn(result)
+            turn = self.provider.stream_turn(result, has_spec=spec is not None)
 
         else:
             response = await self.provider.chat_perform_async(
                 stream=False,
                 turns=[*self._turns, user_turn],
                 tools=self.tools,
+                spec=spec,
                 kwargs=kwargs,
             )
 
-            turn = self.provider.value_turn(response)
+            turn = self.provider.value_turn(response, has_spec=spec is not None)
             if turn.text:
                 yield turn.text
 

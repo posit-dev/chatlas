@@ -5,8 +5,25 @@ from typing import Callable
 import pytest
 from chatlas import Chat, ToolDef, Turn, content_image_file, content_image_url
 from PIL import Image
+from pydantic import BaseModel
 
 ChatFun = Callable[..., Chat]
+
+
+class ArticleSummary(BaseModel):
+    """Summary of the article"""
+
+    title: str
+    author: str
+
+
+article = """
+# Apples are tasty
+
+By Hadley Wickham
+Apples are delicious and tasty and I like to eat them.
+Except for red delicious, that is. They are NOT delicious.
+"""
 
 
 def retryassert(assert_func: Callable[..., None], retries=1):
@@ -147,6 +164,20 @@ def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = 
     turn = chat.last_turn()
     assert turn is not None
     assert "Susan" in turn.text
+
+
+def assert_data_extraction(chat_fun: ChatFun):
+    chat = chat_fun()
+    data = chat.extract_data(article, spec=ArticleSummary)
+    assert isinstance(data, dict)
+    assert data == {"title": "Apples are tasty", "author": "Hadley Wickham"}
+
+
+async def assert_data_extraction_async(chat_fun: ChatFun):
+    chat = chat_fun()
+    data = await chat.extract_data_async(article, spec=ArticleSummary)
+    assert isinstance(data, dict)
+    assert data == {"title": "Apples are tasty", "author": "Hadley Wickham"}
 
 
 def assert_images_inline(chat_fun: ChatFun, stream: bool = True):

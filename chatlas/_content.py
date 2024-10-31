@@ -62,3 +62,15 @@ class ContentToolResult(Content):
         if self.error:
             return f"[tool result ({self.id})]: Error: {self.error}"
         return f"[tool result ({self.id})]: {self.value}"
+
+
+@dataclass
+class ContentJson(Content):
+    value: dict[str, Any]
+
+    def __str__(self):
+        return f"[json]: {self.value}"
+
+    def to_json(self):
+        import json
+        return json.dumps(self.value)
