@@ -170,12 +170,12 @@ def type_dict(
     return res
 
 
-def basemodel_to_tool_schema(
+def basemodel_to_tool_params(
     model: type[BaseModel],
     *,
     name: Optional[str] = None,
     description: Optional[str] = None,
-) -> ToolSchema:
+) -> ToolSchemaParams:
     try:
         import openai
     except ImportError:
@@ -208,14 +208,7 @@ def basemodel_to_tool_schema(
         required = params["required"]
 
     return {
-        "type": "function",
-        "function": {
-            "name": fn["name"],
-            "description": fn.get("description", ""),
-            "parameters": {
-                "type": "object",
-                "properties": properties,
-                "required": required,
-            },
-        },
+        "type": "object",
+        "properties": properties,
+        "required": required,
     }

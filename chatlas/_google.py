@@ -1,16 +1,21 @@
+import json
 from typing import TYPE_CHECKING, Literal, Optional, overload
+
+from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
     Content,
     ContentImageInline,
     ContentImageRemote,
+    ContentJson,
     ContentText,
     ContentToolRequest,
     ContentToolResult,
 )
-from ._provider import Provider, ToolDef
+from ._provider import Provider
 from ._tokens import tokens_log
+from ._tools import ToolDef, basemodel_to_tool_params
 from ._turn import Turn, normalize_turns
 from ._utils import inform_model_default
 
@@ -20,7 +25,10 @@ if TYPE_CHECKING:
         FunctionDeclaration,
         PartType,
     )
-    from google.generativeai.types.generation_types import GenerateContentResponse
+    from google.generativeai.types.generation_types import (
+        GenerateContentResponse,
+        GenerationConfig,
+    )
 
     from .types._google_client import ProviderClientArgs
     from .types._google_create import SendMessageArgs
@@ -128,6 +136,7 @@ class GoogleProvider(
         stream: Literal[False],
         turns: list[Turn],
         tools: dict[str, ToolDef],
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ): ...
 
@@ -138,6 +147,7 @@ class GoogleProvider(
         stream: Literal[True],
         turns: list[Turn],
         tools: dict[str, ToolDef],
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ): ...
 
@@ -146,9 +156,10 @@ class GoogleProvider(
         stream: bool,
         turns: list[Turn],
         tools: dict[str, ToolDef],
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ):
-        kwargs = self._chat_perform_args(stream, turns, tools, kwargs)
+        kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return self._client.generate_content(**kwargs)
 
     @overload
@@ -158,6 +169,7 @@ class GoogleProvider(
         stream: Literal[False],
         turns: list[Turn],
         tools: dict[str, ToolDef],
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ): ...
 
@@ -168,6 +180,7 @@ class GoogleProvider(
         stream: Literal[True],
         turns: list[Turn],
         tools: dict[str, ToolDef],
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ): ...
 
@@ -176,9 +189,10 @@ class GoogleProvider(
         stream: bool,
         turns: list[Turn],
         tools: dict[str, ToolDef],
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ):
-        kwargs = self._chat_perform_args(stream, turns, tools, kwargs)
+        kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return await self._client.generate_content_async(**kwargs)
 
     def _chat_perform_args(
@@ -186,14 +200,36 @@ class GoogleProvider(
         stream: bool,
         turns: list[Turn],
         tools: dict[str, ToolDef],
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ) -> "SendMessageArgs":
-        return {
+        kwargs_full: "SendMessageArgs" = {
             "contents": self._google_contents(turns),
             "stream": stream,
             "tools": self._gemini_tools(list(tools.values())) if tools else None,
             **(kwargs or {}),
         }
+
+        if data_model:
+            config = kwargs_full.get("generation_config", {})
+            params = basemodel_to_tool_params(data_model)
+
+            # Drop the 'title' key from each parameter since pydantic likes to include it
+            # but Gemini doesn't want it
+            for k, v in params["properties"].items():
+                v.pop("title")  # type: ignore
+
+            mime_type = "application/json"
+            if isinstance(config, dict):
+                config["response_schema"] = params
+                config["response_mime_type"] = mime_type
+            elif isinstance(config, GenerationConfig):
+                config.response_schema = params
+                config.response_mime_type = mime_type
+
+            kwargs_full["generation_config"] = config
+
+        return kwargs_full
 
     def stream_text(self, chunk) -> Optional[str]:
         if chunk.parts:
@@ -203,11 +239,11 @@ class GoogleProvider(
     def stream_merge_chunks(self, completion, chunk):
         return chunk
 
-    def stream_turn(self, completion) -> Turn:
-        return self._as_turn(completion)
+    def stream_turn(self, completion, has_data_model) -> Turn:
+        return self._as_turn(completion, has_data_model)
 
-    def value_turn(self, completion) -> Turn:
-        return self._as_turn(completion)
+    def value_turn(self, completion, has_data_model) -> Turn:
+        return self._as_turn(completion, has_data_model)
 
     def _google_contents(self, turns: list[Turn]) -> list["ContentDict"]:
         contents: list["ContentDict"] = []
@@ -229,6 +265,11 @@ class GoogleProvider(
 
         if isinstance(content, ContentText):
             return protos.Part(text=content.text)
+        # TODO: we have the same problem as elmer here.
+        # See what hadley does to fix it.
+        # https://github.com/tidyverse/elmer/issues/142
+        elif isinstance(content, ContentJson):
+            return protos.Part(text=str(content.value))
         elif isinstance(content, ContentImageInline):
             return protos.Part(
                 inline_data={
@@ -261,11 +302,18 @@ class GoogleProvider(
             )
         raise ValueError(f"Unknown content type: {type(content)}")
 
-    def _as_turn(self, message: "GenerateContentResponse") -> Turn:
+    def _as_turn(
+        self,
+        message: "GenerateContentResponse",
+        has_data_model: bool,
+    ) -> Turn:
         contents = []
         for part in message.parts:
             if part.text:
-                contents.append(ContentText(part.text))
+                if has_data_model:
+                    contents.append(ContentJson(json.loads(part.text)))
+                else:
+                    contents.append(ContentText(part.text))
             if part.function_call:
                 func = part.function_call
                 contents.append(

@@ -16,7 +16,7 @@ from ._content import (
 )
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import ToolDef, ToolSchema, basemodel_to_tool_schema
+from ._tools import ToolDef, ToolSchema, basemodel_to_tool_params
 from ._turn import Turn, normalize_turns
 from ._utils import inform_model_default
 
@@ -240,10 +240,9 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 description="Extract structured data",
             )
 
-            schema = basemodel_to_tool_schema(data_model)
-            data_model_tool.schema["function"]["parameters"] = schema["function"][
-                "parameters"
-            ]
+            data_model_tool.schema["function"]["parameters"] = basemodel_to_tool_params(
+                data_model
+            )
 
             tool_schemas.append(self._anthropic_tool_schema(data_model_tool.schema))
 
@@ -333,7 +332,8 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
     def _as_content_block(content: Content) -> "ContentBlockParam":
         if isinstance(content, ContentText):
             return {"text": content.text, "type": "text"}
-        # TODO: we have the same problem as elmer here. See what hadley does to fix it.
+        # TODO: we have the same problem as elmer here.
+        # See what hadley does to fix it.
         # https://github.com/tidyverse/elmer/issues/142
         # elif isinstance(content, ContentJson):
         #    return {

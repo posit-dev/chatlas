@@ -16,7 +16,7 @@ from ._content import (
 from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import ToolDef, ToolSchema, basemodel_to_tool_schema
+from ._tools import ToolDef, ToolSchema, basemodel_to_tool_params
 from ._turn import Turn, normalize_turns
 from ._utils import MISSING, MISSING_TYPE, inform_model_default, is_testing
 
@@ -253,15 +253,15 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             **(kwargs or {}),
         }
 
-        if data_model is not None and "response_format" not in kwargs_full:
-            schema = self._openai_tool_schema(basemodel_to_tool_schema(data_model))
-            if "parameters" not in schema["function"]:
-                raise ValueError("Model schema must have parameters")
+        if data_model is not None:
+            params = basemodel_to_tool_params(data_model)
+            params = cast(dict, params)
+            params["additionalProperties"] = False
             kwargs_full["response_format"] = {
                 "type": "json_schema",
                 "json_schema": {
                     "name": "structured_data",
-                    "schema": schema["function"]["parameters"],
+                    "schema": params,
                     "strict": True,
                 },
             }

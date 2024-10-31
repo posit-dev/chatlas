@@ -2,6 +2,8 @@ import pytest
 from chatlas import ChatGoogle
 
 from .conftest import (
+    assert_data_extraction,
+    assert_data_extraction_async,
     assert_images_inline,
     assert_images_remote_error,
     assert_tools_async,
@@ -62,6 +64,17 @@ def test_google_tool_variations():
 @pytest.mark.asyncio
 async def test_google_tool_variations_async():
     await assert_tools_async(ChatGoogle, stream=False)
+
+
+@pytest.mark.filterwarnings("ignore:Defaulting to")
+def test_data_extraction():
+    assert_data_extraction(ChatGoogle)
+
+
+@pytest.mark.filterwarnings("ignore:Defaulting to")
+@pytest.mark.asyncio
+async def test_data_extraction_async():
+    await assert_data_extraction_async(ChatGoogle)
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
