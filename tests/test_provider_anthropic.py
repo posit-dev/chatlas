@@ -55,7 +55,7 @@ def test_anthropic_tool_variations():
     def run_sequentialassert():
         assert_tools_sequential(chat_fun, total_calls=6)
 
-    retryassert(run_sequentialassert)
+    retryassert(run_sequentialassert, retries=5)
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
