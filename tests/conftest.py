@@ -177,13 +177,6 @@ def assert_data_extraction(chat_fun: ChatFun):
     # assert data2 == data
 
 
-async def assert_data_extraction_async(chat_fun: ChatFun):
-    chat = chat_fun()
-    data = await chat.extract_data_async(article, data_model=ArticleSummary)
-    assert isinstance(data, dict)
-    assert data == {"title": "Apples are tasty", "author": "Hadley Wickham"}
-
-
 def assert_images_inline(chat_fun: ChatFun, stream: bool = True):
     img = Image.new("RGB", (60, 30), color="red")
     with tempfile.TemporaryDirectory() as tmpdir:

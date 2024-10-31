@@ -2,6 +2,7 @@ import re
 
 import pytest
 from chatlas import ChatOpenAI, Turn
+from pydantic import BaseModel
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
@@ -76,6 +77,33 @@ def test_basic_print_method():
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
+def test_extract_data():
+    chat = ChatOpenAI()
+
+    class Person(BaseModel):
+        name: str
+        age: int
+
+    data = chat.extract_data("John, age 15, won first prize", data_model=Person)
+    assert data == dict(name="John", age=15)
+
+
+@pytest.mark.filterwarnings("ignore:Defaulting to")
+@pytest.mark.asyncio
+async def test_extract_data_async():
+    chat = ChatOpenAI()
+
+    class Person(BaseModel):
+        name: str
+        age: int
+
+    data = await chat.extract_data_async(
+        "John, age 15, won first prize", data_model=Person
+    )
+    assert data == dict(name="John", age=15)
+
+
+@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_last_turn_retrieval():
     chat = ChatOpenAI()
     assert chat.last_turn("user") is None
@@ -88,6 +116,7 @@ def test_last_turn_retrieval():
     assert turn is not None and turn.role == "assistant"
 
 
+@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_system_prompt_retrieval():
     chat1 = ChatOpenAI()
     assert chat1.system_prompt is None

@@ -1,10 +1,10 @@
 import pytest
-from chatlas import ChatOpenAI
+from chatlas import ChatBedrockAnthropic
 
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
-    assert_images_remote,
+    assert_images_remote_error,
     assert_tools_async,
     assert_tools_parallel,
     assert_tools_sequential,
@@ -15,20 +15,20 @@ from .conftest import (
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
-def test_openai_simple_request():
-    chat = ChatOpenAI(
+def test_anthropic_simple_request():
+    chat = ChatBedrockAnthropic(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
     turn = chat.last_turn()
     assert turn is not None
-    assert turn.tokens == (27, 1)
+    assert turn.tokens == (26, 5)
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
 @pytest.mark.asyncio
-async def test_openai_simple_streaming_request():
-    chat = ChatOpenAI(
+async def test_anthropic_simple_streaming_request():
+    chat = ChatBedrockAnthropic(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -38,15 +38,15 @@ async def test_openai_simple_streaming_request():
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
-def test_openai_respects_turns_interface():
-    chat_fun = ChatOpenAI
+def test_anthropic_respects_turns_interface():
+    chat_fun = ChatBedrockAnthropic
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
-def test_openai_tool_variations():
-    chat_fun = ChatOpenAI
+def test_anthropic_tool_variations():
+    chat_fun = ChatBedrockAnthropic
     assert_tools_simple(chat_fun)
     assert_tools_parallel(chat_fun)
     assert_tools_sequential(chat_fun, total_calls=6)
@@ -54,32 +54,18 @@ def test_openai_tool_variations():
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
 @pytest.mark.asyncio
-async def test_openai_tool_variations_async():
-    await assert_tools_async(ChatOpenAI)
+async def test_anthropic_tool_variations_async():
+    await assert_tools_async(ChatBedrockAnthropic)
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_data_extraction():
-    assert_data_extraction(ChatOpenAI)
+    assert_data_extraction(ChatBedrockAnthropic)
+
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
-def test_openai_images():
-    chat_fun = ChatOpenAI
+def test_anthropic_images():
+    chat_fun = ChatBedrockAnthropic
     assert_images_inline(chat_fun)
-    assert_images_remote(chat_fun)
-
-
-@pytest.mark.asyncio
-@pytest.mark.filterwarnings("ignore:Defaulting to")
-async def test_openai_logprobs():
-    chat = ChatOpenAI()
-
-    pieces = []
-    async for x in chat.submit_async("Hi", kwargs={"logprobs": True}):
-        pieces.append(x)
-
-    turn = chat.last_turn()
-    assert turn is not None
-    logprobs = turn.json_data["choices"][0]["logprobs"]["content"]
-    assert len(logprobs) == len(pieces)
+    assert_images_remote_error(chat_fun)

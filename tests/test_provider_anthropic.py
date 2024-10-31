@@ -3,7 +3,6 @@ from chatlas import ChatAnthropic
 
 from .conftest import (
     assert_data_extraction,
-    assert_data_extraction_async,
     assert_images_inline,
     assert_images_remote_error,
     assert_tools_async,
@@ -62,12 +61,6 @@ async def test_anthropic_tool_variations_async():
 @pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_data_extraction():
     assert_data_extraction(ChatAnthropic)
-
-
-@pytest.mark.filterwarnings("ignore:Defaulting to")
-@pytest.mark.asyncio
-async def test_data_extraction_async():
-    await assert_data_extraction_async(ChatAnthropic)
 
 
 @pytest.mark.filterwarnings("ignore:Defaulting to")
