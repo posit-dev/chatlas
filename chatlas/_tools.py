@@ -1,5 +1,4 @@
 import inspect
-from types import NoneType
 from typing import (
     Annotated,
     Any,
@@ -152,7 +151,7 @@ def type_to_json_schema(
         return type_dict("number", desc)
     if t is bool:
         return type_dict("boolean", desc)
-    if t is NoneType:
+    if t is None:
         return type_dict("null", desc)
     raise ValueError(f"Unsupported type: {t}")
 
