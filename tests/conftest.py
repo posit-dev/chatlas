@@ -102,7 +102,9 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
         return "2024-01-01"
 
     chat.register_tool(
-        ToolDef(async_mock, name="get_date", description="Gets the current date")
+        ToolDef(
+            async_mock, name="get_current_date", description="Gets the current date"
+        )
     )
 
     await chat.chat_async("What's the current date in YMD format?", stream=stream)
@@ -149,12 +151,13 @@ def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = 
     chat.register_tool(
         ToolDef(
             lambda: 2024,
-            name="get_year",
+            name="current_year",
             description="Get the current year",
         )
     )
 
     def popular_name(year: int):
+        """Gets the most popular name for a given year"""
         return "Susan" if year == 2024 else "I don't know"
 
     chat.register_tool(popular_name)
