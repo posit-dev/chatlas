@@ -15,7 +15,6 @@ from .conftest import (
 )
 
 
-@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_anthropic_simple_request():
     chat = ChatAnthropic(
         system_prompt="Be as terse as possible; no punctuation",
@@ -26,7 +25,6 @@ def test_anthropic_simple_request():
     assert turn.tokens == (26, 5)
 
 
-@pytest.mark.filterwarnings("ignore:Defaulting to")
 @pytest.mark.asyncio
 async def test_anthropic_simple_streaming_request():
     chat = ChatAnthropic(
@@ -38,14 +36,12 @@ async def test_anthropic_simple_streaming_request():
     assert "2" in "".join(res)
 
 
-@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_anthropic_respects_turns_interface():
     chat_fun = ChatAnthropic
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
-@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_anthropic_tool_variations():
     chat_fun = ChatAnthropic
     assert_tools_simple(chat_fun)
@@ -58,18 +54,15 @@ def test_anthropic_tool_variations():
     retryassert(run_sequentialassert, retries=5)
 
 
-@pytest.mark.filterwarnings("ignore:Defaulting to")
 @pytest.mark.asyncio
 async def test_anthropic_tool_variations_async():
     await assert_tools_async(ChatAnthropic)
 
 
-@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_data_extraction():
     assert_data_extraction(ChatAnthropic)
 
 
-@pytest.mark.filterwarnings("ignore:Defaulting to")
 def test_anthropic_images():
     chat_fun = ChatAnthropic
     assert_images_inline(chat_fun)

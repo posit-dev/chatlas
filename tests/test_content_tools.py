@@ -2,7 +2,6 @@ import pytest
 from chatlas import ChatOpenAI
 
 
-@pytest.mark.filterwarnings("ignore:Defaulting to")
 @pytest.mark.asyncio
 async def test_invoke_tool_returns_tool_result():
     chat = ChatOpenAI()

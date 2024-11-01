@@ -74,6 +74,7 @@ class DefaultModelWarning(Warning):
 
 
 def inform_model_default(model: str, stacklevel: int = 3) -> str:
-    msg = f"Defaulting to `model = '{model}'`."
-    warnings.warn(msg, DefaultModelWarning, stacklevel=stacklevel)
+    if not is_testing():
+        msg = f"Defaulting to `model = '{model}'`."
+        warnings.warn(msg, DefaultModelWarning, stacklevel=stacklevel)
     return model

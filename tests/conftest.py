@@ -163,6 +163,7 @@ def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = 
     chat.register_tool(popular_name)
 
     chat.chat("What was the most popular name this year.", stream=stream)
+    breakpoint()
     assert len(chat.turns()) == total_calls
     turn = chat.last_turn()
     assert turn is not None
