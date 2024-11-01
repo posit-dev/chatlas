@@ -64,10 +64,10 @@ class ContentToolResult(Content):
             return f"[tool result ({self.id})]: Error: {self.error}"
         return f"[tool result ({self.id})]: {self.value}"
 
-    def get_final_value(self):
+    def get_final_value(self) -> Any:
         if self.error:
             return f"Tool calling failed with error: '{self.error}'"
-        return self.value
+        return str(self.value)
 
 
 @dataclass
