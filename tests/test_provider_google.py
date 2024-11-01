@@ -1,3 +1,4 @@
+import os
 import time
 
 import pytest
@@ -13,6 +14,10 @@ from .conftest import (
     assert_turns_existing,
     assert_turns_system,
 )
+
+test_google = os.getenv("TEST_GOOGLE", "true")
+if test_google.lower() == "false":
+    pytest.skip("Skipping Google tests", allow_module_level=True)
 
 
 def test_google_simple_request():
