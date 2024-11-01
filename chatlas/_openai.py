@@ -408,8 +408,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             },
         }
 
-    @staticmethod
-    def _as_turn(completion: "ChatCompletion", has_data_model: bool) -> Turn:
+    def _as_turn(self, completion: "ChatCompletion", has_data_model: bool) -> Turn:
         message = completion.choices[0].message
 
         contents: list[Content] = []
@@ -443,7 +442,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         else:
             tokens = usage.prompt_tokens, usage.completion_tokens
 
-        tokens_log("OpenAI", tokens)
+        tokens_log(self, tokens)
 
         return Turn(
             "assistant",

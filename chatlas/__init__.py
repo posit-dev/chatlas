@@ -5,6 +5,7 @@ from ._google import ChatGoogle
 from ._ollama import ChatOllama
 from ._openai import ChatAzureOpenAI, ChatOpenAI
 from ._provider import Provider
+from ._tokens import token_usage
 from ._tools import ToolDef
 from ._turn import Turn
 
@@ -20,6 +21,7 @@ __all__ = (
     "content_image_plot",
     "content_image_url",
     "Turn",
+    "token_usage",
     "ToolDef",
     "Provider",
 )

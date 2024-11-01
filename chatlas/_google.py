@@ -345,7 +345,7 @@ class GoogleProvider(
             usage["candidates_token_count"],
         )
 
-        tokens_log("Google", tokens)
+        tokens_log(self, tokens)
 
         return Turn("assistant", contents, tokens=tokens)
 

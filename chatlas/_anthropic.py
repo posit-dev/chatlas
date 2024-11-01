@@ -385,8 +385,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             },
         }
 
-    @staticmethod
-    def _as_turn(completion: Message, has_data_model=False) -> Turn:
+    def _as_turn(self, completion: Message, has_data_model=False) -> Turn:
         contents = []
         for content in completion.content:
             if content.type == "text":
@@ -411,7 +410,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
 
         tokens = completion.usage.input_tokens, completion.usage.output_tokens
 
-        tokens_log("Anthropic", tokens)
+        tokens_log(self, tokens)
 
         return Turn("assistant", contents, tokens=tokens)
 
