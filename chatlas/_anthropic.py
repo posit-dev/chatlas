@@ -364,13 +364,10 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 "input": content.arguments,
             }
         elif isinstance(content, ContentToolResult):
-            content_ = (
-                str(content.value) if content.value is not None else content.error
-            )
             return {
                 "type": "tool_result",
                 "tool_use_id": content.id,
-                "content": content_ or "",
+                "content": content.get_final_value(),
                 "is_error": content.error is not None,
             }
         raise ValueError(f"Unknown content type: {type(content)}")

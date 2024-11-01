@@ -1,5 +1,5 @@
 import json
-from typing import TYPE_CHECKING, Literal, Optional, overload
+from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 from pydantic import BaseModel
 
@@ -13,6 +13,7 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
+from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import ToolDef, basemodel_to_tool_params
@@ -93,8 +94,12 @@ def ChatGoogle(
     )
 
 
+# The dictionary form of ChatCompletion (TODO: stronger typing)?
+GenerateContentDict = dict[str, Any]
+
+
 class GoogleProvider(
-    Provider[GenerateContentResponse, GenerateContentResponse, GenerateContentResponse]
+    Provider[GenerateContentResponse, GenerateContentResponse, GenerateContentDict]
 ):
     def __init__(
         self,
@@ -237,13 +242,17 @@ class GoogleProvider(
         return None
 
     def stream_merge_chunks(self, completion, chunk):
-        return chunk
+        chunkd = cast(GenerateContentDict, chunk.to_dict())
+        if completion is None:
+            return chunkd
+        return merge_dicts(completion, chunkd)
 
     def stream_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
 
     def value_turn(self, completion, has_data_model) -> Turn:
-        return self._as_turn(completion, has_data_model)
+        d = cast(GenerateContentDict, completion.to_dict())
+        return self._as_turn(d, has_data_model)
 
     def _google_contents(self, turns: list[Turn]) -> list["ContentDict"]:
         contents: list["ContentDict"] = []
@@ -293,49 +302,47 @@ class GoogleProvider(
             return protos.Part(
                 function_response={
                     "name": content.id,
-                    "response": {
-                        "value": str(content.value)
-                        if content.value is not None
-                        else content.error
-                    },
+                    "response": {"value": content.get_final_value()},
                 }
             )
         raise ValueError(f"Unknown content type: {type(content)}")
 
     def _as_turn(
         self,
-        message: "GenerateContentResponse",
+        message: "GenerateContentDict",
         has_data_model: bool,
     ) -> Turn:
         contents = []
-        for part in message.parts:
-            if part.text:
+        msg = message["candidates"][0]["content"]
+        for part in msg["parts"]:
+            if "text" in part:
+                text = part["text"]
                 if has_data_model:
-                    contents.append(ContentJson(json.loads(part.text)))
+                    contents.append(ContentJson(json.loads(text)))
                 else:
-                    contents.append(ContentText(part.text))
-            if part.function_call:
-                func = part.function_call
+                    contents.append(ContentText(text))
+            if "function_call" in part:
+                func = part["function_call"]
                 contents.append(
                     ContentToolRequest(
-                        func.name,
-                        name=func.name,
-                        arguments=dict(func.args),
+                        func["name"],
+                        name=func["name"],
+                        arguments=dict(func["args"]),
                     )
                 )
-            if part.function_response:
-                func = part.function_response
+            if "function_response" in part:
+                func = part["function_response"]
                 contents.append(
                     ContentToolResult(
-                        func.name,
-                        value=func.response,
+                        func["name"],
+                        value=func["response"],
                     )
                 )
 
-        usage = message.usage_metadata
+        usage = message["usage_metadata"]
         tokens = (
-            usage.prompt_token_count,
-            usage.candidates_token_count,
+            usage["prompt_token_count"],
+            usage["candidates_token_count"],
         )
 
         tokens_log("Google", tokens)

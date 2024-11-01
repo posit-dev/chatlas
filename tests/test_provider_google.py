@@ -1,3 +1,5 @@
+import time
+
 import pytest
 from chatlas import ChatGoogle
 
@@ -11,7 +13,6 @@ from .conftest import (
     assert_tools_simple,
     assert_turns_existing,
     assert_turns_system,
-    retryassert,
 )
 
 
@@ -44,15 +45,18 @@ def test_google_respects_turns_interface():
 
 def test_google_tool_variations():
     chat_fun = ChatGoogle
+    # Avoid Google's rate limits
+    time.sleep(3)
     assert_tools_simple(chat_fun, stream=False)
+    time.sleep(3)
     assert_tools_parallel(chat_fun, stream=False)
-
-    # <10% of the time, it uses only 6 calls, suggesting that it's made a poor
-    # choice. Running it twice (i.e. retrying 1) should reduce failure rate to <1%
-    def run_sequentialassert():
-        assert_tools_sequential(chat_fun, total_calls=8, stream=False)
-
-    retryassert(run_sequentialassert)
+    time.sleep(3)
+    assert_tools_sequential(
+        chat_fun,
+        total_calls=6,
+        stream=False,
+    )
+    time.sleep(3)
 
 
 @pytest.mark.asyncio
@@ -61,6 +65,7 @@ async def test_google_tool_variations_async():
 
 
 def test_data_extraction():
+    time.sleep(3)
     assert_data_extraction(ChatGoogle)
 
 

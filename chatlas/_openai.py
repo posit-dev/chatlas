@@ -364,12 +364,11 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                                 },
                             }
                         )
-                    # TODO: must be missing ContentToolRequest?
                     elif isinstance(x, ContentToolResult):
                         tool_results.append(
                             ChatCompletionToolMessageParam(
-                                # TODO: a tool could return an image!
-                                content=str(x.value),
+                                # TODO: a tool could return an image!?!
+                                content=x.get_final_value(),
                                 tool_call_id=x.id,
                                 role="tool",
                             )
