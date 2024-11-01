@@ -97,15 +97,13 @@ def ChatOpenAI(
     Returns
     -------
     Chat
-        A Chat object.
+        A chat object that retains the state of the conversation.
 
     Examples
     --------
-    >>> chat = chat_openai()
-    >>> chat.chat('''
-    ...     What is the difference between a tibble and a data frame?
-    ...     Answer with a bulleted list
-    ... ''')
+    >>> from chatlas import ChatOpenAI
+    >>> chat = ChatOpenAI()
+    >>> chat.chat("What is the capital of France?")
 
     """
     if isinstance(seed, MISSING_TYPE):
@@ -331,18 +329,19 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                             f"Don't know how to handle content type {type(x)} for role='assistant'."
                         )
 
-                # OpenAI's typing is wrong (an empty list isn't allowed)
-                # If they fix it, we can remove this if statement
+                # Some OpenAI-compatible models (e.g., Groq) don't work nicely with empty content
+                args = {
+                    "role": "assistant",
+                    "content": content_parts,
+                    "tool_calls": tool_calls,
+                }
+                if not content_parts:
+                    del args["content"]
                 if not tool_calls:
-                    tool_calls = cast(list, None)
+                    del args["tool_calls"]
 
-                res.append(
-                    ChatCompletionAssistantMessageParam(
-                        content=content_parts,
-                        tool_calls=tool_calls,
-                        role="assistant",
-                    )
-                )
+                res.append(ChatCompletionAssistantMessageParam(**args))
+
             elif turn.role == "user":
                 contents: list["ChatCompletionContentPartParam"] = []
                 tool_results: list["ChatCompletionToolMessageParam"] = []
@@ -402,7 +401,6 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                     "type": "object",
                     "properties": fn["parameters"]["properties"],
                     "required": fn["parameters"]["required"],
-                    "additionalProperties": False,
                 },
                 "strict": True,
             },
