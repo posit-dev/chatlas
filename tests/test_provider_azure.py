@@ -1,5 +1,11 @@
+import os
+
 import pytest
 from chatlas import ChatAzureOpenAI
+
+do_test = os.getenv("TEST_AZURE", "true")
+if do_test.lower() == "false":
+    pytest.skip("Skipping Azure tests", allow_module_level=True)
 
 
 def test_azure_simple_request():

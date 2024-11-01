@@ -15,8 +15,8 @@ from .conftest import (
     assert_turns_system,
 )
 
-test_google = os.getenv("TEST_GOOGLE", "true")
-if test_google.lower() == "false":
+do_test = os.getenv("TEST_GOOGLE", "true")
+if do_test.lower() == "false":
     pytest.skip("Skipping Google tests", allow_module_level=True)
 
 
