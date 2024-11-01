@@ -628,31 +628,31 @@ class Chat(Generic[ChatRequestArgsT]):
     def _invoke_tool(
         func: Callable[..., Any] | None,
         arguments: dict[str, Any],
-        id: str,
+        id_: str,
     ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id, None, "Unknown tool")
+            return ContentToolResult(id_, None, "Unknown tool")
 
         try:
             result = func(**arguments)
-            return ContentToolResult(id, result, None)
+            return ContentToolResult(id_, result, None)
         except Exception as e:
-            return ContentToolResult(id, None, str(e))
+            return ContentToolResult(id_, None, str(e))
 
     @staticmethod
     async def _invoke_tool_async(
         func: Callable[..., Awaitable[Any]] | None,
         arguments: dict[str, Any],
-        id: str,
+        id_: str,
     ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id, None, "Unknown tool")
+            return ContentToolResult(id_, None, "Unknown tool")
 
         try:
             result = await func(**arguments)
-            return ContentToolResult(id, result, None)
+            return ContentToolResult(id_, result, None)
         except Exception as e:
-            return ContentToolResult(id, None, str(e))
+            return ContentToolResult(id_, None, str(e))
 
     def __str__(self):
         turns = self.turns(include_system_prompt=True)
