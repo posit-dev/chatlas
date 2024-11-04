@@ -401,6 +401,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                     "type": "object",
                     "properties": fn["parameters"]["properties"],
                     "required": fn["parameters"]["required"],
+                    "additionalProperties": False,
                 },
                 "strict": True,
             },
