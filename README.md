@@ -139,7 +139,7 @@ The `content_image_url()` function takes a URL to an image file and sends that U
 
 ## Model providers
 
-`chatlas` supports various LLM models from Anthropic, OpenAI, Google, and Ollama.
+`chatlas` supports various LLM models from Anthropic, OpenAI, Google, Ollama, and others.
 Options like Anthropic, OpenAI, and Google require an account and API key to use, and also send your input to a remote server for response generation.
 [Ollama](#ollama), on the other hand, provides a way to run open source models that run locally on your own machine, so is a good option for privacy and cost reasons.
 
@@ -153,7 +153,7 @@ You'll also want the Python package:
 pip install anthropic
 ```
 
-Paste your API key into the `ChatAnthropic()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+Paste your API key into `ChatAnthropic()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
 
 ```python
 from chatlas import ChatAnthropic
@@ -170,7 +170,7 @@ You'll also want the Python package:
 pip install openai
 ```
 
-Paste your API key into the `ChatOpenAI()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+Paste your API key into `ChatOpenAI()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
 
 ```python
 from chatlas import ChatOpenAI
@@ -187,7 +187,7 @@ You'll also want the Python package:
 pip install google-generativeai
 ```
 
-Paste your API key into the `ChatGoogle()` constructor to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+Paste your API key into `ChatGoogle()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
 
 ```python
 from chatlas import ChatGoogle
@@ -202,12 +202,6 @@ To use Ollama, first download and run the [Ollama](https://ollama.com/) executab
 ollama run llama-3.2
 ```
 
-You'll also want the Python package:
-
-```shell
-pip install ollama
-```
-
 Now, you're read to chat via `chatlas`:
 
 ```python
@@ -215,15 +209,61 @@ from chatlas import ChatOllama
 chat = ChatOllama(model="llama3.2")
 ```
 
+## Perplexity
+
+To use [perplexity.ai](https://perplexity.ai/), you'll need to sign up and obtain an API key. You'll also want the `openai` Python package:
+
+```shell
+pip install openai
+```
+
+Paste your API key into `ChatPerplexity()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+
+```python
+from chatlas import ChatPerplexity
+chat = ChatPerplexity(api_key="...")
+```
+
+
+## Groq
+
+To use [Groq](https://groq.dev/), you'll need to obtain an API key. You'll also want the `openai` Python package:
+
+```shell
+pip install openai
+```
+
+Paste your API key into `ChatGroq()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+
+```python
+from chatlas import ChatGroq
+chat = ChatGroq(api_key="...")
+```
+
+## Github
+
+To use the [GitHub model marketplace](https://github.com/marketplace/models), you currently need to apply for and be accepted into the beta access program. You'll also want the `openai` Python package:
+
+```shell
+pip install openai
+```
+
+Paste your API key into `ChatGitHub()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+
+```python
+from chatlas import ChatGitHub
+chat = ChatGitHub(api_key="...")
+```
+
 ### AWS Bedrock
 
-[AWS Bedrock](https://aws.amazon.com/bedrock/) provides a number of chat based models, including those Anthropic's [Claude](https://aws.amazon.com/bedrock/claude/). To use AWS Bedrock, you'll need the `anthropic` Python package:
+[AWS Bedrock](https://aws.amazon.com/bedrock/) provides a number of chat based models, including those Anthropic's [Claude](https://aws.amazon.com/bedrock/claude/). To use AWS Bedrock, you'll need the `anthropic` Python package, along with `bedrock` extras:
 
 ```python
 pip install anthropic[bedrock]
 ```
 
-Then, pass along information about your AWS deployment to the `ChatBedrockAnthropic` constructor. Also, see [here](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html) for a more detailed explanation of how to properly manage your AWS credentials.
+Then, give your AWS deployment to `ChatBedrockAnthropic()`. Alternatively, see [here](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html) for a more detailed explanation of how to properly manage your AWS credentials.
 
 ```python
 from chatlas import ChatBedrockAnthropic
@@ -259,6 +299,7 @@ chat = ChatAzureOpenAI(
   api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
 )
 ```
+
 
 <!--
 
@@ -296,7 +337,10 @@ pip install python-dotenv
 # .env
 ANTHROPIC_API_KEY=...
 OPENAI_API_KEY=...
+GITHUB_PAT=...
 GOOGLE_API_KEY=...
+GROQ_API_KEY=...
+PERPLEXITY_API_KEY=...
 ```
 
 ```python
@@ -308,7 +352,7 @@ chat = ChatAnthropic()
 chat.console()
 ```
 
-Another option, which makes interactive use easier, is to load your environment variables into the shell before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
+Another, more general, solution is to load your environment variables into the shell before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
 
 ```shell
 export ANTHROPIC_API_KEY=...
@@ -342,6 +386,28 @@ def get_current_weather(location: str, unit: str = "fahrenheit") -> int:
 chat = ChatAnthropic()
 chat.register_tool(get_current_weather)
 chat.chat("What's the weather like in Boston, New York, and London today?")
+```
+
+### Data extraction
+
+To extract structured data you call the `.extract_data()` method instead of the `.chat()` method.
+
+To extract data, you need to define a function that takes the LLM's response as input and returns the extracted data. You’ll also need to define a [pydantic model](https://docs.pydantic.dev/latest/#why-use-pydantic) that describes the structure of the data that you want. Here’s a simple example that extracts two specific values from a string:
+
+```python
+from chatlas import ChatOpenAI
+from pydantic import BaseModel
+
+class Person(BaseModel):
+    age: int
+    name: str
+
+chat = ChatOpenAI()
+chat.extract_data("My name is Susan and I'm 13 years old", data_model=Person)
+```
+
+```
+{'age': 13, 'name': 'Susan'}
 ```
 
 
