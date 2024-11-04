@@ -230,6 +230,21 @@ from chatlas import ChatGroq
 chat = ChatGroq(api_key="...")
 ```
 
+## Github
+
+To use the [GitHub model marketplace](https://github.com/marketplace/models), you currently need to apply for and be accepted into the beta access program. You'll also want the `openai` Python package:
+
+```shell
+pip install openai
+```
+
+Paste your API key into `ChatGitHub()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+
+```python
+from chatlas import ChatGitHub
+chat = ChatGitHub(api_key="...")
+```
+
 ### AWS Bedrock
 
 [AWS Bedrock](https://aws.amazon.com/bedrock/) provides a number of chat based models, including those Anthropic's [Claude](https://aws.amazon.com/bedrock/claude/). To use AWS Bedrock, you'll need the `anthropic` Python package, along with `bedrock` extras:
@@ -275,8 +290,6 @@ chat = ChatAzureOpenAI(
 )
 ```
 
-
-```
 
 <!--
 
