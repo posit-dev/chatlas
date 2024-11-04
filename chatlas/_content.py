@@ -75,7 +75,4 @@ class ContentJson(Content):
     value: dict[str, Any]
 
     def __str__(self):
-        return f"[json]: {self.value}"
-
-    def to_json(self):
-        return json.dumps(self.value)
+        return json.dumps(self.value, indent=2)
