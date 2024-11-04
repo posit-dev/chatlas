@@ -202,18 +202,28 @@ To use Ollama, first download and run the [Ollama](https://ollama.com/) executab
 ollama run llama-3.2
 ```
 
-You'll also want the Python package:
-
-```shell
-pip install ollama
-```
-
 Now, you're read to chat via `chatlas`:
 
 ```python
 from chatlas import ChatOllama
 chat = ChatOllama(model="llama3.2")
 ```
+
+## Perplexity
+
+To use [perplexity.ai](https://perplexity.ai/), you'll need to sign up and obtain an API key. You'll also want the `openai` Python package:
+
+```shell
+pip install openai
+```
+
+Paste your API key into `ChatPerplexity()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+
+```python
+from chatlas import ChatPerplexity
+chat = ChatPerplexity(api_key="...")
+```
+
 
 ## Groq
 
@@ -327,8 +337,10 @@ pip install python-dotenv
 # .env
 ANTHROPIC_API_KEY=...
 OPENAI_API_KEY=...
+GITHUB_PAT=...
 GOOGLE_API_KEY=...
 GROQ_API_KEY=...
+PERPLEXITY_API_KEY=...
 ```
 
 ```python
@@ -340,7 +352,7 @@ chat = ChatAnthropic()
 chat.console()
 ```
 
-Another option, which makes interactive use easier, is to load your environment variables into the shell before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
+Another, more general, solution is to load your environment variables into the shell before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
 
 ```shell
 export ANTHROPIC_API_KEY=...

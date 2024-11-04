@@ -6,6 +6,7 @@ from ._google import ChatGoogle
 from ._groq import ChatGroq
 from ._ollama import ChatOllama
 from ._openai import ChatAzureOpenAI, ChatOpenAI
+from ._perplexity import ChatPerplexity
 from ._provider import Provider
 from ._tokens import token_usage
 from ._tools import ToolDef
@@ -20,6 +21,7 @@ __all__ = (
     "ChatOllama",
     "ChatOpenAI",
     "ChatAzureOpenAI",
+    "ChatPerplexity",
     "Chat",
     "content_image_file",
     "content_image_plot",
