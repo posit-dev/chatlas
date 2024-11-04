@@ -94,6 +94,8 @@ def func_to_schema(
         "required": required,
     }
 
+    print(params)
+
     desc = description or func.__doc__
 
     res: ToolSchema = {
@@ -124,6 +126,15 @@ def type_to_json_schema(
         assert len(args) == 1
         return type_dict("array", desc, items=type_to_json_schema(args[0]))
 
+    if origin is tuple:
+        return type_dict(
+            "array",
+            desc,
+            maxItems=len(args),
+            minItems=len(args),
+            prefixItems=[type_to_json_schema(x) for x in args],
+        )
+
     if origin is dict:
         assert len(args) == 2
         assert args[0] is str
@@ -144,6 +155,8 @@ def type_to_json_schema(
     if t is dict:
         return type_dict("object", desc)
     if t is list:
+        return type_dict("array", desc)
+    if t is tuple:
         return type_dict("array", desc)
     if t is str:
         return type_dict("string", desc)
