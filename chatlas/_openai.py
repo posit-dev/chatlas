@@ -441,6 +441,11 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         else:
             tokens = usage.prompt_tokens, usage.completion_tokens
 
+        # For some reason ChatGroq() includes tokens under completion.x_groq
+        if usage is None and hasattr(completion, "x_groq"):
+            usage = completion.x_groq["usage"]  # type: ignore
+            tokens = usage["prompt_tokens"], usage["completion_tokens"]
+
         tokens_log(self, tokens)
 
         return Turn(
