@@ -137,6 +137,8 @@ def type_to_json_schema(
             "object",
             desc,
             properties={k: type_to_json_schema(v) for k, v in annotations.items()},
+            required=[k for k, v in annotations.items()],
+            additionalProperties=False,
         )
 
     if t is dict:
