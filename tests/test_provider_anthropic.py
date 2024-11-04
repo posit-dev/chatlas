@@ -44,14 +44,22 @@ def test_anthropic_respects_turns_interface():
 
 def test_anthropic_tool_variations():
     chat_fun = ChatAnthropic
-    assert_tools_simple(chat_fun)
-    assert_tools_parallel(chat_fun)
 
-    ## Fails occassionally returning "" instead of Susan
-    #def run_sequentialassert():
-    #    assert_tools_sequential(chat_fun, total_calls=6)
-#
-    #retryassert(run_sequentialassert, retries=5)
+    def run_simpleassert():
+        assert_tools_simple(chat_fun)
+
+    retryassert(run_simpleassert)
+
+    def run_parallelassert():
+        assert_tools_parallel(chat_fun)
+
+    retryassert(run_parallelassert)
+
+    # Fails occassionally returning "" instead of Susan
+    def run_sequentialassert():
+        assert_tools_sequential(chat_fun, total_calls=6)
+
+    retryassert(run_sequentialassert, retries=5)
 
 
 @pytest.mark.asyncio
