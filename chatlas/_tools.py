@@ -96,8 +96,6 @@ def func_to_schema(
         "required": required,
     }
 
-    print(params)
-
     desc = description or func.__doc__
 
     res: ToolSchema = {
