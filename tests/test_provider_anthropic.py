@@ -48,12 +48,12 @@ def test_anthropic_tool_variations():
     def run_simpleassert():
         assert_tools_simple(chat_fun)
 
-    retryassert(run_simpleassert)
+    retryassert(run_simpleassert, retries=5)
 
     def run_parallelassert():
         assert_tools_parallel(chat_fun)
 
-    retryassert(run_parallelassert)
+    retryassert(run_parallelassert, retries=5)
 
     # Fails occassionally returning "" instead of Susan
     def run_sequentialassert():
