@@ -64,13 +64,6 @@ def is_testing():
     return os.environ.get("PYTEST_CURRENT_TEST", None) is not None
 
 
-class MISSING_TYPE:
-    pass
-
-
-MISSING = MISSING_TYPE()
-
-
 class DefaultModelWarning(Warning):
     pass
 

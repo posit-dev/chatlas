@@ -75,6 +75,11 @@ quartodoc:
       contents:
         - Chat
         - Provider
+    - title: Types
+      desc: A module with other user-facing types
+      contents:
+        - types
+
 
 interlinks:
   fast: true

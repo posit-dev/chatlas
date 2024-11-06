@@ -1,3 +1,5 @@
+import types
+
 from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._chat import Chat
 from ._content_image import content_image_file, content_image_plot, content_image_url
@@ -28,6 +30,7 @@ __all__ = (
     "content_image_url",
     "Turn",
     "token_usage",
+    "types",
     "Tool",
     "Provider",
 )

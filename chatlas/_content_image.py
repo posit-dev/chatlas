@@ -6,7 +6,7 @@ import os
 import re
 from typing import Literal, Union, cast
 
-from ._content import ContentImageInline, ContentImageRemote, ImageContentTypes
+from .types import ContentImageInline, ContentImageRemote, ImageContentTypes
 
 __all__ = (
     "content_image_url",

@@ -31,5 +31,8 @@ website:
       - reference/Chat.qmd
       - reference/Provider.qmd
       section: Developer-facing tools
+    - contents:
+      - reference/types.qmd
+      section: Types
     id: reference
   - id: dummy-sidebar

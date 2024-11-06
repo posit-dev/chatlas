@@ -10,7 +10,7 @@ from ._openai import ChatOpenAI
 from ._turn import Turn
 
 if TYPE_CHECKING:
-    from .types._openai_client import ProviderClientArgs
+    from .provider_types._openai_client import ProviderClientArgs
 
 
 def ChatOllama(

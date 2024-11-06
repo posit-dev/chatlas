@@ -7,7 +7,12 @@ from typing import TYPE_CHECKING, Literal, Optional, Union, cast, overload
 from pydantic import BaseModel
 
 from ._chat import Chat
-from ._content import (
+from ._provider import Provider
+from ._tokens import tokens_log
+from ._tools import Tool, ToolSchema, basemodel_to_param_schema
+from ._turn import Turn, normalize_turns
+from ._utils import inform_model_default
+from .types import (
     Content,
     ContentImageInline,
     ContentImageRemote,
@@ -16,11 +21,6 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
-from ._provider import Provider
-from ._tokens import tokens_log
-from ._tools import Tool, ToolSchema, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
-from ._utils import inform_model_default
 
 if TYPE_CHECKING:
     from anthropic.types import (
@@ -37,11 +37,11 @@ if TYPE_CHECKING:
     from anthropic.types.tool_result_block_param import ToolResultBlockParam
     from anthropic.types.tool_use_block_param import ToolUseBlockParam
 
-    from .types._anthropic_client import ProviderClientArgs
-    from .types._anthropic_client_bedrock import (
+    from .provider_types._anthropic_client import ProviderClientArgs
+    from .provider_types._anthropic_client_bedrock import (
         ProviderClientArgs as BedrockProviderArgs,
     )
-    from .types._anthropic_create import CreateCompletionArgs
+    from .provider_types._anthropic_create import CreateCompletionArgs
 
     ContentBlockParam = Union[
         TextBlockParam,

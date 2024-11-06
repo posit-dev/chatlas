@@ -58,3 +58,11 @@ Implement new chat interfaces
 | --- | --- |
 | [Chat](Chat.qmd#chatlas.Chat) | A chat object that can be used to interact with a language model. |
 | [Provider](Provider.qmd#chatlas.Provider) |  |
+
+## Types
+
+A module with other user-facing types
+
+| | |
+| --- | --- |
+| [types](types.qmd#chatlas.types) |  |

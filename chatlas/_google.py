@@ -6,7 +6,13 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 from pydantic import BaseModel
 
 from ._chat import Chat
-from ._content import (
+from ._merge import merge_dicts
+from ._provider import Provider
+from ._tokens import tokens_log
+from ._tools import Tool, basemodel_to_param_schema
+from ._turn import Turn, normalize_turns
+from ._utils import inform_model_default
+from .types import (
     Content,
     ContentImageInline,
     ContentImageRemote,
@@ -15,12 +21,6 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
-from ._merge import merge_dicts
-from ._provider import Provider
-from ._tokens import tokens_log
-from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
-from ._utils import inform_model_default
 
 if TYPE_CHECKING:
     from google.generativeai.types.content_types import (
@@ -33,8 +33,8 @@ if TYPE_CHECKING:
         GenerationConfig,
     )
 
-    from .types._google_client import ProviderClientArgs
-    from .types._google_create import SendMessageArgs
+    from .provider_types._google_client import ProviderClientArgs
+    from .provider_types._google_create import SendMessageArgs
 else:
     GenerateContentResponse = object
 

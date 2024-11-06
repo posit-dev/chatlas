@@ -54,7 +54,7 @@ Enter a chat browser to interact with the LLM.
 | stream         | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
 | launch_browser | [bool](`bool`)                                                                        | Whether to launch a browser window.                                                  | `True`    |
 | port           | [int](`int`)                                                                          | The port to run the app on (the default is 0, which will choose a random port).      | `0`       |
-| kwargs         | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas._chat.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| kwargs         | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
 
 ### chat { #chatlas.Chat.chat }
 
@@ -68,9 +68,9 @@ Generate a response from the chat.
 
 | Name   | Type                                                                                  | Description                                                                          | Default   |
 |--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
-| args   | [Content](`chatlas._content.Content`) \| [str](`str`)                                 | The user input(s) to generate a response from.                                       | `()`      |
+| args   | [Content](`chatlas.types.Content`) \| [str](`str`)                                    | The user input(s) to generate a response from.                                       | `()`      |
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
-| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas._chat.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
 
 ### chat_async { #chatlas.Chat.chat_async }
 
@@ -84,9 +84,9 @@ Generate a response from the chat asynchronously.
 
 | Name   | Type                                                                                  | Description                                                                          | Default   |
 |--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
-| args   | [Content](`chatlas._content.Content`) \| [str](`str`)                                 | The user input(s) to generate a response from.                                       | `()`      |
+| args   | [Content](`chatlas.types.Content`) \| [str](`str`)                                    | The user input(s) to generate a response from.                                       | `()`      |
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
-| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas._chat.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
 
 ### console { #chatlas.Chat.console }
 
@@ -103,7 +103,7 @@ Press Ctrl+C to quit.
 | Name   | Type                                                                                  | Description                                                                         | Default   |
 |--------|---------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|-----------|
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).          | `True`    |
-| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas._chat.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response | `None`    |
+| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response | `None`    |
 
 #### Returns {.doc-section .doc-section-returns}
 
@@ -121,10 +121,10 @@ Extract structured data from the given input.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name       | Type                                                  | Description                                                       | Default    |
-|------------|-------------------------------------------------------|-------------------------------------------------------------------|------------|
-| args       | [Content](`chatlas._content.Content`) \| [str](`str`) | The input to extract data from.                                   | `()`       |
-| data_model | [type](`type`)\[[BaseModel](`pydantic.BaseModel`)\]   | A Pydantic model describing the structure of the data to extract. | _required_ |
+| Name       | Type                                                | Description                                                       | Default    |
+|------------|-----------------------------------------------------|-------------------------------------------------------------------|------------|
+| args       | [Content](`chatlas.types.Content`) \| [str](`str`)  | The input to extract data from.                                   | `()`       |
+| data_model | [type](`type`)\[[BaseModel](`pydantic.BaseModel`)\] | A Pydantic model describing the structure of the data to extract. | _required_ |
 
 #### Returns {.doc-section .doc-section-returns}
 
@@ -142,10 +142,10 @@ Extract structured data from the given input asynchronously.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name       | Type                                                  | Description                                                       | Default    |
-|------------|-------------------------------------------------------|-------------------------------------------------------------------|------------|
-| args       | [Content](`chatlas._content.Content`) \| [str](`str`) | The input to extract data from.                                   | `()`       |
-| data_model | [type](`type`)\[[BaseModel](`pydantic.BaseModel`)\]   | A Pydantic model describing the structure of the data to extract. | _required_ |
+| Name       | Type                                                | Description                                                       | Default    |
+|------------|-----------------------------------------------------|-------------------------------------------------------------------|------------|
+| args       | [Content](`chatlas.types.Content`) \| [str](`str`)  | The input to extract data from.                                   | `()`       |
+| data_model | [type](`type`)\[[BaseModel](`pydantic.BaseModel`)\] | A Pydantic model describing the structure of the data to extract. | _required_ |
 
 #### Returns {.doc-section .doc-section-returns}
 
@@ -193,9 +193,9 @@ Submit user input(s) to the chat.
 
 | Name   | Type                                                                                  | Description                                                                          | Default   |
 |--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
-| args   | [Content](`chatlas._content.Content`) \| [str](`str`)                                 | The user input(s) to generate a response from.                                       | `()`      |
+| args   | [Content](`chatlas.types.Content`) \| [str](`str`)                                    | The user input(s) to generate a response from.                                       | `()`      |
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
-| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas._chat.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
 
 #### Returns {.doc-section .doc-section-returns}
 
@@ -215,9 +215,9 @@ Submit user input(s) to the chat asynchronously.
 
 | Name   | Type                                                                                  | Description                                                                          | Default   |
 |--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
-| args   | [Content](`chatlas._content.Content`) \| [str](`str`)                                 | The user input(s) to generate a response from.                                       | `()`      |
+| args   | [Content](`chatlas.types.Content`) \| [str](`str`)                                    | The user input(s) to generate a response from.                                       | `()`      |
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
-| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas._chat.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
 
 #### Returns {.doc-section .doc-section-returns}
 

@@ -2,7 +2,7 @@ import sys
 
 import pytest
 from chatlas import ChatOpenAI, Tool
-from chatlas._content import ContentToolResult
+from chatlas.types import ContentToolResult
 
 
 def test_register_tool():

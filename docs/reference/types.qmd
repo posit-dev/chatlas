@@ -1,0 +1,35 @@
+# types { #chatlas.types }
+
+`types`
+
+
+
+## Attributes
+
+| Name | Description |
+| --- | --- |
+| [ChatRequestArgsT](#chatlas.types.ChatRequestArgsT) | A TypedDict representing the arguments that can be passed to the `.chat()` |
+| [ImageContentTypes](#chatlas.types.ImageContentTypes) | Allowable content types for images. |
+
+## Classes
+
+| Name | Description |
+| --- | --- |
+| [Content](#chatlas.types.Content) | Base class for all content types that can be appear in a `Turn()` |
+| [MISSING_TYPE](#chatlas.types.MISSING_TYPE) | A singleton representing a missing value. |
+
+### Content { #chatlas.types.Content }
+
+```python
+types.Content()
+```
+
+Base class for all content types that can be appear in a `Turn()`
+
+### MISSING_TYPE { #chatlas.types.MISSING_TYPE }
+
+```python
+types.MISSING_TYPE()
+```
+
+A singleton representing a missing value.

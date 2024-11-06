@@ -10,23 +10,20 @@ from typing import (
     Literal,
     Optional,
     Sequence,
-    TypedDict,
-    TypeVar,
 )
 
 from pydantic import BaseModel
 
-from ._content import Content, ContentJson, ContentToolRequest, ContentToolResult
 from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
-
-
-class AnyTypeDict(TypedDict, total=False):
-    pass
-
-
-ChatRequestArgsT = TypeVar("ChatRequestArgsT", bound=AnyTypeDict)
+from .types import (
+    ChatRequestArgsT,
+    Content,
+    ContentJson,
+    ContentToolRequest,
+    ContentToolResult,
+)
 
 
 class Chat(Generic[ChatRequestArgsT]):

@@ -1,6 +1,6 @@
 import pytest
-from chatlas._content import ContentImage, ContentText
 from chatlas._turn import Turn, normalize_turns
+from chatlas.types import ContentImage, ContentText
 
 
 def test_system_prompt_applied_correctly():
