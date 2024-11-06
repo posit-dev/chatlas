@@ -24,7 +24,9 @@ dev = [
     "openai",
     "anthropic",
     "google-generativeai>=0.8.3",
-    "numpy>1.24.4"
+    "numpy>1.24.4",
+    # tokenizers currently doesn't support Python 3.13
+    "tokenizers; python_version < '3.13'",
 ]
 
 [tool.uv]
@@ -34,7 +36,7 @@ dev-dependencies = [
 ]
 
 [build-system]
-requires = [ "hatchling"]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build]
