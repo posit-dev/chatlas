@@ -60,8 +60,11 @@ chat.app()
 ```
 
 <div align="center">
-<img width="600" alt="Using chatlas in a Shiny web app" src="https://github.com/user-attachments/assets/be4c1328-d7ff-49a9-9ac4-d1cf9a68b80d">
+<img width="667" alt="Screenshot 2024-11-06 at 11 43 34 AM" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e">
 </div>
+
+
+
 
 
 Again, keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist even after you exit back to the Python prompt.
