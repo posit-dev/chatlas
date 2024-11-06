@@ -1,6 +1,6 @@
 import tempfile
 from pathlib import Path
-from typing import Callable
+from typing import Awaitable, Callable
 
 import pytest
 from chatlas import Chat, ToolDef, Turn, content_image_file, content_image_url
@@ -33,6 +33,15 @@ def retryassert(assert_func: Callable[..., None], retries=1):
         except Exception:
             pass
     return assert_func()
+
+
+async def retryassert_async(assert_func: Callable[..., Awaitable[None]], retries=1):
+    for _ in range(retries):
+        try:
+            return await assert_func()
+        except Exception:
+            pass
+    return await assert_func()
 
 
 def assert_turns_system(chat_fun: ChatFun):

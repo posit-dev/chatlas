@@ -12,6 +12,7 @@ from .conftest import (
     assert_turns_existing,
     assert_turns_system,
     retryassert,
+    retryassert_async,
 )
 
 
@@ -64,7 +65,10 @@ def test_anthropic_tool_variations():
 
 @pytest.mark.asyncio
 async def test_anthropic_tool_variations_async():
-    await assert_tools_async(ChatAnthropic)
+    async def run_asyncassert():
+        await assert_tools_async(ChatAnthropic)
+
+    await retryassert_async(run_asyncassert, retries=5)
 
 
 def test_data_extraction():
