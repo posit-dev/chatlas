@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any, Optional, Sequence
 
 from ._content import Content, ContentText
