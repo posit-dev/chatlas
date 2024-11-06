@@ -167,6 +167,8 @@ def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = 
 
     def popular_name(year: int):
         """Gets the most popular name for a given year"""
+        if isinstance(year, str):  # Sometimes Google sends the year as a string?
+            year = int(year)
         return "Susan" if year == 2024 else "I don't know"
 
     chat.register_tool(popular_name)
