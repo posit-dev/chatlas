@@ -1,0 +1,14 @@
+# ChatOllama { #chatlas.ChatOllama }
+
+```python
+ChatOllama(
+    model=None
+    *
+    system_prompt=None
+    turns=None
+    base_url='http://localhost:11434/v1'
+    seed=None
+    kwargs=None
+)
+```
+

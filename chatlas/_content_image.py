@@ -27,10 +27,10 @@ def content_image_url(
     Parameters
     ----------
     url
-      The URL of the image to include in the chat input. Can be a data: URL or a
-      regular URL.
+        The URL of the image to include in the chat input. Can be a data: URL or a
+        regular URL.
     detail
-      The detail setting for this image. Can be "auto", "low", or "high".
+        The detail setting for this image. Can be "auto", "low", or "high".
 
     Returns
     -------
@@ -80,16 +80,16 @@ def content_image_file(
     Parameters
     ----------
     path
-      The path to the image file to include in the chat input.
+        The path to the image file to include in the chat input.
     content_type
-      The content type of the image (e.g., "image/png"). If "auto", the content
-      type is inferred from the file extension.
+        The content type of the image (e.g., "image/png"). If "auto", the content
+        type is inferred from the file extension.
     resize
-      Resizing option for the image. Can be:
-        - "none": No resizing
-        - "low": Resize to fit within 512x512
-        - "high": Resize to fit within 2000x768 or 768x2000
-        - Custom string (e.g., "200x200", "300x200>!", etc.)
+        Resizing option for the image. Can be:
+            - "none": No resizing
+            - "low": Resize to fit within 512x512
+            - "high": Resize to fit within 2000x768 or 768x2000
+            - Custom string (e.g., "200x200", "300x200>!", etc.)
 
     Returns
     -------
@@ -181,11 +181,11 @@ def content_image_plot(
     Parameters
     ----------
     width
-      The desired width of the output image in pixels.
+        The desired width of the output image in pixels.
     height
-      The desired height of the output image in pixels.
+        The desired height of the output image in pixels.
     dpi
-      The DPI (dots per inch) of the output image.
+        The DPI (dots per inch) of the output image.
 
     Returns
     -------

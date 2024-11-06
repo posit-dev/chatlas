@@ -1,0 +1,35 @@
+website:
+  sidebar:
+  - contents:
+    - reference/index.qmd
+    - contents:
+      - reference/ChatAnthropic.qmd
+      - reference/ChatAzureOpenAI.qmd
+      - reference/ChatBedrockAnthropic.qmd
+      - reference/ChatGithub.qmd
+      - reference/ChatGoogle.qmd
+      - reference/ChatGroq.qmd
+      - reference/ChatOllama.qmd
+      - reference/ChatOpenAI.qmd
+      - reference/ChatPerplexity.qmd
+      section: Model Providers
+    - contents:
+      - reference/Tool.qmd
+      section: Tool calling
+    - contents:
+      - reference/Turn.qmd
+      section: Conversation turns
+    - contents:
+      - reference/content_image_file.qmd
+      - reference/content_image_plot.qmd
+      - reference/content_image_url.qmd
+      section: Image input
+    - contents:
+      - reference/token_usage.qmd
+      section: Token usage
+    - contents:
+      - reference/Chat.qmd
+      - reference/Provider.qmd
+      section: Developer-facing tools
+    id: reference
+  - id: dummy-sidebar

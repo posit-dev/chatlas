@@ -1,0 +1,60 @@
+# Function reference {.doc .doc-index}
+
+## Model Providers
+
+Start a chat with a particular Large language model provider.
+
+| | |
+| --- | --- |
+| [ChatAnthropic](ChatAnthropic.qmd#chatlas.ChatAnthropic) | Chat with an Anthropic Claude model. |
+| [ChatAzureOpenAI](ChatAzureOpenAI.qmd#chatlas.ChatAzureOpenAI) | Chat with a model hosted on Azure OpenAI. |
+| [ChatBedrockAnthropic](ChatBedrockAnthropic.qmd#chatlas.ChatBedrockAnthropic) | Chat with an AWS bedrock model |
+| [ChatGithub](ChatGithub.qmd#chatlas.ChatGithub) | Chat with a model hosted on the GitHub model marketplace |
+| [ChatGoogle](ChatGoogle.qmd#chatlas.ChatGoogle) | Chat with a Google Gemini model |
+| [ChatGroq](ChatGroq.qmd#chatlas.ChatGroq) | Chat with a model hosted on Groq |
+| [ChatOllama](ChatOllama.qmd#chatlas.ChatOllama) |  |
+| [ChatOpenAI](ChatOpenAI.qmd#chatlas.ChatOpenAI) | Chat with an OpenAI model. |
+| [ChatPerplexity](ChatPerplexity.qmd#chatlas.ChatPerplexity) | Chat with a model hosted on perplexity.ai |
+
+## Tool calling
+
+Register python functions with a chat session
+
+| | |
+| --- | --- |
+| [Tool](Tool.qmd#chatlas.Tool) |  |
+
+## Conversation turns
+
+An object representing a user/assistant turn
+
+| | |
+| --- | --- |
+| [Turn](Turn.qmd#chatlas.Turn) |  |
+
+## Image input
+
+Attach images with chat input
+
+| | |
+| --- | --- |
+| [content_image_file](content_image_file.qmd#chatlas.content_image_file) | Encode image content from a file for chat input. |
+| [content_image_plot](content_image_plot.qmd#chatlas.content_image_plot) | Encode the current matplotlib plot as an image for chat input. |
+| [content_image_url](content_image_url.qmd#chatlas.content_image_url) | Encode image content from a URL for chat input. |
+
+## Token usage
+
+A utility function to querying token usage
+
+| | |
+| --- | --- |
+| [token_usage](token_usage.qmd#chatlas.token_usage) | Report on token usage in the current session |
+
+## Developer-facing tools
+
+Implement new chat interfaces
+
+| | |
+| --- | --- |
+| [Chat](Chat.qmd#chatlas.Chat) | A chat object that can be used to interact with a language model. |
+| [Provider](Provider.qmd#chatlas.Provider) |  |

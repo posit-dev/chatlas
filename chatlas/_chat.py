@@ -306,10 +306,9 @@ class Chat(Generic[ChatRequestArgsT]):
             Additional keyword arguments to pass to the method used for requesting
             the response.
 
-        Yields
+        Returns
         ------
-        str
-            The response content.
+        A generator that yields the response content.
         """
         turn = user_turn(*args)
         for chunk in self._chat_impl(turn, stream=stream, kwargs=kwargs):
@@ -334,10 +333,9 @@ class Chat(Generic[ChatRequestArgsT]):
             Additional keyword arguments to pass to the method used for requesting
             the response.
 
-        Yields
+        Returns
         ------
-        str
-            The response content.
+        An async generator that yields the response content.
         """
         turn = user_turn(*args)
         async for chunk in self._chat_impl_async(turn, stream=stream, kwargs=kwargs):

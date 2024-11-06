@@ -1,0 +1,6 @@
+# Tool { #chatlas.Tool }
+
+```python
+Tool(self, func, *, name=None, description=None, parameter_descriptions=None)
+```
+

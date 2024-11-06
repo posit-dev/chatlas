@@ -1,0 +1,91 @@
+project:
+  type: website
+  resources:
+    - objects.txt
+
+metadata-files:
+  - _sidebar.yml
+
+filters:
+  - interlinks
+
+lightbox: auto
+
+website:
+  title: "chatlas"
+  # bread-crumbs: true
+  repo-url: https://github.com/cpsievert/chatlas
+  repo-actions: [issue, source]
+
+  navbar:
+    background: primary
+    search: true
+    left:
+      - text: "Home"
+        href: index.qmd
+      - reference/index.qmd
+    tools:
+      - icon: github
+        menu:
+          - text: Source code
+            href:  https://github.com/cpsievert/chatlas
+          - text: Report a bug
+            href:  https://github.com/cpsievert/chatlas/issues/new
+          - text: Ask a question
+            href:  https://github.com/cpsievert/chatlas/discussions
+
+
+quartodoc:
+  package: chatlas
+  render_interlinks: true
+  sidebar: _sidebar.yml
+  sections:
+    - title: Model Providers
+      desc: Start a chat with a particular Large language model provider.
+      contents:
+        - ChatAnthropic
+        - ChatAzureOpenAI
+        - ChatBedrockAnthropic
+        - ChatGithub
+        - ChatGoogle
+        - ChatGroq
+        - ChatOllama
+        - ChatOpenAI
+        - ChatPerplexity
+    - title: Tool calling
+      desc: Register python functions with a chat session
+      contents:
+        - Tool
+    - title: Conversation turns
+      desc: An object representing a user/assistant turn
+      contents:
+        - Turn
+    - title: Image input
+      desc: Attach images with chat input 
+      contents:
+        - content_image_file
+        - content_image_plot
+        - content_image_url
+    - title: Token usage
+      desc: A utility function to querying token usage
+      contents:
+        - token_usage
+    - title: Developer-facing tools
+      desc: Implement new chat interfaces
+      contents:
+        - Chat
+        - Provider
+
+interlinks:
+  fast: true
+  sources:
+    python:
+      url: https://docs.python.org/3/
+    pydantic:
+      url: https://docs.pydantic.dev/latest/
+
+editor:
+  render-on-save: true
+  markdown:
+    canonical: true
+    wrap: sentence

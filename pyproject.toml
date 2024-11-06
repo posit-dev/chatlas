@@ -1,13 +1,34 @@
 [project]
 name = "chatlas"
-version = "0.0.1"
 description = "A simple and consistent interface for chatting with LLMs"
+version = "0.0.1"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
   "rich",
   "pydantic>=2.0",
 ]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+authors = [
+  {name = "Carson Sievert", email = "carson@posit.co"}
+]
+
+
+[project.urls]
+Homepage = "https://posit-dev.github.io/chatlas"
+Documentation = "https://posit-dev.github.io/chatlas"
+Repository = "https://github.com/cpsievert/chatlas"
+Issues = "https://github.com/cpsievert/chatlas/issues/"
+Changelog = "https://github.com/cpsievert/chatlas/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 test = [
@@ -25,6 +46,15 @@ dev = [
     "anthropic[bedrock]",
     "google-generativeai>=0.8.3",
     "numpy>1.24.4",
+]
+docs = [
+    "griffe>=1",
+    "quartodoc>=0.7",
+    # Quarto requires...
+    "ipykernel",
+    "nbclient",
+    "nbformat",
+    "pyyaml",
 ]
 
 [tool.uv]

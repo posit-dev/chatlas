@@ -1,0 +1,6 @@
+# Provider { #chatlas.Provider }
+
+```python
+Provider()
+```
+

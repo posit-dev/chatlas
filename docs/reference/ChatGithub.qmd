@@ -1,0 +1,49 @@
+# ChatGithub { #chatlas.ChatGithub }
+
+```python
+ChatGithub(
+    system_prompt=None
+    turns=None
+    model=None
+    api_key=None
+    base_url='https://models.inference.ai.azure.com/'
+    seed=MISSING
+    kwargs=None
+)
+```
+
+Chat with a model hosted on the GitHub model marketplace
+
+GitHub (via Azure) hosts a number of open source and OpenAI models. To
+access the GitHub model marketplace, you will need to apply for and be
+accepted into the beta access program. See
+<https://github.com/marketplace/models> for details.
+
+This function is a lightweight wrapper around `ChatOpenAI` with the defaults
+tweaked for the GitHub model marketplace.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                                                                                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                 | Default                                    |
+|---------------|------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------|
+| system_prompt | [Optional](`typing.Optional`)\[[str](`str`)\]                                                  | A system prompt to set the behavior of the assistant.                                                                                                                                                                                                                                                                                                                                                                       | `None`                                     |
+| turns         | [Optional](`typing.Optional`)\[[list](`list`)\[[Turn](`chatlas._turn.Turn`)\]\]                | A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-`None` values for both `turns` and `system_prompt`. Each message in the list should be a dictionary with at least `role` (usually `system`, `user`, or `assistant`, but `tool` is also possible). Normally there is also a `content` field, which is a string. | `None`                                     |
+| model         | [Optional](`typing.Optional`)\[[str](`str`)\]                                                  | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.                                                                                                                                                                                                                                 | `None`                                     |
+| api_key       | [Optional](`typing.Optional`)\[[str](`str`)\]                                                  | The API key to use for authentication. You generally should not supply this directly, but instead set the `GITHUB_PAT` environment variable.                                                                                                                                                                                                                                                                                | `None`                                     |
+| base_url      | [str](`str`)                                                                                   | The base URL to the endpoint; the default uses Github's API.                                                                                                                                                                                                                                                                                                                                                                | `'https://models.inference.ai.azure.com/'` |
+| seed          | [Optional](`typing.Optional`)\[[int](`int`)\] \| [MISSING_TYPE](`chatlas._utils.MISSING_TYPE`) | Optional integer seed that ChatGPT uses to try and make output more reproducible.                                                                                                                                                                                                                                                                                                                                           | `MISSING`                                  |
+| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                                        | Additional arguments to pass to the `openai.OpenAI()` client constructor.                                                                                                                                                                                                                                                                                                                                                   | `None`                                     |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                         | Description                                               |
+|--------|------------------------------|-----------------------------------------------------------|
+|        | [Chat](`chatlas._chat.Chat`) | A chat object that retains the state of the conversation. |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+>>> from chatlas import ChatGithub
+>>> chat = ChatGithub()
+>>> chat.chat("What is the capital of France?")
+```

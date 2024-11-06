@@ -1,0 +1,39 @@
+# ChatAzureOpenAI { #chatlas.ChatAzureOpenAI }
+
+```python
+ChatAzureOpenAI(
+    endpoint
+    deployment_id
+    api_version
+    api_key=None
+    system_prompt=None
+    turns=None
+    seed=MISSING
+    kwargs=None
+)
+```
+
+Chat with a model hosted on Azure OpenAI.
+
+The Azure OpenAI server (https://azure.microsoft.com/en-us/products/ai-services/openai-service)
+hosts a number of open source models as well as proprietary models
+from OpenAI.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                                                                            | Description                                                                                                                                                                                                                                                                                                                                                                                                               | Default    |
+|---------------|---------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| endpoint      | [str](`str`)                                                                    | Azure OpenAI endpoint url with protocol and hostname, i.e. `https://{your-resource-name}.openai.azure.com`. Defaults to using the value of the `AZURE_OPENAI_ENDPOINT` envinronment variable.                                                                                                                                                                                                                             | _required_ |
+| deployment_id | [str](`str`)                                                                    | Deployment id for the model you want to use.                                                                                                                                                                                                                                                                                                                                                                              | _required_ |
+| api_version   | [str](`str`)                                                                    | The API version to use.                                                                                                                                                                                                                                                                                                                                                                                                   | _required_ |
+| api_key       | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The API key to use for authentication. You generally should not supply this directly, but instead set the `AZURE_OPENAI_API_KEY` environment variable.                                                                                                                                                                                                                                                                    | `None`     |
+| system_prompt | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | A system prompt to set the behavior of the assistant.                                                                                                                                                                                                                                                                                                                                                                     | `None`     |
+| turns         | [Optional](`typing.Optional`)\[[list](`list`)\[[Turn](`chatlas._turn.Turn`)\]\] | A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-None values for both `turns` and `system_prompt`. Each message in the list should be a dictionary with at least `role` (usually `system`, `user`, or `assistant`, but `tool` is also possible). Normally there is also a `content` field, which is a string. | `None`     |
+| seed          | [int](`int`) \| None \| [MISSING_TYPE](`chatlas._utils.MISSING_TYPE`)           | Optional integer seed that ChatGPT uses to try and make output more reproducible.                                                                                                                                                                                                                                                                                                                                         | `MISSING`  |
+| kwargs        | [Optional](`typing.Optional`)\[\'AzureProviderArgs\'\]                          | Additional arguments to pass to the `openai.AzureOpenAI()` client constructor.                                                                                                                                                                                                                                                                                                                                            | `None`     |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                         | Description    |
+|--------|------------------------------|----------------|
+|        | [Chat](`chatlas._chat.Chat`) | A Chat object. |

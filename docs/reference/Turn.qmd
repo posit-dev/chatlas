@@ -1,0 +1,6 @@
+# Turn { #chatlas.Turn }
+
+```python
+Turn(self, role, contents, json_data=None, tokens=(0, 0))
+```
+
