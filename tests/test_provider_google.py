@@ -77,5 +77,7 @@ def test_data_extraction():
 
 def test_google_images():
     chat_fun = ChatGoogle
+    time.sleep(3)
     assert_images_inline(chat_fun)
+    time.sleep(3)
     assert_images_remote_error(chat_fun)

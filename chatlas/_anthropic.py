@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import warnings
 from typing import TYPE_CHECKING, Literal, Optional, Union, cast, overload

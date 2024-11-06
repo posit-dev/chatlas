@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import inspect
 from typing import (
     Annotated,
@@ -93,8 +95,6 @@ def func_to_schema(
         },
         "required": required,
     }
-
-    print(params)
 
     desc = description or func.__doc__
 

@@ -12,6 +12,7 @@ from .conftest import (
     assert_turns_existing,
     assert_turns_system,
     retryassert,
+    retryassert_async,
 )
 
 
@@ -48,12 +49,12 @@ def test_anthropic_tool_variations():
     def run_simpleassert():
         assert_tools_simple(chat_fun)
 
-    retryassert(run_simpleassert)
+    retryassert(run_simpleassert, retries=5)
 
     def run_parallelassert():
         assert_tools_parallel(chat_fun)
 
-    retryassert(run_parallelassert)
+    retryassert(run_parallelassert, retries=5)
 
     # Fails occassionally returning "" instead of Susan
     def run_sequentialassert():
@@ -64,7 +65,10 @@ def test_anthropic_tool_variations():
 
 @pytest.mark.asyncio
 async def test_anthropic_tool_variations_async():
-    await assert_tools_async(ChatAnthropic)
+    async def run_asyncassert():
+        await assert_tools_async(ChatAnthropic)
+
+    await retryassert_async(run_asyncassert, retries=5)
 
 
 def test_data_extraction():

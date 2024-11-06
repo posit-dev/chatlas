@@ -1,6 +1,6 @@
 import tempfile
 from pathlib import Path
-from typing import Callable
+from typing import Awaitable, Callable
 
 import pytest
 from chatlas import Chat, ToolDef, Turn, content_image_file, content_image_url
@@ -33,6 +33,15 @@ def retryassert(assert_func: Callable[..., None], retries=1):
         except Exception:
             pass
     return assert_func()
+
+
+async def retryassert_async(assert_func: Callable[..., Awaitable[None]], retries=1):
+    for _ in range(retries):
+        try:
+            return await assert_func()
+        except Exception:
+            pass
+    return await assert_func()
 
 
 def assert_turns_system(chat_fun: ChatFun):
@@ -158,6 +167,8 @@ def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = 
 
     def popular_name(year: int):
         """Gets the most popular name for a given year"""
+        if isinstance(year, str):  # Sometimes Google sends the year as a string?
+            year = int(year)
         return "Susan" if year == 2024 else "I don't know"
 
     chat.register_tool(popular_name)
