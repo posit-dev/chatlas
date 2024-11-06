@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Awaitable, Callable
 
 import pytest
-from chatlas import Chat, ToolDef, Turn, content_image_file, content_image_url
+from chatlas import Chat, Tool, Turn, content_image_file, content_image_url
 from PIL import Image
 from pydantic import BaseModel
 
@@ -85,9 +85,7 @@ def assert_turns_existing(chat_fun: ChatFun):
 def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
     chat.register_tool(
-        ToolDef(
-            lambda: "2024-01-01", name="get_date", description="Gets the current date"
-        )
+        Tool(lambda: "2024-01-01", name="get_date", description="Gets the current date")
     )
 
     chat.chat("What's the current date in YMD format?", stream=stream)
@@ -111,9 +109,7 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
         return "2024-01-01"
 
     chat.register_tool(
-        ToolDef(
-            async_mock, name="get_current_date", description="Gets the current date"
-        )
+        Tool(async_mock, name="get_current_date", description="Gets the current date")
     )
 
     await chat.chat_async("What's the current date in YMD format?", stream=stream)
@@ -132,7 +128,7 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
         return "sage green" if person == "Joe" else "red"
 
     chat.register_tool(
-        ToolDef(
+        Tool(
             favorite_color,
             description="Returns a person's favourite colour",
             # TODO: allow for extra arguments?
@@ -158,7 +154,7 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
 def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = True):
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
     chat.register_tool(
-        ToolDef(
+        Tool(
             lambda: 2024,
             name="current_year",
             description="Get the current year",

@@ -18,7 +18,7 @@ from ._content import (
 from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import ToolDef, basemodel_to_tool_params
+from ._tools import Tool, basemodel_to_tool_params
 from ._turn import Turn, normalize_turns
 from ._utils import inform_model_default
 
@@ -142,7 +142,7 @@ class GoogleProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ): ...
@@ -153,7 +153,7 @@ class GoogleProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ): ...
@@ -162,7 +162,7 @@ class GoogleProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ):
@@ -175,7 +175,7 @@ class GoogleProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ): ...
@@ -186,7 +186,7 @@ class GoogleProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ): ...
@@ -195,7 +195,7 @@ class GoogleProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ):
@@ -206,7 +206,7 @@ class GoogleProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SendMessageArgs"] = None,
     ) -> "SendMessageArgs":
@@ -351,7 +351,7 @@ class GoogleProvider(
 
         return Turn("assistant", contents, tokens=tokens)
 
-    def _gemini_tools(self, tools: list[ToolDef]) -> list["FunctionDeclaration"]:
+    def _gemini_tools(self, tools: list[Tool]) -> list["FunctionDeclaration"]:
         from google.generativeai.types.content_types import FunctionDeclaration
 
         res: list["FunctionDeclaration"] = []

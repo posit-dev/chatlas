@@ -18,25 +18,25 @@ from typing_extensions import Literal
 from . import _utils
 from ._typing_extensions import Required, TypedDict, is_typeddict
 
-__all__ = ("ToolDef",)
+__all__ = ("Tool",)
 
 
 # TODO: maybe allow for specification of param type?
-class ToolDef:
+class Tool:
     func: Callable[..., Any] | Callable[..., Awaitable[Any]]
 
     def __init__(
         self,
-        tool: Callable[..., Any] | Callable[..., Awaitable[Any]],
+        func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
         name: Optional[str] = None,
         description: Optional[str] = None,
         parameter_descriptions: Optional[dict[str, str]] = None,
     ):
-        self.func = tool
-        self._is_async = _utils.is_async_callable(tool)
+        self.func = func
+        self._is_async = _utils.is_async_callable(func)
         self.schema = func_to_schema(
-            tool,
+            func,
             name=name,
             description=description,
             parameter_descriptions=parameter_descriptions,

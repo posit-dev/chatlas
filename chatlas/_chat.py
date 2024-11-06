@@ -17,7 +17,7 @@ from pydantic import BaseModel
 
 from ._content import Content, ContentJson, ContentToolRequest, ContentToolResult
 from ._provider import Provider
-from ._tools import ToolDef
+from ._tools import Tool
 from ._turn import Turn, user_turn
 
 
@@ -60,7 +60,7 @@ class Chat(Generic[ChatRequestArgsT]):
         """
         self.provider = provider
         self._turns = turns or []
-        self.tools: dict[str, ToolDef] = {}
+        self.tools: dict[str, Tool] = {}
 
     def turns(
         self,
@@ -412,7 +412,7 @@ class Chat(Generic[ChatRequestArgsT]):
 
     def register_tool(
         self,
-        tool: Callable[..., Any] | Callable[..., Awaitable[Any]] | ToolDef,
+        tool: Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool,
     ):
         """
         Register a tool with the chat.
@@ -420,10 +420,10 @@ class Chat(Generic[ChatRequestArgsT]):
         Parameters
         ----------
         tool
-            The tool to register. This can be a function, an async function, or a ToolDef object.
+            The tool to register. This can be a function, an async function, or a Tool object.
         """
-        if not isinstance(tool, ToolDef):
-            tool = ToolDef(tool)
+        if not isinstance(tool, Tool):
+            tool = Tool(tool)
 
         self.tools[tool.name] = tool
 

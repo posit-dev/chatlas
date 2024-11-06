@@ -18,7 +18,7 @@ from ._content import (
 from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import ToolDef, ToolSchema, basemodel_to_tool_params
+from ._tools import Tool, ToolSchema, basemodel_to_tool_params
 from ._turn import Turn, normalize_turns
 from ._utils import MISSING, MISSING_TYPE, inform_model_default, is_testing
 
@@ -166,7 +166,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ): ...
@@ -177,7 +177,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ): ...
@@ -187,7 +187,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ):
@@ -200,7 +200,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ): ...
@@ -211,7 +211,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ): ...
@@ -221,7 +221,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ):
@@ -232,7 +232,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["ChatCompletionArgs"] = None,
     ) -> "ChatCompletionArgs":

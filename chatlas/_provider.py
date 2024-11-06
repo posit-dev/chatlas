@@ -14,7 +14,7 @@ from typing import (
 
 from pydantic import BaseModel
 
-from ._tools import ToolDef
+from ._tools import Tool
 from ._turn import Turn
 
 ChatCompletionT = TypeVar("ChatCompletionT")
@@ -33,7 +33,7 @@ class Provider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> ChatCompletionT: ...
@@ -45,7 +45,7 @@ class Provider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> Iterable[ChatCompletionChunkT]: ...
@@ -56,7 +56,7 @@ class Provider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> Iterable[ChatCompletionChunkT] | ChatCompletionT: ...
@@ -68,7 +68,7 @@ class Provider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> ChatCompletionT: ...
@@ -80,7 +80,7 @@ class Provider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> AsyncIterable[ChatCompletionChunkT]: ...
@@ -91,7 +91,7 @@ class Provider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]],
         kwargs: Any,
     ) -> AsyncIterable[ChatCompletionChunkT] | ChatCompletionT: ...

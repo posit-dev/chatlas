@@ -18,7 +18,7 @@ from ._content import (
 )
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import ToolDef, ToolSchema, basemodel_to_tool_params
+from ._tools import Tool, ToolSchema, basemodel_to_tool_params
 from ._turn import Turn, normalize_turns
 from ._utils import inform_model_default
 
@@ -156,7 +156,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CreateCompletionArgs"] = None,
     ): ...
@@ -167,7 +167,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CreateCompletionArgs"] = None,
     ): ...
@@ -177,7 +177,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CreateCompletionArgs"] = None,
     ):
@@ -190,7 +190,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CreateCompletionArgs"] = None,
     ): ...
@@ -201,7 +201,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CreateCompletionArgs"] = None,
     ): ...
@@ -211,7 +211,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CreateCompletionArgs"] = None,
     ):
@@ -222,7 +222,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, ToolDef],
+        tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CreateCompletionArgs"] = None,
     ) -> "CreateCompletionArgs":
@@ -231,13 +231,13 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         ]
 
         # If data extraction is requested, add a "mock" tool with parameters inferred from the data model
-        data_model_tool: ToolDef | None = None
+        data_model_tool: Tool | None = None
         if data_model is not None:
 
             def _structured_tool_call(**kwargs):
                 pass
 
-            data_model_tool = ToolDef(
+            data_model_tool = Tool(
                 _structured_tool_call,
                 description="Extract structured data",
             )

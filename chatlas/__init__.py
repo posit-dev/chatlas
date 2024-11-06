@@ -9,7 +9,7 @@ from ._openai import ChatAzureOpenAI, ChatOpenAI
 from ._perplexity import ChatPerplexity
 from ._provider import Provider
 from ._tokens import token_usage
-from ._tools import ToolDef
+from ._tools import Tool
 from ._turn import Turn
 
 __all__ = (
@@ -28,6 +28,6 @@ __all__ = (
     "content_image_url",
     "Turn",
     "token_usage",
-    "ToolDef",
+    "Tool",
     "Provider",
 )
