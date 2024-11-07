@@ -14,13 +14,36 @@ ChatOpenAI(
 
 Chat with an OpenAI model.
 
-OpenAI (https://openai.com/) provides a number of chat based models under
-the ChatGPT (https://chatgpt.com) moniker.
+[OpenAI](https://openai.com/) provides a number of chat based models under
+the [ChatGPT](https://chatgpt.com) moniker.
+
+## Prerequisites {.doc-section .doc-section-prerequisites}
+
+
+::: {.callout-note}
+## API key
 
 Note that a ChatGPT Plus membership does not give you the ability to call
-models via the API. You will need to go to the developer platform
-(https://platform.openai.com) to sign up (and pay for) a developer account
-that will give you an API key that you can use with this package.
+models via the API. You will need to go to the [developer
+platform](https://platform.openai.com) to sign up (and pay for) a developer
+account that will give you an API key that you can use with this package.
+:::
+
+::: {.callout-note}
+## Python requirements
+
+`ChatOpenAI` requires the `openai` package (e.g., `pip install openai`).
+:::
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+import os
+from chatlas import ChatOpenAI
+
+chat = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+chat.chat("What is the capital of France?")
+```
 
 ## Parameters {.doc-section .doc-section-parameters}
 
@@ -32,18 +55,10 @@ that will give you an API key that you can use with this package.
 | api_key       | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The API key to use for authentication. You generally should not supply this directly, but instead set the `OPENAI_API_KEY` environment variable.                                                                                                                                                                                                                                                                            | `None`                        |
 | base_url      | [str](`str`)                                                                    | The base URL to the endpoint; the default uses OpenAI.                                                                                                                                                                                                                                                                                                                                                                      | `'https://api.openai.com/v1'` |
 | seed          | [int](`int`) \| None \| [MISSING_TYPE](`chatlas.types.MISSING_TYPE`)            | Optional integer seed that ChatGPT uses to try and make output more reproducible.                                                                                                                                                                                                                                                                                                                                           | `MISSING`                     |
-| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                         | Additional arguments to pass to the `openai.OpenAI()` client constructor.                                                                                                                                                                                                                                                                                                                                                   | `None`                        |
+| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                         | Additional arguments to pass to the [](`openai.OpenAI()`) client constructor.                                                                                                                                                                                                                                                                                                                                               | `None`                        |
 
 ## Returns {.doc-section .doc-section-returns}
 
 | Name   | Type                         | Description                                               |
 |--------|------------------------------|-----------------------------------------------------------|
 |        | [Chat](`chatlas._chat.Chat`) | A chat object that retains the state of the conversation. |
-
-## Examples {.doc-section .doc-section-examples}
-
-```python
->>> from chatlas import ChatOpenAI
->>> chat = ChatOpenAI()
->>> chat.chat("What is the capital of France?")
-```

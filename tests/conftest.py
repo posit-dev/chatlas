@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Awaitable, Callable
 
 import pytest
-from chatlas import Chat, Tool, Turn, content_image_file, content_image_url
+from chatlas import Chat, Tool, Turn, image_file, image_url
 from PIL import Image
 from pydantic import BaseModel
 
@@ -201,7 +201,7 @@ def assert_images_inline(chat_fun: ChatFun, stream: bool = True):
         chat = chat_fun()
         chat.chat(
             "What's in this image?",
-            content_image_file(str(img_path)),
+            image_file(str(img_path)),
             stream=stream,
         )
 
@@ -214,7 +214,7 @@ def assert_images_remote(chat_fun: ChatFun, stream: bool = True):
     chat = chat_fun()
     chat.chat(
         "What's in this image? (Be sure to mention the outside shape)",
-        content_image_url("https://httr2.r-lib.org/logo.png"),
+        image_url("https://httr2.r-lib.org/logo.png"),
         stream=stream,
     )
     turn = chat.last_turn()
@@ -225,7 +225,7 @@ def assert_images_remote(chat_fun: ChatFun, stream: bool = True):
 
 def assert_images_remote_error(chat_fun: ChatFun):
     chat = chat_fun()
-    image_remote = content_image_url("https://httr2.r-lib.org/logo.png")
+    image_remote = image_url("https://httr2.r-lib.org/logo.png")
 
     with pytest.raises(Exception, match="Remote images aren't supported"):
         chat.chat("What's in this image?", image_remote)

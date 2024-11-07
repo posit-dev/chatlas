@@ -24,12 +24,35 @@ def ChatGroq(
     kwargs: Optional["ProviderClientArgs"] = None,
 ) -> Chat["ChatCompletionArgs"]:
     """
-    Chat with a model hosted on Groq
+    Chat with a model hosted on Groq.
 
-    Sign up at https://groq.com.
+    Groq provides a platform for highly efficient AI inference.
 
-    This function is a lightweight wrapper around `ChatOpenAI` with
-    the defaults tweaked for groq.
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## API key
+
+    Sign up at <https://groq.com> to get an API key.
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatGroq` requires the `openai` package (e.g., `pip install openai`).
+    :::
+
+    Examples
+    --------
+
+    ```python
+    import os
+    from chatlas import ChatGroq
+
+    chat = ChatGroq(api_key=os.getenv("GROQ_API_KEY"))
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -55,18 +78,17 @@ def ChatGroq(
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the `openai.OpenAI()` client constructor.
+        Additional arguments to pass to the [](`openai.OpenAI()`) client constructor.
 
     Returns
     -------
     Chat
         A chat object that retains the state of the conversation.
 
-    Examples
-    --------
-    >>> from chatlas import ChatGroq
-    >>> chat = ChatGroq()
-    >>> chat.chat("What is the capital of France?")
+    Note
+    ----
+    This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
+    the defaults tweaked for groq.
     """
     if model is None:
         model = inform_model_default("llama3-8b-8192")

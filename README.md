@@ -64,9 +64,6 @@ chat.app()
 </div>
 
 
-
-
-
 Again, keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist even after you exit back to the Python prompt.
 
 
@@ -97,7 +94,7 @@ chat.last_turn().text
 
 ### Programmatic Chat
 
-For a more programming friendly interface, you can `submit()` a user turn and get a [generator](https://wiki.python.org/moin/Generators) of strings back. In the default case of `stream=True`, the generator yields strings as they arrive from the API (in small chunks). This is useful when you want to process the response as it arrives and/or when the response is too long to fit in memory.
+For a more programming friendly interface, `submit()` a user turn and get a [generator](https://wiki.python.org/moin/Generators) of strings back. In the default case of `stream=True`, the generator yields strings as they arrive from the API (in small chunks). This is useful when you want to process the response as it arrives and/or when the response is too long to fit in memory.
 
 ```python
 response = chat.submit("What is 1+1?", stream=True)
@@ -123,11 +120,11 @@ for x in response:
 
 ### Vision (Image Input)
 
-To ask questions about images, you can pass one or more additional input arguments using `content_image_file()` and/or `content_image_url()`:
+To ask questions about images, you can pass one or more additional input arguments using `image_file()` and/or `image_url()`:
 
 ```python
 chat.chat(
-    content_image_url("https://www.python.org/static/img/python-logo.png"),
+    image_url("https://www.python.org/static/img/python-logo.png"),
     "Can you explain this logo?"
 )
 ```
@@ -137,193 +134,13 @@ The Python logo features two intertwined snakes in yellow and blue,
 representing the Python programming language. The design symbolizes...
 ```
 
-The `content_image_url()` function takes a URL to an image file and sends that URL directly to the API. The `content_image_file()` function takes a path to a local image file and encodes it as a base64 string to send to the API. Note that by default, `content_image_file()` automatically resizes the image to fit within 512x512 pixels; set the `resize` parameter to "high" if higher resolution is needed.
+The `image_url()` function takes a URL to an image file and sends that URL directly to the API. The `image_file()` function takes a path to a local image file and encodes it as a base64 string to send to the API. Note that by default, `image_file()` automatically resizes the image to fit within 512x512 pixels; set the `resize` parameter to "high" if higher resolution is needed.
 
 
 ## Model providers
 
-`chatlas` supports various LLM models from Anthropic, OpenAI, Google, Ollama, and others.
-Options like Anthropic, OpenAI, and Google require an account and API key to use, and also send your input to a remote server for response generation.
-[Ollama](#ollama), on the other hand, provides a way to run open source models that run locally on your own machine, so is a good option for privacy and cost reasons.
 
-
-### Anthropic
-
-To use Anthropic's models (i.e., Claude), you'll need to sign up for an account and [get an API key](https://docs.anthropic.com/en/api/getting-started).
-You'll also want the Python package:
-
-```shell
-pip install anthropic
-```
-
-Paste your API key into `ChatAnthropic()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import ChatAnthropic
-chat = ChatAnthropic(api_key="...")
-```
-
-
-### OpenAI
-
-To use OpenAI's models (i.e., GPT), you'll need to sign up for an account and [get an API key](https://platform.openai.com/docs/quickstart).
-You'll also want the Python package:
-
-```shell
-pip install openai
-```
-
-Paste your API key into `ChatOpenAI()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import ChatOpenAI
-chat = ChatOpenAI(api_key="...")
-```
-
-
-### Google
-
-To use Google's models (i.e., Gemini), you'll need to sign up for an account and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python).
-You'll also want the Python package:
-
-```shell
-pip install google-generativeai
-```
-
-Paste your API key into `ChatGoogle()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import ChatGoogle
-chat = ChatGoogle(api_key="...")
-```
-
-### Ollama
-
-To use Ollama, first download and run the [Ollama](https://ollama.com/) executable. Then [choose a model](https://ollama.com/library), like llama 3.2, to download (from the command line):
-
-```shell
-ollama run llama-3.2
-```
-
-Now, you're read to chat via `chatlas`:
-
-```python
-from chatlas import ChatOllama
-chat = ChatOllama(model="llama3.2")
-```
-
-## Perplexity
-
-To use [perplexity.ai](https://perplexity.ai/), you'll need to sign up and obtain an API key. You'll also want the `openai` Python package:
-
-```shell
-pip install openai
-```
-
-Paste your API key into `ChatPerplexity()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import ChatPerplexity
-chat = ChatPerplexity(api_key="...")
-```
-
-
-## Groq
-
-To use [Groq](https://groq.dev/), you'll need to obtain an API key. You'll also want the `openai` Python package:
-
-```shell
-pip install openai
-```
-
-Paste your API key into `ChatGroq()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import ChatGroq
-chat = ChatGroq(api_key="...")
-```
-
-## Github
-
-To use the [GitHub model marketplace](https://github.com/marketplace/models), you currently need to apply for and be accepted into the beta access program. You'll also want the `openai` Python package:
-
-```shell
-pip install openai
-```
-
-Paste your API key into `ChatGitHub()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import ChatGitHub
-chat = ChatGitHub(api_key="...")
-```
-
-### AWS Bedrock
-
-[AWS Bedrock](https://aws.amazon.com/bedrock/) provides a number of chat based models, including those Anthropic's [Claude](https://aws.amazon.com/bedrock/claude/). To use AWS Bedrock, you'll need the `anthropic` Python package, along with `bedrock` extras:
-
-```python
-pip install anthropic[bedrock]
-```
-
-Then, give your AWS deployment to `ChatBedrockAnthropic()`. Alternatively, see [here](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html) for a more detailed explanation of how to properly manage your AWS credentials.
-
-```python
-from chatlas import ChatBedrockAnthropic
-
-chat = ChatBedrockAnthropic(
-  aws_profile='...',
-  aws_region='us-east'
-  aws_secret_key='...',
-  aws_access_key='...',
-  aws_session_token='...',
-)
-```
-
-
-### Azure
-
-To use [Azure](https://azure.microsoft.com/en-us/products/ai-services/openai-service), you'll need the `openai` Python package:
-
-```shell
-pip install openai
-```
-
-Then, pass along information about your Azure deployment to the `ChatAzureOpenAI` constructor:
-
-```python
-import os
-from chatlas import ChatAzureOpenAI
-
-chat = ChatAzureOpenAI(
-  endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-  deployment_id='REPLACE_WITH_YOUR_DEPLOYMENT_ID',
-  api_version="YYYY-MM-DD",
-  api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
-)
-```
-
-
-<!--
-
-### LangChain
-
-To use LangChain's [chat models](https://python.langchain.com/docs/integrations/chat/), you'll need to follow the relevant setup instructions ([for example](https://python.langchain.com/docs/integrations/chat/openai/#setup))
-You'll also want the relevant Python packages:
-
-```shell
-pip install langchain langchain-openai
-```
-
-Then, once you have a chat model instance, pass it to the `LangChainChat` constructor:
-
-```python
-from chatlas import LangChainChat
-from langchain_openai import ChatOpenAI
-
-chat = LangChainChat(ChatOpenAI())
-```
--->
+TODO: list available providers and link to function reference for each.
 
 
 ## Managing credentials

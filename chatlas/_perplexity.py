@@ -24,12 +24,38 @@ def ChatPerplexity(
     kwargs: Optional["ProviderClientArgs"] = None,
 ) -> Chat["ChatCompletionArgs"]:
     """
-    Chat with a model hosted on perplexity.ai
+    Chat with a model hosted on perplexity.ai.
 
-    Sign up at <https://www.perplexity.ai>.
+    Perplexity AI is a platform for running LLMs that are capable of
+    searching the web in real-time to help them answer questions with
+    information that may not have been available when the model was trained.
 
-    This function is a lightweight wrapper around `ChatOpenAI` with
-    the defaults tweaked for perplexity.ai.
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## API key
+
+    Sign up at <https://www.perplexity.ai> to get an API key.
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatPerplexity` requires the `openai` package (e.g., `pip install openai`).
+    :::
+
+
+    Examples
+    --------
+
+    ```python
+    import os
+    from chatlas import ChatPerplexity
+
+    chat = ChatPerplexity(api_key=os.getenv("PERPLEXITY_API_KEY"))
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -56,7 +82,7 @@ def ChatPerplexity(
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the `openai.OpenAI()` client
+        Additional arguments to pass to the [](`openai.OpenAI()`) client
         constructor.
 
     Returns
@@ -64,11 +90,10 @@ def ChatPerplexity(
     Chat
         A chat object that retains the state of the conversation.
 
-    Examples
-    --------
-    >>> from chatlas import ChatPerplexity
-    >>> chat = ChatPerplexity()
-    >>> chat.chat("What is the capital of France?")
+    Note
+    ----
+    This function is a lightweight wrapper around [](`chatlas.ChatOpenAI`) with
+    the defaults tweaked for perplexity.ai.
     """
     if model is None:
         model = inform_model_default("llama-3.1-sonar-small-128k-online")

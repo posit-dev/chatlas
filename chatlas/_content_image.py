@@ -9,13 +9,13 @@ from typing import Literal, Union, cast
 from .types import ContentImageInline, ContentImageRemote, ImageContentTypes
 
 __all__ = (
-    "content_image_url",
-    "content_image_file",
-    "content_image_plot",
+    "image_url",
+    "image_file",
+    "image_plot",
 )
 
 
-def content_image_url(
+def image_url(
     url: str, detail: Literal["auto", "low", "high"] = "auto"
 ) -> Union[ContentImageInline, ContentImageRemote]:
     """
@@ -30,24 +30,29 @@ def content_image_url(
         The URL of the image to include in the chat input. Can be a data: URL or a
         regular URL.
     detail
-        The detail setting for this image. Can be "auto", "low", or "high".
+        The detail setting for this image. Can be `"auto"`, `"low"`, or `"high"`.
 
     Returns
     -------
-        An Content object suitable for a Turn() object.
-
-    Raises
-    ------
-        ValueError: If the URL is not valid or the detail setting is invalid.
+    Content
+        Content suitable for a `Turn` object.
 
     Examples
     --------
-    >>> from chatlas import ChatOpenAI, content_image_url
-    >>> chat = ChatOpenAI()
-    >>> chat.chat(
-    ...     "What do you see in this image?",
-    ...     content_image_url("https://www.python.org/static/img/python-logo.png"),
-    ... )
+    ```python
+    from chatlas import ChatOpenAI, image_url
+
+    chat = ChatOpenAI()
+    chat.chat(
+        "What do you see in this image?",
+        image_url("https://www.python.org/static/img/python-logo.png"),
+    )
+    ```
+
+    Raises
+    ------
+    ValueError
+        If the URL is not valid or the detail setting is invalid.
     """
     if detail not in ["auto", "low", "high"]:
         raise ValueError("detail must be 'auto', 'low', or 'high'")
@@ -66,7 +71,7 @@ def content_image_url(
         return ContentImageRemote(url=url, detail=detail)
 
 
-def content_image_file(
+def image_file(
     path: str,
     content_type: Literal["auto", ImageContentTypes] = "auto",
     resize: Union[str, Literal["none", "low", "high"]] = "low",
@@ -82,31 +87,38 @@ def content_image_file(
     path
         The path to the image file to include in the chat input.
     content_type
-        The content type of the image (e.g., "image/png"). If "auto", the content
+        The content type of the image (e.g., `"image/png"`). If `"auto"`, the content
         type is inferred from the file extension.
     resize
         Resizing option for the image. Can be:
-            - "none": No resizing
-            - "low": Resize to fit within 512x512
-            - "high": Resize to fit within 2000x768 or 768x2000
-            - Custom string (e.g., "200x200", "300x200>!", etc.)
+            - `"none"`: No resizing
+            - `"low"`: Resize to fit within 512x512
+            - `"high"`: Resize to fit within 2000x768 or 768x2000
+            - Custom string (e.g., `"200x200"`, `"300x200>!"`, etc.)
 
     Returns
     -------
-        ContentImageInline: An Content object suitable for a Turn() object.
-
-    Raises
-    ------
-        FileNotFoundError: If the specified file does not exist. ValueError: If
-        the file extension is unsupported or the resize option is invalid.
+    Content
+        Content suitable for a `Turn` object.
 
     Examples
     --------
-    >>> from chatlas import ChatOpenAI, content_image_file
-    >>> chat = ChatOpenAI()
-    >>> chat.chat(
-    ...     "What do you see in this image?", content_image_file("path/to/image.png")
-    ... )
+    ```python
+    from chatlas import ChatOpenAI, image_file
+
+    chat = ChatOpenAI()
+    chat.chat(
+        "What do you see in this image?",
+        image_file("path/to/image.png"),
+    )
+    ```
+
+    Raises
+    ------
+    FileNotFoundError
+        If the specified file does not exist.
+    ValueError
+        If the file extension is unsupported or the resize option is invalid.
     """
 
     if not os.path.isfile(path):
@@ -169,7 +181,7 @@ def content_image_file(
     return ContentImageInline(content_type, base64_data)
 
 
-def content_image_plot(
+def image_plot(
     width: int = 768, height: int = 768, dpi: int = 72
 ) -> ContentImageInline:
     """
@@ -189,37 +201,43 @@ def content_image_plot(
 
     Returns
     -------
-        ContentImageInline: An Content object suitable for a Turn() object.
+    Content
+        Content suitable for a `Turn` object.
 
     Raises
     ------
-        ValueError: If width or height is not a positive integer.
+    ValueError
+        If width or height is not a positive integer.
 
     Examples
     --------
-    >>> from chatlas import ChatOpenAI, content_image_plot
-    >>> import matplotlib.pyplot as plt
-    >>> plt.scatter(faithful["eruptions"], faithful["waiting"])
-    >>> chat = ChatOpenAI()
-    >>> chat.chat(
-    ...     "Describe this plot in one paragraph, as suitable for inclusion in "
-    ...     "alt-text. You should briefly describe the plot type, the axes, and "
-    ...     "2-5 major visual patterns.",
-    ...     content_image_plot(),
-    ... )
+
+    ```python
+    from chatlas import ChatOpenAI, image_plot
+    import matplotlib.pyplot as plt
+
+    plt.scatter(faithful["eruptions"], faithful["waiting"])
+    chat = ChatOpenAI()
+    chat.chat(
+        "Describe this plot in one paragraph, as suitable for inclusion in "
+        "alt-text. You should briefly describe the plot type, the axes, and "
+        "2-5 major visual patterns.",
+        image_plot(),
+    )
+    ```
     """
 
     try:
         import matplotlib.pyplot as plt
     except ImportError:
         raise ImportError(
-            "`content_image_plot()` requires the `matplotlib` package. "
+            "`image_plot()` requires the `matplotlib` package. "
             "Install it with `pip install matplotlib`."
         )
 
     if not plt.get_fignums():
         raise RuntimeError(
-            "No matplotlib figure to save. Please create one before calling `content_image_plot()`."
+            "No matplotlib figure to save. Please create one before calling `image_plot()`."
         )
 
     fig = plt.gcf()

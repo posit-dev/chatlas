@@ -10,7 +10,34 @@ ChatGoogle(
 )
 ```
 
-Chat with a Google Gemini model
+Chat with a Google Gemini model.
+
+## Prerequisites {.doc-section .doc-section-prerequisites}
+
+
+::: {.callout-note}
+## API key
+
+To use Google's models (i.e., Gemini), you'll need to sign up for an account
+and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python).
+:::
+
+::: {.callout-note}
+## Python requirements
+
+`ChatGoogle` requires the `google-generativeai` package
+(e.g., `pip install google-generativeai`).
+:::
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+import os
+from chatlas import ChatGoogle
+
+chat = ChatGoogle(api_key=os.getenv("GOOGLE_API_KEY"))
+chat.chat("What is the capital of France?")
+```
 
 ## Parameters {.doc-section .doc-section-parameters}
 

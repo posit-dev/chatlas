@@ -12,12 +12,36 @@ ChatPerplexity(
 )
 ```
 
-Chat with a model hosted on perplexity.ai
+Chat with a model hosted on perplexity.ai.
 
-Sign up at <https://www.perplexity.ai>.
+Perplexity AI is a platform for running LLMs that are capable of
+searching the web in real-time to help them answer questions with
+information that may not have been available when the model was trained.
 
-This function is a lightweight wrapper around `ChatOpenAI` with
-the defaults tweaked for perplexity.ai.
+## Prerequisites {.doc-section .doc-section-prerequisites}
+
+
+::: {.callout-note}
+## API key
+
+Sign up at <https://www.perplexity.ai> to get an API key.
+:::
+
+::: {.callout-note}
+## Python requirements
+
+`ChatPerplexity` requires the `openai` package (e.g., `pip install openai`).
+:::
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+import os
+from chatlas import ChatPerplexity
+
+chat = ChatPerplexity(api_key=os.getenv("PERPLEXITY_API_KEY"))
+chat.chat("What is the capital of France?")
+```
 
 ## Parameters {.doc-section .doc-section-parameters}
 
@@ -29,7 +53,7 @@ the defaults tweaked for perplexity.ai.
 | api_key       | [Optional](`typing.Optional`)\[[str](`str`)\]                                                 | The API key to use for authentication. You generally should not supply this directly, but instead set the `PERPLEXITY_API_KEY` environment variable.                                                                                                                                                                                                                                                                        | `None`                         |
 | base_url      | [str](`str`)                                                                                  | The base URL to the endpoint; the default uses Perplexity's API.                                                                                                                                                                                                                                                                                                                                                            | `'https://api.perplexity.ai/'` |
 | seed          | [Optional](`typing.Optional`)\[[int](`int`)\] \| [MISSING_TYPE](`chatlas.types.MISSING_TYPE`) | Optional integer seed that ChatGPT uses to try and make output more reproducible.                                                                                                                                                                                                                                                                                                                                           | `MISSING`                      |
-| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                                       | Additional arguments to pass to the `openai.OpenAI()` client constructor.                                                                                                                                                                                                                                                                                                                                                   | `None`                         |
+| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                                       | Additional arguments to pass to the [](`openai.OpenAI()`) client constructor.                                                                                                                                                                                                                                                                                                                                               | `None`                         |
 
 ## Returns {.doc-section .doc-section-returns}
 
@@ -37,10 +61,7 @@ the defaults tweaked for perplexity.ai.
 |--------|------------------------------|-----------------------------------------------------------|
 |        | [Chat](`chatlas._chat.Chat`) | A chat object that retains the state of the conversation. |
 
-## Examples {.doc-section .doc-section-examples}
+## Note {.doc-section .doc-section-note}
 
-```python
->>> from chatlas import ChatPerplexity
->>> chat = ChatPerplexity()
->>> chat.chat("What is the capital of France?")
-```
+This function is a lightweight wrapper around [](`chatlas.ChatOpenAI`) with
+the defaults tweaked for perplexity.ai.

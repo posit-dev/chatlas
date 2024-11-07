@@ -24,15 +24,38 @@ def ChatGithub(
     kwargs: Optional["ProviderClientArgs"] = None,
 ) -> Chat["ChatCompletionArgs"]:
     """
-    Chat with a model hosted on the GitHub model marketplace
+    Chat with a model hosted on the GitHub model marketplace.
 
-    GitHub (via Azure) hosts a number of open source and OpenAI models. To
-    access the GitHub model marketplace, you will need to apply for and be
-    accepted into the beta access program. See
-    <https://github.com/marketplace/models> for details.
+    GitHub (via Azure) hosts a wide variety of open source models, some of
+    which are fined tuned for specific tasks.
 
-    This function is a lightweight wrapper around `ChatOpenAI` with the defaults
-    tweaked for the GitHub model marketplace.
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## API key
+
+    Sign up at <https://github.com/marketplace/models> to get an API key.
+    You may need to apply for and be accepted into a beta access program.
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatGithub` requires the `openai` package (e.g., `pip install openai`).
+    :::
+
+
+    Examples
+    --------
+
+    ```python
+    import os
+    from chatlas import ChatGithub
+
+    chat = ChatGithub(api_key=os.getenv("GITHUB_PAT"))
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -58,7 +81,7 @@ def ChatGithub(
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the `openai.OpenAI()` client
+        Additional arguments to pass to the [](`openai.OpenAI()`) client
         constructor.
 
     Returns
@@ -66,11 +89,10 @@ def ChatGithub(
     Chat
         A chat object that retains the state of the conversation.
 
-    Examples
-    --------
-    >>> from chatlas import ChatGithub
-    >>> chat = ChatGithub()
-    >>> chat.chat("What is the capital of France?")
+    Note
+    ----
+    This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
+    the defaults tweaked for the GitHub model marketplace.
     """
     if model is None:
         model = inform_model_default("gpt-4o-mini")

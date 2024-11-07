@@ -66,14 +66,38 @@ def ChatAnthropic(
     """
     Chat with an Anthropic Claude model.
 
-    Anthropic (https://www.anthropic.com) provides a number of chat based
-    models under the Claude (https://www.anthropic.com/claude) moniker.
+    [Anthropic](https://www.anthropic.com) provides a number of chat based
+    models under the [Claude](https://www.anthropic.com/claude) moniker.
+
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## API key
 
     Note that a Claude Prop membership does not give you the ability to call
-    models via the API. You will need to go to the developer console
-    (https://console.anthropic.com/account/keys) to sign up (and pay for)
-    a developer account that will give you an API key that you can use with
+    models via the API. You will need to go to the [developer
+    console](https://console.anthropic.com/account/keys) to sign up (and pay
+    for) a developer account that will give you an API key that you can use with
     this package.
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatAnthropic` requires the `anthropic` package (e.g., `pip install anthropic`).
+    :::
+
+    Examples
+    --------
+
+    ```python
+    import os
+    from chatlas import ChatAnthropic
+
+    chat = ChatAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -81,22 +105,24 @@ def ChatAnthropic(
         A system prompt to set the behavior of the assistant.
     turns
         A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch.
-        Do not provide non-None values for both `turns` and `system_prompt`.
-        Each message in the list should be a dictionary with at least `role`
-        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-        Normally there is also a `content` field, which is a string.
+        conversation). If not provided, the conversation begins from scratch. Do
+        not provide non-None values for both `turns` and `system_prompt`. Each
+        message in the list should be a dictionary with at least `role` (usually
+        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
+        there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
-        default, and warn you about it. We strongly recommend explicitly choosing
-        a model for all but the most casual use.
+        default, and warn you about it. We strongly recommend explicitly
+        choosing a model for all but the most casual use.
     api_key
         The API key to use for authentication. You generally should not supply
-        this directly, but instead set the `ANTHROPIC_API_KEY` environment variable.
+        this directly, but instead set the `ANTHROPIC_API_KEY` environment
+        variable.
     max_tokens
         Maximum number of tokens to generate before stopping.
     kwargs
-        Additional arguments to pass to the `anthropic.Anthropic()` client constructor.
+        Additional arguments to pass to the [](`anthropic.Anthropic()`) client
+        constructor.
 
     Returns
     -------
@@ -356,7 +382,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         elif isinstance(content, ContentImageRemote):
             raise NotImplementedError(
                 "Remote images aren't supported by Anthropic (Claude). "
-                "Consider downloading the image and using content_image_file() instead."
+                "Consider downloading the image and using image_file() instead."
             )
         elif isinstance(content, ContentToolRequest):
             return {
@@ -431,11 +457,44 @@ def ChatBedrockAnthropic(
     kwargs: Optional["BedrockProviderArgs"] = None,
 ) -> Chat["CreateCompletionArgs"]:
     """
-    Chat with an AWS bedrock model
+    Chat with an AWS bedrock model.
 
     [AWS Bedrock](https://aws.amazon.com/bedrock/) provides a number of chat
     based models, including those Anthropic's
     [Claude](https://aws.amazon.com/bedrock/claude/).
+
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## AWS credentials
+
+    Consider using the approach outlined in this guide to manage your AWS credentials:
+    <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html>
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras
+    (e.g., `pip install anthropic[bedrock]`).
+    :::
+
+    Examples
+    --------
+
+    ```python
+    from chatlas import ChatBedrockAnthropic
+
+    chat = ChatBedrockAnthropic(
+      aws_profile='...',
+      aws_region='us-east',
+      aws_secret_key='...',
+      aws_access_key='...',
+      aws_session_token='...',
+    )
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -466,18 +525,13 @@ def ChatBedrockAnthropic(
         `system`, `user`, or `assistant`, but `tool` is also possible). Normally
         there is also a `content` field, which is a string.
     kwargs
-        Additional arguments to pass to the `anthropic.AnthropicBedrock()`
+        Additional arguments to pass to the [](`anthropic.AnthropicBedrock()`)
         client constructor.
 
     Returns
     -------
     Chat
         A Chat object.
-
-    Note
-    ----
-    For more information on configuring AWS credentials, see
-    <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html>
     """
 
     if model is None:

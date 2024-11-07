@@ -12,27 +12,29 @@ website:
       - reference/ChatOllama.qmd
       - reference/ChatOpenAI.qmd
       - reference/ChatPerplexity.qmd
-      section: Model Providers
+      section: Chat model providers
+    - contents:
+      - reference/Chat.qmd
+      section: The chat object
+    - contents:
+      - reference/image_file.qmd
+      - reference/image_plot.qmd
+      - reference/image_url.qmd
+      section: Image input
     - contents:
       - reference/Tool.qmd
       section: Tool calling
     - contents:
       - reference/Turn.qmd
-      section: Conversation turns
-    - contents:
-      - reference/content_image_file.qmd
-      - reference/content_image_plot.qmd
-      - reference/content_image_url.qmd
-      section: Image input
+      section: Turns
     - contents:
       - reference/token_usage.qmd
-      section: Token usage
+      section: Query token usage
     - contents:
-      - reference/Chat.qmd
       - reference/Provider.qmd
-      section: Developer-facing tools
+      section: Implement a model provider
     - contents:
       - reference/types.qmd
-      section: Types
+      section: User-facing types
     id: reference
   - id: dummy-sidebar

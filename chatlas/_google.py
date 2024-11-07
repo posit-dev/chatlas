@@ -48,7 +48,35 @@ def ChatGoogle(
     kwargs: Optional["ProviderClientArgs"] = None,
 ) -> Chat["SendMessageArgs"]:
     """
-    Chat with a Google Gemini model
+    Chat with a Google Gemini model.
+
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## API key
+
+    To use Google's models (i.e., Gemini), you'll need to sign up for an account
+    and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python).
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatGoogle` requires the `google-generativeai` package
+    (e.g., `pip install google-generativeai`).
+    :::
+
+    Examples
+    --------
+
+    ```python
+    import os
+    from chatlas import ChatGoogle
+
+    chat = ChatGoogle(api_key=os.getenv("GOOGLE_API_KEY"))
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -286,7 +314,7 @@ class GoogleProvider(
         elif isinstance(content, ContentImageRemote):
             raise NotImplementedError(
                 "Remote images aren't supported by Google (Gemini). "
-                "Consider downloading the image and using content_image_file() instead."
+                "Consider downloading the image and using image_file() instead."
             )
         elif isinstance(content, ContentToolRequest):
             return protos.Part(

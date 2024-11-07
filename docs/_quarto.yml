@@ -23,16 +23,12 @@ website:
     left:
       - text: "Home"
         href: index.qmd
-      - reference/index.qmd
-    tools:
+      - text: Reference
+        href: reference/index.qmd
+    right:
       - icon: github
-        menu:
-          - text: Source code
-            href:  https://github.com/cpsievert/chatlas
-          - text: Report a bug
-            href:  https://github.com/cpsievert/chatlas/issues/new
-          - text: Ask a question
-            href:  https://github.com/cpsievert/chatlas/discussions
+        href: https://github.com/posit-dev/shinymedia
+        aria-label: GitHub repository
 
 
 quartodoc:
@@ -40,8 +36,8 @@ quartodoc:
   render_interlinks: true
   sidebar: _sidebar.yml
   sections:
-    - title: Model Providers
-      desc: Start a chat with a particular Large language model provider.
+    - title: Chat model providers
+      desc: Start a chat with a particular large language model (llm) provider.
       contents:
         - ChatAnthropic
         - ChatAzureOpenAI
@@ -52,31 +48,31 @@ quartodoc:
         - ChatOllama
         - ChatOpenAI
         - ChatPerplexity
-    - title: Tool calling
-      desc: Register python functions with a chat session
-      contents:
-        - Tool
-    - title: Conversation turns
-      desc: An object representing a user/assistant turn
-      contents:
-        - Turn
-    - title: Image input
-      desc: Attach images with chat input 
-      contents:
-        - content_image_file
-        - content_image_plot
-        - content_image_url
-    - title: Token usage
-      desc: A utility function to querying token usage
-      contents:
-        - token_usage
-    - title: Developer-facing tools
-      desc: Implement new chat interfaces
+    - title: The chat object
+      desc: Methods and attributes available on a chat instance
       contents:
         - Chat
+    - title: Image input
+      desc: Submit image input to the chat
+      contents:
+        - image_file
+        - image_plot
+        - image_url
+    - title: Tool calling
+      desc: Add context to python function before registering it as a tool.
+      contents:
+        - Tool
+    - title: Turns
+      desc: A provider-agnostic representation of content generated during an assistant/user turn.
+      contents:
+        - Turn
+    - title: Query token usage
+      contents:
+        - token_usage
+    - title: Implement a model provider
+      contents:
         - Provider
-    - title: Types
-      desc: A module with other user-facing types
+    - title: User-facing types
       contents:
         - types
 

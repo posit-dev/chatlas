@@ -12,15 +12,36 @@ ChatGithub(
 )
 ```
 
-Chat with a model hosted on the GitHub model marketplace
+Chat with a model hosted on the GitHub model marketplace.
 
-GitHub (via Azure) hosts a number of open source and OpenAI models. To
-access the GitHub model marketplace, you will need to apply for and be
-accepted into the beta access program. See
-<https://github.com/marketplace/models> for details.
+GitHub (via Azure) hosts a wide variety of open source models, some of
+which are fined tuned for specific tasks.
 
-This function is a lightweight wrapper around `ChatOpenAI` with the defaults
-tweaked for the GitHub model marketplace.
+## Prerequisites {.doc-section .doc-section-prerequisites}
+
+
+::: {.callout-note}
+## API key
+
+Sign up at <https://github.com/marketplace/models> to get an API key.
+You may need to apply for and be accepted into a beta access program.
+:::
+
+::: {.callout-note}
+## Python requirements
+
+`ChatGithub` requires the `openai` package (e.g., `pip install openai`).
+:::
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+import os
+from chatlas import ChatGithub
+
+chat = ChatGithub(api_key=os.getenv("GITHUB_PAT"))
+chat.chat("What is the capital of France?")
+```
 
 ## Parameters {.doc-section .doc-section-parameters}
 
@@ -32,7 +53,7 @@ tweaked for the GitHub model marketplace.
 | api_key       | [Optional](`typing.Optional`)\[[str](`str`)\]                                                 | The API key to use for authentication. You generally should not supply this directly, but instead set the `GITHUB_PAT` environment variable.                                                                                                                                                                                                                                                                                | `None`                                     |
 | base_url      | [str](`str`)                                                                                  | The base URL to the endpoint; the default uses Github's API.                                                                                                                                                                                                                                                                                                                                                                | `'https://models.inference.ai.azure.com/'` |
 | seed          | [Optional](`typing.Optional`)\[[int](`int`)\] \| [MISSING_TYPE](`chatlas.types.MISSING_TYPE`) | Optional integer seed that ChatGPT uses to try and make output more reproducible.                                                                                                                                                                                                                                                                                                                                           | `MISSING`                                  |
-| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                                       | Additional arguments to pass to the `openai.OpenAI()` client constructor.                                                                                                                                                                                                                                                                                                                                                   | `None`                                     |
+| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                                       | Additional arguments to pass to the [](`openai.OpenAI()`) client constructor.                                                                                                                                                                                                                                                                                                                                               | `None`                                     |
 
 ## Returns {.doc-section .doc-section-returns}
 
@@ -40,10 +61,7 @@ tweaked for the GitHub model marketplace.
 |--------|------------------------------|-----------------------------------------------------------|
 |        | [Chat](`chatlas._chat.Chat`) | A chat object that retains the state of the conversation. |
 
-## Examples {.doc-section .doc-section-examples}
+## Note {.doc-section .doc-section-note}
 
-```python
->>> from chatlas import ChatGithub
->>> chat = ChatGithub()
->>> chat.chat("What is the capital of France?")
-```
+This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
+the defaults tweaked for the GitHub model marketplace.

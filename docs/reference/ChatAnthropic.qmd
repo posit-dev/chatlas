@@ -13,14 +13,37 @@ ChatAnthropic(
 
 Chat with an Anthropic Claude model.
 
-Anthropic (https://www.anthropic.com) provides a number of chat based
-models under the Claude (https://www.anthropic.com/claude) moniker.
+[Anthropic](https://www.anthropic.com) provides a number of chat based
+models under the [Claude](https://www.anthropic.com/claude) moniker.
+
+## Prerequisites {.doc-section .doc-section-prerequisites}
+
+
+::: {.callout-note}
+## API key
 
 Note that a Claude Prop membership does not give you the ability to call
-models via the API. You will need to go to the developer console
-(https://console.anthropic.com/account/keys) to sign up (and pay for)
-a developer account that will give you an API key that you can use with
+models via the API. You will need to go to the [developer
+console](https://console.anthropic.com/account/keys) to sign up (and pay
+for) a developer account that will give you an API key that you can use with
 this package.
+:::
+
+::: {.callout-note}
+## Python requirements
+
+`ChatAnthropic` requires the `anthropic` package (e.g., `pip install anthropic`).
+:::
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+import os
+from chatlas import ChatAnthropic
+
+chat = ChatAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+chat.chat("What is the capital of France?")
+```
 
 ## Parameters {.doc-section .doc-section-parameters}
 
@@ -31,7 +54,7 @@ this package.
 | model         | \'Optional\[ModelParam\]\'                                                      | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.                                                                                                                                                                                                                               | `None`    |
 | api_key       | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The API key to use for authentication. You generally should not supply this directly, but instead set the `ANTHROPIC_API_KEY` environment variable.                                                                                                                                                                                                                                                                       | `None`    |
 | max_tokens    | [int](`int`)                                                                    | Maximum number of tokens to generate before stopping.                                                                                                                                                                                                                                                                                                                                                                     | `4096`    |
-| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                         | Additional arguments to pass to the `anthropic.Anthropic()` client constructor.                                                                                                                                                                                                                                                                                                                                           | `None`    |
+| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                         | Additional arguments to pass to the [](`anthropic.Anthropic()`) client constructor.                                                                                                                                                                                                                                                                                                                                       | `None`    |
 
 ## Returns {.doc-section .doc-section-returns}
 

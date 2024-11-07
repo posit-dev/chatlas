@@ -12,12 +12,34 @@ ChatGroq(
 )
 ```
 
-Chat with a model hosted on Groq
+Chat with a model hosted on Groq.
 
-Sign up at https://groq.com.
+Groq provides a platform for highly efficient AI inference.
 
-This function is a lightweight wrapper around `ChatOpenAI` with
-the defaults tweaked for groq.
+## Prerequisites {.doc-section .doc-section-prerequisites}
+
+
+::: {.callout-note}
+## API key
+
+Sign up at <https://groq.com> to get an API key.
+:::
+
+::: {.callout-note}
+## Python requirements
+
+`ChatGroq` requires the `openai` package (e.g., `pip install openai`).
+:::
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+import os
+from chatlas import ChatGroq
+
+chat = ChatGroq(api_key=os.getenv("GROQ_API_KEY"))
+chat.chat("What is the capital of France?")
+```
 
 ## Parameters {.doc-section .doc-section-parameters}
 
@@ -29,7 +51,7 @@ the defaults tweaked for groq.
 | api_key       | [Optional](`typing.Optional`)\[[str](`str`)\]                                                 | The API key to use for authentication. You generally should not supply this directly, but instead set the `GROQ_API_KEY` environment variable.                                                                                                                                                                                                                                                                              | `None`                             |
 | base_url      | [str](`str`)                                                                                  | The base URL to the endpoint; the default uses Groq's API.                                                                                                                                                                                                                                                                                                                                                                  | `'https://api.groq.com/openai/v1'` |
 | seed          | [Optional](`typing.Optional`)\[[int](`int`)\] \| [MISSING_TYPE](`chatlas.types.MISSING_TYPE`) | Optional integer seed that ChatGPT uses to try and make output more reproducible.                                                                                                                                                                                                                                                                                                                                           | `MISSING`                          |
-| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                                       | Additional arguments to pass to the `openai.OpenAI()` client constructor.                                                                                                                                                                                                                                                                                                                                                   | `None`                             |
+| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                                       | Additional arguments to pass to the [](`openai.OpenAI()`) client constructor.                                                                                                                                                                                                                                                                                                                                               | `None`                             |
 
 ## Returns {.doc-section .doc-section-returns}
 
@@ -37,10 +59,7 @@ the defaults tweaked for groq.
 |--------|------------------------------|-----------------------------------------------------------|
 |        | [Chat](`chatlas._chat.Chat`) | A chat object that retains the state of the conversation. |
 
-## Examples {.doc-section .doc-section-examples}
+## Note {.doc-section .doc-section-note}
 
-```python
->>> from chatlas import ChatGroq
->>> chat = ChatGroq()
->>> chat.chat("What is the capital of France?")
-```
+This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
+the defaults tweaked for groq.

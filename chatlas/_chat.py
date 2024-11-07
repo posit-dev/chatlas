@@ -30,15 +30,15 @@ class Chat(Generic[ChatRequestArgsT]):
     """
     A chat object that can be used to interact with a language model.
 
-    A `Chat` is an sequence of sequence of user and assistant `Turn()`s sent to
-    a specific `Provider`. A `Chat` takes care of managing the state associated
-    with the chat; i.e. it records the messages that you send to the server, and
-    the messages that you receive back. If you register a tool (i.e. an function
-    that the assistant can call on your behalf), it also takes care of the tool
-    loop.
+    A `Chat` is an sequence of sequence of user and assistant
+    [](`~chatlas.Turn`)s sent to a specific [](`~chatlas.Provider`). A `Chat`
+    takes care of managing the state associated with the chat; i.e. it records
+    the messages that you send to the server, and the messages that you receive
+    back. If you register a tool (i.e. an function that the assistant can call
+    on your behalf), it also takes care of the tool loop.
 
     You should generally not create this object yourself, but instead call
-    `ChatOpenAI()` or friends instead.
+    [](`~chatlas.ChatOpenAI`) or friends instead.
     """
 
     def __init__(
@@ -52,9 +52,9 @@ class Chat(Generic[ChatRequestArgsT]):
         Parameters
         ----------
         provider
-            A `Provider` object.
+            A [](`~chatlas.Provider`) object.
         turns
-            A list of `Turn` objects to initialize the chat with.
+            A list of [](`~chatlas.Turn`) objects to initialize the chat with.
         """
         self.provider = provider
         self._turns: list[Turn] = list(turns or [])

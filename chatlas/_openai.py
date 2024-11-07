@@ -66,13 +66,36 @@ def ChatOpenAI(
     """
     Chat with an OpenAI model.
 
-    OpenAI (https://openai.com/) provides a number of chat based models under
-    the ChatGPT (https://chatgpt.com) moniker.
+    [OpenAI](https://openai.com/) provides a number of chat based models under
+    the [ChatGPT](https://chatgpt.com) moniker.
+
+    Prerequisites
+    --------------
+
+    ::: {.callout-note}
+    ## API key
 
     Note that a ChatGPT Plus membership does not give you the ability to call
-    models via the API. You will need to go to the developer platform
-    (https://platform.openai.com) to sign up (and pay for) a developer account
-    that will give you an API key that you can use with this package.
+    models via the API. You will need to go to the [developer
+    platform](https://platform.openai.com) to sign up (and pay for) a developer
+    account that will give you an API key that you can use with this package.
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatOpenAI` requires the `openai` package (e.g., `pip install openai`).
+    :::
+
+    Examples
+    --------
+    ```python
+    import os
+    from chatlas import ChatOpenAI
+
+    chat = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -80,37 +103,32 @@ def ChatOpenAI(
         A system prompt to set the behavior of the assistant.
     turns
         A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch.
-        Do not provide non-`None` values for both `turns` and `system_prompt`.
-        Each message in the list should be a dictionary with at least `role`
-        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-        Normally there is also a `content` field, which is a string.
+        conversation). If not provided, the conversation begins from scratch. Do
+        not provide non-`None` values for both `turns` and `system_prompt`. Each
+        message in the list should be a dictionary with at least `role` (usually
+        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
+        there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
-        default, and warn you about it. We strongly recommend explicitly choosing
-        a model for all but the most casual use.
+        default, and warn you about it. We strongly recommend explicitly
+        choosing a model for all but the most casual use.
     api_key
         The API key to use for authentication. You generally should not supply
-        this directly, but instead set the `OPENAI_API_KEY` environment variable.
+        this directly, but instead set the `OPENAI_API_KEY` environment
+        variable.
     base_url
         The base URL to the endpoint; the default uses OpenAI.
     seed
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the `openai.OpenAI()` client constructor.
+        Additional arguments to pass to the [](`openai.OpenAI()`) client
+        constructor.
 
     Returns
     -------
     Chat
         A chat object that retains the state of the conversation.
-
-    Examples
-    --------
-    >>> from chatlas import ChatOpenAI
-    >>> chat = ChatOpenAI()
-    >>> chat.chat("What is the capital of France?")
-
     """
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
@@ -476,9 +494,34 @@ def ChatAzureOpenAI(
     """
     Chat with a model hosted on Azure OpenAI.
 
-    The Azure OpenAI server (https://azure.microsoft.com/en-us/products/ai-services/openai-service)
+    The [Azure OpenAI server](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
     hosts a number of open source models as well as proprietary models
     from OpenAI.
+
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatAzureOpenAI` requires the `openai` package (e.g., `pip install openai`).
+    :::
+
+    Examples
+    --------
+    ```python
+    import os
+    from chatlas import ChatAzureOpenAI
+
+    chat = ChatAzureOpenAI(
+        endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+        deployment_id="REPLACE_WITH_YOUR_DEPLOYMENT_ID",
+        api_version="YYYY-MM-DD",
+        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+    )
+
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -507,7 +550,7 @@ def ChatAzureOpenAI(
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the `openai.AzureOpenAI()` client constructor.
+        Additional arguments to pass to the [](`openai.AzureOpenAI()`) client constructor.
 
     Returns
     -------
