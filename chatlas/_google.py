@@ -18,7 +18,7 @@ from ._content import (
 from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import Tool, basemodel_to_tool_params
+from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
 from ._utils import inform_model_default
 
@@ -219,12 +219,7 @@ class GoogleProvider(
 
         if data_model:
             config = kwargs_full.get("generation_config", {})
-            params = basemodel_to_tool_params(data_model)
-
-            # Drop the 'title' key from each parameter since pydantic likes to include it
-            # but Gemini doesn't want it
-            for k, v in params["properties"].items():
-                v.pop("title")  # type: ignore
+            params = basemodel_to_param_schema(data_model)
 
             mime_type = "application/json"
             if isinstance(config, dict):

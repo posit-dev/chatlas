@@ -18,7 +18,7 @@ from ._content import (
 from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import Tool, ToolSchema, basemodel_to_tool_params
+from ._tools import Tool, ToolSchema, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
 from ._utils import MISSING, MISSING_TYPE, inform_model_default, is_testing
 
@@ -254,7 +254,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         }
 
         if data_model is not None:
-            params = basemodel_to_tool_params(data_model)
+            params = basemodel_to_param_schema(data_model)
             params = cast(dict, params)
             params["additionalProperties"] = False
             kwargs_full["response_format"] = {

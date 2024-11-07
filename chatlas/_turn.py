@@ -8,6 +8,38 @@ __all__ = ("Turn",)
 
 
 class Turn:
+    """
+    A user or assistant turn
+
+    Every conversation with a chatbot consists of pairs of user and assistant
+    turns, corresponding to an HTTP request and response. These turns are
+    represented by the `Turn` object, which contains a list of
+    [](`~chatlas.Content`)s representing the individual messages within the
+    turn. These might be text, images, tool requests (assistant only), or tool
+    responses (user only).
+
+    Note that a call to `.chat()` and related functions may result in multiple
+    user-assistant turn cycles. For example, if you have registered tools, chatlas
+    will automatically handle the tool calling loop, which may result in any
+    number of additional cycles.
+
+    Parameters
+    ----------
+    role
+        Either "user", "assistant", or "system".
+    contents
+        A list of [](`~chatlas.Content`) objects.
+    json_data
+        The serialized JSON corresponding to the underlying data of the turns.
+        Currently only provided for assistant. This is useful if there's
+        information returned by the provider that chatlas doesn't otherwise
+        expose.
+    tokens
+        A numeric vector of length 2 representing the number of input and output
+        tokens (respectively) used in this turn. Currently only recorded for
+        assistant turns.
+    """
+
     def __init__(
         self,
         role: str,
@@ -16,12 +48,20 @@ class Turn:
         tokens: tuple[int, int] = (0, 0),
     ):
         self.role = role
+
         if isinstance(contents, str):
             contents = [ContentText(contents)]
-        contents = [ContentText(x) if isinstance(x, str) else x for x in contents]
-        if any(not isinstance(x, Content) for x in contents):
-            raise ValueError("All contents must be Content objects or str.")
-        self.contents = contents
+
+        contents2: list[Content] = []
+        for i, x in enumerate(contents):
+            if isinstance(x, Content):
+                contents2.append(x)
+            elif isinstance(x, str):
+                contents2.append(ContentText(x))
+            else:
+                raise ValueError("All contents must be Content objects or str.")
+
+        self.contents: list[Content] = contents2
         self.json_data = json_data or {}
         self.tokens = tokens
         self.text = "".join(x.text for x in self.contents if isinstance(x, ContentText))
@@ -43,10 +83,6 @@ def user_turn(*args: Content | str) -> Turn:
         raise ValueError("Must supply at least one input.")
 
     return Turn("user", args)
-
-
-def is_system_prompt(turn: Turn) -> bool:
-    return turn.role == "system"
 
 
 def normalize_turns(turns: list[Turn], system_prompt: str | None = None) -> list[Turn]:

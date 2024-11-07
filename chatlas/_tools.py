@@ -1,28 +1,64 @@
 from __future__ import annotations
 
 import inspect
-from typing import (
-    Annotated,
-    Any,
-    Awaitable,
-    Callable,
-    Optional,
-    get_args,
-    get_origin,
-    get_type_hints,
-)
+import warnings
+from typing import Any, Awaitable, Callable, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, create_model
 from typing_extensions import Literal
 
 from . import _utils
-from ._typing_extensions import Required, TypedDict, is_typeddict
+from ._typing_extensions import Required, TypedDict
 
 __all__ = ("Tool",)
 
 
-# TODO: maybe allow for specification of param type?
 class Tool:
+    """
+    Define a tool
+
+    Define a Python function for use by a chatbot. The function will always be
+    invoked in the current Python process.
+
+    Examples
+    --------
+
+    ```python
+    from chatlas import Tool
+
+
+    def add(a: int, b: int) -> int:
+        return a + b
+
+
+    chat = ChatOpenAI()
+
+    # It's recommended to provide the tool description (and parameter descriptions)
+    # via a docstring, but you can also provide them directly via Tool():
+    chat.register_tool(
+        Tool(
+            add,
+            description="Add two numbers.",
+            parameter_descriptions={
+                "a": "The first number.",
+                "b": "The second number.",
+            },
+        ),
+    )
+    ```
+
+    Parameters
+    ----------
+    func
+        The function to define as a tool.
+    name
+        The name of the tool.
+    description
+        The description of the tool.
+    parameter_descriptions
+        Descriptions for the parameters of the function.
+    """
+
     func: Callable[..., Any] | Callable[..., Awaitable[Any]]
 
     def __init__(
@@ -72,123 +108,56 @@ def func_to_schema(
     description: str | None = None,
     parameter_descriptions: dict[str, str] | None = None,
 ) -> ToolSchema:
-    signature = inspect.signature(func)
-    required: list[str] = []
-
-    for nm, param in signature.parameters.items():
-        if param.default is param.empty and param.kind not in [
-            inspect.Parameter.VAR_POSITIONAL,
-            inspect.Parameter.VAR_KEYWORD,
-        ]:
-            required.append(nm)
-
-    annotations = get_type_hints(func, include_extras=True)
-
-    param_desc = parameter_descriptions or {}
-
-    params: ToolSchemaParams = {
-        "type": "object",
-        "properties": {
-            k: type_to_json_schema(v, param_desc.get(k, None))
-            for k, v in annotations.items()
-            if k != "return"
-        },
-        "required": required,
-    }
-
-    desc = description or func.__doc__
-
-    res: ToolSchema = {
+    name = name or func.__name__
+    description = description or func.__doc__ or ""
+    model = func_to_basemodel(func, name)
+    params = basemodel_to_param_schema(
+        model,
+        name=name,
+        description=description,
+        parameter_descriptions=parameter_descriptions,
+    )
+    return {
         "type": "function",
         "function": {
-            "name": name or func.__name__,
-            "description": desc or "",
+            "name": name,
+            "description": description,
             "parameters": params,
         },
     }
 
-    return res
+
+def func_to_basemodel(func: Callable, name: str) -> type[BaseModel]:
+    params = inspect.signature(func).parameters
+    fields = {}
+
+    for name, param in params.items():
+        annotation = param.annotation
+
+        if annotation == inspect.Parameter.empty:
+            warnings.warn(
+                f"Parameter `{name}` of function `{name}` has no type hint. "
+                "Using `Any` as a fallback."
+            )
+            annotation = Any
+
+        if param.default != inspect.Parameter.empty:
+            field = Field(default=param.default)
+        else:
+            field = Field()
+
+        # Add the field to our fields dict
+        fields[name] = (annotation, field)
+
+    return create_model(name, **fields)
 
 
-def type_to_json_schema(
-    t: type,
-    desc: str | None = None,
-) -> ToolSchemaProperty:
-    origin = get_origin(t)
-    args = get_args(t)
-    if origin is Annotated:
-        assert len(args) == 2
-        assert desc is None or desc == ""
-        assert isinstance(args[1], str)
-        return type_to_json_schema(args[0], args[1])
-
-    if origin is list:
-        assert len(args) == 1
-        return type_dict("array", desc, items=type_to_json_schema(args[0]))
-
-    if origin is tuple:
-        return type_dict(
-            "array",
-            desc,
-            maxItems=len(args),
-            minItems=len(args),
-            prefixItems=[type_to_json_schema(x) for x in args],
-        )
-
-    if origin is dict:
-        assert len(args) == 2
-        assert args[0] is str
-        return type_dict(
-            "object", desc, additionalProperties=type_to_json_schema(args[1])
-        )
-
-    if is_typeddict(t):
-        annotations = get_type_hints(t, include_extras=True)
-        return type_dict(
-            "object",
-            desc,
-            properties={k: type_to_json_schema(v) for k, v in annotations.items()},
-            required=[k for k, v in annotations.items()],
-            additionalProperties=False,
-        )
-
-    if t is dict:
-        return type_dict("object", desc)
-    if t is list:
-        return type_dict("array", desc)
-    if t is tuple:
-        return type_dict("array", desc)
-    if t is str:
-        return type_dict("string", desc)
-    if t is int:
-        return type_dict("integer", desc)
-    if t is float:
-        return type_dict("number", desc)
-    if t is bool:
-        return type_dict("boolean", desc)
-    if t is None:
-        return type_dict("null", desc)
-    raise ValueError(f"Unsupported type: {t}")
-
-
-def type_dict(
-    type_: str,
-    description: str | None,
-    **kwargs: Any,
-) -> ToolSchemaProperty:
-    res: ToolSchemaProperty = {
-        "type": type_,
-        "description": description or "",
-        **kwargs,  # type: ignore
-    }
-    return res
-
-
-def basemodel_to_tool_params(
+def basemodel_to_param_schema(
     model: type[BaseModel],
     *,
-    name: Optional[str] = None,
-    description: Optional[str] = None,
+    name: str | None = None,
+    description: str | None = None,
+    parameter_descriptions: dict[str, str] | None = None,
 ) -> ToolSchemaParams:
     try:
         import openai
@@ -216,6 +185,16 @@ def basemodel_to_tool_params(
     properties: dict[str, ToolSchemaProperty] = {}
     if "properties" in params:
         properties = params["properties"]
+
+    for k, v in properties.items():
+        # Pydantic likes to include "title" in its schema, which we I don't think we
+        # need (and Google will complain about)
+        if "title" in v:
+            del v["title"]
+        # If description is falsy, provide a fallback from parameter_descriptions
+        if not v.get("description", ""):
+            if parameter_descriptions and k in parameter_descriptions:
+                v["description"] = parameter_descriptions[k]
 
     required: list[str] = []
     if "required" in params:
