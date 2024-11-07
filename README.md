@@ -123,6 +123,8 @@ for x in response:
 To ask questions about images, you can pass one or more additional input arguments using `image_file()` and/or `image_url()`:
 
 ```python
+from chatlas import image_url
+
 chat.chat(
     image_url("https://www.python.org/static/img/python-logo.png"),
     "Can you explain this logo?"
@@ -139,8 +141,22 @@ The `image_url()` function takes a URL to an image file and sends that URL direc
 
 ## Model providers
 
+`chatlas` supports a variety of model providers. To get started with one, visit the [package reference](https://cpsievert.github.io/chatlas/reference/index.html).
 
-TODO: list available providers and link to function reference for each.
+* Anthropic (Claude): `ChatAnthropic()`.
+* GitHub model marketplace: `ChatGithub()`.
+* Google (Gemini): `ChatGoogle()`.
+* Groq: `ChatGroq()`.
+* Ollama local models: `ChatOllama()`.
+* OpenAI: `ChatOpenAI()`.
+* perplexity.ai: `ChatPerplexity()`.
+
+Enterprise providers:
+
+* AWS Bedrock: `ChatBedrockAnthropic()`.
+* Azure OpenAI: `ChatAzureOpenAI()`.
+
+
 
 
 ## Managing credentials

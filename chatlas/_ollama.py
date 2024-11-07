@@ -82,6 +82,11 @@ def ChatOllama(
     ----
     This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
     the defaults tweaked for ollama.
+
+    Limitations
+    -----------
+    `ChatOllama` currently doesn't work with streaming tools, and tool calling more
+    generally doesn't seem to work very well with currently available models.
     """
     if not has_ollama(base_url):
         raise RuntimeError("Can't find locally running ollama.")

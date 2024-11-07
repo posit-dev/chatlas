@@ -103,6 +103,10 @@ def ChatGoogle(
     -------
     Chat
         A Chat object.
+
+    Limitations
+    -----------
+    `ChatGoogle` currently doesn't work with streaming tools.
     """
 
     if model is None:
