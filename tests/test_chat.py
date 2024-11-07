@@ -98,24 +98,24 @@ async def test_extract_data_async():
 
 def test_last_turn_retrieval():
     chat = ChatOpenAI()
-    assert chat.last_turn("user") is None
-    assert chat.last_turn("assistant") is None
+    assert chat.last_turn(role="user") is None
+    assert chat.last_turn(role="assistant") is None
 
     chat.chat("Hi")
-    user_turn = chat.last_turn("user")
+    user_turn = chat.last_turn(role="user")
     assert user_turn is not None and user_turn.role == "user"
-    turn = chat.last_turn("assistant")
+    turn = chat.last_turn(role="assistant")
     assert turn is not None and turn.role == "assistant"
 
 
 def test_system_prompt_retrieval():
     chat1 = ChatOpenAI()
     assert chat1.system_prompt is None
-    assert chat1.last_turn("system") is None
+    assert chat1.last_turn(role="system") is None
 
     chat2 = ChatOpenAI(system_prompt="You are from New Zealand")
     assert chat2.system_prompt == "You are from New Zealand"
-    turn = chat2.last_turn("system")
+    turn = chat2.last_turn(role="system")
     assert turn is not None and turn.text == "You are from New Zealand"
 
 
