@@ -60,14 +60,14 @@ class Chat(Generic[ChatRequestArgsT]):
             A list of `Turn` objects to initialize the chat with.
         """
         self.provider = provider
-        self._turns = turns or []
+        self._turns: list[Turn] = list(turns or [])
         self.tools: dict[str, Tool] = {}
 
     def turns(
         self,
         *,
         include_system_prompt: bool = False,
-    ) -> Sequence[Turn]:
+    ) -> list[Turn]:
         """
         Get all the turns (i.e., message contents) in the chat.
 
@@ -122,7 +122,7 @@ class Chat(Generic[ChatRequestArgsT]):
                 "Consider removing this turn and setting the `.system_prompt` separately "
                 "if you want to change the system prompt."
             )
-        self._turns = turns
+        self._turns = list(turns)
 
     @property
     def system_prompt(self) -> str | None:
