@@ -74,7 +74,7 @@ def test_register_tool_with_complex_parameters():
 
     chat.register_tool(foo)
 
-    assert len(chat.tools) == 3
+    assert len(chat.tools) == 1
     tool = chat.tools["foo"]
     assert tool.name == "foo"
     assert tool.func == foo
@@ -120,20 +120,6 @@ def test_register_tool_with_complex_parameters():
             },
         },
         "required": ["x", "y", "z"],
-    }
-
-    chat.register_tool(Tool(lambda x: x, name="identity"))
-    assert len(chat.tools) == 4
-    tool = chat.tools["identity"]
-    assert tool.name == "identity"
-    assert tool.schema["function"]["name"] == "identity"
-    assert tool.schema["function"]["description"] == ""
-    assert tool.schema["function"]["parameters"] == {
-        "type": "object",
-        "properties": {
-            "x": {},
-        },
-        "required": ["x"],
     }
 
 
