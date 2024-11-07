@@ -9,6 +9,7 @@ from typing import (
     Generic,
     Literal,
     Optional,
+    Sequence,
     TypedDict,
     TypeVar,
 )
@@ -46,7 +47,7 @@ class Chat(Generic[ChatRequestArgsT]):
     def __init__(
         self,
         provider: Provider,
-        turns: Optional[list[Turn]] = None,
+        turns: Optional[Sequence[Turn]] = None,
     ):
         """
         Create a new chat object.
@@ -64,8 +65,9 @@ class Chat(Generic[ChatRequestArgsT]):
 
     def turns(
         self,
+        *,
         include_system_prompt: bool = False,
-    ) -> list[Turn]:
+    ) -> Sequence[Turn]:
         """
         Get all the turns (i.e., message contents) in the chat.
 
@@ -84,6 +86,7 @@ class Chat(Generic[ChatRequestArgsT]):
 
     def last_turn(
         self,
+        *,
         role: Literal["assistant", "user", "system"] = "assistant",
     ) -> Turn | None:
         """
@@ -98,6 +101,28 @@ class Chat(Generic[ChatRequestArgsT]):
             if turn.role == role:
                 return turn
         return None
+
+    def set_turns(self, turns: Sequence[Turn]):
+        """
+        Set the turns of the chat.
+
+        This method is primarily useful for clearing or setting the turns of the
+        chat (i.e., limiting the context window).
+
+        Parameters
+        ----------
+        turns
+            The turns to set. Turns with the role "system" are not allowed.
+        """
+        if any(x.role == "system" for x in turns):
+            idx = next(i for i, x in enumerate(turns) if x.role == "system")
+            raise ValueError(
+                f"Turn {idx} has a role 'system', which is not allowed. "
+                "The system prompt must be set separately using the `.system_prompt` property. "
+                "Consider removing this turn and setting the `.system_prompt` separately "
+                "if you want to change the system prompt."
+            )
+        self._turns = turns
 
     @property
     def system_prompt(self) -> str | None:
