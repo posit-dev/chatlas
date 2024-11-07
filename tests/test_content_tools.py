@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 from chatlas import ChatOpenAI, Tool
 from chatlas._content import ContentToolResult
@@ -57,7 +59,10 @@ def test_register_tool():
         "required": ["x", "y"],
     }
 
-    # -------------------------
+
+@pytest.mark.skipif(sys.version_info <= (3, 9), reason="requires Python 3.10 or higher")
+def test_register_tool_with_complex_parameters():
+    chat = ChatOpenAI()
 
     def foo(
         x: list[tuple[str, float, bool]],
