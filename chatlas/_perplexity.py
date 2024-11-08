@@ -10,7 +10,7 @@ from ._utils import inform_model_default
 from .types import MISSING, MISSING_TYPE
 
 if TYPE_CHECKING:
-    from ._openai import ChatCompletionArgs, ProviderClientArgs
+    from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
 def ChatPerplexity(
@@ -21,8 +21,8 @@ def ChatPerplexity(
     api_key: Optional[str] = None,
     base_url: str = "https://api.perplexity.ai/",
     seed: Optional[int] | MISSING_TYPE = MISSING,
-    kwargs: Optional["ProviderClientArgs"] = None,
-) -> Chat["ChatCompletionArgs"]:
+    kwargs: Optional["ChatClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
     Chat with a model hosted on perplexity.ai.
 
@@ -82,7 +82,7 @@ def ChatPerplexity(
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the [](`openai.OpenAI()`) client
+        Additional arguments to pass to the `openai.OpenAI()` client
         constructor.
 
     Returns

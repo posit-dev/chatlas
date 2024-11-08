@@ -14,7 +14,7 @@ import google.generativeai.types.generation_types
 import google.generativeai.types.helper_types
 
 
-class SendMessageArgs(TypedDict, total=False):
+class SubmitInputArgs(TypedDict, total=False):
     contents: Union[
         google.ai.generativelanguage_v1beta.types.content.Content,
         google.generativeai.types.content_types.ContentDict,

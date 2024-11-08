@@ -8,7 +8,7 @@ import httpx
 import openai
 
 
-class ProviderClientArgs(TypedDict, total=False):
+class ChatAzureClientArgs(TypedDict, total=False):
     azure_endpoint: str | None
     azure_deployment: str | None
     api_version: str | None

@@ -53,9 +53,14 @@ chat.chat("What is the capital of France?")
 | turns         | [Optional](`typing.Optional`)\[[list](`list`)\[[Turn](`chatlas._turn.Turn`)\]\] | A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-`None` values for both `turns` and `system_prompt`. Each message in the list should be a dictionary with at least `role` (usually `system`, `user`, or `assistant`, but `tool` is also possible). Normally there is also a `content` field, which is a string. | `None`                        |
 | base_url      | [str](`str`)                                                                    | The base URL to the endpoint; the default uses ollama's API.                                                                                                                                                                                                                                                                                                                                                                | `'http://localhost:11434/v1'` |
 | seed          | [Optional](`typing.Optional`)\[[int](`int`)\]                                   | Optional integer seed that helps to make output more reproducible.                                                                                                                                                                                                                                                                                                                                                          | `None`                        |
-| kwargs        | [Optional](`typing.Optional`)\[\'ProviderClientArgs\'\]                         | Additional arguments to pass to the `openai.OpenAI()` client constructor.                                                                                                                                                                                                                                                                                                                                                   | `None`                        |
+| kwargs        | [Optional](`typing.Optional`)\[\'ChatClientArgs\'\]                             | Additional arguments to pass to the `openai.OpenAI()` client constructor.                                                                                                                                                                                                                                                                                                                                                   | `None`                        |
 
 ## Note {.doc-section .doc-section-note}
 
 This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
 the defaults tweaked for ollama.
+
+## Limitations {.doc-section .doc-section-limitations}
+
+`ChatOllama` currently doesn't work with streaming tools, and tool calling more
+generally doesn't seem to work very well with currently available models.

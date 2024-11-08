@@ -37,11 +37,7 @@ if TYPE_CHECKING:
     from anthropic.types.tool_result_block_param import ToolResultBlockParam
     from anthropic.types.tool_use_block_param import ToolUseBlockParam
 
-    from .provider_types._anthropic_client import ProviderClientArgs
-    from .provider_types._anthropic_client_bedrock import (
-        ProviderClientArgs as BedrockProviderArgs,
-    )
-    from .provider_types._anthropic_create import CreateCompletionArgs
+    from .types.anthropic import ChatBedrockClientArgs, ChatClientArgs, SubmitInputArgs
 
     ContentBlockParam = Union[
         TextBlockParam,
@@ -61,8 +57,8 @@ def ChatAnthropic(
     model: "Optional[ModelParam]" = None,
     api_key: Optional[str] = None,
     max_tokens: int = 4096,
-    kwargs: Optional["ProviderClientArgs"] = None,
-) -> Chat["CreateCompletionArgs"]:
+    kwargs: Optional["ChatClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
     Chat with an Anthropic Claude model.
 
@@ -121,7 +117,7 @@ def ChatAnthropic(
     max_tokens
         Maximum number of tokens to generate before stopping.
     kwargs
-        Additional arguments to pass to the [](`anthropic.Anthropic()`) client
+        Additional arguments to pass to the `anthropic.Anthropic()` client
         constructor.
 
     Returns
@@ -154,7 +150,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         max_tokens: int,
         model: str,
         api_key: str | None,
-        kwargs: Optional["ProviderClientArgs"] = None,
+        kwargs: Optional["ChatClientArgs"] = None,
     ):
         try:
             from anthropic import Anthropic, AsyncAnthropic
@@ -167,7 +163,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         self._model = model
         self._max_tokens = max_tokens
 
-        kwargs_full: "ProviderClientArgs" = {
+        kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
             **(kwargs or {}),
         }
@@ -184,7 +180,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -195,7 +191,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     def chat_perform(
@@ -205,7 +201,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return self._client.messages.create(**kwargs)  # type: ignore
@@ -218,7 +214,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -229,7 +225,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     async def chat_perform_async(
@@ -239,7 +235,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return await self._async_client.messages.create(**kwargs)  # type: ignore
@@ -250,8 +246,8 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
-    ) -> "CreateCompletionArgs":
+        kwargs: Optional["SubmitInputArgs"] = None,
+    ) -> "SubmitInputArgs":
         tool_schemas = [
             self._anthropic_tool_schema(tool.schema) for tool in tools.values()
         ]
@@ -280,7 +276,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                     "Anthropic does not support structured data extraction in streaming mode."
                 )
 
-        kwargs_full: "CreateCompletionArgs" = {
+        kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_params(turns),
             "model": self._model,
@@ -454,8 +450,8 @@ def ChatBedrockAnthropic(
     base_url: Optional[str] = None,
     system_prompt: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
-    kwargs: Optional["BedrockProviderArgs"] = None,
-) -> Chat["CreateCompletionArgs"]:
+    kwargs: Optional["ChatBedrockClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
     Chat with an AWS bedrock model.
 
@@ -487,11 +483,11 @@ def ChatBedrockAnthropic(
     from chatlas import ChatBedrockAnthropic
 
     chat = ChatBedrockAnthropic(
-      aws_profile='...',
-      aws_region='us-east',
-      aws_secret_key='...',
-      aws_access_key='...',
-      aws_session_token='...',
+        aws_profile="...",
+        aws_region="us-east",
+        aws_secret_key="...",
+        aws_access_key="...",
+        aws_session_token="...",
     )
     chat.chat("What is the capital of France?")
     ```
@@ -525,7 +521,7 @@ def ChatBedrockAnthropic(
         `system`, `user`, or `assistant`, but `tool` is also possible). Normally
         there is also a `content` field, which is a string.
     kwargs
-        Additional arguments to pass to the [](`anthropic.AnthropicBedrock()`)
+        Additional arguments to pass to the `anthropic.AnthropicBedrock()`
         client constructor.
 
     Returns
@@ -568,7 +564,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_session_token: str | None,
         max_tokens: int = 1024,
         base_url: str | None,
-        kwargs: Optional["BedrockProviderArgs"] = None,
+        kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
         try:
             from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
@@ -581,7 +577,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         self._model = model
         self._max_tokens = max_tokens
 
-        kwargs_full: "BedrockProviderArgs" = {
+        kwargs_full: "ChatBedrockClientArgs" = {
             "aws_secret_key": aws_secret_key,
             "aws_access_key": aws_access_key,
             "aws_region": aws_region,

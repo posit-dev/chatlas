@@ -1,0 +1,6 @@
+# types.ContentToolRequest { #chatlas.types.ContentToolRequest }
+
+```python
+types.ContentToolRequest(self, id, name, arguments)
+```
+

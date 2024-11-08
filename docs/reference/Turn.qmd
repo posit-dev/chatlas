@@ -4,3 +4,44 @@
 Turn(self, role, contents, json_data=None, tokens=(0, 0))
 ```
 
+A user or assistant turn
+
+Every conversation with a chatbot consists of pairs of user and assistant
+turns, corresponding to an HTTP request and response. These turns are
+represented by the `Turn` object, which contains a list of
+[](`~chatlas.types.Content`)s representing the individual messages within the
+turn. These might be text, images, tool requests (assistant only), or tool
+responses (user only).
+
+Note that a call to `.chat()` and related functions may result in multiple
+user-assistant turn cycles. For example, if you have registered tools, chatlas
+will automatically handle the tool calling loop, which may result in any
+number of additional cycles.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+from chatlas import Turn, ChatOpenAI, ChatAnthropic
+
+chat = ChatOpenAI()
+chat.chat("What is the capital of France?")
+turns = chat.turns()
+assert len(turns) == 2
+assert isinstance(turns[0], Turn)
+assert turns[0].role == "user"
+assert turns[1].role == "assistant"
+
+# Load context into a new chat instance
+chat2 = ChatAnthropic(turns=turns)
+turns2 = chat2.turns()
+assert turns == turns2
+```
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type                                                                                                | Description                                                                                                                                                                                                         | Default    |
+|-----------|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| role      | [str](`str`)                                                                                        | Either "user", "assistant", or "system".                                                                                                                                                                            | _required_ |
+| contents  | [str](`str`) \| [Sequence](`typing.Sequence`)\[[Content](`chatlas.types.Content`) \| [str](`str`)\] | A list of [](`~chatlas.types.Content`) objects.                                                                                                                                                                     | _required_ |
+| json_data | [Optional](`typing.Optional`)\[[dict](`dict`)\[[str](`str`), [Any](`typing.Any`)\]\]                | The serialized JSON corresponding to the underlying data of the turns. Currently only provided for assistant. This is useful if there's information returned by the provider that chatlas doesn't otherwise expose. | `None`     |
+| tokens    | [tuple](`tuple`)\[[int](`int`), [int](`int`)\]                                                      | A numeric vector of length 2 representing the number of input and output tokens (respectively) used in this turn. Currently only recorded for assistant turns.                                                      | `(0, 0)`   |

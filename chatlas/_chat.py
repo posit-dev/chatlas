@@ -18,15 +18,15 @@ from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
 from .types import (
-    ChatRequestArgsT,
     Content,
     ContentJson,
     ContentToolRequest,
     ContentToolResult,
+    SubmitInputArgsT,
 )
 
 
-class Chat(Generic[ChatRequestArgsT]):
+class Chat(Generic[SubmitInputArgsT]):
     """
     A chat object that can be used to interact with a language model.
 
@@ -155,7 +155,7 @@ class Chat(Generic[ChatRequestArgsT]):
         stream: bool = True,
         launch_browser: bool = True,
         port: int = 0,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ):
         """
         Enter a chat browser to interact with the LLM.
@@ -212,7 +212,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         *,
         stream: bool = True,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ):
         """
         Enter a chat console to interact with the LLM.
@@ -246,7 +246,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         *args: Content | str,
         stream: bool = True,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> None:
         """
         Generate a response from the chat.
@@ -267,7 +267,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         *args: Content | str,
         stream: bool = True,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> None:
         """
         Generate a response from the chat asynchronously.
@@ -288,7 +288,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         *args: Content | str,
         stream: bool = True,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]:
         """
         Submit user input(s) to the chat.
@@ -315,7 +315,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         *args: Content | str,
         stream: bool = True,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
         """
         Submit user input(s) to the chat asynchronously.
@@ -451,7 +451,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         user_turn: Turn,
         stream: bool = True,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> None:
         from rich.console import Console
         from rich.live import Live
@@ -475,7 +475,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         user_turn: Turn,
         stream: bool = True,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> None:
         from rich.console import Console
         from rich.live import Live
@@ -499,7 +499,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         user_turn: Turn,
         stream: bool,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]:
         user_turn_result: Turn | None = user_turn
         while user_turn_result is not None:
@@ -511,7 +511,7 @@ class Chat(Generic[ChatRequestArgsT]):
         self,
         user_turn: Turn,
         stream: bool,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
         user_turn_result: Turn | None = user_turn
         while user_turn_result is not None:
@@ -526,7 +526,7 @@ class Chat(Generic[ChatRequestArgsT]):
         user_turn: Turn,
         stream: bool,
         data_model: type[BaseModel] | None = None,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]:
         if any(x._is_async for x in self.tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
@@ -573,7 +573,7 @@ class Chat(Generic[ChatRequestArgsT]):
         user_turn: Turn,
         stream: bool,
         data_model: type[BaseModel] | None = None,
-        kwargs: Optional[ChatRequestArgsT] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
         if stream:
             response = await self.provider.chat_perform_async(

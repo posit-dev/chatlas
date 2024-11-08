@@ -40,7 +40,7 @@ Add context to python function before registering it as a tool.
 
 | | |
 | --- | --- |
-| [Tool](Tool.qmd#chatlas.Tool) |  |
+| [Tool](Tool.qmd#chatlas.Tool) | Define a tool |
 
 ## Turns
 
@@ -48,7 +48,7 @@ A provider-agnostic representation of content generated during an assistant/user
 
 | | |
 | --- | --- |
-| [Turn](Turn.qmd#chatlas.Turn) |  |
+| [Turn](Turn.qmd#chatlas.Turn) | A user or assistant turn |
 
 ## Query token usage
 
@@ -60,10 +60,22 @@ A provider-agnostic representation of content generated during an assistant/user
 
 | | |
 | --- | --- |
-| [Provider](Provider.qmd#chatlas.Provider) |  |
+| [Provider](Provider.qmd#chatlas.Provider) | A model provider interface for a [](`~chatlas.Chat`). |
 
 ## User-facing types
 
 | | |
 | --- | --- |
-| [types](types.qmd#chatlas.types) |  |
+| [types.Content](types.Content.qmd#chatlas.types.Content) | Base class for all content types that can be appear in a [](`~chatlas.Turn`) |
+| [types.ContentImage](types.ContentImage.qmd#chatlas.types.ContentImage) |  |
+| [types.ContentImageInline](types.ContentImageInline.qmd#chatlas.types.ContentImageInline) |  |
+| [types.ContentImageRemote](types.ContentImageRemote.qmd#chatlas.types.ContentImageRemote) |  |
+| [types.ContentJson](types.ContentJson.qmd#chatlas.types.ContentJson) |  |
+| [types.ContentText](types.ContentText.qmd#chatlas.types.ContentText) |  |
+| [types.ContentToolRequest](types.ContentToolRequest.qmd#chatlas.types.ContentToolRequest) |  |
+| [types.ContentToolResult](types.ContentToolResult.qmd#chatlas.types.ContentToolResult) |  |
+| [types.ImageContentTypes](types.ImageContentTypes.qmd#chatlas.types.ImageContentTypes) | Allowable content types for images. |
+| [types.MISSING_TYPE](types.MISSING_TYPE.qmd#chatlas.types.MISSING_TYPE) | A singleton representing a missing value. |
+| [types.MISSING](types.MISSING.qmd#chatlas.types.MISSING) |  |
+| [types.SubmitInputArgsT](types.SubmitInputArgsT.qmd#chatlas.types.SubmitInputArgsT) | A TypedDict representing the arguments that can be passed to the `.chat()` |
+| [types.TokenUsage](types.TokenUsage.qmd#chatlas.types.TokenUsage) | Token usage for a given provider (name). |

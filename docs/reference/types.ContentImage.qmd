@@ -1,0 +1,6 @@
+# types.ContentImage { #chatlas.types.ContentImage }
+
+```python
+types.ContentImage()
+```
+

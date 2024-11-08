@@ -34,7 +34,19 @@ website:
       - reference/Provider.qmd
       section: Implement a model provider
     - contents:
-      - reference/types.qmd
+      - reference/types.Content.qmd
+      - reference/types.ContentImage.qmd
+      - reference/types.ContentImageInline.qmd
+      - reference/types.ContentImageRemote.qmd
+      - reference/types.ContentJson.qmd
+      - reference/types.ContentText.qmd
+      - reference/types.ContentToolRequest.qmd
+      - reference/types.ContentToolResult.qmd
+      - reference/types.ImageContentTypes.qmd
+      - reference/types.MISSING_TYPE.qmd
+      - reference/types.MISSING.qmd
+      - reference/types.SubmitInputArgsT.qmd
+      - reference/types.TokenUsage.qmd
       section: User-facing types
     id: reference
   - id: dummy-sidebar

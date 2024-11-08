@@ -13,7 +13,7 @@ import google.generativeai.types.file_types
 import google.generativeai.types.generation_types
 
 
-class ProviderClientArgs(TypedDict, total=False):
+class ChatClientArgs(TypedDict, total=False):
     model_name: str
     generation_config: Union[
         google.ai.generativelanguage_v1beta.types.generative_service.GenerationConfig,

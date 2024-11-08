@@ -45,16 +45,19 @@ class Tool:
             },
         ),
     )
+
+    chat.chat("What is 2 + 2?")
     ```
 
     Parameters
     ----------
     func
-        The function to define as a tool.
+        The function to be invoked when the tool is called.
     name
-        The name of the tool.
+        The name of the function (tool).
     description
-        The description of the tool.
+        A detailed description of what the function does. Generally, the more
+        information that you can provide here, the better.
     parameter_descriptions
         Descriptions for the parameters of the function.
     """

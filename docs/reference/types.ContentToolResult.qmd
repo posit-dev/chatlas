@@ -1,0 +1,6 @@
+# types.ContentToolResult { #chatlas.types.ContentToolResult }
+
+```python
+types.ContentToolResult(self, id, value=None, error=None)
+```
+

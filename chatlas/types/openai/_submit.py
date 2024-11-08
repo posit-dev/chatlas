@@ -12,6 +12,7 @@ import openai.types.chat.chat_completion_audio_param
 import openai.types.chat.chat_completion_function_call_option_param
 import openai.types.chat.chat_completion_function_message_param
 import openai.types.chat.chat_completion_named_tool_choice_param
+import openai.types.chat.chat_completion_prediction_content_param
 import openai.types.chat.chat_completion_stream_options_param
 import openai.types.chat.chat_completion_system_message_param
 import openai.types.chat.chat_completion_tool_message_param
@@ -23,7 +24,7 @@ import openai.types.shared_params.response_format_json_schema
 import openai.types.shared_params.response_format_text
 
 
-class ChatCompletionArgs(TypedDict, total=False):
+class SubmitInputArgs(TypedDict, total=False):
     messages: Iterable[
         Union[
             openai.types.chat.chat_completion_system_message_param.ChatCompletionSystemMessageParam,
@@ -93,6 +94,11 @@ class ChatCompletionArgs(TypedDict, total=False):
     modalities: Union[list[Literal["text", "audio"]], None, openai.NotGiven]
     n: Union[int, None, openai.NotGiven]
     parallel_tool_calls: bool | openai.NotGiven
+    prediction: Union[
+        openai.types.chat.chat_completion_prediction_content_param.ChatCompletionPredictionContentParam,
+        None,
+        openai.NotGiven,
+    ]
     presence_penalty: Union[float, None, openai.NotGiven]
     response_format: Union[
         openai.types.shared_params.response_format_text.ResponseFormatText,

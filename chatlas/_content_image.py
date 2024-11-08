@@ -34,8 +34,8 @@ def image_url(
 
     Returns
     -------
-    Content
-        Content suitable for a `Turn` object.
+    [](`~chatlas.types.Content`)
+        Content suitable for a [](`~chatlas.Turn`) object.
 
     Examples
     --------
@@ -98,8 +98,8 @@ def image_file(
 
     Returns
     -------
-    Content
-        Content suitable for a `Turn` object.
+    [](`~chatlas.types.Content`)
+        Content suitable for a [](`~chatlas.Turn`) object.
 
     Examples
     --------
@@ -201,8 +201,8 @@ def image_plot(
 
     Returns
     -------
-    Content
-        Content suitable for a `Turn` object.
+    [](`~chatlas.types.Content`)
+        Content suitable for a [](`~chatlas.Turn`) object.
 
     Raises
     ------

@@ -39,11 +39,7 @@ if TYPE_CHECKING:
     )
     from openai.types.chat_model import ChatModel
 
-    from .provider_types._openai_client import ProviderClientArgs
-    from .provider_types._openai_client_azure import (
-        ProviderClientArgs as AzureProviderArgs,
-    )
-    from .provider_types._openai_create import ChatCompletionArgs
+    from .types.openai import ChatAzureClientArgs, ChatClientArgs, SubmitInputArgs
 else:
     ChatCompletion = object
     ChatCompletionChunk = object
@@ -61,8 +57,8 @@ def ChatOpenAI(
     api_key: Optional[str] = None,
     base_url: str = "https://api.openai.com/v1",
     seed: int | None | MISSING_TYPE = MISSING,
-    kwargs: Optional["ProviderClientArgs"] = None,
-) -> Chat["ChatCompletionArgs"]:
+    kwargs: Optional["ChatClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
     Chat with an OpenAI model.
 
@@ -122,7 +118,7 @@ def ChatOpenAI(
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the [](`openai.OpenAI()`) client
+        Additional arguments to pass to the `openai.OpenAI()` client
         constructor.
 
     Returns
@@ -159,7 +155,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         model: str,
         base_url: str = "https://api.openai.com/v1",
         seed: Optional[int] = None,
-        kwargs: Optional["ProviderClientArgs"] = None,
+        kwargs: Optional["ChatClientArgs"] = None,
     ):
         try:
             from openai import AsyncOpenAI, OpenAI
@@ -172,7 +168,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         self._model = model
         self._seed = seed
 
-        kwargs_full: "ProviderClientArgs" = {
+        kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
             "base_url": base_url,
             **(kwargs or {}),
@@ -190,7 +186,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -201,7 +197,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     def chat_perform(
@@ -211,7 +207,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return self._client.chat.completions.create(**kwargs)  # type: ignore
@@ -224,7 +220,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -235,7 +231,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     async def chat_perform_async(
@@ -245,7 +241,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return await self._async_client.chat.completions.create(**kwargs)  # type: ignore
@@ -256,8 +252,8 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
-    ) -> "ChatCompletionArgs":
+        kwargs: Optional["SubmitInputArgs"] = None,
+    ) -> "SubmitInputArgs":
         tool_schemas = [
             self._openai_tool_schema(tool.schema) for tool in tools.values()
         ]
@@ -266,7 +262,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         if not tool_schemas:
             tool_schemas = cast(list, None)
 
-        kwargs_full: "ChatCompletionArgs" = {
+        kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_param(turns),
             "tools": tool_schemas,
@@ -489,8 +485,8 @@ def ChatAzureOpenAI(
     system_prompt: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
     seed: int | None | MISSING_TYPE = MISSING,
-    kwargs: Optional["AzureProviderArgs"] = None,
-) -> Chat["ChatCompletionArgs"]:
+    kwargs: Optional["ChatAzureClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
     Chat with a model hosted on Azure OpenAI.
 
@@ -550,7 +546,7 @@ def ChatAzureOpenAI(
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the [](`openai.AzureOpenAI()`) client constructor.
+        Additional arguments to pass to the `openai.AzureOpenAI()` client constructor.
 
     Returns
     -------
@@ -586,7 +582,7 @@ class OpenAIAzureProvider(OpenAIProvider):
         api_version: Optional[str] = None,
         api_key: Optional[str] = None,
         seed: int | None = None,
-        kwargs: Optional["AzureProviderArgs"] = None,
+        kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
         try:
             from openai import AsyncAzureOpenAI, AzureOpenAI
@@ -599,7 +595,7 @@ class OpenAIAzureProvider(OpenAIProvider):
         self._model = deployment_id
         self._seed = seed
 
-        kwargs_full: "AzureProviderArgs" = {
+        kwargs_full: "ChatAzureClientArgs" = {
             "azure_endpoint": endpoint,
             "azure_deployment": deployment_id,
             "api_version": api_version,

@@ -18,9 +18,9 @@ handle both regular URLs and data URLs.
 
 ## Returns {.doc-section .doc-section-returns}
 
-| Name   | Type                 | Description                           |
-|--------|----------------------|---------------------------------------|
-|        | [Content](`Content`) | Content suitable for a `Turn` object. |
+| Name   | Type                           | Description                                        |
+|--------|--------------------------------|----------------------------------------------------|
+|        | \[\](`~chatlas.types.Content`) | Content suitable for a [](`~chatlas.Turn`) object. |
 
 ## Examples {.doc-section .doc-section-examples}
 

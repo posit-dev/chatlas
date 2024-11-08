@@ -33,8 +33,7 @@ if TYPE_CHECKING:
         GenerationConfig,
     )
 
-    from .provider_types._google_client import ProviderClientArgs
-    from .provider_types._google_create import SendMessageArgs
+    from .types.google import ChatClientArgs, SubmitInputArgs
 else:
     GenerateContentResponse = object
 
@@ -45,8 +44,8 @@ def ChatGoogle(
     turns: Optional[list[Turn]] = None,
     model: Optional[str] = None,
     api_key: Optional[str] = None,
-    kwargs: Optional["ProviderClientArgs"] = None,
-) -> Chat["SendMessageArgs"]:
+    kwargs: Optional["ChatClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
     Chat with a Google Gemini model.
 
@@ -141,7 +140,7 @@ class GoogleProvider(
         turns: list[Turn],
         model: str,
         api_key: str | None,
-        kwargs: Optional["ProviderClientArgs"],
+        kwargs: Optional["ChatClientArgs"],
     ):
         try:
             from google.generativeai import GenerativeModel
@@ -160,7 +159,7 @@ class GoogleProvider(
         if len(turns) > 0 and turns[0].role == "system":
             system_prompt = turns[0].text
 
-        kwargs_full: "ProviderClientArgs" = {
+        kwargs_full: "ChatClientArgs" = {
             "model_name": model,
             "system_instruction": system_prompt,
             **(kwargs or {}),
@@ -176,7 +175,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -187,7 +186,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     def chat_perform(
@@ -196,7 +195,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return self._client.generate_content(**kwargs)
@@ -209,7 +208,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -220,7 +219,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     async def chat_perform_async(
@@ -229,7 +228,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return await self._client.generate_content_async(**kwargs)
@@ -240,9 +239,9 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
-    ) -> "SendMessageArgs":
-        kwargs_full: "SendMessageArgs" = {
+        kwargs: Optional["SubmitInputArgs"] = None,
+    ) -> "SubmitInputArgs":
+        kwargs_full: "SubmitInputArgs" = {
             "contents": self._google_contents(turns),
             "stream": stream,
             "tools": self._gemini_tools(list(tools.values())) if tools else None,

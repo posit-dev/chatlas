@@ -44,11 +44,11 @@ Consider using the approach outlined in this guide to manage your AWS credential
 from chatlas import ChatBedrockAnthropic
 
 chat = ChatBedrockAnthropic(
-  aws_profile='...',
-  aws_region='us-east',
-  aws_secret_key='...',
-  aws_access_key='...',
-  aws_session_token='...',
+    aws_profile="...",
+    aws_region="us-east",
+    aws_secret_key="...",
+    aws_access_key="...",
+    aws_session_token="...",
 )
 chat.chat("What is the capital of France?")
 ```
@@ -66,7 +66,7 @@ chat.chat("What is the capital of France?")
 | base_url          | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The base URL to use. Defaults to the ANTHROPIC_BEDROCK_BASE_URL environment variable. If that is not set, defaults to `f"https://bedrock-runtime.{aws_region}.amazonaws.com"`.                                                                                                                                                                                                                                            | `None`    |
 | system_prompt     | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | A system prompt to set the behavior of the assistant.                                                                                                                                                                                                                                                                                                                                                                     | `None`    |
 | turns             | [Optional](`typing.Optional`)\[[list](`list`)\[[Turn](`chatlas._turn.Turn`)\]\] | A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-None values for both `turns` and `system_prompt`. Each message in the list should be a dictionary with at least `role` (usually `system`, `user`, or `assistant`, but `tool` is also possible). Normally there is also a `content` field, which is a string. | `None`    |
-| kwargs            | [Optional](`typing.Optional`)\[\'BedrockProviderArgs\'\]                        | Additional arguments to pass to the [](`anthropic.AnthropicBedrock()`) client constructor.                                                                                                                                                                                                                                                                                                                                | `None`    |
+| kwargs            | [Optional](`typing.Optional`)\[\'ChatBedrockClientArgs\'\]                      | Additional arguments to pass to the `anthropic.AnthropicBedrock()` client constructor.                                                                                                                                                                                                                                                                                                                                    | `None`    |
 
 ## Returns {.doc-section .doc-section-returns}
 

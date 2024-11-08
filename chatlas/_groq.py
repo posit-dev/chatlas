@@ -10,7 +10,7 @@ from ._utils import inform_model_default
 from .types import MISSING, MISSING_TYPE
 
 if TYPE_CHECKING:
-    from ._openai import ChatCompletionArgs, ProviderClientArgs
+    from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
 def ChatGroq(
@@ -21,8 +21,8 @@ def ChatGroq(
     api_key: Optional[str] = None,
     base_url: str = "https://api.groq.com/openai/v1",
     seed: Optional[int] | MISSING_TYPE = MISSING,
-    kwargs: Optional["ProviderClientArgs"] = None,
-) -> Chat["ChatCompletionArgs"]:
+    kwargs: Optional["ChatClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
     Chat with a model hosted on Groq.
 
@@ -78,7 +78,7 @@ def ChatGroq(
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the [](`openai.OpenAI()`) client constructor.
+        Additional arguments to pass to the `openai.OpenAI()` client constructor.
 
     Returns
     -------

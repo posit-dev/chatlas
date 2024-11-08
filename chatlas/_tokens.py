@@ -4,16 +4,10 @@ import copy
 from threading import Lock
 from typing import TYPE_CHECKING
 
-from ._typing_extensions import TypedDict
+from .types import TokenUsage
 
 if TYPE_CHECKING:
     from ._provider import Provider
-
-
-class TokenUsage(TypedDict):
-    name: str
-    input: int
-    output: int
 
 
 class ThreadSafeTokenCounter:
@@ -67,5 +61,11 @@ def token_usage() -> list[TokenUsage] | None:
 
     Call this function to find out the cumulative number of tokens that you
     have sent and received in the current session.
+
+    Returns
+    -------
+    list[TokenUsage] | None
+        A list of dictionaries with the following keys: "name", "input", and "output".
+        If no tokens have been logged, then None is returned.
     """
     return _token_counter.get_usage()

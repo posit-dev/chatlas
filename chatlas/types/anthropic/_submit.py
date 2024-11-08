@@ -15,12 +15,14 @@ import anthropic.types.tool_choice_tool_param
 import anthropic.types.tool_param
 
 
-class CreateCompletionArgs(TypedDict, total=False):
+class SubmitInputArgs(TypedDict, total=False):
     max_tokens: int
     messages: Iterable[anthropic.types.message_param.MessageParam]
     model: Union[
         str,
         Literal[
+            "claude-3-5-haiku-latest",
+            "claude-3-5-haiku-20241022",
             "claude-3-5-sonnet-latest",
             "claude-3-5-sonnet-20241022",
             "claude-3-5-sonnet-20240620",

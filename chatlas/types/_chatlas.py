@@ -4,21 +4,7 @@ import json
 from dataclasses import dataclass
 from typing import Any, Literal, Optional, TypeVar
 
-from ._typing_extensions import TypedDict
-
-__all__ = (
-    "Content",
-    "ContentImage",
-    "ContentImageInline",
-    "ContentImageRemote",
-    "ContentJson",
-    "ContentText",
-    "ContentToolRequest",
-    "ContentToolResult",
-    "SubmitInputArgsT",
-    "ImageContentTypes",
-    "MISSING_TYPE",
-)
+from .._typing_extensions import TypedDict
 
 
 class AnyTypeDict(TypedDict, total=False):
@@ -41,6 +27,16 @@ class MISSING_TYPE:
 
 
 MISSING = MISSING_TYPE()
+
+
+class TokenUsage(TypedDict):
+    """
+    Token usage for a given provider (name).
+    """
+
+    name: str
+    input: int
+    output: int
 
 
 ImageContentTypes = Literal[

@@ -9,7 +9,7 @@ import httpx
 import openai
 
 
-class ProviderClientArgs(TypedDict, total=False):
+class ChatClientArgs(TypedDict, total=False):
     api_key: str | None
     organization: str | None
     project: str | None

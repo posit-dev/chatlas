@@ -27,7 +27,7 @@ website:
         href: reference/index.qmd
     right:
       - icon: github
-        href: https://github.com/posit-dev/shinymedia
+        href: https://github.com/cpsievert/chatlas
         aria-label: GitHub repository
 
 
@@ -74,7 +74,19 @@ quartodoc:
         - Provider
     - title: User-facing types
       contents:
-        - types
+        - types.Content
+        - types.ContentImage
+        - types.ContentImageInline
+        - types.ContentImageRemote
+        - types.ContentJson
+        - types.ContentText
+        - types.ContentToolRequest
+        - types.ContentToolResult
+        - types.ImageContentTypes
+        - types.MISSING_TYPE
+        - types.MISSING
+        - types.SubmitInputArgsT
+        - types.TokenUsage
 
 
 interlinks:

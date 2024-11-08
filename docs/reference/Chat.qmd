@@ -34,6 +34,7 @@ You should generally not create this object yourself, but instead call
 | [extract_data_async](#chatlas.Chat.extract_data_async) | Extract structured data from the given input asynchronously. |
 | [last_turn](#chatlas.Chat.last_turn) | Get the last turn in the chat with a specific role. |
 | [register_tool](#chatlas.Chat.register_tool) | Register a tool with the chat. |
+| [set_turns](#chatlas.Chat.set_turns) | Set the turns of the chat. |
 | [submit](#chatlas.Chat.submit) | Submit user input(s) to the chat. |
 | [submit_async](#chatlas.Chat.submit_async) | Submit user input(s) to the chat asynchronously. |
 | [tokens](#chatlas.Chat.tokens) | Get the tokens for each turn in the chat. |
@@ -54,7 +55,7 @@ Enter a chat browser to interact with the LLM.
 | stream         | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
 | launch_browser | [bool](`bool`)                                                                        | Whether to launch a browser window.                                                  | `True`    |
 | port           | [int](`int`)                                                                          | The port to run the app on (the default is 0, which will choose a random port).      | `0`       |
-| kwargs         | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| kwargs         | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas.types.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
 
 ### chat { #chatlas.Chat.chat }
 
@@ -70,7 +71,7 @@ Generate a response from the chat.
 |--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
 | args   | [Content](`chatlas.types.Content`) \| [str](`str`)                                    | The user input(s) to generate a response from.                                       | `()`      |
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
-| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| kwargs | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas.types.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
 
 ### chat_async { #chatlas.Chat.chat_async }
 
@@ -86,7 +87,7 @@ Generate a response from the chat asynchronously.
 |--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
 | args   | [Content](`chatlas.types.Content`) \| [str](`str`)                                    | The user input(s) to generate a response from.                                       | `()`      |
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
-| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| kwargs | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas.types.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
 
 ### console { #chatlas.Chat.console }
 
@@ -103,7 +104,7 @@ Press Ctrl+C to quit.
 | Name   | Type                                                                                  | Description                                                                         | Default   |
 |--------|---------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|-----------|
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).          | `True`    |
-| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response | `None`    |
+| kwargs | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas.types.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response | `None`    |
 
 #### Returns {.doc-section .doc-section-returns}
 
@@ -181,6 +182,23 @@ Register a tool with the chat.
 |--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------|------------|
 | tool   | [Callable](`typing.Callable`)\[..., [Any](`typing.Any`)\] \| [Callable](`typing.Callable`)\[..., [Awaitable](`typing.Awaitable`)\[[Any](`typing.Any`)\]\] \| [Tool](`chatlas._tools.Tool`) | The tool to register. This can be a function, an async function, or a Tool object. | _required_ |
 
+### set_turns { #chatlas.Chat.set_turns }
+
+```python
+Chat.set_turns(turns)
+```
+
+Set the turns of the chat.
+
+This method is primarily useful for clearing or setting the turns of the
+chat (i.e., limiting the context window).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                                          | Description                                                     | Default    |
+|--------|---------------------------------------------------------------|-----------------------------------------------------------------|------------|
+| turns  | [Sequence](`typing.Sequence`)\[[Turn](`chatlas._turn.Turn`)\] | The turns to set. Turns with the role "system" are not allowed. | _required_ |
+
 ### submit { #chatlas.Chat.submit }
 
 ```python
@@ -195,7 +213,7 @@ Submit user input(s) to the chat.
 |--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
 | args   | [Content](`chatlas.types.Content`) \| [str](`str`)                                    | The user input(s) to generate a response from.                                       | `()`      |
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
-| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| kwargs | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas.types.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
 
 #### Returns {.doc-section .doc-section-returns}
 
@@ -217,7 +235,7 @@ Submit user input(s) to the chat asynchronously.
 |--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
 | args   | [Content](`chatlas.types.Content`) \| [str](`str`)                                    | The user input(s) to generate a response from.                                       | `()`      |
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
-| kwargs | [Optional](`typing.Optional`)\[[ChatRequestArgsT](`chatlas.types.ChatRequestArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| kwargs | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas.types.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
 
 #### Returns {.doc-section .doc-section-returns}
 

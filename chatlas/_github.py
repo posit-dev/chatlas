@@ -81,7 +81,7 @@ def ChatGithub(
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the [](`openai.OpenAI()`) client
+        Additional arguments to pass to the `openai.OpenAI()` client
         constructor.
 
     Returns

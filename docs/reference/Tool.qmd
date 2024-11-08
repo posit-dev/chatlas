@@ -4,3 +4,44 @@
 Tool(self, func, *, name=None, description=None, parameter_descriptions=None)
 ```
 
+Define a tool
+
+Define a Python function for use by a chatbot. The function will always be
+invoked in the current Python process.
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+from chatlas import Tool
+
+
+def add(a: int, b: int) -> int:
+    return a + b
+
+
+chat = ChatOpenAI()
+
+# It's recommended to provide the tool description (and parameter descriptions)
+# via a docstring, but you can also provide them directly via Tool():
+chat.register_tool(
+    Tool(
+        add,
+        description="Add two numbers.",
+        parameter_descriptions={
+            "a": "The first number.",
+            "b": "The second number.",
+        },
+    ),
+)
+
+chat.chat("What is 2 + 2?")
+```
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name                   | Type                                                                                                                                                      | Description                                                                                                              | Default    |
+|------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|------------|
+| func                   | [Callable](`typing.Callable`)\[..., [Any](`typing.Any`)\] \| [Callable](`typing.Callable`)\[..., [Awaitable](`typing.Awaitable`)\[[Any](`typing.Any`)\]\] | The function to be invoked when the tool is called.                                                                      | _required_ |
+| name                   | [Optional](`typing.Optional`)\[[str](`str`)\]                                                                                                             | The name of the function (tool).                                                                                         | `None`     |
+| description            | [Optional](`typing.Optional`)\[[str](`str`)\]                                                                                                             | A detailed description of what the function does. Generally, the more information that you can provide here, the better. | `None`     |
+| parameter_descriptions | [Optional](`typing.Optional`)\[[dict](`dict`)\[[str](`str`), [str](`str`)\]\]                                                                             | Descriptions for the parameters of the function.                                                                         | `None`     |
