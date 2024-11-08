@@ -41,28 +41,28 @@ check-tox:  ## [py] Run python 3.9 - 3.12 checks with tox
 	uv run tox run-parallel
 
 .PHONY: docs
-docs:  ## [docs] Build the documentation
+docs: quartodoc
 	quarto render docs
 
 .PHONY: docs-preview
-docs-preview:  ## [docs] Preview the documentation
+docs-preview: quartodoc
 	quarto preview docs
 
 .PHONY: quartodoc
-quartodoc:  ## [py] Generate python docs
+quartodoc: 
 	@echo "📖 Generating python docs with quartodoc"
 	@$(eval export IN_QUARTODOC=true)
 	cd docs && uv run quartodoc build
 	cd docs && uv run quartodoc interlinks
 
 .PHONY: quartodoc-watch
-quartodoc-watch:  ## [py] Generate python docs
+quartodoc-watch:
 	@echo "📖 Generating python docs with quartodoc"
 	@$(eval export IN_QUARTODOC=true)
 	uv run quartodoc build --config docs/_quarto.yml --watch
 
 .PHONY: update-snaps
-update-snaps:  ## [py] Update python test snapshots
+update-snaps:
 	@echo "📸 Updating pytest snapshots"
 	uv run pytest --snapshot-update
 

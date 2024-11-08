@@ -1,7 +1,7 @@
-# image_plot { #chatlas.image_plot }
+# content_image_plot { #chatlas.content_image_plot }
 
 ```python
-image_plot(width=768, height=768, dpi=72)
+content_image_plot(width=768, height=768, dpi=72)
 ```
 
 Encode the current matplotlib plot as an image for chat input.
@@ -32,7 +32,7 @@ dimensions, and prepares it for chat input.
 ## Examples {.doc-section .doc-section-examples}
 
 ```python
-from chatlas import ChatOpenAI, image_plot
+from chatlas import ChatOpenAI, content_image_plot
 import matplotlib.pyplot as plt
 
 plt.scatter(faithful["eruptions"], faithful["waiting"])
@@ -41,6 +41,6 @@ chat.chat(
     "Describe this plot in one paragraph, as suitable for inclusion in "
     "alt-text. You should briefly describe the plot type, the axes, and "
     "2-5 major visual patterns.",
-    image_plot(),
+    content_image_plot(),
 )
 ```

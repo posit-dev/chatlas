@@ -19,27 +19,28 @@ dimensions, and prepares it for chat input.
 
 ## Returns {.doc-section .doc-section-returns}
 
-| Name   | Type                                                                | Description   |
-|--------|---------------------------------------------------------------------|---------------|
-|        | ContentImageInline: An Content object suitable for a Turn() object. |               |
+| Name   | Type                           | Description                                        |
+|--------|--------------------------------|----------------------------------------------------|
+|        | \[\](`~chatlas.types.Content`) | Content suitable for a [](`~chatlas.Turn`) object. |
 
 ## Raises {.doc-section .doc-section-raises}
 
-| Name   | Type                                                      | Description   |
-|--------|-----------------------------------------------------------|---------------|
-|        | ValueError: If width or height is not a positive integer. |               |
+| Name   | Type                       | Description                                   |
+|--------|----------------------------|-----------------------------------------------|
+|        | [ValueError](`ValueError`) | If width or height is not a positive integer. |
 
 ## Examples {.doc-section .doc-section-examples}
 
 ```python
->>> from chatlas import ChatOpenAI, content_image_plot
->>> import matplotlib.pyplot as plt
->>> plt.scatter(faithful["eruptions"], faithful["waiting"])
->>> chat = ChatOpenAI()
->>> chat.chat(
-...     "Describe this plot in one paragraph, as suitable for inclusion in "
-...     "alt-text. You should briefly describe the plot type, the axes, and "
-...     "2-5 major visual patterns.",
-...     content_image_plot(),
-... )
+from chatlas import ChatOpenAI, content_image_plot
+import matplotlib.pyplot as plt
+
+plt.scatter(faithful["eruptions"], faithful["waiting"])
+chat = ChatOpenAI()
+chat.chat(
+    "Describe this plot in one paragraph, as suitable for inclusion in "
+    "alt-text. You should briefly describe the plot type, the axes, and "
+    "2-5 major visual patterns.",
+    content_image_plot(),
+)
 ```

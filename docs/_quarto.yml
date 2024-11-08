@@ -1,5 +1,7 @@
 project:
   type: website
+  pre-render: 
+    - python index.py
   resources:
     - objects.txt
 
@@ -23,8 +25,16 @@ website:
     left:
       - text: "Home"
         href: index.qmd
+      - text: "Get Started"
+        href: chatlas.qmd
       - text: Reference
         href: reference/index.qmd
+      - text: Articles
+      - menu: 
+          - text: Prompt design
+            href: prompt-engineering.qmd
+          - text: Structured data
+            href: structured-data.qmd
     right:
       - icon: github
         href: https://github.com/cpsievert/chatlas
@@ -55,9 +65,9 @@ quartodoc:
     - title: Image input
       desc: Submit image input to the chat
       contents:
-        - image_file
-        - image_plot
-        - image_url
+        - content_image_file
+        - content_image_plot
+        - content_image_url
     - title: Tool calling
       desc: Add context to python function before registering it as a tool.
       contents:

@@ -30,9 +30,9 @@ Submit image input to the chat
 
 | | |
 | --- | --- |
-| [image_file](image_file.qmd#chatlas.image_file) | Encode image content from a file for chat input. |
-| [image_plot](image_plot.qmd#chatlas.image_plot) | Encode the current matplotlib plot as an image for chat input. |
-| [image_url](image_url.qmd#chatlas.image_url) | Encode image content from a URL for chat input. |
+| [content_image_file](content_image_file.qmd#chatlas.content_image_file) | Encode image content from a file for chat input. |
+| [content_image_plot](content_image_plot.qmd#chatlas.content_image_plot) | Encode the current matplotlib plot as an image for chat input. |
+| [content_image_url](content_image_url.qmd#chatlas.content_image_url) | Encode image content from a URL for chat input. |
 
 ## Tool calling
 

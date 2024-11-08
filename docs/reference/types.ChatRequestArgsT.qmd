@@ -1,6 +1,0 @@
-# types.ChatRequestArgsT { #chatlas.types.ChatRequestArgsT }
-
-`types.ChatRequestArgsT`
-
-A TypedDict representing the arguments that can be passed to the `.chat()`
-method of a [](`~chatlas.Chat`) instance.

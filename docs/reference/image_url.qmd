@@ -1,7 +1,7 @@
-# image_url { #chatlas.image_url }
+# content_image_url { #chatlas.content_image_url }
 
 ```python
-image_url(url, detail='auto')
+content_image_url(url, detail='auto')
 ```
 
 Encode image content from a URL for chat input.
@@ -25,12 +25,12 @@ handle both regular URLs and data URLs.
 ## Examples {.doc-section .doc-section-examples}
 
 ```python
-from chatlas import ChatOpenAI, image_url
+from chatlas import ChatOpenAI, content_image_url
 
 chat = ChatOpenAI()
 chat.chat(
     "What do you see in this image?",
-    image_url("https://www.python.org/static/img/python-logo.png"),
+    content_image_url("https://www.python.org/static/img/python-logo.png"),
 )
 ```
 

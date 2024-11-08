@@ -1,7 +1,7 @@
-# image_file { #chatlas.image_file }
+# content_image_file { #chatlas.content_image_file }
 
 ```python
-image_file(path, content_type='auto', resize='low')
+content_image_file(path, content_type='auto', resize='low')
 ```
 
 Encode image content from a file for chat input.
@@ -26,12 +26,12 @@ can handle various image formats and provides options for resizing.
 ## Examples {.doc-section .doc-section-examples}
 
 ```python
-from chatlas import ChatOpenAI, image_file
+from chatlas import ChatOpenAI, content_image_file
 
 chat = ChatOpenAI()
 chat.chat(
     "What do you see in this image?",
-    image_file("path/to/image.png"),
+    content_image_file("path/to/image.png"),
 )
 ```
 

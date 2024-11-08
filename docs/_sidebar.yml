@@ -17,9 +17,9 @@ website:
       - reference/Chat.qmd
       section: The chat object
     - contents:
-      - reference/image_file.qmd
-      - reference/image_plot.qmd
-      - reference/image_url.qmd
+      - reference/content_image_file.qmd
+      - reference/content_image_plot.qmd
+      - reference/content_image_url.qmd
       section: Image input
     - contents:
       - reference/Tool.qmd
