@@ -9,13 +9,13 @@ from typing import Literal, Union, cast
 from .types import ContentImageInline, ContentImageRemote, ImageContentTypes
 
 __all__ = (
-    "image_url",
-    "image_file",
-    "image_plot",
+    "content_image_url",
+    "content_image_file",
+    "content_image_plot",
 )
 
 
-def image_url(
+def content_image_url(
     url: str, detail: Literal["auto", "low", "high"] = "auto"
 ) -> Union[ContentImageInline, ContentImageRemote]:
     """
@@ -40,12 +40,12 @@ def image_url(
     Examples
     --------
     ```python
-    from chatlas import ChatOpenAI, image_url
+    from chatlas import ChatOpenAI, content_image_url
 
     chat = ChatOpenAI()
     chat.chat(
         "What do you see in this image?",
-        image_url("https://www.python.org/static/img/python-logo.png"),
+        content_image_url("https://www.python.org/static/img/python-logo.png"),
     )
     ```
 
@@ -71,7 +71,7 @@ def image_url(
         return ContentImageRemote(url=url, detail=detail)
 
 
-def image_file(
+def content_image_file(
     path: str,
     content_type: Literal["auto", ImageContentTypes] = "auto",
     resize: Union[str, Literal["none", "low", "high"]] = "low",
@@ -104,12 +104,12 @@ def image_file(
     Examples
     --------
     ```python
-    from chatlas import ChatOpenAI, image_file
+    from chatlas import ChatOpenAI, content_image_file
 
     chat = ChatOpenAI()
     chat.chat(
         "What do you see in this image?",
-        image_file("path/to/image.png"),
+        content_image_file("path/to/image.png"),
     )
     ```
 
@@ -181,7 +181,7 @@ def image_file(
     return ContentImageInline(content_type, base64_data)
 
 
-def image_plot(
+def content_image_plot(
     width: int = 768, height: int = 768, dpi: int = 72
 ) -> ContentImageInline:
     """
@@ -213,7 +213,7 @@ def image_plot(
     --------
 
     ```python
-    from chatlas import ChatOpenAI, image_plot
+    from chatlas import ChatOpenAI, content_image_plot
     import matplotlib.pyplot as plt
 
     plt.scatter(faithful["eruptions"], faithful["waiting"])
@@ -222,7 +222,7 @@ def image_plot(
         "Describe this plot in one paragraph, as suitable for inclusion in "
         "alt-text. You should briefly describe the plot type, the axes, and "
         "2-5 major visual patterns.",
-        image_plot(),
+        content_image_plot(),
     )
     ```
     """
@@ -231,13 +231,13 @@ def image_plot(
         import matplotlib.pyplot as plt
     except ImportError:
         raise ImportError(
-            "`image_plot()` requires the `matplotlib` package. "
+            "`content_image_plot()` requires the `matplotlib` package. "
             "Install it with `pip install matplotlib`."
         )
 
     if not plt.get_fignums():
         raise RuntimeError(
-            "No matplotlib figure to save. Please create one before calling `image_plot()`."
+            "No matplotlib figure to save. Please create one before calling `content_image_plot()`."
         )
 
     fig = plt.gcf()

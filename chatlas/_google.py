@@ -317,7 +317,7 @@ class GoogleProvider(
         elif isinstance(content, ContentImageRemote):
             raise NotImplementedError(
                 "Remote images aren't supported by Google (Gemini). "
-                "Consider downloading the image and using image_file() instead."
+                "Consider downloading the image and using content_image_file() instead."
             )
         elif isinstance(content, ContentToolRequest):
             return protos.Part(

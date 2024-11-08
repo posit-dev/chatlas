@@ -378,7 +378,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         elif isinstance(content, ContentImageRemote):
             raise NotImplementedError(
                 "Remote images aren't supported by Anthropic (Claude). "
-                "Consider downloading the image and using image_file() instead."
+                "Consider downloading the image and using content_image_file() instead."
             )
         elif isinstance(content, ContentToolRequest):
             return {
