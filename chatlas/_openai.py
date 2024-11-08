@@ -333,6 +333,8 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                 for x in turn.contents:
                     if isinstance(x, ContentText):
                         content_parts.append({"type": "text", "text": x.text})
+                    elif isinstance(x, ContentJson):
+                        content_parts.append({"type": "text", "text": ""})
                     elif isinstance(x, ContentToolRequest):
                         tool_calls.append(
                             {
