@@ -5,7 +5,7 @@ import warnings
 from typing import Any, Awaitable, Callable, Optional
 
 from pydantic import BaseModel, Field, create_model
-from typing_extensions import Literal
+from typing_extensions import Literal, NotRequired
 
 from . import _utils
 from ._typing_extensions import Required, TypedDict
@@ -92,6 +92,7 @@ class ToolSchemaParams(TypedDict):
     type: Literal["object"]
     properties: dict[str, ToolSchemaProperty]
     required: list[str]
+    description: NotRequired[str]
 
 
 class ToolSchemaFunction(TypedDict):
@@ -117,7 +118,6 @@ def func_to_schema(
     params = basemodel_to_param_schema(
         model,
         name=name,
-        description=description,
         parameter_descriptions=parameter_descriptions,
     )
     return {
@@ -170,13 +170,14 @@ def basemodel_to_param_schema(
             "Please install it with `pip install openai`."
         )
 
+    description = description or model.__doc__
+
     # Lean on openai's ability to translate BaseModel.model_json_schema()
     # to a valid tool schema (this wouldn't be impossible to do ourselves,
     # but it's fair amount of logic to substitute `$refs`, etc.)
     tool = openai.pydantic_function_tool(
         model,
         name=name,
-        description=description,
     )
 
     # Translate openai's tool schema format to our own
@@ -203,8 +204,13 @@ def basemodel_to_param_schema(
     if "required" in params:
         required = params["required"]
 
-    return {
+    res: ToolSchemaParams = {
         "type": "object",
         "properties": properties,
         "required": required,
     }
+
+    if description:
+        res["description"] = description
+
+    return res
