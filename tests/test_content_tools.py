@@ -1,5 +1,3 @@
-import sys
-
 import pytest
 from chatlas import ChatOpenAI, Tool
 from chatlas.types import ContentToolResult
@@ -60,14 +58,13 @@ def test_register_tool():
     }
 
 
-@pytest.mark.skipif(sys.version_info <= (3, 9), reason="requires Python 3.10 or higher")
 def test_register_tool_with_complex_parameters():
     chat = ChatOpenAI()
 
     def foo(
         x: list[tuple[str, float, bool]],
-        y: int | None = None,
-        z: dict[str, str] | None = None,
+        y: Optional[int] = None,
+        z: Optional[dict[str, str]] = None,
     ):
         """Dummy tool for testing parameter JSON schema."""
         pass
