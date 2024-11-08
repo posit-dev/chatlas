@@ -247,7 +247,7 @@ class Chat(Generic[SubmitInputArgsT]):
         *args: Content | str,
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> None:
+    ) -> str:
         """
         Generate a response from the chat.
 
@@ -261,14 +261,14 @@ class Chat(Generic[SubmitInputArgsT]):
             Additional keyword arguments to pass to the method used for requesting
             the response.
         """
-        self._chat_emit(user_turn(*args), stream=stream, kwargs=kwargs)
+        return self._chat_emit(user_turn(*args), stream=stream, kwargs=kwargs)
 
     async def chat_async(
         self,
         *args: Content | str,
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> None:
+    ) -> str:
         """
         Generate a response from the chat asynchronously.
 
@@ -282,7 +282,9 @@ class Chat(Generic[SubmitInputArgsT]):
             Additional keyword arguments to pass to the method used for requesting
             the response.
         """
-        await self._chat_emit_async(user_turn(*args), stream=stream, kwargs=kwargs)
+        return await self._chat_emit_async(
+            user_turn(*args), stream=stream, kwargs=kwargs
+        )
 
     def submit(
         self,
@@ -452,7 +454,7 @@ class Chat(Generic[SubmitInputArgsT]):
         user_turn: Turn,
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> None:
+    ) -> str:
         from rich.console import Console
         from rich.live import Live
         from rich.markdown import Markdown
@@ -471,12 +473,14 @@ class Chat(Generic[SubmitInputArgsT]):
                 content += part
                 live.update(Markdown(content), refresh=True)
 
+        return content
+
     async def _chat_emit_async(
         self,
         user_turn: Turn,
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> None:
+    ) -> str:
         from rich.console import Console
         from rich.live import Live
         from rich.markdown import Markdown
@@ -494,6 +498,8 @@ class Chat(Generic[SubmitInputArgsT]):
             async for part in response:
                 content += part
                 live.update(Markdown(content), refresh=True)
+
+        return content
 
     def _chat_impl(
         self,
