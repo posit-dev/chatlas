@@ -434,19 +434,87 @@ class Chat(Generic[SubmitInputArgsT]):
 
     def register_tool(
         self,
-        tool: Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool,
+        func: Callable[..., Any] | Callable[..., Awaitable[Any]],
+        *,
+        model: Optional[type[BaseModel]] = None,
     ):
         """
-        Register a tool with the chat.
+        Register a tool (function) with the chat.
+
+        The function will always be invoked in the current Python process.
+
+        Examples
+        --------
+
+        If your tool has straightforward input parameters, you can just
+        register the function directly (type hints and a docstring explaning
+        both what the function does and what the parameters are for is strongly
+        recommended):
+
+        ```python
+        from chatlas import ChatOpenAI, Tool
+
+
+        def add(a: int, b: int) -> int:
+            '''
+            Add two numbers together.
+
+            Parameters
+            ----------
+            a : int
+                The first number to add.
+            b : int
+                The second number to add.
+            '''
+            return a + b
+
+
+        chat = ChatOpenAI()
+        chat.register_tool(add)
+        chat.chat("What is 2 + 2?")
+        ```
+
+        If your tool has more complex input parameters, you can provide a Pydantic
+        model that corresponds to the input parameters for the function, This way, you
+        can have fields that hold other model(s) (for more complex input parameters),
+        and also more directly document the input parameters:
+
+        ```python
+        from chatlas import ChatOpenAI, Tool
+        from pydantic import BaseModel
+
+
+        class AddParams(BaseModel):
+            '''Add two numbers together.'''
+
+            a: int
+            '''The first number to add.'''
+
+            b: int
+            '''The second number to add.'''
+
+
+        def add(a: int, b: int) -> int:
+            return a + b
+
+
+        chat = ChatOpenAI()
+        chat.register_tool(add, model=AddParams)
+        chat.chat("What is 2 + 2?")
+        ```
 
         Parameters
         ----------
-        tool
-            The tool to register. This can be a function, an async function, or a Tool object.
+        func
+            The function to be invoked when the tool is called.
+        model
+            A Pydantic model that describes the input parameters for the function.
+            If not provided, the model will be inferred from the function's type hints.
+            The primary reason why you might want to provide a model in
+            Note that the name and docstring of the model takes precedence over the
+            name and docstring of the function.
         """
-        if not isinstance(tool, Tool):
-            tool = Tool(tool)
-
+        tool = Tool(func, model=model)
         self.tools[tool.name] = tool
 
     def _chat_emit(

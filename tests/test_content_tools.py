@@ -1,5 +1,8 @@
+from typing import Union
+
 import pytest
-from chatlas import ChatOpenAI, Tool
+
+from chatlas import ChatOpenAI
 from chatlas.types import ContentToolResult
 
 
@@ -18,41 +21,15 @@ def test_register_tool():
     assert tool.name == "add"
     assert tool.func == add
     assert tool.schema["function"]["name"] == "add"
+    assert "description" in tool.schema["function"]
     assert tool.schema["function"]["description"] == ""
+    assert "parameters" in tool.schema["function"]
     assert tool.schema["function"]["parameters"] == {
         "type": "object",
+        "additionalProperties": False,
         "properties": {
             "x": {"type": "integer"},
             "y": {"type": "integer"},
-        },
-        "required": ["x", "y"],
-    }
-
-    # -------------------------
-
-    chat.register_tool(
-        Tool(
-            add,
-            name="add2",
-            description="Add two numbers.",
-            parameter_descriptions={
-                "x": "The first number.",
-                "y": "The second number.",
-            },
-        )
-    )
-
-    assert len(chat.tools) == 2
-    tool = chat.tools["add2"]
-    assert tool.name == "add2"
-    assert tool.func == add
-    assert tool.schema["function"]["name"] == "add2"
-    assert tool.schema["function"]["description"] == "Add two numbers."
-    assert tool.schema["function"]["parameters"] == {
-        "type": "object",
-        "properties": {
-            "x": {"type": "integer", "description": "The first number."},
-            "y": {"type": "integer", "description": "The second number."},
         },
         "required": ["x", "y"],
     }
@@ -63,8 +40,8 @@ def test_register_tool_with_complex_parameters():
 
     def foo(
         x: list[tuple[str, float, bool]],
-        y: Optional[int] = None,
-        z: Optional[dict[str, str]] = None,
+        y: Union[int, None] = None,
+        z: Union[dict[str, str], None] = None,
     ):
         """Dummy tool for testing parameter JSON schema."""
         pass
@@ -76,12 +53,15 @@ def test_register_tool_with_complex_parameters():
     assert tool.name == "foo"
     assert tool.func == foo
     assert tool.schema["function"]["name"] == "foo"
+    assert "description" in tool.schema["function"]
     assert (
         tool.schema["function"]["description"]
         == "Dummy tool for testing parameter JSON schema."
     )
+    assert "parameters" in tool.schema["function"]
     assert tool.schema["function"]["parameters"] == {
         "type": "object",
+        "additionalProperties": False,
         "properties": {
             "x": {
                 "type": "array",

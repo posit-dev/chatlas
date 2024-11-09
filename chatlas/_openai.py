@@ -9,7 +9,7 @@ from ._chat import Chat
 from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import Tool, ToolSchema, basemodel_to_param_schema
+from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
 from ._utils import inform_model_default, is_testing
 from .types import (
@@ -29,7 +29,6 @@ if TYPE_CHECKING:
         ChatCompletion,
         ChatCompletionChunk,
         ChatCompletionMessageParam,
-        ChatCompletionToolParam,
     )
     from openai.types.chat.chat_completion_assistant_message_param import (
         ContentArrayOfContentPart,
@@ -254,9 +253,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        tool_schemas = [
-            self._openai_tool_schema(tool.schema) for tool in tools.values()
-        ]
+        tool_schemas = [tool.schema for tool in tools.values()]
         # OpenAI's typing is wrong (an empty list isn't allowed)
         # If they fix it, we can remove this if statement
         if not tool_schemas:
@@ -279,6 +276,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                 "type": "json_schema",
                 "json_schema": {
                     "name": "structured_data",
+                    "description": params.get("description", ""),
                     "schema": params,
                     "strict": True,
                 },
@@ -409,25 +407,6 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                 raise ValueError(f"Unknown role: {turn.role}")
 
         return res
-
-    @staticmethod
-    def _openai_tool_schema(schema: ToolSchema) -> "ChatCompletionToolParam":
-        fn = schema["function"]
-        name = fn["name"]
-        return {
-            "type": "function",
-            "function": {
-                "name": name,
-                "description": fn["description"],
-                "parameters": {
-                    "type": "object",
-                    "properties": fn["parameters"]["properties"],
-                    "required": fn["parameters"]["required"],
-                    "additionalProperties": False,
-                },
-                "strict": True,
-            },
-        }
 
     def _as_turn(self, completion: "ChatCompletion", has_data_model: bool) -> Turn:
         message = completion.choices[0].message

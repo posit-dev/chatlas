@@ -2,15 +2,16 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from typing import Any, Awaitable, Callable, Optional
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional
 
 from pydantic import BaseModel, Field, create_model
-from typing_extensions import Literal, NotRequired
 
 from . import _utils
-from ._typing_extensions import Required, TypedDict
 
 __all__ = ("Tool",)
+
+if TYPE_CHECKING:
+    from openai.types.chat import ChatCompletionToolParam
 
 
 class Tool:
@@ -20,46 +21,16 @@ class Tool:
     Define a Python function for use by a chatbot. The function will always be
     invoked in the current Python process.
 
-    Examples
-    --------
-
-    ```python
-    from chatlas import Tool
-
-
-    def add(a: int, b: int) -> int:
-        return a + b
-
-
-    chat = ChatOpenAI()
-
-    # It's recommended to provide the tool description (and parameter descriptions)
-    # via a docstring, but you can also provide them directly via Tool():
-    chat.register_tool(
-        Tool(
-            add,
-            description="Add two numbers.",
-            parameter_descriptions={
-                "a": "The first number.",
-                "b": "The second number.",
-            },
-        ),
-    )
-
-    chat.chat("What is 2 + 2?")
-    ```
-
     Parameters
     ----------
     func
         The function to be invoked when the tool is called.
-    name
-        The name of the function (tool).
-    description
-        A detailed description of what the function does. Generally, the more
-        information that you can provide here, the better.
-    parameter_descriptions
-        Descriptions for the parameters of the function.
+    model
+        A Pydantic model that describes the input parameters for the function.
+        If not provided, the model will be inferred from the function's type hints.
+        The primary reason why you might want to provide a model in
+        Note that the name and docstring of the model takes precedence over the
+        name and docstring of the function.
     """
 
     func: Callable[..., Any] | Callable[..., Awaitable[Any]]
@@ -68,69 +39,44 @@ class Tool:
         self,
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        parameter_descriptions: Optional[dict[str, str]] = None,
+        model: Optional[type[BaseModel]] = None,
     ):
         self.func = func
         self._is_async = _utils.is_async_callable(func)
-        self.schema = func_to_schema(
-            func,
-            name=name,
-            description=description,
-            parameter_descriptions=parameter_descriptions,
-        )
+        self.schema = func_to_schema(func, model)
         self.name = self.schema["function"]["name"]
-
-
-class ToolSchemaProperty(TypedDict, total=False):
-    type: Required[str]
-    description: Required[str]
-
-
-class ToolSchemaParams(TypedDict):
-    type: Literal["object"]
-    properties: dict[str, ToolSchemaProperty]
-    required: list[str]
-    description: NotRequired[str]
-
-
-class ToolSchemaFunction(TypedDict):
-    name: str
-    description: str
-    parameters: ToolSchemaParams
-
-
-class ToolSchema(TypedDict):
-    type: Literal["function"]
-    function: ToolSchemaFunction
 
 
 def func_to_schema(
     func: Callable[..., Any] | Callable[..., Awaitable[Any]],
-    name: str | None = None,
-    description: str | None = None,
-    parameter_descriptions: dict[str, str] | None = None,
-) -> ToolSchema:
-    name = name or func.__name__
-    description = description or func.__doc__ or ""
-    model = func_to_basemodel(func, name)
-    params = basemodel_to_param_schema(
-        model,
-        name=name,
-        parameter_descriptions=parameter_descriptions,
-    )
+    model: Optional[type[BaseModel]] = None,
+) -> "ChatCompletionToolParam":
+    if model is None:
+        model = func_to_basemodel(func)
+
+    # Throw if there is a mismatch between the model and the function parameters
+    params = inspect.signature(func).parameters
+    fields = model.model_fields
+    diff = set(params) ^ set(fields)
+    if diff:
+        raise ValueError(
+            f"`model` fields must match tool function parameters exactly. "
+            f"Fields found in one but not the other: {diff}"
+        )
+
+    params = basemodel_to_param_schema(model)
+
     return {
         "type": "function",
         "function": {
-            "name": name,
-            "description": description,
+            "name": model.__name__ or func.__name__,
+            "description": model.__doc__ or func.__doc__ or "",
             "parameters": params,
         },
     }
 
 
-def func_to_basemodel(func: Callable, name: str) -> type[BaseModel]:
+def func_to_basemodel(func: Callable) -> type[BaseModel]:
     params = inspect.signature(func).parameters
     fields = {}
 
@@ -152,16 +98,10 @@ def func_to_basemodel(func: Callable, name: str) -> type[BaseModel]:
         # Add the field to our fields dict
         fields[name] = (annotation, field)
 
-    return create_model(name, **fields)
+    return create_model(func.__name__, **fields)
 
 
-def basemodel_to_param_schema(
-    model: type[BaseModel],
-    *,
-    name: str | None = None,
-    description: str | None = None,
-    parameter_descriptions: dict[str, str] | None = None,
-) -> ToolSchemaParams:
+def basemodel_to_param_schema(model: type[BaseModel]) -> dict[str, object]:
     try:
         import openai
     except ImportError:
@@ -170,47 +110,25 @@ def basemodel_to_param_schema(
             "Please install it with `pip install openai`."
         )
 
-    description = description or model.__doc__
-
     # Lean on openai's ability to translate BaseModel.model_json_schema()
     # to a valid tool schema (this wouldn't be impossible to do ourselves,
     # but it's fair amount of logic to substitute `$refs`, etc.)
-    tool = openai.pydantic_function_tool(
-        model,
-        name=name,
-    )
+    tool = openai.pydantic_function_tool(model)
 
-    # Translate openai's tool schema format to our own
     fn = tool["function"]
-    params: dict[str, Any] = {}
-    if "parameters" in fn:
-        params = fn["parameters"]
+    if "parameters" not in fn:
+        raise ValueError("Expected `parameters` in function definition.")
 
-    properties: dict[str, ToolSchemaProperty] = {}
-    if "properties" in params:
-        properties = params["properties"]
+    params = fn["parameters"]
 
-    for k, v in properties.items():
-        # Pydantic likes to include "title" in its schema, which we I don't think we
-        # need (and Google will complain about)
-        if "title" in v:
-            del v["title"]
-        # If description is falsy, provide a fallback from parameter_descriptions
-        if not v.get("description", ""):
-            if parameter_descriptions and k in parameter_descriptions:
-                v["description"] = parameter_descriptions[k]
+    # For some reason, openai (or pydantic?) wants to include a title
+    # at the model and field level. I don't think we actually need or want this.
+    if "title" in params:
+        del params["title"]
 
-    required: list[str] = []
-    if "required" in params:
-        required = params["required"]
+    if "properties" in params and isinstance(params["properties"], dict):
+        for prop in params["properties"].values():
+            if "title" in prop:
+                del prop["title"]
 
-    res: ToolSchemaParams = {
-        "type": "object",
-        "properties": properties,
-        "required": required,
-    }
-
-    if description:
-        res["description"] = description
-
-    return res
+    return params

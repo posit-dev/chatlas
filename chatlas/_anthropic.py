@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from ._chat import Chat
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import Tool, ToolSchema, ToolSchemaParams, basemodel_to_param_schema
+from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
 from ._utils import inform_model_default
 from .types import (
@@ -36,6 +36,7 @@ if TYPE_CHECKING:
     from anthropic.types.text_block_param import TextBlockParam
     from anthropic.types.tool_result_block_param import ToolResultBlockParam
     from anthropic.types.tool_use_block_param import ToolUseBlockParam
+    from openai.types.chat import ChatCompletionToolParam
 
     from .types.anthropic import ChatBedrockClientArgs, ChatClientArgs, SubmitInputArgs
 
@@ -257,21 +258,17 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         if data_model is not None:
 
             def _structured_tool_call(**kwargs):
+                """Extract structured data"""
                 pass
 
-            data_model_tool = Tool(
-                _structured_tool_call,
-                description="Extract structured data",
-            )
+            data_model_tool = Tool(_structured_tool_call)
 
-            params: ToolSchemaParams = {
+            data_model_tool.schema["function"]["parameters"] = {
                 "type": "object",
                 "properties": {
-                    "data": basemodel_to_param_schema(data_model),  # type: ignore
+                    "data": basemodel_to_param_schema(data_model),
                 },
             }
-
-            data_model_tool.schema["function"]["parameters"] = params
 
             tool_schemas.append(self._anthropic_tool_schema(data_model_tool.schema))
 
@@ -402,17 +399,24 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         raise ValueError(f"Unknown content type: {type(content)}")
 
     @staticmethod
-    def _anthropic_tool_schema(schema: ToolSchema) -> "ToolParam":
+    def _anthropic_tool_schema(schema: "ChatCompletionToolParam") -> "ToolParam":
         fn = schema["function"]
         name = fn["name"]
-        return {
+
+        res: "ToolParam" = {
             "name": name,
-            "description": fn["description"],
             "input_schema": {
                 "type": "object",
-                "properties": fn["parameters"]["properties"],
             },
         }
+
+        if "description" in fn:
+            res["description"] = fn["description"]
+
+        if "parameters" in fn:
+            res["input_schema"]["properties"] = fn["parameters"]["properties"]
+
+        return res
 
     def _as_turn(self, completion: Message, has_data_model=False) -> Turn:
         contents = []
@@ -421,7 +425,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 contents.append(ContentText(content.text))
             elif content.type == "tool_use":
                 if has_data_model:
-                    json = ContentJson(cast(dict, content.input))
+                    json = ContentJson(cast(dict, content.input)["data"])
                     contents.append(json)
                 else:
                     # For some reason, the type is a general object?

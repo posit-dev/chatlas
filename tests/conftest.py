@@ -3,9 +3,10 @@ from pathlib import Path
 from typing import Awaitable, Callable
 
 import pytest
-from chatlas import Chat, Tool, Turn, image_file, image_url
 from PIL import Image
 from pydantic import BaseModel
+
+from chatlas import Chat, Turn, content_image_file, content_image_url
 
 ChatFun = Callable[..., Chat]
 
@@ -84,9 +85,12 @@ def assert_turns_existing(chat_fun: ChatFun):
 
 def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
-    chat.register_tool(
-        Tool(lambda: "2024-01-01", name="get_date", description="Gets the current date")
-    )
+
+    def get_date():
+        """Gets the current date"""
+        return "2024-01-01"
+
+    chat.register_tool(get_date)
 
     chat.chat("What's the current date in YMD format?", stream=stream)
     turn = chat.last_turn()
@@ -102,15 +106,14 @@ def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
 async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
 
-    async def async_mock():
+    async def get_current_date():
+        """Gets the current date"""
         import asyncio
 
         await asyncio.sleep(0.1)
         return "2024-01-01"
 
-    chat.register_tool(
-        Tool(async_mock, name="get_current_date", description="Gets the current date")
-    )
+    chat.register_tool(get_current_date)
 
     await chat.chat_async("What's the current date in YMD format?", stream=stream)
     turn = chat.last_turn()
@@ -125,16 +128,10 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
 
     def favorite_color(person: str):
+        """Returns a person's favourite colour"""
         return "sage green" if person == "Joe" else "red"
 
-    chat.register_tool(
-        Tool(
-            favorite_color,
-            description="Returns a person's favourite colour",
-            # TODO: allow for extra arguments?
-            # strict=True,
-        )
-    )
+    chat.register_tool(favorite_color)
 
     chat.chat(
         """
@@ -153,13 +150,12 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
 
 def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = True):
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
-    chat.register_tool(
-        Tool(
-            lambda: 2024,
-            name="current_year",
-            description="Get the current year",
-        )
-    )
+
+    def get_current_year():
+        """Gets the current year"""
+        return 2024
+
+    chat.register_tool(get_current_year)
 
     def popular_name(year: int):
         """Gets the most popular name for a given year"""
@@ -201,7 +197,7 @@ def assert_images_inline(chat_fun: ChatFun, stream: bool = True):
         chat = chat_fun()
         chat.chat(
             "What's in this image?",
-            image_file(str(img_path)),
+            content_image_file(str(img_path)),
             stream=stream,
         )
 
@@ -214,7 +210,7 @@ def assert_images_remote(chat_fun: ChatFun, stream: bool = True):
     chat = chat_fun()
     chat.chat(
         "What's in this image? (Be sure to mention the outside shape)",
-        image_url("https://httr2.r-lib.org/logo.png"),
+        content_image_url("https://httr2.r-lib.org/logo.png"),
         stream=stream,
     )
     turn = chat.last_turn()
@@ -225,7 +221,7 @@ def assert_images_remote(chat_fun: ChatFun, stream: bool = True):
 
 def assert_images_remote_error(chat_fun: ChatFun):
     chat = chat_fun()
-    image_remote = image_url("https://httr2.r-lib.org/logo.png")
+    image_remote = content_image_url("https://httr2.r-lib.org/logo.png")
 
     with pytest.raises(Exception, match="Remote images aren't supported"):
         chat.chat("What's in this image?", image_remote)

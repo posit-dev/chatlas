@@ -252,6 +252,9 @@ class GoogleProvider(
             config = kwargs_full.get("generation_config", {})
             params = basemodel_to_param_schema(data_model)
 
+            if "additionalProperties" in params:
+                del params["additionalProperties"]
+
             mime_type = "application/json"
             if isinstance(config, dict):
                 config["response_schema"] = params
@@ -384,7 +387,7 @@ class GoogleProvider(
         for tool in tools:
             fn = tool.schema["function"]
             params = None
-            if fn["parameters"]["properties"]:
+            if "parameters" in fn and fn["parameters"]["properties"]:
                 params = {
                     "type": "object",
                     "properties": fn["parameters"]["properties"],
@@ -394,7 +397,7 @@ class GoogleProvider(
             res.append(
                 FunctionDeclaration(
                     name=fn["name"],
-                    description=fn["description"],
+                    description=fn.get("description", ""),
                     parameters=params,
                 )
             )
