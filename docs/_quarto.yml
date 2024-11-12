@@ -35,6 +35,8 @@ website:
             href: prompt-engineering.qmd
           - text: Structured data
             href: structured-data.qmd
+          - text: Tool (function) calling
+            href: tool-calling.qmd
     right:
       - icon: github
         href: https://github.com/cpsievert/chatlas

@@ -33,9 +33,9 @@ As well as enterprise cloud providers:
 
 ## Model choice
 
-If you're using chatlas inside your organisation, you'll typically need to use whatever you're allowed to. If you're using elmer for your own personal exploration, we recommend starting with:
+If you're using chatlas inside your organisation, you'll typically need to use whatever you're allowed to. If you're using chatlas for your own personal exploration, we recommend starting with:
 
-`ChatOpenAI()`, which defaults to GPT-4o-mini. You might want to try `model = "gpt-4o"` for more demanding task and if you want to force complex reasoning, `model = "o1-mini"`.
+`ChatOpenAI()`, which currently defaults to `model="gpt-4o-mini"`. You might want to try `model="gpt-4o"` for more demanding task and if you want to force complex reasoning, `model="o1-mini"`.
 
 `ChatAnthropic()`, which defaults to Claude 3.5 Sonnet. This currently appears to be the best model for code generation.
 
@@ -135,6 +135,25 @@ for x in response:
 1 + 1 equals 2.
 ```
 
+For a more compelling example, note that you can pass the result of `.submit()` directly to Shiny's [`ui.Chat` component](https://shiny.posit.co/py/components/display-messages/chat/) to create a chat interface in your own [Shiny](https://shiny.rstudio.com/py) app.
+
+```python
+from chatlas import ChatAnthropic
+from shiny import ui
+
+chat = ui.Chat(
+  id="chat", 
+  messages=["Hi! How can I help you today?"],
+)
+
+llm = ChatAnthropic()
+
+@chat.on_user_submit
+def _():
+    response = llm.submit(chat.user_input())
+    chat.append_message_stream(response)
+```
+
 ### Vision (Image Input)
 
 To ask questions about images, you can pass one or more additional input arguments using `content_image_file()` and/or `content_image_url()`:
@@ -142,7 +161,7 @@ To ask questions about images, you can pass one or more additional input argumen
 ```python
 from chatlas import content_image_url
 
-chat.chat(
+_ = chat.chat(
     content_image_url("https://www.python.org/static/img/python-logo.png"),
     "Can you explain this logo?"
 )
@@ -191,53 +210,4 @@ Another, more general, solution is to load your environment variables into the s
 export ANTHROPIC_API_KEY=...
 export OPENAI_API_KEY=...
 export GOOGLE_API_KEY=...
-```
-
-## Advanced features
-
-### Tool (function) calling
-
-Tool calling is a powerful feature enabling the LLM to call external programs to help answer your questions.
-`chatlas` makes it easy to provide Python functions as tools for the LLM to call, and handles the communication between the LLM and your function.
-
-To provide a tool, just define function(s) and pass them to the `chatlas` constructor.
-Make sure to annotate your function with types to help the LLM understand what it should expect and return.
-Also provide a docstring to help the LLM understand what your function does.
-
-```python
-from chatlas import ChatAnthropic
-
-def get_current_weather(location: str, unit: str = "fahrenheit") -> int:
-    """Get the current weather in a location."""
-    if "boston" in location.lower():
-        return 12 if unit == "fahrenheit" else -11
-    elif "new york" in location.lower():
-        return 20 if unit == "fahrenheit" else -6
-    else:
-        return 72 if unit == "fahrenheit" else 22
-
-chat = ChatAnthropic()
-chat.register_tool(get_current_weather)
-chat.chat("What's the weather like in Boston, New York, and London today?")
-```
-
-### Build your own Shiny app
-
-Pass user input from a Shiny `Chat()` component to a `chatlas` response generator to embed a chat interface in your own Shiny app.
-
-```python
-from chatlas import ChatAnthropic
-from shiny import ui
-
-chat = ui.Chat(
-  id="chat", 
-  messages=["Hi! How can I help you today?"],
-)
-
-llm = ChatAnthropic()
-
-@chat.on_user_submit
-def _(message):
-    response = llm.submit(message)
-    chat.append_message_stream(response)
 ```
