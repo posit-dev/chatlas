@@ -3,8 +3,10 @@
 When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like. This will generally work well most of the time, but there's no gaurantee that you'll actually get the exact format that you want. In particular, if you're trying to get JSON, find that it's typically surrounded in ```` ```json ````, and you'll occassionally get text that isn't actually valid JSON. To avoid these challenges you can use a recent LLM feature: **structured data** (aka structured output). With structured data, you supply a type specification that exactly defines the object structure that you want and the LLM will guarantee that's what you get back.
 
 ```{python}
+import json
+import pandas as pd
 from chatlas import ChatOpenAI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 ```
 
 ## Structured data basics
@@ -12,6 +14,7 @@ from pydantic import BaseModel
 To extract structured data you call the `.extract_data()` method instead of the `.chat()` method. You'll also need to define a type specification that describes the structure of the data that you want (more on that shortly). Here's a simple example that extracts two specific values from a string:
 
 ```{python}
+#| warning: false
 class Person(BaseModel):
     name: str
     age: int
@@ -44,20 +47,19 @@ chat.extract_data(
 
 To define your desired type specification (also known as a **schema**), you use a [pydantic model](https://docs.pydantic.dev/latest/concepts/models/). 
 
-In addition to the model definition with field names and types, you may also want to provide the LLM with an additional context about what each field represents. In this case, include a docstring below each field/model definition. This is a good place to ask nicely for other attributes you'll like the value to possess (e.g. minimum or maximum values, date formats, ...). You aren't guaranteed that these requests will be honoured, but the LLM will usually make a best effort to do so.
+In addition to the model definition with field names and types, you may also want to provide the LLM with an additional context about what each field/model represents. In this case, include a `Field(description="...")` for each field, and a docstring for each model. This is a good place to ask nicely for other attributes you'll like the value to possess (e.g. minimum or maximum values, date formats, ...). You aren't guaranteed that these requests will be honoured, but the LLM will usually make a best effort to do so.
 
 ```{python}
 class Person(BaseModel):
     """A person"""
 
-    name: str
-    """Name"""
+    name: str = Field(description="Name")
 
-    age: int
-    """Age, in years."""
+    age: int = Field(description="Age, in years")
 
-    hobbies: list[str]
-    """List of hobbies. Should be exclusive and brief."""
+    hobbies: list[str] = Field(
+        description="List of hobbies. Should be exclusive and brief."
+    )
 ```
 
 Now we'll dive into some examples before coming back to talk more data types details.
@@ -69,6 +71,7 @@ The following examples are [closely inspired by the Claude documentation](https:
 ### Example 1: Article summarisation
 
 ```{python}
+# | warning: false
 with open("examples/third-party-testing.txt") as f:
     text = f.read()
 
@@ -76,72 +79,76 @@ with open("examples/third-party-testing.txt") as f:
 class ArticleSummary(BaseModel):
     """Summary of the article."""
 
-    author: str
-    """Name of the article author"""
+    author: str = Field(description="Name of the article author")
 
-    topics: list[str]
-    """Array of topics, e.g. ["tech", "politics"]. Should be as specific as possible, and can overlap."""
+    topics: list[str] = Field(
+        description="Array of topics, e.g. ['tech', 'politics']. Should be as specific as possible, and can overlap."
+    )
 
-    summary: str
-    """Summary of the article. One or two paragraphs max"""
+    summary: str = Field(description="Summary of the article. One or two paragraphs max")
 
-    coherence: int
-    """Coherence of the article's key points, 0-100 (inclusive)"""
+    coherence: int = Field(
+        description="Coherence of the article's key points, 0-100 (inclusive)"
+    )
 
-    persuasion: float
-    """Article's persuasion score, 0.0-1.0 (inclusive)"""
+    persuasion: float = Field(
+        description="Article's persuasion score, 0.0-1.0 (inclusive)"
+    )
 
 
 chat = ChatOpenAI()
 data = chat.extract_data(text, data_model=ArticleSummary)
-print(data)
+print(json.dumps(data, indent=2))
 ```
 
 ### Example 2: Named entity recognition
 
 ```{python}
+# | warning: false
 text = "John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco."
+
 
 class NamedEntity(BaseModel):
     """Named entity in the text."""
 
-    name: str
-    """The extracted entity name."""
+    name: str = Field(description="The extracted entity name")
 
-    type_: str
-    """The entity type, e.g. "person", "location", "organization"."""
+    type_: str = Field(description="The entity type, e.g. 'person', 'location', 'organization'")
 
-    context: str
-    """The context in which the entity appears in the text."""
+    context: str = Field(description="The context in which the entity appears in the text.")
 
 
 class NamedEntities(BaseModel):
     """Named entities in the text."""
 
-    entities: list[NamedEntity]
-    """Array of named entities"""
+    entities: list[NamedEntity] = Field(description="Array of named entities")
 
 
 chat = ChatOpenAI()
-chat.extract_data(text, data_model=NamedEntities)
+data = chat.extract_data(text, data_model=NamedEntities)
+pd.DataFrame(data["entities"])
 ```
 
 ### Example 3: Sentiment analysis
 
 ```{python}
+#| warning: false
 text = "The product was okay, but the customer service was terrible. I probably won't buy from them again."
 
 class Sentiment(BaseModel):
     """Extract the sentiment scores of a given text. Sentiment scores should sum to 1."""
 
-    positive_score: float
-    """Positive sentiment score, ranging from 0.0 to 1.0."""
+    positive_score: float = Field(
+        description="Positive sentiment score, ranging from 0.0 to 1.0"
+    )
 
-    negative_score: float
-    """Negative sentiment score, ranging from 0.0 to 1.0."""
+    negative_score: float = Field(
+        description="Negative sentiment score, ranging from 0.0 to 1.0"
+    )
 
-    neutral_score: float
-    """Neutral sentiment score, ranging from 0.0 to 1.0."""
+    neutral_score: float = Field(
+        description="Neutral sentiment score, ranging from 0.0 to 1.0"
+    )
 
 
 chat = ChatOpenAI()
@@ -153,45 +160,44 @@ Note that we've asked nicely for the scores to sum 1, and they do in this exampl
 ### Example 4: Text classification
 
 ```{python}
+# | warning: false
 from typing import Literal
 
 text = "The new quantum computing breakthrough could revolutionize the tech industry."
 
+
 class Classification(BaseModel):
+
+    name: Literal[
+        "Politics", "Sports", "Technology", "Entertainment", "Business", "Other"
+    ] = Field(description="The category name")
+
+    score: float = Field(description="The classification score for the category, ranging from 0.0 to 1.0.")
+
+
+class Classifications(BaseModel):
     """Array of classification results. The scores should sum to 1."""
 
-    name: Literal["Politics", "Sports", "Technology", "Entertainment", "Business", "Other"]
-    """The category name"""
-
-    score: float
-    """The classification score for the category, ranging from 0.0 to 1.0."""
+    classifications: list[Classification]
 
 
 chat = ChatOpenAI()
-data = chat.extract_data(text, data_model=Classification)
-# do.call(rbind, lapply(data$classification, as.data.frame))
-# TODO: make into a data frame
-print(data)
+data = chat.extract_data(text, data_model=Classifications)
+pd.DataFrame(data["classifications"])
 ```
-
-<!--
-Here we created a wrapper object because the OpenAI API requires all structured data to use an object. If you're working with Claude or Gemini, the code is a little simpler:
-
-```r
-chat <- chat_claude()
-data <- chat$extract_data(text, spec = classification)
-do.call(rbind, lapply(data, as.data.frame))
-```
--->
 
 ### Example 5: Working with unknown keys
 
 ```{python}
+# | warning: false
 from chatlas import ChatAnthropic
+
 
 class Characteristics(BaseModel, extra="allow"):
     """All characteristics"""
+
     pass
+
 
 prompt = """
   Given a description of a character, your task is to extract all the characteristics of that character.
@@ -202,10 +208,11 @@ prompt = """
 """
 
 chat = ChatAnthropic()
-chat.extract_data(prompt, data_model=Characteristics)
+data = chat.extract_data(prompt, data_model=Characteristics)
+print(json.dumps(data, indent=2))
 ```
 
-This examples only works with Claude, not GPT or Gemini, because only Claude
+This example only works with Claude, not GPT or Gemini, because only Claude
 supports adding arbitrary additional properties.
 
 ### Example 6: Extracting data from an image
@@ -219,6 +226,7 @@ The goal is to extract structured data from this screenshot:
 Even without any descriptions, ChatGPT does pretty well:
 
 ```{python}
+# | warning: false
 from chatlas import content_image_file
 
 
@@ -242,7 +250,7 @@ chat = ChatOpenAI()
 data = chat.extract_data(
     content_image_file("images/congressional-assets.png"), data_model=DisclosureReport
 )
-data
+pd.DataFrame(data["assets"])
 ```
 
 ## Advanced data types
@@ -251,20 +259,18 @@ Now that you've seen a few examples, it's time to get into more specifics about 
 
 ### Required vs optional
 
-By default, all components of an object are required. If you want to make some optional, set `required = FALSE`. This is a good idea if you don't think your text will always contain the required fields as LLMs may hallucinate data in order to fulfill your spec.
+By default, model fields are in a sense "required", unless `None` is allowed in their type definition. Including `None` is a good idea if there's any possibility of the input not containing the required fields as LLMs may hallucinate data in order to fulfill your spec.
 
 For example, here the LLM hallucinates a date even though there isn't one in the text:
 
 ```{python}
+# | warning: false
 class ArticleSpec(BaseModel):
     """Information about an article written in markdown"""
 
-    title: str
-    """Article title"""
-    author: str
-    """Name of the author"""
-    date: str
-    """Date written in YYYY-MM-DD format."""
+    title: str = Field(description="Article title")
+    author: str = Field(description="Name of the author")
+    date: str = Field(description="Date written in YYYY-MM-DD format.")
 
 
 prompt = """
@@ -280,64 +286,56 @@ prompt = """
 
 chat = ChatOpenAI()
 data = chat.extract_data(prompt, data_model=ArticleSpec)
-data
+print(json.dumps(data, indent=2))
 ```
 
 Note that I've used more of an explict prompt here. For this example, I found that this generated better results, and it's a useful place to put additional instructions.
 
-If let the LLM know that the fields are all optional, it'll instead return `NULL` for the missing fields:
+If let the LLM know that the fields are all optional, it'll instead return `None` for the missing fields:
 
 ```{python}
 class ArticleSpec(BaseModel):
     """Information about an article written in markdown"""
 
-    title: str | None
-    """Article title"""
-    author: str | None
-    """Name of the author"""
-    date: str | None
-    """Date written in YYYY-MM-DD format."""
+    title: str = Field(description="Article title")
+    author: str = Field(description="Name of the author")
+    date: str | None = Field(description="Date written in YYYY-MM-DD format.")
 
 
-chat.extract_data(prompt, data_model=ArticleSpec)
+data = chat.extract_data(prompt, data_model=ArticleSpec)
+print(json.dumps(data, indent=2))
 ```
 
-<!--
+
 ### Data frames
 
-If you want to define a data frame like object, you might be tempted to create a definition similar to what R uses: an object (i.e. a named list) containing multiple vectors (i.e. arrays):
+If you want to define a data frame like `data_model`, you might be tempted to create a model like this, where each field is a list of scalar values:
 
-```r
-my_df_type <- type_object(
-  name = type_array(items = type_string()),
-  age = type_array(items = type_integer()),
-  height = type_array(items = type_number()),
-  weight = type_array(items = type_number())
-)
+```python
+class Persons(BaseModel):
+    name: list[str]
+    age: list[int]
 ```
 
-This however, is not quite right becuase there's no way to specify that each array should have the same length. Instead you need to turn the data structure "inside out", and instead create an array of objects:
+This however, is not quite right because there's no way to specify that each field should have the same length. Instead you need to turn the data structure "inside out", and instead create an array of objects:
 
-```r
-my_df_type <- type_array(
-  items = type_object(
-    name = type_string(),
-    age = type_integer(),
-    height = type_number(),
-    weight = type_number()
-  )
-)
+```python
+class Person(BaseModel):
+    name: str
+    age: int
+
+class Persons(BaseModel):
+    persons: list[Person]
 ```
 
-If you're familiar with the terms between row-oriented and column-oriented data frames, this is the same idea. Since most language don't possess vectorisation like R, row-oriented structures tend to be much more common in the wild.
-
-If you're working with OpenAI, you'll need to wrap this in a dummy object because OpenAI requires an when doing structured data extraction. See Example 4 above for a concrete example.
--->
+If you're familiar with the terms between row-oriented and column-oriented data frames, this is the same idea.
 
 ## Token usage
 
+Below is a summary of the tokens used to create the output in this example. 
+
 ```{python}
 #| type: asis
-#| echo: false
+from chatlas import token_usage
 token_usage()
 ```

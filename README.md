@@ -221,29 +221,6 @@ chat.register_tool(get_current_weather)
 chat.chat("What's the weather like in Boston, New York, and London today?")
 ```
 
-### Data extraction
-
-To extract structured data you call the `.extract_data()` method instead of the `.chat()` method.
-
-To extract data, you need to define a function that takes the LLM's response as input and returns the extracted data. You'll also need to define a [pydantic model](https://docs.pydantic.dev/latest/#why-use-pydantic) that describes the structure of the data that you want. Here's a simple example that extracts two specific values from a string:
-
-```python
-from chatlas import ChatOpenAI
-from pydantic import BaseModel
-
-class Person(BaseModel):
-    age: int
-    name: str
-
-chat = ChatOpenAI()
-chat.extract_data("My name is Susan and I'm 13 years old", data_model=Person)
-```
-
-```
-{'age': 13, 'name': 'Susan'}
-```
-
-
 ### Build your own Shiny app
 
 Pass user input from a Shiny `Chat()` component to a `chatlas` response generator to embed a chat interface in your own Shiny app.

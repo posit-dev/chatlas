@@ -28,11 +28,13 @@ It's also a good idea to read the advice for the specific model that you're usin
 ### Basic flavour
 
 ```{python}
+#| warning: false
 chat = chatlas.ChatOpenAI(system_prompt = "Be concise. Don't use punctuation.")
 _ = chat.chat("What's the capital of New Zealand?")
 ```
 
 ```{python}
+# | warning: false
 chat = chatlas.ChatOpenAI(
     system_prompt="""
   Be loquacious.
@@ -44,11 +46,14 @@ _ = chat.chat("What's the capital of New Zealand?")
 ```
 
 ```{python}
-chat = chatlas.ChatOpenAI(system_prompt = """
+# | warning: false
+chat = chatlas.ChatOpenAI(
+    system_prompt="""
   You are an expert Python programmer.
   Just give me the code; no explanation in text.
   But include a few comments in line explaining particularly complex operations.
-""")
+"""
+)
 _ = chat.chat("""
   How can I compute the mean and median of variables a, b, c, ...
   grouped by age and sex
@@ -60,11 +65,14 @@ _ = chat.chat("""
 If you're not getting the results that you're looking for, you might need to provide more context.
 
 ```{python}
-chat = chatlas.ChatOpenAI(system_prompt = """
+# | warning: false
+chat = chatlas.ChatOpenAI(
+    system_prompt="""
   You are an expert Python programmer.
   You prefer to use polars and siuba when possible.
   Just give me the code; no explanation.
-""")
+"""
+)
 _ = chat.chat("""
   How can I compute the mean and median of variables a, b, c, ...
   grouped by age and sex
@@ -74,7 +82,9 @@ _ = chat.chat("""
 ### Teach it about new features
 
 ```{python}
-chat = chatlas.ChatOpenAI(system_prompt = """
+# | warning: false
+chat = chatlas.ChatOpenAI(
+    system_prompt="""
   dplyr 1.1.0 introduced per-operation grouping with the `.by` argument.
   You job is to convert code that uses group_by() to code that uses `.by`.
 
@@ -91,7 +101,8 @@ chat = chatlas.ChatOpenAI(system_prompt = """
       total = sum(revenue),
       .by = c(company, year)
     )
-""")
+"""
+)
 chat.chat("""
   How can I compute the mean and median of variables a, b, c, ...
   grouped by age and sex. Just show me the code.

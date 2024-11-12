@@ -41,6 +41,11 @@ website:
         aria-label: GitHub repository
 
 
+format:
+  html:
+    theme: styles.scss
+    toc: true
+
 quartodoc:
   package: chatlas
   render_interlinks: true
