@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from typing import (
     Any,
     AsyncGenerator,
@@ -521,7 +522,6 @@ class Chat(Generic[SubmitInputArgsT]):
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> str:
-        from rich.console import Console
         from rich.live import Live
         from rich.markdown import Markdown
 
@@ -531,13 +531,13 @@ class Chat(Generic[SubmitInputArgsT]):
             kwargs=kwargs,
         )
 
-        console = Console()
         content = ""
 
-        with Live(console=console, auto_refresh=False) as live:
-            for part in response:
-                content += part
-                live.update(Markdown(content), refresh=True)
+        with JupyterFriendlyConsole() as console:
+            with Live(console=console, auto_refresh=False) as live:
+                for part in response:
+                    content += part
+                    live.update(Markdown(content), refresh=True)
 
         return content
 
@@ -547,7 +547,6 @@ class Chat(Generic[SubmitInputArgsT]):
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> str:
-        from rich.console import Console
         from rich.live import Live
         from rich.markdown import Markdown
 
@@ -557,13 +556,13 @@ class Chat(Generic[SubmitInputArgsT]):
             kwargs=kwargs,
         )
 
-        console = Console()
         content = ""
 
-        with Live(console=console, auto_refresh=False) as live:
-            async for part in response:
-                content += part
-                live.update(Markdown(content), refresh=True)
+        with JupyterFriendlyConsole() as console:
+            with Live(console=console, auto_refresh=False) as live:
+                async for part in response:
+                    content += part
+                    live.update(Markdown(content), refresh=True)
 
         return content
 
@@ -760,3 +759,26 @@ class Chat(Generic[SubmitInputArgsT]):
 
     def __repr__(self):
         return str(self)
+
+
+@contextmanager
+def JupyterFriendlyConsole():
+    import rich.jupyter
+    from rich.console import Console
+
+    console = Console()
+
+    # Prevent rich from inserting line breaks in a Jupyter context
+    # (and, instead, rely on the browser to wrap text)
+    console.soft_wrap = console.is_jupyter
+
+    html_format = rich.jupyter.JUPYTER_HTML_FORMAT
+
+    # Remove the `white-space:pre;` CSS style since the LLM's response is
+    # (usually) already pre-formatted and essentially assumes a browser context
+    rich.jupyter.JUPYTER_HTML_FORMAT = html_format.replace(
+        "white-space:pre;", "word-break:break-word;"
+    )
+    yield console
+
+    rich.jupyter.JUPYTER_HTML_FORMAT = html_format
