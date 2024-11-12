@@ -481,17 +481,15 @@ class Chat(Generic[SubmitInputArgsT]):
 
         ```python
         from chatlas import ChatOpenAI, Tool
-        from pydantic import BaseModel
+        from pydantic import BaseModel, Field
 
 
         class AddParams(BaseModel):
             '''Add two numbers together.'''
 
-            a: int
-            '''The first number to add.'''
+            a: int = Field(description="The first number to add.")
 
-            b: int
-            '''The second number to add.'''
+            b: int = Field(description="The second number to add.")
 
 
         def add(a: int, b: int) -> int:
