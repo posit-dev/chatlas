@@ -111,7 +111,7 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
     assert "2024-01-01" in await response.get_string()
 
     with pytest.raises(Exception, match="async tools in a synchronous chat"):
-        chat.chat("Great. Do it again.", stream=stream)
+        str(chat.chat("Great. Do it again.", stream=stream))
 
 
 def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
