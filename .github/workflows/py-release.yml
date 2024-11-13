@@ -38,13 +38,13 @@ jobs:
         run: uv sync --python ${{ env.PYTHON_VERSION }} --no-dev --extra test
 
       - name: 🧪 Check tests
-        run: make py-check-tests
+        run: make check-tests
 
       - name: 📝 Check types
-        run: make py-check-types
+        run: make check-types
 
       - name: 📐 Check formatting
-        run: make py-check-format
+        run: make check-format
 
       - name: 🧳 Build package
         run: uv build
