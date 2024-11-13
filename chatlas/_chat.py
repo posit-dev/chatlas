@@ -1,15 +1,19 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from typing import (
     Any,
     AsyncGenerator,
+    AsyncIterator,
     Awaitable,
     Callable,
     Generator,
     Generic,
+    Iterator,
     Literal,
     Optional,
     Sequence,
+    TypeVar,
 )
 
 from pydantic import BaseModel
@@ -17,15 +21,19 @@ from pydantic import BaseModel
 from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
-from .types import (
-    ChatResponse,
-    ChatResponseAsync,
-    Content,
-    ContentJson,
-    ContentToolRequest,
-    ContentToolResult,
-    SubmitInputArgsT,
-)
+from ._typing_extensions import TypedDict
+from .types import Content, ContentJson, ContentToolRequest, ContentToolResult
+
+
+class AnyTypeDict(TypedDict, total=False):
+    pass
+
+
+SubmitInputArgsT = TypeVar("SubmitInputArgsT", bound=AnyTypeDict)
+"""
+A TypedDict representing the arguments that can be passed to the `.chat()`
+method of a [](`~chatlas.Chat`) instance.
+"""
 
 
 class Chat(Generic[SubmitInputArgsT]):
@@ -662,3 +670,122 @@ class Chat(Generic[SubmitInputArgsT]):
 
     def __repr__(self):
         return str(self)
+
+
+class ChatResponse:
+    """
+    Chat response object.
+
+    This class wraps a generator that yields strings, and provides a `display()`
+    method to show the content in a rich console, and a `get_string()` method to
+    get the content as a string.
+    """
+
+    def __init__(self, generator: Generator[str, None]):
+        self.generator = generator
+        self.content = ""
+
+    def __iter__(self) -> Iterator[str]:
+        return self
+
+    def __next__(self) -> str:
+        chunk = next(self.generator)
+        self.content += chunk  # Keep track of accumulated content
+        return chunk
+
+    def display(self):
+        "Display the content in a rich console."
+        from rich.live import Live
+        from rich.markdown import Markdown
+
+        with JupyterFriendlyConsole() as console:
+            with Live(console=console, auto_refresh=False) as live:
+                needs_display = True
+                for _ in self:
+                    live.update(Markdown(self.content), refresh=True)
+                    needs_display = False
+                if needs_display:
+                    live.update(Markdown(self.content), refresh=True)
+
+    def get_string(self) -> str:
+        "Get the chat response content as a string."
+        for _ in self:
+            pass
+        return self.content
+
+    def __str__(self) -> str:
+        return self.get_string()
+
+    def __repr__(self) -> str:
+        return (
+            "ChatResponse object. Call `.display()` to show it in a rich"
+            "console or `.get_string()` to get the content."
+        )
+
+
+class ChatResponseAsync:
+    """
+    A string-like class that uses a custom display hook to display itself in the console.
+    Inherits from UserString to provide complete string interface.
+    """
+
+    def __init__(self, generator: AsyncGenerator[str, None]):
+        self.generator = generator
+        self.content = ""
+
+    def __aiter__(self) -> AsyncIterator[str]:
+        return self
+
+    async def __anext__(self) -> str:
+        chunk = await self.generator.__anext__()
+        self.content += chunk  # Keep track of accumulated content
+        return chunk
+
+    async def display(self) -> None:
+        "Display the content in a rich console."
+        from rich.live import Live
+        from rich.markdown import Markdown
+
+        with JupyterFriendlyConsole() as console:
+            with Live(console=console, auto_refresh=False) as live:
+                needs_display = True
+                async for _ in self:
+                    live.update(Markdown(self.content), refresh=True)
+                    needs_display = False
+                if needs_display:
+                    live.update(Markdown(self.content), refresh=True)
+
+    async def get_string(self) -> str:
+        "Get the chat response content as a string."
+        async for _ in self:
+            pass
+        return self.content
+
+    def __repr__(self) -> str:
+        return (
+            "ChatResponseAsync object. Call `.display()` to show it in a rich"
+            "console or `.get_string()` to get the content."
+        )
+
+
+@contextmanager
+def JupyterFriendlyConsole():
+    import rich.jupyter
+    from rich.console import Console
+
+    console = Console()
+
+    # Prevent rich from inserting line breaks in a Jupyter context
+    # (and, instead, rely on the browser to wrap text)
+    console.soft_wrap = console.is_jupyter
+
+    html_format = rich.jupyter.JUPYTER_HTML_FORMAT
+
+    # Remove the `white-space:pre;` CSS style since the LLM's response is
+    # (usually) already pre-formatted and essentially assumes a browser context
+    rich.jupyter.JUPYTER_HTML_FORMAT = html_format.replace(
+        "white-space:pre;", "word-break:break-word;"
+    )
+    yield console
+
+    rich.jupyter.JUPYTER_HTML_FORMAT = html_format

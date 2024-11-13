@@ -169,7 +169,7 @@ chat.set_turns(chat.turns()[-2:])
 
 ### Learn more
 
-If you're new to world LLMs, you might want to read the [Get Started](https://cpsievert.github.io/chatlas/chatlas.html) guide, which covers some basic concepts and terminology.
+If you're new to world LLMs, you might want to read the [Get Started](https://cpsievert.github.io/chatlas/get-started.html) guide, which covers some basic concepts and terminology.
 
 Once you're comfortable with the basics, you can explore more advanced topics:
 

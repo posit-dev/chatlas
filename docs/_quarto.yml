@@ -26,7 +26,7 @@ website:
       - text: "Home"
         href: index.qmd
       - text: "Get Started"
-        href: chatlas.qmd
+        href: get-started.qmd
       - text: Reference
         href: reference/index.qmd
       - text: Articles

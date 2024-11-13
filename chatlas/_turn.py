@@ -30,7 +30,7 @@ class Turn:
     from chatlas import Turn, ChatOpenAI, ChatAnthropic
 
     chat = ChatOpenAI()
-    chat.chat("What is the capital of France?")
+    str(chat.chat("What is the capital of France?"))
     turns = chat.turns()
     assert len(turns) == 2
     assert isinstance(turns[0], Turn)

@@ -4,10 +4,20 @@ import copy
 from threading import Lock
 from typing import TYPE_CHECKING
 
-from .types import TokenUsage
+from ._typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from ._provider import Provider
+
+
+class TokenUsage(TypedDict):
+    """
+    Token usage for a given provider (name).
+    """
+
+    name: str
+    input: int
+    output: int
 
 
 class ThreadSafeTokenCounter:
