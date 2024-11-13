@@ -37,6 +37,8 @@ website:
             href: structured-data.qmd
           - text: Tool (function) calling
             href: tool-calling.qmd
+          - text: Web applications
+            href: web-apps.qmd
     right:
       - icon: github
         href: https://github.com/cpsievert/chatlas
@@ -99,6 +101,8 @@ quartodoc:
         - types.ContentText
         - types.ContentToolRequest
         - types.ContentToolResult
+        - types.ChatResponse
+        - types.ChatResponseAsync
         - types.ImageContentTypes
         - types.MISSING_TYPE
         - types.MISSING

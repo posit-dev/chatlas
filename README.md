@@ -58,7 +58,7 @@ Chat objects are stateful: they retain the context of the conversation, so each 
 
 ### Interactive console
 
-The most interactive, least programmatic way of using `chatlas` is to chat with it directly in your console with `chat.console()` or in your browser with `chat.app()`.
+From a `chat` instance, you can start an interacitve, multi-turn, conversation in the console (via `.console()`) or in a browser (via `.app()`).
 
 ```python
 chat.console()
@@ -80,7 +80,7 @@ Netherlands.
 
 The chat console is useful for quickly exploring the capabilities of the model, especially when you've customized the chat object with tool integrations (covered later).
 
-The chat app is similar to the chat console, but it runs in your browser. It's useful if need more interactive capabilities like easy copy-paste.
+The chat app is similar to the chat console, but it runs in your browser. It's useful if you need more interactive capabilities like easy copy-paste.
 
 ```python
 chat.app()
@@ -94,12 +94,12 @@ chat.app()
 Again, keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist even after you exit back to the Python prompt.
 
 
-### Interactive chat
+### The `.chat()` method
 
-The second most interactive way to chat is by calling the `chat()` method (from the normal Python prompt or in a script):
+For a more programmatic approach, you can use the `.chat()` method to ask a question and get a response. If you're in a REPL (e.g., Jupyter, IPython, etc), the result of `.chat()` is automatically displayed using a [rich](https://github.com/Textualize/rich) console.
 
 ```python
-_ = chat.chat("What preceding languages most influenced Python?")
+chat.chat("What preceding languages most influenced Python?")
 ```
 
 ```
@@ -107,52 +107,27 @@ Python was primarily influenced by ABC, with additional inspiration from C,
 Modula-3, and various other languages.
 ```
 
-Since `chat()` is designed for interactive use, it prints the response to the console as it arrives. Once the response is complete, it returns the response as a string, so to avoid printing it twice, assign the result to a variable.
-
-### Programmatic chat
-
-If you want to do something else with the response as it arrives, use the `submit()` method. It returns a [generator](https://wiki.python.org/moin/Generators) that yields strings as they arrive from the model (in small chunks, when `stream=True`). This is useful when you want to process the response as it arrives in a memory-efficient way.
+If you're not in a REPL (e.g., a non-interactive Python script), you can explicitly `.display()` the response:
 
 ```python
-response = chat.submit("What is 1+1?")
-for x in response:
-    print(x, end="")
+response = chat.chat("What is the Python programming language?")
+response.display()
 ```
 
-```
-1 + 1 equals 2.
-```
-
-The `.submit()` method defaults to `stream=True` (meaning the response is streamed in small chunks), but you can set `stream=False` to get the entire response at once. In this case, you still get a generator, but it yields the entire response at once. This is primarily useful as workaround: some models happen to not support certain features (like tools) when streaming. Also, more generally, sometimes it's useful to have response before displaying anything.
+The `response` is also an iterable, so you can loop over it to get the response in streaming chunks:
 
 ```python
-response = chat.submit("What is 1+1?", stream=False)
-for x in response:
-    print(x)
+result = ""
+for chunk in response:
+    result += chunk
 ```
 
-```
-1 + 1 equals 2.
-```
-
-For a more compelling example, note that you can pass the result of `.submit()` directly to Shiny's [`ui.Chat` component](https://shiny.posit.co/py/components/display-messages/chat/) to create a chat interface in your own [Shiny](https://shiny.rstudio.com/py) app.
+Or, if you just want the full response as a string, use the built-in `str()` function:
 
 ```python
-from chatlas import ChatAnthropic
-from shiny import ui
-
-chat = ui.Chat(
-  id="chat", 
-  messages=["Hi! How can I help you today?"],
-)
-
-llm = ChatAnthropic()
-
-@chat.on_user_submit
-def _():
-    response = llm.submit(chat.user_input())
-    chat.append_message_stream(response)
+str(response)
 ```
+
 
 ### Vision (Image Input)
 
@@ -161,7 +136,7 @@ To ask questions about images, you can pass one or more additional input argumen
 ```python
 from chatlas import content_image_url
 
-_ = chat.chat(
+chat.chat(
     content_image_url("https://www.python.org/static/img/python-logo.png"),
     "Can you explain this logo?"
 )
@@ -175,39 +150,16 @@ representing the Python programming language. The design symbolizes...
 The `content_image_url()` function takes a URL to an image file and sends that URL directly to the API. The `content_image_file()` function takes a path to a local image file and encodes it as a base64 string to send to the API. Note that by default, `content_image_file()` automatically resizes the image to fit within 512x512 pixels; set the `resize` parameter to "high" if higher resolution is needed.
 
 
-## Managing credentials
+### Conversation history
 
-Pasting an API key into a chat constructor (e.g., `ChatOpenAI(api_key="...")`) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.
-Instead, consider using environment variables or a configuration file to manage your credentials.
-One popular way to manage credentials is to use a `.env` file to store your credentials, and then use the `python-dotenv` package to load them into your environment.
-
-```shell
-pip install python-dotenv
-```
-
-```shell
-# .env
-ANTHROPIC_API_KEY=...
-OPENAI_API_KEY=...
-GITHUB_PAT=...
-GOOGLE_API_KEY=...
-GROQ_API_KEY=...
-PERPLEXITY_API_KEY=...
-```
+Remember that regardless of how we interact with the model, the `chat` instance retains the conversation history, which you can access at any time:
 
 ```python
-from chatlas import Anthropic
-from dotenv import load_dotenv
-
-load_dotenv()
-chat = ChatAnthropic()
-chat.console()
+chat.turns()
 ```
 
-Another, more general, solution is to load your environment variables into the shell before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
+Each turn represents a either a user's input or a model's response. It holds all the avaliable information about content and metadata of the turn. This can be useful for debugging, logging, or for building more complex conversational interfaces.
 
-```shell
-export ANTHROPIC_API_KEY=...
-export OPENAI_API_KEY=...
-export GOOGLE_API_KEY=...
-```
+### Learn more
+
+For more information on the available methods and parameters, check out the [API reference](https://cpsievert.github.io/chatlas/reference/index.html).

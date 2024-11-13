@@ -21,7 +21,7 @@
 #     chat = ChatBedrockAnthropic(
 #         system_prompt="Be as terse as possible; no punctuation",
 #     )
-#     chat.chat("What is 1 + 1?")
+#     _ = str(chat.chat("What is 1 + 1?"))
 #     turn = chat.last_turn()
 #     assert turn is not None
 #     assert turn.tokens == (26, 5)

@@ -3,10 +3,9 @@ from pathlib import Path
 from typing import Awaitable, Callable
 
 import pytest
+from chatlas import Chat, Turn, content_image_file, content_image_url
 from PIL import Image
 from pydantic import BaseModel
-
-from chatlas import Chat, Turn, content_image_file, content_image_url
 
 ChatFun = Callable[..., Chat]
 
@@ -49,18 +48,15 @@ def assert_turns_system(chat_fun: ChatFun):
     system_prompt = "Return very minimal output, AND ONLY USE UPPERCASE."
 
     chat = chat_fun(system_prompt=system_prompt)
-    chat.chat("What is the name of Winnie the Pooh's human friend?")
+    response = chat.chat("What is the name of Winnie the Pooh's human friend?")
+    response_text = str(response)
     assert len(chat.turns()) == 2
-    turn = chat.last_turn()
-    assert turn is not None
-    assert "CHRISTOPHER ROBIN" in turn.text
+    assert "CHRISTOPHER ROBIN" in response_text
 
     chat = chat_fun(turns=[Turn("system", system_prompt)])
-    chat.chat("What is the name of Winnie the Pooh's human friend?")
+    response = chat.chat("What is the name of Winnie the Pooh's human friend?")
+    assert "CHRISTOPHER ROBIN" in str(response)
     assert len(chat.turns()) == 2
-    turn = chat.last_turn()
-    assert turn is not None
-    assert "CHRISTOPHER ROBIN" in turn.text
 
 
 def assert_turns_existing(chat_fun: ChatFun):
@@ -76,11 +72,9 @@ def assert_turns_existing(chat_fun: ChatFun):
     )
     assert len(chat.turns()) == 2
 
-    chat.chat("Who is the remaining one? Just give the name")
+    response = chat.chat("Who is the remaining one? Just give the name")
+    assert "Prancer" in str(response)
     assert len(chat.turns()) == 4
-    turn = chat.last_turn()
-    assert turn is not None
-    assert "Prancer" in turn.text
 
 
 def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
@@ -92,15 +86,11 @@ def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
 
     chat.register_tool(get_date)
 
-    chat.chat("What's the current date in YMD format?", stream=stream)
-    turn = chat.last_turn()
-    assert turn is not None
-    assert "2024-01-01" in turn.text
+    response = chat.chat("What's the current date in YMD format?", stream=stream)
+    assert "2024-01-01" in str(response)
 
-    chat.chat("What month is it? Provide the full name.", stream=stream)
-    turn = chat.last_turn()
-    assert turn is not None
-    assert "January" in turn.text
+    response = chat.chat("What month is it? Provide the full name.", stream=stream)
+    assert "January" in str(response)
 
 
 async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
@@ -115,10 +105,10 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
 
     chat.register_tool(get_current_date)
 
-    await chat.chat_async("What's the current date in YMD format?", stream=stream)
-    turn = chat.last_turn()
-    assert turn is not None
-    assert "2024-01-01" in turn.text
+    response = await chat.chat_async(
+        "What's the current date in YMD format?", stream=stream
+    )
+    assert "2024-01-01" in await response.get_string()
 
     with pytest.raises(Exception, match="async tools in a synchronous chat"):
         chat.chat("Great. Do it again.", stream=stream)
@@ -133,7 +123,7 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
 
     chat.register_tool(favorite_color)
 
-    chat.chat(
+    response = chat.chat(
         """
         What are Joe and Hadley's favourite colours?
         Answer like name1: colour1, name2: colour2
@@ -141,11 +131,9 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
         stream=stream,
     )
 
+    assert "Joe: sage green" in str(response)
+    assert "Hadley: red" in str(response)
     assert len(chat.turns()) == 4
-    turn = chat.last_turn()
-    assert turn is not None
-    assert "Joe: sage green" in turn.text
-    assert "Hadley: red" in turn.text
 
 
 def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = True):
@@ -165,17 +153,15 @@ def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = 
 
     chat.register_tool(popular_name)
 
-    chat.chat(
+    response = chat.chat(
         """
         What was the most popular name this year?
         Note that you have a tool available to you to find the current year.
         """,
         stream=stream,
     )
+    assert "Susan" in str(response)
     assert len(chat.turns()) == total_calls
-    turn = chat.last_turn()
-    assert turn is not None
-    assert "Susan" in turn.text
 
 
 def assert_data_extraction(chat_fun: ChatFun):
@@ -195,28 +181,23 @@ def assert_images_inline(chat_fun: ChatFun, stream: bool = True):
         img_path = Path(tmpdir) / "test_image.png"
         img.save(img_path)
         chat = chat_fun()
-        chat.chat(
+        response = chat.chat(
             "What's in this image?",
             content_image_file(str(img_path)),
             stream=stream,
         )
-
-    turn = chat.last_turn()
-    assert turn is not None
-    assert "red" in turn.text.lower()
+        assert "red" in str(response).lower()
 
 
 def assert_images_remote(chat_fun: ChatFun, stream: bool = True):
     chat = chat_fun()
-    chat.chat(
+    response = chat.chat(
         "What's in this image? (Be sure to mention the outside shape)",
         content_image_url("https://httr2.r-lib.org/logo.png"),
         stream=stream,
     )
-    turn = chat.last_turn()
-    assert turn is not None
-    assert "hex" in turn.text.lower()
-    assert "baseball" in turn.text.lower()
+    assert "hex" in str(response).lower()
+    assert "baseball" in str(response).lower()
 
 
 def assert_images_remote_error(chat_fun: ChatFun):
@@ -224,6 +205,6 @@ def assert_images_remote_error(chat_fun: ChatFun):
     image_remote = content_image_url("https://httr2.r-lib.org/logo.png")
 
     with pytest.raises(Exception, match="Remote images aren't supported"):
-        chat.chat("What's in this image?", image_remote)
+        _ = str(chat.chat("What's in this image?", image_remote))
 
     assert len(chat.turns()) == 0

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from contextlib import contextmanager
 from typing import (
     Any,
     AsyncGenerator,
@@ -19,6 +18,8 @@ from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
 from .types import (
+    ChatResponse,
+    ChatResponseAsync,
     Content,
     ContentJson,
     ContentToolRequest,
@@ -200,8 +201,8 @@ class Chat(Generic[SubmitInputArgsT]):
                 user_input = chat.user_input()
                 if user_input is None:
                     return
-                response = self.submit(user_input, kwargs=kwargs, stream=stream)
-                await chat.append_message_stream(response)
+                response = self.chat(user_input, kwargs=kwargs, stream=stream)
+                await chat.append_message_stream(response.generator)
 
         run_app(
             App(app_ui, server),
@@ -248,7 +249,7 @@ class Chat(Generic[SubmitInputArgsT]):
         *args: Content | str,
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> str:
+    ) -> ChatResponse:
         """
         Generate a response from the chat.
 
@@ -261,15 +262,21 @@ class Chat(Generic[SubmitInputArgsT]):
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
+
+        Returns
+        -------
+        ChatResponse
+            A response from the chat.
         """
-        return self._chat_emit(user_turn(*args), stream=stream, kwargs=kwargs)
+        turn = user_turn(*args)
+        return ChatResponse(self._chat_impl(turn, stream=stream, kwargs=kwargs))
 
     async def chat_async(
         self,
         *args: Content | str,
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> str:
+    ) -> ChatResponseAsync:
         """
         Generate a response from the chat asynchronously.
 
@@ -283,63 +290,9 @@ class Chat(Generic[SubmitInputArgsT]):
             Additional keyword arguments to pass to the method used for requesting
             the response.
         """
-        return await self._chat_emit_async(
-            user_turn(*args), stream=stream, kwargs=kwargs
-        )
-
-    def submit(
-        self,
-        *args: Content | str,
-        stream: bool = True,
-        kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> Generator[str, None, None]:
-        """
-        Submit user input(s) to the chat.
-
-        Parameters
-        ----------
-        args
-            The user input(s) to generate a response from.
-        stream
-            Whether to stream the response (i.e., have the response appear in chunks).
-        kwargs
-            Additional keyword arguments to pass to the method used for requesting
-            the response.
-
-        Returns
-        ------
-        A generator that yields the response content.
-        """
         turn = user_turn(*args)
-        for chunk in self._chat_impl(turn, stream=stream, kwargs=kwargs):
-            yield chunk
-
-    async def submit_async(
-        self,
-        *args: Content | str,
-        stream: bool = True,
-        kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> AsyncGenerator[str, None]:
-        """
-        Submit user input(s) to the chat asynchronously.
-
-        Parameters
-        ----------
-        args
-            The user input(s) to generate a response from.
-        stream
-            Whether to stream the response (i.e., have the response appear in chunks).
-        kwargs
-            Additional keyword arguments to pass to the method used for requesting
-            the response.
-
-        Returns
-        ------
-        An async generator that yields the response content.
-        """
-        turn = user_turn(*args)
-        async for chunk in self._chat_impl_async(turn, stream=stream, kwargs=kwargs):
-            yield chunk
+        gen = self._chat_impl_async(turn, stream=stream, kwargs=kwargs)
+        return ChatResponseAsync(gen)
 
     def extract_data(
         self,
@@ -358,7 +311,7 @@ class Chat(Generic[SubmitInputArgsT]):
 
         Returns
         -------
-        Any
+        dict[str, Any]
             The extracted data.
         """
 
@@ -404,7 +357,7 @@ class Chat(Generic[SubmitInputArgsT]):
 
         Returns
         -------
-        Any
+        dict[str, Any]
             The extracted data.
         """
 
@@ -515,56 +468,6 @@ class Chat(Generic[SubmitInputArgsT]):
         """
         tool = Tool(func, model=model)
         self.tools[tool.name] = tool
-
-    def _chat_emit(
-        self,
-        user_turn: Turn,
-        stream: bool = True,
-        kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> str:
-        from rich.live import Live
-        from rich.markdown import Markdown
-
-        response = self._chat_impl(
-            user_turn=user_turn,
-            stream=stream,
-            kwargs=kwargs,
-        )
-
-        content = ""
-
-        with JupyterFriendlyConsole() as console:
-            with Live(console=console, auto_refresh=False) as live:
-                for part in response:
-                    content += part
-                    live.update(Markdown(content), refresh=True)
-
-        return content
-
-    async def _chat_emit_async(
-        self,
-        user_turn: Turn,
-        stream: bool = True,
-        kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> str:
-        from rich.live import Live
-        from rich.markdown import Markdown
-
-        response = self._chat_impl_async(
-            user_turn=user_turn,
-            stream=stream,
-            kwargs=kwargs,
-        )
-
-        content = ""
-
-        with JupyterFriendlyConsole() as console:
-            with Live(console=console, auto_refresh=False) as live:
-                async for part in response:
-                    content += part
-                    live.update(Markdown(content), refresh=True)
-
-        return content
 
     def _chat_impl(
         self,
@@ -759,26 +662,3 @@ class Chat(Generic[SubmitInputArgsT]):
 
     def __repr__(self):
         return str(self)
-
-
-@contextmanager
-def JupyterFriendlyConsole():
-    import rich.jupyter
-    from rich.console import Console
-
-    console = Console()
-
-    # Prevent rich from inserting line breaks in a Jupyter context
-    # (and, instead, rely on the browser to wrap text)
-    console.soft_wrap = console.is_jupyter
-
-    html_format = rich.jupyter.JUPYTER_HTML_FORMAT
-
-    # Remove the `white-space:pre;` CSS style since the LLM's response is
-    # (usually) already pre-formatted and essentially assumes a browser context
-    rich.jupyter.JUPYTER_HTML_FORMAT = html_format.replace(
-        "white-space:pre;", "word-break:break-word;"
-    )
-    yield console
-
-    rich.jupyter.JUPYTER_HTML_FORMAT = html_format

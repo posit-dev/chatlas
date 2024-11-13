@@ -1,0 +1,35 @@
+In the intro, we learned how the `.app()` method launches a web app with a simple chat interface, for example:
+
+```python
+from chatlas import ChatAnthropic
+
+chat = ChatAnthropic()
+chat.app()
+```
+
+This is a great way to quickly test your model, but you'll likely want to embed similar functionality into a larger web app. Here's how you can do that we different web frameworks.
+
+## Shiny
+
+Pass the result of `.chat()` directly to Shiny's [`ui.Chat` component](https://shiny.posit.co/py/components/display-messages/chat/) to create a chat interface in your own [Shiny](https://shiny.rstudio.com/py) app.
+
+```python
+from chatlas import ChatAnthropic
+from shiny import ui
+
+chat = ui.Chat(
+  id="chat", 
+  messages=["Hi! How can I help you today?"],
+)
+
+chat_model = ChatAnthropic()
+
+@chat.on_user_submit
+def _():
+    response = chat_model.chat(chat.user_input())
+    chat.append_message_stream(response)
+```
+
+## Streamlit
+
+Coming soon
