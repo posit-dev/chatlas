@@ -18,11 +18,11 @@ from typing import (
 
 from pydantic import BaseModel
 
+from ._content import Content, ContentJson, ContentToolRequest, ContentToolResult
 from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
-from .types import Content, ContentJson, ContentToolRequest, ContentToolResult
 
 
 class AnyTypeDict(TypedDict, total=False):
@@ -210,7 +210,7 @@ class Chat(Generic[SubmitInputArgsT]):
                 if user_input is None:
                     return
                 response = self.chat(user_input, kwargs=kwargs, stream=stream)
-                await chat.append_message_stream(response.generator)
+                await chat.append_message_stream(response)
 
         run_app(
             App(app_ui, server),
@@ -676,25 +676,44 @@ class ChatResponse:
     """
     Chat response object.
 
-    This class wraps a generator that yields strings, and provides a `display()`
-    method to show the content in a rich console, and a `get_string()` method to
-    get the content as a string.
+    An object that, when displayed, will simulatenously consume (if not
+    already consumed) and display the response in a streaming fashion.
+
+    This is useful for interactive use: if the object is displayed, it can
+    be viewed as it is being generated. And, if the object is not displayed,
+    it can act like an iterator that can be consumed by something else.
+
+    Attributes
+    ----------
+    content
+        The content of the chat response.
+
+    Properties
+    ----------
+    consumed
+        Whether the response has been consumed. If the response has been fully
+        consumed, then it can no longer be iterated over, but the content can
+        still be retrieved (via the `content` attribute).
     """
 
     def __init__(self, generator: Generator[str, None]):
-        self.generator = generator
-        self.content = ""
+        self._generator = generator
+        self.content: str = ""
 
     def __iter__(self) -> Iterator[str]:
         return self
 
     def __next__(self) -> str:
-        chunk = next(self.generator)
+        chunk = next(self._generator)
         self.content += chunk  # Keep track of accumulated content
         return chunk
 
     def display(self):
-        "Display the content in a rich console."
+        """
+        Display the content in a rich console.
+
+        This method gets called automatically when the object is displayed.
+        """
         from rich.live import Live
         from rich.markdown import Markdown
 
@@ -708,10 +727,16 @@ class ChatResponse:
                     live.update(Markdown(self.content), refresh=True)
 
     def get_string(self) -> str:
-        "Get the chat response content as a string."
+        """
+        Get the chat response content as a string.
+        """
         for _ in self:
             pass
         return self.content
+
+    @property
+    def consumed(self) -> bool:
+        return self._generator.gi_frame is None
 
     def __str__(self) -> str:
         return self.get_string()
@@ -725,19 +750,37 @@ class ChatResponse:
 
 class ChatResponseAsync:
     """
-    A string-like class that uses a custom display hook to display itself in the console.
-    Inherits from UserString to provide complete string interface.
+    Chat response (async) object.
+
+    An object that, when displayed, will simulatenously consume (if not
+    already consumed) and display the response in a streaming fashion.
+
+    This is useful for interactive use: if the object is displayed, it can
+    be viewed as it is being generated. And, if the object is not displayed,
+    it can act like an iterator that can be consumed by something else.
+
+    Attributes
+    ----------
+    content
+        The content of the chat response.
+
+    Properties
+    ----------
+    consumed
+        Whether the response has been consumed. If the response has been fully
+        consumed, then it can no longer be iterated over, but the content can
+        still be retrieved (via the `content` attribute).
     """
 
     def __init__(self, generator: AsyncGenerator[str, None]):
-        self.generator = generator
-        self.content = ""
+        self._generator = generator
+        self.content: str = ""
 
     def __aiter__(self) -> AsyncIterator[str]:
         return self
 
     async def __anext__(self) -> str:
-        chunk = await self.generator.__anext__()
+        chunk = await self._generator.__anext__()
         self.content += chunk  # Keep track of accumulated content
         return chunk
 
@@ -760,6 +803,10 @@ class ChatResponseAsync:
         async for _ in self:
             pass
         return self.content
+
+    @property
+    def consumed(self) -> bool:
+        return self._generator.ag_frame is None
 
     def __repr__(self) -> str:
         return (

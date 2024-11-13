@@ -6,15 +6,7 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 from pydantic import BaseModel
 
 from ._chat import Chat
-from ._merge import merge_dicts
-from ._provider import Provider
-from ._tokens import tokens_log
-from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
-from ._utils import inform_model_default, is_testing
-from .types import (
-    MISSING,
-    MISSING_TYPE,
+from ._content import (
     Content,
     ContentImageInline,
     ContentImageRemote,
@@ -23,6 +15,12 @@ from .types import (
     ContentToolRequest,
     ContentToolResult,
 )
+from ._merge import merge_dicts
+from ._provider import Provider
+from ._tokens import tokens_log
+from ._tools import Tool, basemodel_to_param_schema
+from ._turn import Turn, normalize_turns
+from ._utils import MISSING, MISSING_TYPE, inform_model_default, is_testing
 
 if TYPE_CHECKING:
     from openai.types.chat import (

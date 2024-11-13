@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Optional, Sequence
 
-from .types import Content, ContentText
+from ._content import Content, ContentText
 
 __all__ = ("Turn",)
 

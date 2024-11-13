@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING, Optional
 from ._chat import Chat
 from ._openai import ChatOpenAI
 from ._turn import Turn
-from ._utils import inform_model_default
-from .types import MISSING, MISSING_TYPE
+from ._utils import MISSING, MISSING_TYPE, inform_model_default
 
 if TYPE_CHECKING:
     from .types.openai import ChatClientArgs, SubmitInputArgs

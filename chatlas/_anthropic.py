@@ -7,12 +7,7 @@ from typing import TYPE_CHECKING, Literal, Optional, Union, cast, overload
 from pydantic import BaseModel
 
 from ._chat import Chat
-from ._provider import Provider
-from ._tokens import tokens_log
-from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
-from ._utils import inform_model_default
-from .types import (
+from ._content import (
     Content,
     ContentImageInline,
     ContentImageRemote,
@@ -21,6 +16,11 @@ from .types import (
     ContentToolRequest,
     ContentToolResult,
 )
+from ._provider import Provider
+from ._tokens import tokens_log
+from ._tools import Tool, basemodel_to_param_schema
+from ._turn import Turn, normalize_turns
+from ._utils import inform_model_default
 
 if TYPE_CHECKING:
     from anthropic.types import (
