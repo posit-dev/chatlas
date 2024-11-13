@@ -37,7 +37,7 @@ jobs:
       run: uv python install ${{ env.PYTHON_VERSION }}
 
     - name: 📦 Install brand_yml and dependencies
-      run: uv sync --python ${{ env.PYTHON_VERSION }} --no-dev --extra docs
+      run: uv sync --python ${{ env.PYTHON_VERSION }} --all-extras
 
     - name: 🔌 Activate venv
       run: |
