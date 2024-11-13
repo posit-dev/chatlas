@@ -311,6 +311,9 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                     "strict": True,
                 },
             }
+            # Apparently OpenAI gets confused if you include
+            # both response_format and tools
+            del kwargs_full["tools"]
 
         if stream and "stream_options" not in kwargs_full:
             kwargs_full["stream_options"] = {"include_usage": True}
