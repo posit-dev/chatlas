@@ -1,0 +1,154 @@
+[project]
+name = "chatlas"
+description = "A simple and consistent interface for chatting with LLMs"
+version = "0.1"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+  "rich",
+  "pydantic>=2.0",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+authors = [
+  {name = "Carson Sievert", email = "carson@posit.co"}
+]
+
+
+[project.urls]
+Homepage = "https://posit-dev.github.io/chatlas"
+Documentation = "https://posit-dev.github.io/chatlas"
+Repository = "https://github.com/cpsievert/chatlas"
+Issues = "https://github.com/cpsievert/chatlas/issues/"
+Changelog = "https://github.com/cpsievert/chatlas/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+test = [
+    "pyright>=1.1.379",
+    "pytest>=8.3.2",
+    "pytest-asyncio"
+]
+dev = [
+    "ruff>=0.6.5",
+    "python-dotenv",
+    "matplotlib",
+    "Pillow",
+    "shiny",
+    "openai",
+    "anthropic[bedrock]",
+    "google-generativeai>=0.8.3",
+    "numpy>1.24.4",
+]
+docs = [
+    "griffe>=1",
+    "quartodoc>=0.7",
+    # Quarto requires...
+    "ipykernel",
+    "nbclient",
+    "nbformat",
+    "pyyaml",
+    # Articles require
+    "pandas",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "ruff>=0.6.5",
+    "tox-uv>=1.11.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+skip-excluded-dirs = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["chatlas"]
+
+[tool.pyright]
+include = ["chatlas"]
+exclude = ["_dev", ".venv"]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+env_list = type-py3{9,10,11,12}, py3{9,10,11,12}
+isolated_build = True
+
+[testenv]
+package = wheel
+wheel_build_env = .pkg
+commands = pytest
+
+[testenv:type]
+deps = 
+  pyright
+  pytest
+  syrupy
+commands = pyright
+"""
+
+[tool.ruff]
+src = ["chatlas"]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+line-length = 88
+indent-width = 4
+
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I']
+ignore = ["E501"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"

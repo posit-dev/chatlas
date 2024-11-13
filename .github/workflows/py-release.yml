@@ -1,0 +1,53 @@
+name: Python - Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  UV_VERSION: "0.4.x"
+  PYTHON_VERSION: 3.13
+
+jobs:
+  py-release:
+    name: Build and release Python package
+    runs-on: ubuntu-latest
+
+    # Python release tags start with "py/v*"
+    if: startsWith(github.ref, 'refs/tags/py/v')
+
+    environment:
+      name: pypi
+      url: https://pypi.org/project/chatlas/
+
+    permissions:  # for trusted publishing
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🚀 Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: ${{ env.UV_VERSION }}
+
+      - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install the project
+        run: uv sync --python ${{ env.PYTHON_VERSION }} --no-dev --extra test
+
+      - name: 🧪 Check tests
+        run: make check-tests
+
+      - name: 📝 Check types
+        run: make check-types
+
+      - name: 📐 Check formatting
+        run: make check-format
+
+      - name: 🧳 Build package
+        run: uv build
+
+      - name: 🚢 Publish release on PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
