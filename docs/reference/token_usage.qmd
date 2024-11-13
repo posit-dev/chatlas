@@ -11,6 +11,6 @@ have sent and received in the current session.
 
 ## Returns {.doc-section .doc-section-returns}
 
-| Name   | Type                                                               | Description                                                                                                                          |
-|--------|--------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-|        | [list](`list`)\[[TokenUsage](`chatlas.types.TokenUsage`)\] \| None | A list of dictionaries with the following keys: "name", "input", and "output". If no tokens have been logged, then None is returned. |
+| Name   | Type                                                                 | Description                                                                                                                          |
+|--------|----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+|        | [list](`list`)\[[TokenUsage](`chatlas._tokens.TokenUsage`)\] \| None | A list of dictionaries with the following keys: "name", "input", and "output". If no tokens have been logged, then None is returned. |

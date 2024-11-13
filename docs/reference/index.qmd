@@ -74,6 +74,8 @@ A provider-agnostic representation of content generated during an assistant/user
 | [types.ContentText](types.ContentText.qmd#chatlas.types.ContentText) |  |
 | [types.ContentToolRequest](types.ContentToolRequest.qmd#chatlas.types.ContentToolRequest) |  |
 | [types.ContentToolResult](types.ContentToolResult.qmd#chatlas.types.ContentToolResult) |  |
+| [types.ChatResponse](types.ChatResponse.qmd#chatlas.types.ChatResponse) | Chat response object. |
+| [types.ChatResponseAsync](types.ChatResponseAsync.qmd#chatlas.types.ChatResponseAsync) | Chat response (async) object. |
 | [types.ImageContentTypes](types.ImageContentTypes.qmd#chatlas.types.ImageContentTypes) | Allowable content types for images. |
 | [types.MISSING_TYPE](types.MISSING_TYPE.qmd#chatlas.types.MISSING_TYPE) | A singleton representing a missing value. |
 | [types.MISSING](types.MISSING.qmd#chatlas.types.MISSING) |  |

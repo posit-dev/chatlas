@@ -42,6 +42,8 @@ website:
       - reference/types.ContentText.qmd
       - reference/types.ContentToolRequest.qmd
       - reference/types.ContentToolResult.qmd
+      - reference/types.ChatResponse.qmd
+      - reference/types.ChatResponseAsync.qmd
       - reference/types.ImageContentTypes.qmd
       - reference/types.MISSING_TYPE.qmd
       - reference/types.MISSING.qmd

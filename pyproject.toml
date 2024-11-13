@@ -1,7 +1,7 @@
 [project]
 name = "chatlas"
 description = "A simple and consistent interface for chatting with LLMs"
-version = "0.0.1"
+version = "0.1"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -55,6 +55,8 @@ docs = [
     "nbclient",
     "nbformat",
     "pyyaml",
+    # Articles require
+    "pandas",
 ]
 
 [tool.uv]

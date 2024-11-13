@@ -24,7 +24,7 @@ number of additional cycles.
 from chatlas import Turn, ChatOpenAI, ChatAnthropic
 
 chat = ChatOpenAI()
-chat.chat("What is the capital of France?")
+str(chat.chat("What is the capital of France?"))
 turns = chat.turns()
 assert len(turns) == 2
 assert isinstance(turns[0], Turn)
@@ -39,9 +39,9 @@ assert turns == turns2
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name      | Type                                                                                                | Description                                                                                                                                                                                                         | Default    |
-|-----------|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| role      | [str](`str`)                                                                                        | Either "user", "assistant", or "system".                                                                                                                                                                            | _required_ |
-| contents  | [str](`str`) \| [Sequence](`typing.Sequence`)\[[Content](`chatlas.types.Content`) \| [str](`str`)\] | A list of [](`~chatlas.types.Content`) objects.                                                                                                                                                                     | _required_ |
-| json_data | [Optional](`typing.Optional`)\[[dict](`dict`)\[[str](`str`), [Any](`typing.Any`)\]\]                | The serialized JSON corresponding to the underlying data of the turns. Currently only provided for assistant. This is useful if there's information returned by the provider that chatlas doesn't otherwise expose. | `None`     |
-| tokens    | [tuple](`tuple`)\[[int](`int`), [int](`int`)\]                                                      | A numeric vector of length 2 representing the number of input and output tokens (respectively) used in this turn. Currently only recorded for assistant turns.                                                      | `(0, 0)`   |
+| Name      | Type                                                                                                   | Description                                                                                                                                                                                                         | Default    |
+|-----------|--------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| role      | [str](`str`)                                                                                           | Either "user", "assistant", or "system".                                                                                                                                                                            | _required_ |
+| contents  | [str](`str`) \| [Sequence](`typing.Sequence`)\[[Content](`chatlas._content.Content`) \| [str](`str`)\] | A list of [](`~chatlas.types.Content`) objects.                                                                                                                                                                     | _required_ |
+| json_data | [Optional](`typing.Optional`)\[[dict](`dict`)\[[str](`str`), [Any](`typing.Any`)\]\]                   | The serialized JSON corresponding to the underlying data of the turns. Currently only provided for assistant. This is useful if there's information returned by the provider that chatlas doesn't otherwise expose. | `None`     |
+| tokens    | [tuple](`tuple`)\[[int](`int`), [int](`int`)\]                                                         | A numeric vector of length 2 representing the number of input and output tokens (respectively) used in this turn. Currently only recorded for assistant turns.                                                      | `(0, 0)`   |
