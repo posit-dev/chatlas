@@ -17,6 +17,10 @@ jobs:
   docs-publish:
     runs-on: ubuntu-latest
 
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
     steps:
     - name: Check out repository
       uses: actions/checkout@v4
@@ -36,7 +40,7 @@ jobs:
     - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
       run: uv python install ${{ env.PYTHON_VERSION }}
 
-    - name: 📦 Install brand_yml and dependencies
+    - name: 📦 Install chatlas and dependencies
       run: uv sync --python ${{ env.PYTHON_VERSION }} --all-extras
 
     - name: 🔌 Activate venv

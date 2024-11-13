@@ -18,7 +18,7 @@ jobs:
 
     environment:
       name: pypi
-      url: https://pypi.org/project/brand_yml/
+      url: https://pypi.org/project/chatlas/
 
     permissions:  # for trusted publishing
       id-token: write
