@@ -424,15 +424,18 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             if content.type == "text":
                 contents.append(ContentText(content.text))
             elif content.type == "tool_use":
-                if has_data_model:
-                    json = ContentJson(cast(dict, content.input)["data"])
-                    contents.append(json)
-                else:
-                    # For some reason, the type is a general object?
-                    if not isinstance(content.input, dict):
+                # For some reason, the type is a general object, but I think it's always a dict?
+                if not isinstance(content.input, dict):
+                    raise ValueError(
+                        f"Expected a dictionary of input arguments, got {type(content.input)}."
+                    )
+                if has_data_model and content.name == "_structured_tool_call":
+                    if "data" not in content.input:
                         raise ValueError(
-                            f"Expected a dictionary of input arguments, got {type(content.input)}."
+                            "Expected data extraction tool to return a 'data' field."
                         )
+                    contents.append(ContentJson(content.input["data"]))
+                else:
                     contents.append(
                         ContentToolRequest(
                             content.id,
