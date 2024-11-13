@@ -341,11 +341,8 @@ class GoogleProvider(
 
         if isinstance(content, ContentText):
             return protos.Part(text=content.text)
-        # TODO: we have the same problem as elmer here.
-        # See what hadley does to fix it.
-        # https://github.com/tidyverse/elmer/issues/142
         elif isinstance(content, ContentJson):
-            return protos.Part(text=str(content.value))
+            return protos.Part(text="<structured data/>")
         elif isinstance(content, ContentImageInline):
             return protos.Part(
                 inline_data={

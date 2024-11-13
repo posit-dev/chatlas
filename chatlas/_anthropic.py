@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import warnings
-from typing import TYPE_CHECKING, Literal, Optional, Union, cast, overload
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
 
 from pydantic import BaseModel
 
@@ -293,7 +293,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         data_model_tool: Tool | None = None
         if data_model is not None:
 
-            def _structured_tool_call(**kwargs):
+            def _structured_tool_call(**kwargs: Any):
                 """Extract structured data"""
                 pass
 
@@ -394,16 +394,8 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
     def _as_content_block(content: Content) -> "ContentBlockParam":
         if isinstance(content, ContentText):
             return {"text": content.text, "type": "text"}
-        # TODO: we have the same problem as elmer here.
-        # See what hadley does to fix it.
-        # https://github.com/tidyverse/elmer/issues/142
-        # elif isinstance(content, ContentJson):
-        #    return {
-        #        "type": "tool_use",
-        #        "id": "_structured_tool_call",
-        #        "name": "_structured_tool_call",
-        #        "input": content.value,
-        #    }
+        elif isinstance(content, ContentJson):
+            return {"text": "<structured data/>", "type": "text"}
         elif isinstance(content, ContentImageInline):
             return {
                 "type": "image",
