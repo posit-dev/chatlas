@@ -1,0 +1,83 @@
+# Function reference {.doc .doc-index}
+
+## Chat model providers
+
+Start a chat with a particular large language model (llm) provider.
+
+| | |
+| --- | --- |
+| [ChatAnthropic](ChatAnthropic.qmd#chatlas.ChatAnthropic) | Chat with an Anthropic Claude model. |
+| [ChatAzureOpenAI](ChatAzureOpenAI.qmd#chatlas.ChatAzureOpenAI) | Chat with a model hosted on Azure OpenAI. |
+| [ChatBedrockAnthropic](ChatBedrockAnthropic.qmd#chatlas.ChatBedrockAnthropic) | Chat with an AWS bedrock model. |
+| [ChatGithub](ChatGithub.qmd#chatlas.ChatGithub) | Chat with a model hosted on the GitHub model marketplace. |
+| [ChatGoogle](ChatGoogle.qmd#chatlas.ChatGoogle) | Chat with a Google Gemini model. |
+| [ChatGroq](ChatGroq.qmd#chatlas.ChatGroq) | Chat with a model hosted on Groq. |
+| [ChatOllama](ChatOllama.qmd#chatlas.ChatOllama) | Chat with a local Ollama model. |
+| [ChatOpenAI](ChatOpenAI.qmd#chatlas.ChatOpenAI) | Chat with an OpenAI model. |
+| [ChatPerplexity](ChatPerplexity.qmd#chatlas.ChatPerplexity) | Chat with a model hosted on perplexity.ai. |
+
+## The chat object
+
+Methods and attributes available on a chat instance
+
+| | |
+| --- | --- |
+| [Chat](Chat.qmd#chatlas.Chat) | A chat object that can be used to interact with a language model. |
+
+## Image input
+
+Submit image input to the chat
+
+| | |
+| --- | --- |
+| [content_image_file](content_image_file.qmd#chatlas.content_image_file) | Encode image content from a file for chat input. |
+| [content_image_plot](content_image_plot.qmd#chatlas.content_image_plot) | Encode the current matplotlib plot as an image for chat input. |
+| [content_image_url](content_image_url.qmd#chatlas.content_image_url) | Encode image content from a URL for chat input. |
+
+## Tool calling
+
+Add context to python function before registering it as a tool.
+
+| | |
+| --- | --- |
+| [Tool](Tool.qmd#chatlas.Tool) | Define a tool |
+
+## Turns
+
+A provider-agnostic representation of content generated during an assistant/user turn.
+
+| | |
+| --- | --- |
+| [Turn](Turn.qmd#chatlas.Turn) | A user or assistant turn |
+
+## Query token usage
+
+| | |
+| --- | --- |
+| [token_usage](token_usage.qmd#chatlas.token_usage) | Report on token usage in the current session |
+
+## Implement a model provider
+
+| | |
+| --- | --- |
+| [Provider](Provider.qmd#chatlas.Provider) | A model provider interface for a [](`~chatlas.Chat`). |
+
+## User-facing types
+
+| | |
+| --- | --- |
+| [types.Content](types.Content.qmd#chatlas.types.Content) | Base class for all content types that can be appear in a [](`~chatlas.Turn`) |
+| [types.ContentImage](types.ContentImage.qmd#chatlas.types.ContentImage) |  |
+| [types.ContentImageInline](types.ContentImageInline.qmd#chatlas.types.ContentImageInline) |  |
+| [types.ContentImageRemote](types.ContentImageRemote.qmd#chatlas.types.ContentImageRemote) |  |
+| [types.ContentJson](types.ContentJson.qmd#chatlas.types.ContentJson) |  |
+| [types.ContentText](types.ContentText.qmd#chatlas.types.ContentText) |  |
+| [types.ContentToolRequest](types.ContentToolRequest.qmd#chatlas.types.ContentToolRequest) |  |
+| [types.ContentToolResult](types.ContentToolResult.qmd#chatlas.types.ContentToolResult) |  |
+| [types.ChatResponse](types.ChatResponse.qmd#chatlas.types.ChatResponse) | Chat response object. |
+| [types.ChatResponseAsync](types.ChatResponseAsync.qmd#chatlas.types.ChatResponseAsync) | Chat response (async) object. |
+| [types.ImageContentTypes](types.ImageContentTypes.qmd#chatlas.types.ImageContentTypes) | Allowable content types for images. |
+| [types.MISSING_TYPE](types.MISSING_TYPE.qmd#chatlas.types.MISSING_TYPE) | A singleton representing a missing value. |
+| [types.MISSING](types.MISSING.qmd#chatlas.types.MISSING) |  |
+| [types.SubmitInputArgsT](types.SubmitInputArgsT.qmd#chatlas.types.SubmitInputArgsT) | A TypedDict representing the arguments that can be passed to the `.chat()` |
+| [types.TokenUsage](types.TokenUsage.qmd#chatlas.types.TokenUsage) | Token usage for a given provider (name). |

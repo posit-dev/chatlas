@@ -14,7 +14,7 @@ class Turn:
     Every conversation with a chatbot consists of pairs of user and assistant
     turns, corresponding to an HTTP request and response. These turns are
     represented by the `Turn` object, which contains a list of
-    [](`~chatlas.Content`)s representing the individual messages within the
+    [](`~chatlas.types.Content`)s representing the individual messages within the
     turn. These might be text, images, tool requests (assistant only), or tool
     responses (user only).
 
@@ -23,12 +23,32 @@ class Turn:
     will automatically handle the tool calling loop, which may result in any
     number of additional cycles.
 
+    Examples
+    --------
+
+    ```python
+    from chatlas import Turn, ChatOpenAI, ChatAnthropic
+
+    chat = ChatOpenAI()
+    str(chat.chat("What is the capital of France?"))
+    turns = chat.turns()
+    assert len(turns) == 2
+    assert isinstance(turns[0], Turn)
+    assert turns[0].role == "user"
+    assert turns[1].role == "assistant"
+
+    # Load context into a new chat instance
+    chat2 = ChatAnthropic(turns=turns)
+    turns2 = chat2.turns()
+    assert turns == turns2
+    ```
+
     Parameters
     ----------
     role
         Either "user", "assistant", or "system".
     contents
-        A list of [](`~chatlas.Content`) objects.
+        A list of [](`~chatlas.types.Content`) objects.
     json_data
         The serialized JSON corresponding to the underlying data of the turns.
         Currently only provided for assistant. This is useful if there's

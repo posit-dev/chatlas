@@ -1,0 +1,7 @@
+# types.Content { #chatlas.types.Content }
+
+```python
+types.Content()
+```
+
+Base class for all content types that can be appear in a [](`~chatlas.Turn`)

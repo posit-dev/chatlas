@@ -1,49 +1,68 @@
-.PHONY: docs
-docs:  ## [docs] Build the documentation
-	quarto render docs
-
-.PHONY: docs-preview
-docs-preview:  ## [docs] Preview the documentation
-	quarto preview docs
-
-.PHONY: py-setup
-py-setup:  ## [py] Setup python environment
+.PHONY: setup
+setup:  ## [py] Setup python environment
 	uv sync --all-extras
 
-.PHONY: py-check
-py-check:  py-check-tests py-check-format py-check-types ## [py] Run python checks
+.PHONY: build
+build:   ## [py] Build python package
+	@echo "🧳 Building python package"
+	@[ -d dist ] && rm -r dist || true
+	uv build
 
-.PHONY: py-check-tox
-py-check-tox:  ## [py] Run python 3.9 - 3.12 checks with tox
-	@echo ""
-	@echo "🔄 Running tests and type checking with tox for Python 3.9--3.12"
-	uv run tox run-parallel
+.PHONY: check
+check:  check-tests check-format check-types ## [py] Run python checks
 
-.PHONY: py-check-tests
-py-check-tests:  ## [py] Run python tests
+.PHONY: check-tests
+check-tests:  ## [py] Run python tests
 	@echo ""
 	@echo "🧪 Running tests with pytest"
 	uv run pytest
 
-.PHONY: py-check-types
-py-check-types:  ## [py] Run python type checks
+.PHONY: check-types
+check-types:  ## [py] Run python type checks
 	@echo ""
 	@echo "📝 Checking types with pyright"
 	uv run pyright
 
-.PHONY: py-check-format
-py-check-format:
+.PHONY: check-format
+check-format:
 	@echo ""
 	@echo "📐 Checking format with ruff"
 	uv run ruff check chatlas --config pyproject.toml
 
-.PHONY: py-format
-py-format: ## [py] Format python code
+.PHONY: format
+format: ## [py] Format python code
 	uv run ruff check --fix chatlas --config pyproject.toml
 	uv run ruff format chatlas --config pyproject.toml
 
-.PHONY: py-update-snaps
-py-update-snaps:  ## [py] Update python test snapshots
+.PHONY: check-tox
+check-tox:  ## [py] Run python 3.9 - 3.12 checks with tox
+	@echo ""
+	@echo "🔄 Running tests and type checking with tox for Python 3.9--3.12"
+	uv run tox run-parallel
+
+.PHONY: docs
+docs: quartodoc
+	quarto render docs
+
+.PHONY: docs-preview
+docs-preview: quartodoc
+	quarto preview docs
+
+.PHONY: quartodoc
+quartodoc: 
+	@echo "📖 Generating python docs with quartodoc"
+	@$(eval export IN_QUARTODOC=true)
+	cd docs && uv run quartodoc build
+	cd docs && uv run quartodoc interlinks
+
+.PHONY: quartodoc-watch
+quartodoc-watch:
+	@echo "📖 Generating python docs with quartodoc"
+	@$(eval export IN_QUARTODOC=true)
+	uv run quartodoc build --config docs/_quarto.yml --watch
+
+.PHONY: update-snaps
+update-snaps:
 	@echo "📸 Updating pytest snapshots"
 	uv run pytest --snapshot-update
 

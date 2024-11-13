@@ -1,0 +1,6 @@
+# types.ContentImageRemote { #chatlas.types.ContentImageRemote }
+
+```python
+types.ContentImageRemote(self, url, detail='')
+```
+

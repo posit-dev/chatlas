@@ -10,9 +10,16 @@ ImageContentTypes = Literal[
     "image/webp",
     "image/gif",
 ]
+"""
+Allowable content types for images.
+"""
 
 
 class Content:
+    """
+    Base class for all content types that can be appear in a [](`~chatlas.Turn`)
+    """
+
     pass
 
 

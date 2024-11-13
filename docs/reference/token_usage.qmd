@@ -1,0 +1,16 @@
+# token_usage { #chatlas.token_usage }
+
+```python
+token_usage()
+```
+
+Report on token usage in the current session
+
+Call this function to find out the cumulative number of tokens that you
+have sent and received in the current session.
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                 | Description                                                                                                                          |
+|--------|----------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
+|        | [list](`list`)\[[TokenUsage](`chatlas._tokens.TokenUsage`)\] \| None | A list of dictionaries with the following keys: "name", "input", and "output". If no tokens have been logged, then None is returned. |

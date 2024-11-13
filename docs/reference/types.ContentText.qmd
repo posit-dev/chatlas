@@ -1,0 +1,6 @@
+# types.ContentText { #chatlas.types.ContentText }
+
+```python
+types.ContentText(self, text)
+```
+

@@ -1,0 +1,101 @@
+# ChatGroq { #chatlas.ChatGroq }
+
+```python
+ChatGroq(
+    system_prompt=None
+    turns=None
+    model=None
+    api_key=None
+    base_url='https://api.groq.com/openai/v1'
+    seed=MISSING
+    kwargs=None
+)
+```
+
+Chat with a model hosted on Groq.
+
+Groq provides a platform for highly efficient AI inference.
+
+## Prerequisites {.doc-section .doc-section-prerequisites}
+
+
+::: {.callout-note}
+## API key
+
+Sign up at <https://groq.com> to get an API key.
+:::
+
+::: {.callout-note}
+## Python requirements
+
+`ChatGroq` requires the `openai` package (e.g., `pip install openai`).
+:::
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+import os
+from chatlas import ChatGroq
+
+chat = ChatGroq(api_key=os.getenv("GROQ_API_KEY"))
+chat.chat("What is the capital of France?")
+```
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                                                                                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                 | Default                            |
+|---------------|------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------|
+| system_prompt | [Optional](`typing.Optional`)\[[str](`str`)\]                                                  | A system prompt to set the behavior of the assistant.                                                                                                                                                                                                                                                                                                                                                                       | `None`                             |
+| turns         | [Optional](`typing.Optional`)\[[list](`list`)\[[Turn](`chatlas._turn.Turn`)\]\]                | A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-`None` values for both `turns` and `system_prompt`. Each message in the list should be a dictionary with at least `role` (usually `system`, `user`, or `assistant`, but `tool` is also possible). Normally there is also a `content` field, which is a string. | `None`                             |
+| model         | [Optional](`typing.Optional`)\[[str](`str`)\]                                                  | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.                                                                                                                                                                                                                                 | `None`                             |
+| api_key       | [Optional](`typing.Optional`)\[[str](`str`)\]                                                  | The API key to use for authentication. You generally should not supply this directly, but instead set the `GROQ_API_KEY` environment variable.                                                                                                                                                                                                                                                                              | `None`                             |
+| base_url      | [str](`str`)                                                                                   | The base URL to the endpoint; the default uses Groq's API.                                                                                                                                                                                                                                                                                                                                                                  | `'https://api.groq.com/openai/v1'` |
+| seed          | [Optional](`typing.Optional`)\[[int](`int`)\] \| [MISSING_TYPE](`chatlas._utils.MISSING_TYPE`) | Optional integer seed that ChatGPT uses to try and make output more reproducible.                                                                                                                                                                                                                                                                                                                                           | `MISSING`                          |
+| kwargs        | [Optional](`typing.Optional`)\[\'ChatClientArgs\'\]                                            | Additional arguments to pass to the `openai.OpenAI()` client constructor.                                                                                                                                                                                                                                                                                                                                                   | `None`                             |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                         | Description                                               |
+|--------|------------------------------|-----------------------------------------------------------|
+|        | [Chat](`chatlas._chat.Chat`) | A chat object that retains the state of the conversation. |
+
+## Note {.doc-section .doc-section-note}
+
+This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
+the defaults tweaked for groq.
+
+## Note {.doc-section .doc-section-note}
+
+Pasting an API key into a chat constructor (e.g., `ChatGroq(api_key="...")`)
+is the simplest way to get started, and is fine for interactive use, but is
+problematic for code that may be shared with others.
+
+Instead, consider using environment variables or a configuration file to manage
+your credentials. One popular way to manage credentials is to use a `.env` file
+to store your credentials, and then use the `python-dotenv` package to load them
+into your environment.
+
+```shell
+pip install python-dotenv
+```
+
+```shell
+# .env
+GROQ_API_KEY=...
+```
+
+```python
+from chatlas import ChatGroq
+from dotenv import load_dotenv
+
+load_dotenv()
+chat = ChatGroq()
+chat.console()
+```
+
+Another, more general, solution is to load your environment variables into the shell
+before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
+
+```shell
+export GROQ_API_KEY=...
+```

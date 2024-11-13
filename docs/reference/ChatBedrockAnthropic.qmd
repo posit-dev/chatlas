@@ -1,0 +1,75 @@
+# ChatBedrockAnthropic { #chatlas.ChatBedrockAnthropic }
+
+```python
+ChatBedrockAnthropic(
+    model=None
+    aws_secret_key=None
+    aws_access_key=None
+    aws_region=None
+    aws_profile=None
+    aws_session_token=None
+    base_url=None
+    system_prompt=None
+    turns=None
+    kwargs=None
+)
+```
+
+Chat with an AWS bedrock model.
+
+[AWS Bedrock](https://aws.amazon.com/bedrock/) provides a number of chat
+based models, including those Anthropic's
+[Claude](https://aws.amazon.com/bedrock/claude/).
+
+## Prerequisites {.doc-section .doc-section-prerequisites}
+
+
+::: {.callout-note}
+## AWS credentials
+
+Consider using the approach outlined in this guide to manage your AWS credentials:
+<https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html>
+:::
+
+::: {.callout-note}
+## Python requirements
+
+`ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras
+(e.g., `pip install anthropic[bedrock]`).
+:::
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+from chatlas import ChatBedrockAnthropic
+
+chat = ChatBedrockAnthropic(
+    aws_profile="...",
+    aws_region="us-east",
+    aws_secret_key="...",
+    aws_access_key="...",
+    aws_session_token="...",
+)
+chat.chat("What is the capital of France?")
+```
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name              | Type                                                                            | Description                                                                                                                                                                                                                                                                                                                                                                                                               | Default   |
+|-------------------|---------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| model             | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The model to use for the chat.                                                                                                                                                                                                                                                                                                                                                                                            | `None`    |
+| aws_secret_key    | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The AWS secret key to use for authentication.                                                                                                                                                                                                                                                                                                                                                                             | `None`    |
+| aws_access_key    | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The AWS access key to use for authentication.                                                                                                                                                                                                                                                                                                                                                                             | `None`    |
+| aws_region        | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The AWS region to use. Defaults to the AWS_REGION environment variable. If that is not set, defaults to `'us-east-1'`.                                                                                                                                                                                                                                                                                                    | `None`    |
+| aws_profile       | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The AWS profile to use.                                                                                                                                                                                                                                                                                                                                                                                                   | `None`    |
+| aws_session_token | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The AWS session token to use.                                                                                                                                                                                                                                                                                                                                                                                             | `None`    |
+| base_url          | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The base URL to use. Defaults to the ANTHROPIC_BEDROCK_BASE_URL environment variable. If that is not set, defaults to `f"https://bedrock-runtime.{aws_region}.amazonaws.com"`.                                                                                                                                                                                                                                            | `None`    |
+| system_prompt     | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | A system prompt to set the behavior of the assistant.                                                                                                                                                                                                                                                                                                                                                                     | `None`    |
+| turns             | [Optional](`typing.Optional`)\[[list](`list`)\[[Turn](`chatlas._turn.Turn`)\]\] | A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-None values for both `turns` and `system_prompt`. Each message in the list should be a dictionary with at least `role` (usually `system`, `user`, or `assistant`, but `tool` is also possible). Normally there is also a `content` field, which is a string. | `None`    |
+| kwargs            | [Optional](`typing.Optional`)\[\'ChatBedrockClientArgs\'\]                      | Additional arguments to pass to the `anthropic.AnthropicBedrock()` client constructor.                                                                                                                                                                                                                                                                                                                                    | `None`    |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                         | Description    |
+|--------|------------------------------|----------------|
+|        | [Chat](`chatlas._chat.Chat`) | A Chat object. |

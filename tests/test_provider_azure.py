@@ -16,10 +16,10 @@ def test_azure_simple_request():
         api_version="2024-08-01-preview",
     )
 
-    chat.chat("What is 1 + 1?")
+    response = chat.chat("What is 1 + 1?")
+    assert "2" == response.get_string()
     turn = chat.last_turn()
     assert turn is not None
-    assert "2" in turn.text
     assert turn.tokens == (27, 1)
 
 
@@ -32,8 +32,8 @@ async def test_azure_simple_request_async():
         api_version="2024-08-01-preview",
     )
 
-    await chat.chat_async("What is 1 + 1?")
+    response = await chat.chat_async("What is 1 + 1?")
+    assert "2" == await response.get_string()
     turn = chat.last_turn()
     assert turn is not None
-    assert "2" in turn.text
     assert turn.tokens == (27, 1)

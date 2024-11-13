@@ -1,0 +1,17 @@
+# Tool { #chatlas.Tool }
+
+```python
+Tool(self, func, *, model=None)
+```
+
+Define a tool
+
+Define a Python function for use by a chatbot. The function will always be
+invoked in the current Python process.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                                                                                                                                      | Description                                                                                                                                                                                                                                                                                                                | Default    |
+|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| func   | [Callable](`typing.Callable`)\[..., [Any](`typing.Any`)\] \| [Callable](`typing.Callable`)\[..., [Awaitable](`typing.Awaitable`)\[[Any](`typing.Any`)\]\] | The function to be invoked when the tool is called.                                                                                                                                                                                                                                                                        | _required_ |
+| model  | [Optional](`typing.Optional`)\[[type](`type`)\[[BaseModel](`pydantic.BaseModel`)\]\]                                                                      | A Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function's type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function. | `None`     |

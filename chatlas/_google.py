@@ -33,8 +33,7 @@ if TYPE_CHECKING:
         GenerationConfig,
     )
 
-    from .types._google_client import ProviderClientArgs
-    from .types._google_create import SendMessageArgs
+    from .types.google import ChatClientArgs, SubmitInputArgs
 else:
     GenerateContentResponse = object
 
@@ -45,10 +44,38 @@ def ChatGoogle(
     turns: Optional[list[Turn]] = None,
     model: Optional[str] = None,
     api_key: Optional[str] = None,
-    kwargs: Optional["ProviderClientArgs"] = None,
-) -> Chat["SendMessageArgs"]:
+    kwargs: Optional["ChatClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
-    Chat with a Google Gemini model
+    Chat with a Google Gemini model.
+
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## API key
+
+    To use Google's models (i.e., Gemini), you'll need to sign up for an account
+    and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python).
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatGoogle` requires the `google-generativeai` package
+    (e.g., `pip install google-generativeai`).
+    :::
+
+    Examples
+    --------
+
+    ```python
+    import os
+    from chatlas import ChatGoogle
+
+    chat = ChatGoogle(api_key=os.getenv("GOOGLE_API_KEY"))
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -75,6 +102,46 @@ def ChatGoogle(
     -------
     Chat
         A Chat object.
+
+    Limitations
+    -----------
+    `ChatGoogle` currently doesn't work with streaming tools.
+
+    Note
+    ----
+    Pasting an API key into a chat constructor (e.g., `ChatGoogle(api_key="...")`)
+    is the simplest way to get started, and is fine for interactive use, but is
+    problematic for code that may be shared with others.
+
+    Instead, consider using environment variables or a configuration file to manage
+    your credentials. One popular way to manage credentials is to use a `.env` file
+    to store your credentials, and then use the `python-dotenv` package to load them
+    into your environment.
+
+    ```shell
+    pip install python-dotenv
+    ```
+
+    ```shell
+    # .env
+    GOOGLE_API_KEY=...
+    ```
+
+    ```python
+    from chatlas import ChatGoogle
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    chat = ChatGoogle()
+    chat.console()
+    ```
+
+    Another, more general, solution is to load your environment variables into the shell
+    before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
+
+    ```shell
+    export GOOGLE_API_KEY=...
+    ```
     """
 
     if model is None:
@@ -109,7 +176,7 @@ class GoogleProvider(
         turns: list[Turn],
         model: str,
         api_key: str | None,
-        kwargs: Optional["ProviderClientArgs"],
+        kwargs: Optional["ChatClientArgs"],
     ):
         try:
             from google.generativeai import GenerativeModel
@@ -128,7 +195,7 @@ class GoogleProvider(
         if len(turns) > 0 and turns[0].role == "system":
             system_prompt = turns[0].text
 
-        kwargs_full: "ProviderClientArgs" = {
+        kwargs_full: "ChatClientArgs" = {
             "model_name": model,
             "system_instruction": system_prompt,
             **(kwargs or {}),
@@ -144,7 +211,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -155,7 +222,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     def chat_perform(
@@ -164,7 +231,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return self._client.generate_content(**kwargs)
@@ -177,7 +244,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -188,7 +255,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     async def chat_perform_async(
@@ -197,7 +264,7 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return await self._client.generate_content_async(**kwargs)
@@ -208,9 +275,9 @@ class GoogleProvider(
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SendMessageArgs"] = None,
-    ) -> "SendMessageArgs":
-        kwargs_full: "SendMessageArgs" = {
+        kwargs: Optional["SubmitInputArgs"] = None,
+    ) -> "SubmitInputArgs":
+        kwargs_full: "SubmitInputArgs" = {
             "contents": self._google_contents(turns),
             "stream": stream,
             "tools": self._gemini_tools(list(tools.values())) if tools else None,
@@ -220,6 +287,9 @@ class GoogleProvider(
         if data_model:
             config = kwargs_full.get("generation_config", {})
             params = basemodel_to_param_schema(data_model)
+
+            if "additionalProperties" in params:
+                del params["additionalProperties"]
 
             mime_type = "application/json"
             if isinstance(config, dict):
@@ -353,7 +423,7 @@ class GoogleProvider(
         for tool in tools:
             fn = tool.schema["function"]
             params = None
-            if fn["parameters"]["properties"]:
+            if "parameters" in fn and fn["parameters"]["properties"]:
                 params = {
                     "type": "object",
                     "properties": fn["parameters"]["properties"],
@@ -363,7 +433,7 @@ class GoogleProvider(
             res.append(
                 FunctionDeclaration(
                     name=fn["name"],
-                    description=fn["description"],
+                    description=fn.get("description", ""),
                     parameters=params,
                 )
             )

@@ -9,7 +9,7 @@ from ._turn import Turn
 from ._utils import MISSING, MISSING_TYPE, inform_model_default
 
 if TYPE_CHECKING:
-    from ._openai import ChatCompletionArgs, ProviderClientArgs
+    from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
 def ChatGroq(
@@ -20,15 +20,38 @@ def ChatGroq(
     api_key: Optional[str] = None,
     base_url: str = "https://api.groq.com/openai/v1",
     seed: Optional[int] | MISSING_TYPE = MISSING,
-    kwargs: Optional["ProviderClientArgs"] = None,
-) -> Chat["ChatCompletionArgs"]:
+    kwargs: Optional["ChatClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
-    Chat with a model hosted on Groq
+    Chat with a model hosted on Groq.
 
-    Sign up at https://groq.com.
+    Groq provides a platform for highly efficient AI inference.
 
-    This function is a lightweight wrapper around `ChatOpenAI` with
-    the defaults tweaked for groq.
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## API key
+
+    Sign up at <https://groq.com> to get an API key.
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatGroq` requires the `openai` package (e.g., `pip install openai`).
+    :::
+
+    Examples
+    --------
+
+    ```python
+    import os
+    from chatlas import ChatGroq
+
+    chat = ChatGroq(api_key=os.getenv("GROQ_API_KEY"))
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -61,11 +84,46 @@ def ChatGroq(
     Chat
         A chat object that retains the state of the conversation.
 
-    Examples
-    --------
-    >>> from chatlas import ChatGroq
-    >>> chat = ChatGroq()
-    >>> chat.chat("What is the capital of France?")
+    Note
+    ----
+    This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
+    the defaults tweaked for groq.
+
+    Note
+    ----
+    Pasting an API key into a chat constructor (e.g., `ChatGroq(api_key="...")`)
+    is the simplest way to get started, and is fine for interactive use, but is
+    problematic for code that may be shared with others.
+
+    Instead, consider using environment variables or a configuration file to manage
+    your credentials. One popular way to manage credentials is to use a `.env` file
+    to store your credentials, and then use the `python-dotenv` package to load them
+    into your environment.
+
+    ```shell
+    pip install python-dotenv
+    ```
+
+    ```shell
+    # .env
+    GROQ_API_KEY=...
+    ```
+
+    ```python
+    from chatlas import ChatGroq
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    chat = ChatGroq()
+    chat.console()
+    ```
+
+    Another, more general, solution is to load your environment variables into the shell
+    before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
+
+    ```shell
+    export GROQ_API_KEY=...
+    ```
     """
     if model is None:
         model = inform_model_default("llama3-8b-8192")

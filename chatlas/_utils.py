@@ -65,6 +65,10 @@ def is_testing():
 
 
 class MISSING_TYPE:
+    """
+    A singleton representing a missing value.
+    """
+
     pass
 
 

@@ -1,0 +1,46 @@
+# content_image_plot { #chatlas.content_image_plot }
+
+```python
+content_image_plot(width=768, height=768, dpi=72)
+```
+
+Encode the current matplotlib plot as an image for chat input.
+
+This function captures the current matplotlib plot, resizes it to the specified
+dimensions, and prepares it for chat input.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type         | Description                                       | Default   |
+|--------|--------------|---------------------------------------------------|-----------|
+| width  | [int](`int`) | The desired width of the output image in pixels.  | `768`     |
+| height | [int](`int`) | The desired height of the output image in pixels. | `768`     |
+| dpi    | [int](`int`) | The DPI (dots per inch) of the output image.      | `72`      |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                           | Description                                        |
+|--------|--------------------------------|----------------------------------------------------|
+|        | \[\](`~chatlas.types.Content`) | Content suitable for a [](`~chatlas.Turn`) object. |
+
+## Raises {.doc-section .doc-section-raises}
+
+| Name   | Type                       | Description                                   |
+|--------|----------------------------|-----------------------------------------------|
+|        | [ValueError](`ValueError`) | If width or height is not a positive integer. |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+from chatlas import ChatOpenAI, content_image_plot
+import matplotlib.pyplot as plt
+
+plt.scatter(faithful["eruptions"], faithful["waiting"])
+chat = ChatOpenAI()
+chat.chat(
+    "Describe this plot in one paragraph, as suitable for inclusion in "
+    "alt-text. You should briefly describe the plot type, the axes, and "
+    "2-5 major visual patterns.",
+    content_image_plot(),
+)
+```

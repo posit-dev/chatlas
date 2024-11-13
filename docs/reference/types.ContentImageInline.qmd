@@ -1,0 +1,6 @@
+# types.ContentImageInline { #chatlas.types.ContentImageInline }
+
+```python
+types.ContentImageInline(self, content_type, data=None)
+```
+

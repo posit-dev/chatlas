@@ -7,26 +7,22 @@ from pydantic import BaseModel
 
 def test_simple_batch_chat():
     chat = ChatOpenAI()
-    chat.chat("What's 1 + 1. Just give me the answer, no punctuation")
-    turn = chat.last_turn()
-    assert turn is not None
-    assert turn.text == "2"
+    response = chat.chat("What's 1 + 1. Just give me the answer, no punctuation")
+    assert str(response) == "2"
 
 
 @pytest.mark.asyncio
 async def test_simple_async_batch_chat():
     chat = ChatOpenAI()
-    await chat.chat_async(
+    response = await chat.chat_async(
         "What's 1 + 1. Just give me the answer, no punctuation",
     )
-    turn = chat.last_turn()
-    assert turn is not None
-    assert turn.text == "2"
+    assert "2" == await response.get_string()
 
 
 def test_simple_streaming_chat():
     chat = ChatOpenAI()
-    res = chat.submit("""
+    res = chat.chat("""
         What are the canonical colors of the ROYGBIV rainbow?
         Put each colour on its own line. Don't use punctuation.
     """)
@@ -43,7 +39,7 @@ def test_simple_streaming_chat():
 @pytest.mark.asyncio
 async def test_simple_streaming_chat_async():
     chat = ChatOpenAI()
-    res = chat.submit_async("""
+    res = await chat.chat_async("""
         What are the canonical colors of the ROYGBIV rainbow?
         Put each colour on its own line. Don't use punctuation.
     """)
@@ -101,7 +97,7 @@ def test_last_turn_retrieval():
     assert chat.last_turn(role="user") is None
     assert chat.last_turn(role="assistant") is None
 
-    chat.chat("Hi")
+    _ = str(chat.chat("Hi"))
     user_turn = chat.last_turn(role="user")
     assert user_turn is not None and user_turn.role == "user"
     turn = chat.last_turn(role="assistant")

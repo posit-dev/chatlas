@@ -24,7 +24,7 @@ def test_google_simple_request():
     chat = ChatGoogle(
         system_prompt="Be as terse as possible; no punctuation",
     )
-    chat.chat("What is 1 + 1?")
+    _ = str(chat.chat("What is 1 + 1?"))
     turn = chat.last_turn()
     assert turn is not None
     assert turn.tokens == (17, 1)
@@ -36,7 +36,7 @@ async def test_google_simple_streaming_request():
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
-    async for x in chat.submit_async("What is 1 + 1?"):
+    async for x in await chat.chat_async("What is 1 + 1?"):
         res.append(x)
     assert "2" in "".join(res)
 

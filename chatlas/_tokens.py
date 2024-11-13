@@ -11,6 +11,10 @@ if TYPE_CHECKING:
 
 
 class TokenUsage(TypedDict):
+    """
+    Token usage for a given provider (name).
+    """
+
     name: str
     input: int
     output: int
@@ -67,5 +71,11 @@ def token_usage() -> list[TokenUsage] | None:
 
     Call this function to find out the cumulative number of tokens that you
     have sent and received in the current session.
+
+    Returns
+    -------
+    list[TokenUsage] | None
+        A list of dictionaries with the following keys: "name", "input", and "output".
+        If no tokens have been logged, then None is returned.
     """
     return _token_counter.get_usage()

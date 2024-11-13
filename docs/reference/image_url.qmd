@@ -1,0 +1,41 @@
+# content_image_url { #chatlas.content_image_url }
+
+```python
+content_image_url(url, detail='auto')
+```
+
+Encode image content from a URL for chat input.
+
+This function is used to prepare image URLs for input to the chatbot. It can
+handle both regular URLs and data URLs.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                                       | Description                                                                             | Default    |
+|--------|------------------------------------------------------------|-----------------------------------------------------------------------------------------|------------|
+| url    | [str](`str`)                                               | The URL of the image to include in the chat input. Can be a data: URL or a regular URL. | _required_ |
+| detail | [Literal](`typing.Literal`)\[\'auto\', \'low\', \'high\'\] | The detail setting for this image. Can be `"auto"`, `"low"`, or `"high"`.               | `'auto'`   |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                           | Description                                        |
+|--------|--------------------------------|----------------------------------------------------|
+|        | \[\](`~chatlas.types.Content`) | Content suitable for a [](`~chatlas.Turn`) object. |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+from chatlas import ChatOpenAI, content_image_url
+
+chat = ChatOpenAI()
+chat.chat(
+    "What do you see in this image?",
+    content_image_url("https://www.python.org/static/img/python-logo.png"),
+)
+```
+
+## Raises {.doc-section .doc-section-raises}
+
+| Name   | Type                       | Description                                               |
+|--------|----------------------------|-----------------------------------------------------------|
+|        | [ValueError](`ValueError`) | If the URL is not valid or the detail setting is invalid. |

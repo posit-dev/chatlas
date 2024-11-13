@@ -1,5 +1,8 @@
+import sys
+
+from . import types
 from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
-from ._chat import Chat
+from ._chat import Chat, ChatResponse
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._github import ChatGithub
 from ._google import ChatGoogle
@@ -28,6 +31,20 @@ __all__ = (
     "content_image_url",
     "Turn",
     "token_usage",
+    "types",
     "Tool",
     "Provider",
 )
+
+# ChatResponse objects are displayed in the REPL using rich
+original_displayhook = sys.displayhook
+
+
+def custom_displayhook(value):
+    if isinstance(value, ChatResponse):
+        value.display()
+    else:
+        original_displayhook(value)
+
+
+sys.displayhook = custom_displayhook

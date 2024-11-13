@@ -26,6 +26,19 @@ ChatCompletionDictT = TypeVar("ChatCompletionDictT")
 class Provider(
     ABC, Generic[ChatCompletionT, ChatCompletionChunkT, ChatCompletionDictT]
 ):
+    """
+    A model provider interface for a [](`~chatlas.Chat`).
+
+    This abstract class defines the interface a model provider must implement in
+    order to be used with a [](`~chatlas.Chat`) instance. The provider is
+    responsible for performing the actual chat completion, and for handling the
+    streaming of the completion results.
+
+    Note that this class is exposed for developers who wish to implement their
+    own provider. In general, you should not need to interact with this class
+    directly.
+    """
+
     @overload
     @abstractmethod
     def chat_perform(

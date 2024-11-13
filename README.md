@@ -7,12 +7,39 @@ Easily chat with various LLM models from Ollama, Anthropic, OpenAI, and more.
 
 `chatlas` isn't yet on pypi, but you can install from Github:
 
-```
+```bash
 pip install git+https://github.com/cpsievert/chatlas
 ```
 
 After installing, you'll want to pick a [model provider](#model-providers), and get [credentials](#managing-credentials) set up (if necessary). Here, we demonstrate usage with OpenAI, but the concepts here apply to other implementations as well.
 
+## Model providers
+
+`chatlas` supports a variety of model providers:
+
+* Anthropic (Claude): [`ChatAnthropic()`](https://cpsievert.github.io/chatlas/reference/ChatAnthropic.html).
+* GitHub model marketplace: [`ChatGithub()`](https://cpsievert.github.io/chatlas/reference/ChatGithub.html).
+* Google (Gemini): [`ChatGoogle()`](https://cpsievert.github.io/chatlas/reference/ChatGoogle.html).
+* Groq: [`ChatGroq()`](https://cpsievert.github.io/chatlas/reference/ChatGroq.html).
+* Ollama local models: [`ChatOllama()`](https://cpsievert.github.io/chatlas/reference/ChatOllama.html).
+* OpenAI: [`ChatOpenAI()`](https://cpsievert.github.io/chatlas/reference/ChatOpenAI.html).
+* perplexity.ai: [`ChatPerplexity()`](https://cpsievert.github.io/chatlas/reference/ChatPerplexity.html).
+
+It also supports the following enterprise cloud providers:
+
+* AWS Bedrock: [`ChatBedrockAnthropic()`](https://cpsievert.github.io/chatlas/reference/ChatBedrockAnthropic.html).
+* Azure OpenAI: [`ChatAzureOpenAI()`](https://cpsievert.github.io/chatlas/reference/ChatAzureOpenAI.html).
+
+
+## Model choice
+
+If you're using chatlas inside your organisation, you'll typically need to use whatever you're allowed to. If you're using chatlas for your own personal exploration, we recommend starting with:
+
+`ChatOpenAI()`, which currently defaults to `model="gpt-4o-mini"`. You might want to try `"gpt-4o"` for more demanding task and if you want to force complex reasoning, `"o1-mini"`.
+
+`ChatAnthropic()`, which defaults to Claude 3.5 Sonnet. This currently appears to be the best model for code generation.
+
+If you want to put a lot of data in the prompt, try `ChatGoogle()` which defaults to Gemini 1.5 Flash and supports 1 million tokens, compared to 200k for Claude 3.5 Sonnet and 128k for GPT 4o mini.
 
 ## Using chatlas
 
@@ -31,7 +58,7 @@ Chat objects are stateful: they retain the context of the conversation, so each 
 
 ### Interactive console
 
-The most interactive, least programmatic way of using `chatlas` is to chat with it directly in your console with `chat.console()` or in your browser with `chat.app()`.
+From a `chat` instance, you can start an interacitve, multi-turn, conversation in the console (via `.console()`) or in a browser (via `.app()`).
 
 ```python
 chat.console()
@@ -51,28 +78,25 @@ Guido van Rossum developed Python while working at Centrum Wiskunde & Informatic
 Netherlands.     
 ```
 
-The chat console is useful for quickly exploring the capabilities of the model, especially when you’ve customized the chat object with tool integrations (covered later).
+The chat console is useful for quickly exploring the capabilities of the model, especially when you've customized the chat object with tool integrations (covered later).
 
-The chat app is similar to the chat console, but it runs in your browser. It's useful if need more interactive capabilities like easy copy-paste.
+The chat app is similar to the chat console, but it runs in your browser. It's useful if you need more interactive capabilities like easy copy-paste.
 
 ```python
 chat.app()
 ```
 
-<div align="center">
-<img width="667" alt="Screenshot 2024-11-06 at 11 43 34 AM" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e">
+<div style="display:flex;justify-content:center;">
+<img width="667" alt="A web app for chatting with an LLM via chatlas" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="border rounded">
 </div>
-
-
-
 
 
 Again, keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist even after you exit back to the Python prompt.
 
 
-### Interactive chat
+### The `.chat()` method
 
-The second most interactive way to chat is by calling the `chat()` method (from the normal Python prompt or in a script):
+For a more programmatic approach, you can use the `.chat()` method to ask a question and get a response. If you're in a REPL (e.g., Jupyter, IPython, etc), the result of `.chat()` is automatically displayed using a [rich](https://github.com/Textualize/rich) console.
 
 ```python
 chat.chat("What preceding languages most influenced Python?")
@@ -83,49 +107,35 @@ Python was primarily influenced by ABC, with additional inspiration from C,
 Modula-3, and various other languages.
 ```
 
-Since `chat()` is designed for interactive use, it prints the response to the console as it arrives rather than returning anything. This is useful when you want to display the response as it arrives, but don't need an interactive console. 
-
-If you want to do something with the (last) response, you can use `last_turn()` or `turns()` to access conversation "turns". A turn contains various information about what happens during a "user" or "assistant" turn, but usually you'll just want the text of the response:
+If you're not in a REPL (e.g., a non-interactive Python script), you can explicitly `.display()` the response:
 
 ```python
-chat.last_turn().text
+response = chat.chat("What is the Python programming language?")
+response.display()
 ```
 
-```
-"Python was primarily influenced by ABC, with additional inspiration from C, Modula-3, and various other languages."
-```
-
-### Programmatic Chat
-
-For a more programming friendly interface, you can `submit()` a user turn and get a [generator](https://wiki.python.org/moin/Generators) of strings back. In the default case of `stream=True`, the generator yields strings as they arrive from the API (in small chunks). This is useful when you want to process the response as it arrives and/or when the response is too long to fit in memory.
+The `response` is also an iterable, so you can loop over it to get the response in streaming chunks:
 
 ```python
-response = chat.submit("What is 1+1?", stream=True)
-for x in response:
-    print(x, end="")
+result = ""
+for chunk in response:
+    result += chunk
 ```
 
-```
-1 + 1 equals 2.
-```
-
-With `stream=False` you still get a generator, but it yields the entire response at once. This is primarily useful as workaround: some models happen to not support certain features (like tools) when streaming. Also, more generally, sometimes it's useful to have response before displaying anything.
+Or, if you just want the full response as a string, use the built-in `str()` function:
 
 ```python
-response = chat.submit("What is 1+1?", stream=False)
-for x in response:
-    print(x)
+str(response)
 ```
 
-```
-1 + 1 equals 2.
-```
 
 ### Vision (Image Input)
 
-To ask questions about images, you can pass one or more additional input arguments using `content_image_file()` and/or `content_image_url()`:
+Ask questions about image(s) with `content_image_file()` and/or `content_image_url()`:
 
 ```python
+from chatlas import content_image_url
+
 chat.chat(
     content_image_url("https://www.python.org/static/img/python-logo.png"),
     "Can you explain this logo?"
@@ -140,297 +150,32 @@ representing the Python programming language. The design symbolizes...
 The `content_image_url()` function takes a URL to an image file and sends that URL directly to the API. The `content_image_file()` function takes a path to a local image file and encodes it as a base64 string to send to the API. Note that by default, `content_image_file()` automatically resizes the image to fit within 512x512 pixels; set the `resize` parameter to "high" if higher resolution is needed.
 
 
-## Model providers
+### Conversation history
 
-`chatlas` supports various LLM models from Anthropic, OpenAI, Google, Ollama, and others.
-Options like Anthropic, OpenAI, and Google require an account and API key to use, and also send your input to a remote server for response generation.
-[Ollama](#ollama), on the other hand, provides a way to run open source models that run locally on your own machine, so is a good option for privacy and cost reasons.
-
-
-### Anthropic
-
-To use Anthropic's models (i.e., Claude), you'll need to sign up for an account and [get an API key](https://docs.anthropic.com/en/api/getting-started).
-You'll also want the Python package:
-
-```shell
-pip install anthropic
-```
-
-Paste your API key into `ChatAnthropic()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+Remember that regardless of how we interact with the model, the `chat` instance retains the conversation history, which you can access at any time:
 
 ```python
-from chatlas import ChatAnthropic
-chat = ChatAnthropic(api_key="...")
+chat.turns()
 ```
 
+Each turn represents a either a user's input or a model's response. It holds all the avaliable information about content and metadata of the turn. This can be useful for debugging, logging, or for building more complex conversational interfaces.
 
-### OpenAI
-
-To use OpenAI's models (i.e., GPT), you'll need to sign up for an account and [get an API key](https://platform.openai.com/docs/quickstart).
-You'll also want the Python package:
-
-```shell
-pip install openai
-```
-
-Paste your API key into `ChatOpenAI()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
+For cost and efficiency reasons, you may want to alter the conversation history. Currently, the main way to do this is to `.set_turns()`:
 
 ```python
-from chatlas import ChatOpenAI
-chat = ChatOpenAI(api_key="...")
+# Remove all but the last two turns
+chat.set_turns(chat.turns()[-2:])
 ```
 
+### Learn more
 
-### Google
+If you're new to world LLMs, you might want to read the [Get Started](https://cpsievert.github.io/chatlas/get-started.html) guide, which covers some basic concepts and terminology.
 
-To use Google's models (i.e., Gemini), you'll need to sign up for an account and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python).
-You'll also want the Python package:
+Once you're comfortable with the basics, you can explore more advanced topics:
 
-```shell
-pip install google-generativeai
-```
+* [Customize the system prompt](https://cpsievert.github.io/chatlas/prompt-engineering.html)
+* [Extract structured data](https://cpsievert.github.io/chatlas/structured-data.html)
+* [Tool (function) calling](https://cpsievert.github.io/chatlas/tool-calling.html)
+* [Build a web chat app](https://cpsievert.github.io/chatlas/web-apps.html)
 
-Paste your API key into `ChatGoogle()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import ChatGoogle
-chat = ChatGoogle(api_key="...")
-```
-
-### Ollama
-
-To use Ollama, first download and run the [Ollama](https://ollama.com/) executable. Then [choose a model](https://ollama.com/library), like llama 3.2, to download (from the command line):
-
-```shell
-ollama run llama-3.2
-```
-
-Now, you're read to chat via `chatlas`:
-
-```python
-from chatlas import ChatOllama
-chat = ChatOllama(model="llama3.2")
-```
-
-## Perplexity
-
-To use [perplexity.ai](https://perplexity.ai/), you'll need to sign up and obtain an API key. You'll also want the `openai` Python package:
-
-```shell
-pip install openai
-```
-
-Paste your API key into `ChatPerplexity()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import ChatPerplexity
-chat = ChatPerplexity(api_key="...")
-```
-
-
-## Groq
-
-To use [Groq](https://groq.dev/), you'll need to obtain an API key. You'll also want the `openai` Python package:
-
-```shell
-pip install openai
-```
-
-Paste your API key into `ChatGroq()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import ChatGroq
-chat = ChatGroq(api_key="...")
-```
-
-## Github
-
-To use the [GitHub model marketplace](https://github.com/marketplace/models), you currently need to apply for and be accepted into the beta access program. You'll also want the `openai` Python package:
-
-```shell
-pip install openai
-```
-
-Paste your API key into `ChatGitHub()` to start chatting, but also consider securely [managing your credentials](#managing-credentials):
-
-```python
-from chatlas import ChatGitHub
-chat = ChatGitHub(api_key="...")
-```
-
-### AWS Bedrock
-
-[AWS Bedrock](https://aws.amazon.com/bedrock/) provides a number of chat based models, including those Anthropic's [Claude](https://aws.amazon.com/bedrock/claude/). To use AWS Bedrock, you'll need the `anthropic` Python package, along with `bedrock` extras:
-
-```python
-pip install anthropic[bedrock]
-```
-
-Then, give your AWS deployment to `ChatBedrockAnthropic()`. Alternatively, see [here](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html) for a more detailed explanation of how to properly manage your AWS credentials.
-
-```python
-from chatlas import ChatBedrockAnthropic
-
-chat = ChatBedrockAnthropic(
-  aws_profile='...',
-  aws_region='us-east'
-  aws_secret_key='...',
-  aws_access_key='...',
-  aws_session_token='...',
-)
-```
-
-
-### Azure
-
-To use [Azure](https://azure.microsoft.com/en-us/products/ai-services/openai-service), you'll need the `openai` Python package:
-
-```shell
-pip install openai
-```
-
-Then, pass along information about your Azure deployment to the `ChatAzureOpenAI` constructor:
-
-```python
-import os
-from chatlas import ChatAzureOpenAI
-
-chat = ChatAzureOpenAI(
-  endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-  deployment_id='REPLACE_WITH_YOUR_DEPLOYMENT_ID',
-  api_version="YYYY-MM-DD",
-  api_key=os.getenv("AZURE_OPENAI_API_KEY"),  
-)
-```
-
-
-<!--
-
-### LangChain
-
-To use LangChain's [chat models](https://python.langchain.com/docs/integrations/chat/), you'll need to follow the relevant setup instructions ([for example](https://python.langchain.com/docs/integrations/chat/openai/#setup))
-You'll also want the relevant Python packages:
-
-```shell
-pip install langchain langchain-openai
-```
-
-Then, once you have a chat model instance, pass it to the `LangChainChat` constructor:
-
-```python
-from chatlas import LangChainChat
-from langchain_openai import ChatOpenAI
-
-chat = LangChainChat(ChatOpenAI())
-```
--->
-
-
-## Managing credentials
-
-Pasting an API key into a chat constructor (e.g., `ChatOpenAI(api_key="...")`) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.
-Instead, consider using environment variables or a configuration file to manage your credentials.
-One popular way to manage credentials is to use a `.env` file to store your credentials, and then use the `python-dotenv` package to load them into your environment.
-
-```shell
-pip install python-dotenv
-```
-
-```shell
-# .env
-ANTHROPIC_API_KEY=...
-OPENAI_API_KEY=...
-GITHUB_PAT=...
-GOOGLE_API_KEY=...
-GROQ_API_KEY=...
-PERPLEXITY_API_KEY=...
-```
-
-```python
-from chatlas import Anthropic
-from dotenv import load_dotenv
-
-load_dotenv()
-chat = ChatAnthropic()
-chat.console()
-```
-
-Another, more general, solution is to load your environment variables into the shell before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
-
-```shell
-export ANTHROPIC_API_KEY=...
-export OPENAI_API_KEY=...
-export GOOGLE_API_KEY=...
-```
-
-## Advanced features
-
-### Tool (function) calling
-
-Tool calling is a powerful feature enabling the LLM to call external programs to help answer your questions.
-`chatlas` makes it easy to provide Python functions as tools for the LLM to call, and handles the communication between the LLM and your function.
-
-To provide a tool, just define function(s) and pass them to the `chatlas` constructor.
-Make sure to annotate your function with types to help the LLM understand what it should expect and return.
-Also provide a docstring to help the LLM understand what your function does.
-
-```python
-from chatlas import ChatAnthropic
-
-def get_current_weather(location: str, unit: str = "fahrenheit") -> int:
-    """Get the current weather in a location."""
-    if "boston" in location.lower():
-        return 12 if unit == "fahrenheit" else -11
-    elif "new york" in location.lower():
-        return 20 if unit == "fahrenheit" else -6
-    else:
-        return 72 if unit == "fahrenheit" else 22
-
-chat = ChatAnthropic()
-chat.register_tool(get_current_weather)
-chat.chat("What's the weather like in Boston, New York, and London today?")
-```
-
-### Data extraction
-
-To extract structured data you call the `.extract_data()` method instead of the `.chat()` method.
-
-To extract data, you need to define a function that takes the LLM's response as input and returns the extracted data. You’ll also need to define a [pydantic model](https://docs.pydantic.dev/latest/#why-use-pydantic) that describes the structure of the data that you want. Here’s a simple example that extracts two specific values from a string:
-
-```python
-from chatlas import ChatOpenAI
-from pydantic import BaseModel
-
-class Person(BaseModel):
-    age: int
-    name: str
-
-chat = ChatOpenAI()
-chat.extract_data("My name is Susan and I'm 13 years old", data_model=Person)
-```
-
-```
-{'age': 13, 'name': 'Susan'}
-```
-
-
-### Build your own Shiny app
-
-Pass user input from a Shiny `Chat()` component to a `chatlas` response generator to embed a chat interface in your own Shiny app.
-
-```python
-from chatlas import ChatAnthropic
-from shiny import ui
-
-chat = ui.Chat(
-  id="chat", 
-  messages=["Hi! How can I help you today?"],
-)
-
-llm = ChatAnthropic()
-
-@chat.on_user_submit
-def _(message):
-    response = llm.submit(message)
-    chat.append_message_stream(response)
-```
+The [API reference](https://cpsievert.github.io/chatlas/reference/index.html) is also a useful overview of all the tooling available in `chatlas`, including starting examples and detailed descriptions.

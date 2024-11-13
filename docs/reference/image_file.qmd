@@ -1,0 +1,43 @@
+# content_image_file { #chatlas.content_image_file }
+
+```python
+content_image_file(path, content_type='auto', resize='low')
+```
+
+Encode image content from a file for chat input.
+
+This function is used to prepare image files for input to the chatbot. It
+can handle various image formats and provides options for resizing.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                                                                                                | Description                                                                                                                                                                                                                           | Default    |
+|--------------|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| path         | [str](`str`)                                                                                        | The path to the image file to include in the chat input.                                                                                                                                                                              | _required_ |
+| content_type | [Literal](`typing.Literal`)\[\'auto\', [ImageContentTypes](`chatlas.types.ImageContentTypes`)\]     | The content type of the image (e.g., `"image/png"`). If `"auto"`, the content type is inferred from the file extension.                                                                                                               | `'auto'`   |
+| resize       | [Union](`typing.Union`)\[[str](`str`), [Literal](`typing.Literal`)\[\'none\', \'low\', \'high\'\]\] | Resizing option for the image. Can be:     - `"none"`: No resizing     - `"low"`: Resize to fit within 512x512     - `"high"`: Resize to fit within 2000x768 or 768x2000     - Custom string (e.g., `"200x200"`, `"300x200>!"`, etc.) | `'low'`    |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                           | Description                                        |
+|--------|--------------------------------|----------------------------------------------------|
+|        | \[\](`~chatlas.types.Content`) | Content suitable for a [](`~chatlas.Turn`) object. |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+from chatlas import ChatOpenAI, content_image_file
+
+chat = ChatOpenAI()
+chat.chat(
+    "What do you see in this image?",
+    content_image_file("path/to/image.png"),
+)
+```
+
+## Raises {.doc-section .doc-section-raises}
+
+| Name   | Type                                     | Description                                                           |
+|--------|------------------------------------------|-----------------------------------------------------------------------|
+|        | [FileNotFoundError](`FileNotFoundError`) | If the specified file does not exist.                                 |
+|        | [ValueError](`ValueError`)               | If the file extension is unsupported or the resize option is invalid. |

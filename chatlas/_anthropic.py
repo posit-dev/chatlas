@@ -18,7 +18,7 @@ from ._content import (
 )
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import Tool, ToolSchema, basemodel_to_param_schema
+from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
 from ._utils import inform_model_default
 
@@ -36,12 +36,9 @@ if TYPE_CHECKING:
     from anthropic.types.text_block_param import TextBlockParam
     from anthropic.types.tool_result_block_param import ToolResultBlockParam
     from anthropic.types.tool_use_block_param import ToolUseBlockParam
+    from openai.types.chat import ChatCompletionToolParam
 
-    from .types._anthropic_client import ProviderClientArgs
-    from .types._anthropic_client_bedrock import (
-        ProviderClientArgs as BedrockProviderArgs,
-    )
-    from .types._anthropic_create import CreateCompletionArgs
+    from .types.anthropic import ChatBedrockClientArgs, ChatClientArgs, SubmitInputArgs
 
     ContentBlockParam = Union[
         TextBlockParam,
@@ -61,19 +58,43 @@ def ChatAnthropic(
     model: "Optional[ModelParam]" = None,
     api_key: Optional[str] = None,
     max_tokens: int = 4096,
-    kwargs: Optional["ProviderClientArgs"] = None,
-) -> Chat["CreateCompletionArgs"]:
+    kwargs: Optional["ChatClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
     Chat with an Anthropic Claude model.
 
-    Anthropic (https://www.anthropic.com) provides a number of chat based
-    models under the Claude (https://www.anthropic.com/claude) moniker.
+    [Anthropic](https://www.anthropic.com) provides a number of chat based
+    models under the [Claude](https://www.anthropic.com/claude) moniker.
+
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## API key
 
     Note that a Claude Prop membership does not give you the ability to call
-    models via the API. You will need to go to the developer console
-    (https://console.anthropic.com/account/keys) to sign up (and pay for)
-    a developer account that will give you an API key that you can use with
+    models via the API. You will need to go to the [developer
+    console](https://console.anthropic.com/account/keys) to sign up (and pay
+    for) a developer account that will give you an API key that you can use with
     this package.
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatAnthropic` requires the `anthropic` package (e.g., `pip install anthropic`).
+    :::
+
+    Examples
+    --------
+
+    ```python
+    import os
+    from chatlas import ChatAnthropic
+
+    chat = ChatAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -81,27 +102,65 @@ def ChatAnthropic(
         A system prompt to set the behavior of the assistant.
     turns
         A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch.
-        Do not provide non-None values for both `turns` and `system_prompt`.
-        Each message in the list should be a dictionary with at least `role`
-        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-        Normally there is also a `content` field, which is a string.
+        conversation). If not provided, the conversation begins from scratch. Do
+        not provide non-None values for both `turns` and `system_prompt`. Each
+        message in the list should be a dictionary with at least `role` (usually
+        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
+        there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
-        default, and warn you about it. We strongly recommend explicitly choosing
-        a model for all but the most casual use.
+        default, and warn you about it. We strongly recommend explicitly
+        choosing a model for all but the most casual use.
     api_key
         The API key to use for authentication. You generally should not supply
-        this directly, but instead set the `ANTHROPIC_API_KEY` environment variable.
+        this directly, but instead set the `ANTHROPIC_API_KEY` environment
+        variable.
     max_tokens
         Maximum number of tokens to generate before stopping.
     kwargs
-        Additional arguments to pass to the `anthropic.Anthropic()` client constructor.
+        Additional arguments to pass to the `anthropic.Anthropic()` client
+        constructor.
 
     Returns
     -------
     Chat
         A Chat object.
+
+    Note
+    ----
+    Pasting an API key into a chat constructor (e.g., `ChatAnthropic(api_key="...")`)
+    is the simplest way to get started, and is fine for interactive use, but is
+    problematic for code that may be shared with others.
+
+    Instead, consider using environment variables or a configuration file to manage
+    your credentials. One popular way to manage credentials is to use a `.env` file
+    to store your credentials, and then use the `python-dotenv` package to load them
+    into your environment.
+
+    ```shell
+    pip install python-dotenv
+    ```
+
+    ```shell
+    # .env
+    ANTHROPIC_API_KEY=...
+    ```
+
+    ```python
+    from chatlas import ChatAnthropic
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    chat = ChatAnthropic()
+    chat.console()
+    ```
+
+    Another, more general, solution is to load your environment variables into the shell
+    before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
+
+    ```shell
+    export ANTHROPIC_API_KEY=...
+    ```
     """
 
     if model is None:
@@ -128,7 +187,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         max_tokens: int,
         model: str,
         api_key: str | None,
-        kwargs: Optional["ProviderClientArgs"] = None,
+        kwargs: Optional["ChatClientArgs"] = None,
     ):
         try:
             from anthropic import Anthropic, AsyncAnthropic
@@ -141,7 +200,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         self._model = model
         self._max_tokens = max_tokens
 
-        kwargs_full: "ProviderClientArgs" = {
+        kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
             **(kwargs or {}),
         }
@@ -158,7 +217,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -169,7 +228,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     def chat_perform(
@@ -179,7 +238,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return self._client.messages.create(**kwargs)  # type: ignore
@@ -192,7 +251,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -203,7 +262,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     async def chat_perform_async(
@@ -213,7 +272,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return await self._async_client.messages.create(**kwargs)  # type: ignore
@@ -224,8 +283,8 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["CreateCompletionArgs"] = None,
-    ) -> "CreateCompletionArgs":
+        kwargs: Optional["SubmitInputArgs"] = None,
+    ) -> "SubmitInputArgs":
         tool_schemas = [
             self._anthropic_tool_schema(tool.schema) for tool in tools.values()
         ]
@@ -235,16 +294,17 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         if data_model is not None:
 
             def _structured_tool_call(**kwargs):
+                """Extract structured data"""
                 pass
 
-            data_model_tool = Tool(
-                _structured_tool_call,
-                description="Extract structured data",
-            )
+            data_model_tool = Tool(_structured_tool_call)
 
-            data_model_tool.schema["function"]["parameters"] = (
-                basemodel_to_param_schema(data_model)
-            )
+            data_model_tool.schema["function"]["parameters"] = {
+                "type": "object",
+                "properties": {
+                    "data": basemodel_to_param_schema(data_model),
+                },
+            }
 
             tool_schemas.append(self._anthropic_tool_schema(data_model_tool.schema))
 
@@ -254,7 +314,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                     "Anthropic does not support structured data extraction in streaming mode."
                 )
 
-        kwargs_full: "CreateCompletionArgs" = {
+        kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_params(turns),
             "model": self._model,
@@ -375,17 +435,24 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         raise ValueError(f"Unknown content type: {type(content)}")
 
     @staticmethod
-    def _anthropic_tool_schema(schema: ToolSchema) -> "ToolParam":
+    def _anthropic_tool_schema(schema: "ChatCompletionToolParam") -> "ToolParam":
         fn = schema["function"]
         name = fn["name"]
-        return {
+
+        res: "ToolParam" = {
             "name": name,
-            "description": fn["description"],
             "input_schema": {
                 "type": "object",
-                "properties": fn["parameters"]["properties"],
             },
         }
+
+        if "description" in fn:
+            res["description"] = fn["description"]
+
+        if "parameters" in fn:
+            res["input_schema"]["properties"] = fn["parameters"]["properties"]
+
+        return res
 
     def _as_turn(self, completion: Message, has_data_model=False) -> Turn:
         contents = []
@@ -393,15 +460,18 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             if content.type == "text":
                 contents.append(ContentText(content.text))
             elif content.type == "tool_use":
-                if has_data_model:
-                    json = ContentJson(cast(dict, content.input))
-                    contents.append(json)
-                else:
-                    # For some reason, the type is a general object?
-                    if not isinstance(content.input, dict):
+                # For some reason, the type is a general object, but I think it's always a dict?
+                if not isinstance(content.input, dict):
+                    raise ValueError(
+                        f"Expected a dictionary of input arguments, got {type(content.input)}."
+                    )
+                if has_data_model and content.name == "_structured_tool_call":
+                    if "data" not in content.input:
                         raise ValueError(
-                            f"Expected a dictionary of input arguments, got {type(content.input)}."
+                            "Expected data extraction tool to return a 'data' field."
                         )
+                    contents.append(ContentJson(content.input["data"]))
+                else:
                     contents.append(
                         ContentToolRequest(
                             content.id,
@@ -428,14 +498,47 @@ def ChatBedrockAnthropic(
     base_url: Optional[str] = None,
     system_prompt: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
-    kwargs: Optional["BedrockProviderArgs"] = None,
-) -> Chat["CreateCompletionArgs"]:
+    kwargs: Optional["ChatBedrockClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
-    Chat with an AWS bedrock model
+    Chat with an AWS bedrock model.
 
     [AWS Bedrock](https://aws.amazon.com/bedrock/) provides a number of chat
     based models, including those Anthropic's
     [Claude](https://aws.amazon.com/bedrock/claude/).
+
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## AWS credentials
+
+    Consider using the approach outlined in this guide to manage your AWS credentials:
+    <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html>
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras
+    (e.g., `pip install anthropic[bedrock]`).
+    :::
+
+    Examples
+    --------
+
+    ```python
+    from chatlas import ChatBedrockAnthropic
+
+    chat = ChatBedrockAnthropic(
+        aws_profile="...",
+        aws_region="us-east",
+        aws_secret_key="...",
+        aws_access_key="...",
+        aws_session_token="...",
+    )
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -473,11 +576,6 @@ def ChatBedrockAnthropic(
     -------
     Chat
         A Chat object.
-
-    Note
-    ----
-    For more information on configuring AWS credentials, see
-    <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html>
     """
 
     if model is None:
@@ -514,7 +612,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_session_token: str | None,
         max_tokens: int = 1024,
         base_url: str | None,
-        kwargs: Optional["BedrockProviderArgs"] = None,
+        kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
         try:
             from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
@@ -527,7 +625,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         self._model = model
         self._max_tokens = max_tokens
 
-        kwargs_full: "BedrockProviderArgs" = {
+        kwargs_full: "ChatBedrockClientArgs" = {
             "aws_secret_key": aws_secret_key,
             "aws_access_key": aws_access_key,
             "aws_region": aws_region,

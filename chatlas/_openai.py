@@ -18,7 +18,7 @@ from ._content import (
 from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import Tool, ToolSchema, basemodel_to_param_schema
+from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
 from ._utils import MISSING, MISSING_TYPE, inform_model_default, is_testing
 
@@ -27,7 +27,6 @@ if TYPE_CHECKING:
         ChatCompletion,
         ChatCompletionChunk,
         ChatCompletionMessageParam,
-        ChatCompletionToolParam,
     )
     from openai.types.chat.chat_completion_assistant_message_param import (
         ContentArrayOfContentPart,
@@ -37,9 +36,7 @@ if TYPE_CHECKING:
     )
     from openai.types.chat_model import ChatModel
 
-    from .types._openai_client import ProviderClientArgs
-    from .types._openai_client_azure import ProviderClientArgs as AzureProviderArgs
-    from .types._openai_create import ChatCompletionArgs
+    from .types.openai import ChatAzureClientArgs, ChatClientArgs, SubmitInputArgs
 else:
     ChatCompletion = object
     ChatCompletionChunk = object
@@ -57,18 +54,41 @@ def ChatOpenAI(
     api_key: Optional[str] = None,
     base_url: str = "https://api.openai.com/v1",
     seed: int | None | MISSING_TYPE = MISSING,
-    kwargs: Optional["ProviderClientArgs"] = None,
-) -> Chat["ChatCompletionArgs"]:
+    kwargs: Optional["ChatClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
     Chat with an OpenAI model.
 
-    OpenAI (https://openai.com/) provides a number of chat based models under
-    the ChatGPT (https://chatgpt.com) moniker.
+    [OpenAI](https://openai.com/) provides a number of chat based models under
+    the [ChatGPT](https://chatgpt.com) moniker.
+
+    Prerequisites
+    --------------
+
+    ::: {.callout-note}
+    ## API key
 
     Note that a ChatGPT Plus membership does not give you the ability to call
-    models via the API. You will need to go to the developer platform
-    (https://platform.openai.com) to sign up (and pay for) a developer account
-    that will give you an API key that you can use with this package.
+    models via the API. You will need to go to the [developer
+    platform](https://platform.openai.com) to sign up (and pay for) a developer
+    account that will give you an API key that you can use with this package.
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatOpenAI` requires the `openai` package (e.g., `pip install openai`).
+    :::
+
+    Examples
+    --------
+    ```python
+    import os
+    from chatlas import ChatOpenAI
+
+    chat = ChatOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -76,37 +96,68 @@ def ChatOpenAI(
         A system prompt to set the behavior of the assistant.
     turns
         A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch.
-        Do not provide non-`None` values for both `turns` and `system_prompt`.
-        Each message in the list should be a dictionary with at least `role`
-        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-        Normally there is also a `content` field, which is a string.
+        conversation). If not provided, the conversation begins from scratch. Do
+        not provide non-`None` values for both `turns` and `system_prompt`. Each
+        message in the list should be a dictionary with at least `role` (usually
+        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
+        there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
-        default, and warn you about it. We strongly recommend explicitly choosing
-        a model for all but the most casual use.
+        default, and warn you about it. We strongly recommend explicitly
+        choosing a model for all but the most casual use.
     api_key
         The API key to use for authentication. You generally should not supply
-        this directly, but instead set the `OPENAI_API_KEY` environment variable.
+        this directly, but instead set the `OPENAI_API_KEY` environment
+        variable.
     base_url
         The base URL to the endpoint; the default uses OpenAI.
     seed
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the `openai.OpenAI()` client constructor.
+        Additional arguments to pass to the `openai.OpenAI()` client
+        constructor.
 
     Returns
     -------
     Chat
         A chat object that retains the state of the conversation.
 
-    Examples
-    --------
-    >>> from chatlas import ChatOpenAI
-    >>> chat = ChatOpenAI()
-    >>> chat.chat("What is the capital of France?")
+    Note
+    ----
+    Pasting an API key into a chat constructor (e.g., `ChatOpenAI(api_key="...")`)
+    is the simplest way to get started, and is fine for interactive use, but is
+    problematic for code that may be shared with others.
 
+    Instead, consider using environment variables or a configuration file to manage
+    your credentials. One popular way to manage credentials is to use a `.env` file
+    to store your credentials, and then use the `python-dotenv` package to load them
+    into your environment.
+
+    ```shell
+    pip install python-dotenv
+    ```
+
+    ```shell
+    # .env
+    OPENAI_API_KEY=...
+    ```
+
+    ```python
+    from chatlas import ChatOpenAI
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    chat = ChatOpenAI()
+    chat.console()
+    ```
+
+    Another, more general, solution is to load your environment variables into the shell
+    before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
+
+    ```shell
+    export OPENAI_API_KEY=...
+    ```
     """
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
@@ -137,7 +188,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         model: str,
         base_url: str = "https://api.openai.com/v1",
         seed: Optional[int] = None,
-        kwargs: Optional["ProviderClientArgs"] = None,
+        kwargs: Optional["ChatClientArgs"] = None,
     ):
         try:
             from openai import AsyncOpenAI, OpenAI
@@ -150,7 +201,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         self._model = model
         self._seed = seed
 
-        kwargs_full: "ProviderClientArgs" = {
+        kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
             "base_url": base_url,
             **(kwargs or {}),
@@ -168,7 +219,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -179,7 +230,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     def chat_perform(
@@ -189,7 +240,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return self._client.chat.completions.create(**kwargs)  # type: ignore
@@ -202,7 +253,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     @overload
@@ -213,7 +264,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     async def chat_perform_async(
@@ -223,7 +274,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return await self._async_client.chat.completions.create(**kwargs)  # type: ignore
@@ -234,17 +285,15 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["ChatCompletionArgs"] = None,
-    ) -> "ChatCompletionArgs":
-        tool_schemas = [
-            self._openai_tool_schema(tool.schema) for tool in tools.values()
-        ]
+        kwargs: Optional["SubmitInputArgs"] = None,
+    ) -> "SubmitInputArgs":
+        tool_schemas = [tool.schema for tool in tools.values()]
         # OpenAI's typing is wrong (an empty list isn't allowed)
         # If they fix it, we can remove this if statement
         if not tool_schemas:
             tool_schemas = cast(list, None)
 
-        kwargs_full: "ChatCompletionArgs" = {
+        kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_param(turns),
             "tools": tool_schemas,
@@ -261,10 +310,14 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                 "type": "json_schema",
                 "json_schema": {
                     "name": "structured_data",
+                    "description": params.get("description", ""),
                     "schema": params,
                     "strict": True,
                 },
             }
+            # Apparently OpenAI gets confused if you include
+            # both response_format and tools
+            del kwargs_full["tools"]
 
         if stream and "stream_options" not in kwargs_full:
             kwargs_full["stream_options"] = {"include_usage": True}
@@ -315,6 +368,8 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                 for x in turn.contents:
                     if isinstance(x, ContentText):
                         content_parts.append({"type": "text", "text": x.text})
+                    elif isinstance(x, ContentJson):
+                        content_parts.append({"type": "text", "text": ""})
                     elif isinstance(x, ContentToolRequest):
                         tool_calls.append(
                             {
@@ -390,25 +445,6 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
         return res
 
-    @staticmethod
-    def _openai_tool_schema(schema: ToolSchema) -> "ChatCompletionToolParam":
-        fn = schema["function"]
-        name = fn["name"]
-        return {
-            "type": "function",
-            "function": {
-                "name": name,
-                "description": fn["description"],
-                "parameters": {
-                    "type": "object",
-                    "properties": fn["parameters"]["properties"],
-                    "required": fn["parameters"]["required"],
-                    "additionalProperties": False,
-                },
-                "strict": True,
-            },
-        }
-
     def _as_turn(self, completion: "ChatCompletion", has_data_model: bool) -> Turn:
         message = completion.choices[0].message
 
@@ -467,14 +503,39 @@ def ChatAzureOpenAI(
     system_prompt: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
     seed: int | None | MISSING_TYPE = MISSING,
-    kwargs: Optional["AzureProviderArgs"] = None,
-) -> Chat["ChatCompletionArgs"]:
+    kwargs: Optional["ChatAzureClientArgs"] = None,
+) -> Chat["SubmitInputArgs"]:
     """
     Chat with a model hosted on Azure OpenAI.
 
-    The Azure OpenAI server (https://azure.microsoft.com/en-us/products/ai-services/openai-service)
+    The [Azure OpenAI server](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
     hosts a number of open source models as well as proprietary models
     from OpenAI.
+
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatAzureOpenAI` requires the `openai` package (e.g., `pip install openai`).
+    :::
+
+    Examples
+    --------
+    ```python
+    import os
+    from chatlas import ChatAzureOpenAI
+
+    chat = ChatAzureOpenAI(
+        endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+        deployment_id="REPLACE_WITH_YOUR_DEPLOYMENT_ID",
+        api_version="YYYY-MM-DD",
+        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
+    )
+
+    chat.chat("What is the capital of France?")
+    ```
 
     Parameters
     ----------
@@ -539,7 +600,7 @@ class OpenAIAzureProvider(OpenAIProvider):
         api_version: Optional[str] = None,
         api_key: Optional[str] = None,
         seed: int | None = None,
-        kwargs: Optional["AzureProviderArgs"] = None,
+        kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
         try:
             from openai import AsyncAzureOpenAI, AzureOpenAI
@@ -552,7 +613,7 @@ class OpenAIAzureProvider(OpenAIProvider):
         self._model = deployment_id
         self._seed = seed
 
-        kwargs_full: "AzureProviderArgs" = {
+        kwargs_full: "ChatAzureClientArgs" = {
             "azure_endpoint": endpoint,
             "azure_deployment": deployment_id,
             "api_version": api_version,

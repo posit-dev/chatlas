@@ -1,0 +1,6 @@
+# types.ContentJson { #chatlas.types.ContentJson }
+
+```python
+types.ContentJson(self, value)
+```
+
