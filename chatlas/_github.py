@@ -93,6 +93,42 @@ def ChatGithub(
     ----
     This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
     the defaults tweaked for the GitHub model marketplace.
+
+    Note
+    ----
+    Pasting an API key into a chat constructor (e.g., `ChatGithub(api_key="...")`)
+    is the simplest way to get started, and is fine for interactive use, but is
+    problematic for code that may be shared with others.
+
+    Instead, consider using environment variables or a configuration file to manage
+    your credentials. One popular way to manage credentials is to use a `.env` file
+    to store your credentials, and then use the `python-dotenv` package to load them
+    into your environment.
+
+    ```shell
+    pip install python-dotenv
+    ```
+
+    ```shell
+    # .env
+    GITHUB_PAT=...
+    ```
+
+    ```python
+    from chatlas import ChatGithub
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    chat = ChatGithub()
+    chat.console()
+    ```
+
+    Another, more general, solution is to load your environment variables into the shell
+    before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
+
+    ```shell
+    export GITHUB_PAT=...
+    ```
     """
     if model is None:
         model = inform_model_default("gpt-4o-mini")

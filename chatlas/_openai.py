@@ -127,9 +127,14 @@ def ChatOpenAI(
 
     Note
     ----
-    Pasting an API key into a chat constructor (e.g., `ChatOpenAI(api_key="...")`) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.
-    Instead, consider using environment variables or a configuration file to manage your credentials.
-    One popular way to manage credentials is to use a `.env` file to store your credentials, and then use the `python-dotenv` package to load them into your environment.
+    Pasting an API key into a chat constructor (e.g., `ChatOpenAI(api_key="...")`)
+    is the simplest way to get started, and is fine for interactive use, but is
+    problematic for code that may be shared with others.
+
+    Instead, consider using environment variables or a configuration file to manage
+    your credentials. One popular way to manage credentials is to use a `.env` file
+    to store your credentials, and then use the `python-dotenv` package to load them
+    into your environment.
 
     ```shell
     pip install python-dotenv
@@ -149,7 +154,8 @@ def ChatOpenAI(
     chat.console()
     ```
 
-    Another, more general, solution is to load your environment variables into the shell before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
+    Another, more general, solution is to load your environment variables into the shell
+    before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
 
     ```shell
     export OPENAI_API_KEY=...

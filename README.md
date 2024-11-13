@@ -25,7 +25,7 @@ After installing, you'll want to pick a [model provider](#model-providers), and 
 * OpenAI: [`ChatOpenAI()`](https://cpsievert.github.io/chatlas/reference/ChatOpenAI.html).
 * perplexity.ai: [`ChatPerplexity()`](https://cpsievert.github.io/chatlas/reference/ChatPerplexity.html).
 
-As well as enterprise cloud providers:
+It also supports the following enterprise cloud providers:
 
 * AWS Bedrock: [`ChatBedrockAnthropic()`](https://cpsievert.github.io/chatlas/reference/ChatBedrockAnthropic.html).
 * Azure OpenAI: [`ChatAzureOpenAI()`](https://cpsievert.github.io/chatlas/reference/ChatAzureOpenAI.html).
@@ -35,7 +35,7 @@ As well as enterprise cloud providers:
 
 If you're using chatlas inside your organisation, you'll typically need to use whatever you're allowed to. If you're using chatlas for your own personal exploration, we recommend starting with:
 
-`ChatOpenAI()`, which currently defaults to `model="gpt-4o-mini"`. You might want to try `model="gpt-4o"` for more demanding task and if you want to force complex reasoning, `model="o1-mini"`.
+`ChatOpenAI()`, which currently defaults to `model="gpt-4o-mini"`. You might want to try `"gpt-4o"` for more demanding task and if you want to force complex reasoning, `"o1-mini"`.
 
 `ChatAnthropic()`, which defaults to Claude 3.5 Sonnet. This currently appears to be the best model for code generation.
 
@@ -86,8 +86,8 @@ The chat app is similar to the chat console, but it runs in your browser. It's u
 chat.app()
 ```
 
-<div align="center">
-<img width="667" alt="Screenshot 2024-11-06 at 11 43 34 AM" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e">
+<div style="display:flex;justify-content:center;">
+<img width="667" alt="A web app for chatting with an LLM via chatlas" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="border rounded">
 </div>
 
 
@@ -131,7 +131,7 @@ str(response)
 
 ### Vision (Image Input)
 
-To ask questions about images, you can pass one or more additional input arguments using `content_image_file()` and/or `content_image_url()`:
+Ask questions about image(s) with `content_image_file()` and/or `content_image_url()`:
 
 ```python
 from chatlas import content_image_url
@@ -160,6 +160,22 @@ chat.turns()
 
 Each turn represents a either a user's input or a model's response. It holds all the avaliable information about content and metadata of the turn. This can be useful for debugging, logging, or for building more complex conversational interfaces.
 
+For cost and efficiency reasons, you may want to alter the conversation history. Currently, the main way to do this is to `.set_turns()`:
+
+```python
+# Remove all but the last two turns
+chat.set_turns(chat.turns()[-2:])
+```
+
 ### Learn more
 
-For more information on the available methods and parameters, check out the [API reference](https://cpsievert.github.io/chatlas/reference/index.html).
+If you're new to world LLMs, you might want to read the [Get Started](https://cpsievert.github.io/chatlas/chatlas.html) guide, which covers some basic concepts and terminology.
+
+Once you're comfortable with the basics, you can explore more advanced topics:
+
+* [Customize the system prompt](https://cpsievert.github.io/chatlas/prompt-engineering.html)
+* [Extract structured data](https://cpsievert.github.io/chatlas/structured-data.html)
+* [Tool (function) calling](https://cpsievert.github.io/chatlas/tool-calling.html)
+* [Build a web chat app](https://cpsievert.github.io/chatlas/web-apps.html)
+
+The [API reference](https://cpsievert.github.io/chatlas/reference/index.html) is also a useful overview of all the tooling available in `chatlas`, including starting examples and detailed descriptions.
