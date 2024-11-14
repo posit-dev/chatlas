@@ -26,9 +26,9 @@ authors = [
 [project.urls]
 Homepage = "https://posit-dev.github.io/chatlas"
 Documentation = "https://posit-dev.github.io/chatlas"
-Repository = "https://github.com/cpsievert/chatlas"
-Issues = "https://github.com/cpsievert/chatlas/issues/"
-Changelog = "https://github.com/cpsievert/chatlas/blob/main/CHANGELOG.md"
+Repository = "https://github.com/posit-dev/chatlas"
+Issues = "https://github.com/posit-dev/chatlas/issues/"
+Changelog = "https://github.com/posit-dev/chatlas/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 test = [

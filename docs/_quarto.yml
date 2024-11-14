@@ -16,7 +16,7 @@ lightbox: auto
 website:
   title: "chatlas"
   # bread-crumbs: true
-  repo-url: https://github.com/cpsievert/chatlas
+  repo-url: https://github.com/posit-dev/chatlas
   repo-actions: [issue, source]
 
   navbar:
@@ -41,7 +41,7 @@ website:
             href: web-apps.qmd
     right:
       - icon: github
-        href: https://github.com/cpsievert/chatlas
+        href: https://github.com/posit-dev/chatlas
         aria-label: GitHub repository
 
 

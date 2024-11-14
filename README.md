@@ -8,7 +8,7 @@ Easily chat with various LLM models from Ollama, Anthropic, OpenAI, and more.
 `chatlas` isn't yet on pypi, but you can install from Github:
 
 ```bash
-pip install git+https://github.com/cpsievert/chatlas
+pip install git+https://github.com/posit-dev/chatlas
 ```
 
 After installing, you'll want to pick a [model provider](#model-providers), and get [credentials](#managing-credentials) set up (if necessary). Here, we demonstrate usage with OpenAI, but the concepts here apply to other implementations as well.
@@ -17,18 +17,18 @@ After installing, you'll want to pick a [model provider](#model-providers), and 
 
 `chatlas` supports a variety of model providers:
 
-* Anthropic (Claude): [`ChatAnthropic()`](https://cpsievert.github.io/chatlas/reference/ChatAnthropic.html).
-* GitHub model marketplace: [`ChatGithub()`](https://cpsievert.github.io/chatlas/reference/ChatGithub.html).
-* Google (Gemini): [`ChatGoogle()`](https://cpsievert.github.io/chatlas/reference/ChatGoogle.html).
-* Groq: [`ChatGroq()`](https://cpsievert.github.io/chatlas/reference/ChatGroq.html).
-* Ollama local models: [`ChatOllama()`](https://cpsievert.github.io/chatlas/reference/ChatOllama.html).
-* OpenAI: [`ChatOpenAI()`](https://cpsievert.github.io/chatlas/reference/ChatOpenAI.html).
-* perplexity.ai: [`ChatPerplexity()`](https://cpsievert.github.io/chatlas/reference/ChatPerplexity.html).
+* Anthropic (Claude): [`ChatAnthropic()`](https://posit-dev.github.io/chatlas/reference/ChatAnthropic.html).
+* GitHub model marketplace: [`ChatGithub()`](https://posit-dev.github.io/chatlas/reference/ChatGithub.html).
+* Google (Gemini): [`ChatGoogle()`](https://posit-dev.github.io/chatlas/reference/ChatGoogle.html).
+* Groq: [`ChatGroq()`](https://posit-dev.github.io/chatlas/reference/ChatGroq.html).
+* Ollama local models: [`ChatOllama()`](https://posit-dev.github.io/chatlas/reference/ChatOllama.html).
+* OpenAI: [`ChatOpenAI()`](https://posit-dev.github.io/chatlas/reference/ChatOpenAI.html).
+* perplexity.ai: [`ChatPerplexity()`](https://posit-dev.github.io/chatlas/reference/ChatPerplexity.html).
 
 It also supports the following enterprise cloud providers:
 
-* AWS Bedrock: [`ChatBedrockAnthropic()`](https://cpsievert.github.io/chatlas/reference/ChatBedrockAnthropic.html).
-* Azure OpenAI: [`ChatAzureOpenAI()`](https://cpsievert.github.io/chatlas/reference/ChatAzureOpenAI.html).
+* AWS Bedrock: [`ChatBedrockAnthropic()`](https://posit-dev.github.io/chatlas/reference/ChatBedrockAnthropic.html).
+* Azure OpenAI: [`ChatAzureOpenAI()`](https://posit-dev.github.io/chatlas/reference/ChatAzureOpenAI.html).
 
 
 ## Model choice
@@ -169,13 +169,13 @@ chat.set_turns(chat.turns()[-2:])
 
 ### Learn more
 
-If you're new to world LLMs, you might want to read the [Get Started](https://cpsievert.github.io/chatlas/get-started.html) guide, which covers some basic concepts and terminology.
+If you're new to world LLMs, you might want to read the [Get Started](https://posit-dev.github.io/chatlas/get-started.html) guide, which covers some basic concepts and terminology.
 
 Once you're comfortable with the basics, you can explore more advanced topics:
 
-* [Customize the system prompt](https://cpsievert.github.io/chatlas/prompt-engineering.html)
-* [Extract structured data](https://cpsievert.github.io/chatlas/structured-data.html)
-* [Tool (function) calling](https://cpsievert.github.io/chatlas/tool-calling.html)
-* [Build a web chat app](https://cpsievert.github.io/chatlas/web-apps.html)
+* [Customize the system prompt](https://posit-dev.github.io/chatlas/prompt-engineering.html)
+* [Extract structured data](https://posit-dev.github.io/chatlas/structured-data.html)
+* [Tool (function) calling](https://posit-dev.github.io/chatlas/tool-calling.html)
+* [Build a web chat app](https://posit-dev.github.io/chatlas/web-apps.html)
 
-The [API reference](https://cpsievert.github.io/chatlas/reference/index.html) is also a useful overview of all the tooling available in `chatlas`, including starting examples and detailed descriptions.
+The [API reference](https://posit-dev.github.io/chatlas/reference/index.html) is also a useful overview of all the tooling available in `chatlas`, including starting examples and detailed descriptions.

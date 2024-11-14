@@ -54,7 +54,7 @@ If you're developing an app, then you'll provide the system prompt and your user
 
 Models will also have their own systems prompts that are applied underneath your prompts. You can get a sense for what these look like from Anthropic, who [publishes their system prompts](https://docs.anthropic.com/en/release-notes/system-prompts).
 
-Writing good prompts is called __prompt engineering__ and is key to effective use of LLMs. We'll discuss that in more details in `vignette("prompt-engineering")`.
+Writing good prompts is called __prompt engineering__ and is key to effective use of LLMs. We'll discuss that in more details in [Prompt Engineering](prompt-engineering.qmd).
 
 ### Providers and models
 
@@ -67,18 +67,17 @@ But other providers host many different models. These models are typically open 
 User interfaces:
 
 * A chatbot with [shinychat](https://github.com/jcheng5/shinychat).
-  From this simple framework you can add extra features, e.g.
-  <https://shiny.posit.co/blog/posts/shiny-assistant/>.
+  From this simple framework you can add extra features, e.g. <https://shiny.posit.co/blog/posts/shiny-assistant/>.
 
 * Modify code/text using {rstudioapi}.
 
-* A function that takes unstructured input and returns structured output. Learn more in `vignette("structure-data")`.
+* A function that takes unstructured input and returns structured output. Learn more in [Structured Data](structured-data.qmd)
 
 Interaction with the LLM:
 
 * Automate adding data to the prompt.
 
-    * For example, you could automatically look up the documentation for an R function, and include it in the prompt.
+    * For example, you could automatically look up the documentation for a Python function, and include it in the prompt.
 
     * Describe a data frame. <https://github.com/cpsievert/aidea>
 
@@ -87,6 +86,6 @@ Interaction with the LLM:
     * <https://github.com/jcheng5/elmer-assistant>
     * <https://simonpcouch.github.io/pal/>
 
-* Connect an LLM with more data by using tool calling. Learn more in `vignette("tool-calling")`.
+* Connect an LLM with more data by using tool calling. Learn more in [Tool Calling](tool-calling.qmd)
 
 * Define create a prompt with example of the structured data output that you want.
