@@ -454,9 +454,13 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             elif content.type == "tool_use":
                 if has_data_model and content.name == "_structured_tool_call":
                     if not isinstance(content.input, dict):
-                        raise ValueError("Expected data extraction tool to return a dictionary.")
+                        raise ValueError(
+                            "Expected data extraction tool to return a dictionary."
+                        )
                     if "data" not in content.input:
-                        raise ValueError("Expected data extraction tool to return a 'data' field.")
+                        raise ValueError(
+                            "Expected data extraction tool to return a 'data' field."
+                        )
                     contents.append(ContentJson(content.input["data"]))
                 else:
                     contents.append(
