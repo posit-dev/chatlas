@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 from pydantic import BaseModel
@@ -463,8 +464,18 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                 func = call.function
                 if func is None:
                     continue
-                # TODO: record parsing error
-                args = json.loads(func.arguments) if func.arguments else {}
+
+                args = {}
+                try:
+                    args = json.loads(func.arguments) if func.arguments else {}
+                except json.JSONDecodeError:
+                    warnings.warn(
+                        f"The model's completion included a tool request ({func.name}) "
+                        "with invalid JSON for input arguments: '{func.arguments}'",
+                        InvalidJSONParameterWarning,
+                        stacklevel=2,
+                    )
+
                 contents.append(
                     ContentToolRequest(
                         call.id,
@@ -623,3 +634,15 @@ class OpenAIAzureProvider(OpenAIProvider):
 
         self._client = AzureOpenAI(**kwargs_full)  # type: ignore
         self._async_client = AsyncAzureOpenAI(**kwargs_full)  # type: ignore
+
+
+class InvalidJSONParameterWarning(RuntimeWarning):
+    """
+    Warning for when a tool request includes invalid JSON for input arguments.
+
+    This is a subclass of `RuntimeWarning` and is used to indicate that a tool
+    request included invalid JSON for input arguments. This can happen if the
+    model hallucinates parameters not defined by your function schema.
+    """
+
+    pass

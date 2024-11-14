@@ -55,10 +55,14 @@ class ContentImageInline(ContentImage):
 class ContentToolRequest(Content):
     id: str
     name: str
-    arguments: dict[str, Any]
+    arguments: object
 
     def __str__(self):
-        args_str = ", ".join(f"{k}={v}" for k, v in self.arguments.items())
+        if isinstance(self.arguments, dict):
+            args_str = ", ".join(f"{k}={v}" for k, v in self.arguments.items())
+        else:
+            args_str = self.arguments
+
         return f"[tool request ({self.id})]: {self.name}({args_str})"
 
 

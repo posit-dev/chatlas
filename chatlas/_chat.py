@@ -631,14 +631,18 @@ class Chat(Generic[SubmitInputArgsT]):
     @staticmethod
     def _invoke_tool(
         func: Callable[..., Any] | None,
-        arguments: dict[str, Any],
+        arguments: object,
         id_: str,
     ) -> ContentToolResult:
         if func is None:
             return ContentToolResult(id_, None, "Unknown tool")
 
         try:
-            result = func(**arguments)
+            if isinstance(arguments, dict):
+                result = func(**arguments)
+            else:
+                result = func(arguments)
+
             return ContentToolResult(id_, result, None)
         except Exception as e:
             return ContentToolResult(id_, None, str(e))
@@ -646,14 +650,18 @@ class Chat(Generic[SubmitInputArgsT]):
     @staticmethod
     async def _invoke_tool_async(
         func: Callable[..., Awaitable[Any]] | None,
-        arguments: dict[str, Any],
+        arguments: object,
         id_: str,
     ) -> ContentToolResult:
         if func is None:
             return ContentToolResult(id_, None, "Unknown tool")
 
         try:
-            result = await func(**arguments)
+            if isinstance(arguments, dict):
+                result = await func(**arguments)
+            else:
+                result = await func(arguments)
+
             return ContentToolResult(id_, result, None)
         except Exception as e:
             return ContentToolResult(id_, None, str(e))
