@@ -49,7 +49,7 @@ class Turn:
         Either "user", "assistant", or "system".
     contents
         A list of [](`~chatlas.types.Content`) objects.
-    json_data
+    json
         The serialized JSON corresponding to the underlying data of the turns.
         Currently only provided for assistant. This is useful if there's
         information returned by the provider that chatlas doesn't otherwise
@@ -64,7 +64,7 @@ class Turn:
         self,
         role: str,
         contents: str | Sequence[Content | str],
-        json_data: Optional[dict[str, Any]] = None,
+        json: Optional[dict[str, Any]] = None,
         tokens: tuple[int, int] = (0, 0),
     ):
         self.role = role
@@ -82,7 +82,7 @@ class Turn:
                 raise ValueError("All contents must be Content objects or str.")
 
         self.contents: list[Content] = contents2
-        self.json_data = json_data or {}
+        self.json = json or {}
         self.tokens = tokens
         self.text = "".join(x.text for x in self.contents if isinstance(x, ContentText))
 
@@ -92,7 +92,7 @@ class Turn:
         res = (
             self.role == other.role
             and self.contents == other.contents
-            and self.json_data == other.json_data
+            and self.json == other.json
             and self.tokens == other.tokens
         )
         return res

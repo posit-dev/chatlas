@@ -500,7 +500,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         return Turn(
             "assistant",
             contents,
-            json_data=completion.model_dump(),
+            json=completion.model_dump(),
             tokens=tokens,
         )
 

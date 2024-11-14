@@ -411,7 +411,12 @@ class GoogleProvider(
 
         tokens_log(self, tokens)
 
-        return Turn("assistant", contents, tokens=tokens)
+        return Turn(
+            "assistant",
+            contents,
+            json=message,
+            tokens=tokens,
+        )
 
     def _gemini_tools(self, tools: list[Tool]) -> list["FunctionDeclaration"]:
         from google.generativeai.types.content_types import FunctionDeclaration

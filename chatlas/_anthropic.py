@@ -475,7 +475,12 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
 
         tokens_log(self, tokens)
 
-        return Turn("assistant", contents, tokens=tokens)
+        return Turn(
+            "assistant",
+            contents,
+            json=completion.model_dump(),
+            tokens=tokens,
+        )
 
 
 def ChatBedrockAnthropic(
