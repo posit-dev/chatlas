@@ -226,7 +226,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div id="556251da" class="cell" data-execution_count="1">
+<div id="d3d7cc9e" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chatlas</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="general-advice" class="level2">
@@ -250,11 +250,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="directing-behavioroutput">Directing behavior/output</h2>
 <section id="basic-flavour" class="level3">
 <h3 class="anchored" data-anchor-id="basic-flavour">Basic flavour</h3>
-<div id="2caf1ad9" class="cell" data-execution_count="2">
+<div id="d4d8e9c6" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> chatlas.ChatOpenAI(system_prompt <span class="op">=</span> <span class="st">"Be concise. Don't use punctuation."</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> chat.chat(<span class="st">"What's the capital of New Zealand?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="fe1563a2" class="cell" data-execution_count="3">
+<div id="e32edcac" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> chatlas.ChatOpenAI(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="st">"""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">  Be loquacious.</span></span>
@@ -264,7 +264,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> chat.chat(<span class="st">"What's the capital of New Zealand?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="23321bb6" class="cell" data-execution_count="4">
+<div id="59da8fb4" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> chatlas.ChatOpenAI(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="st">"""</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="st">  You are an expert Python programmer.</span></span>
@@ -281,7 +281,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="be-clear-and-specific" class="level3">
 <h3 class="anchored" data-anchor-id="be-clear-and-specific">Be clear and specific</h3>
 <p>If you’re not getting the results that you’re looking for, you might need to provide more context.</p>
-<div id="01474c64" class="cell" data-execution_count="5">
+<div id="2e537fcf" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> chatlas.ChatOpenAI(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="st">"""</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">  You are an expert Python programmer.</span></span>
@@ -297,7 +297,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="teach-it-about-new-features" class="level3">
 <h3 class="anchored" data-anchor-id="teach-it-about-new-features">Teach it about new features</h3>
-<div id="9d39f5c2" class="cell" data-execution_count="6">
+<div id="1d85881c" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> chatlas.ChatOpenAI(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="st">"""</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="st">  dplyr 1.1.0 introduced per-operation grouping with the `.by` argument.</span></span>
