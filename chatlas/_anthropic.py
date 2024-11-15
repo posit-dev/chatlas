@@ -486,6 +486,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
 def ChatBedrockAnthropic(
     *,
     model: Optional[str] = None,
+    max_tokens: int = 4096,
     aws_secret_key: Optional[str] = None,
     aws_access_key: Optional[str] = None,
     aws_region: Optional[str] = None,
@@ -540,6 +541,8 @@ def ChatBedrockAnthropic(
     ----------
     model
         The model to use for the chat.
+    max_tokens
+        Maximum number of tokens to generate before stopping.
     aws_secret_key
         The AWS secret key to use for authentication.
     aws_access_key
@@ -581,6 +584,7 @@ def ChatBedrockAnthropic(
     return Chat(
         provider=AnthropicBedrockProvider(
             model=model,
+            max_tokens=max_tokens,
             aws_secret_key=aws_secret_key,
             aws_access_key=aws_access_key,
             aws_region=aws_region,
@@ -606,7 +610,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_region: str | None,
         aws_profile: str | None,
         aws_session_token: str | None,
-        max_tokens: int = 1024,
+        max_tokens: int,
         base_url: str | None,
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
