@@ -13,6 +13,10 @@ env:
   UV_VERSION: "0.4.x"
   PYTHON_VERSION: 3.12
 
+permissions: 
+    contents: write
+    pages: write
+
 jobs:
   docs-publish:
     runs-on: ubuntu-latest
