@@ -3,6 +3,8 @@
 Easily chat with various LLM models from Ollama, Anthropic, OpenAI, and more.
 `chatlas` is intentionally minimal -- making it easy to get started, while also supporting important features like streaming, tool calling, images, async, and more.
 
+(Looking for something similar to chatlas, but in R? Check out [elmer](https://elmer.tidyverse.org/)!)
+
 ## Install
 
 `chatlas` isn't yet on pypi, but you can install from Github:
