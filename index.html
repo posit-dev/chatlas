@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.54">
+<meta name="generator" content="quarto-1.6.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,10 +69,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-0c8af03b2fbd4cf44d6703e337af0e8d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-431c8872fa716ff5a2021a087380a4b9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -164,7 +164,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/cpsievert/chatlas"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+    <a class="nav-link" href="https://github.com/posit-dev/chatlas"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -199,7 +199,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/cpsievert/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/cpsievert/chatlas/blob/main/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -210,28 +210,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="chatlas" class="level1">
 <h1>chatlas</h1>
 <p>Easily chat with various LLM models from Ollama, Anthropic, OpenAI, and more. <code>chatlas</code> is intentionally minimal – making it easy to get started, while also supporting important features like streaming, tool calling, images, async, and more.</p>
+<p>(Looking for something similar to chatlas, but in R? Check out <a href="https://elmer.tidyverse.org/">elmer</a>!)</p>
 <section id="install" class="level2">
 <h2 class="anchored" data-anchor-id="install">Install</h2>
 <p><code>chatlas</code> isn’t yet on pypi, but you can install from Github:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/cpsievert/chatlas</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/posit-dev/chatlas</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>After installing, you’ll want to pick a <a href="#model-providers">model provider</a>, and get <a href="#managing-credentials">credentials</a> set up (if necessary). Here, we demonstrate usage with OpenAI, but the concepts here apply to other implementations as well.</p>
 </section>
 <section id="model-providers" class="level2">
 <h2 class="anchored" data-anchor-id="model-providers">Model providers</h2>
 <p><code>chatlas</code> supports a variety of model providers:</p>
 <ul>
-<li>Anthropic (Claude): <a href="https://cpsievert.github.io/chatlas/reference/ChatAnthropic.html"><code>ChatAnthropic()</code></a>.</li>
-<li>GitHub model marketplace: <a href="https://cpsievert.github.io/chatlas/reference/ChatGithub.html"><code>ChatGithub()</code></a>.</li>
-<li>Google (Gemini): <a href="https://cpsievert.github.io/chatlas/reference/ChatGoogle.html"><code>ChatGoogle()</code></a>.</li>
-<li>Groq: <a href="https://cpsievert.github.io/chatlas/reference/ChatGroq.html"><code>ChatGroq()</code></a>.</li>
-<li>Ollama local models: <a href="https://cpsievert.github.io/chatlas/reference/ChatOllama.html"><code>ChatOllama()</code></a>.</li>
-<li>OpenAI: <a href="https://cpsievert.github.io/chatlas/reference/ChatOpenAI.html"><code>ChatOpenAI()</code></a>.</li>
-<li>perplexity.ai: <a href="https://cpsievert.github.io/chatlas/reference/ChatPerplexity.html"><code>ChatPerplexity()</code></a>.</li>
+<li>Anthropic (Claude): <a href="https://posit-dev.github.io/chatlas/reference/ChatAnthropic.html"><code>ChatAnthropic()</code></a>.</li>
+<li>GitHub model marketplace: <a href="https://posit-dev.github.io/chatlas/reference/ChatGithub.html"><code>ChatGithub()</code></a>.</li>
+<li>Google (Gemini): <a href="https://posit-dev.github.io/chatlas/reference/ChatGoogle.html"><code>ChatGoogle()</code></a>.</li>
+<li>Groq: <a href="https://posit-dev.github.io/chatlas/reference/ChatGroq.html"><code>ChatGroq()</code></a>.</li>
+<li>Ollama local models: <a href="https://posit-dev.github.io/chatlas/reference/ChatOllama.html"><code>ChatOllama()</code></a>.</li>
+<li>OpenAI: <a href="https://posit-dev.github.io/chatlas/reference/ChatOpenAI.html"><code>ChatOpenAI()</code></a>.</li>
+<li>perplexity.ai: <a href="https://posit-dev.github.io/chatlas/reference/ChatPerplexity.html"><code>ChatPerplexity()</code></a>.</li>
 </ul>
 <p>It also supports the following enterprise cloud providers:</p>
 <ul>
-<li>AWS Bedrock: <a href="https://cpsievert.github.io/chatlas/reference/ChatBedrockAnthropic.html"><code>ChatBedrockAnthropic()</code></a>.</li>
-<li>Azure OpenAI: <a href="https://cpsievert.github.io/chatlas/reference/ChatAzureOpenAI.html"><code>ChatAzureOpenAI()</code></a>.</li>
+<li>AWS Bedrock: <a href="https://posit-dev.github.io/chatlas/reference/ChatBedrockAnthropic.html"><code>ChatBedrockAnthropic()</code></a>.</li>
+<li>Azure OpenAI: <a href="https://posit-dev.github.io/chatlas/reference/ChatAzureOpenAI.html"><code>ChatAzureOpenAI()</code></a>.</li>
 </ul>
 </section>
 <section id="model-choice" class="level2">
@@ -314,15 +315,15 @@ representing the Python programming language. The design symbolizes...</code></p
 </section>
 <section id="learn-more" class="level3">
 <h3 class="anchored" data-anchor-id="learn-more">Learn more</h3>
-<p>If you’re new to world LLMs, you might want to read the <a href="https://cpsievert.github.io/chatlas/get-started.html">Get Started</a> guide, which covers some basic concepts and terminology.</p>
+<p>If you’re new to world LLMs, you might want to read the <a href="https://posit-dev.github.io/chatlas/get-started.html">Get Started</a> guide, which covers some basic concepts and terminology.</p>
 <p>Once you’re comfortable with the basics, you can explore more advanced topics:</p>
 <ul>
-<li><a href="https://cpsievert.github.io/chatlas/prompt-engineering.html">Customize the system prompt</a></li>
-<li><a href="https://cpsievert.github.io/chatlas/structured-data.html">Extract structured data</a></li>
-<li><a href="https://cpsievert.github.io/chatlas/tool-calling.html">Tool (function) calling</a></li>
-<li><a href="https://cpsievert.github.io/chatlas/web-apps.html">Build a web chat app</a></li>
+<li><a href="https://posit-dev.github.io/chatlas/prompt-engineering.html">Customize the system prompt</a></li>
+<li><a href="https://posit-dev.github.io/chatlas/structured-data.html">Extract structured data</a></li>
+<li><a href="https://posit-dev.github.io/chatlas/tool-calling.html">Tool (function) calling</a></li>
+<li><a href="https://posit-dev.github.io/chatlas/web-apps.html">Build a web chat app</a></li>
 </ul>
-<p>The <a href="https://cpsievert.github.io/chatlas/reference/index.html">API reference</a> is also a useful overview of all the tooling available in <code>chatlas</code>, including starting examples and detailed descriptions.</p>
+<p>The <a href="https://posit-dev.github.io/chatlas/reference/index.html">API reference</a> is also a useful overview of all the tooling available in <code>chatlas</code>, including starting examples and detailed descriptions.</p>
 
 
 </section>
@@ -422,7 +423,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
+      var filterRegex = new RegExp("https:\/\/posit-dev\.github\.io\/chatlas\/");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
@@ -755,4 +756,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cpsievert/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/cpsievert/chatlas/blob/main/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div></div></footer></body></html>

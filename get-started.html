@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.54">
+<meta name="generator" content="quarto-1.6.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -35,10 +35,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-0c8af03b2fbd4cf44d6703e337af0e8d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-431c8872fa716ff5a2021a087380a4b9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -130,7 +130,7 @@ ul.task-list li input[type="checkbox"] {
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/cpsievert/chatlas"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
+    <a class="nav-link" href="https://github.com/posit-dev/chatlas"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -162,7 +162,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#sample-use-cases" id="toc-sample-use-cases" class="nav-link" data-scroll-target="#sample-use-cases">Sample use cases</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/cpsievert/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/cpsievert/chatlas/blob/main/get-started.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/get-started.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -213,7 +213,7 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 <p>If you’re developing an app, then you’ll provide the system prompt and your users will provide their own prompts. If you’re developing a solution, you’ll provide both the system prompt and the user prompt.</p>
 <p>Models will also have their own systems prompts that are applied underneath your prompts. You can get a sense for what these look like from Anthropic, who <a href="https://docs.anthropic.com/en/release-notes/system-prompts">publishes their system prompts</a>.</p>
-<p>Writing good prompts is called <strong>prompt engineering</strong> and is key to effective use of LLMs. We’ll discuss that in more details in <code>vignette("prompt-engineering")</code>.</p>
+<p>Writing good prompts is called <strong>prompt engineering</strong> and is key to effective use of LLMs. We’ll discuss that in more details in <a href="./prompt-engineering.html">Prompt Engineering</a>.</p>
 </section>
 <section id="providers-and-models" class="level3">
 <h3 class="anchored" data-anchor-id="providers-and-models">Providers and models</h3>
@@ -225,15 +225,15 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="sample-use-cases">Sample use cases</h2>
 <p>User interfaces:</p>
 <ul>
-<li><p>A chatbot with <a href="https://github.com/jcheng5/shinychat">shinychat</a>. From this simple framework you can add extra features, e.g. <a href="https://shiny.posit.co/blog/posts/shiny-assistant/" class="uri">https://shiny.posit.co/blog/posts/shiny-assistant/</a>.</p></li>
+<li><p>A chatbot with <a href="https://github.com/jcheng5/shinychat">shinychat</a>. From this simple framework you can add extra features, e.g.&nbsp;<a href="https://shiny.posit.co/blog/posts/shiny-assistant/" class="uri">https://shiny.posit.co/blog/posts/shiny-assistant/</a>.</p></li>
 <li><p>Modify code/text using {rstudioapi}.</p></li>
-<li><p>A function that takes unstructured input and returns structured output. Learn more in <code>vignette("structure-data")</code>.</p></li>
+<li><p>A function that takes unstructured input and returns structured output. Learn more in <a href="./structured-data.html">Structured Data</a></p></li>
 </ul>
 <p>Interaction with the LLM:</p>
 <ul>
 <li><p>Automate adding data to the prompt.</p>
 <ul>
-<li><p>For example, you could automatically look up the documentation for an R function, and include it in the prompt.</p></li>
+<li><p>For example, you could automatically look up the documentation for a Python function, and include it in the prompt.</p></li>
 <li><p>Describe a data frame. <a href="https://github.com/cpsievert/aidea" class="uri">https://github.com/cpsievert/aidea</a></p></li>
 </ul></li>
 <li><p>Create a long hand written prompt that teaches the LLM about something it wouldn’t otherwise know about. For example, you might write a guide to updating code to use a new version of a package.</p>
@@ -241,7 +241,7 @@ ul.task-list li input[type="checkbox"] {
 <li><a href="https://github.com/jcheng5/elmer-assistant" class="uri">https://github.com/jcheng5/elmer-assistant</a></li>
 <li><a href="https://simonpcouch.github.io/pal/" class="uri">https://simonpcouch.github.io/pal/</a></li>
 </ul></li>
-<li><p>Connect an LLM with more data by using tool calling. Learn more in <code>vignette("tool-calling")</code>.</p></li>
+<li><p>Connect an LLM with more data by using tool calling. Learn more in <a href="./tool-calling.html">Tool Calling</a></p></li>
 <li><p>Define create a prompt with example of the structured data output that you want.</p></li>
 </ul>
 
@@ -342,7 +342,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
+      var filterRegex = new RegExp("https:\/\/posit-dev\.github\.io\/chatlas\/");
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
@@ -675,4 +675,4 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/cpsievert/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/cpsievert/chatlas/blob/main/get-started.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/get-started.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div></div></footer></body></html>
