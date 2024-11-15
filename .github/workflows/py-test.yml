@@ -1,19 +1,13 @@
 name: Test - Python
 
 on:
+  workflow_dispatch:
   push:
-    branches: [main]
-    paths: 
-      - 'chatlas/*'
-      - 'pyproject.toml'
-      - 'uv.lock'
-      - '.github/workflows/py-test.yml'
+    branches: ["main", "rc-*"]
   pull_request:
-    paths: 
-      - 'chatlas/*'
-      - 'pyproject.toml'
-      - 'uv.lock'
-      - '.github/workflows/py-test.yml'
+    types: [opened, synchronize, reopened, ready_for_review]
+  release:
+    types: [published]
 
 permissions:
   contents: read
