@@ -727,14 +727,11 @@ class ChatResponse:
 
         with JupyterFriendlyConsole() as console:
             with Live(console=console, auto_refresh=False) as live:
-                needs_display = True
+                live.update(Markdown(self.content), refresh=True)
                 for _ in self:
                     live.update(Markdown(self.content), refresh=True)
-                    needs_display = False
-                if needs_display:
-                    live.update(Markdown(self.content), refresh=True)
 
-    def get_string(self) -> str:
+    def get_content(self) -> str:
         """
         Get the chat response content as a string.
         """
@@ -747,12 +744,12 @@ class ChatResponse:
         return self._generator.gi_frame is None
 
     def __str__(self) -> str:
-        return self.get_string()
+        return self.get_content()
 
     def __repr__(self) -> str:
         return (
             "ChatResponse object. Call `.display()` to show it in a rich"
-            "console or `.get_string()` to get the content."
+            "console or `.get_content()` to get the content."
         )
 
 
@@ -799,14 +796,11 @@ class ChatResponseAsync:
 
         with JupyterFriendlyConsole() as console:
             with Live(console=console, auto_refresh=False) as live:
-                needs_display = True
+                live.update(Markdown(self.content), refresh=True)
                 async for _ in self:
                     live.update(Markdown(self.content), refresh=True)
-                    needs_display = False
-                if needs_display:
-                    live.update(Markdown(self.content), refresh=True)
 
-    async def get_string(self) -> str:
+    async def get_content(self) -> str:
         "Get the chat response content as a string."
         async for _ in self:
             pass
@@ -819,7 +813,7 @@ class ChatResponseAsync:
     def __repr__(self) -> str:
         return (
             "ChatResponseAsync object. Call `.display()` to show it in a rich"
-            "console or `.get_string()` to get the content."
+            "console or `.get_content()` to get the content."
         )
 
 
