@@ -504,6 +504,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#parameters-7" id="toc-parameters-7" class="nav-link" data-scroll-target="#parameters-7">Parameters</a>
   <ul class="collapse">
   <li><a href="#chatlas.Chat.set_turns" id="toc-chatlas.Chat.set_turns" class="nav-link" data-scroll-target="#chatlas.Chat.set_turns">set_turns</a></li>
+  <li><a href="#chatlas.Chat.stream" id="toc-chatlas.Chat.stream" class="nav-link" data-scroll-target="#chatlas.Chat.stream">stream</a></li>
+  <li><a href="#chatlas.Chat.stream_async" id="toc-chatlas.Chat.stream_async" class="nav-link" data-scroll-target="#chatlas.Chat.stream_async">stream_async</a></li>
   <li><a href="#chatlas.Chat.tokens" id="toc-chatlas.Chat.tokens" class="nav-link" data-scroll-target="#chatlas.Chat.tokens">tokens</a></li>
   <li><a href="#chatlas.Chat.turns" id="toc-chatlas.Chat.turns" class="nav-link" data-scroll-target="#chatlas.Chat.turns">turns</a></li>
   </ul></li>
@@ -585,6 +587,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td><a href="#chatlas.Chat.set_turns">set_turns</a></td>
 <td>Set the turns of the chat.</td>
+</tr>
+<tr class="even">
+<td><a href="#chatlas.Chat.stream">stream</a></td>
+<td>TODO: Add docstring.</td>
+</tr>
+<tr class="odd">
+<td><a href="#chatlas.Chat.stream_async">stream_async</a></td>
+<td>TODO: Add docstring.</td>
 </tr>
 <tr class="even">
 <td><a href="#chatlas.Chat.tokens">tokens</a></td>
@@ -996,9 +1006,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </section>
 </section>
+<section id="chatlas.Chat.stream" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Chat.stream">stream</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Chat.stream(<span class="op">*</span>args, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>TODO: Add docstring.</p>
+</section>
+<section id="chatlas.Chat.stream_async" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Chat.stream_async">stream_async</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Chat.stream_async(<span class="op">*</span>args, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>TODO: Add docstring.</p>
+</section>
 <section id="chatlas.Chat.tokens" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.tokens">tokens</h3>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Chat.tokens()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>Chat.tokens()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Get the tokens for each turn in the chat.</p>
 <section id="returns-4" class="level4 doc-section doc-section-returns">
 <h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-4">Returns</h4>
@@ -1022,7 +1042,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="chatlas.Chat.turns" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.turns">turns</h3>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Chat.turns(include_system_prompt<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Chat.turns(include_system_prompt<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Get all the turns (i.e., message contents) in the chat.</p>
 <section id="parameters-9" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-9">Parameters</h4>

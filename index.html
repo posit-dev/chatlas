@@ -193,6 +193,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#interactive-console" id="toc-interactive-console" class="nav-link" data-scroll-target="#interactive-console">Interactive console</a></li>
   <li><a href="#the-.chat-method" id="toc-the-.chat-method" class="nav-link" data-scroll-target="#the-.chat-method">The <code>.chat()</code> method</a></li>
+  <li><a href="#the-.stream-method" id="toc-the-.stream-method" class="nav-link" data-scroll-target="#the-.stream-method">The <code>.stream()</code> method</a></li>
   <li><a href="#vision-image-input" id="toc-vision-image-input" class="nav-link" data-scroll-target="#vision-image-input">Vision (Image Input)</a></li>
   <li><a href="#conversation-history" id="toc-conversation-history" class="nav-link" data-scroll-target="#conversation-history">Conversation history</a></li>
   <li><a href="#learn-more" id="toc-learn-more" class="nav-link" data-scroll-target="#learn-more">Learn more</a></li>
@@ -277,29 +278,30 @@ Netherlands.     </code></pre>
 </section>
 <section id="the-.chat-method" class="level3">
 <h3 class="anchored" data-anchor-id="the-.chat-method">The <code>.chat()</code> method</h3>
-<p>For a more programmatic approach, you can use the <code>.chat()</code> method to ask a question and get a response. If you’re in a REPL (e.g., Jupyter, IPython, etc), the result of <code>.chat()</code> is automatically displayed using a <a href="https://github.com/Textualize/rich">rich</a> console.</p>
+<p>For a more programmatic approach, you can use the <code>.chat()</code> method to ask a question and get a response. By default, the response prints to a <a href="https://github.com/Textualize/rich">rich</a> console as it streams in:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What preceding languages most influenced Python?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>Python was primarily influenced by ABC, with additional inspiration from C,
 Modula-3, and various other languages.</code></pre>
-<p>If you’re not in a REPL (e.g., a non-interactive Python script), you can explicitly <code>.display()</code> the response:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> chat.chat(<span class="st">"What is the Python programming language?"</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>response.display()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The <code>response</code> is also an iterable, so you can loop over it to get the response in streaming chunks:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> <span class="st">""</span></span>
+<p>To get the full response as a string, use the built-in <code>str()</code> function. Optionally, you can (soon) suppress the rich console output by setting <code>echo="none"</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> chat.chat(<span class="st">"Who is Posit?"</span>, echo<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">str</span>(response))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="the-.stream-method" class="level3">
+<h3 class="anchored" data-anchor-id="the-.stream-method">The <code>.stream()</code> method</h3>
+<p>If you want to process the response in real-time (i.e., as it arrives in chunks), you can use the <code>.stream()</code> method. This method returns a generator that yields chunks of the response as they come in. This is useful for long responses, or if you want to process the response as it streams in:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> chat.stream(<span class="st">"Who is Posit?"</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> chunk <span class="kw">in</span> response:</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    result <span class="op">+=</span> chunk</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Or, if you just want the full response as a string, use the built-in <code>str()</code> function:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">str</span>(response)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(chunk, end<span class="op">=</span><span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="vision-image-input" class="level3">
 <h3 class="anchored" data-anchor-id="vision-image-input">Vision (Image Input)</h3>
 <p>Ask questions about image(s) with <code>content_image_file()</code> and/or <code>content_image_url()</code>:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> content_image_url</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>chat.chat(</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    content_image_url(<span class="st">"https://www.python.org/static/img/python-logo.png"</span>),</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Can you explain this logo?"</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> content_image_url</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>chat.chat(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    content_image_url(<span class="st">"https://www.python.org/static/img/python-logo.png"</span>),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Can you explain this logo?"</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>The Python logo features two intertwined snakes in yellow and blue,
 representing the Python programming language. The design symbolizes...</code></pre>
 <p>The <code>content_image_url()</code> function takes a URL to an image file and sends that URL directly to the API. The <code>content_image_file()</code> function takes a path to a local image file and encodes it as a base64 string to send to the API. Note that by default, <code>content_image_file()</code> automatically resizes the image to fit within 512x512 pixels; set the <code>resize</code> parameter to “high” if higher resolution is needed.</p>
@@ -307,11 +309,11 @@ representing the Python programming language. The design symbolizes...</code></p
 <section id="conversation-history" class="level3">
 <h3 class="anchored" data-anchor-id="conversation-history">Conversation history</h3>
 <p>Remember that regardless of how we interact with the model, the <code>chat</code> instance retains the conversation history, which you can access at any time:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>chat.turns()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>chat.turns()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Each turn represents a either a user’s input or a model’s response. It holds all the avaliable information about content and metadata of the turn. This can be useful for debugging, logging, or for building more complex conversational interfaces.</p>
 <p>For cost and efficiency reasons, you may want to alter the conversation history. Currently, the main way to do this is to <code>.set_turns()</code>:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove all but the last two turns</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>chat.set_turns(chat.turns()[<span class="op">-</span><span class="dv">2</span>:])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove all but the last two turns</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>chat.set_turns(chat.turns()[<span class="op">-</span><span class="dv">2</span>:])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="learn-more" class="level3">
 <h3 class="anchored" data-anchor-id="learn-more">Learn more</h3>
