@@ -46,7 +46,7 @@ This method gets called automatically when the object is displayed.
 ### get_string { #chatlas.types.ChatResponse.get_string }
 
 ```python
-types.ChatResponse.get_string()
+types.ChatResponse.get_content()
 ```
 
 Get the chat response content as a string.

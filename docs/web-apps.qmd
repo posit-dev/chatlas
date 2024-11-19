@@ -26,7 +26,7 @@ chat_model = ChatAnthropic()
 
 @chat.on_user_submit
 def _():
-    response = chat_model.chat(chat.user_input())
+    response = chat_model.stream(chat.user_input())
     chat.append_message_stream(response)
 ```
 

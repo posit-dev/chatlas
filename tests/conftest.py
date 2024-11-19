@@ -108,7 +108,7 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
     response = await chat.chat_async(
         "What's the current date in YMD format?", stream=stream
     )
-    assert "2024-01-01" in await response.get_string()
+    assert "2024-01-01" in await response.get_content()
 
     with pytest.raises(Exception, match="async tools in a synchronous chat"):
         str(chat.chat("Great. Do it again.", stream=stream))
@@ -203,6 +203,6 @@ def assert_images_remote_error(chat_fun: ChatFun):
     image_remote = content_image_url("https://httr2.r-lib.org/logo.png")
 
     with pytest.raises(Exception, match="Remote images aren't supported"):
-        _ = str(chat.chat("What's in this image?", image_remote))
+        chat.chat("What's in this image?", image_remote)
 
     assert len(chat.turns()) == 0

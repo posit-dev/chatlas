@@ -277,7 +277,11 @@ class Chat(Generic[SubmitInputArgsT]):
             A response from the chat.
         """
         turn = user_turn(*args)
-        return ChatResponse(self._chat_impl(turn, stream=stream, kwargs=kwargs))
+        resp = ChatResponse(self._chat_impl(turn, stream=stream, kwargs=kwargs))
+
+        resp.display()
+
+        return resp
 
     async def chat_async(
         self,
@@ -299,8 +303,39 @@ class Chat(Generic[SubmitInputArgsT]):
             the response.
         """
         turn = user_turn(*args)
-        gen = self._chat_impl_async(turn, stream=stream, kwargs=kwargs)
-        return ChatResponseAsync(gen)
+        resp = ChatResponseAsync(
+            self._chat_impl_async(turn, stream=stream, kwargs=kwargs),
+        )
+
+        await resp.display()
+
+        return resp
+
+    def stream(
+        self,
+        *args: Content | str,
+        kwargs: Optional[SubmitInputArgsT] = None,
+    ) -> ChatResponse:
+        """
+        TODO: Add docstring.
+        """
+        turn = user_turn(*args)
+        return ChatResponse(
+            self._chat_impl(turn, stream=True, kwargs=kwargs),
+        )
+
+    async def stream_async(
+        self,
+        *args: Content | str,
+        kwargs: Optional[SubmitInputArgsT] = None,
+    ) -> ChatResponseAsync:
+        """
+        TODO: Add docstring.
+        """
+        turn = user_turn(*args)
+        return ChatResponseAsync(
+            self._chat_impl_async(turn, stream=True, kwargs=kwargs),
+        )
 
     def extract_data(
         self,
@@ -746,12 +781,6 @@ class ChatResponse:
     def __str__(self) -> str:
         return self.get_content()
 
-    def __repr__(self) -> str:
-        return (
-            "ChatResponse object. Call `.display()` to show it in a rich"
-            "console or `.get_content()` to get the content."
-        )
-
 
 class ChatResponseAsync:
     """
@@ -789,7 +818,7 @@ class ChatResponseAsync:
         self.content += chunk  # Keep track of accumulated content
         return chunk
 
-    async def display(self) -> None:
+    async def display(self):
         "Display the content in a rich console."
         from rich.live import Live
         from rich.markdown import Markdown
@@ -809,12 +838,6 @@ class ChatResponseAsync:
     @property
     def consumed(self) -> bool:
         return self._generator.ag_frame is None
-
-    def __repr__(self) -> str:
-        return (
-            "ChatResponseAsync object. Call `.display()` to show it in a rich"
-            "console or `.get_content()` to get the content."
-        )
 
 
 @contextmanager

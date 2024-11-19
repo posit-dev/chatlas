@@ -44,7 +44,7 @@ Display the content in a rich console.
 ### get_string { #chatlas.types.ChatResponseAsync.get_string }
 
 ```python
-types.ChatResponseAsync.get_string()
+types.ChatResponseAsync.get_content()
 ```
 
 Get the chat response content as a string.

@@ -20,7 +20,7 @@ def test_anthropic_simple_request():
     chat = ChatAnthropic(
         system_prompt="Be as terse as possible; no punctuation",
     )
-    _ = str(chat.chat("What is 1 + 1?"))
+    chat.chat("What is 1 + 1?")
     turn = chat.last_turn()
     assert turn is not None
     assert turn.tokens == (26, 5)
@@ -32,7 +32,7 @@ async def test_anthropic_simple_streaming_request():
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
-    foo = await chat.chat_async("What is 1 + 1?")
+    foo = await chat.stream_async("What is 1 + 1?")
     async for x in foo:
         res.append(x)
     assert "2" in "".join(res)

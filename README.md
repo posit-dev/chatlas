@@ -98,7 +98,7 @@ Again, keep in mind that the chat object retains state, so when you enter the ch
 
 ### The `.chat()` method
 
-For a more programmatic approach, you can use the `.chat()` method to ask a question and get a response. If you're in a REPL (e.g., Jupyter, IPython, etc), the result of `.chat()` is automatically displayed using a [rich](https://github.com/Textualize/rich) console.
+For a more programmatic approach, you can use the `.chat()` method to ask a question and get a response. By default, the response prints to a [rich](https://github.com/Textualize/rich) console as it streams in:
 
 ```python
 chat.chat("What preceding languages most influenced Python?")
@@ -109,25 +109,21 @@ Python was primarily influenced by ABC, with additional inspiration from C,
 Modula-3, and various other languages.
 ```
 
-If you're not in a REPL (e.g., a non-interactive Python script), you can explicitly `.display()` the response:
+To get the full response as a string, use the built-in `str()` function. Optionally, you can (soon) suppress the rich console output by setting `echo="none"`:
 
 ```python
-response = chat.chat("What is the Python programming language?")
-response.display()
+response = chat.chat("Who is Posit?", echo="none")
+print(str(response))
 ```
 
-The `response` is also an iterable, so you can loop over it to get the response in streaming chunks:
+### The `.stream()` method
+
+If you want to process the response in real-time (i.e., as it arrives in chunks), you can use the `.stream()` method. This method returns a generator that yields chunks of the response as they come in. This is useful for long responses, or if you want to process the response as it streams in:
 
 ```python
-result = ""
+response = chat.stream("Who is Posit?")
 for chunk in response:
-    result += chunk
-```
-
-Or, if you just want the full response as a string, use the built-in `str()` function:
-
-```python
-str(response)
+    print(chunk, end="")
 ```
 
 
