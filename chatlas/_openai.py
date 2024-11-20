@@ -289,19 +289,17 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
         tool_schemas = [tool.schema for tool in tools.values()]
-        # OpenAI's typing is wrong (an empty list isn't allowed)
-        # If they fix it, we can remove this if statement
-        if not tool_schemas:
-            tool_schemas = cast(list, None)
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_param(turns),
-            "tools": tool_schemas,
             "model": self._model,
             "seed": self._seed,
             **(kwargs or {}),
         }
+
+        if tool_schemas:
+            kwargs_full["tools"] = tool_schemas
 
         if data_model is not None:
             params = basemodel_to_param_schema(data_model)
