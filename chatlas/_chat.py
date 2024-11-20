@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
@@ -987,7 +988,11 @@ def JupyterFriendlyConsole():
     import rich.console
     import rich.jupyter
 
-    console = rich.console.Console()
+    # Force jupyter mode if running in Quarto (so that side-effects are captured)
+    is_quarto = os.getenv("QUARTO_PYTHON", None) is not None
+    console = rich.console.Console(
+        force_jupyter=True if is_quarto else None,
+    )
 
     # Prevent rich from inserting line breaks in a Jupyter context
     # (and, instead, rely on the browser to wrap text)
@@ -998,7 +1003,7 @@ def JupyterFriendlyConsole():
     # Remove the `white-space:pre;` CSS style since the LLM's response is
     # (usually) already pre-formatted and essentially assumes a browser context
     rich.jupyter.JUPYTER_HTML_FORMAT = html_format.replace(
-        "white-space:pre;", "word-break:break-word;"
+        "white-space:pre;", "text-wrap-mode:wrap;word-break:break-word;"
     )
     yield console
 
