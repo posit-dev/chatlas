@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncGenerator,
     AsyncIterator,
@@ -18,11 +19,20 @@ from typing import (
 
 from pydantic import BaseModel
 
-from ._content import Content, ContentJson, ContentToolRequest, ContentToolResult
+from ._content import (
+    Content,
+    ContentJson,
+    ContentText,
+    ContentToolRequest,
+    ContentToolResult,
+)
 from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
+
+if TYPE_CHECKING:
+    import rich.live
 
 
 class AnyTypeDict(TypedDict, total=False):
@@ -255,6 +265,7 @@ class Chat(Generic[SubmitInputArgsT]):
     def chat(
         self,
         *args: Content | str,
+        echo: Literal["text", "all", "none"] = "text",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> ChatResponse:
@@ -265,27 +276,42 @@ class Chat(Generic[SubmitInputArgsT]):
         ----------
         args
             The user input(s) to generate a response from.
+        echo
+            Whether to echo text content, all content (i.e., tool calls), or no
+            content.
         stream
-            Whether to stream the response (i.e., have the response appear in chunks).
+            Whether to stream the response (i.e., have the response appear in
+            chunks).
         kwargs
-            Additional keyword arguments to pass to the method used for requesting
-            the response.
+            Additional keyword arguments to pass to the method used for
+            requesting the response.
 
         Returns
         -------
         ChatResponse
-            A response from the chat.
+            A (consumed) response from the chat. Apply `str()` to this object to
+            get the text content of the response.
         """
         turn = user_turn(*args)
-        resp = ChatResponse(self._chat_impl(turn, stream=stream, kwargs=kwargs))
 
-        resp.display()
+        response = ChatResponse(
+            self._chat_impl(
+                turn,
+                echo=echo,
+                stream=stream,
+                kwargs=kwargs,
+            )
+        )
 
-        return resp
+        for _ in response:
+            pass
+
+        return response
 
     async def chat_async(
         self,
         *args: Content | str,
+        echo: Literal["text", "all", "none"] = "text",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> ChatResponseAsync:
@@ -296,51 +322,115 @@ class Chat(Generic[SubmitInputArgsT]):
         ----------
         args
             The user input(s) to generate a response from.
+        echo
+            Whether to echo text content, all content (i.e., tool calls, images,
+            etc), or no content.
         stream
-            Whether to stream the response (i.e., have the response appear in chunks).
+            Whether to stream the response (i.e., have the response appear in
+            chunks).
         kwargs
-            Additional keyword arguments to pass to the method used for requesting
-            the response.
+            Additional keyword arguments to pass to the method used for
+            requesting the response.
+
+        Returns
+        -------
+        ChatResponseAsync
+            A (consumed) response from the chat. Apply `str()` to this object to
+            get the text content of the response.
         """
         turn = user_turn(*args)
-        resp = ChatResponseAsync(
-            self._chat_impl_async(turn, stream=stream, kwargs=kwargs),
+
+        response = ChatResponseAsync(
+            self._chat_impl_async(
+                turn,
+                echo=echo,
+                stream=stream,
+                kwargs=kwargs,
+            ),
         )
 
-        await resp.display()
+        async for _ in response:
+            pass
 
-        return resp
+        return response
 
     def stream(
         self,
         *args: Content | str,
+        echo: Literal["text", "all", "none"] = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> ChatResponse:
         """
-        TODO: Add docstring.
+        Generate a response from the chat in a streaming fashion.
+
+        Parameters
+        ----------
+        args
+            The user input(s) to generate a response from.
+        echo
+            Whether to echo text content, all content (i.e., tool calls), or no
+            content.
+        kwargs
+            Additional keyword arguments to pass to the method used for requesting
+            the response.
+
+        Returns
+        -------
+        ChatResponse
+            An (unconsumed) response from the chat. Iterate over this object to
+            consume the response.
         """
         turn = user_turn(*args)
         return ChatResponse(
-            self._chat_impl(turn, stream=True, kwargs=kwargs),
+            self._chat_impl(
+                turn,
+                stream=True,
+                echo=echo,
+                kwargs=kwargs,
+            ),
         )
 
     async def stream_async(
         self,
         *args: Content | str,
+        echo: Literal["text", "all", "none"] = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> ChatResponseAsync:
         """
-        TODO: Add docstring.
+        Generate a response from the chat in a streaming fashion asynchronously.
+
+        Parameters
+        ----------
+        args
+            The user input(s) to generate a response from.
+        echo
+            Whether to echo text content, all content (i.e., tool calls), or no
+            content.
+        kwargs
+            Additional keyword arguments to pass to the method used for requesting
+            the response.
+
+        Returns
+        -------
+        ChatResponseAsync
+            An (unconsumed) response from the chat. Iterate over this object to
+            consume the response.
         """
         turn = user_turn(*args)
         return ChatResponseAsync(
-            self._chat_impl_async(turn, stream=True, kwargs=kwargs),
+            self._chat_impl_async(
+                turn,
+                stream=True,
+                echo=echo,
+                kwargs=kwargs,
+            ),
         )
 
     def extract_data(
         self,
         *args: Content | str,
         data_model: type[BaseModel],
+        echo: Literal["text", "all", "none"] = "none",
     ) -> dict[str, Any]:
         """
         Extract structured data from the given input.
@@ -351,6 +441,8 @@ class Chat(Generic[SubmitInputArgsT]):
             The input to extract data from.
         data_model
             A Pydantic model describing the structure of the data to extract.
+        echo
+            Whether to echo text content, all content (i.e., tool calls), or no content.
 
         Returns
         -------
@@ -358,13 +450,18 @@ class Chat(Generic[SubmitInputArgsT]):
             The extracted data.
         """
 
-        generator = self._submit_turns(
-            user_turn(*args),
-            data_model=data_model,
-            stream=False,
-        )
+        with JupyterFriendlyLive() as live:
+            response = ChatResponse(
+                self._submit_turns(
+                    user_turn(*args),
+                    data_model=data_model,
+                    echo=echo,
+                    live=live,
+                    stream=echo != "none",
+                )
+            )
 
-        for _ in generator:
+        for _ in response:
             pass
 
         turn = self.last_turn()
@@ -387,6 +484,7 @@ class Chat(Generic[SubmitInputArgsT]):
         self,
         *args: Content | str,
         data_model: type[BaseModel],
+        echo: Literal["text", "all", "none"] = "none",
     ) -> dict[str, Any]:
         """
         Extract structured data from the given input asynchronously.
@@ -397,6 +495,8 @@ class Chat(Generic[SubmitInputArgsT]):
             The input to extract data from.
         data_model
             A Pydantic model describing the structure of the data to extract.
+        echo
+            Whether to echo text content, all content (i.e., tool calls), or no content
 
         Returns
         -------
@@ -404,13 +504,18 @@ class Chat(Generic[SubmitInputArgsT]):
             The extracted data.
         """
 
-        generator = self._submit_turns_async(
-            user_turn(*args),
-            data_model=data_model,
-            stream=False,
-        )
+        with JupyterFriendlyLive() as live:
+            response = ChatResponseAsync(
+                self._submit_turns_async(
+                    user_turn(*args),
+                    data_model=data_model,
+                    echo=echo,
+                    live=live,
+                    stream=echo != "none",
+                )
+            )
 
-        async for _ in generator:
+        async for _ in response:
             pass
 
         turn = self.last_turn()
@@ -515,38 +620,61 @@ class Chat(Generic[SubmitInputArgsT]):
     def _chat_impl(
         self,
         user_turn: Turn,
+        echo: Literal["text", "all", "none"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]:
         user_turn_result: Turn | None = user_turn
-        while user_turn_result is not None:
-            for chunk in self._submit_turns(user_turn_result, stream, kwargs=kwargs):
-                yield chunk
-            user_turn_result = self._invoke_tools()
+
+        with JupyterFriendlyLive() as live:
+            while user_turn_result is not None:
+                for chunk in self._submit_turns(
+                    user_turn_result,
+                    echo=echo,
+                    live=live,
+                    stream=stream,
+                    kwargs=kwargs,
+                ):
+                    yield chunk
+                user_turn_result = self._invoke_tools()
 
     async def _chat_impl_async(
         self,
         user_turn: Turn,
+        echo: Literal["text", "all", "none"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
         user_turn_result: Turn | None = user_turn
-        while user_turn_result is not None:
-            async for chunk in self._submit_turns_async(
-                user_turn_result, stream, kwargs=kwargs
-            ):
-                yield chunk
-            user_turn_result = await self._invoke_tools_async()
+
+        with JupyterFriendlyLive() as live:
+            while user_turn_result is not None:
+                async for chunk in self._submit_turns_async(
+                    user_turn_result,
+                    echo=echo,
+                    live=live,
+                    stream=stream,
+                    kwargs=kwargs,
+                ):
+                    yield chunk
+                user_turn_result = await self._invoke_tools_async()
 
     def _submit_turns(
         self,
         user_turn: Turn,
+        echo: Literal["text", "all", "none"],
+        live: "rich.live.Live",
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]:
         if any(x._is_async for x in self.tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
+
+        emit = emitter(echo, live)
+
+        if echo == "all":
+            emit_user_contents(user_turn, emit)
 
         if stream:
             response = self.provider.chat_perform(
@@ -561,12 +689,16 @@ class Chat(Generic[SubmitInputArgsT]):
             for chunk in response:
                 text = self.provider.stream_text(chunk)
                 if text:
+                    emit(text)
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
             turn = self.provider.stream_turn(
                 result, has_data_model=data_model is not None
             )
+
+            if echo == "all":
+                emit_other_contents(turn, emit)
 
         else:
             response = self.provider.chat_perform(
@@ -581,17 +713,28 @@ class Chat(Generic[SubmitInputArgsT]):
                 response, has_data_model=data_model is not None
             )
             if turn.text:
+                emit(turn.text)
                 yield turn.text
+
+            if echo == "all":
+                emit_other_contents(turn, emit)
 
         self._turns.extend([user_turn, turn])
 
     async def _submit_turns_async(
         self,
         user_turn: Turn,
+        echo: Literal["text", "all", "none"],
+        live: "rich.live.Live",
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
+        emit = emitter(echo, live)
+
+        if echo == "all":
+            emit_user_contents(user_turn, emit)
+
         if stream:
             response = await self.provider.chat_perform_async(
                 stream=True,
@@ -605,12 +748,16 @@ class Chat(Generic[SubmitInputArgsT]):
             async for chunk in response:
                 text = self.provider.stream_text(chunk)
                 if text:
+                    emit(text)
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
             turn = self.provider.stream_turn(
                 result, has_data_model=data_model is not None
             )
+
+            if echo == "all":
+                emit_other_contents(turn, emit)
 
         else:
             response = await self.provider.chat_perform_async(
@@ -625,7 +772,11 @@ class Chat(Generic[SubmitInputArgsT]):
                 response, has_data_model=data_model is not None
             )
             if turn.text:
+                emit(turn.text)
                 yield turn.text
+
+            if echo == "all":
+                emit_other_contents(turn, emit)
 
         self._turns.extend([user_turn, turn])
 
@@ -751,21 +902,6 @@ class ChatResponse:
         self.content += chunk  # Keep track of accumulated content
         return chunk
 
-    def display(self):
-        """
-        Display the content in a rich console.
-
-        This method gets called automatically when the object is displayed.
-        """
-        from rich.live import Live
-        from rich.markdown import Markdown
-
-        with JupyterFriendlyConsole() as console:
-            with Live(console=console, auto_refresh=False) as live:
-                live.update(Markdown(self.content), refresh=True)
-                for _ in self:
-                    live.update(Markdown(self.content), refresh=True)
-
     def get_content(self) -> str:
         """
         Get the chat response content as a string.
@@ -818,17 +954,6 @@ class ChatResponseAsync:
         self.content += chunk  # Keep track of accumulated content
         return chunk
 
-    async def display(self):
-        "Display the content in a rich console."
-        from rich.live import Live
-        from rich.markdown import Markdown
-
-        with JupyterFriendlyConsole() as console:
-            with Live(console=console, auto_refresh=False) as live:
-                live.update(Markdown(self.content), refresh=True)
-                async for _ in self:
-                    live.update(Markdown(self.content), refresh=True)
-
     async def get_content(self) -> str:
         "Get the chat response content as a string."
         async for _ in self:
@@ -840,12 +965,29 @@ class ChatResponseAsync:
         return self._generator.ag_frame is None
 
 
+# ----------------------------------------------------------------------------
+# Jupyter-friendly rich live context managers
+# ----------------------------------------------------------------------------
+
+
+@contextmanager
+def JupyterFriendlyLive():
+    """
+    A special `rich.live.Live` context manager with special handling for Jupyter.
+    """
+    import rich.live
+
+    with JupyterFriendlyConsole() as console:
+        with rich.live.Live(console=console, auto_refresh=False) as live:
+            yield live
+
+
 @contextmanager
 def JupyterFriendlyConsole():
+    import rich.console
     import rich.jupyter
-    from rich.console import Console
 
-    console = Console()
+    console = rich.console.Console()
 
     # Prevent rich from inserting line breaks in a Jupyter context
     # (and, instead, rely on the browser to wrap text)
@@ -861,3 +1003,58 @@ def JupyterFriendlyConsole():
     yield console
 
     rich.jupyter.JUPYTER_HTML_FORMAT = html_format
+
+
+# ----------------------------------------------------------------------------
+# Helpers for emitting content
+# ----------------------------------------------------------------------------
+
+
+def emitter(
+    echo: Literal["text", "all", "none"],
+    live: "rich.live.Live",
+) -> Callable[[Content | str], None]:
+    if echo == "none":
+        return lambda _: None
+
+    from rich.markdown import Markdown
+
+    def emit(x: Content | str):
+        x = str(x)
+        current = live.get_renderable()
+        if isinstance(current, Markdown):
+            x = current.markup + x
+        live.update(Markdown(x), refresh=True)
+
+    return emit
+
+
+def emit_user_contents(
+    x: Turn,
+    emit: Callable[[Content | str], None],
+):
+    if x.role != "user":
+        raise ValueError("Expected a user turn")
+    emit(f"\\>\\> **`User` turn:**\n\n{x.text}\n\n")
+    emit_other_contents(x, emit)
+    emit("\n\n<< **`Assistant` turn:**\n\n")
+
+
+def emit_other_contents(
+    x: Turn,
+    emit: Callable[[Content | str], None],
+):
+    if all(isinstance(x, ContentText) for x in x.contents):
+        return
+
+    if x.role == "user":
+        emit("\n\n\\>\\>\\> **Other `user` content:**\n\n")
+    else:
+        emit("\n\n<<< **Other `assistant` content:**\n\n")
+
+    for content in x.contents:
+        if not isinstance(content, ContentText):
+            # For some really odd reason ContentToolResult won't display without
+            # a non-whitespace character before it. The &nbsp; is a hack to work
+            # around that, but it's also decent for readability.
+            emit(f"&nbsp;{str(content)}\n\n")
