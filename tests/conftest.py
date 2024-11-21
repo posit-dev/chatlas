@@ -50,13 +50,13 @@ def assert_turns_system(chat_fun: ChatFun):
     chat = chat_fun(system_prompt=system_prompt)
     response = chat.chat("What is the name of Winnie the Pooh's human friend?")
     response_text = str(response)
-    assert len(chat.turns()) == 2
+    assert len(chat.get_turns()) == 2
     assert "CHRISTOPHER ROBIN" in response_text
 
     chat = chat_fun(turns=[Turn("system", system_prompt)])
     response = chat.chat("What is the name of Winnie the Pooh's human friend?")
     assert "CHRISTOPHER ROBIN" in str(response)
-    assert len(chat.turns()) == 2
+    assert len(chat.get_turns()) == 2
 
 
 def assert_turns_existing(chat_fun: ChatFun):
@@ -70,11 +70,11 @@ def assert_turns_existing(chat_fun: ChatFun):
             ),
         ]
     )
-    assert len(chat.turns()) == 2
+    assert len(chat.get_turns()) == 2
 
     response = chat.chat("Who is the remaining one? Just give the name")
     assert "Prancer" in str(response)
-    assert len(chat.turns()) == 4
+    assert len(chat.get_turns()) == 4
 
 
 def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
@@ -133,7 +133,7 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
 
     assert "Joe: sage green" in str(response)
     assert "Hadley: red" in str(response)
-    assert len(chat.turns()) == 4
+    assert len(chat.get_turns()) == 4
 
 
 def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = True):
@@ -161,7 +161,7 @@ def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = 
         stream=stream,
     )
     assert "Susan" in str(response)
-    assert len(chat.turns()) == total_calls
+    assert len(chat.get_turns()) == total_calls
 
 
 def assert_data_extraction(chat_fun: ChatFun):
@@ -205,4 +205,4 @@ def assert_images_remote_error(chat_fun: ChatFun):
     with pytest.raises(Exception, match="Remote images aren't supported"):
         chat.chat("What's in this image?", image_remote)
 
-    assert len(chat.turns()) == 0
+    assert len(chat.get_turns()) == 0

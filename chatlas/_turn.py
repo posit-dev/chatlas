@@ -31,7 +31,7 @@ class Turn:
 
     chat = ChatOpenAI()
     str(chat.chat("What is the capital of France?"))
-    turns = chat.turns()
+    turns = chat.get_turns()
     assert len(turns) == 2
     assert isinstance(turns[0], Turn)
     assert turns[0].role == "user"
@@ -39,7 +39,7 @@ class Turn:
 
     # Load context into a new chat instance
     chat2 = ChatAnthropic(turns=turns)
-    turns2 = chat2.turns()
+    turns2 = chat2.get_turns()
     assert turns == turns2
     ```
 

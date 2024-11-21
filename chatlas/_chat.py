@@ -81,7 +81,7 @@ class Chat(Generic[SubmitInputArgsT]):
         self._turns: list[Turn] = list(turns or [])
         self.tools: dict[str, Tool] = {}
 
-    def turns(
+    def get_turns(
         self,
         *,
         include_system_prompt: bool = False,
@@ -102,7 +102,7 @@ class Chat(Generic[SubmitInputArgsT]):
             return self._turns[1:]
         return self._turns
 
-    def last_turn(
+    def get_last_turn(
         self,
         *,
         role: Literal["assistant", "user", "system"] = "assistant",
@@ -145,7 +145,12 @@ class Chat(Generic[SubmitInputArgsT]):
     @property
     def system_prompt(self) -> str | None:
         """
-        Get the system prompt for the chat.
+        A property to get (or set) the system prompt for the chat.
+
+        Returns
+        -------
+        str | None
+            The system prompt (if any).
         """
         if self._turns and self._turns[0].role == "system":
             return self._turns[0].text
@@ -211,7 +216,8 @@ class Chat(Generic[SubmitInputArgsT]):
             chat = ui.Chat(
                 "chat",
                 messages=[
-                    {"role": turn.role, "content": turn.text} for turn in self.turns()
+                    {"role": turn.role, "content": turn.text}
+                    for turn in self.get_turns()
                 ],
             )
 
@@ -465,7 +471,7 @@ class Chat(Generic[SubmitInputArgsT]):
         for _ in response:
             pass
 
-        turn = self.last_turn()
+        turn = self.get_last_turn()
         assert turn is not None
 
         res: list[ContentJson] = []
@@ -519,7 +525,7 @@ class Chat(Generic[SubmitInputArgsT]):
         async for _ in response:
             pass
 
-        turn = self.last_turn()
+        turn = self.get_last_turn()
         assert turn is not None
 
         res: list[ContentJson] = []
@@ -782,7 +788,7 @@ class Chat(Generic[SubmitInputArgsT]):
         self._turns.extend([user_turn, turn])
 
     def _invoke_tools(self) -> Turn | None:
-        turn = self.last_turn()
+        turn = self.get_last_turn()
         if turn is None:
             return None
 
@@ -799,7 +805,7 @@ class Chat(Generic[SubmitInputArgsT]):
         return Turn("user", results)
 
     async def _invoke_tools_async(self) -> Turn | None:
-        turn = self.last_turn()
+        turn = self.get_last_turn()
         if turn is None:
             return None
 
@@ -854,7 +860,7 @@ class Chat(Generic[SubmitInputArgsT]):
             return ContentToolResult(id_, None, str(e))
 
     def __str__(self):
-        turns = self.turns(include_system_prompt=True)
+        turns = self.get_turns(include_system_prompt=True)
         tokens = sum(sum(turn.tokens) for turn in turns)
         output = f"<Chat turns={len(turns)} tokens={tokens}>\n"
         for turn in turns:
