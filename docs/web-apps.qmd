@@ -11,23 +11,25 @@ This is a great way to quickly test your model, but you'll likely want to embed 
 
 ## Shiny
 
-Pass the result of `.chat()` directly to Shiny's [`ui.Chat` component](https://shiny.posit.co/py/components/display-messages/chat/) to create a chat interface in your own [Shiny](https://shiny.rstudio.com/py) app.
+Pass the result of `chat.stream()` directly to Shiny's [`ui.Chat` component](https://shiny.posit.co/py/components/display-messages/chat/) to create a chat interface in your own [Shiny](https://shiny.rstudio.com/py) app.
 
 ```python
 from chatlas import ChatAnthropic
-from shiny import ui
+from shiny.express import ui
 
-chat = ui.Chat(
-  id="chat", 
-  messages=["Hi! How can I help you today?"],
+chat = ChatAnthropic()
+
+chat_ui = ui.Chat(
+    id="ui_chat",
+    messages=["Hi! How can I help you today?"],
 )
+chat_ui.ui()
 
-chat_model = ChatAnthropic()
 
-@chat.on_user_submit
-def _():
-    response = chat_model.stream(chat.user_input())
-    chat.append_message_stream(response)
+@chat_ui.on_user_submit
+async def _():
+    response = chat.stream(chat_ui.user_input())
+    await chat_ui.append_message_stream(response)
 ```
 
 ## Streamlit
