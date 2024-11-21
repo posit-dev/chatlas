@@ -11,7 +11,7 @@ This is a great way to quickly test your model, but you'll likely want to embed 
 
 ## Shiny
 
-Pass the result of `chat.stream()` directly to Shiny's [`ui.Chat` component](https://shiny.posit.co/py/components/display-messages/chat/) to create a chat interface in your own [Shiny](https://shiny.rstudio.com/py) app.
+Using Shiny's [`ui.Chat` component](https://shiny.posit.co/py/components/display-messages/chat/), you can simply pass user input from the component into the `chat.stream()` method. This generate a response stream that can then be passed to `.append_message_stream()`.
 
 ```python
 from chatlas import ChatAnthropic
