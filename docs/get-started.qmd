@@ -1,91 +1,91 @@
 
-# First, some useful LLM concepts
+The goal of chatlas is to make it easy to access to the wealth of large language models (LLMs) from Python. But what can you do with those models once you have them? The goal of this vignette is to give you the basic vocabulary you need to use an LLM effectively and show a bunch of interesting examples to get your creative juices flowing.
 
-The goal of this vignette is give you the key vocabulary you need in order to use LLMs effectively. In this package, we treat LLMs as black boxes, ignoring the details of the underlying models. This is because the details of the models aren't particuarly useful at the level at which you'll mostly want to work (in the same way that you need an extremely deep understaning of physics in order to inform your understand of chemistry), and it's best to start with a highly empirical approach.
-
-(https://www.youtube.com/watch?v=sYliwvml9Es)
-
-* Token: the fundamental component of the underlying model, important for understanding how much your query will cost, and how much data you can send in the prompt.
-* Prompt: the text you send to the model.
-* Conversation: the sequence of conversational turns that alternate between the user and the assistant.
-* Provider: the service that provides predictions
-* Model: while some models are
-
-We'll then finish off with some examples of the types of thing that you can do with LLMs and chatlas to help get your creative juices flowing.
+Here we'll ignore how LLMs actually work, using them as convenient black boxes. If you want to get a sense of how they actually work, we recommend watching Jeremy Howard's posit::conf(2023) keynote: [A hackers guide to open source LLMs](https://www.youtube.com/watch?v=sYliwvml9Es).
 
 ## Vocabulary
 
+We'll start by laying out some key vocab that you'll need to understand LLMs. Unfortunately the vocab is all a little entangled, so to understand one term you have to know a little about some of the others. So we'll start with some simple definitions of the most important terms then iteratively go a little deeper.
+
+It all starts with a **prompt**, which is the text (typically a question) that you send to the LLM. This starts a **conversation**, a sequence of turns that alternate between user (i.e. your) prompts and model responses. Inside the model, the prompt and response are represented by a sequence of **tokens**, which represent either individual words or components of each word. The tokens are used to compute the cost of using a model and are used to measure the size of the **context**, the combination of the current prompt and any previous prompts and response used to generate the next response.
+
+It's also useful to make the distinction between providers and models. A **provider** is a web API that provides access to one or more **model**. The distinction is a bit subtle because providers are synonynous with a model, like OpenAI and chatGPT, Anthropic and Claude, and Google and Gemini. But other providers, like Ollama, can host many different models, typically open source models like LLaMa and mistral. Still other providers do both, typically by partnering with a company that provides a popular closed model. For example, Azure OpenAI offers both open source models and OpenAI's chatGPT, while AWS Bedrock offers both open source models and Anthropic's Claude.
+
 ### What is a token?
 
-A tokens are very important for the implementation of LLMs, because when combined with an embedding, they convert text to numbers, which are then used to train the model. Tokens are also important for you, because they are used to compute query cost and they how much information you can put in a prompt.
+An LLM is a _model_, and like all models needs some way to represent its inputs numerically. For LLMs, that means we need some way to convert words to numbers, which is the goal of the **tokenizer**. For example, using the GPT 4o tokenizer, the string "When was Python created?" is converted to the seqeuence of numbers .... (You can see how various strings are tokenized using <http://tiktokenizer.vercel.app/>). If you want to learn more about tokens and tokenizers, I'd recommend watching the first 20-30 minutes of [Let's build the GPT Tokenizer](https://www.youtube.com/watch?v=zduSFxRajkE) by Andrej Karpathy. You certainly don't need to learn how to build your own tokenizer, but the intro will give you a bunch of useful background knowledge that will help improve your understanding of how LLM's work.
 
-If you want to learn more about tokens, I'd recommend watching the first 20-30 minutes of [Let's build the GPT Tokenizer](https://www.youtube.com/watch?v=zduSFxRajkE) by Andrej Karpathy. You certainly don't need to learn how to build your own tokenizer, but the intro will give you a bunch of useful background knowledge that will help improve your undersstanding of how LLM's work.
+It's important to have a rough sense of how text is converted to tokens because tokens are used to determine the cost of a model and how much context can be used to predict the next response. On average an English word needs ~1.5 tokens (common words will be represented by a single token; rarer words will require multiple) so a page might be 375-400 tokens and a complete book might be 75,000 to 150,000 tokens. Other languages will typically require more tokens, because LLMs are trained on data from the internet, which is primarily in English.
 
-Models are priced according to input and output tokens. Models are priced per million tokens and vary a lot based from model-to-model. Mid-tir models (e.g. gpt-4o or claude 3 haiku) might be around $0.25 per million input and $1 per million output tokens; state of the art models (like gpt-4o or claude 3 sonnet) might be more like $2.50 per million input tokens, and $10 per million output tokens.
+LLMs are priced per million tokens based on how much computation a model requires. Mid-tier models (e.g. gpt-4o or claude 3 haiku) cost be around $0.25 per million input and $1 per million output tokens; state of the art models (like gpt-4o or claude 3.5 sonnet) are more like $2.50 per million input tokens, and $10 per million output tokens. Certainly even $10 of API credit will give you a lot of room for experimentation with using mid-tier models, and prices are likely to decline as model performance improves. In chatlas, you can see how many tokens a conversations has used when you print it and you can see total usage for a session with `token_usage()`.
 
-Certainly, at the time of writing, even $10 of API credit will give you a lot of room for experimenting when using mid-tier models. It's hard to predict how these costs will change in the future. In the short-term, it's likely that costs will decrease as folks figure out more efficient implementations, but costs are currently highly subsidized by venture capital model, so you can expect costs to rise when that starts to run out.
+Tokens also used to measure the context window, which is how much text the LLM can use to generate the next response. As we'll discuss shortly, the context length includes the full state of your conversation so far (both your prompts and the model's responses), which means that cost grow rapidly with the number of conversational turns.
 
-To help calibrate, on average, an English word requires around 1.5 tokens. A page might be 375-400 tokens. A complete book might be 75,000 to 150,000 tokens. Other languages will often require more tokens LLMs are trained on data from the internet, which is primarily in English.
-
-
-You'll also hear about tokens in the context of "context length", or how long your conversations can be.
-
-With chatlas, you can see how many tokens a conversations has used when you print it, or you can see total usage for a session with `token_usage()`.
 
 ### What is a conversation?
 
-A conversation with an LLM takes place through a series of HTTP requests and responses: you send your question to the LLM in a HTTP request, and it sends its reply back in a HTTP response. In chatlas, we refer to these as conversational __turns__: a conversation is a sequence of turns between the user (you) and the assistant (the LLM).
+A conversation with an LLM takes place through a series of HTTP requests and responses: you send your question to the LLM in a HTTP request, and it sends its reply back in a HTTP response. In other words, a conversation consists of a sequence of a paired turns: you send a prompt then the model returns a response. To generate that response, the model will use the entire converational history, both the prompts and the response. In other words, every time that elmer send a prompt to an LLM, it actually sends the entire conversation history. This is important to understand because:
 
-Depsite the fact that conversations are inherently stateful (i.e. your response to a question depends on the completely history of the conversation), LLM APIs are stateless. That means every time you send an question to an LLM, you have to actually send the entire conversation history. This is important to understand because:
+* It affects pricing. You are charged per token, so each question in a conversation is going to include all the previous questions and answers, meaning that the cost is going to grow quadratically with the number of turns. In other words: to save money, keep your conversations short.
 
-* It affects pricing. You are charged per token, so each question in a conversation is going to include all the previous questions and answers, meaning that the cost is going to grow quadratically with the number of questions. In other words, to save money, keep your conversational threads short.
+* Every response is affected by all previous questions and responses. This can make a converstion get stuck in a local optima, so generally it's better to iterate by starting new conversations with improved prompts rather than having a long conversation with the model.
 
-* You have full control over the conversational history. This means for example that you can start a conversation with one provider, and then send it to another provider.
+* chatlas has full control over the conversational history, because it's chatlas's responsibility to send the previous conversation turns. That makes it possible to start a conversation with one model and finish it with another.
 
-* Every response is affected by all previous questions and responses. You may want to start a new chat session if you don't want this history to affect subsequent answers. And in general, it's typically better to iterate on your system prompt (or first user prompt) rather than iterating through a long conversation with the model.
 
 ### What is a prompt?
 
-- User prompt: a question or statement for the model to respond to
-- System prompt: behind-the-scenes instructions and information for the model
-- Core system prompt:
+The user prompt is the question that you send to the model. There are two other important prompts the underlying the user prompt:
 
-If you're developing an app, then you'll provide the system prompt and your users will provide their own prompts. If you're developing a solution, you'll provide both the system prompt and the user prompt.
+* The **core system prompt** is unchangeable, set by the model provider, and affects every conversation. You can these look like from Anthropic, who [publishes their core system prompts](https://docs.anthropic.com/en/release-notes/system-prompts).
 
-Models will also have their own systems prompts that are applied underneath your prompts. You can get a sense for what these look like from Anthropic, who [publishes their system prompts](https://docs.anthropic.com/en/release-notes/system-prompts).
+* The **system prompt** is set when you create a new conversation, and will affect every response. It's used to provide additional context for the responses, shaping the output to your needs. For example, you might use the system prompt to ask the model to always respond in Spanish or to write dependency-free base R code.
 
-Writing good prompts is called __prompt engineering__ and is key to effective use of LLMs. We'll discuss that in more details in [Prompt Engineering](prompt-engineering.qmd).
+Writing good prompts is called __prompt design__, is key to effective use of LLMs, and is discussed in more detail in the [prompt design article](prompt-engineering.qmd). When you use a chat app like ChatGPT or Claude.AI you can only iterate on the user prompt. But generally when you're programming with LLMs, you'll iterate on the system prompt. For example, if you're developing an app that helps a user write Python code, you'd work with the system prompt to ensure that you get the style of code that you want.
 
-### Providers and models
 
-A provider is a company that provides a model for use via API. Some providers are synonynous with a model: for example OpenAI and chatGPT, anthropic and Claude, and Google and Gemini.
+## Example uses
 
-But other providers host many different models. These models are typically open source models (like LLaMa, mistral). Bigger providers will often partner with one of the proprietary models: for example, Azure OpenAI offers a range of open source models plus OpenAI's chatGPT, AWS Bedrock offers a range of open source models plus anthropic's Claude models.
+Now that you've got the basic vocab under your belt, I'm going to just fire a bunch of interesting potential use cases at you. For many of these examples there are often special purpose tools that will be faster and cheaper. But using an LLM allows you to rapidly prototype an idea on a small subset of the full problem to determine if it's worth investing more time and effort.
 
-## Sample use cases
+### Chatbots
 
-User interfaces:
+Great place to start is building a chatbot with a custom prompt. Chatbots are familiar interface and easy to create via [web application](web-apps.qmd) framework like Shiny or Streamlit.
 
-* A chatbot with [shinychat](https://github.com/jcheng5/shinychat).
-  From this simple framework you can add extra features, e.g. <https://shiny.posit.co/blog/posts/shiny-assistant/>.
+You could create a chat bot to answer questions on a specific topic by filling the prompt with related content. For example, maybe you want to help people use your new package. The default prompt won't work because LLMs don't know anything about your package. You can get surprisingly far by preloading the prompt with your README and other vignettes. This is how the [elmer assistant](https://github.com/jcheng5/elmer-assistant) works.
 
-* Modify code/text using {rstudioapi}.
+An even more complicated chat bot is [shiny assistant](https://shiny.posit.co/blog/posts/shiny-assistant/) which helps you build shiny apps (either in Python or R). It combines a [prompt](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt.md) that gives general advice with a language specific prompt for [Python](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md) or [R](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_r.md). The python prompt is very detailed because there's much less information about Shiny for Python on the internet because it's a much newer package.
 
-* A function that takes unstructured input and returns structured output. Learn more in [Structured Data](structured-data.qmd)
+Another direction is to give the chat bot additional context about your current environment. For example, [aidea](https://github.com/cpsievert/aidea) allows the user to interactively explore a dataset with the help of the LLM. It adds summary statistics about the dataset to the [prompt](https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md) so that the LLM has context about the dataset. If you were working on a chatbot to help the user read in data, you could imagine include all the files in the current directory along with their first few lines.
 
-Interaction with the LLM:
+Generally, there's a surprising amount of value to creating a chatbot that has a prompt stuffed with data that's already available on the internet. At best, search often only gets to you the correct page, whereas a chat bot can answer a specific narrowly scoped question. If you have more context than can be stuffed in a prompt, you'll need to use some other technique like RAG (retrieval-augmented generation).
 
-* Automate adding data to the prompt.
+### Structured data extraction
 
-    * For example, you could automatically look up the documentation for a Python function, and include it in the prompt.
+LLMs can be very good at extracting structured data from unstructured text. Do you have any raw data that you've struggled to analyse in the past because it's just big wodges of plain text? Read the structured [data extraction](structured-data.qmd) article to learn about how you can use it.
 
-    * Describe a data frame. <https://github.com/cpsievert/aidea>
+Some examples:
 
-* Create a long hand written prompt that teaches the LLM about something it wouldn't otherwise know about. For example, you might write a guide to updating code to use a new version of a package.
+* Extract structured recipe data from baking and cocktail recipes. Once you have the data in a structured form you can use your Python skills to better understand how (e.g.) recipes vary within a cookbook. Or you could look for recipes that use the ingredients that you currently have in your kitchen.
 
-    * <https://github.com/jcheng5/elmer-assistant>
-    * <https://simonpcouch.github.io/pal/>
+* Extract key details from customer tickets or GitHub issues. You can use LLMs for quick and dirty sentiment analysis, extract any specific products mentioned, and summarise the discussion into a few bullet points.
 
-* Connect an LLM with more data by using tool calling. Learn more in [Tool Calling](tool-calling.qmd)
+* Structured data extraction also work works with images. It's not the fastest or cheapest way to extract data but it makes it really easy to prototype ideas. For example, maybe you have a bunch of scanned documents that you want to index. You can convert PDFs to images (e.g. using something like [`pdf2image`](https://pypi.org/project/pdf2image/)) then use structured data extraction to pull out key details.
 
-* Define create a prompt with example of the structured data output that you want.
+### Programming
+
+Create a long hand written prompt that teaches the LLM about something it wouldn't otherwise know about. For example, you might write a guide to updating code to use a new version of a package. If you have a programmable IDE, you could imagine being able to select code, transform it, and then replace the existing text. A real example of this is the R package [pal](https://simonpcouch.github.io/pal/), which includes prompts for updating source code to use the latest conventions in R for documentation, testing, error handling, and more.
+
+You can also explore automatically adding addition context to the prompt. For example, you could automatically look up the documentation for an Python function, and include it in the prompt.
+
+You can use LLMs to explain code, or even ask them to [generate a diagram](https://bsky.app/profile/daviddiviny.bsky.social/post/3lb6kjaen4c2u).
+
+### First pass
+
+For more complicated problems, you may find that an LLM rarely generates a 100% correct solution. That can be ok, if you adopt the mindset of using the LLM to get started, solving the "blank page problem":
+
+* Use your existing company style guide to generate a [brand.yaml](https://posit-dev.github.io/brand-yml/articles/llm-brand-yml-prompt/) specification to automatically style your reports, apps, dashboards, plots to match your corporate style guide. Using a prompt here is unlikely to give you perfect results, but it's likely to get you close and then you can manually iterate.
+
+* I sometimes find it useful to have an LLM document a function for me, even knowing that it's likely to be mostly incorrect. It can often be much easier to react to some existing text than having to start completely from scratch.
+
+* If you're working with code or data from another programming language, you ask an LLM to convert it to R code for you. Even if it's not perfect, it's still typically much faster than doing everything yourself.

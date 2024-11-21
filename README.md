@@ -1,7 +1,7 @@
 # chatlas
 
-Easily chat with various LLM models from Ollama, Anthropic, OpenAI, and more.
-`chatlas` is intentionally minimal -- making it easy to get started, while also supporting important features like streaming, tool calling, images, async, and more.
+The goal of chatlas is to provide a user friendly wrapper around the APIs for large lanuage model (LLM) providers.
+`chatlas` is intentionally minimal -- making it easy to get started, while also supporting table stakes features like streaming output, structured data extraction, function (tool) calling, images, async, and more.
 
 (Looking for something similar to chatlas, but in R? Check out [elmer](https://elmer.tidyverse.org/)!)
 
@@ -13,11 +13,9 @@ Easily chat with various LLM models from Ollama, Anthropic, OpenAI, and more.
 pip install git+https://github.com/posit-dev/chatlas
 ```
 
-After installing, you'll want to pick a [model provider](#model-providers), and get [credentials](#managing-credentials) set up (if necessary). Here, we demonstrate usage with OpenAI, but the concepts here apply to other implementations as well.
-
 ## Model providers
 
-`chatlas` supports a variety of model providers:
+`chatlas` supports a variety of model providers. See the [API reference](https://posit-dev.github.io/chatlas/reference/index.html) for more details (like managing credentials) on each provider.
 
 * Anthropic (Claude): [`ChatAnthropic()`](https://posit-dev.github.io/chatlas/reference/ChatAnthropic.html).
 * GitHub model marketplace: [`ChatGithub()`](https://posit-dev.github.io/chatlas/reference/ChatGithub.html).
@@ -35,13 +33,13 @@ It also supports the following enterprise cloud providers:
 
 ## Model choice
 
-If you're using chatlas inside your organisation, you'll typically need to use whatever you're allowed to. If you're using chatlas for your own personal exploration, we recommend starting with:
+If you're using chatlas inside your organisation, you'll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g. `ChatAzureOpenAI()` and `ChatBedrockAnthropic()`). If you're using chatlas for your own personal exploration, you have a lot more freedom, so we recommend starting with one of the following:
 
-`ChatOpenAI()`, which currently defaults to `model="gpt-4o-mini"`. You might want to try `"gpt-4o"` for more demanding task and if you want to force complex reasoning, `"o1-mini"`.
+- I'd recommend starting with either `ChatOpenAI()` or `ChatAnthropic()`. `ChatOpenAI()` defaults to **GPT-4o-mini**, which is good and relatively cheap. You might want to try `model = "gpt-4o"` for more demanding tasks, or `model = "o1-mini"` if you want to force complex reasoning. `ChatAnthropic()` is similarly good and well priced. It defaults to **Claude 3.5 Sonnet** which we have found to the be the best for writing code.
 
-`ChatAnthropic()`, which defaults to Claude 3.5 Sonnet. This currently appears to be the best model for code generation.
+- Try `ChatGoogle()` if you want to put a lot of data in the prompt. This provider defaults to the **Gemini 1.5 Flash** model which supports 1 million tokens, compared to 200k for Claude 3.5 Sonnet and 128k for GPT 4o mini.
 
-If you want to put a lot of data in the prompt, try `ChatGoogle()` which defaults to Gemini 1.5 Flash and supports 1 million tokens, compared to 200k for Claude 3.5 Sonnet and 128k for GPT 4o mini.
+- Use [Ollama](https://ollama.com) with `ChatOllama()` to run models on your own computer. The biggest models you can run locally aren't as good as the state of the art hosted models, but they also don't share your data and and are effectively free.
 
 ## Using chatlas
 
@@ -109,16 +107,18 @@ Python was primarily influenced by ABC, with additional inspiration from C,
 Modula-3, and various other languages.
 ```
 
-To get the full response as a string, use the built-in `str()` function. Optionally, you can (soon) suppress the rich console output by setting `echo="none"`:
+To get the full response as a string, use the built-in `str()` function. Optionally, you can also suppress the rich console output by setting `echo="none"`:
 
 ```python
 response = chat.chat("Who is Posit?", echo="none")
 print(str(response))
 ```
 
+As we'll cover in later articles, `echo="all"` can also be useful for debugging, as it shows additional information, such as tool calls.
+
 ### The `.stream()` method
 
-If you want to process the response in real-time (i.e., as it arrives in chunks), you can use the `.stream()` method. This method returns a generator that yields chunks of the response as they come in. This is useful for long responses, or if you want to process the response as it streams in:
+If you want to do something with the response in real-time (i.e., as it arrives in chunks), use the `.stream()` method. This method returns an iterator that yields each chunk of the response as it arrives:
 
 ```python
 response = chat.stream("Who is Posit?")
@@ -126,6 +126,7 @@ for chunk in response:
     print(chunk, end="")
 ```
 
+The `.stream()` method can also be useful if you're building a chatbot or other interactive applications that needs to display responses as they arrive.
 
 ### Vision (Image Input)
 
