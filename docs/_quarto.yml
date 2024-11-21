@@ -30,7 +30,7 @@ website:
       - text: Reference
         href: reference/index.qmd
       - text: Articles
-      - menu: 
+        menu: 
           - text: Prompt design
             href: prompt-engineering.qmd
           - text: Structured data
