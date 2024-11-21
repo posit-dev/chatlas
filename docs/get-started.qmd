@@ -41,7 +41,7 @@ The user prompt is the question that you send to the model. There are two other 
 
 * The **system prompt** is set when you create a new conversation, and will affect every response. It's used to provide additional context for the responses, shaping the output to your needs. For example, you might use the system prompt to ask the model to always respond in Spanish or to write dependency-free base R code.
 
-Writing good prompts is called __prompt design__, is key to effective use of LLMs, and is discussed in more detail in the [prompt design article](prompt-engineering.qmd). When you use a chat app like ChatGPT or Claude.AI you can only iterate on the user prompt. But generally when you're programming with LLMs, you'll iterate on the system prompt. For example, if you're developing an app that helps a user write Python code, you'd work with the system prompt to ensure that you get the style of code that you want.
+Writing good prompts is called __prompt design__, is key to effective use of LLMs, and is discussed in more detail in the [prompt design article](prompt-design.qmd). When you use a chat app like ChatGPT or Claude.AI you can only iterate on the user prompt. But generally when you're programming with LLMs, you'll iterate on the system prompt. For example, if you're developing an app that helps a user write Python code, you'd work with the system prompt to ensure that you get the style of code that you want.
 
 
 ## Example uses

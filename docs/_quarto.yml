@@ -32,7 +32,7 @@ website:
       - text: Articles
         menu: 
           - text: Prompt design
-            href: prompt-engineering.qmd
+            href: prompt-design.qmd
           - text: Structured data
             href: structured-data.qmd
           - text: Tool (function) calling
