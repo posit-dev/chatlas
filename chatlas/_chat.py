@@ -231,6 +231,7 @@ class Chat(Generic[SubmitInputArgsT]):
     def console(
         self,
         *,
+        echo: Literal["text", "all", "none"] = "text",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ):
@@ -241,6 +242,9 @@ class Chat(Generic[SubmitInputArgsT]):
 
         Parameters
         ----------
+        echo
+            Whether to echo text content, all content (i.e., tool calls), or no
+            content.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
         kwargs
@@ -259,7 +263,7 @@ class Chat(Generic[SubmitInputArgsT]):
             if user_input.strip().lower() in ("exit", "exit()"):
                 break
             print("")
-            self.chat(user_input, stream=stream, kwargs=kwargs)
+            self.chat(user_input, echo=echo, stream=stream, kwargs=kwargs)
             print("")
 
     def chat(
