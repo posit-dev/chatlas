@@ -7,9 +7,10 @@ pre:has(> code) {
   padding: .4em;
 }
 
-/* Add a border around the rich console output */
-.jp-OutputArea-output {
-  border: 1px solid var(--bs-gray-300);
-  padding: 0.5em;
-  border-radius: 0.25rem;
+/* Add a border around the Markdown() output */
+.chatlas-markdown + .cell-output-markdown {
+    border: 1px solid var(--bs-gray-300);
+    padding: .75rem 1rem;
+    border-radius: .25rem;
+    margin-bottom: 1rem;
 }
