@@ -38,7 +38,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-0c8af03b2fbd4cf44d6703e337af0e8d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-431c8872fa716ff5a2021a087380a4b9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-281ce7207cc8ce5ac07f3a0650fe084a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -99,18 +99,13 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./reference/index.html"> 
 <span class="menu-text">Reference</span></a>
   </li>  
-  <li class="nav-item">
-    <span class="nav-link">
-<span class="menu-text">Articles</span>
-    </span>
-  </li>  
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text"></span>
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-articles" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Articles</span>
     </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-">    
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-articles">    
         <li>
-    <a class="dropdown-item" href="./prompt-engineering.html">
+    <a class="dropdown-item" href="./prompt-design.html">
  <span class="dropdown-text">Prompt design</span></a>
   </li>  
         <li>
@@ -150,16 +145,18 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#first-some-useful-llm-concepts" id="toc-first-some-useful-llm-concepts" class="nav-link active" data-scroll-target="#first-some-useful-llm-concepts">First, some useful LLM concepts</a>
-  <ul class="collapse">
-  <li><a href="#vocabulary" id="toc-vocabulary" class="nav-link" data-scroll-target="#vocabulary">Vocabulary</a>
+  <li><a href="#vocabulary" id="toc-vocabulary" class="nav-link active" data-scroll-target="#vocabulary">Vocabulary</a>
   <ul class="collapse">
   <li><a href="#what-is-a-token" id="toc-what-is-a-token" class="nav-link" data-scroll-target="#what-is-a-token">What is a token?</a></li>
   <li><a href="#what-is-a-conversation" id="toc-what-is-a-conversation" class="nav-link" data-scroll-target="#what-is-a-conversation">What is a conversation?</a></li>
   <li><a href="#what-is-a-prompt" id="toc-what-is-a-prompt" class="nav-link" data-scroll-target="#what-is-a-prompt">What is a prompt?</a></li>
-  <li><a href="#providers-and-models" id="toc-providers-and-models" class="nav-link" data-scroll-target="#providers-and-models">Providers and models</a></li>
   </ul></li>
-  <li><a href="#sample-use-cases" id="toc-sample-use-cases" class="nav-link" data-scroll-target="#sample-use-cases">Sample use cases</a></li>
+  <li><a href="#example-uses" id="toc-example-uses" class="nav-link" data-scroll-target="#example-uses">Example uses</a>
+  <ul class="collapse">
+  <li><a href="#chatbots" id="toc-chatbots" class="nav-link" data-scroll-target="#chatbots">Chatbots</a></li>
+  <li><a href="#structured-data-extraction" id="toc-structured-data-extraction" class="nav-link" data-scroll-target="#structured-data-extraction">Structured data extraction</a></li>
+  <li><a href="#programming" id="toc-programming" class="nav-link" data-scroll-target="#programming">Programming</a></li>
+  <li><a href="#first-pass" id="toc-first-pass" class="nav-link" data-scroll-target="#first-pass">First pass</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/get-started.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
@@ -170,79 +167,73 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="first-some-useful-llm-concepts" class="level1">
-<h1>First, some useful LLM concepts</h1>
-<p>The goal of this vignette is give you the key vocabulary you need in order to use LLMs effectively. In this package, we treat LLMs as black boxes, ignoring the details of the underlying models. This is because the details of the models aren’t particuarly useful at the level at which you’ll mostly want to work (in the same way that you need an extremely deep understaning of physics in order to inform your understand of chemistry), and it’s best to start with a highly empirical approach.</p>
-<p>(https://www.youtube.com/watch?v=sYliwvml9Es)</p>
-<ul>
-<li>Token: the fundamental component of the underlying model, important for understanding how much your query will cost, and how much data you can send in the prompt.</li>
-<li>Prompt: the text you send to the model.</li>
-<li>Conversation: the sequence of conversational turns that alternate between the user and the assistant.</li>
-<li>Provider: the service that provides predictions</li>
-<li>Model: while some models are</li>
-</ul>
-<p>We’ll then finish off with some examples of the types of thing that you can do with LLMs and chatlas to help get your creative juices flowing.</p>
+<p>The goal of chatlas is to make it easy to access to the wealth of large language models (LLMs) from Python. But what can you do with those models once you have them? The goal of this vignette is to give you the basic vocabulary you need to use an LLM effectively and show a bunch of interesting examples to get your creative juices flowing.</p>
+<p>Here we’ll ignore how LLMs actually work, using them as convenient black boxes. If you want to get a sense of how they actually work, we recommend watching Jeremy Howard’s posit::conf(2023) keynote: <a href="https://www.youtube.com/watch?v=sYliwvml9Es">A hackers guide to open source LLMs</a>.</p>
 <section id="vocabulary" class="level2">
 <h2 class="anchored" data-anchor-id="vocabulary">Vocabulary</h2>
+<p>We’ll start by laying out some key vocab that you’ll need to understand LLMs. Unfortunately the vocab is all a little entangled, so to understand one term you have to know a little about some of the others. So we’ll start with some simple definitions of the most important terms then iteratively go a little deeper.</p>
+<p>It all starts with a <strong>prompt</strong>, which is the text (typically a question) that you send to the LLM. This starts a <strong>conversation</strong>, a sequence of turns that alternate between user (i.e.&nbsp;your) prompts and model responses. Inside the model, the prompt and response are represented by a sequence of <strong>tokens</strong>, which represent either individual words or components of each word. The tokens are used to compute the cost of using a model and are used to measure the size of the <strong>context</strong>, the combination of the current prompt and any previous prompts and response used to generate the next response.</p>
+<p>It’s also useful to make the distinction between providers and models. A <strong>provider</strong> is a web API that provides access to one or more <strong>model</strong>. The distinction is a bit subtle because providers are synonynous with a model, like OpenAI and chatGPT, Anthropic and Claude, and Google and Gemini. But other providers, like Ollama, can host many different models, typically open source models like LLaMa and mistral. Still other providers do both, typically by partnering with a company that provides a popular closed model. For example, Azure OpenAI offers both open source models and OpenAI’s chatGPT, while AWS Bedrock offers both open source models and Anthropic’s Claude.</p>
 <section id="what-is-a-token" class="level3">
 <h3 class="anchored" data-anchor-id="what-is-a-token">What is a token?</h3>
-<p>A tokens are very important for the implementation of LLMs, because when combined with an embedding, they convert text to numbers, which are then used to train the model. Tokens are also important for you, because they are used to compute query cost and they how much information you can put in a prompt.</p>
-<p>If you want to learn more about tokens, I’d recommend watching the first 20-30 minutes of <a href="https://www.youtube.com/watch?v=zduSFxRajkE">Let’s build the GPT Tokenizer</a> by Andrej Karpathy. You certainly don’t need to learn how to build your own tokenizer, but the intro will give you a bunch of useful background knowledge that will help improve your undersstanding of how LLM’s work.</p>
-<p>Models are priced according to input and output tokens. Models are priced per million tokens and vary a lot based from model-to-model. Mid-tir models (e.g.&nbsp;gpt-4o or claude 3 haiku) might be around $0.25 per million input and $1 per million output tokens; state of the art models (like gpt-4o or claude 3 sonnet) might be more like $2.50 per million input tokens, and $10 per million output tokens.</p>
-<p>Certainly, at the time of writing, even $10 of API credit will give you a lot of room for experimenting when using mid-tier models. It’s hard to predict how these costs will change in the future. In the short-term, it’s likely that costs will decrease as folks figure out more efficient implementations, but costs are currently highly subsidized by venture capital model, so you can expect costs to rise when that starts to run out.</p>
-<p>To help calibrate, on average, an English word requires around 1.5 tokens. A page might be 375-400 tokens. A complete book might be 75,000 to 150,000 tokens. Other languages will often require more tokens LLMs are trained on data from the internet, which is primarily in English.</p>
-<p>You’ll also hear about tokens in the context of “context length”, or how long your conversations can be.</p>
-<p>With chatlas, you can see how many tokens a conversations has used when you print it, or you can see total usage for a session with <code>token_usage()</code>.</p>
+<p>An LLM is a <em>model</em>, and like all models needs some way to represent its inputs numerically. For LLMs, that means we need some way to convert words to numbers, which is the goal of the <strong>tokenizer</strong>. For example, using the GPT 4o tokenizer, the string “When was Python created?” is converted to the seqeuence of numbers …. (You can see how various strings are tokenized using <a href="http://tiktokenizer.vercel.app/" class="uri">http://tiktokenizer.vercel.app/</a>). If you want to learn more about tokens and tokenizers, I’d recommend watching the first 20-30 minutes of <a href="https://www.youtube.com/watch?v=zduSFxRajkE">Let’s build the GPT Tokenizer</a> by Andrej Karpathy. You certainly don’t need to learn how to build your own tokenizer, but the intro will give you a bunch of useful background knowledge that will help improve your understanding of how LLM’s work.</p>
+<p>It’s important to have a rough sense of how text is converted to tokens because tokens are used to determine the cost of a model and how much context can be used to predict the next response. On average an English word needs ~1.5 tokens (common words will be represented by a single token; rarer words will require multiple) so a page might be 375-400 tokens and a complete book might be 75,000 to 150,000 tokens. Other languages will typically require more tokens, because LLMs are trained on data from the internet, which is primarily in English.</p>
+<p>LLMs are priced per million tokens based on how much computation a model requires. Mid-tier models (e.g.&nbsp;gpt-4o or claude 3 haiku) cost be around $0.25 per million input and $1 per million output tokens; state of the art models (like gpt-4o or claude 3.5 sonnet) are more like $2.50 per million input tokens, and $10 per million output tokens. Certainly even $10 of API credit will give you a lot of room for experimentation with using mid-tier models, and prices are likely to decline as model performance improves. In chatlas, you can see how many tokens a conversations has used when you print it and you can see total usage for a session with <code>token_usage()</code>.</p>
+<p>Tokens also used to measure the context window, which is how much text the LLM can use to generate the next response. As we’ll discuss shortly, the context length includes the full state of your conversation so far (both your prompts and the model’s responses), which means that cost grow rapidly with the number of conversational turns.</p>
 </section>
 <section id="what-is-a-conversation" class="level3">
 <h3 class="anchored" data-anchor-id="what-is-a-conversation">What is a conversation?</h3>
-<p>A conversation with an LLM takes place through a series of HTTP requests and responses: you send your question to the LLM in a HTTP request, and it sends its reply back in a HTTP response. In chatlas, we refer to these as conversational <strong>turns</strong>: a conversation is a sequence of turns between the user (you) and the assistant (the LLM).</p>
-<p>Depsite the fact that conversations are inherently stateful (i.e.&nbsp;your response to a question depends on the completely history of the conversation), LLM APIs are stateless. That means every time you send an question to an LLM, you have to actually send the entire conversation history. This is important to understand because:</p>
+<p>A conversation with an LLM takes place through a series of HTTP requests and responses: you send your question to the LLM in a HTTP request, and it sends its reply back in a HTTP response. In other words, a conversation consists of a sequence of a paired turns: you send a prompt then the model returns a response. To generate that response, the model will use the entire converational history, both the prompts and the response. In other words, every time that elmer send a prompt to an LLM, it actually sends the entire conversation history. This is important to understand because:</p>
 <ul>
-<li><p>It affects pricing. You are charged per token, so each question in a conversation is going to include all the previous questions and answers, meaning that the cost is going to grow quadratically with the number of questions. In other words, to save money, keep your conversational threads short.</p></li>
-<li><p>You have full control over the conversational history. This means for example that you can start a conversation with one provider, and then send it to another provider.</p></li>
-<li><p>Every response is affected by all previous questions and responses. You may want to start a new chat session if you don’t want this history to affect subsequent answers. And in general, it’s typically better to iterate on your system prompt (or first user prompt) rather than iterating through a long conversation with the model.</p></li>
+<li><p>It affects pricing. You are charged per token, so each question in a conversation is going to include all the previous questions and answers, meaning that the cost is going to grow quadratically with the number of turns. In other words: to save money, keep your conversations short.</p></li>
+<li><p>Every response is affected by all previous questions and responses. This can make a converstion get stuck in a local optima, so generally it’s better to iterate by starting new conversations with improved prompts rather than having a long conversation with the model.</p></li>
+<li><p>chatlas has full control over the conversational history, because it’s chatlas’s responsibility to send the previous conversation turns. That makes it possible to start a conversation with one model and finish it with another.</p></li>
 </ul>
 </section>
 <section id="what-is-a-prompt" class="level3">
 <h3 class="anchored" data-anchor-id="what-is-a-prompt">What is a prompt?</h3>
+<p>The user prompt is the question that you send to the model. There are two other important prompts the underlying the user prompt:</p>
 <ul>
-<li>User prompt: a question or statement for the model to respond to</li>
-<li>System prompt: behind-the-scenes instructions and information for the model</li>
-<li>Core system prompt:</li>
+<li><p>The <strong>core system prompt</strong> is unchangeable, set by the model provider, and affects every conversation. You can these look like from Anthropic, who <a href="https://docs.anthropic.com/en/release-notes/system-prompts">publishes their core system prompts</a>.</p></li>
+<li><p>The <strong>system prompt</strong> is set when you create a new conversation, and will affect every response. It’s used to provide additional context for the responses, shaping the output to your needs. For example, you might use the system prompt to ask the model to always respond in Spanish or to write dependency-free base R code.</p></li>
 </ul>
-<p>If you’re developing an app, then you’ll provide the system prompt and your users will provide their own prompts. If you’re developing a solution, you’ll provide both the system prompt and the user prompt.</p>
-<p>Models will also have their own systems prompts that are applied underneath your prompts. You can get a sense for what these look like from Anthropic, who <a href="https://docs.anthropic.com/en/release-notes/system-prompts">publishes their system prompts</a>.</p>
-<p>Writing good prompts is called <strong>prompt engineering</strong> and is key to effective use of LLMs. We’ll discuss that in more details in <a href="./prompt-engineering.html">Prompt Engineering</a>.</p>
-</section>
-<section id="providers-and-models" class="level3">
-<h3 class="anchored" data-anchor-id="providers-and-models">Providers and models</h3>
-<p>A provider is a company that provides a model for use via API. Some providers are synonynous with a model: for example OpenAI and chatGPT, anthropic and Claude, and Google and Gemini.</p>
-<p>But other providers host many different models. These models are typically open source models (like LLaMa, mistral). Bigger providers will often partner with one of the proprietary models: for example, Azure OpenAI offers a range of open source models plus OpenAI’s chatGPT, AWS Bedrock offers a range of open source models plus anthropic’s Claude models.</p>
+<p>Writing good prompts is called <strong>prompt design</strong>, is key to effective use of LLMs, and is discussed in more detail in the <a href="./prompt-design.html">prompt design article</a>. When you use a chat app like ChatGPT or Claude.AI you can only iterate on the user prompt. But generally when you’re programming with LLMs, you’ll iterate on the system prompt. For example, if you’re developing an app that helps a user write Python code, you’d work with the system prompt to ensure that you get the style of code that you want.</p>
 </section>
 </section>
-<section id="sample-use-cases" class="level2">
-<h2 class="anchored" data-anchor-id="sample-use-cases">Sample use cases</h2>
-<p>User interfaces:</p>
+<section id="example-uses" class="level2">
+<h2 class="anchored" data-anchor-id="example-uses">Example uses</h2>
+<p>Now that you’ve got the basic vocab under your belt, I’m going to just fire a bunch of interesting potential use cases at you. For many of these examples there are often special purpose tools that will be faster and cheaper. But using an LLM allows you to rapidly prototype an idea on a small subset of the full problem to determine if it’s worth investing more time and effort.</p>
+<section id="chatbots" class="level3">
+<h3 class="anchored" data-anchor-id="chatbots">Chatbots</h3>
+<p>Great place to start is building a chatbot with a custom prompt. Chatbots are familiar interface and easy to create via <a href="./web-apps.html">web application</a> framework like Shiny or Streamlit.</p>
+<p>You could create a chat bot to answer questions on a specific topic by filling the prompt with related content. For example, maybe you want to help people use your new package. The default prompt won’t work because LLMs don’t know anything about your package. You can get surprisingly far by preloading the prompt with your README and other vignettes. This is how the <a href="https://github.com/jcheng5/elmer-assistant">elmer assistant</a> works.</p>
+<p>An even more complicated chat bot is <a href="https://shiny.posit.co/blog/posts/shiny-assistant/">shiny assistant</a> which helps you build shiny apps (either in Python or R). It combines a <a href="https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt.md">prompt</a> that gives general advice with a language specific prompt for <a href="https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md">Python</a> or <a href="https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_r.md">R</a>. The python prompt is very detailed because there’s much less information about Shiny for Python on the internet because it’s a much newer package.</p>
+<p>Another direction is to give the chat bot additional context about your current environment. For example, <a href="https://github.com/cpsievert/aidea">aidea</a> allows the user to interactively explore a dataset with the help of the LLM. It adds summary statistics about the dataset to the <a href="https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md">prompt</a> so that the LLM has context about the dataset. If you were working on a chatbot to help the user read in data, you could imagine include all the files in the current directory along with their first few lines.</p>
+<p>Generally, there’s a surprising amount of value to creating a chatbot that has a prompt stuffed with data that’s already available on the internet. At best, search often only gets to you the correct page, whereas a chat bot can answer a specific narrowly scoped question. If you have more context than can be stuffed in a prompt, you’ll need to use some other technique like RAG (retrieval-augmented generation).</p>
+</section>
+<section id="structured-data-extraction" class="level3">
+<h3 class="anchored" data-anchor-id="structured-data-extraction">Structured data extraction</h3>
+<p>LLMs can be very good at extracting structured data from unstructured text. Do you have any raw data that you’ve struggled to analyse in the past because it’s just big wodges of plain text? Read the structured <a href="./structured-data.html">data extraction</a> article to learn about how you can use it.</p>
+<p>Some examples:</p>
 <ul>
-<li><p>A chatbot with <a href="https://github.com/jcheng5/shinychat">shinychat</a>. From this simple framework you can add extra features, e.g.&nbsp;<a href="https://shiny.posit.co/blog/posts/shiny-assistant/" class="uri">https://shiny.posit.co/blog/posts/shiny-assistant/</a>.</p></li>
-<li><p>Modify code/text using {rstudioapi}.</p></li>
-<li><p>A function that takes unstructured input and returns structured output. Learn more in <a href="./structured-data.html">Structured Data</a></p></li>
+<li><p>Extract structured recipe data from baking and cocktail recipes. Once you have the data in a structured form you can use your Python skills to better understand how (e.g.) recipes vary within a cookbook. Or you could look for recipes that use the ingredients that you currently have in your kitchen.</p></li>
+<li><p>Extract key details from customer tickets or GitHub issues. You can use LLMs for quick and dirty sentiment analysis, extract any specific products mentioned, and summarise the discussion into a few bullet points.</p></li>
+<li><p>Structured data extraction also work works with images. It’s not the fastest or cheapest way to extract data but it makes it really easy to prototype ideas. For example, maybe you have a bunch of scanned documents that you want to index. You can convert PDFs to images (e.g.&nbsp;using something like <a href="https://pypi.org/project/pdf2image/"><code>pdf2image</code></a>) then use structured data extraction to pull out key details.</p></li>
 </ul>
-<p>Interaction with the LLM:</p>
+</section>
+<section id="programming" class="level3">
+<h3 class="anchored" data-anchor-id="programming">Programming</h3>
+<p>Create a long hand written prompt that teaches the LLM about something it wouldn’t otherwise know about. For example, you might write a guide to updating code to use a new version of a package. If you have a programmable IDE, you could imagine being able to select code, transform it, and then replace the existing text. A real example of this is the R package <a href="https://simonpcouch.github.io/pal/">pal</a>, which includes prompts for updating source code to use the latest conventions in R for documentation, testing, error handling, and more.</p>
+<p>You can also explore automatically adding addition context to the prompt. For example, you could automatically look up the documentation for an Python function, and include it in the prompt.</p>
+<p>You can use LLMs to explain code, or even ask them to <a href="https://bsky.app/profile/daviddiviny.bsky.social/post/3lb6kjaen4c2u">generate a diagram</a>.</p>
+</section>
+<section id="first-pass" class="level3">
+<h3 class="anchored" data-anchor-id="first-pass">First pass</h3>
+<p>For more complicated problems, you may find that an LLM rarely generates a 100% correct solution. That can be ok, if you adopt the mindset of using the LLM to get started, solving the “blank page problem”:</p>
 <ul>
-<li><p>Automate adding data to the prompt.</p>
-<ul>
-<li><p>For example, you could automatically look up the documentation for a Python function, and include it in the prompt.</p></li>
-<li><p>Describe a data frame. <a href="https://github.com/cpsievert/aidea" class="uri">https://github.com/cpsievert/aidea</a></p></li>
-</ul></li>
-<li><p>Create a long hand written prompt that teaches the LLM about something it wouldn’t otherwise know about. For example, you might write a guide to updating code to use a new version of a package.</p>
-<ul>
-<li><a href="https://github.com/jcheng5/elmer-assistant" class="uri">https://github.com/jcheng5/elmer-assistant</a></li>
-<li><a href="https://simonpcouch.github.io/pal/" class="uri">https://simonpcouch.github.io/pal/</a></li>
-</ul></li>
-<li><p>Connect an LLM with more data by using tool calling. Learn more in <a href="./tool-calling.html">Tool Calling</a></p></li>
-<li><p>Define create a prompt with example of the structured data output that you want.</p></li>
+<li><p>Use your existing company style guide to generate a <a href="https://posit-dev.github.io/brand-yml/articles/llm-brand-yml-prompt/">brand.yaml</a> specification to automatically style your reports, apps, dashboards, plots to match your corporate style guide. Using a prompt here is unlikely to give you perfect results, but it’s likely to get you close and then you can manually iterate.</p></li>
+<li><p>I sometimes find it useful to have an LLM document a function for me, even knowing that it’s likely to be mostly incorrect. It can often be much easier to react to some existing text than having to start completely from scratch.</p></li>
+<li><p>If you’re working with code or data from another programming language, you ask an LLM to convert it to R code for you. Even if it’s not perfect, it’s still typically much faster than doing everything yourself.</p></li>
 </ul>
 
 

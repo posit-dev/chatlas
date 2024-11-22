@@ -72,7 +72,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-0c8af03b2fbd4cf44d6703e337af0e8d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-431c8872fa716ff5a2021a087380a4b9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-281ce7207cc8ce5ac07f3a0650fe084a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -133,18 +133,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="./reference/index.html"> 
 <span class="menu-text">Reference</span></a>
   </li>  
-  <li class="nav-item">
-    <span class="nav-link">
-<span class="menu-text">Articles</span>
-    </span>
-  </li>  
   <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text"></span>
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-articles" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Articles</span>
     </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-">    
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-articles">    
         <li>
-    <a class="dropdown-item" href="./prompt-engineering.html">
+    <a class="dropdown-item" href="./prompt-design.html">
  <span class="dropdown-text">Prompt design</span></a>
   </li>  
         <li>
@@ -210,17 +205,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="chatlas" class="level1">
 <h1>chatlas</h1>
-<p>Easily chat with various LLM models from Ollama, Anthropic, OpenAI, and more. <code>chatlas</code> is intentionally minimal – making it easy to get started, while also supporting important features like streaming, tool calling, images, async, and more.</p>
+<p>The goal of chatlas is to provide a user friendly wrapper around the APIs for large lanuage model (LLM) providers. <code>chatlas</code> is intentionally minimal – making it easy to get started, while also supporting table stakes features like streaming output, structured data extraction, function (tool) calling, images, async, and more.</p>
 <p>(Looking for something similar to chatlas, but in R? Check out <a href="https://elmer.tidyverse.org/">elmer</a>!)</p>
 <section id="install" class="level2">
 <h2 class="anchored" data-anchor-id="install">Install</h2>
 <p><code>chatlas</code> isn’t yet on pypi, but you can install from Github:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/posit-dev/chatlas</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>After installing, you’ll want to pick a <a href="#model-providers">model provider</a>, and get <a href="#managing-credentials">credentials</a> set up (if necessary). Here, we demonstrate usage with OpenAI, but the concepts here apply to other implementations as well.</p>
 </section>
 <section id="model-providers" class="level2">
 <h2 class="anchored" data-anchor-id="model-providers">Model providers</h2>
-<p><code>chatlas</code> supports a variety of model providers:</p>
+<p><code>chatlas</code> supports a variety of model providers. See the <a href="https://posit-dev.github.io/chatlas/reference/index.html">API reference</a> for more details (like managing credentials) on each provider.</p>
 <ul>
 <li>Anthropic (Claude): <a href="https://posit-dev.github.io/chatlas/reference/ChatAnthropic.html"><code>ChatAnthropic()</code></a>.</li>
 <li>GitHub model marketplace: <a href="https://posit-dev.github.io/chatlas/reference/ChatGithub.html"><code>ChatGithub()</code></a>.</li>
@@ -238,10 +232,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="model-choice" class="level2">
 <h2 class="anchored" data-anchor-id="model-choice">Model choice</h2>
-<p>If you’re using chatlas inside your organisation, you’ll typically need to use whatever you’re allowed to. If you’re using chatlas for your own personal exploration, we recommend starting with:</p>
-<p><code>ChatOpenAI()</code>, which currently defaults to <code>model="gpt-4o-mini"</code>. You might want to try <code>"gpt-4o"</code> for more demanding task and if you want to force complex reasoning, <code>"o1-mini"</code>.</p>
-<p><code>ChatAnthropic()</code>, which defaults to Claude 3.5 Sonnet. This currently appears to be the best model for code generation.</p>
-<p>If you want to put a lot of data in the prompt, try <code>ChatGoogle()</code> which defaults to Gemini 1.5 Flash and supports 1 million tokens, compared to 200k for Claude 3.5 Sonnet and 128k for GPT 4o mini.</p>
+<p>If you’re using chatlas inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g.&nbsp;<code>ChatAzureOpenAI()</code> and <code>ChatBedrockAnthropic()</code>). If you’re using chatlas for your own personal exploration, you have a lot more freedom, so we recommend starting with one of the following:</p>
+<ul>
+<li><p>I’d recommend starting with either <code>ChatOpenAI()</code> or <code>ChatAnthropic()</code>. <code>ChatOpenAI()</code> defaults to <strong>GPT-4o-mini</strong>, which is good and relatively cheap. You might want to try <code>model = "gpt-4o"</code> for more demanding tasks, or <code>model = "o1-mini"</code> if you want to force complex reasoning. <code>ChatAnthropic()</code> is similarly good and well priced. It defaults to <strong>Claude 3.5 Sonnet</strong> which we have found to the be the best for writing code.</p></li>
+<li><p>Try <code>ChatGoogle()</code> if you want to put a lot of data in the prompt. This provider defaults to the <strong>Gemini 1.5 Flash</strong> model which supports 1 million tokens, compared to 200k for Claude 3.5 Sonnet and 128k for GPT 4o mini.</p></li>
+<li><p>Use <a href="https://ollama.com">Ollama</a> with <code>ChatOllama()</code> to run models on your own computer. The biggest models you can run locally aren’t as good as the state of the art hosted models, but they also don’t share your data and and are effectively free.</p></li>
+</ul>
 </section>
 <section id="using-chatlas" class="level2">
 <h2 class="anchored" data-anchor-id="using-chatlas">Using chatlas</h2>
@@ -282,16 +278,18 @@ Netherlands.     </code></pre>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What preceding languages most influenced Python?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>Python was primarily influenced by ABC, with additional inspiration from C,
 Modula-3, and various other languages.</code></pre>
-<p>To get the full response as a string, use the built-in <code>str()</code> function. Optionally, you can (soon) suppress the rich console output by setting <code>echo="none"</code>:</p>
+<p>To get the full response as a string, use the built-in <code>str()</code> function. Optionally, you can also suppress the rich console output by setting <code>echo="none"</code>:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> chat.chat(<span class="st">"Who is Posit?"</span>, echo<span class="op">=</span><span class="st">"none"</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">str</span>(response))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>As we’ll cover in later articles, <code>echo="all"</code> can also be useful for debugging, as it shows additional information, such as tool calls.</p>
 </section>
 <section id="the-.stream-method" class="level3">
 <h3 class="anchored" data-anchor-id="the-.stream-method">The <code>.stream()</code> method</h3>
-<p>If you want to process the response in real-time (i.e., as it arrives in chunks), you can use the <code>.stream()</code> method. This method returns a generator that yields chunks of the response as they come in. This is useful for long responses, or if you want to process the response as it streams in:</p>
+<p>If you want to do something with the response in real-time (i.e., as it arrives in chunks), use the <code>.stream()</code> method. This method returns an iterator that yields each chunk of the response as it arrives:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> chat.stream(<span class="st">"Who is Posit?"</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> chunk <span class="kw">in</span> response:</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(chunk, end<span class="op">=</span><span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <code>.stream()</code> method can also be useful if you’re building a chatbot or other interactive applications that needs to display responses as they arrive.</p>
 </section>
 <section id="vision-image-input" class="level3">
 <h3 class="anchored" data-anchor-id="vision-image-input">Vision (Image Input)</h3>

@@ -80,14 +80,10 @@ chatlas.types.ContentToolRequest py:class 1 reference/types.ContentToolRequest.h
 chatlas._content.ContentToolRequest py:class 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest chatlas.types.ContentToolRequest
 chatlas.types.ContentToolResult py:class 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult -
 chatlas._content.ContentToolResult py:class 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult chatlas.types.ContentToolResult
-chatlas.types.ChatResponse.display py:function 1 reference/types.ChatResponse.html#chatlas.types.ChatResponse.display -
-chatlas._chat.ChatResponse.display py:function 1 reference/types.ChatResponse.html#chatlas.types.ChatResponse.display chatlas.types.ChatResponse.display
 chatlas.types.ChatResponse.get_content py:function 1 reference/types.ChatResponse.html#chatlas.types.ChatResponse.get_content -
 chatlas._chat.ChatResponse.get_content py:function 1 reference/types.ChatResponse.html#chatlas.types.ChatResponse.get_content chatlas.types.ChatResponse.get_content
 chatlas.types.ChatResponse py:class 1 reference/types.ChatResponse.html#chatlas.types.ChatResponse -
 chatlas._chat.ChatResponse py:class 1 reference/types.ChatResponse.html#chatlas.types.ChatResponse chatlas.types.ChatResponse
-chatlas.types.ChatResponseAsync.display py:function 1 reference/types.ChatResponseAsync.html#chatlas.types.ChatResponseAsync.display -
-chatlas._chat.ChatResponseAsync.display py:function 1 reference/types.ChatResponseAsync.html#chatlas.types.ChatResponseAsync.display chatlas.types.ChatResponseAsync.display
 chatlas.types.ChatResponseAsync.get_content py:function 1 reference/types.ChatResponseAsync.html#chatlas.types.ChatResponseAsync.get_content -
 chatlas._chat.ChatResponseAsync.get_content py:function 1 reference/types.ChatResponseAsync.html#chatlas.types.ChatResponseAsync.get_content chatlas.types.ChatResponseAsync.get_content
 chatlas.types.ChatResponseAsync py:class 1 reference/types.ChatResponseAsync.html#chatlas.types.ChatResponseAsync -
