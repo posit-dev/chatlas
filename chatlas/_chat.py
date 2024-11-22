@@ -238,7 +238,7 @@ class Chat(Generic[SubmitInputArgsT]):
         """
         Enter a chat console to interact with the LLM.
 
-        Press Ctrl+C to quit.
+        To quit, input 'exit' or press Ctrl+C.
 
         Parameters
         ----------
@@ -253,7 +253,7 @@ class Chat(Generic[SubmitInputArgsT]):
         None
         """
 
-        print("\nEntering chat console. Press Ctrl+C to quit.\n")
+        print("\nEntering chat console. To quit, input 'exit' or press Ctrl+C.\n")
 
         while True:
             user_input = input("?> ")
