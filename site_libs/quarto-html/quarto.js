@@ -225,10 +225,7 @@ window.document.addEventListener("DOMContentLoaded", function (_event) {
   }
 
   async function findAndActivateCategories() {
-    // Categories search with listing only use path without query
-    const currentPagePath = offsetAbsoluteUrl(
-      window.location.origin + window.location.pathname
-    );
+    const currentPagePath = offsetAbsoluteUrl(window.location.href);
     const response = await fetch(offsetRelativeUrl("listings.json"));
     if (response.status == 200) {
       return response.json().then(function (listingPaths) {
