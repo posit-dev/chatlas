@@ -773,7 +773,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="chatlas.Chat.console" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.console">console</h3>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>Chat.console(stream<span class="op">=</span><span class="va">True</span>, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>Chat.console(echo<span class="op">=</span><span class="st">'text'</span>, stream<span class="op">=</span><span class="va">True</span>, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Enter a chat console to interact with the LLM.</p>
 <p>To quit, input ‘exit’ or press Ctrl+C.</p>
 <section id="parameters-3" class="level4 doc-section doc-section-parameters">
@@ -789,12 +789,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
+<td>echo</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['text', 'all', 'none']</td>
+<td>Whether to echo text content, all content (i.e., tool calls), or no content.</td>
+<td><code>'text'</code></td>
+</tr>
+<tr class="even">
 <td>stream</td>
 <td><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></td>
 <td>Whether to stream the response (i.e., have the response appear in chunks).</td>
 <td><code>True</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>kwargs</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="../reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
 <td>Additional keyword arguments to pass to the method used for requesting the response</td>
