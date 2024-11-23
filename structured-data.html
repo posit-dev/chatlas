@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.54">
+<meta name="generator" content="quarto-1.6.26">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -69,10 +69,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-0c8af03b2fbd4cf44d6703e337af0e8d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-281ce7207cc8ce5ac07f3a0650fe084a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
@@ -228,7 +228,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like. This will generally work well most of the time, but there’s no gaurantee that you’ll actually get the exact format that you want. In particular, if you’re trying to get JSON, find that it’s typically surrounded in <code>```json</code>, and you’ll occassionally get text that isn’t actually valid JSON. To avoid these challenges you can use a recent LLM feature: <strong>structured data</strong> (aka structured output). With structured data, you supply a type specification that exactly defines the object structure that you want and the LLM will guarantee that’s what you get back.</p>
-<div id="186f5d23" class="cell" data-execution_count="1">
+<div id="27915d85" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
@@ -237,7 +237,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="structured-data-basics" class="level2">
 <h2 class="anchored" data-anchor-id="structured-data-basics">Structured data basics</h2>
 <p>To extract structured data you call the <code>.extract_data()</code> method instead of the <code>.chat()</code> method. You’ll also need to define a type specification that describes the structure of the data that you want (more on that shortly). Here’s a simple example that extracts two specific values from a string:</p>
-<div id="252410f0" class="cell" data-execution_count="2">
+<div id="d13a639a" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person(BaseModel):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    age: <span class="bu">int</span></span>
@@ -249,7 +249,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  data_model<span class="op">=</span>Person,</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div class="chatlas-markdown"></div>
+<div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 
@@ -259,7 +259,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>The same basic idea works with images too:</p>
-<div id="7b7c19ce" class="cell" data-execution_count="3">
+<div id="74247a43" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> content_image_url</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Image(BaseModel):</span>
@@ -271,21 +271,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  data_model<span class="op">=</span>Image,</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div class="chatlas-markdown"></div>
+<div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 
 </div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<pre><code>{'primary_shape': 'oval', 'primary_colour': 'blue'}</code></pre>
+<pre><code>{'primary_shape': 'Circle', 'primary_colour': 'Blue'}</code></pre>
 </div>
 </div>
-</section>
+</div></div></section>
 <section id="data-types-basics" class="level2">
 <h2 class="anchored" data-anchor-id="data-types-basics">Data types basics</h2>
 <p>To define your desired type specification (also known as a <strong>schema</strong>), you use a <a href="https://docs.pydantic.dev/latest/concepts/models/">pydantic model</a>.</p>
 <p>In addition to the model definition with field names and types, you may also want to provide the LLM with an additional context about what each field/model represents. In this case, include a <code>Field(description="...")</code> for each field, and a docstring for each model. This is a good place to ask nicely for other attributes you’ll like the value to possess (e.g.&nbsp;minimum or maximum values, date formats, …). You aren’t guaranteed that these requests will be honoured, but the LLM will usually make a best effort to do so.</p>
-<div id="28a0e8d1" class="cell" data-execution_count="4">
+<div id="d4623035" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person(BaseModel):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""A person"""</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -304,7 +304,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The following examples are <a href="https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb">closely inspired by the Claude documentation</a> and hint at some of the ways you can use structured data extraction.</p>
 <section id="example-1-article-summarisation" class="level3">
 <h3 class="anchored" data-anchor-id="example-1-article-summarisation">Example 1: Article summarisation</h3>
-<div id="4d81f66a" class="cell" data-execution_count="5">
+<div id="33324acc" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"examples/third-party-testing.txt"</span>) <span class="im">as</span> f:</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> f.read()</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -333,31 +333,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> chat.extract_data(text, data_model<span class="op">=</span>ArticleSummary)</span>
 <span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(json.dumps(data, indent<span class="op">=</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div class="chatlas-markdown"></div>
+<div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{
-  "author": "Anthropic",
+  "author": "Anthropic Team",
   "topics": [
-    "AI policy",
-    "AI safety",
-    "third-party testing",
-    "regulatory frameworks",
-    "national security"
+    "AI Policy",
+    "Regulation",
+    "Testing Standards",
+    "Safety",
+    "National Security"
   ],
-  "summary": "This article discusses the necessity of implementing an effective third-party testing regime for frontier AI systems to mitigate risks associated with their use. It argues that a robust testing framework, developed through collaboration among industry, government, and academia, is crucial for ensuring accountability and safety in AI deployment. The article outlines the goals, structure, and components of such a regime, emphasizing its importance in addressing societal concerns related to AI misuse and accidents. Furthermore, it touches upon the challenges of balancing openness in AI research with safety, alongside the risk of regulatory capture by industry actors.",
+  "summary": "The article advocates for establishing effective third-party testing for frontier AI systems to prevent societal harm from both deliberate and accidental misuse. It outlines the need for oversight due to the complex nature of large-scale AI models, emphasizing that a robust testing regime should be development-based and collaborative among industry, government, and academia. It highlights the importance of clearly defined standards, trusted third-party administrators, and explores various aspects of AI policy including safety, national security risks, and the potential for regulatory capture.",
   "coherence": 85,
-  "persuasion": 0.9
+  "persuasion": 0.87
 }</code></pre>
 </div>
 </div>
-</section>
+</div></section>
 <section id="example-2-named-entity-recognition" class="level3">
 <h3 class="anchored" data-anchor-id="example-2-named-entity-recognition">Example 2: Named entity recognition</h3>
-<div id="169f3644" class="cell" data-execution_count="6">
+<div id="283b019a" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco."</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -381,7 +381,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> chat.extract_data(text, data_model<span class="op">=</span>NamedEntities)</span>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(data[<span class="st">"entities"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div class="chatlas-markdown"></div>
+<div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 
@@ -404,43 +404,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td data-quarto-table-cell-role="th">0</td>
 <td>John</td>
 <td>person</td>
-<td>John works at Google in New York.</td>
+<td>works at Google in New York</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
 <td>Google</td>
 <td>organization</td>
-<td>John works at Google in New York.</td>
+<td>where John works</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
-<td>New York</td>
-<td>location</td>
-<td>John works at Google in New York.</td>
+<td>Sarah</td>
+<td>person</td>
+<td>the CEO of Acme Inc.</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
-<td>Sarah</td>
-<td>person</td>
-<td>He met with Sarah, the CEO of Acme Inc., last ...</td>
+<td>Acme Inc.</td>
+<td>organization</td>
+<td>company that Sarah is CEO of</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
-<td>Acme Inc.</td>
-<td>organization</td>
-<td>Sarah is the CEO of Acme Inc.</td>
+<td>New York</td>
+<td>location</td>
+<td>where John works at Google</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
-<td>CEO</td>
-<td>position</td>
-<td>Sarah, the CEO of Acme Inc.</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">6</td>
 <td>San Francisco</td>
 <td>location</td>
-<td>He met with Sarah last week in San Francisco.</td>
+<td>where John met with Sarah last week</td>
 </tr>
 </tbody>
 </table>
@@ -448,10 +442,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-</section>
+</div></section>
 <section id="example-3-sentiment-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="example-3-sentiment-analysis">Example 3: Sentiment analysis</h3>
-<div id="eb0f8f75" class="cell" data-execution_count="7">
+<div id="3d12c119" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"The product was okay, but the customer service was terrible. I probably won't buy from them again."</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Sentiment(BaseModel):</span>
@@ -473,7 +467,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
 <span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>chat.extract_data(text, data_model<span class="op">=</span>Sentiment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div class="chatlas-markdown"></div>
+<div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 
@@ -483,10 +477,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>Note that we’ve asked nicely for the scores to sum 1, and they do in this example (at least when I ran the code), but it’s not guaranteed.</p>
-</section>
+</div></section>
 <section id="example-4-text-classification" class="level3">
 <h3 class="anchored" data-anchor-id="example-4-text-classification">Example 4: Text classification</h3>
-<div id="30c24b03" class="cell" data-execution_count="8">
+<div id="b30a47dc" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Literal</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"The new quantum computing breakthrough could revolutionize the tech industry."</span></span>
@@ -511,7 +505,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> chat.extract_data(text, data_model<span class="op">=</span>Classifications)</span>
 <span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(data[<span class="st">"classifications"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div class="chatlas-markdown"></div>
+<div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 
@@ -537,12 +531,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
 <td>Business</td>
-<td>0.10</td>
+<td>0.15</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
 <td>Other</td>
-<td>0.05</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>Entertainment</td>
+<td>0.00</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>Sports</td>
+<td>0.00</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
+<td>Politics</td>
+<td>0.00</td>
 </tr>
 </tbody>
 </table>
@@ -550,10 +559,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-</section>
+</div></section>
 <section id="example-5-working-with-unknown-keys" class="level3">
 <h3 class="anchored" data-anchor-id="example-5-working-with-unknown-keys">Example 5: Working with unknown keys</h3>
-<div id="80b1680a" class="cell" data-execution_count="9">
+<div id="18c1e419" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatAnthropic</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -575,14 +584,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> chat.extract_data(prompt, data_model<span class="op">=</span>Characteristics)</span>
 <span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(json.dumps(data, indent<span class="op">=</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div class="chatlas-markdown"></div>
+<div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{
-  "physical_characteristics": {
+  "physical_attributes": {
     "height": "tall",
     "facial_features": {
       "beard": true,
@@ -593,8 +602,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "voice": "deep"
   },
   "clothing": {
-    "outerwear": {
-      "type": "leather jacket",
+    "jacket": {
+      "type": "leather",
       "color": "black"
     }
   }
@@ -602,7 +611,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>This example only works with Claude, not GPT or Gemini, because only Claude supports adding arbitrary additional properties.</p>
-</section>
+</div></section>
 <section id="example-6-extracting-data-from-an-image" class="level3">
 <h3 class="anchored" data-anchor-id="example-6-extracting-data-from-an-image">Example 6: Extracting data from an image</h3>
 <p>This example comes from <a href="https://gist.github.com/dannguyen/faaa56cebf30ad51108a9fe4f8db36d8">Dan Nguyen</a> and you can see other interesting applications at that link. The goal is to extract structured data from this screenshot:</p>
@@ -614,7 +623,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 <p>Even without any descriptions, ChatGPT does pretty well:</p>
-<div id="dd1c57a9" class="cell" data-execution_count="10">
+<div id="d36592ac" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> content_image_file</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -640,7 +649,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(data[<span class="st">"assets"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div class="chatlas-markdown"></div>
+<div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 
@@ -682,7 +691,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>25 Point Lobos - Commercial Property</td>
 <td>SP</td>
 <td>San Francisco, CA, US</td>
-<td>5000001</td>
+<td>6000001</td>
 <td>45000000</td>
 <td>Rent</td>
 <td>100001</td>
@@ -695,7 +704,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
-</section>
+</div></section>
 </section>
 <section id="advanced-data-types" class="level2">
 <h2 class="anchored" data-anchor-id="advanced-data-types">Advanced data types</h2>
@@ -704,7 +713,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="required-vs-optional">Required vs optional</h3>
 <p>By default, model fields are in a sense “required”, unless <code>None</code> is allowed in their type definition. Including <code>None</code> is a good idea if there’s any possibility of the input not containing the required fields as LLMs may hallucinate data in order to fulfill your spec.</p>
 <p>For example, here the LLM hallucinates a date even though there isn’t one in the text:</p>
-<div id="7960b293" class="cell" data-execution_count="11">
+<div id="b472891e" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ArticleSpec(BaseModel):</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Information about an article written in markdown"""</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -728,7 +737,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> chat.extract_data(prompt, data_model<span class="op">=</span>ArticleSpec)</span>
 <span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(json.dumps(data, indent<span class="op">=</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div class="chatlas-markdown"></div>
+<div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 
@@ -737,13 +746,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>{
   "title": "Structured Data",
   "author": "Hadley Wickham",
-  "date": "2023-10-01"
+  "date": "2023-10-03"
 }</code></pre>
 </div>
 </div>
 <p>Note that I’ve used more of an explict prompt here. For this example, I found that this generated better results, and it’s a useful place to put additional instructions.</p>
 <p>If let the LLM know that the fields are all optional, it’ll instead return <code>None</code> for the missing fields:</p>
-<div id="69599c56" class="cell" data-execution_count="12">
+<div id="11163d5f" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ArticleSpec(BaseModel):</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Information about an article written in markdown"""</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -755,7 +764,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> chat.extract_data(prompt, data_model<span class="op">=</span>ArticleSpec)</span>
 <span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(json.dumps(data, indent<span class="op">=</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<div class="chatlas-markdown"></div>
+<div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 
@@ -768,7 +777,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</code></pre>
 </div>
 </div>
-</section>
+</div></div></section>
 <section id="data-frames" class="level3">
 <h3 class="anchored" data-anchor-id="data-frames">Data frames</h3>
 <p>If you want to define a data frame like <code>data_model</code>, you might be tempted to create a model like this, where each field is a list of scalar values:</p>
@@ -788,12 +797,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="token-usage" class="level2">
 <h2 class="anchored" data-anchor-id="token-usage">Token usage</h2>
 <p>Below is a summary of the tokens used to create the output in this example.</p>
-<div id="3e22ff0c" class="cell" type="asis" data-execution_count="13">
+<div id="adbc59e5" class="cell" type="asis" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> token_usage</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>token_usage()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
-<pre><code>[{'name': 'OpenAI', 'input': 22571, 'output': 575},
- {'name': 'Anthropic', 'input': 463, 'output': 139}]</code></pre>
+<pre><code>[{'name': 'OpenAI', 'input': 22571, 'output': 541},
+ {'name': 'Anthropic', 'input': 463, 'output': 136}]</code></pre>
 </div>
 </div>
 
@@ -1222,7 +1231,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/structured-data.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div></div></footer><script>var lightboxQuarto = GLightbox({"descPosition":"bottom","openEffect":"zoom","loop":false,"selector":".lightbox","closeEffect":"zoom"});
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/structured-data.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div></div></footer><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"bottom","openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
