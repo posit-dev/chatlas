@@ -43,8 +43,7 @@ question = """
 
 ### Basic flavour
 
-When I don't provide a system prompt, I get a solution with R code (your results may vary):
-
+When I don't provide a system prompt, I sometimes get answers in a different language (like R):
 
 ```{python}
 #| eval: false
@@ -59,15 +58,16 @@ chat = ChatAnthropic(model="claude-3-5-sonnet-20241022")
 _ = chat.chat(question, kwargs={"temperature": 0})
 ```
 
-
-So I can specify that I want the LLM to be a Python programmer:
+I can ensure that I always get Python code by providing a system prompt:
 
 ```{python}
 chat.system_prompt = "You are a helpful Python (not R) programming assistant."
 _ = chat.chat(question)
 ```
 
-Since I'm mostly interested in the code, I ask it to drop the explanation and also:
+Note that I'm using both a system prompt (which defines the general behaviour) and a user prompt (which asks the specific question). You could put all of the content in the user prompt and get similar results, but I think it's helpful to use both to cleanly divide the general framing of the response from the specific questions that you want to ask.
+
+Since I'm mostly interested in the code, I ask it to drop the explanation:
 
 ```{python}
 chat.system_prompt = """
@@ -90,7 +90,7 @@ _ = chat.chat(question)
 
 ### Be explicit
 
-If there's something about the output that you don't like, you can try being more explicit about it. For example, the code isn't styled quite how I like, so I can be a bit more explicit:
+If there's something about the output that you don't like, you can try being more explicit about it. For example, the code isn't styled quite how I like, so I provide more details about what I do want:
 
 ```{python}
 chat.system_prompt = """
@@ -103,16 +103,16 @@ chat.system_prompt = """
 _ = chat.chat(question)
 ```
 
-Note that the LLM doesn't follow these instructions exactly, but it does seem to lead to code that looks a bit more the way that I want. If you were investing more time into this, you might provide more specific examples of how you're looking for code to be formatted.
+This still doesn't yield exactly the code that I'd write, but it's prety close.
 
-Or maybe you're looking for more explanation of the code:
+You could provide a different prompt if you were looking for more explanation of the code:
 
 ```{python}
 chat.system_prompt = """
   You are an an expert Python (not R) programmer and a warm and supportive teacher.
   Help me understand the code you produce by explaining each function call with
-  a brief comment. Add more details for more complicated calls.
-  Just give me the code without any text explanation.
+  a brief comment. For more complicated calls, add documentation to each
+  argument. Just give me the code without any text explanation.
 """
 _ = chat.chat(question)
 ```
@@ -175,9 +175,9 @@ If you don't have strong feelings about what the data structure should look like
 ```{python}
 instruct_json = """
   You're an expert baker who also loves JSON. I am going to give you a list of
-  ingredients and your job is to return nicely structured JSON.
+  ingredients and your job is to return nicely structured JSON. Just return the
+  JSON and no other commentary.
 """
-# Just return the JSON and no other commentary.
 chat.system_prompt = instruct_json
 _ = chat.chat(ingredients)
 ```
@@ -328,4 +328,14 @@ Including the input text in the output makes it easier to see if it's doing a go
 ```{python}
 chat.system_prompt = instruct_json + "\n" + instruct_weight_input
 _ = chat.chat(ingredients)
+```
+
+
+When I ran it while writing this vignette, it seems to be working out the weight of the ingredients specified in volume, even though the prompt specifically asks it not to do that. This may suggest I need to broaden my examples.
+
+## Token usage
+
+```{python}
+from chatlas import token_usage
+token_usage()
 ```

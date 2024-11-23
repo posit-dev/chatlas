@@ -16,6 +16,7 @@ from typing import (
     Sequence,
     TypeVar,
 )
+from uuid import uuid4
 
 from pydantic import BaseModel
 from rich.live import Live
@@ -77,6 +78,11 @@ class Chat(Generic[SubmitInputArgsT]):
         self.provider = provider
         self._turns: list[Turn] = list(turns or [])
         self.tools: dict[str, Tool] = {}
+        self._echo_options: EchoOptions = {
+            "rich_markdown": {},
+            "rich_console": {},
+            "css_styles": {},
+        }
 
     def turns(
         self,
@@ -455,7 +461,7 @@ class Chat(Generic[SubmitInputArgsT]):
             The extracted data.
         """
 
-        with MaybeLiveDisplay() as display:
+        with self._display_context() as display:
             response = ChatResponse(
                 self._submit_turns(
                     user_turn(*args),
@@ -513,7 +519,7 @@ class Chat(Generic[SubmitInputArgsT]):
             The extracted data.
         """
 
-        with MaybeLiveDisplay() as display:
+        with self._display_context() as display:
             response = ChatResponseAsync(
                 self._submit_turns_async(
                     user_turn(*args),
@@ -635,7 +641,7 @@ class Chat(Generic[SubmitInputArgsT]):
     ) -> Generator[str, None, None]:
         user_turn_result: Turn | None = user_turn
 
-        with MaybeLiveDisplay() as display:
+        with self._display_context() as display:
             while user_turn_result is not None:
                 for chunk in self._submit_turns(
                     user_turn_result,
@@ -656,7 +662,7 @@ class Chat(Generic[SubmitInputArgsT]):
     ) -> AsyncGenerator[str, None]:
         user_turn_result: Turn | None = user_turn
 
-        with MaybeLiveDisplay() as display:
+        with self._display_context() as display:
             while user_turn_result is not None:
                 async for chunk in self._submit_turns_async(
                     user_turn_result,
@@ -672,7 +678,7 @@ class Chat(Generic[SubmitInputArgsT]):
         self,
         user_turn: Turn,
         echo: Literal["text", "all", "none"],
-        display: LiveMarkdownDisplay | None,
+        display: LiveMarkdownDisplay | IPyMarkdownDisplay,
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
@@ -734,7 +740,7 @@ class Chat(Generic[SubmitInputArgsT]):
         self,
         user_turn: Turn,
         echo: Literal["text", "all", "none"],
-        display: LiveMarkdownDisplay | None,
+        display: LiveMarkdownDisplay | IPyMarkdownDisplay,
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
@@ -861,6 +867,56 @@ class Chat(Generic[SubmitInputArgsT]):
         except Exception as e:
             return ContentToolResult(id_, None, str(e))
 
+    @contextmanager
+    def _display_context(
+        self,
+    ) -> Generator[LiveMarkdownDisplay | IPyMarkdownDisplay, None, None]:
+        opts = self._echo_options
+        display = LiveMarkdownDisplay(opts)
+
+        # rich seems to be pretty good at detecting a (Jupyter) notebook
+        # context, so utilize that, but use IPython.display.Markdown instead if
+        # we're in a notebook (or Quarto) since that's a much more responsive
+        # way to display markdown
+        is_web = (
+            display.live.console.is_jupyter
+            or os.getenv("QUARTO_PYTHON", None) is not None
+        )
+
+        if is_web:
+            with IPyMarkdownDisplay(opts) as d:
+                yield d
+        else:
+            with display:
+                yield display
+
+    def set_echo_options(
+        self,
+        rich_markdown: Optional[dict[str, Any]] = None,
+        rich_console: Optional[dict[str, Any]] = None,
+        css_styles: Optional[dict[str, str]] = None,
+    ):
+        """
+        Set echo styling options for the chat.
+
+        Parameters
+        ----------
+        rich_markdown
+            A dictionary of options to pass to `rich.markdown.Markdown()`.
+            This is only relevant when outputting to the console.
+        rich_console
+            A dictionary of options to pass to `rich.console.Console()`.
+            This is only relevant when outputting to the console.
+        css_styles
+            A dictionary of CSS styles to apply to `IPython.display.Markdown()`.
+            This is only relevant when outputing to the browser.
+        """
+        self._echo_options: EchoOptions = {
+            "rich_markdown": rich_markdown or {},
+            "rich_console": rich_console or {},
+            "css_styles": css_styles or {},
+        }
+
     def __str__(self):
         turns = self.turns(include_system_prompt=True)
         tokens = sum(sum(turn.tokens) for turn in turns)
@@ -979,37 +1035,14 @@ class ChatResponseAsync:
 # ----------------------------------------------------------------------------
 
 
-@contextmanager
-def MaybeLiveDisplay() -> Generator[LiveMarkdownDisplay | None, None, None]:
-    display = LiveMarkdownDisplay()
-
-    # rich seems to be pretty good at detecting a (Jupyter) notebook
-    # context, so utilize that, but use IPython.display.Markdown instead if
-    # we're in a notebook (or Quarto) since that's a much more responsive
-    # way to display markdown
-    is_web = (
-        display.live.console.is_jupyter or os.getenv("QUARTO_PYTHON", None) is not None
-    )
-
-    if is_web:
-        yield None
-    else:
-        with display:
-            yield display
-
-
 def emitter(
     echo: Literal["text", "all", "none"],
-    display: LiveMarkdownDisplay | None,
+    display: LiveMarkdownDisplay | IPyMarkdownDisplay,
 ) -> Callable[[Content | str], None]:
     if echo == "none":
         return lambda _: None
-
-    if display is not None:
+    else:
         return lambda x: display.update(str(x))
-
-    ipy_display = IPyMarkdownDisplay()
-    return lambda x: ipy_display.update(str(x))
 
 
 def emit_user_contents(
@@ -1044,28 +1077,44 @@ def emit_other_contents(
 
 
 class LiveMarkdownDisplay:
-    def __init__(self):
+    def __init__(self, echo_options: EchoOptions):
+        from rich.console import Console
+
         self.content: str = ""
-        self.live = Live(auto_refresh=False, vertical_overflow="visible")
+        self.live = Live(
+            auto_refresh=False,
+            vertical_overflow="visible",
+            console=Console(
+                **echo_options["rich_console"],
+            ),
+        )
+        self._markdown_options = echo_options["rich_markdown"]
 
     def update(self, content: str):
         from rich.markdown import Markdown
 
         self.content += content
-        self.live.update(Markdown(self.content), refresh=True)
+        self.live.update(
+            Markdown(
+                self.content,
+                **self._markdown_options,
+            ),
+            refresh=True,
+        )
 
     def __enter__(self):
         self.live.__enter__()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        self.content = ""
         return self.live.__exit__(exc_type, exc_value, traceback)
 
 
 class IPyMarkdownDisplay:
-    def __init__(self):
+    def __init__(self, echo_options: EchoOptions):
         self.content: str = ""
-        self.ipy_display_id = self._init_display()
+        self._css_styles = echo_options["css_styles"]
 
     def update(self, content: str):
         from IPython.display import Markdown, update_display
@@ -1073,7 +1122,7 @@ class IPyMarkdownDisplay:
         self.content += content
         update_display(
             Markdown(self.content),
-            display_id=self.ipy_display_id,
+            display_id=self._ipy_display_id,
         )
 
     def _init_display(self) -> str:
@@ -1085,8 +1134,30 @@ class IPyMarkdownDisplay:
                 "Install it with `pip install ipython`."
             )
 
-        display(HTML("<div class='chatlas-markdown'></div>"))
+        if self._css_styles:
+            id_ = uuid4().hex
+            css = "".join(f"{k}: {v}; " for k, v in self._css_styles.items())
+            display(HTML(f"<style>#{id_} + .chatlas-markdown {{ {css} }}</style>"))
+            display(HTML(f"<div id='{id_}' class='chatlas-markdown'>"))
+        else:
+            # Unfortunately, there doesn't seem to be a proper way to wrap
+            # Markdown() in a div?
+            display(HTML("<div class='chatlas-markdown'>"))
+
         handle = display(Markdown(""), display_id=True)
         if handle is None:
             raise ValueError("Failed to create display handle")
         return handle.display_id
+
+    def __enter__(self):
+        self._ipy_display_id = self._init_display()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._ipy_display_id = None
+
+
+class EchoOptions(TypedDict):
+    rich_markdown: dict[str, Any]
+    rich_console: dict[str, Any]
+    css_styles: dict[str, str]
