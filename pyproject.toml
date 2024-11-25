@@ -1,7 +1,7 @@
 [project]
 name = "chatlas"
 description = "A simple and consistent interface for chatting with LLMs"
-version = "0.1.1.9006"
+dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
@@ -67,8 +67,11 @@ dev-dependencies = [
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
 
 [tool.hatch.build]
 skip-excluded-dirs = true
