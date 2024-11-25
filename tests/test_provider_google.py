@@ -2,6 +2,7 @@ import os
 import time
 
 import pytest
+
 from chatlas import ChatGoogle
 
 from .conftest import (
@@ -28,6 +29,7 @@ def test_google_simple_request():
     turn = chat.last_turn()
     assert turn is not None
     assert turn.tokens == (17, 2)
+    assert turn.finish_reason == "STOP"
 
 
 @pytest.mark.asyncio
@@ -39,6 +41,9 @@ async def test_google_simple_streaming_request():
     async for x in await chat.stream_async("What is 1 + 1?"):
         res.append(x)
     assert "2" in "".join(res)
+    turn = chat.last_turn()
+    assert turn is not None
+    assert turn.finish_reason == "STOP"
 
 
 def test_google_respects_turns_interface():

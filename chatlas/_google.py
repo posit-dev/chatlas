@@ -15,9 +15,7 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
-from ._merge import merge_dicts
 from ._provider import Provider
-from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
 from ._utils import inform_model_default
@@ -29,6 +27,7 @@ if TYPE_CHECKING:
         PartType,
     )
     from google.generativeai.types.generation_types import (
+        AsyncGenerateContentResponse,
         GenerateContentResponse,
         GenerationConfig,
     )
@@ -309,17 +308,29 @@ class GoogleProvider(
         return None
 
     def stream_merge_chunks(self, completion, chunk):
-        chunkd = cast(GenerateContentDict, chunk.to_dict())
-        if completion is None:
-            return chunkd
-        return merge_dicts(completion, chunkd)
+        # The .resolve() in .stream_turn() does the merging for us
+        return {}
 
-    def stream_turn(self, completion, has_data_model) -> Turn:
-        return self._as_turn(completion, has_data_model)
+    def stream_turn(
+        self, completion, has_data_model, stream: GenerateContentResponse
+    ) -> Turn:
+        stream.resolve()
+        return self._as_turn(
+            stream,
+            has_data_model,
+        )
+
+    async def stream_turn_async(
+        self, completion, has_data_model, stream: AsyncGenerateContentResponse
+    ) -> Turn:
+        await stream.resolve()
+        return self._as_turn(
+            stream,
+            has_data_model,
+        )
 
     def value_turn(self, completion, has_data_model) -> Turn:
-        d = cast(GenerateContentDict, completion.to_dict())
-        return self._as_turn(d, has_data_model)
+        return self._as_turn(completion, has_data_model)
 
     def _google_contents(self, turns: list[Turn]) -> list["ContentDict"]:
         contents: list["ContentDict"] = []
@@ -373,49 +384,51 @@ class GoogleProvider(
 
     def _as_turn(
         self,
-        message: "GenerateContentDict",
+        message: "GenerateContentResponse | AsyncGenerateContentResponse",
         has_data_model: bool,
     ) -> Turn:
         contents = []
-        msg = message["candidates"][0]["content"]
-        for part in msg["parts"]:
-            if "text" in part:
-                text = part["text"]
+
+        msg = message.candidates[0].content
+
+        for part in msg.parts:
+            if part.text:
                 if has_data_model:
-                    contents.append(ContentJson(json.loads(text)))
+                    contents.append(ContentJson(json.loads(part.text)))
                 else:
-                    contents.append(ContentText(text))
-            if "function_call" in part:
-                func = part["function_call"]
+                    contents.append(ContentText(part.text))
+            if part.function_call:
+                func = part.function_call
                 contents.append(
                     ContentToolRequest(
-                        func["name"],
-                        name=func["name"],
-                        arguments=dict(func["args"]),
+                        func.name,
+                        name=func.name,
+                        arguments=dict(func.args),
                     )
                 )
-            if "function_response" in part:
-                func = part["function_response"]
+            if part.function_response:
+                func = part.function_response
                 contents.append(
                     ContentToolResult(
-                        func["name"],
-                        value=func["response"],
+                        func.name,
+                        value=func.response,
                     )
                 )
 
-        usage = message["usage_metadata"]
+        usage = message.usage_metadata
         tokens = (
-            usage["prompt_token_count"],
-            usage["candidates_token_count"],
+            usage.prompt_token_count,
+            usage.candidates_token_count,
         )
 
-        tokens_log(self, tokens)
+        finish = message.candidates[0].finish_reason
 
         return Turn(
             "assistant",
             contents,
-            json=message,
             tokens=tokens,
+            finish_reason=finish.name,
+            json=cast(dict, message.to_dict()),
         )
 
     def _gemini_tools(self, tools: list[Tool]) -> list["FunctionDeclaration"]:

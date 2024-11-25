@@ -709,7 +709,9 @@ class Chat(Generic[SubmitInputArgsT]):
                 result = self.provider.stream_merge_chunks(result, chunk)
 
             turn = self.provider.stream_turn(
-                result, has_data_model=data_model is not None
+                result,
+                has_data_model=data_model is not None,
+                stream=response,
             )
 
             if echo == "all":
@@ -767,8 +769,10 @@ class Chat(Generic[SubmitInputArgsT]):
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
-            turn = self.provider.stream_turn(
-                result, has_data_model=data_model is not None
+            turn = await self.provider.stream_turn_async(
+                result,
+                has_data_model=data_model is not None,
+                stream=response,
             )
 
             if echo == "all":
@@ -1061,6 +1065,8 @@ def emit_other_contents(
     emit: Callable[[Content | str], None],
 ):
     if all(isinstance(x, ContentText) for x in x.contents):
+        if x.finish_reason:
+            emit(f"<<< Finish reason: {x.finish_reason}")
         return
 
     if x.role == "user":
@@ -1074,6 +1080,9 @@ def emit_other_contents(
             # a non-whitespace character before it. The &nbsp; is a hack to work
             # around that, but it's also decent for readability.
             emit(f"&nbsp;{str(content)}\n\n")
+
+    if x.finish_reason:
+        emit(f"<<< Finish reason: {x.finish_reason}")
 
 
 class LiveMarkdownDisplay:

@@ -124,6 +124,15 @@ class Provider(
         self,
         completion: ChatCompletionDictT,
         has_data_model: bool,
+        stream: Any,
+    ) -> Turn: ...
+
+    @abstractmethod
+    async def stream_turn_async(
+        self,
+        completion: ChatCompletionDictT,
+        has_data_model: bool,
+        stream: Any,
     ) -> Turn: ...
 
     @abstractmethod
