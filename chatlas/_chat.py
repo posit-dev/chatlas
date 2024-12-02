@@ -1066,7 +1066,7 @@ def emit_other_contents(
 ):
     if all(isinstance(x, ContentText) for x in x.contents):
         if x.finish_reason:
-            emit(f"<<< Finish reason: {x.finish_reason}")
+            emit(f"\n\n<<< Finish reason: {x.finish_reason}\n\n")
         return
 
     if x.role == "user":
@@ -1082,7 +1082,7 @@ def emit_other_contents(
             emit(f"&nbsp;{str(content)}\n\n")
 
     if x.finish_reason:
-        emit(f"<<< Finish reason: {x.finish_reason}")
+        emit(f"<<< Finish reason: {x.finish_reason}\n\n")
 
 
 class LiveMarkdownDisplay:
