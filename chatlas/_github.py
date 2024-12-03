@@ -130,7 +130,7 @@ def ChatGithub(
     ```
     """
     if model is None:
-        model = inform_model_default("gpt-4o-mini")
+        model = inform_model_default("gpt-4o")
     if api_key is None:
         api_key = os.getenv("GITHUB_PAT")
 

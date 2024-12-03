@@ -37,7 +37,7 @@ website:
             href: structured-data.qmd
           - text: Tool (function) calling
             href: tool-calling.qmd
-          - text: Web applications
+          - text: Build a chatbot
             href: web-apps.qmd
     right:
       - icon: github

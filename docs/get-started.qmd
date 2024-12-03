@@ -50,7 +50,7 @@ Now that you've got the basic vocab under your belt, I'm going to just fire a bu
 
 ### Chatbots
 
-Great place to start is building a chatbot with a custom prompt. Chatbots are familiar interface and easy to create via [web application](web-apps.qmd) framework like Shiny or Streamlit.
+Great place to start is [building a chatbot](web-apps.qmd) with a custom prompt. Chatbots are familiar interface and easy to create via web application framework like Shiny or Streamlit.
 
 You could create a chat bot to answer questions on a specific topic by filling the prompt with related content. For example, maybe you want to help people use your new package. The default prompt won't work because LLMs don't know anything about your package. You can get surprisingly far by preloading the prompt with your README and other vignettes. This is how the [elmer assistant](https://github.com/jcheng5/elmer-assistant) works.
 

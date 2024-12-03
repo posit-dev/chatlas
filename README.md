@@ -1,7 +1,6 @@
 # chatlas
 
-The goal of chatlas is to provide a user friendly wrapper around the APIs for large lanuage model (LLM) providers.
-`chatlas` is intentionally minimal -- making it easy to get started, while also supporting table stakes features like streaming output, structured data extraction, function (tool) calling, images, async, and more.
+chatlas provides a simple and unified interface to popular large language models (LLMs) in Python. The interface is intentionally minimal and focuses on making it easy to get started and rapidly prototype, while also supporting table stakes features like streaming output, structured data extraction, function (tool) calling, images, async, and more.
 
 (Looking for something similar to chatlas, but in R? Check out [elmer](https://elmer.tidyverse.org/)!)
 
@@ -33,13 +32,13 @@ It also supports the following enterprise cloud providers:
 
 ## Model choice
 
-If you're using chatlas inside your organisation, you'll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g. `ChatAzureOpenAI()` and `ChatBedrockAnthropic()`). If you're using chatlas for your own personal exploration, you have a lot more freedom, so we recommend starting with one of the following:
+If you're using chatlas inside your organisation, you'll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g. `ChatAzureOpenAI()` and `ChatBedrockAnthropic()`). If you're using chatlas for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:
 
-- I'd recommend starting with either `ChatOpenAI()` or `ChatAnthropic()`. `ChatOpenAI()` defaults to **GPT-4o-mini**, which is good and relatively cheap. You might want to try `model = "gpt-4o"` for more demanding tasks, or `model = "o1-mini"` if you want to force complex reasoning. `ChatAnthropic()` is similarly good and well priced. It defaults to **Claude 3.5 Sonnet** which we have found to the be the best for writing code.
+- `ChatOpenAI()` or `ChatAnthropic()` are both good places to start. `ChatOpenAI()` defaults to **GPT-4o**, but you can use `model = "gpt-4o-mini"` for a cheaper lower-quality model, or `model = "o1-mini"` for more complex reasoning.  `ChatAnthropic()` is similarly good; it defaults to **Claude 3.5 Sonnet** which we have found to be particularly code at writing code.
 
-- Try `ChatGoogle()` if you want to put a lot of data in the prompt. This provider defaults to the **Gemini 1.5 Flash** model which supports 1 million tokens, compared to 200k for Claude 3.5 Sonnet and 128k for GPT 4o mini.
+- `ChatGoogle()` is great for large prompts, because it has a much larger context window than other models. It allows up to 1 million tokens, compared to Claude 3.5 Sonnet's 200k and GPT-4o's 128k.
 
-- Use [Ollama](https://ollama.com) with `ChatOllama()` to run models on your own computer. The biggest models you can run locally aren't as good as the state of the art hosted models, but they also don't share your data and and are effectively free.
+- `ChatOllama()`, which uses [Ollama](https://ollama.com), allows you to run models on your own computer. The biggest models you can run locally aren't as good as the state of the art hosted models, but they also don't share your data and and are effectively free.
 
 ## Using chatlas
 
@@ -49,7 +48,7 @@ You can chat via `chatlas` in several different ways, depending on whether you a
 from chatlas import ChatOpenAI
 
 chat = ChatOpenAI(
-  model = "gpt-4o-mini",
+  model = "gpt-4o",
   system_prompt = "You are a friendly but terse assistant.",
 )
 ```
@@ -58,7 +57,7 @@ Chat objects are stateful: they retain the context of the conversation, so each 
 
 ### Interactive console
 
-From a `chat` instance, you can start an interacitve, multi-turn, conversation in the console (via `.console()`) or in a browser (via `.app()`).
+From a `chat` instance, you can start an interactive, multi-turn, conversation in the console (via `.console()`) or in a browser (via `.app()`).
 
 ```python
 chat.console()
@@ -80,7 +79,7 @@ Netherlands.
 
 The chat console is useful for quickly exploring the capabilities of the model, especially when you've customized the chat object with tool integrations (covered later).
 
-The chat app is similar to the chat console, but it runs in your browser. It's useful if you need more interactive capabilities like easy copy-paste.
+The chat app is similar to the chat console, but it runs in your browser. It's useful if you need more interactive capabilities like easy copy-paste:
 
 ```python
 chat.app()
@@ -91,8 +90,7 @@ chat.app()
 </div>
 
 
-Again, keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist even after you exit back to the Python prompt.
-
+Keep in mind that the `chat` object retains state, so when you enter the console or app, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist after you exit back to the Python prompt. This is true regardless of which of the various chat methods you use to submit queries.
 
 ### The `.chat()` method
 
@@ -105,6 +103,22 @@ chat.chat("What preceding languages most influenced Python?")
 ```
 Python was primarily influenced by ABC, with additional inspiration from C,
 Modula-3, and various other languages.
+```
+
+If you want to ask a question about an image, you can pass one or more additional input arguments using `content_image_file()` and/or `content_image_url()`:
+
+```python
+from chatlas import content_image_url
+
+chat.chat(
+    content_image_url("https://www.python.org/static/img/python-logo.png"),
+    "Can you explain this logo?"
+)
+```
+
+```
+The Python logo features two intertwined snakes in yellow and blue,
+representing the Python programming language. The design symbolizes...
 ```
 
 To get the full response as a string, use the built-in `str()` function. Optionally, you can also suppress the rich console output by setting `echo="none"`:
@@ -127,26 +141,6 @@ for chunk in response:
 ```
 
 The `.stream()` method can also be useful if you're building a chatbot or other interactive applications that needs to display responses as they arrive.
-
-### Vision (Image Input)
-
-Ask questions about image(s) with `content_image_file()` and/or `content_image_url()`:
-
-```python
-from chatlas import content_image_url
-
-chat.chat(
-    content_image_url("https://www.python.org/static/img/python-logo.png"),
-    "Can you explain this logo?"
-)
-```
-
-```
-The Python logo features two intertwined snakes in yellow and blue,
-representing the Python programming language. The design symbolizes...
-```
-
-The `content_image_url()` function takes a URL to an image file and sends that URL directly to the API. The `content_image_file()` function takes a path to a local image file and encodes it as a base64 string to send to the API. Note that by default, `content_image_file()` automatically resizes the image to fit within 512x512 pixels; set the `resize` parameter to "high" if higher resolution is needed.
 
 
 ### Conversation history
@@ -172,7 +166,7 @@ If you're new to world LLMs, you might want to read the [Get Started](https://po
 
 Once you're comfortable with the basics, you can explore more advanced topics:
 
-* [Customize the system prompt](https://posit-dev.github.io/chatlas/prompt-engineering.html)
+* [Customize the system prompt](https://posit-dev.github.io/chatlas/prompt-design.html)
 * [Extract structured data](https://posit-dev.github.io/chatlas/structured-data.html)
 * [Tool (function) calling](https://posit-dev.github.io/chatlas/tool-calling.html)
 * [Build a web chat app](https://posit-dev.github.io/chatlas/web-apps.html)
