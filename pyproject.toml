@@ -5,8 +5,9 @@ dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-  "rich",
   "pydantic>=2.0",
+  "jinja2",
+  "rich",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",

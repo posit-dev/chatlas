@@ -5,6 +5,7 @@ from ._content_image import content_image_file, content_image_plot, content_imag
 from ._github import ChatGithub
 from ._google import ChatGoogle
 from ._groq import ChatGroq
+from ._interpolate import interpolate, interpolate_file
 from ._ollama import ChatOllama
 from ._openai import ChatAzureOpenAI, ChatOpenAI
 from ._perplexity import ChatPerplexity
@@ -27,9 +28,11 @@ __all__ = (
     "content_image_file",
     "content_image_plot",
     "content_image_url",
-    "Turn",
-    "token_usage",
-    "types",
-    "Tool",
+    "interpolate",
+    "interpolate_file",
     "Provider",
+    "token_usage",
+    "Tool",
+    "Turn",
+    "types",
 )
