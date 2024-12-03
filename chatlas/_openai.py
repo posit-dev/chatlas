@@ -56,7 +56,7 @@ def ChatOpenAI(
     base_url: str = "https://api.openai.com/v1",
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
     Chat with an OpenAI model.
 
@@ -448,7 +448,9 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
         return res
 
-    def _as_turn(self, completion: "ChatCompletion", has_data_model: bool) -> Turn:
+    def _as_turn(
+        self, completion: "ChatCompletion", has_data_model: bool
+    ) -> Turn[ChatCompletion]:
         message = completion.choices[0].message
 
         contents: list[Content] = []
@@ -504,7 +506,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             contents,
             tokens=tokens,
             finish_reason=completion.choices[0].finish_reason,
-            json=completion.model_dump(),
+            completion=completion,
         )
 
 
@@ -518,7 +520,7 @@ def ChatAzureOpenAI(
     turns: Optional[list[Turn]] = None,
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatAzureClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
     Chat with a model hosted on Azure OpenAI.
 

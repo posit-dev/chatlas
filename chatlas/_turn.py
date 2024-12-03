@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Sequence
+from typing import Any, Generic, Optional, Sequence, TypeVar
 
 from ._content import Content, ContentText
 
 __all__ = ("Turn",)
 
+CompletionT = TypeVar("CompletionT")
 
-class Turn:
+
+class Turn(Generic[CompletionT]):
     """
     A user or assistant turn
 
@@ -56,11 +58,10 @@ class Turn:
     finish_reason
         A string indicating the reason why the conversation ended. This is only
         relevant for assistant turns.
-    json
-        The serialized JSON corresponding to the underlying data of the turns.
-        Currently only provided for assistant. This is useful if there's
-        information returned by the provider that chatlas doesn't otherwise
-        expose.
+    completion
+        The completion object returned by the provider. This is useful if there's
+        information returned by the provider that chatlas doesn't otherwise expose.
+        This is only relevant for assistant turns.
     """
 
     def __init__(
@@ -70,7 +71,7 @@ class Turn:
         *,
         tokens: tuple[int, int] = (0, 0),
         finish_reason: str | None = None,
-        json: Optional[dict[str, Any]] = None,
+        completion: Optional[CompletionT] = None,
     ):
         self.role = role
 
@@ -90,7 +91,7 @@ class Turn:
         self.text = "".join(x.text for x in self.contents if isinstance(x, ContentText))
         self.tokens = tokens
         self.finish_reason = finish_reason
-        self.json = json or {}
+        self.completion = completion
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Turn):
@@ -98,7 +99,7 @@ class Turn:
         res = (
             self.role == other.role
             and self.contents == other.contents
-            and self.json == other.json
+            and self.completion == other.completion
             and self.tokens == other.tokens
         )
         return res

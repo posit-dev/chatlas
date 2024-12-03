@@ -59,7 +59,7 @@ def ChatAnthropic(
     api_key: Optional[str] = None,
     max_tokens: int = 4096,
     kwargs: Optional["ChatClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", Message]:
     """
     Chat with an Anthropic Claude model.
 
@@ -483,7 +483,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             contents,
             tokens=tokens,
             finish_reason=completion.stop_reason,
-            json=completion.model_dump(),
+            completion=completion,
         )
 
 
@@ -500,7 +500,7 @@ def ChatBedrockAnthropic(
     system_prompt: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
     kwargs: Optional["ChatBedrockClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", Message]:
     """
     Chat with an AWS bedrock model.
 

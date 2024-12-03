@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
+from typing import TYPE_CHECKING, Any, Literal, Optional, overload
 
 from pydantic import BaseModel
 
@@ -44,7 +44,7 @@ def ChatGoogle(
     model: Optional[str] = None,
     api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", GenerateContentResponse]:
     """
     Chat with a Google Gemini model.
 
@@ -428,7 +428,7 @@ class GoogleProvider(
             contents,
             tokens=tokens,
             finish_reason=finish.name,
-            json=cast(dict, message.to_dict()),
+            completion=message,
         )
 
     def _gemini_tools(self, tools: list[Tool]) -> list["FunctionDeclaration"]:

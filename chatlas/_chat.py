@@ -44,8 +44,10 @@ A TypedDict representing the arguments that can be passed to the `.chat()`
 method of a [](`~chatlas.Chat`) instance.
 """
 
+CompletionT = TypeVar("CompletionT")
 
-class Chat(Generic[SubmitInputArgsT]):
+
+class Chat(Generic[SubmitInputArgsT, CompletionT]):
     """
     A chat object that can be used to interact with a language model.
 
@@ -88,7 +90,7 @@ class Chat(Generic[SubmitInputArgsT]):
         self,
         *,
         include_system_prompt: bool = False,
-    ) -> list[Turn]:
+    ) -> list[Turn[CompletionT]]:
         """
         Get all the turns (i.e., message contents) in the chat.
 
@@ -109,7 +111,7 @@ class Chat(Generic[SubmitInputArgsT]):
         self,
         *,
         role: Literal["assistant", "user", "system"] = "assistant",
-    ) -> Turn | None:
+    ) -> Turn[CompletionT] | None:
         """
         Get the last turn in the chat with a specific role.
 
