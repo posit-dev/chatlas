@@ -158,7 +158,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
         <li>
     <a class="dropdown-item" href="./web-apps.html">
- <span class="dropdown-text">Web applications</span></a>
+ <span class="dropdown-text">Build a chatbot</span></a>
   </li>  
     </ul>
   </li>
@@ -231,20 +231,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 <p>The value that the chat model brings is not in helping with execution, but with knowing when it makes sense to call a tool, what values to pass as arguments, and how to use the results in formulating its response.</p>
-<div id="cfbf717c" class="cell" data-execution_count="1">
+<div id="5de5b2b8" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="motivating-example" class="level3">
 <h3 class="anchored" data-anchor-id="motivating-example">Motivating example</h3>
 <p>Let’s take a look at an example where we really need an external tool. Chat models generally do not know the current time, which makes questions like these impossible.</p>
-<div id="32f209f4" class="cell" data-execution_count="2">
+<div id="0a00d95b" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(model<span class="op">=</span><span class="st">"gpt-4o"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> chat.chat(<span class="st">"How long ago exactly was the moment Neil Armstrong touched down on the moon?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
-<p>Neil Armstrong touched down on the moon on July 20, 1969. To calculate the exact time elapsed since that moment, subtract July 20, 1969, from the current date. For example, if today is October 1, 2023, it’s been 54 years, 2 months, and 11 days since the landing.</p>
+<p>Neil Armstrong touched down on the Moon on July 20, 1969. To calculate the exact time since that event, we would need the current date. Assuming today is October 1, 2023, then:</p>
+<p>From July 20, 1969, to July 20, 2023, is 54 years. From July 20, 2023, to October 1, 2023, is an additional 73 days.</p>
+<p>So, as of October 1, 2023, it has been 54 years and 73 days since Neil Armstrong touched down on the Moon.</p>
 </div>
 </div>
 <p>Unfortunately, the LLM doesn’t hallucinates the current date. Let’s give the chat model the ability to determine the current time and try again.</p>
@@ -252,7 +254,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="defining-a-tool-function" class="level3">
 <h3 class="anchored" data-anchor-id="defining-a-tool-function">Defining a tool function</h3>
 <p>The first thing we’ll do is define a Python function that returns the current time. This will be our tool.</p>
-<div id="f505d726" class="cell" data-execution_count="3">
+<div id="47233a30" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_current_time(tz: <span class="bu">str</span> <span class="op">=</span> <span class="st">"UTC"</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Gets the current time in the given time zone.</span></span>
@@ -279,31 +281,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p><strong>Providing these hints and context is very important</strong>, as it helps the chat model understand how to use your tool correctly!</p>
 <p>Let’s test it:</p>
-<div id="4421513d" class="cell" data-execution_count="4">
+<div id="7f1a064f" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>get_current_time()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<pre><code>'2024-11-23 00:06:11 UTC'</code></pre>
+<pre><code>'2024-12-03 00:21:03 UTC'</code></pre>
 </div>
 </div>
 </section>
 <section id="using-the-tool" class="level3">
 <h3 class="anchored" data-anchor-id="using-the-tool">Using the tool</h3>
 <p>In order for the LLM to make use of our tool, we need to register it with the chat object. This is done by calling the <code>register_tool</code> method on the chat object.</p>
-<div id="df89e38d" class="cell" data-execution_count="5">
+<div id="53392cbd" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>chat.register_tool(get_current_time)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now let’s retry our original question:</p>
-<div id="74f28075" class="cell" data-execution_count="6">
+<div id="6a2b242c" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> chat.chat(<span class="st">"How long ago exactly was the moment Neil Armstrong touched down on the moon?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div class="chatlas-markdown">
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
-<p>Neil Armstrong touched down on the moon on July 20, 1969. As of November 23, 2024, it has been exactly 55 years, 4 months, and 3 days since that historic event.</p>
+<p>Neil Armstrong touched down on the Moon on July 20, 1969.</p>
+<p>Given the current date is December 3, 2024, we can calculate the exact time since the event as follows:</p>
+<ul>
+<li>From July 20, 1969, to July 20, 2024, is 55 years.</li>
+<li>From July 20, 2024, to December 3, 2024, is an additional 136 days.</li>
+</ul>
+<p>So, as of December 3, 2024, it has been 55 years and 136 days since Neil Armstrong touched down on the Moon.</p>
 </div>
 </div>
 <p>That’s correct! Without any further guidance, the chat model decided to call our tool function and successfully used its result in formulating its response.</p>
-<p>(Full disclosure: I originally tried this example with the default model of <code>gpt-4o-mini</code> and it got the tool calling right but the date math wrong, hence the explicit <code>model="gpt-4o"</code>.)</p>
 <p>This tool example was extremely simple, but you can imagine doing much more interesting things from tool functions: calling APIs, reading from or writing to a database, kicking off a complex simulation, or even calling a complementary GenAI model (like an image generator). Or if you are using chatlas in a Shiny app, you could use tools to set reactive values, setting off a chain of reactive updates.</p>
 </div></section>
 <section id="tool-limitations" class="level3">
@@ -735,7 +742,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/tool-calling.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div></div></footer><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","closeEffect":"zoom","loop":false,"selector":".lightbox","descPosition":"bottom"});
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/tool-calling.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div></div></footer><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"selector":".lightbox","openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

@@ -118,7 +118,7 @@ ul.task-list li input[type="checkbox"] {
   </li>  
         <li>
     <a class="dropdown-item" href="./web-apps.html">
- <span class="dropdown-text">Web applications</span></a>
+ <span class="dropdown-text">Build a chatbot</span></a>
   </li>  
     </ul>
   </li>
@@ -205,7 +205,7 @@ ul.task-list li input[type="checkbox"] {
 <p>Now that you’ve got the basic vocab under your belt, I’m going to just fire a bunch of interesting potential use cases at you. For many of these examples there are often special purpose tools that will be faster and cheaper. But using an LLM allows you to rapidly prototype an idea on a small subset of the full problem to determine if it’s worth investing more time and effort.</p>
 <section id="chatbots" class="level3">
 <h3 class="anchored" data-anchor-id="chatbots">Chatbots</h3>
-<p>Great place to start is building a chatbot with a custom prompt. Chatbots are familiar interface and easy to create via <a href="./web-apps.html">web application</a> framework like Shiny or Streamlit.</p>
+<p>Great place to start is <a href="./web-apps.html">building a chatbot</a> with a custom prompt. Chatbots are familiar interface and easy to create via web application framework like Shiny or Streamlit.</p>
 <p>You could create a chat bot to answer questions on a specific topic by filling the prompt with related content. For example, maybe you want to help people use your new package. The default prompt won’t work because LLMs don’t know anything about your package. You can get surprisingly far by preloading the prompt with your README and other vignettes. This is how the <a href="https://github.com/jcheng5/elmer-assistant">elmer assistant</a> works.</p>
 <p>An even more complicated chat bot is <a href="https://shiny.posit.co/blog/posts/shiny-assistant/">shiny assistant</a> which helps you build shiny apps (either in Python or R). It combines a <a href="https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt.md">prompt</a> that gives general advice with a language specific prompt for <a href="https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md">Python</a> or <a href="https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_r.md">R</a>. The python prompt is very detailed because there’s much less information about Shiny for Python on the internet because it’s a much newer package.</p>
 <p>Another direction is to give the chat bot additional context about your current environment. For example, <a href="https://github.com/cpsievert/aidea">aidea</a> allows the user to interactively explore a dataset with the help of the LLM. It adds summary statistics about the dataset to the <a href="https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md">prompt</a> so that the LLM has context about the dataset. If you were working on a chatbot to help the user read in data, you could imagine include all the files in the current directory along with their first few lines.</p>
