@@ -9,6 +9,7 @@ from ._turn import Turn
 from ._utils import MISSING, MISSING_TYPE, inform_model_default
 
 if TYPE_CHECKING:
+    from ._openai import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
@@ -21,7 +22,7 @@ def ChatGroq(
     base_url: str = "https://api.groq.com/openai/v1",
     seed: Optional[int] | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
     Chat with a model hosted on Groq.
 

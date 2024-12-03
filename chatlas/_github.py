@@ -9,6 +9,7 @@ from ._turn import Turn
 from ._utils import MISSING, MISSING_TYPE, inform_model_default
 
 if TYPE_CHECKING:
+    from ._openai import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
@@ -21,7 +22,7 @@ def ChatGithub(
     base_url: str = "https://models.inference.ai.azure.com/",
     seed: Optional[int] | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
     Chat with a model hosted on the GitHub model marketplace.
 

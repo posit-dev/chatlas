@@ -10,6 +10,7 @@ from ._openai import ChatOpenAI
 from ._turn import Turn
 
 if TYPE_CHECKING:
+    from ._openai import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
@@ -21,7 +22,7 @@ def ChatOllama(
     base_url: str = "http://localhost:11434/v1",
     seed: Optional[int] = None,
     kwargs: Optional["ChatClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
     Chat with a local Ollama model.
 
