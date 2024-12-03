@@ -1,6 +1,6 @@
 import inspect
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 from jinja2 import Environment
 
@@ -68,7 +68,7 @@ def interpolate(
 
 
 def interpolate_file(
-    path: str | Path,
+    path: Union[str, Path],
     *,
     variables: Optional[dict[str, Any]] = None,
     variable_start: str = "{{",
