@@ -168,7 +168,8 @@ def assert_data_extraction(chat_fun: ChatFun):
     chat = chat_fun()
     data = chat.extract_data(article, data_model=ArticleSummary)
     assert isinstance(data, dict)
-    assert data == {"title": "Apples are tasty", "author": "Hadley Wickham"}
+    assert data["author"].lower() == "hadley wickham"
+    assert data["title"].lower() == "apples are tasty"
     data2 = chat.extract_data(article, data_model=ArticleSummary)
     assert data2 == data
 

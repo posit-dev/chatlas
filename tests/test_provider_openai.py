@@ -77,8 +77,8 @@ async def test_openai_logprobs():
 
     turn = chat.last_turn()
     assert turn is not None
-    assert turn.json is not None
-    assert turn.json.choices[0].logprobs is not None
-    logprobs = turn.json.choices[0].logprobs.content
+    assert turn.completion is not None
+    assert turn.completion.choices[0].logprobs is not None
+    logprobs = turn.completion.choices[0].logprobs.content
     assert logprobs is not None
     assert len(logprobs) == len(pieces)
