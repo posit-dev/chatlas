@@ -241,14 +241,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         app = App(app_ui, server)
 
+        def _run_app():
+            run_app(app, launch_browser=launch_browser, port=port)
+
+        # Use bg_thread by default in Jupyter and Positron
         if bg_thread is None:
             from rich.console import Console
 
             console = Console()
-            bg_thread = console.is_jupyter
+            bg_thread = console.is_jupyter or (os.getenv("POSITRON") == "1")
 
-        def _run_app():
-            run_app(app, launch_browser=launch_browser, port=port)
 
         if bg_thread:
             thread = Thread(target=_run_app, daemon=True)
