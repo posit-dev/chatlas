@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from contextlib import contextmanager
 from pathlib import Path
+from threading import Thread
 from typing import (
     Any,
     AsyncGenerator,
@@ -181,21 +182,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         *,
         stream: bool = True,
-        launch_browser: bool = True,
         port: int = 0,
+        launch_browser: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ):
         """
-        Enter a chat browser to interact with the LLM.
+        Enter a web-based chat app to interact with the LLM.
 
         Parameters
         ----------
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
-        launch_browser
-            Whether to launch a browser window.
         port
             The port to run the app on (the default is 0, which will choose a random port).
+        launch_browser
+            Whether to launch a browser window.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -228,15 +229,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 if user_input is None:
                     return
                 if stream:
-                    await chat.append_message_stream(self.stream(user_input, kwargs=kwargs))
+                    await chat.append_message_stream(
+                        self.stream(user_input, kwargs=kwargs)
+                    )
                 else:
                     await chat.append_message(str(self.chat(user_input, kwargs=kwargs)))
 
-        run_app(
-            App(app_ui, server),
-            launch_browser=launch_browser,
-            port=port,
-        )
+        app = App(app_ui, server)
+
+        def _run_app():
+            run_app(app, launch_browser=launch_browser, port=port)
+
+        thread = Thread(target=_run_app, daemon=True)
+        thread.start()
+        return None
 
     def console(
         self,
