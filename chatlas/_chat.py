@@ -184,6 +184,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool = True,
         port: int = 0,
         launch_browser: bool = True,
+        bg_thread: Optional[bool] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ):
         """
@@ -197,6 +198,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             The port to run the app on (the default is 0, which will choose a random port).
         launch_browser
             Whether to launch a browser window.
+        bg_thread
+            Whether to run the app in a background thread. If `None`, the app will
+            run in a background thread if the current environment is a notebook.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -237,11 +241,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         app = App(app_ui, server)
 
+        if bg_thread is None:
+            from rich.console import Console
+
+            console = Console()
+            bg_thread = console.is_jupyter
+
         def _run_app():
             run_app(app, launch_browser=launch_browser, port=port)
 
-        thread = Thread(target=_run_app, daemon=True)
-        thread.start()
+        if bg_thread:
+            thread = Thread(target=_run_app, daemon=True)
+            thread.start()
+        else:
+            _run_app()
+
         return None
 
     def console(
