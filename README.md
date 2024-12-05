@@ -63,7 +63,18 @@ chat = ChatOpenAI(
 
 ### Interactive console
 
-From a `chat` instance, it's simple to start a web-based or terminal-based chat console, which is great for interactive testing. In either case, responses stream in real-time, and context is preserved across turns.
+From a `chat` instance, it's simple to start a web-based or terminal-based chat console, which is great for testing the capabilities of the model. In either case, responses stream in real-time, and context is preserved across turns.
+
+```python
+chat.app()
+```
+
+<div style="display:flex;justify-content:center;">
+<img width="500" alt="A web app for chatting with an LLM via chatlas" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="border rounded">
+</div>
+
+
+Or, if you prefer to work from the terminal:
 
 ```python
 chat.console()
@@ -80,16 +91,6 @@ Python was created by Guido van Rossum. He began development in the late 1980s a
 
 Guido van Rossum developed Python while working at Centrum Wiskunde & Informatica (CWI) in the Netherlands.     
 ```
-
-Use `.app()` over `.console()` if you prefer a more interactive interface:
-
-```python
-chat.app()
-```
-
-<div style="display:flex;justify-content:center;">
-<img width="667" alt="A web app for chatting with an LLM via chatlas" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="border rounded">
-</div>
 
 
 ### The `.chat()` method
@@ -225,8 +226,9 @@ asyncio.run(main())
 `chatlas` has full typing support, meaning that, among other things, autocompletion just works in your favorite editor:
 
 <div style="display:flex;justify-content:center;">
-<img width="667" alt="Autocompleting model options in ChatOpenAI" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="rounded">
+<img width="500" alt="Autocompleting model options in ChatOpenAI" src="https://github.com/user-attachments/assets/163d6d8a-7d58-422d-b3af-cc9f2adee759" class="rounded">
 </div>
+
 
 
 ### Troubleshooting
@@ -244,8 +246,11 @@ If the problem isn't self-evident, you can also reach into the `.last_turn()`, w
 
 
 <div style="display:flex;justify-content:center;">
-<img width="667" alt="Turn completion details with typing support" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="rounded">
+  <img width="500" alt="Turn completion details with typing support" src="https://github.com/user-attachments/assets/eaea338d-e44a-4e23-84a7-2e998d8af3ba" class="rounded">
 </div>
+
+
+
 
 Also, since `chatlas` builds on top of packages like `anthropic` and `openai`, you can also enable their debug logging to get even more detailed information about what's going on under the hood:
 
