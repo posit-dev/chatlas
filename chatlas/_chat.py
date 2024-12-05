@@ -662,6 +662,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         filename: str | Path,
         *,
+        turns: Optional[Sequence[Turn]] = None,
         title: Optional[str] = None,
         include: Literal["text", "all"] = "text",
         include_system_prompt: bool = True,
@@ -675,6 +676,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         filename
             The filename to export the chat to. Currently this must
             be a `.md` or `.html` file.
+        turns
+            The `.turns()` to export. If not provided, the chat's current turns
+            will be used.
         title
             A title to place at the top of the exported file.
         overwrite
@@ -690,7 +694,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Path
             The path to the exported file.
         """
-        turns = self.turns(include_system_prompt=False)
+        if not turns:
+            turns = self.turns(include_system_prompt=False)
         if not turns:
             raise ValueError("No turns to export.")
 
