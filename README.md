@@ -1,6 +1,9 @@
 # chatlas
 
-chatlas provides a simple and unified interface to popular large language models (LLMs) in Python. The interface is intentionally minimal and focuses on making it easy to get started and rapidly prototype, while also supporting table stakes features like streaming output, structured data extraction, function (tool) calling, images, async, and more.
+chatlas provides a simple and unified interface across large language model (llm) providers in Python. 
+This interface abstracts away complexity from common tasks like streaming chat interfaces, tool calling, structured output, and much more.
+With chatlas, switching providers is as simple as changing a single line of code, but you can also access advanced, provider specific, features when needed.
+Developer experience is also a key focus of chatlas: typing support, rich console output, and built-in tooling are all included.
 
 (Looking for something similar to chatlas, but in R? Check out [elmer](https://elmer.tidyverse.org/)!)
 
@@ -29,6 +32,11 @@ It also supports the following enterprise cloud providers:
 * AWS Bedrock: [`ChatBedrockAnthropic()`](https://posit-dev.github.io/chatlas/reference/ChatBedrockAnthropic.html).
 * Azure OpenAI: [`ChatAzureOpenAI()`](https://posit-dev.github.io/chatlas/reference/ChatAzureOpenAI.html).
 
+To use a model provider that isn't listed here, you have two options:
+
+1. If the model is OpenAI compatible, use `ChatOpenAI()` with the appropriate `base_url` and `api_key` (see [`ChatGithub`](https://github.com/posit-dev/chatlas/blob/main/chatlas/_github.py) for a reference).
+2. If you're motivated, implement a new provider by subclassing [`Provider`](https://github.com/posit-dev/chatlas/blob/main/chatlas/_provider.py) and implementing the required methods.
+
 
 ## Model choice
 
@@ -53,11 +61,9 @@ chat = ChatOpenAI(
 )
 ```
 
-Chat objects are stateful: they retain the context of the conversation, so each new query can build on the previous ones. This is true regardless of which of the various ways of chatting you use.
-
 ### Interactive console
 
-From a `chat` instance, you can start an interactive, multi-turn, conversation in the console (via `.console()`) or in a browser (via `.app()`).
+From a `chat` instance, it's simple to start a web-based or terminal-based chat console, which is great for interactive testing. In either case, responses stream in real-time, and context is preserved across turns.
 
 ```python
 chat.console()
@@ -68,18 +74,14 @@ Entering chat console. Press Ctrl+C to quit.
 
 ?> Who created Python?
 
-Python was created by Guido van Rossum. He began development in the late 1980s and released the first     
-version in 1991. 
+Python was created by Guido van Rossum. He began development in the late 1980s and released the first version in 1991. 
 
 ?> Where did he develop it?
 
-Guido van Rossum developed Python while working at Centrum Wiskunde & Informatica (CWI) in the            
-Netherlands.     
+Guido van Rossum developed Python while working at Centrum Wiskunde & Informatica (CWI) in the Netherlands.     
 ```
 
-The chat console is useful for quickly exploring the capabilities of the model, especially when you've customized the chat object with tool integrations (covered later).
-
-The chat app is similar to the chat console, but it runs in your browser. It's useful if you need more interactive capabilities like easy copy-paste:
+Use `.app()` over `.console()` if you prefer a more interactive interface:
 
 ```python
 chat.app()
@@ -89,8 +91,6 @@ chat.app()
 <img width="667" alt="A web app for chatting with an LLM via chatlas" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="border rounded">
 </div>
 
-
-Keep in mind that the `chat` object retains state, so when you enter the console or app, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist after you exit back to the Python prompt. This is true regardless of which of the various chat methods you use to submit queries.
 
 ### The `.chat()` method
 
@@ -105,7 +105,7 @@ Python was primarily influenced by ABC, with additional inspiration from C,
 Modula-3, and various other languages.
 ```
 
-If you want to ask a question about an image, you can pass one or more additional input arguments using `content_image_file()` and/or `content_image_url()`:
+To ask a question about an image, pass one or more additional input arguments using `content_image_file()` and/or `content_image_url()`:
 
 ```python
 from chatlas import content_image_url
@@ -128,7 +128,7 @@ response = chat.chat("Who is Posit?", echo="none")
 print(str(response))
 ```
 
-As we'll cover in later articles, `echo="all"` can also be useful for debugging, as it shows additional information, such as tool calls.
+As we'll see in later articles, `echo="all"` can also be useful for debugging, as it shows additional information, such as tool calls.
 
 ### The `.stream()` method
 
@@ -140,35 +140,122 @@ for chunk in response:
     print(chunk, end="")
 ```
 
-The `.stream()` method can also be useful if you're building a chatbot or other interactive applications that needs to display responses as they arrive.
+The `.stream()` method can also be useful if you're [building a chatbot](https://posit-dev.github.io/chatlas/web-apps.html) or other programs that needs to display responses as they arrive.
 
 
-### Conversation history
+### Tool calling 
 
-Remember that regardless of how we interact with the model, the `chat` instance retains the conversation history, which you can access at any time:
+Tool calling is as simple as passing a function with type hints and docstring to `.register_tool()`.
+
+```python
+import sys
+
+def get_current_python_version() -> str:
+    """Get the current version of Python."""
+    return sys.version
+
+chat.register_tool(get_current_python_version)
+chat.chat("What's the current version of Python?")
+```
+
+```
+The current version of Python is 3.13.
+```
+
+Learn more in the [tool calling article](https://posit-dev.github.io/chatlas/tool-calling.html)
+
+### Structured data
+
+Structured data (i.e., structured output) is as simple as passing a [pydantic](https://docs.pydantic.dev/latest/) model to `.extract_data()`.
+
+```python
+from pydantic import BaseModel
+
+class Person(BaseModel):
+    name: str
+    age: int
+
+chat.extract_data(
+    "My name is Susan and I'm 13 years old", 
+    data_model=Person,
+)
+```
+
+```
+{'name': 'Susan', 'age': 13}
+```
+
+Learn more in the [structured data article](https://posit-dev.github.io/chatlas/structured-data.html)
+
+### Export chat
+
+Easily get a full markdown or HTML export of a conversation:
+
+```python
+chat.export("index.html", title="Python Q&A")
+```
+
+If the export doesn't have all the information you need, you can also access the full conversation history via the `.turns()` method:
 
 ```python
 chat.turns()
 ```
 
-Each turn represents a either a user's input or a model's response. It holds all the avaliable information about content and metadata of the turn. This can be useful for debugging, logging, or for building more complex conversational interfaces.
-
-For cost and efficiency reasons, you may want to alter the conversation history. Currently, the main way to do this is to `.set_turns()`:
+And, if the conversation is too long, you can specify which turns to include:
 
 ```python
-# Remove all but the last two turns
-chat.set_turns(chat.turns()[-2:])
+chat.export("index.html", turns=chat.turns()[-5:])
 ```
 
-### Learn more
+### Async
+
+`chat` methods tend to be synchronous by default, but you can use the async flavor by appending `_async` to the method name:
+
+```python
+import asyncio
+
+async def main():
+    await chat.chat_async("What is the capital of France?")
+
+asyncio.run(main())
+```
+
+### Typing support
+
+`chatlas` has full typing support, meaning that, among other things, autocompletion just works in your favorite editor:
+
+<div style="display:flex;justify-content:center;">
+<img width="667" alt="Autocompleting model options in ChatOpenAI" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="rounded">
+</div>
+
+
+### Troubleshooting
+
+Sometimes things like token limits, tool errors, or other issues can cause problems that are hard to diagnose. 
+In these cases, the `echo="all"` option is helpful for getting more information about what's going on under the hood.
+
+```python
+chat.chat("What is the capital of France?", echo="all")
+```
+
+This shows important information like tool call results, finish reasons, and more.
+
+If the problem isn't self-evident, you can also reach into the `.last_turn()`, which contains the full response object, with full details about the completion.
+
+
+<div style="display:flex;justify-content:center;">
+<img width="667" alt="Turn completion details with typing support" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="rounded">
+</div>
+
+Also, since `chatlas` builds on top of packages like `anthropic` and `openai`, you can also enable their debug logging to get even more detailed information about what's going on under the hood:
+
+```shell
+$ export ANTHROPIC_LOG=info
+$ export OPENAI_LOG=info
+```
+
+### Next steps
 
 If you're new to world LLMs, you might want to read the [Get Started](https://posit-dev.github.io/chatlas/get-started.html) guide, which covers some basic concepts and terminology.
 
-Once you're comfortable with the basics, you can explore more advanced topics:
-
-* [Customize the system prompt](https://posit-dev.github.io/chatlas/prompt-design.html)
-* [Extract structured data](https://posit-dev.github.io/chatlas/structured-data.html)
-* [Tool (function) calling](https://posit-dev.github.io/chatlas/tool-calling.html)
-* [Build a web chat app](https://posit-dev.github.io/chatlas/web-apps.html)
-
-The [API reference](https://posit-dev.github.io/chatlas/reference/index.html) is also a useful overview of all the tooling available in `chatlas`, including starting examples and detailed descriptions.
+Once you're comfortable with the basics, you can explore more in-depth topics like [prompt design](https://posit-dev.github.io/chatlas/prompt-design.html) or the [API reference](https://posit-dev.github.io/chatlas/reference/index.html).
