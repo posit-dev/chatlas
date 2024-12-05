@@ -42,7 +42,7 @@ To use a model provider that isn't listed here, you have two options:
 
 If you're using chatlas inside your organisation, you'll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g. `ChatAzureOpenAI()` and `ChatBedrockAnthropic()`). If you're using chatlas for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:
 
-- `ChatOpenAI()` or `ChatAnthropic()` are both good places to start. `ChatOpenAI()` defaults to **GPT-4o**, but you can use `model = "gpt-4o-mini"` for a cheaper lower-quality model, or `model = "o1-mini"` for more complex reasoning.  `ChatAnthropic()` is similarly good; it defaults to **Claude 3.5 Sonnet** which we have found to be particularly code at writing code.
+- `ChatOpenAI()` or `ChatAnthropic()` are both good places to start. `ChatOpenAI()` defaults to **GPT-4o**, but you can use `model = "gpt-4o-mini"` for a cheaper lower-quality model, or `model = "o1-mini"` for more complex reasoning.  `ChatAnthropic()` is similarly good; it defaults to **Claude 3.5 Sonnet** which we have found to be particularly good at writing code.
 
 - `ChatGoogle()` is great for large prompts, because it has a much larger context window than other models. It allows up to 1 million tokens, compared to Claude 3.5 Sonnet's 200k and GPT-4o's 128k.
 
