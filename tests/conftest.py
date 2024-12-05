@@ -173,7 +173,6 @@ def assert_data_extraction(chat_fun: ChatFun):
     data2 = chat.extract_data(article, data_model=ArticleSummary)
     assert data2["author"] == "Hadley Wickham"
     assert data2["title"].lower() == "apples are tasty"
-    
 
 
 def assert_images_inline(chat_fun: ChatFun, stream: bool = True):

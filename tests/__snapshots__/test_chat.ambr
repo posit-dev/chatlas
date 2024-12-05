@@ -1,0 +1,60 @@
+# serializer version: 1
+# name: test_basic_export
+  '''
+  
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <script src="https://cdn.jsdelivr.net/gh/posit-dev/py-shiny@1.2.1/shiny/www//py-shiny/chat/chat.js"></script>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/posit-dev/py-shiny@1.2.1/shiny/www//py-shiny/chat/chat.css">
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/posit-dev/py-shiny@1.2.1/shiny/www//shared/bootstrap/bootstrap.min.css">
+          </head>
+          <body>
+            <div style="max-width:700px; margin:0 auto; padding-top:20px;">
+              <h1>My Chat</h1>
+  
+  <shiny-chat-container><shiny-chat-messages>
+  <shiny-user-message content='What&apos;s 1 + 1? What&apos;s 1 + 2?'></shiny-user-message>
+  
+  <shiny-chat-message content='2  3'></shiny-chat-message>
+  
+  
+  </shiny-chat-messages></shiny-chat-container>
+  <br><br>
+  <details><summary>System prompt</summary>
+  
+  You're a helpful assistant that returns very minimal output
+  
+  </details>
+            </div>
+          </body>
+          </html>
+          
+  '''
+# ---
+# name: test_basic_repr
+  <Chat turns=3 tokens=20>
+    <Turn role='system'>
+      <ContentText text='You're a helpful assistant that returns very minim...'>
+  
+    <Turn role='user'>
+      <ContentText text='What's 1 + 1? What's 1 + 2?'>
+  
+    <Turn role='assistant' tokens=(15, 5)>
+      <ContentText text='2  3'>
+  
+
+# ---
+# name: test_basic_str
+  '''
+  ## 👤 User turn:
+  
+  What's 1 + 1? What's 1 + 2?
+  
+  ## 🤖 Assistant turn:
+  
+  2  3
+  
+  
+  '''
+# ---

@@ -35,7 +35,8 @@ Changelog = "https://github.com/posit-dev/chatlas/blob/main/CHANGELOG.md"
 test = [
     "pyright>=1.1.379",
     "pytest>=8.3.2",
-    "pytest-asyncio"
+    "pytest-asyncio",
+    "syrupy>=4"
 ]
 dev = [
     "ruff>=0.6.5",

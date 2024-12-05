@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Generic, Optional, Sequence, TypeVar
+from typing import Any, Generic, Literal, Optional, Sequence, TypeVar
 
 from ._content import Content, ContentText
 
@@ -66,11 +66,11 @@ class Turn(Generic[CompletionT]):
 
     def __init__(
         self,
-        role: str,
+        role: Literal["user", "assistant", "system"],
         contents: str | Sequence[Content | str],
         *,
-        tokens: tuple[int, int] = (0, 0),
-        finish_reason: str | None = None,
+        tokens: Optional[tuple[int, int]] = None,
+        finish_reason: Optional[str] = None,
         completion: Optional[CompletionT] = None,
     ):
         self.role = role
@@ -93,14 +93,31 @@ class Turn(Generic[CompletionT]):
         self.finish_reason = finish_reason
         self.completion = completion
 
+    def __str__(self) -> str:
+        return self.text
+
+    def __repr__(self, indent: int = 0) -> str:
+        res = " " * indent + f"<Turn role='{self.role}'"
+        if self.tokens:
+            res += f" tokens={self.tokens}"
+        if self.finish_reason:
+            res += f" finish_reason='{self.finish_reason}'"
+        if self.completion:
+            res += f" completion={self.completion}"
+        res += ">"
+        for content in self.contents:
+            res += "\n" + content.__repr__(indent=indent + 2)
+        return res + "\n"
+
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Turn):
             return False
         res = (
             self.role == other.role
             and self.contents == other.contents
-            and self.completion == other.completion
             and self.tokens == other.tokens
+            and self.finish_reason == other.finish_reason
+            and self.completion == other.completion
         )
         return res
 

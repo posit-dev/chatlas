@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from contextlib import contextmanager
+from pathlib import Path
 from typing import (
     Any,
     AsyncGenerator,
@@ -32,6 +33,7 @@ from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
+from ._utils import html_escape
 
 
 class AnyTypeDict(TypedDict, total=False):
@@ -163,13 +165,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if value is not None:
             self._turns.insert(0, Turn("system", value))
 
-    def tokens(self) -> list[tuple[int, int]]:
+    def tokens(self) -> list[tuple[int, int] | None]:
         """
         Get the tokens for each turn in the chat.
 
         Returns
         -------
-        list[tuple[int, int]]
+        list[tuple[int, int] | None]
             A list of tuples, where each tuple contains the start and end token
             indices for a turn.
         """
@@ -634,6 +636,123 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tool = Tool(func, model=model)
         self.tools[tool.name] = tool
 
+    def export(
+        self,
+        filename: str | Path,
+        *,
+        title: Optional[str] = None,
+        include: Literal["text", "all"] = "text",
+        include_system_prompt: bool = True,
+        overwrite: bool = False,
+    ):
+        """
+        Export the chat history to a file.
+
+        Parameters
+        ----------
+        filename
+            The filename to export the chat to. Currently this must
+            be a `.md` or `.html` file.
+        title
+            A title to place at the top of the exported file.
+        overwrite
+            Whether to overwrite the file if it already exists.
+        include
+            Whether to include text content, all content (i.e., tool calls), or no
+            content.
+        include_system_prompt
+            Whether to include the system prompt in a <details> tag.
+
+        Returns
+        -------
+        Path
+            The path to the exported file.
+        """
+        turns = self.turns(include_system_prompt=False)
+        if not turns:
+            raise ValueError("No turns to export.")
+
+        if isinstance(filename, str):
+            filename = Path(filename)
+
+        filename = filename.resolve()
+        if filename.exists() and not overwrite:
+            raise ValueError(
+                f"File {filename} already exists. Set `overwrite=True` to overwrite."
+            )
+
+        if filename.suffix not in {".md", ".html"}:
+            raise ValueError("The filename must have a `.md` or `.html` extension.")
+
+        # When exporting to HTML, we lean on shiny's chat component for rendering markdown and styling
+        is_html = filename.suffix == ".html"
+
+        # Get contents from each turn
+        contents = ""
+        for turn in turns:
+            turn_content = "\n\n".join(
+                [
+                    str(content)
+                    for content in turn.contents
+                    if include == "all" or isinstance(content, ContentText)
+                ]
+            )
+            if is_html:
+                msg_type = "user" if turn.role == "user" else "chat"
+                content_attr = html_escape(turn_content)
+                turn_content = f"<shiny-{msg_type}-message content='{content_attr}'></shiny-{msg_type}-message>"
+            else:
+                turn_content = f"## {turn.role.capitalize()}\n\n{turn_content}"
+            contents += f"{turn_content}\n\n"
+
+        # Shiny chat message components requires container elements
+        if is_html:
+            contents = f"<shiny-chat-messages>\n{contents}\n</shiny-chat-messages>"
+            contents = f"<shiny-chat-container>{contents}</shiny-chat-container>"
+
+        # Add title to the top
+        if title:
+            if is_html:
+                contents = f"<h1>{title}</h1>\n\n{contents}"
+            else:
+                contents = f"# {title}\n\n{contents}"
+
+        # Add system prompt to the bottom
+        if include_system_prompt and self.system_prompt:
+            contents += f"\n<br><br>\n<details><summary>System prompt</summary>\n\n{self.system_prompt}\n\n</details>"
+
+        # Wrap in HTML template if exporting to HTML
+        if is_html:
+            contents = self._html_template(contents)
+
+        with open(filename, "w") as f:
+            f.write(contents)
+
+        return filename
+
+    @staticmethod
+    def _html_template(contents: str) -> str:
+        version = "1.2.1"
+        shiny_www = (
+            f"https://cdn.jsdelivr.net/gh/posit-dev/py-shiny@{version}/shiny/www/"
+        )
+
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <script src="{shiny_www}/py-shiny/chat/chat.js"></script>
+          <link rel="stylesheet" href="{shiny_www}/py-shiny/chat/chat.css">
+          <link rel="stylesheet" href="{shiny_www}/shared/bootstrap/bootstrap.min.css">
+        </head>
+        <body>
+          <div style="max-width:700px; margin:0 auto; padding-top:20px;">
+            {contents}
+          </div>
+        </body>
+        </html>
+        """
+
     def _chat_impl(
         self,
         user_turn: Turn,
@@ -924,17 +1043,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         }
 
     def __str__(self):
-        turns = self.turns(include_system_prompt=True)
-        tokens = sum(sum(turn.tokens) for turn in turns)
-        output = f"<Chat turns={len(turns)} tokens={tokens}>\n"
+        turns = self.turns(include_system_prompt=False)
+        res = ""
         for turn in turns:
-            output += f"--- {turn.role} ---\n"
-            for content in turn.contents:
-                output += f"{content}\n"
-        return output
+            icon = "👤" if turn.role == "user" else "🤖"
+            res += f"## {icon} {turn.role.capitalize()} turn:\n\n{str(turn)}\n\n"
+        return res
 
     def __repr__(self):
-        return str(self)
+        turns = self.turns(include_system_prompt=True)
+        tokens = sum(sum(turn.tokens) for turn in turns if turn.tokens)
+        res = f"<Chat turns={len(turns)} tokens={tokens}>"
+        for turn in turns:
+            res += "\n" + turn.__repr__(indent=2)
+        return res + "\n"
 
 
 class ChatResponse:
@@ -1057,34 +1179,39 @@ def emit_user_contents(
 ):
     if x.role != "user":
         raise ValueError("Expected a user turn")
-    emit(f"\\>\\> **`User` turn:**\n\n{x.text}\n\n")
+    emit(f"## 👤 User turn:\n\n{str(x)}\n\n")
     emit_other_contents(x, emit)
-    emit("\n\n<< **`Assistant` turn:**\n\n")
+    emit("\n\n## 🤖 Assistant turn:\n\n")
 
 
 def emit_other_contents(
     x: Turn,
     emit: Callable[[Content | str], None],
 ):
-    if all(isinstance(x, ContentText) for x in x.contents):
-        if x.finish_reason:
-            emit(f"\n\n<<< Finish reason: {x.finish_reason}\n\n")
-        return
-
-    if x.role == "user":
-        emit("\n\n\\>\\>\\> **Other `user` content:**\n\n")
-    else:
-        emit("\n\n<<< **Other `assistant` content:**\n\n")
-
-    for content in x.contents:
-        if not isinstance(content, ContentText):
-            # For some really odd reason ContentToolResult won't display without
-            # a non-whitespace character before it. The &nbsp; is a hack to work
-            # around that, but it's also decent for readability.
-            emit(f"&nbsp;{str(content)}\n\n")
+    # Gather other content to emit in _reverse_ order
+    to_emit: list[str] = []
 
     if x.finish_reason:
-        emit(f"<<< Finish reason: {x.finish_reason}\n\n")
+        to_emit.append(f"\n\n<< 🤖 finish reason: {x.finish_reason} \\>\\>\n\n")
+
+    has_text = False
+    has_other = False
+    for content in reversed(x.contents):
+        if isinstance(content, ContentText):
+            has_text = True
+        else:
+            has_other = True
+            to_emit.append(str(content))
+
+    if has_text and has_other:
+        if x.role == "user":
+            to_emit.append("<< 👤 other content >>")
+        else:
+            to_emit.append("<< 🤖 other content >>")
+
+    to_emit.reverse()
+
+    emit("\n\n".join(to_emit))
 
 
 class LiveMarkdownDisplay:
