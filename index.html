@@ -189,8 +189,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#interactive-console" id="toc-interactive-console" class="nav-link" data-scroll-target="#interactive-console">Interactive console</a></li>
   <li><a href="#the-.chat-method" id="toc-the-.chat-method" class="nav-link" data-scroll-target="#the-.chat-method">The <code>.chat()</code> method</a></li>
   <li><a href="#the-.stream-method" id="toc-the-.stream-method" class="nav-link" data-scroll-target="#the-.stream-method">The <code>.stream()</code> method</a></li>
-  <li><a href="#conversation-history" id="toc-conversation-history" class="nav-link" data-scroll-target="#conversation-history">Conversation history</a></li>
-  <li><a href="#learn-more" id="toc-learn-more" class="nav-link" data-scroll-target="#learn-more">Learn more</a></li>
+  <li><a href="#tool-calling" id="toc-tool-calling" class="nav-link" data-scroll-target="#tool-calling">Tool calling</a></li>
+  <li><a href="#structured-data" id="toc-structured-data" class="nav-link" data-scroll-target="#structured-data">Structured data</a></li>
+  <li><a href="#export-chat" id="toc-export-chat" class="nav-link" data-scroll-target="#export-chat">Export chat</a></li>
+  <li><a href="#async" id="toc-async" class="nav-link" data-scroll-target="#async">Async</a></li>
+  <li><a href="#typing-support" id="toc-typing-support" class="nav-link" data-scroll-target="#typing-support">Typing support</a></li>
+  <li><a href="#troubleshooting" id="toc-troubleshooting" class="nav-link" data-scroll-target="#troubleshooting">Troubleshooting</a></li>
+  <li><a href="#next-steps" id="toc-next-steps" class="nav-link" data-scroll-target="#next-steps">Next steps</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -204,7 +209,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="chatlas" class="level1">
 <h1>chatlas</h1>
-<p>chatlas provides a simple and unified interface to popular large language models (LLMs) in Python. The interface is intentionally minimal and focuses on making it easy to get started and rapidly prototype, while also supporting table stakes features like streaming output, structured data extraction, function (tool) calling, images, async, and more.</p>
+<p>chatlas provides a simple and unified interface across large language model (llm) providers in Python. This interface abstracts away complexity from common tasks like streaming chat interfaces, tool calling, structured output, and much more. With chatlas, switching providers is as simple as changing a single line of code, but you can also access advanced, provider specific, features when needed. Developer experience is also a key focus of chatlas: typing support, rich console output, and built-in tooling are all included.</p>
 <p>(Looking for something similar to chatlas, but in R? Check out <a href="https://elmer.tidyverse.org/">elmer</a>!)</p>
 <section id="install" class="level2">
 <h2 class="anchored" data-anchor-id="install">Install</h2>
@@ -228,6 +233,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>AWS Bedrock: <a href="https://posit-dev.github.io/chatlas/reference/ChatBedrockAnthropic.html"><code>ChatBedrockAnthropic()</code></a>.</li>
 <li>Azure OpenAI: <a href="https://posit-dev.github.io/chatlas/reference/ChatAzureOpenAI.html"><code>ChatAzureOpenAI()</code></a>.</li>
 </ul>
+<p>To use a model provider that isn’t listed here, you have two options:</p>
+<ol type="1">
+<li>If the model is OpenAI compatible, use <code>ChatOpenAI()</code> with the appropriate <code>base_url</code> and <code>api_key</code> (see <a href="https://github.com/posit-dev/chatlas/blob/main/chatlas/_github.py"><code>ChatGithub</code></a> for a reference).</li>
+<li>If you’re motivated, implement a new provider by subclassing <a href="https://github.com/posit-dev/chatlas/blob/main/chatlas/_provider.py"><code>Provider</code></a> and implementing the required methods.</li>
+</ol>
 </section>
 <section id="model-choice" class="level2">
 <h2 class="anchored" data-anchor-id="model-choice">Model choice</h2>
@@ -247,29 +257,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  model <span class="op">=</span> <span class="st">"gpt-4o"</span>,</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  system_prompt <span class="op">=</span> <span class="st">"You are a friendly but terse assistant."</span>,</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Chat objects are stateful: they retain the context of the conversation, so each new query can build on the previous ones. This is true regardless of which of the various ways of chatting you use.</p>
 <section id="interactive-console" class="level3">
 <h3 class="anchored" data-anchor-id="interactive-console">Interactive console</h3>
-<p>From a <code>chat</code> instance, you can start an interactive, multi-turn, conversation in the console (via <code>.console()</code>) or in a browser (via <code>.app()</code>).</p>
+<p>From a <code>chat</code> instance, it’s simple to start a web-based or terminal-based chat console, which is great for interactive testing. In either case, responses stream in real-time, and context is preserved across turns.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>chat.console()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>Entering chat console. Press Ctrl+C to quit.
 
 ?&gt; Who created Python?
 
-Python was created by Guido van Rossum. He began development in the late 1980s and released the first     
-version in 1991. 
+Python was created by Guido van Rossum. He began development in the late 1980s and released the first version in 1991. 
 
 ?&gt; Where did he develop it?
 
-Guido van Rossum developed Python while working at Centrum Wiskunde &amp; Informatica (CWI) in the            
-Netherlands.     </code></pre>
-<p>The chat console is useful for quickly exploring the capabilities of the model, especially when you’ve customized the chat object with tool integrations (covered later).</p>
-<p>The chat app is similar to the chat console, but it runs in your browser. It’s useful if you need more interactive capabilities like easy copy-paste:</p>
+Guido van Rossum developed Python while working at Centrum Wiskunde &amp; Informatica (CWI) in the Netherlands.     </code></pre>
+<p>Use <code>.app()</code> over <code>.console()</code> if you prefer a more interactive interface:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>chat.app()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div style="display:flex;justify-content:center;">
 <p><img width="667" alt="A web app for chatting with an LLM via chatlas" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="border rounded"></p>
 </div>
-<p>Keep in mind that the <code>chat</code> object retains state, so when you enter the console or app, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist after you exit back to the Python prompt. This is true regardless of which of the various chat methods you use to submit queries.</p>
 </section>
 <section id="the-.chat-method" class="level3">
 <h3 class="anchored" data-anchor-id="the-.chat-method">The <code>.chat()</code> method</h3>
@@ -277,7 +282,7 @@ Netherlands.     </code></pre>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What preceding languages most influenced Python?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>Python was primarily influenced by ABC, with additional inspiration from C,
 Modula-3, and various other languages.</code></pre>
-<p>If you want to ask a question about an image, you can pass one or more additional input arguments using <code>content_image_file()</code> and/or <code>content_image_url()</code>:</p>
+<p>To ask a question about an image, pass one or more additional input arguments using <code>content_image_file()</code> and/or <code>content_image_url()</code>:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> content_image_url</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>chat.chat(</span>
@@ -289,7 +294,7 @@ representing the Python programming language. The design symbolizes...</code></p
 <p>To get the full response as a string, use the built-in <code>str()</code> function. Optionally, you can also suppress the rich console output by setting <code>echo="none"</code>:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> chat.chat(<span class="st">"Who is Posit?"</span>, echo<span class="op">=</span><span class="st">"none"</span>)</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">str</span>(response))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>As we’ll cover in later articles, <code>echo="all"</code> can also be useful for debugging, as it shows additional information, such as tool calls.</p>
+<p>As we’ll see in later articles, <code>echo="all"</code> can also be useful for debugging, as it shows additional information, such as tool calls.</p>
 </section>
 <section id="the-.stream-method" class="level3">
 <h3 class="anchored" data-anchor-id="the-.stream-method">The <code>.stream()</code> method</h3>
@@ -297,28 +302,81 @@ representing the Python programming language. The design symbolizes...</code></p
 <div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>response <span class="op">=</span> chat.stream(<span class="st">"Who is Posit?"</span>)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> chunk <span class="kw">in</span> response:</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(chunk, end<span class="op">=</span><span class="st">""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The <code>.stream()</code> method can also be useful if you’re building a chatbot or other interactive applications that needs to display responses as they arrive.</p>
+<p>The <code>.stream()</code> method can also be useful if you’re <a href="https://posit-dev.github.io/chatlas/web-apps.html">building a chatbot</a> or other programs that needs to display responses as they arrive.</p>
 </section>
-<section id="conversation-history" class="level3">
-<h3 class="anchored" data-anchor-id="conversation-history">Conversation history</h3>
-<p>Remember that regardless of how we interact with the model, the <code>chat</code> instance retains the conversation history, which you can access at any time:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>chat.turns()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Each turn represents a either a user’s input or a model’s response. It holds all the avaliable information about content and metadata of the turn. This can be useful for debugging, logging, or for building more complex conversational interfaces.</p>
-<p>For cost and efficiency reasons, you may want to alter the conversation history. Currently, the main way to do this is to <code>.set_turns()</code>:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove all but the last two turns</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>chat.set_turns(chat.turns()[<span class="op">-</span><span class="dv">2</span>:])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="tool-calling" class="level3">
+<h3 class="anchored" data-anchor-id="tool-calling">Tool calling</h3>
+<p>Tool calling is as simple as passing a function with type hints and docstring to <code>.register_tool()</code>.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_current_python_version() <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Get the current version of Python."""</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> sys.version</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>chat.register_tool(get_current_python_version)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What's the current version of Python?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>The current version of Python is 3.13.</code></pre>
+<p>Learn more in the <a href="https://posit-dev.github.io/chatlas/tool-calling.html">tool calling article</a></p>
 </section>
-<section id="learn-more" class="level3">
-<h3 class="anchored" data-anchor-id="learn-more">Learn more</h3>
+<section id="structured-data" class="level3">
+<h3 class="anchored" data-anchor-id="structured-data">Structured data</h3>
+<p>Structured data (i.e., structured output) is as simple as passing a <a href="https://docs.pydantic.dev/latest/">pydantic</a> model to <code>.extract_data()</code>.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person(BaseModel):</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    age: <span class="bu">int</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>chat.extract_data(</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"My name is Susan and I'm 13 years old"</span>, </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    data_model<span class="op">=</span>Person,</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>{'name': 'Susan', 'age': 13}</code></pre>
+<p>Learn more in the <a href="https://posit-dev.github.io/chatlas/structured-data.html">structured data article</a></p>
+</section>
+<section id="export-chat" class="level3">
+<h3 class="anchored" data-anchor-id="export-chat">Export chat</h3>
+<p>Easily get a full markdown or HTML export of a conversation:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>chat.export(<span class="st">"index.html"</span>, title<span class="op">=</span><span class="st">"Python Q&amp;A"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If the export doesn’t have all the information you need, you can also access the full conversation history via the <code>.turns()</code> method:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>chat.turns()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And, if the conversation is too long, you can specify which turns to include:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>chat.export(<span class="st">"index.html"</span>, turns<span class="op">=</span>chat.turns()[<span class="op">-</span><span class="dv">5</span>:])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="async" class="level3">
+<h3 class="anchored" data-anchor-id="async">Async</h3>
+<p><code>chat</code> methods tend to be synchronous by default, but you can use the async flavor by appending <code>_async</code> to the method name:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> main():</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.chat_async(<span class="st">"What is the capital of France?"</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>asyncio.run(main())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="typing-support" class="level3">
+<h3 class="anchored" data-anchor-id="typing-support">Typing support</h3>
+<p><code>chatlas</code> has full typing support, meaning that, among other things, autocompletion just works in your favorite editor:</p>
+<div style="display:flex;justify-content:center;">
+<p><img width="667" alt="Autocompleting model options in ChatOpenAI" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="rounded"></p>
+</div>
+</section>
+<section id="troubleshooting" class="level3">
+<h3 class="anchored" data-anchor-id="troubleshooting">Troubleshooting</h3>
+<p>Sometimes things like token limits, tool errors, or other issues can cause problems that are hard to diagnose. In these cases, the <code>echo="all"</code> option is helpful for getting more information about what’s going on under the hood.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is the capital of France?"</span>, echo<span class="op">=</span><span class="st">"all"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This shows important information like tool call results, finish reasons, and more.</p>
+<p>If the problem isn’t self-evident, you can also reach into the <code>.last_turn()</code>, which contains the full response object, with full details about the completion.</p>
+<div style="display:flex;justify-content:center;">
+<p><img width="667" alt="Turn completion details with typing support" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="rounded"></p>
+</div>
+<p>Also, since <code>chatlas</code> builds on top of packages like <code>anthropic</code> and <code>openai</code>, you can also enable their debug logging to get even more detailed information about what’s going on under the hood:</p>
+<pre class="shell"><code>$ export ANTHROPIC_LOG=info
+$ export OPENAI_LOG=info</code></pre>
+</section>
+<section id="next-steps" class="level3">
+<h3 class="anchored" data-anchor-id="next-steps">Next steps</h3>
 <p>If you’re new to world LLMs, you might want to read the <a href="https://posit-dev.github.io/chatlas/get-started.html">Get Started</a> guide, which covers some basic concepts and terminology.</p>
-<p>Once you’re comfortable with the basics, you can explore more advanced topics:</p>
-<ul>
-<li><a href="https://posit-dev.github.io/chatlas/prompt-design.html">Customize the system prompt</a></li>
-<li><a href="https://posit-dev.github.io/chatlas/structured-data.html">Extract structured data</a></li>
-<li><a href="https://posit-dev.github.io/chatlas/tool-calling.html">Tool (function) calling</a></li>
-<li><a href="https://posit-dev.github.io/chatlas/web-apps.html">Build a web chat app</a></li>
-</ul>
-<p>The <a href="https://posit-dev.github.io/chatlas/reference/index.html">API reference</a> is also a useful overview of all the tooling available in <code>chatlas</code>, including starting examples and detailed descriptions.</p>
+<p>Once you’re comfortable with the basics, you can explore more in-depth topics like <a href="https://posit-dev.github.io/chatlas/prompt-design.html">prompt design</a> or the <a href="https://posit-dev.github.io/chatlas/reference/index.html">API reference</a>.</p>
 
 
 </section>
