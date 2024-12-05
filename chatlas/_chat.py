@@ -227,8 +227,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 user_input = chat.user_input()
                 if user_input is None:
                     return
-                response = self.chat(user_input, kwargs=kwargs, stream=stream)
-                await chat.append_message_stream(response)
+                if stream:
+                    await chat.append_message_stream(self.stream(user_input, kwargs=kwargs))
+                else:
+                    await chat.append_message(str(self.chat(user_input, kwargs=kwargs)))
 
         run_app(
             App(app_ui, server),
