@@ -33,6 +33,7 @@
   '''
 # ---
 # name: test_basic_repr
+  '''
   <Chat turns=3 tokens=20>
     <Turn role='system'>
       <ContentText text='You're a helpful assistant that returns very minim...'>
@@ -43,7 +44,8 @@
     <Turn role='assistant' tokens=(15, 5)>
       <ContentText text='2  3'>
   
-
+  
+  '''
 # ---
 # name: test_basic_str
   '''

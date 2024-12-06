@@ -2,8 +2,9 @@ import re
 import tempfile
 
 import pytest
-from chatlas import ChatOpenAI, Turn
 from pydantic import BaseModel
+
+from chatlas import ChatOpenAI, Turn
 
 
 def test_simple_batch_chat():
@@ -62,7 +63,7 @@ def test_basic_repr(snapshot):
             Turn("assistant", "2  3", tokens=(15, 5)),
         ],
     )
-    assert snapshot == chat
+    assert snapshot == repr(chat)
 
 
 def test_basic_str(snapshot):
