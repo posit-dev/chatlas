@@ -209,7 +209,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="chatlas" class="level1">
 <h1>chatlas</h1>
-<p>chatlas provides a simple and unified interface across large language model (llm) providers in Python. This interface abstracts away complexity from common tasks like streaming chat interfaces, tool calling, structured output, and much more. With chatlas, switching providers is as simple as changing a single line of code, but you can also access advanced, provider specific, features when needed. Developer experience is also a key focus of chatlas: typing support, rich console output, and built-in tooling are all included.</p>
+<p>chatlas provides a simple and unified interface across large language model (llm) providers in Python. It abstracts away complexity from common tasks like streaming chat interfaces, tool calling, structured output, and much more. chatlas helps you prototype faster without painting you into a corner; for example, switching providers is as easy as changing one line of code, but provider specific features are still accessible when needed. Developer experience is also a key focus of chatlas: typing support, rich console output, and built-in tooling are all included.</p>
 <p>(Looking for something similar to chatlas, but in R? Check out <a href="https://elmer.tidyverse.org/">elmer</a>!)</p>
 <section id="install" class="level2">
 <h2 class="anchored" data-anchor-id="install">Install</h2>
@@ -243,7 +243,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="model-choice">Model choice</h2>
 <p>If you’re using chatlas inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g.&nbsp;<code>ChatAzureOpenAI()</code> and <code>ChatBedrockAnthropic()</code>). If you’re using chatlas for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:</p>
 <ul>
-<li><p><code>ChatOpenAI()</code> or <code>ChatAnthropic()</code> are both good places to start. <code>ChatOpenAI()</code> defaults to <strong>GPT-4o</strong>, but you can use <code>model = "gpt-4o-mini"</code> for a cheaper lower-quality model, or <code>model = "o1-mini"</code> for more complex reasoning. <code>ChatAnthropic()</code> is similarly good; it defaults to <strong>Claude 3.5 Sonnet</strong> which we have found to be particularly code at writing code.</p></li>
+<li><p><code>ChatOpenAI()</code> or <code>ChatAnthropic()</code> are both good places to start. <code>ChatOpenAI()</code> defaults to <strong>GPT-4o</strong>, but you can use <code>model = "gpt-4o-mini"</code> for a cheaper lower-quality model, or <code>model = "o1-mini"</code> for more complex reasoning. <code>ChatAnthropic()</code> is similarly good; it defaults to <strong>Claude 3.5 Sonnet</strong> which we have found to be particularly good at writing code.</p></li>
 <li><p><code>ChatGoogle()</code> is great for large prompts, because it has a much larger context window than other models. It allows up to 1 million tokens, compared to Claude 3.5 Sonnet’s 200k and GPT-4o’s 128k.</p></li>
 <li><p><code>ChatOllama()</code>, which uses <a href="https://ollama.com">Ollama</a>, allows you to run models on your own computer. The biggest models you can run locally aren’t as good as the state of the art hosted models, but they also don’t share your data and and are effectively free.</p></li>
 </ul>
@@ -259,8 +259,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <section id="interactive-console" class="level3">
 <h3 class="anchored" data-anchor-id="interactive-console">Interactive console</h3>
-<p>From a <code>chat</code> instance, it’s simple to start a web-based or terminal-based chat console, which is great for interactive testing. In either case, responses stream in real-time, and context is preserved across turns.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>chat.console()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>From a <code>chat</code> instance, it’s simple to start a web-based or terminal-based chat console, which is great for testing the capabilities of the model. In either case, responses stream in real-time, and context is preserved across turns.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>chat.app()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div style="display:flex;justify-content:center;">
+<p><img width="500" alt="A web app for chatting with an LLM via chatlas" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="border rounded"></p>
+</div>
+<p>Or, if you prefer to work from the terminal:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>chat.console()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>Entering chat console. Press Ctrl+C to quit.
 
 ?&gt; Who created Python?
@@ -270,11 +275,6 @@ Python was created by Guido van Rossum. He began development in the late 1980s a
 ?&gt; Where did he develop it?
 
 Guido van Rossum developed Python while working at Centrum Wiskunde &amp; Informatica (CWI) in the Netherlands.     </code></pre>
-<p>Use <code>.app()</code> over <code>.console()</code> if you prefer a more interactive interface:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>chat.app()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div style="display:flex;justify-content:center;">
-<p><img width="667" alt="A web app for chatting with an LLM via chatlas" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="border rounded"></p>
-</div>
 </section>
 <section id="the-.chat-method" class="level3">
 <h3 class="anchored" data-anchor-id="the-.chat-method">The <code>.chat()</code> method</h3>
@@ -357,7 +357,7 @@ representing the Python programming language. The design symbolizes...</code></p
 <h3 class="anchored" data-anchor-id="typing-support">Typing support</h3>
 <p><code>chatlas</code> has full typing support, meaning that, among other things, autocompletion just works in your favorite editor:</p>
 <div style="display:flex;justify-content:center;">
-<p><img width="667" alt="Autocompleting model options in ChatOpenAI" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="rounded"></p>
+<p><img width="500" alt="Autocompleting model options in ChatOpenAI" src="https://github.com/user-attachments/assets/163d6d8a-7d58-422d-b3af-cc9f2adee759" class="rounded"></p>
 </div>
 </section>
 <section id="troubleshooting" class="level3">
@@ -367,7 +367,7 @@ representing the Python programming language. The design symbolizes...</code></p
 <p>This shows important information like tool call results, finish reasons, and more.</p>
 <p>If the problem isn’t self-evident, you can also reach into the <code>.last_turn()</code>, which contains the full response object, with full details about the completion.</p>
 <div style="display:flex;justify-content:center;">
-<p><img width="667" alt="Turn completion details with typing support" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="rounded"></p>
+<p><img width="500" alt="Turn completion details with typing support" src="https://github.com/user-attachments/assets/eaea338d-e44a-4e23-84a7-2e998d8af3ba" class="rounded"></p>
 </div>
 <p>Also, since <code>chatlas</code> builds on top of packages like <code>anthropic</code> and <code>openai</code>, you can also enable their debug logging to get even more detailed information about what’s going on under the hood:</p>
 <pre class="shell"><code>$ export ANTHROPIC_LOG=info
