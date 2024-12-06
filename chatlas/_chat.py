@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-from contextlib import contextmanager
 from pathlib import Path
 from threading import Thread
 from typing import (
@@ -18,10 +17,8 @@ from typing import (
     Sequence,
     TypeVar,
 )
-from uuid import uuid4
 
 from pydantic import BaseModel
-from rich.live import Live
 
 from ._content import (
     Content,
@@ -29,6 +26,13 @@ from ._content import (
     ContentText,
     ContentToolRequest,
     ContentToolResult,
+)
+from ._display import (
+    EchoOptions,
+    IPyMarkdownDisplay,
+    LiveMarkdownDisplay,
+    MarkdownDisplay,
+    MockMarkdownDisplay,
 )
 from ._provider import Provider
 from ._tools import Tool
@@ -251,7 +255,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             console = Console()
             bg_thread = console.is_jupyter or (os.getenv("POSITRON") == "1")
 
-
         if bg_thread:
             thread = Thread(target=_run_app, daemon=True)
             thread.start()
@@ -330,17 +333,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         turn = user_turn(*args)
 
+        display = self._markdown_display(echo=echo)
+
         response = ChatResponse(
             self._chat_impl(
                 turn,
                 echo=echo,
+                display=display,
                 stream=stream,
                 kwargs=kwargs,
             )
         )
 
-        for _ in response:
-            pass
+        with display:
+            for _ in response:
+                pass
 
         return response
 
@@ -376,17 +383,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         turn = user_turn(*args)
 
+        display = self._markdown_display(echo=echo)
+
         response = ChatResponseAsync(
             self._chat_impl_async(
                 turn,
                 echo=echo,
+                display=display,
                 stream=stream,
                 kwargs=kwargs,
             ),
         )
 
-        async for _ in response:
-            pass
+        with display:
+            async for _ in response:
+                pass
 
         return response
 
@@ -417,14 +428,23 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             consume the response.
         """
         turn = user_turn(*args)
-        return ChatResponse(
-            self._chat_impl(
-                turn,
-                stream=True,
-                echo=echo,
-                kwargs=kwargs,
-            ),
+
+        display = self._markdown_display(echo=echo)
+
+        generator = self._chat_impl(
+            turn,
+            stream=True,
+            display=display,
+            echo=echo,
+            kwargs=kwargs,
         )
+
+        def wrapper() -> Generator[str, None, None]:
+            with display:
+                for chunk in generator:
+                    yield chunk
+
+        return ChatResponse(wrapper())
 
     async def stream_async(
         self,
@@ -453,14 +473,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             consume the response.
         """
         turn = user_turn(*args)
-        return ChatResponseAsync(
-            self._chat_impl_async(
-                turn,
-                stream=True,
-                echo=echo,
-                kwargs=kwargs,
-            ),
-        )
+
+        display = self._markdown_display(echo=echo)
+
+        async def wrapper() -> AsyncGenerator[str, None]:
+            with display:
+                async for chunk in self._chat_impl_async(
+                    turn,
+                    stream=True,
+                    display=display,
+                    echo=echo,
+                    kwargs=kwargs,
+                ):
+                    yield chunk
+
+        return ChatResponseAsync(wrapper())
 
     def extract_data(
         self,
@@ -489,19 +516,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             The extracted data.
         """
 
-        with self._display_context() as display:
-            response = ChatResponse(
-                self._submit_turns(
-                    user_turn(*args),
-                    data_model=data_model,
-                    echo=echo,
-                    display=display,
-                    stream=stream,
-                )
-            )
+        display = self._markdown_display(echo=echo)
 
-        for _ in response:
-            pass
+        response = ChatResponse(
+            self._submit_turns(
+                user_turn(*args),
+                data_model=data_model,
+                echo=echo,
+                display=display,
+                stream=stream,
+            )
+        )
+
+        with display:
+            for _ in response:
+                pass
 
         turn = self.last_turn()
         assert turn is not None
@@ -547,19 +576,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             The extracted data.
         """
 
-        with self._display_context() as display:
-            response = ChatResponseAsync(
-                self._submit_turns_async(
-                    user_turn(*args),
-                    data_model=data_model,
-                    echo=echo,
-                    display=display,
-                    stream=stream,
-                )
-            )
+        display = self._markdown_display(echo=echo)
 
-        async for _ in response:
-            pass
+        response = ChatResponseAsync(
+            self._submit_turns_async(
+                user_turn(*args),
+                data_model=data_model,
+                echo=echo,
+                display=display,
+                stream=stream,
+            )
+        )
+
+        with display:
+            async for _ in response:
+                pass
 
         turn = self.last_turn()
         assert turn is not None
@@ -786,49 +817,47 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         user_turn: Turn,
         echo: Literal["text", "all", "none"],
+        display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]:
         user_turn_result: Turn | None = user_turn
-
-        with self._display_context() as display:
-            while user_turn_result is not None:
-                for chunk in self._submit_turns(
-                    user_turn_result,
-                    echo=echo,
-                    display=display,
-                    stream=stream,
-                    kwargs=kwargs,
-                ):
-                    yield chunk
-                user_turn_result = self._invoke_tools()
+        while user_turn_result is not None:
+            for chunk in self._submit_turns(
+                user_turn_result,
+                echo=echo,
+                display=display,
+                stream=stream,
+                kwargs=kwargs,
+            ):
+                yield chunk
+            user_turn_result = self._invoke_tools()
 
     async def _chat_impl_async(
         self,
         user_turn: Turn,
         echo: Literal["text", "all", "none"],
+        display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
         user_turn_result: Turn | None = user_turn
-
-        with self._display_context() as display:
-            while user_turn_result is not None:
-                async for chunk in self._submit_turns_async(
-                    user_turn_result,
-                    echo=echo,
-                    display=display,
-                    stream=stream,
-                    kwargs=kwargs,
-                ):
-                    yield chunk
-                user_turn_result = await self._invoke_tools_async()
+        while user_turn_result is not None:
+            async for chunk in self._submit_turns_async(
+                user_turn_result,
+                echo=echo,
+                display=display,
+                stream=stream,
+                kwargs=kwargs,
+            ):
+                yield chunk
+            user_turn_result = await self._invoke_tools_async()
 
     def _submit_turns(
         self,
         user_turn: Turn,
         echo: Literal["text", "all", "none"],
-        display: LiveMarkdownDisplay | IPyMarkdownDisplay,
+        display: MarkdownDisplay,
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
@@ -836,7 +865,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if any(x._is_async for x in self.tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
-        emit = emitter(echo, display)
+        def emit(text: str | Content):
+            display.update(str(text))
+
+        emit("<br>\n\n")
 
         if echo == "all":
             emit_user_contents(user_turn, emit)
@@ -892,12 +924,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         user_turn: Turn,
         echo: Literal["text", "all", "none"],
-        display: LiveMarkdownDisplay | IPyMarkdownDisplay,
+        display: MarkdownDisplay,
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
-        emit = emitter(echo, display)
+        def emit(text: str | Content):
+            display.update(str(text))
+
+        emit("<br>\n\n")
 
         if echo == "all":
             emit_user_contents(user_turn, emit)
@@ -1021,28 +1056,30 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         except Exception as e:
             return ContentToolResult(id_, None, str(e))
 
-    @contextmanager
-    def _display_context(
-        self,
-    ) -> Generator[LiveMarkdownDisplay | IPyMarkdownDisplay, None, None]:
+    def _markdown_display(
+        self, echo: Literal["text", "all", "none"]
+    ) -> MarkdownDisplay:
+        """
+        Get a markdown display object based on the echo option.
+
+        The idea here is to use rich for consoles and IPython.display.Markdown
+        for notebooks, since the latter is much more responsive to different
+        screen sizes.
+        """
+        if echo == "none":
+            return MockMarkdownDisplay()
+
+        # rich does a lot to detect a notebook environment, but it doesn't
+        # detect Quarto (at least not yet).
+        from rich.console import Console
+
+        is_web = Console().is_jupyter or os.getenv("QUARTO_PYTHON", None) is not None
+
         opts = self._echo_options
-        display = LiveMarkdownDisplay(opts)
-
-        # rich seems to be pretty good at detecting a (Jupyter) notebook
-        # context, so utilize that, but use IPython.display.Markdown instead if
-        # we're in a notebook (or Quarto) since that's a much more responsive
-        # way to display markdown
-        is_web = (
-            display.live.console.is_jupyter
-            or os.getenv("QUARTO_PYTHON", None) is not None
-        )
-
         if is_web:
-            with IPyMarkdownDisplay(opts) as d:
-                yield d
+            return IPyMarkdownDisplay(opts)
         else:
-            with display:
-                yield display
+            return LiveMarkdownDisplay(opts)
 
     def set_echo_options(
         self,
@@ -1192,16 +1229,6 @@ class ChatResponseAsync:
 # ----------------------------------------------------------------------------
 
 
-def emitter(
-    echo: Literal["text", "all", "none"],
-    display: LiveMarkdownDisplay | IPyMarkdownDisplay,
-) -> Callable[[Content | str], None]:
-    if echo == "none":
-        return lambda _: None
-    else:
-        return lambda x: display.update(str(x))
-
-
 def emit_user_contents(
     x: Turn,
     emit: Callable[[Content | str], None],
@@ -1241,90 +1268,3 @@ def emit_other_contents(
     to_emit.reverse()
 
     emit("\n\n".join(to_emit))
-
-
-class LiveMarkdownDisplay:
-    def __init__(self, echo_options: EchoOptions):
-        from rich.console import Console
-
-        self.content: str = ""
-        self.live = Live(
-            auto_refresh=False,
-            vertical_overflow="visible",
-            console=Console(
-                **echo_options["rich_console"],
-            ),
-        )
-        self._markdown_options = echo_options["rich_markdown"]
-
-    def update(self, content: str):
-        from rich.markdown import Markdown
-
-        self.content += content
-        self.live.update(
-            Markdown(
-                self.content,
-                **self._markdown_options,
-            ),
-            refresh=True,
-        )
-
-    def __enter__(self):
-        self.live.__enter__()
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.content = ""
-        return self.live.__exit__(exc_type, exc_value, traceback)
-
-
-class IPyMarkdownDisplay:
-    def __init__(self, echo_options: EchoOptions):
-        self.content: str = ""
-        self._css_styles = echo_options["css_styles"]
-
-    def update(self, content: str):
-        from IPython.display import Markdown, update_display
-
-        self.content += content
-        update_display(
-            Markdown(self.content),
-            display_id=self._ipy_display_id,
-        )
-
-    def _init_display(self) -> str:
-        try:
-            from IPython.display import HTML, Markdown, display
-        except ImportError:
-            raise ImportError(
-                "The IPython package is required for displaying content in a Jupyter notebook. "
-                "Install it with `pip install ipython`."
-            )
-
-        if self._css_styles:
-            id_ = uuid4().hex
-            css = "".join(f"{k}: {v}; " for k, v in self._css_styles.items())
-            display(HTML(f"<style>#{id_} + .chatlas-markdown {{ {css} }}</style>"))
-            display(HTML(f"<div id='{id_}' class='chatlas-markdown'>"))
-        else:
-            # Unfortunately, there doesn't seem to be a proper way to wrap
-            # Markdown() in a div?
-            display(HTML("<div class='chatlas-markdown'>"))
-
-        handle = display(Markdown(""), display_id=True)
-        if handle is None:
-            raise ValueError("Failed to create display handle")
-        return handle.display_id
-
-    def __enter__(self):
-        self._ipy_display_id = self._init_display()
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self._ipy_display_id = None
-
-
-class EchoOptions(TypedDict):
-    rich_markdown: dict[str, Any]
-    rich_console: dict[str, Any]
-    css_styles: dict[str, str]
