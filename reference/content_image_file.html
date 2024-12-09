@@ -523,7 +523,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="chatlas.content_image_file" class="level1">
 <h1>content_image_file</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>content_image_file(path, content_type<span class="op">=</span><span class="st">'auto'</span>, resize<span class="op">=</span><span class="st">'low'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>content_image_file(path, content_type<span class="op">=</span><span class="st">'auto'</span>, resize<span class="op">=</span>MISSING)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Encode image content from a file for chat input.</p>
 <p>This function is used to prepare image files for input to the chatbot. It can handle various image formats and provides options for resizing.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
@@ -552,9 +552,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>resize</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['none', 'low', 'high']]</td>
-<td>Resizing option for the image. Can be: - <code>"none"</code>: No resizing - <code>"low"</code>: Resize to fit within 512x512 - <code>"high"</code>: Resize to fit within 2000x768 or 768x2000 - Custom string (e.g., <code>"200x200"</code>, <code>"300x200&gt;!"</code>, etc.)</td>
-<td><code>'low'</code></td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['low', 'high', 'none'], <a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="../reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a>]</td>
+<td>Resizing option for the image. Can be: - <code>"low"</code>: Resize to fit within 512x512 - <code>"high"</code>: Resize to fit within 2000x768 or 768x2000 - <code>"none"</code>: No resizing - Custom string (e.g., <code>"200x200"</code>, <code>"300x200&gt;!"</code>, etc.)</td>
+<td><code>MISSING</code></td>
 </tr>
 </tbody>
 </table>
