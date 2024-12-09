@@ -4,9 +4,11 @@ import base64
 import io
 import os
 import re
+import warnings
 from typing import Literal, Union, cast
 
 from ._content import ContentImageInline, ContentImageRemote, ImageContentTypes
+from ._utils import MISSING, MISSING_TYPE
 
 __all__ = (
     "content_image_url",
@@ -74,7 +76,7 @@ def content_image_url(
 def content_image_file(
     path: str,
     content_type: Literal["auto", ImageContentTypes] = "auto",
-    resize: Union[str, Literal["none", "low", "high"]] = "low",
+    resize: Union[Literal["low", "high", "none"], str, MISSING_TYPE] = MISSING,
 ) -> ContentImageInline:
     """
     Encode image content from a file for chat input.
@@ -91,9 +93,9 @@ def content_image_file(
         type is inferred from the file extension.
     resize
         Resizing option for the image. Can be:
-            - `"none"`: No resizing
             - `"low"`: Resize to fit within 512x512
             - `"high"`: Resize to fit within 2000x768 or 768x2000
+            - `"none"`: No resizing
             - Custom string (e.g., `"200x200"`, `"300x200>!"`, etc.)
 
     Returns
@@ -150,6 +152,17 @@ def content_image_file(
             )
 
         img = Image.open(path)
+
+        if isinstance(resize, MISSING_TYPE):
+            warnings.warn(
+                "The `resize` parameter is missing. Defaulting to `resize='low'`. "
+                "As a result, the image has likely lost quality before the model received it. "
+                "Set `resize='low'` to suppress this warning, `resize='high'` for higher quality, or "
+                "`resize='none'` to disable resizing.",
+                category=MissingResizeWarning,
+                stacklevel=2,
+            )
+            resize = "low"
 
         if resize == "low":
             img.thumbnail((512, 512))
@@ -253,3 +266,7 @@ def content_image_plot(
         return ContentImageInline("image/png", base64_data)
     finally:
         fig.set_size_inches(*size)
+
+
+class MissingResizeWarning(RuntimeWarning):
+    pass
