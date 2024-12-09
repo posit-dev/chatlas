@@ -1,0 +1,42 @@
+name: Test - Python
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "rc-*"]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  release:
+    types: [published]
+
+env:
+  UV_VERSION: "0.4.x"
+  PYTHON_VERSION: 3.13
+
+jobs:
+  check-types-updated:
+    name: Check provider types
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🚀 Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Install the project
+        run: uv sync --python ${{ env.PYTHON_VERSION }} --all-extras
+
+      - name: Run type update
+        run: make update-types
+
+      # Fail if there are changes under chatlas/types and throw a useful error message
+      - name: Check for changes
+        run: |
+          if [[ -n $(git diff chatlas/types) ]]; then
+            echo "::error::Types are out of date. Please run 'make update-types' and commit the changes."
+            exit 1
+          fi
