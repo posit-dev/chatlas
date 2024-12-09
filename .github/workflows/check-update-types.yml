@@ -24,11 +24,11 @@ jobs:
       - name: 🚀 Install uv
         uses: astral-sh/setup-uv@v3
 
-      - name: 🐍 Set up Python ${{ matrix.config.python-version }}
-        run: uv python install ${{matrix.config.python-version }}
+      - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
+        run: uv python install ${{ env.PYTHON_VERSION }}
 
       - name: 📦 Install the project
-        run: uv sync --python ${{ matrix.config.python-version }} --all-extras
+        run: uv sync --python ${{ env.PYTHON_VERSION }} --all-extras
 
       - name: Run type update
         run: make update-types
