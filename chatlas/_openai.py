@@ -21,7 +21,7 @@ from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
-from ._utils import MISSING, MISSING_TYPE, inform_model_default, is_testing
+from ._utils import MISSING, MISSING_TYPE, is_testing, log_model_default
 
 if TYPE_CHECKING:
     from openai.types.chat import (
@@ -164,7 +164,7 @@ def ChatOpenAI(
         seed = 1014 if is_testing() else None
 
     if model is None:
-        model = inform_model_default("gpt-4o")
+        model = log_model_default("gpt-4o")
 
     return Chat(
         provider=OpenAIProvider(

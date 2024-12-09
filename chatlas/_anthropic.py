@@ -20,7 +20,7 @@ from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
-from ._utils import inform_model_default
+from ._utils import log_model_default
 
 if TYPE_CHECKING:
     from anthropic.types import (
@@ -164,7 +164,7 @@ def ChatAnthropic(
     """
 
     if model is None:
-        model = inform_model_default("claude-3-5-sonnet-latest")
+        model = log_model_default("claude-3-5-sonnet-latest")
 
     return Chat(
         provider=AnthropicProvider(
@@ -583,7 +583,7 @@ def ChatBedrockAnthropic(
 
     if model is None:
         # Default model from https://github.com/anthropics/anthropic-sdk-python?tab=readme-ov-file#aws-bedrock
-        model = inform_model_default("anthropic.claude-3-5-sonnet-20241022-v2:0")
+        model = log_model_default("anthropic.claude-3-5-sonnet-20241022-v2:0")
 
     return Chat(
         provider=AnthropicBedrockProvider(

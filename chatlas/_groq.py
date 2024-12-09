@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional
 from ._chat import Chat
 from ._openai import ChatOpenAI
 from ._turn import Turn
-from ._utils import MISSING, MISSING_TYPE, inform_model_default
+from ._utils import MISSING, MISSING_TYPE, log_model_default
 
 if TYPE_CHECKING:
     from ._openai import ChatCompletion
@@ -127,7 +127,7 @@ def ChatGroq(
     ```
     """
     if model is None:
-        model = inform_model_default("llama3-8b-8192")
+        model = log_model_default("llama3-8b-8192")
     if api_key is None:
         api_key = os.getenv("GROQ_API_KEY")
 

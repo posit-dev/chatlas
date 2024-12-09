@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional
 from ._chat import Chat
 from ._openai import ChatOpenAI
 from ._turn import Turn
-from ._utils import MISSING, MISSING_TYPE, inform_model_default
+from ._utils import MISSING, MISSING_TYPE, log_model_default
 
 if TYPE_CHECKING:
     from ._openai import ChatCompletion
@@ -131,7 +131,7 @@ def ChatGithub(
     ```
     """
     if model is None:
-        model = inform_model_default("gpt-4o")
+        model = log_model_default("gpt-4o")
     if api_key is None:
         api_key = os.getenv("GITHUB_PAT")
 

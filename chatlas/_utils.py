@@ -2,14 +2,18 @@ from __future__ import annotations
 
 import functools
 import inspect
+import logging
 import os
 import re
-import warnings
 from typing import Awaitable, Callable, TypeVar, cast
 
 from ._typing_extensions import ParamSpec, TypeGuard
 
-# Copied from shiny/_utils.py
+logger = logging.getLogger("chatlas")
+
+# --------------------------------------------------------------------
+# wrap_async() and is_async_callable() was copied from shiny/_utils.py
+# --------------------------------------------------------------------
 
 R = TypeVar("R")  # Return type
 P = ParamSpec("P")
@@ -76,15 +80,14 @@ class MISSING_TYPE:
 MISSING = MISSING_TYPE()
 
 
-class DefaultModelWarning(Warning):
-    pass
-
-
-def inform_model_default(model: str, stacklevel: int = 3) -> str:
-    if not is_testing():
-        msg = f"Defaulting to `model = '{model}'`."
-        warnings.warn(msg, DefaultModelWarning, stacklevel=stacklevel)
+def log_model_default(model: str) -> str:
+    logger.info(f"Defaulting to `model = '{model}'`.")
     return model
+
+
+# --------------------------------------------------------------------
+# html_escape was copied from htmltools/_utils.py
+# --------------------------------------------------------------------
 
 
 HTML_ESCAPE_TABLE = {

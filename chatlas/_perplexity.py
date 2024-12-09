@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional
 from ._chat import Chat
 from ._openai import ChatOpenAI
 from ._turn import Turn
-from ._utils import MISSING, MISSING_TYPE, inform_model_default
+from ._utils import MISSING, MISSING_TYPE, log_model_default
 
 if TYPE_CHECKING:
     from ._openai import ChatCompletion
@@ -132,7 +132,7 @@ def ChatPerplexity(
     ```
     """
     if model is None:
-        model = inform_model_default("llama-3.1-sonar-small-128k-online")
+        model = log_model_default("llama-3.1-sonar-small-128k-online")
     if api_key is None:
         api_key = os.getenv("PERPLEXITY_API_KEY")
 
