@@ -178,7 +178,7 @@ def assert_images_inline(chat_fun: ChatFun, stream: bool = True):
         chat = chat_fun()
         response = chat.chat(
             "What's in this image?",
-            content_image_file(str(img_path)),
+            content_image_file(str(img_path), resize="low"),
             stream=stream,
         )
         assert "red" in str(response).lower()

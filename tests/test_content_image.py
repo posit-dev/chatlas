@@ -37,7 +37,7 @@ def test_can_create_image_from_path(tmp_path):
     path = tmp_path / "test.png"
     img.save(path)
 
-    obj = content_image_file(str(path))
+    obj = content_image_file(str(path), resize="low")
     assert isinstance(obj, ContentImageInline)
 
 
@@ -65,7 +65,8 @@ def test_image_resizing(tmp_path):
         content_image_file(str(tmp_path / "test.txt"))
 
     # Test valid resize options
-    assert content_image_file(str(img_path)) is not None
+    with pytest.warns(RuntimeWarning):
+        assert content_image_file(str(img_path)) is not None
     assert content_image_file(str(img_path), resize="low") is not None
     assert content_image_file(str(img_path), resize="high") is not None
     assert content_image_file(str(img_path), resize="none") is not None
