@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 from pydantic import BaseModel
@@ -474,11 +473,12 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                 try:
                     args = json.loads(func.arguments) if func.arguments else {}
                 except json.JSONDecodeError:
-                    warnings.warn(
+                    raise ValueError(
                         f"The model's completion included a tool request ({func.name}) "
-                        "with invalid JSON for input arguments: '{func.arguments}'",
-                        InvalidJSONParameterWarning,
-                        stacklevel=2,
+                        "with invalid JSON for input arguments: '{func.arguments}'"
+                        "This can happen if the model hallucinates parameters not defined by "
+                        "your function schema. Try revising your tool description and system "
+                        "prompt to be more specific about the expected input arguments to this function."
                     )
 
                 contents.append(
