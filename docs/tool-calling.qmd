@@ -27,7 +27,7 @@ chat = ChatOpenAI(model="gpt-4o")
 _ = chat.chat("How long ago exactly was the moment Neil Armstrong touched down on the moon?")
 ```
 
-Unfortunately, the LLM doesn't hallucinates the current date. Let's give the chat model the ability to determine the current time and try again.
+Unfortunately, the LLM hallucinates the current date. Let's give the chat model the ability to determine the current time and try again.
 
 ### Defining a tool function
 
