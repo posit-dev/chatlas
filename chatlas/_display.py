@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import Any
 from uuid import uuid4
@@ -66,10 +67,15 @@ class LiveMarkdownDisplay(MarkdownDisplay):
 
     def __enter__(self):
         self.live.__enter__()
-        # When logging is enabled, the RichHandler should be the second handler.
-        # That handler needs to know about the live console so it can add logs to it.
-        if len(logger.handlers) > 1 and isinstance(logger.handlers[1], RichHandler):
-            logger.handlers[1].console = self.live.console
+        # Live() isn't smart enough to know to automatically display logs when
+        # when they get handled while it Live() is active.
+        # However, if the logging handler is a RichHandler, it can be told
+        # about the live console so it can add logs to the top of the Live console.
+        handlers = [*logging.getLogger().handlers, *logger.handlers]
+        for h in handlers:
+            if isinstance(h, RichHandler):
+                h.console = self.live.console
+
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
