@@ -73,5 +73,5 @@ if prompt := st.chat_input():
     with st.chat_message("assistant"):
         st.write_stream(response)
 
-    st.session_state["turns"] = chat.turns()
+    st.session_state["turns"] = chat.get_turns()
 ```

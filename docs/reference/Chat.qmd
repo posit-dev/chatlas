@@ -32,7 +32,7 @@ You should generally not create this object yourself, but instead call
 | [console](#chatlas.Chat.console) | Enter a chat console to interact with the LLM. |
 | [extract_data](#chatlas.Chat.extract_data) | Extract structured data from the given input. |
 | [extract_data_async](#chatlas.Chat.extract_data_async) | Extract structured data from the given input asynchronously. |
-| [last_turn](#chatlas.Chat.last_turn) | Get the last turn in the chat with a specific role. |
+| [get_last_turn](#chatlas.Chat.get_last_turn) | Get the last turn in the chat with a specific role. |
 | [register_tool](#chatlas.Chat.register_tool) | Register a tool (function) with the chat. |
 | [set_turns](#chatlas.Chat.set_turns) | Set the turns of the chat. |
 | [tokens](#chatlas.Chat.tokens) | Get the tokens for each turn in the chat. |
@@ -158,7 +158,7 @@ Extract structured data from the given input asynchronously.
 |--------|-----------------------------------------------------|---------------------|
 |        | [dict](`dict`)\[[str](`str`), [Any](`typing.Any`)\] | The extracted data. |
 
-### last_turn { #chatlas.Chat.last_turn }
+### get_last_turn { #chatlas.Chat.get_last_turn }
 
 ```python
 Chat.get_last_turn(role='assistant')
@@ -284,7 +284,7 @@ Get the tokens for each turn in the chat.
 ### turns { #chatlas.Chat.turns }
 
 ```python
-Chat.turns(include_system_prompt=False)
+Chat.get_turns(include_system_prompt=False)
 ```
 
 Get all the turns (i.e., message contents) in the chat.

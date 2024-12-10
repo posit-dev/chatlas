@@ -94,7 +94,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "css_styles": {},
         }
 
-    def turns(
+    def get_turns(
         self,
         *,
         include_system_prompt: bool = False,
@@ -115,7 +115,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             return self._turns[1:]
         return self._turns
 
-    def last_turn(
+    def get_last_turn(
         self,
         *,
         role: Literal["assistant", "user", "system"] = "assistant",
@@ -158,7 +158,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @property
     def system_prompt(self) -> str | None:
         """
-        Get the system prompt for the chat.
+        A property to get (or set) the system prompt for the chat.
+
+        Returns
+        -------
+        str | None
+            The system prompt (if any).
         """
         if self._turns and self._turns[0].role == "system":
             return self._turns[0].text
@@ -228,7 +233,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             chat = ui.Chat(
                 "chat",
                 messages=[
-                    {"role": turn.role, "content": turn.text} for turn in self.turns()
+                    {"role": turn.role, "content": turn.text}
+                    for turn in self.get_turns()
                 ],
             )
 
@@ -533,7 +539,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             for _ in response:
                 pass
 
-        turn = self.last_turn()
+        turn = self.get_last_turn()
         assert turn is not None
 
         res: list[ContentJson] = []
@@ -593,7 +599,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             async for _ in response:
                 pass
 
-        turn = self.last_turn()
+        turn = self.get_last_turn()
         assert turn is not None
 
         res: list[ContentJson] = []
@@ -711,7 +717,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             The filename to export the chat to. Currently this must
             be a `.md` or `.html` file.
         turns
-            The `.turns()` to export. If not provided, the chat's current turns
+            The `.get_turns()` to export. If not provided, the chat's current turns
             will be used.
         title
             A title to place at the top of the exported file.
@@ -729,7 +735,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             The path to the exported file.
         """
         if not turns:
-            turns = self.turns(include_system_prompt=False)
+            turns = self.get_turns(include_system_prompt=False)
         if not turns:
             raise ValueError("No turns to export.")
 
@@ -986,7 +992,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self._turns.extend([user_turn, turn])
 
     def _invoke_tools(self) -> Turn | None:
-        turn = self.last_turn()
+        turn = self.get_last_turn()
         if turn is None:
             return None
 
@@ -1003,7 +1009,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return Turn("user", results)
 
     async def _invoke_tools_async(self) -> Turn | None:
-        turn = self.last_turn()
+        turn = self.get_last_turn()
         if turn is None:
             return None
 
@@ -1112,7 +1118,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         }
 
     def __str__(self):
-        turns = self.turns(include_system_prompt=False)
+        turns = self.get_turns(include_system_prompt=False)
         res = ""
         for turn in turns:
             icon = "👤" if turn.role == "user" else "🤖"
@@ -1120,7 +1126,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return res
 
     def __repr__(self):
-        turns = self.turns(include_system_prompt=True)
+        turns = self.get_turns(include_system_prompt=True)
         tokens = sum(sum(turn.tokens) for turn in turns if turn.tokens)
         res = f"<Chat turns={len(turns)} tokens={tokens}>"
         for turn in turns:

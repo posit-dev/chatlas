@@ -33,7 +33,7 @@ def test_simple_streaming_chat():
     result = "".join(chunks)
     rainbow_re = "^red *\norange *\nyellow *\ngreen *\nblue *\nindigo *\nviolet *\n?$"
     assert re.match(rainbow_re, result.lower())
-    turn = chat.last_turn()
+    turn = chat.get_last_turn()
     assert turn is not None
     assert re.match(rainbow_re, turn.text.lower())
 
@@ -50,7 +50,7 @@ async def test_simple_streaming_chat_async():
     result = "".join(chunks)
     rainbow_re = "^red *\norange *\nyellow *\ngreen *\nblue *\nindigo *\nviolet *\n?$"
     assert re.match(rainbow_re, result.lower())
-    turn = chat.last_turn()
+    turn = chat.get_last_turn()
     assert turn is not None
     assert re.match(rainbow_re, turn.text.lower())
 
@@ -119,24 +119,24 @@ async def test_extract_data_async():
 
 def test_last_turn_retrieval():
     chat = ChatOpenAI()
-    assert chat.last_turn(role="user") is None
-    assert chat.last_turn(role="assistant") is None
+    assert chat.get_last_turn(role="user") is None
+    assert chat.get_last_turn(role="assistant") is None
 
     chat.chat("Hi")
-    user_turn = chat.last_turn(role="user")
+    user_turn = chat.get_last_turn(role="user")
     assert user_turn is not None and user_turn.role == "user"
-    turn = chat.last_turn(role="assistant")
+    turn = chat.get_last_turn(role="assistant")
     assert turn is not None and turn.role == "assistant"
 
 
 def test_system_prompt_retrieval():
     chat1 = ChatOpenAI()
     assert chat1.system_prompt is None
-    assert chat1.last_turn(role="system") is None
+    assert chat1.get_last_turn(role="system") is None
 
     chat2 = ChatOpenAI(system_prompt="You are from New Zealand")
     assert chat2.system_prompt == "You are from New Zealand"
-    turn = chat2.last_turn(role="system")
+    turn = chat2.get_last_turn(role="system")
     assert turn is not None and turn.text == "You are from New Zealand"
 
 

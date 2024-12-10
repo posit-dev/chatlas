@@ -196,16 +196,16 @@ Easily get a full markdown or HTML export of a conversation:
 chat.export("index.html", title="Python Q&A")
 ```
 
-If the export doesn't have all the information you need, you can also access the full conversation history via the `.turns()` method:
+If the export doesn't have all the information you need, you can also access the full conversation history via the `.get_turns()` method:
 
 ```python
-chat.turns()
+chat.get_turns()
 ```
 
 And, if the conversation is too long, you can specify which turns to include:
 
 ```python
-chat.export("index.html", turns=chat.turns()[-5:])
+chat.export("index.html", turns=chat.get_turns()[-5:])
 ```
 
 ### Async
@@ -242,7 +242,7 @@ chat.chat("What is the capital of France?", echo="all")
 
 This shows important information like tool call results, finish reasons, and more.
 
-If the problem isn't self-evident, you can also reach into the `.last_turn()`, which contains the full response object, with full details about the completion.
+If the problem isn't self-evident, you can also reach into the `.get_last_turn()`, which contains the full response object, with full details about the completion.
 
 
 <div style="display:flex;justify-content:center;">

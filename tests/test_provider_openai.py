@@ -19,7 +19,7 @@ def test_openai_simple_request():
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
-    turn = chat.last_turn()
+    turn = chat.get_last_turn()
     assert turn is not None
     assert turn.tokens == (27, 1)
     assert turn.finish_reason == "stop"
@@ -34,7 +34,7 @@ async def test_openai_simple_streaming_request():
     async for x in await chat.stream_async("What is 1 + 1?"):
         res.append(x)
     assert "2" in "".join(res)
-    turn = chat.last_turn()
+    turn = chat.get_last_turn()
     assert turn is not None
     assert turn.finish_reason == "stop"
 
@@ -75,7 +75,7 @@ async def test_openai_logprobs():
     async for x in await chat.stream_async("Hi", kwargs={"logprobs": True}):
         pieces.append(x)
 
-    turn = chat.last_turn()
+    turn = chat.get_last_turn()
     assert turn is not None
     assert turn.completion is not None
     assert turn.completion.choices[0].logprobs is not None

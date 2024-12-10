@@ -2,7 +2,6 @@ import os
 import time
 
 import pytest
-
 from chatlas import ChatGoogle
 
 from .conftest import (
@@ -26,7 +25,7 @@ def test_google_simple_request():
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
-    turn = chat.last_turn()
+    turn = chat.get_last_turn()
     assert turn is not None
     assert turn.tokens == (17, 2)
     assert turn.finish_reason == "STOP"
@@ -41,7 +40,7 @@ async def test_google_simple_streaming_request():
     async for x in await chat.stream_async("What is 1 + 1?"):
         res.append(x)
     assert "2" in "".join(res)
-    turn = chat.last_turn()
+    turn = chat.get_last_turn()
     assert turn is not None
     assert turn.finish_reason == "STOP"
 
