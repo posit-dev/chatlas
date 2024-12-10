@@ -4,11 +4,13 @@ import os
 from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
+from ._logging import log_model_default
 from ._openai import ChatOpenAI
 from ._turn import Turn
-from ._utils import MISSING, MISSING_TYPE, inform_model_default
+from ._utils import MISSING, MISSING_TYPE
 
 if TYPE_CHECKING:
+    from ._openai import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
@@ -21,7 +23,7 @@ def ChatGithub(
     base_url: str = "https://models.inference.ai.azure.com/",
     seed: Optional[int] | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
     Chat with a model hosted on the GitHub model marketplace.
 
@@ -130,7 +132,7 @@ def ChatGithub(
     ```
     """
     if model is None:
-        model = inform_model_default("gpt-4o-mini")
+        model = log_model_default("gpt-4o")
     if api_key is None:
         api_key = os.getenv("GITHUB_PAT")
 

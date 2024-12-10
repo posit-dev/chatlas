@@ -32,12 +32,12 @@ website:
       - text: Articles
         menu: 
           - text: Prompt design
-            href: prompt-engineering.qmd
+            href: prompt-design.qmd
           - text: Structured data
             href: structured-data.qmd
           - text: Tool (function) calling
             href: tool-calling.qmd
-          - text: Web applications
+          - text: Build a chatbot
             href: web-apps.qmd
     right:
       - icon: github
@@ -77,6 +77,11 @@ quartodoc:
         - content_image_file
         - content_image_plot
         - content_image_url
+    - title: Prompt interpolation
+      desc: Interpolate variables into prompt templates
+      contents:
+        - interpolate
+        - interpolate_file
     - title: Tool calling
       desc: Add context to python function before registering it as a tool.
       contents:

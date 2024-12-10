@@ -1,12 +1,13 @@
 [project]
 name = "chatlas"
 description = "A simple and consistent interface for chatting with LLMs"
-version = "0.1.1.9002"
+dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-  "rich",
   "pydantic>=2.0",
+  "jinja2",
+  "rich",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -34,7 +35,8 @@ Changelog = "https://github.com/posit-dev/chatlas/blob/main/CHANGELOG.md"
 test = [
     "pyright>=1.1.379",
     "pytest>=8.3.2",
-    "pytest-asyncio"
+    "pytest-asyncio",
+    "syrupy>=4"
 ]
 dev = [
     "ruff>=0.6.5",
@@ -56,6 +58,7 @@ docs = [
     "nbformat",
     "pyyaml",
     # Articles require
+    "ipywidgets",
     "pandas",
 ]
 
@@ -66,8 +69,11 @@ dev-dependencies = [
 ]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
 
 [tool.hatch.build]
 skip-excluded-dirs = true

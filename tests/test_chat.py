@@ -1,8 +1,10 @@
 import re
+import tempfile
 
 import pytest
-from chatlas import ChatOpenAI, Turn
 from pydantic import BaseModel
+
+from chatlas import ChatOpenAI, Turn
 
 
 def test_simple_batch_chat():
@@ -53,7 +55,7 @@ async def test_simple_streaming_chat_async():
     assert re.match(rainbow_re, turn.text.lower())
 
 
-def test_basic_print_method():
+def test_basic_repr(snapshot):
     chat = ChatOpenAI(
         system_prompt="You're a helpful assistant that returns very minimal output",
         turns=[
@@ -61,10 +63,33 @@ def test_basic_print_method():
             Turn("assistant", "2  3", tokens=(15, 5)),
         ],
     )
-    out = repr(chat)
-    assert "You're a helpful assistant" in out
-    assert "What's 1 + 1? What's 1 + 2?" in out
-    assert "2  3" in out
+    assert snapshot == repr(chat)
+
+
+def test_basic_str(snapshot):
+    chat = ChatOpenAI(
+        system_prompt="You're a helpful assistant that returns very minimal output",
+        turns=[
+            Turn("user", "What's 1 + 1? What's 1 + 2?"),
+            Turn("assistant", "2  3", tokens=(15, 5)),
+        ],
+    )
+    assert snapshot == str(chat)
+
+
+def test_basic_export(snapshot):
+    chat = ChatOpenAI(
+        system_prompt="You're a helpful assistant that returns very minimal output",
+        turns=[
+            Turn("user", "What's 1 + 1? What's 1 + 2?"),
+            Turn("assistant", "2  3", tokens=(15, 5)),
+        ],
+    )
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpfile = tmpdir + "/chat.html"
+        chat.export(tmpfile, title="My Chat")
+        with open(tmpfile, "r") as f:
+            assert snapshot == f.read()
 
 
 def test_extract_data():

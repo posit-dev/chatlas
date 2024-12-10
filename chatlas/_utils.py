@@ -3,12 +3,14 @@ from __future__ import annotations
 import functools
 import inspect
 import os
-import warnings
+import re
 from typing import Awaitable, Callable, TypeVar, cast
 
 from ._typing_extensions import ParamSpec, TypeGuard
 
-# Copied from shiny/_utils.py
+# --------------------------------------------------------------------
+# wrap_async() and is_async_callable() was copied from shiny/_utils.py
+# --------------------------------------------------------------------
 
 R = TypeVar("R")  # Return type
 P = ParamSpec("P")
@@ -75,12 +77,30 @@ class MISSING_TYPE:
 MISSING = MISSING_TYPE()
 
 
-class DefaultModelWarning(Warning):
-    pass
+# --------------------------------------------------------------------
+# html_escape was copied from htmltools/_utils.py
+# --------------------------------------------------------------------
 
 
-def inform_model_default(model: str, stacklevel: int = 3) -> str:
-    if not is_testing():
-        msg = f"Defaulting to `model = '{model}'`."
-        warnings.warn(msg, DefaultModelWarning, stacklevel=stacklevel)
-    return model
+HTML_ESCAPE_TABLE = {
+    "&": "&amp;",
+    ">": "&gt;",
+    "<": "&lt;",
+}
+
+HTML_ATTRS_ESCAPE_TABLE = {
+    **HTML_ESCAPE_TABLE,
+    '"': "&quot;",
+    "'": "&apos;",
+    "\r": "&#13;",
+    "\n": "&#10;",
+}
+
+
+def html_escape(text: str, attr: bool = True) -> str:
+    table = HTML_ATTRS_ESCAPE_TABLE if attr else HTML_ESCAPE_TABLE
+    if not re.search("|".join(table), text):
+        return text
+    for key, value in table.items():
+        text = text.replace(key, value)
+    return text

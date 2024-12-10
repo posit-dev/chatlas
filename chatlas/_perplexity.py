@@ -4,11 +4,13 @@ import os
 from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
+from ._logging import log_model_default
 from ._openai import ChatOpenAI
 from ._turn import Turn
-from ._utils import MISSING, MISSING_TYPE, inform_model_default
+from ._utils import MISSING, MISSING_TYPE
 
 if TYPE_CHECKING:
+    from ._openai import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
@@ -21,7 +23,7 @@ def ChatPerplexity(
     base_url: str = "https://api.perplexity.ai/",
     seed: Optional[int] | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
     Chat with a model hosted on perplexity.ai.
 
@@ -131,7 +133,7 @@ def ChatPerplexity(
     ```
     """
     if model is None:
-        model = inform_model_default("llama-3.1-sonar-small-128k-online")
+        model = log_model_default("llama-3.1-sonar-small-128k-online")
     if api_key is None:
         api_key = os.getenv("PERPLEXITY_API_KEY")
 

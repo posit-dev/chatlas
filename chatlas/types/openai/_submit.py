@@ -6,7 +6,6 @@
 from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
 
 import openai
-import openai._types
 import openai.types.chat.chat_completion_assistant_message_param
 import openai.types.chat.chat_completion_audio_param
 import openai.types.chat.chat_completion_function_call_option_param
@@ -42,6 +41,7 @@ class SubmitInputArgs(TypedDict, total=False):
             "o1-mini",
             "o1-mini-2024-09-12",
             "gpt-4o",
+            "gpt-4o-2024-11-20",
             "gpt-4o-2024-08-06",
             "gpt-4o-2024-05-13",
             "gpt-4o-realtime-preview",
@@ -129,7 +129,7 @@ class SubmitInputArgs(TypedDict, total=False):
     top_logprobs: Union[int, None, openai.NotGiven]
     top_p: Union[float, None, openai.NotGiven]
     user: str | openai.NotGiven
-    extra_headers: Optional[Mapping[str, Union[str, openai._types.Omit]]]
+    extra_headers: Optional[Mapping[str, Union[str, openai.Omit]]]
     extra_query: Optional[Mapping[str, object]]
     extra_body: object | None
     timeout: float | openai.Timeout | None | openai.NotGiven

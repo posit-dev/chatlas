@@ -161,7 +161,7 @@ Extract structured data from the given input asynchronously.
 ### last_turn { #chatlas.Chat.last_turn }
 
 ```python
-Chat.last_turn(role='assistant')
+Chat.get_last_turn(role='assistant')
 ```
 
 Get the last turn in the chat with a specific role.
@@ -284,7 +284,7 @@ Get the tokens for each turn in the chat.
 ### turns { #chatlas.Chat.turns }
 
 ```python
-Chat.turns(include_system_prompt=False)
+Chat.get_turns(include_system_prompt=False)
 ```
 
 Get all the turns (i.e., message contents) in the chat.

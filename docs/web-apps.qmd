@@ -11,25 +11,67 @@ This is a great way to quickly test your model, but you'll likely want to embed 
 
 ## Shiny
 
-Pass the result of `.chat()` directly to Shiny's [`ui.Chat` component](https://shiny.posit.co/py/components/display-messages/chat/) to create a chat interface in your own [Shiny](https://shiny.rstudio.com/py) app.
+Using Shiny's [`ui.Chat` component](https://shiny.posit.co/py/components/display-messages/chat/), you can simply pass user input from the component into the `chat.stream()` method. This generate a response stream that can then be passed to `.append_message_stream()`.
 
 ```python
 from chatlas import ChatAnthropic
-from shiny import ui
+from shiny.express import ui
 
-chat = ui.Chat(
-  id="chat", 
-  messages=["Hi! How can I help you today?"],
+chat_ui = ui.Chat(
+    id="ui_chat",
+    messages=["Hi! How can I help you today?"],
 )
+chat_ui.ui()
 
-chat_model = ChatAnthropic()
+chat = ChatAnthropic()
 
-@chat.on_user_submit
-def _():
-    response = chat_model.stream(chat.user_input())
-    chat.append_message_stream(response)
+@chat_ui.on_user_submit
+async def _():
+    response = chat.stream(chat_ui.user_input())
+    await chat_ui.append_message_stream(response)
 ```
 
 ## Streamlit
 
-Coming soon
+Streamlit is a popular Python library for building web apps. You can use the `st.chat_input()` and `st.chat_message()` methods to create a chat interface. Here's an example of how you can use Chatlas with Streamlit:
+
+
+```python
+import streamlit as st
+from chatlas import ChatOpenAI, Turn
+
+with st.sidebar:
+    openai_api_key = st.text_input(
+        "OpenAI API Key", key="chatbot_api_key", type="password"
+    )
+    "[Get an OpenAI API key](https://platform.openai.com/account/api-keys)"
+    "[View the source code](https://github.com/streamlit/llm-examples/blob/main/Chatbot.py)"
+
+st.title("💬 Chatbot")
+
+if "turns" not in st.session_state:
+    st.session_state["turns"] = [
+        Turn(role="assistant", contents="How can I help you?"),
+    ]
+
+turns: list[Turn] = st.session_state.turns
+
+for turn in turns:
+    st.chat_message(turn.role).write(turn.text)
+
+
+if prompt := st.chat_input():
+    if not openai_api_key:
+        st.info("Please add your OpenAI API key to continue.")
+        st.stop()
+
+    st.chat_message("user").write(prompt)
+
+    chat = ChatOpenAI(api_key=openai_api_key, turns=turns)
+    response = chat.stream(prompt)
+
+    with st.chat_message("assistant"):
+        st.write_stream(response)
+
+    st.session_state["turns"] = chat.get_turns()
+```

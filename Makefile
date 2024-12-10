@@ -66,6 +66,11 @@ update-snaps:
 	@echo "📸 Updating pytest snapshots"
 	uv run pytest --snapshot-update
 
+.PHONY: update-types
+update-types:
+	@echo "📝 Updating chat provider types"
+	uv run python scripts/main.py
+
 .PHONY: help
 help:  ## Show help messages for make targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; { \

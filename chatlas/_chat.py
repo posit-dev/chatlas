@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import os
-from contextlib import contextmanager
+from pathlib import Path
+from threading import Thread
 from typing import (
-    TYPE_CHECKING,
     Any,
     AsyncGenerator,
     AsyncIterator,
@@ -27,13 +27,19 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
+from ._display import (
+    EchoOptions,
+    IPyMarkdownDisplay,
+    LiveMarkdownDisplay,
+    MarkdownDisplay,
+    MockMarkdownDisplay,
+)
+from ._logging import log_tool_error
 from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
-
-if TYPE_CHECKING:
-    import rich.live
+from ._utils import html_escape
 
 
 class AnyTypeDict(TypedDict, total=False):
@@ -46,8 +52,10 @@ A TypedDict representing the arguments that can be passed to the `.chat()`
 method of a [](`~chatlas.Chat`) instance.
 """
 
+CompletionT = TypeVar("CompletionT")
 
-class Chat(Generic[SubmitInputArgsT]):
+
+class Chat(Generic[SubmitInputArgsT, CompletionT]):
     """
     A chat object that can be used to interact with a language model.
 
@@ -80,12 +88,17 @@ class Chat(Generic[SubmitInputArgsT]):
         self.provider = provider
         self._turns: list[Turn] = list(turns or [])
         self.tools: dict[str, Tool] = {}
+        self._echo_options: EchoOptions = {
+            "rich_markdown": {},
+            "rich_console": {},
+            "css_styles": {},
+        }
 
     def get_turns(
         self,
         *,
         include_system_prompt: bool = False,
-    ) -> list[Turn]:
+    ) -> list[Turn[CompletionT]]:
         """
         Get all the turns (i.e., message contents) in the chat.
 
@@ -106,7 +119,7 @@ class Chat(Generic[SubmitInputArgsT]):
         self,
         *,
         role: Literal["assistant", "user", "system"] = "assistant",
-    ) -> Turn | None:
+    ) -> Turn[CompletionT] | None:
         """
         Get the last turn in the chat with a specific role.
 
@@ -163,13 +176,13 @@ class Chat(Generic[SubmitInputArgsT]):
         if value is not None:
             self._turns.insert(0, Turn("system", value))
 
-    def tokens(self) -> list[tuple[int, int]]:
+    def tokens(self) -> list[tuple[int, int] | None]:
         """
         Get the tokens for each turn in the chat.
 
         Returns
         -------
-        list[tuple[int, int]]
+        list[tuple[int, int] | None]
             A list of tuples, where each tuple contains the start and end token
             indices for a turn.
         """
@@ -179,21 +192,25 @@ class Chat(Generic[SubmitInputArgsT]):
         self,
         *,
         stream: bool = True,
-        launch_browser: bool = True,
         port: int = 0,
+        launch_browser: bool = True,
+        bg_thread: Optional[bool] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ):
         """
-        Enter a chat browser to interact with the LLM.
+        Enter a web-based chat app to interact with the LLM.
 
         Parameters
         ----------
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
-        launch_browser
-            Whether to launch a browser window.
         port
             The port to run the app on (the default is 0, which will choose a random port).
+        launch_browser
+            Whether to launch a browser window.
+        bg_thread
+            Whether to run the app in a background thread. If `None`, the app will
+            run in a background thread if the current environment is a notebook.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -226,28 +243,50 @@ class Chat(Generic[SubmitInputArgsT]):
                 user_input = chat.user_input()
                 if user_input is None:
                     return
-                response = self.chat(user_input, kwargs=kwargs, stream=stream)
-                await chat.append_message_stream(response)
+                if stream:
+                    await chat.append_message_stream(
+                        self.stream(user_input, kwargs=kwargs)
+                    )
+                else:
+                    await chat.append_message(str(self.chat(user_input, kwargs=kwargs)))
 
-        run_app(
-            App(app_ui, server),
-            launch_browser=launch_browser,
-            port=port,
-        )
+        app = App(app_ui, server)
+
+        def _run_app():
+            run_app(app, launch_browser=launch_browser, port=port)
+
+        # Use bg_thread by default in Jupyter and Positron
+        if bg_thread is None:
+            from rich.console import Console
+
+            console = Console()
+            bg_thread = console.is_jupyter or (os.getenv("POSITRON") == "1")
+
+        if bg_thread:
+            thread = Thread(target=_run_app, daemon=True)
+            thread.start()
+        else:
+            _run_app()
+
+        return None
 
     def console(
         self,
         *,
+        echo: Literal["text", "all", "none"] = "text",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ):
         """
         Enter a chat console to interact with the LLM.
 
-        Press Ctrl+C to quit.
+        To quit, input 'exit' or press Ctrl+C.
 
         Parameters
         ----------
+        echo
+            Whether to echo text content, all content (i.e., tool calls), or no
+            content.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
         kwargs
@@ -259,14 +298,14 @@ class Chat(Generic[SubmitInputArgsT]):
         None
         """
 
-        print("\nEntering chat console. Press Ctrl+C to quit.\n")
+        print("\nEntering chat console. To quit, input 'exit' or press Ctrl+C.\n")
 
         while True:
             user_input = input("?> ")
             if user_input.strip().lower() in ("exit", "exit()"):
                 break
             print("")
-            self.chat(user_input, stream=stream, kwargs=kwargs)
+            self.chat(user_input, echo=echo, stream=stream, kwargs=kwargs)
             print("")
 
     def chat(
@@ -301,17 +340,21 @@ class Chat(Generic[SubmitInputArgsT]):
         """
         turn = user_turn(*args)
 
+        display = self._markdown_display(echo=echo)
+
         response = ChatResponse(
             self._chat_impl(
                 turn,
                 echo=echo,
+                display=display,
                 stream=stream,
                 kwargs=kwargs,
             )
         )
 
-        for _ in response:
-            pass
+        with display:
+            for _ in response:
+                pass
 
         return response
 
@@ -347,17 +390,21 @@ class Chat(Generic[SubmitInputArgsT]):
         """
         turn = user_turn(*args)
 
+        display = self._markdown_display(echo=echo)
+
         response = ChatResponseAsync(
             self._chat_impl_async(
                 turn,
                 echo=echo,
+                display=display,
                 stream=stream,
                 kwargs=kwargs,
             ),
         )
 
-        async for _ in response:
-            pass
+        with display:
+            async for _ in response:
+                pass
 
         return response
 
@@ -388,14 +435,23 @@ class Chat(Generic[SubmitInputArgsT]):
             consume the response.
         """
         turn = user_turn(*args)
-        return ChatResponse(
-            self._chat_impl(
-                turn,
-                stream=True,
-                echo=echo,
-                kwargs=kwargs,
-            ),
+
+        display = self._markdown_display(echo=echo)
+
+        generator = self._chat_impl(
+            turn,
+            stream=True,
+            display=display,
+            echo=echo,
+            kwargs=kwargs,
         )
+
+        def wrapper() -> Generator[str, None, None]:
+            with display:
+                for chunk in generator:
+                    yield chunk
+
+        return ChatResponse(wrapper())
 
     async def stream_async(
         self,
@@ -424,20 +480,28 @@ class Chat(Generic[SubmitInputArgsT]):
             consume the response.
         """
         turn = user_turn(*args)
-        return ChatResponseAsync(
-            self._chat_impl_async(
-                turn,
-                stream=True,
-                echo=echo,
-                kwargs=kwargs,
-            ),
-        )
+
+        display = self._markdown_display(echo=echo)
+
+        async def wrapper() -> AsyncGenerator[str, None]:
+            with display:
+                async for chunk in self._chat_impl_async(
+                    turn,
+                    stream=True,
+                    display=display,
+                    echo=echo,
+                    kwargs=kwargs,
+                ):
+                    yield chunk
+
+        return ChatResponseAsync(wrapper())
 
     def extract_data(
         self,
         *args: Content | str,
         data_model: type[BaseModel],
         echo: Literal["text", "all", "none"] = "none",
+        stream: bool = False,
     ) -> dict[str, Any]:
         """
         Extract structured data from the given input.
@@ -450,6 +514,8 @@ class Chat(Generic[SubmitInputArgsT]):
             A Pydantic model describing the structure of the data to extract.
         echo
             Whether to echo text content, all content (i.e., tool calls), or no content.
+        stream
+            Whether to stream the response (i.e., have the response appear in chunks).
 
         Returns
         -------
@@ -457,19 +523,21 @@ class Chat(Generic[SubmitInputArgsT]):
             The extracted data.
         """
 
-        with JupyterFriendlyLive() as live:
-            response = ChatResponse(
-                self._submit_turns(
-                    user_turn(*args),
-                    data_model=data_model,
-                    echo=echo,
-                    live=live,
-                    stream=echo != "none",
-                )
-            )
+        display = self._markdown_display(echo=echo)
 
-        for _ in response:
-            pass
+        response = ChatResponse(
+            self._submit_turns(
+                user_turn(*args),
+                data_model=data_model,
+                echo=echo,
+                display=display,
+                stream=stream,
+            )
+        )
+
+        with display:
+            for _ in response:
+                pass
 
         turn = self.get_last_turn()
         assert turn is not None
@@ -492,6 +560,7 @@ class Chat(Generic[SubmitInputArgsT]):
         *args: Content | str,
         data_model: type[BaseModel],
         echo: Literal["text", "all", "none"] = "none",
+        stream: bool = False,
     ) -> dict[str, Any]:
         """
         Extract structured data from the given input asynchronously.
@@ -504,6 +573,9 @@ class Chat(Generic[SubmitInputArgsT]):
             A Pydantic model describing the structure of the data to extract.
         echo
             Whether to echo text content, all content (i.e., tool calls), or no content
+        stream
+            Whether to stream the response (i.e., have the response appear in chunks).
+            Defaults to `True` if `echo` is not "none".
 
         Returns
         -------
@@ -511,19 +583,21 @@ class Chat(Generic[SubmitInputArgsT]):
             The extracted data.
         """
 
-        with JupyterFriendlyLive() as live:
-            response = ChatResponseAsync(
-                self._submit_turns_async(
-                    user_turn(*args),
-                    data_model=data_model,
-                    echo=echo,
-                    live=live,
-                    stream=echo != "none",
-                )
-            )
+        display = self._markdown_display(echo=echo)
 
-        async for _ in response:
-            pass
+        response = ChatResponseAsync(
+            self._submit_turns_async(
+                user_turn(*args),
+                data_model=data_model,
+                echo=echo,
+                display=display,
+                stream=stream,
+            )
+        )
+
+        with display:
+            async for _ in response:
+                pass
 
         turn = self.get_last_turn()
         assert turn is not None
@@ -624,53 +698,173 @@ class Chat(Generic[SubmitInputArgsT]):
         tool = Tool(func, model=model)
         self.tools[tool.name] = tool
 
+    def export(
+        self,
+        filename: str | Path,
+        *,
+        turns: Optional[Sequence[Turn]] = None,
+        title: Optional[str] = None,
+        include: Literal["text", "all"] = "text",
+        include_system_prompt: bool = True,
+        overwrite: bool = False,
+    ):
+        """
+        Export the chat history to a file.
+
+        Parameters
+        ----------
+        filename
+            The filename to export the chat to. Currently this must
+            be a `.md` or `.html` file.
+        turns
+            The `.get_turns()` to export. If not provided, the chat's current turns
+            will be used.
+        title
+            A title to place at the top of the exported file.
+        overwrite
+            Whether to overwrite the file if it already exists.
+        include
+            Whether to include text content, all content (i.e., tool calls), or no
+            content.
+        include_system_prompt
+            Whether to include the system prompt in a <details> tag.
+
+        Returns
+        -------
+        Path
+            The path to the exported file.
+        """
+        if not turns:
+            turns = self.get_turns(include_system_prompt=False)
+        if not turns:
+            raise ValueError("No turns to export.")
+
+        if isinstance(filename, str):
+            filename = Path(filename)
+
+        filename = filename.resolve()
+        if filename.exists() and not overwrite:
+            raise ValueError(
+                f"File {filename} already exists. Set `overwrite=True` to overwrite."
+            )
+
+        if filename.suffix not in {".md", ".html"}:
+            raise ValueError("The filename must have a `.md` or `.html` extension.")
+
+        # When exporting to HTML, we lean on shiny's chat component for rendering markdown and styling
+        is_html = filename.suffix == ".html"
+
+        # Get contents from each turn
+        contents = ""
+        for turn in turns:
+            turn_content = "\n\n".join(
+                [
+                    str(content)
+                    for content in turn.contents
+                    if include == "all" or isinstance(content, ContentText)
+                ]
+            )
+            if is_html:
+                msg_type = "user" if turn.role == "user" else "chat"
+                content_attr = html_escape(turn_content)
+                turn_content = f"<shiny-{msg_type}-message content='{content_attr}'></shiny-{msg_type}-message>"
+            else:
+                turn_content = f"## {turn.role.capitalize()}\n\n{turn_content}"
+            contents += f"{turn_content}\n\n"
+
+        # Shiny chat message components requires container elements
+        if is_html:
+            contents = f"<shiny-chat-messages>\n{contents}\n</shiny-chat-messages>"
+            contents = f"<shiny-chat-container>{contents}</shiny-chat-container>"
+
+        # Add title to the top
+        if title:
+            if is_html:
+                contents = f"<h1>{title}</h1>\n\n{contents}"
+            else:
+                contents = f"# {title}\n\n{contents}"
+
+        # Add system prompt to the bottom
+        if include_system_prompt and self.system_prompt:
+            contents += f"\n<br><br>\n<details><summary>System prompt</summary>\n\n{self.system_prompt}\n\n</details>"
+
+        # Wrap in HTML template if exporting to HTML
+        if is_html:
+            contents = self._html_template(contents)
+
+        with open(filename, "w") as f:
+            f.write(contents)
+
+        return filename
+
+    @staticmethod
+    def _html_template(contents: str) -> str:
+        version = "1.2.1"
+        shiny_www = (
+            f"https://cdn.jsdelivr.net/gh/posit-dev/py-shiny@{version}/shiny/www/"
+        )
+
+        return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <script src="{shiny_www}/py-shiny/chat/chat.js"></script>
+          <link rel="stylesheet" href="{shiny_www}/py-shiny/chat/chat.css">
+          <link rel="stylesheet" href="{shiny_www}/shared/bootstrap/bootstrap.min.css">
+        </head>
+        <body>
+          <div style="max-width:700px; margin:0 auto; padding-top:20px;">
+            {contents}
+          </div>
+        </body>
+        </html>
+        """
+
     def _chat_impl(
         self,
         user_turn: Turn,
         echo: Literal["text", "all", "none"],
+        display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]:
         user_turn_result: Turn | None = user_turn
-
-        with JupyterFriendlyLive() as live:
-            while user_turn_result is not None:
-                for chunk in self._submit_turns(
-                    user_turn_result,
-                    echo=echo,
-                    live=live,
-                    stream=stream,
-                    kwargs=kwargs,
-                ):
-                    yield chunk
-                user_turn_result = self._invoke_tools()
+        while user_turn_result is not None:
+            for chunk in self._submit_turns(
+                user_turn_result,
+                echo=echo,
+                display=display,
+                stream=stream,
+                kwargs=kwargs,
+            ):
+                yield chunk
+            user_turn_result = self._invoke_tools()
 
     async def _chat_impl_async(
         self,
         user_turn: Turn,
         echo: Literal["text", "all", "none"],
+        display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
         user_turn_result: Turn | None = user_turn
-
-        with JupyterFriendlyLive() as live:
-            while user_turn_result is not None:
-                async for chunk in self._submit_turns_async(
-                    user_turn_result,
-                    echo=echo,
-                    live=live,
-                    stream=stream,
-                    kwargs=kwargs,
-                ):
-                    yield chunk
-                user_turn_result = await self._invoke_tools_async()
+        while user_turn_result is not None:
+            async for chunk in self._submit_turns_async(
+                user_turn_result,
+                echo=echo,
+                display=display,
+                stream=stream,
+                kwargs=kwargs,
+            ):
+                yield chunk
+            user_turn_result = await self._invoke_tools_async()
 
     def _submit_turns(
         self,
         user_turn: Turn,
         echo: Literal["text", "all", "none"],
-        live: "rich.live.Live",
+        display: MarkdownDisplay,
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
@@ -678,7 +872,10 @@ class Chat(Generic[SubmitInputArgsT]):
         if any(x._is_async for x in self.tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
-        emit = emitter(echo, live)
+        def emit(text: str | Content):
+            display.update(str(text))
+
+        emit("<br>\n\n")
 
         if echo == "all":
             emit_user_contents(user_turn, emit)
@@ -701,7 +898,9 @@ class Chat(Generic[SubmitInputArgsT]):
                 result = self.provider.stream_merge_chunks(result, chunk)
 
             turn = self.provider.stream_turn(
-                result, has_data_model=data_model is not None
+                result,
+                has_data_model=data_model is not None,
+                stream=response,
             )
 
             if echo == "all":
@@ -732,12 +931,15 @@ class Chat(Generic[SubmitInputArgsT]):
         self,
         user_turn: Turn,
         echo: Literal["text", "all", "none"],
-        live: "rich.live.Live",
+        display: MarkdownDisplay,
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
-        emit = emitter(echo, live)
+        def emit(text: str | Content):
+            display.update(str(text))
+
+        emit("<br>\n\n")
 
         if echo == "all":
             emit_user_contents(user_turn, emit)
@@ -759,8 +961,10 @@ class Chat(Generic[SubmitInputArgsT]):
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
-            turn = self.provider.stream_turn(
-                result, has_data_model=data_model is not None
+            turn = await self.provider.stream_turn_async(
+                result,
+                has_data_model=data_model is not None,
+                stream=response,
             )
 
             if echo == "all":
@@ -838,6 +1042,7 @@ class Chat(Generic[SubmitInputArgsT]):
 
             return ContentToolResult(id_, result, None)
         except Exception as e:
+            log_tool_error(func.__name__, str(arguments), e)
             return ContentToolResult(id_, None, str(e))
 
     @staticmethod
@@ -857,20 +1062,76 @@ class Chat(Generic[SubmitInputArgsT]):
 
             return ContentToolResult(id_, result, None)
         except Exception as e:
+            log_tool_error(func.__name__, str(arguments), e)
             return ContentToolResult(id_, None, str(e))
 
+    def _markdown_display(
+        self, echo: Literal["text", "all", "none"]
+    ) -> MarkdownDisplay:
+        """
+        Get a markdown display object based on the echo option.
+
+        The idea here is to use rich for consoles and IPython.display.Markdown
+        for notebooks, since the latter is much more responsive to different
+        screen sizes.
+        """
+        if echo == "none":
+            return MockMarkdownDisplay()
+
+        # rich does a lot to detect a notebook environment, but it doesn't
+        # detect Quarto (at least not yet).
+        from rich.console import Console
+
+        is_web = Console().is_jupyter or os.getenv("QUARTO_PYTHON", None) is not None
+
+        opts = self._echo_options
+        if is_web:
+            return IPyMarkdownDisplay(opts)
+        else:
+            return LiveMarkdownDisplay(opts)
+
+    def set_echo_options(
+        self,
+        rich_markdown: Optional[dict[str, Any]] = None,
+        rich_console: Optional[dict[str, Any]] = None,
+        css_styles: Optional[dict[str, str]] = None,
+    ):
+        """
+        Set echo styling options for the chat.
+
+        Parameters
+        ----------
+        rich_markdown
+            A dictionary of options to pass to `rich.markdown.Markdown()`.
+            This is only relevant when outputting to the console.
+        rich_console
+            A dictionary of options to pass to `rich.console.Console()`.
+            This is only relevant when outputting to the console.
+        css_styles
+            A dictionary of CSS styles to apply to `IPython.display.Markdown()`.
+            This is only relevant when outputing to the browser.
+        """
+        self._echo_options: EchoOptions = {
+            "rich_markdown": rich_markdown or {},
+            "rich_console": rich_console or {},
+            "css_styles": css_styles or {},
+        }
+
     def __str__(self):
-        turns = self.get_turns(include_system_prompt=True)
-        tokens = sum(sum(turn.tokens) for turn in turns)
-        output = f"<Chat turns={len(turns)} tokens={tokens}>\n"
+        turns = self.get_turns(include_system_prompt=False)
+        res = ""
         for turn in turns:
-            output += f"--- {turn.role} ---\n"
-            for content in turn.contents:
-                output += f"{content}\n"
-        return output
+            icon = "👤" if turn.role == "user" else "🤖"
+            res += f"## {icon} {turn.role.capitalize()} turn:\n\n{str(turn)}\n\n"
+        return res
 
     def __repr__(self):
-        return str(self)
+        turns = self.get_turns(include_system_prompt=True)
+        tokens = sum(sum(turn.tokens) for turn in turns if turn.tokens)
+        res = f"<Chat turns={len(turns)} tokens={tokens}>"
+        for turn in turns:
+            res += "\n" + turn.__repr__(indent=2)
+        return res + "\n"
 
 
 class ChatResponse:
@@ -973,71 +1234,8 @@ class ChatResponseAsync:
 
 
 # ----------------------------------------------------------------------------
-# Jupyter-friendly rich live context managers
-# ----------------------------------------------------------------------------
-
-
-@contextmanager
-def JupyterFriendlyLive():
-    """
-    A special `rich.live.Live` context manager with special handling for Jupyter.
-    """
-    import rich.live
-
-    with JupyterFriendlyConsole() as console:
-        with rich.live.Live(console=console, auto_refresh=False) as live:
-            yield live
-
-
-@contextmanager
-def JupyterFriendlyConsole():
-    import rich.console
-    import rich.jupyter
-
-    # Force jupyter mode if running in Quarto (so that side-effects are captured)
-    is_quarto = os.getenv("QUARTO_PYTHON", None) is not None
-    console = rich.console.Console(
-        force_jupyter=True if is_quarto else None,
-    )
-
-    # Prevent rich from inserting line breaks in a Jupyter context
-    # (and, instead, rely on the browser to wrap text)
-    console.soft_wrap = console.is_jupyter
-
-    html_format = rich.jupyter.JUPYTER_HTML_FORMAT
-
-    # Remove the `white-space:pre;` CSS style since the LLM's response is
-    # (usually) already pre-formatted and essentially assumes a browser context
-    rich.jupyter.JUPYTER_HTML_FORMAT = html_format.replace(
-        "white-space:pre;", "text-wrap-mode:wrap;word-break:break-word;"
-    )
-    yield console
-
-    rich.jupyter.JUPYTER_HTML_FORMAT = html_format
-
-
-# ----------------------------------------------------------------------------
 # Helpers for emitting content
 # ----------------------------------------------------------------------------
-
-
-def emitter(
-    echo: Literal["text", "all", "none"],
-    live: "rich.live.Live",
-) -> Callable[[Content | str], None]:
-    if echo == "none":
-        return lambda _: None
-
-    from rich.markdown import Markdown
-
-    def emit(x: Content | str):
-        x = str(x)
-        current = live.get_renderable()
-        if isinstance(current, Markdown):
-            x = current.markup + x
-        live.update(Markdown(x), refresh=True)
-
-    return emit
 
 
 def emit_user_contents(
@@ -1046,26 +1244,36 @@ def emit_user_contents(
 ):
     if x.role != "user":
         raise ValueError("Expected a user turn")
-    emit(f"\\>\\> **`User` turn:**\n\n{x.text}\n\n")
+    emit(f"## 👤 User turn:\n\n{str(x)}\n\n")
     emit_other_contents(x, emit)
-    emit("\n\n<< **`Assistant` turn:**\n\n")
+    emit("\n\n## 🤖 Assistant turn:\n\n")
 
 
 def emit_other_contents(
     x: Turn,
     emit: Callable[[Content | str], None],
 ):
-    if all(isinstance(x, ContentText) for x in x.contents):
-        return
+    # Gather other content to emit in _reverse_ order
+    to_emit: list[str] = []
 
-    if x.role == "user":
-        emit("\n\n\\>\\>\\> **Other `user` content:**\n\n")
-    else:
-        emit("\n\n<<< **Other `assistant` content:**\n\n")
+    if x.finish_reason:
+        to_emit.append(f"\n\n<< 🤖 finish reason: {x.finish_reason} \\>\\>\n\n")
 
-    for content in x.contents:
-        if not isinstance(content, ContentText):
-            # For some really odd reason ContentToolResult won't display without
-            # a non-whitespace character before it. The &nbsp; is a hack to work
-            # around that, but it's also decent for readability.
-            emit(f"&nbsp;{str(content)}\n\n")
+    has_text = False
+    has_other = False
+    for content in reversed(x.contents):
+        if isinstance(content, ContentText):
+            has_text = True
+        else:
+            has_other = True
+            to_emit.append(str(content))
+
+    if has_text and has_other:
+        if x.role == "user":
+            to_emit.append("<< 👤 other content >>")
+        else:
+            to_emit.append("<< 🤖 other content >>")
+
+    to_emit.reverse()
+
+    emit("\n\n".join(to_emit))

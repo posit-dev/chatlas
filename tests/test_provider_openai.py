@@ -22,6 +22,7 @@ def test_openai_simple_request():
     turn = chat.get_last_turn()
     assert turn is not None
     assert turn.tokens == (27, 1)
+    assert turn.finish_reason == "stop"
 
 
 @pytest.mark.asyncio
@@ -33,6 +34,9 @@ async def test_openai_simple_streaming_request():
     async for x in await chat.stream_async("What is 1 + 1?"):
         res.append(x)
     assert "2" in "".join(res)
+    turn = chat.last_turn()
+    assert turn is not None
+    assert turn.finish_reason == "stop"
 
 
 def test_openai_respects_turns_interface():
@@ -73,5 +77,8 @@ async def test_openai_logprobs():
 
     turn = chat.get_last_turn()
     assert turn is not None
-    logprobs = turn.json["choices"][0]["logprobs"]["content"]
+    assert turn.completion is not None
+    assert turn.completion.choices[0].logprobs is not None
+    logprobs = turn.completion.choices[0].logprobs.content
+    assert logprobs is not None
     assert len(logprobs) == len(pieces)

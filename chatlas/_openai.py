@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 from pydantic import BaseModel
@@ -16,12 +15,13 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
+from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
-from ._utils import MISSING, MISSING_TYPE, inform_model_default, is_testing
+from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
     from openai.types.chat import (
@@ -56,7 +56,7 @@ def ChatOpenAI(
     base_url: str = "https://api.openai.com/v1",
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
     Chat with an OpenAI model.
 
@@ -164,7 +164,7 @@ def ChatOpenAI(
         seed = 1014 if is_testing() else None
 
     if model is None:
-        model = inform_model_default("gpt-4o-mini")
+        model = log_model_default("gpt-4o")
 
     return Chat(
         provider=OpenAIProvider(
@@ -335,13 +335,16 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             return chunkd
         return merge_dicts(completion, chunkd)
 
-    def stream_turn(self, completion, has_data_model) -> Turn:
+    def stream_turn(self, completion, has_data_model, stream) -> Turn:
         from openai.types.chat import ChatCompletion
 
         delta = completion["choices"][0].pop("delta")  # type: ignore
         completion["choices"][0]["message"] = delta  # type: ignore
         completion = ChatCompletion.construct(**completion)
         return self._as_turn(completion, has_data_model)
+
+    async def stream_turn_async(self, completion, has_data_model, stream):
+        return self.stream_turn(completion, has_data_model, stream)
 
     def value_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
@@ -445,7 +448,9 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
         return res
 
-    def _as_turn(self, completion: "ChatCompletion", has_data_model: bool) -> Turn:
+    def _as_turn(
+        self, completion: "ChatCompletion", has_data_model: bool
+    ) -> Turn[ChatCompletion]:
         message = completion.choices[0].message
 
         contents: list[Content] = []
@@ -468,11 +473,12 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                 try:
                     args = json.loads(func.arguments) if func.arguments else {}
                 except json.JSONDecodeError:
-                    warnings.warn(
+                    raise ValueError(
                         f"The model's completion included a tool request ({func.name}) "
-                        "with invalid JSON for input arguments: '{func.arguments}'",
-                        InvalidJSONParameterWarning,
-                        stacklevel=2,
+                        "with invalid JSON for input arguments: '{func.arguments}'"
+                        "This can happen if the model hallucinates parameters not defined by "
+                        "your function schema. Try revising your tool description and system "
+                        "prompt to be more specific about the expected input arguments to this function."
                     )
 
                 contents.append(
@@ -499,8 +505,9 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         return Turn(
             "assistant",
             contents,
-            json=completion.model_dump(),
             tokens=tokens,
+            finish_reason=completion.choices[0].finish_reason,
+            completion=completion,
         )
 
 
@@ -514,7 +521,7 @@ def ChatAzureOpenAI(
     turns: Optional[list[Turn]] = None,
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatAzureClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
     Chat with a model hosted on Azure OpenAI.
 

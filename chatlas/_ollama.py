@@ -10,6 +10,7 @@ from ._openai import ChatOpenAI
 from ._turn import Turn
 
 if TYPE_CHECKING:
+    from ._openai import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
@@ -18,10 +19,10 @@ def ChatOllama(
     *,
     system_prompt: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
-    base_url: str = "http://localhost:11434/v1",
+    base_url: str = "http://localhost:11434",
     seed: Optional[int] = None,
     kwargs: Optional["ChatClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
     Chat with a local Ollama model.
 
@@ -88,6 +89,9 @@ def ChatOllama(
     `ChatOllama` currently doesn't work with streaming tools, and tool calling more
     generally doesn't seem to work very well with currently available models.
     """
+
+    base_url = re.sub("/+$", "", base_url)
+
     if not has_ollama(base_url):
         raise RuntimeError("Can't find locally running ollama.")
 
@@ -100,7 +104,7 @@ def ChatOllama(
     return ChatOpenAI(
         system_prompt=system_prompt,
         turns=turns,
-        base_url=base_url,
+        base_url=f"{base_url}/v1",
         model=model,
         seed=seed,
         kwargs=kwargs,
@@ -108,14 +112,12 @@ def ChatOllama(
 
 
 def ollama_models(base_url: str) -> list[str]:
-    base_url = re.sub("/v[0-9]+$", "", base_url)
     res = urllib.request.urlopen(url=f"{base_url}/api/tags")
     data = json.loads(res.read())
     return [re.sub(":latest$", "", x["name"]) for x in data["models"]]
 
 
 def has_ollama(base_url):
-    base_url = re.sub("/v[0-9]+$", "", base_url)
     try:
         urllib.request.urlopen(url=f"{base_url}/api/tags")
         return True

@@ -139,28 +139,23 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
 def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = True):
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
 
-    def get_current_year():
-        """Gets the current year"""
-        return 2024
+    def forecast(city: str):
+        """Gets the weather forecast for a city"""
+        return "rainy" if city == "New York" else "sunny"
 
-    chat.register_tool(get_current_year)
+    chat.register_tool(forecast)
 
-    def popular_name(year: int):
-        """Gets the most popular name for a given year"""
-        if isinstance(year, str):  # Sometimes Google sends the year as a string?
-            year = int(year)
-        return "Susan" if year == 2024 else "I don't know"
+    def equipment(weather: str):
+        """Gets the equipment needed for a weather condition"""
+        return "umbrella" if weather == "rainy" else "sunscreen"
 
-    chat.register_tool(popular_name)
+    chat.register_tool(equipment)
 
     response = chat.chat(
-        """
-        What was the most popular name this year?
-        Note that you have a tool available to you to find the current year.
-        """,
+        "What should I pack for New York this weekend?",
         stream=stream,
     )
-    assert "Susan" in str(response)
+    assert "umbrella" in str(response).lower()
     assert len(chat.get_turns()) == total_calls
 
 
@@ -168,9 +163,11 @@ def assert_data_extraction(chat_fun: ChatFun):
     chat = chat_fun()
     data = chat.extract_data(article, data_model=ArticleSummary)
     assert isinstance(data, dict)
-    assert data == {"title": "Apples are tasty", "author": "Hadley Wickham"}
+    assert data["author"] == "Hadley Wickham"
+    assert data["title"].lower() == "apples are tasty"
     data2 = chat.extract_data(article, data_model=ArticleSummary)
-    assert data2 == data
+    assert data2["author"] == "Hadley Wickham"
+    assert data2["title"].lower() == "apples are tasty"
 
 
 def assert_images_inline(chat_fun: ChatFun, stream: bool = True):

@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Sequence
+from typing import Any, Generic, Literal, Optional, Sequence, TypeVar
 
 from ._content import Content, ContentText
 
 __all__ = ("Turn",)
 
+CompletionT = TypeVar("CompletionT")
 
-class Turn:
+
+class Turn(Generic[CompletionT]):
     """
     A user or assistant turn
 
@@ -49,23 +51,27 @@ class Turn:
         Either "user", "assistant", or "system".
     contents
         A list of [](`~chatlas.types.Content`) objects.
-    json
-        The serialized JSON corresponding to the underlying data of the turns.
-        Currently only provided for assistant. This is useful if there's
-        information returned by the provider that chatlas doesn't otherwise
-        expose.
     tokens
         A numeric vector of length 2 representing the number of input and output
         tokens (respectively) used in this turn. Currently only recorded for
         assistant turns.
+    finish_reason
+        A string indicating the reason why the conversation ended. This is only
+        relevant for assistant turns.
+    completion
+        The completion object returned by the provider. This is useful if there's
+        information returned by the provider that chatlas doesn't otherwise expose.
+        This is only relevant for assistant turns.
     """
 
     def __init__(
         self,
-        role: str,
+        role: Literal["user", "assistant", "system"],
         contents: str | Sequence[Content | str],
-        json: Optional[dict[str, Any]] = None,
-        tokens: tuple[int, int] = (0, 0),
+        *,
+        tokens: Optional[tuple[int, int]] = None,
+        finish_reason: Optional[str] = None,
+        completion: Optional[CompletionT] = None,
     ):
         self.role = role
 
@@ -73,7 +79,7 @@ class Turn:
             contents = [ContentText(contents)]
 
         contents2: list[Content] = []
-        for i, x in enumerate(contents):
+        for x in contents:
             if isinstance(x, Content):
                 contents2.append(x)
             elif isinstance(x, str):
@@ -81,10 +87,27 @@ class Turn:
             else:
                 raise ValueError("All contents must be Content objects or str.")
 
-        self.contents: list[Content] = contents2
-        self.json = json or {}
-        self.tokens = tokens
+        self.contents = contents2
         self.text = "".join(x.text for x in self.contents if isinstance(x, ContentText))
+        self.tokens = tokens
+        self.finish_reason = finish_reason
+        self.completion = completion
+
+    def __str__(self) -> str:
+        return self.text
+
+    def __repr__(self, indent: int = 0) -> str:
+        res = " " * indent + f"<Turn role='{self.role}'"
+        if self.tokens:
+            res += f" tokens={self.tokens}"
+        if self.finish_reason:
+            res += f" finish_reason='{self.finish_reason}'"
+        if self.completion:
+            res += f" completion={self.completion}"
+        res += ">"
+        for content in self.contents:
+            res += "\n" + content.__repr__(indent=indent + 2)
+        return res + "\n"
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Turn):
@@ -92,8 +115,9 @@ class Turn:
         res = (
             self.role == other.role
             and self.contents == other.contents
-            and self.json == other.json
             and self.tokens == other.tokens
+            and self.finish_reason == other.finish_reason
+            and self.completion == other.completion
         )
         return res
 

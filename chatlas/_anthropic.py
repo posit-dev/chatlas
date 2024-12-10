@@ -16,11 +16,11 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
+from ._logging import log_model_default
 from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
-from ._utils import inform_model_default
 
 if TYPE_CHECKING:
     from anthropic.types import (
@@ -59,7 +59,7 @@ def ChatAnthropic(
     api_key: Optional[str] = None,
     max_tokens: int = 4096,
     kwargs: Optional["ChatClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", Message]:
     """
     Chat with an Anthropic Claude model.
 
@@ -164,7 +164,7 @@ def ChatAnthropic(
     """
 
     if model is None:
-        model = inform_model_default("claude-3-5-sonnet-latest")
+        model = log_model_default("claude-3-5-sonnet-latest")
 
     return Chat(
         provider=AnthropicProvider(
@@ -371,7 +371,10 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
 
         return completion
 
-    def stream_turn(self, completion, has_data_model) -> Turn:
+    def stream_turn(self, completion, has_data_model, stream) -> Turn:
+        return self._as_turn(completion, has_data_model)
+
+    async def stream_turn_async(self, completion, has_data_model, stream) -> Turn:
         return self._as_turn(completion, has_data_model)
 
     def value_turn(self, completion, has_data_model) -> Turn:
@@ -478,8 +481,9 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         return Turn(
             "assistant",
             contents,
-            json=completion.model_dump(),
             tokens=tokens,
+            finish_reason=completion.stop_reason,
+            completion=completion,
         )
 
 
@@ -496,7 +500,7 @@ def ChatBedrockAnthropic(
     system_prompt: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
     kwargs: Optional["ChatBedrockClientArgs"] = None,
-) -> Chat["SubmitInputArgs"]:
+) -> Chat["SubmitInputArgs", Message]:
     """
     Chat with an AWS bedrock model.
 
@@ -579,7 +583,7 @@ def ChatBedrockAnthropic(
 
     if model is None:
         # Default model from https://github.com/anthropics/anthropic-sdk-python?tab=readme-ov-file#aws-bedrock
-        model = inform_model_default("anthropic.claude-3-5-sonnet-20241022-v2:0")
+        model = log_model_default("anthropic.claude-3-5-sonnet-20241022-v2:0")
 
     return Chat(
         provider=AnthropicBedrockProvider(
