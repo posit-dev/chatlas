@@ -16,12 +16,13 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
+from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
-from ._utils import MISSING, MISSING_TYPE, is_testing, log_model_default
+from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
     from openai.types.chat import (

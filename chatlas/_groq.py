@@ -4,9 +4,10 @@ import os
 from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
+from ._logging import log_model_default
 from ._openai import ChatOpenAI
 from ._turn import Turn
-from ._utils import MISSING, MISSING_TYPE, log_model_default
+from ._utils import MISSING, MISSING_TYPE
 
 if TYPE_CHECKING:
     from ._openai import ChatCompletion

@@ -15,10 +15,10 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
+from ._logging import log_model_default
 from ._provider import Provider
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
-from ._utils import log_model_default
 
 if TYPE_CHECKING:
     from google.generativeai.types.content_types import (

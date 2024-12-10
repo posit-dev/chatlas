@@ -2,14 +2,11 @@ from __future__ import annotations
 
 import functools
 import inspect
-import logging
 import os
 import re
 from typing import Awaitable, Callable, TypeVar, cast
 
 from ._typing_extensions import ParamSpec, TypeGuard
-
-logger = logging.getLogger("chatlas")
 
 # --------------------------------------------------------------------
 # wrap_async() and is_async_callable() was copied from shiny/_utils.py
@@ -78,11 +75,6 @@ class MISSING_TYPE:
 
 
 MISSING = MISSING_TYPE()
-
-
-def log_model_default(model: str) -> str:
-    logger.info(f"Defaulting to `model = '{model}'`.")
-    return model
 
 
 # --------------------------------------------------------------------
