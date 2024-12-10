@@ -37,7 +37,7 @@ async def test_anthropic_simple_streaming_request():
     async for x in foo:
         res.append(x)
     assert "2" in "".join(res)
-    turn = chat.last_turn()
+    turn = chat.get_last_turn()
     assert turn is not None
     assert turn.finish_reason == "end_turn"
 

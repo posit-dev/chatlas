@@ -242,7 +242,7 @@ chat.chat("What is the capital of France?", echo="all")
 
 This shows important information like tool call results, finish reasons, and more.
 
-If the problem isn't self-evident, you can also reach into the `.last_turn()`, which contains the full response object, with full details about the completion.
+If the problem isn't self-evident, you can also reach into the `.get_last_turn()`, which contains the full response object, with full details about the completion.
 
 
 <div style="display:flex;justify-content:center;">
