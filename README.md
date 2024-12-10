@@ -250,13 +250,12 @@ If the problem isn't self-evident, you can also reach into the `.last_turn()`, w
 </div>
 
 
-
-
-Also, since `chatlas` builds on top of packages like `anthropic` and `openai`, you can also enable their debug logging to get even more detailed information about what's going on under the hood:
+For monitoring issues in a production (or otherwise non-interactive) environment, you may want to enabling logging. Also, since `chatlas` builds on top of packages like `anthropic` and `openai`, you can also enable their debug logging to get lower-level information, like HTTP requests and response codes.
 
 ```shell
-$ export ANTHROPIC_LOG=info
+$ export CHATLAS_LOG=info
 $ export OPENAI_LOG=info
+$ export ANTHROPIC_LOG=info
 ```
 
 ### Next steps

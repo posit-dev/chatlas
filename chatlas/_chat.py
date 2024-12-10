@@ -34,6 +34,7 @@ from ._display import (
     MarkdownDisplay,
     MockMarkdownDisplay,
 )
+from ._logging import log_tool_error
 from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
@@ -1035,6 +1036,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             return ContentToolResult(id_, result, None)
         except Exception as e:
+            log_tool_error(func.__name__, str(arguments), e)
             return ContentToolResult(id_, None, str(e))
 
     @staticmethod
@@ -1054,6 +1056,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             return ContentToolResult(id_, result, None)
         except Exception as e:
+            log_tool_error(func.__name__, str(arguments), e)
             return ContentToolResult(id_, None, str(e))
 
     def _markdown_display(
