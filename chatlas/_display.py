@@ -3,7 +3,9 @@ from typing import Any
 from uuid import uuid4
 
 from rich.live import Live
+from rich.logging import RichHandler
 
+from ._logging import logger
 from ._typing_extensions import TypedDict
 
 
@@ -64,6 +66,10 @@ class LiveMarkdownDisplay(MarkdownDisplay):
 
     def __enter__(self):
         self.live.__enter__()
+        # When logging is enabled, the RichHandler should be the second handler.
+        # That handler needs to know about the live console so it can add logs to it.
+        if len(logger.handlers) > 1 and isinstance(logger.handlers[1], RichHandler):
+            logger.handlers[1].console = self.live.console
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):

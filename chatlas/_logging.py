@@ -1,13 +1,15 @@
 import logging
 import os
 
+from rich.logging import RichHandler
+
 logger = logging.getLogger("chatlas")
 if len(logger.handlers) == 0:
     logger.addHandler(logging.NullHandler())
 
 if os.getenv("CHATLAS_LOG", "").lower() == "info":
-    formatter = logging.Formatter("%(asctime)s %(levelname)s - %(name)s - %(message)s")
-    handler = logging.FileHandler("chatlas.log")
+    formatter = logging.Formatter("%(name)s - %(message)s")
+    handler = RichHandler()
     handler.setFormatter(formatter)
     handler.setLevel(logging.INFO)
     logger.addHandler(handler)
