@@ -34,8 +34,10 @@ chatlas.Chat.extract_data py:function 1 reference/Chat.html#chatlas.Chat.extract
 chatlas._chat.Chat.extract_data py:function 1 reference/Chat.html#chatlas.Chat.extract_data chatlas.Chat.extract_data
 chatlas.Chat.extract_data_async py:function 1 reference/Chat.html#chatlas.Chat.extract_data_async -
 chatlas._chat.Chat.extract_data_async py:function 1 reference/Chat.html#chatlas.Chat.extract_data_async chatlas.Chat.extract_data_async
-chatlas.Chat.last_turn py:function 1 reference/Chat.html#chatlas.Chat.last_turn -
-chatlas._chat.Chat.last_turn py:function 1 reference/Chat.html#chatlas.Chat.last_turn chatlas.Chat.last_turn
+chatlas.Chat.get_last_turn py:function 1 reference/Chat.html#chatlas.Chat.get_last_turn -
+chatlas._chat.Chat.get_last_turn py:function 1 reference/Chat.html#chatlas.Chat.get_last_turn chatlas.Chat.get_last_turn
+chatlas.Chat.get_turns py:function 1 reference/Chat.html#chatlas.Chat.get_turns -
+chatlas._chat.Chat.get_turns py:function 1 reference/Chat.html#chatlas.Chat.get_turns chatlas.Chat.get_turns
 chatlas.Chat.register_tool py:function 1 reference/Chat.html#chatlas.Chat.register_tool -
 chatlas._chat.Chat.register_tool py:function 1 reference/Chat.html#chatlas.Chat.register_tool chatlas.Chat.register_tool
 chatlas.Chat.set_echo_options py:function 1 reference/Chat.html#chatlas.Chat.set_echo_options -
@@ -50,8 +52,6 @@ chatlas.Chat.system_prompt py:attribute 1 reference/Chat.html#chatlas.Chat.syste
 chatlas._chat.Chat.system_prompt py:attribute 1 reference/Chat.html#chatlas.Chat.system_prompt chatlas.Chat.system_prompt
 chatlas.Chat.tokens py:function 1 reference/Chat.html#chatlas.Chat.tokens -
 chatlas._chat.Chat.tokens py:function 1 reference/Chat.html#chatlas.Chat.tokens chatlas.Chat.tokens
-chatlas.Chat.turns py:function 1 reference/Chat.html#chatlas.Chat.turns -
-chatlas._chat.Chat.turns py:function 1 reference/Chat.html#chatlas.Chat.turns chatlas.Chat.turns
 chatlas.Chat py:class 1 reference/Chat.html#chatlas.Chat -
 chatlas._chat.Chat py:class 1 reference/Chat.html#chatlas.Chat chatlas.Chat
 chatlas.content_image_file py:function 1 reference/content_image_file.html#chatlas.content_image_file -

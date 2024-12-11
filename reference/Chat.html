@@ -517,17 +517,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#chatlas.Chat.export" id="toc-chatlas.Chat.export" class="nav-link" data-scroll-target="#chatlas.Chat.export">export</a></li>
   <li><a href="#chatlas.Chat.extract_data" id="toc-chatlas.Chat.extract_data" class="nav-link" data-scroll-target="#chatlas.Chat.extract_data">extract_data</a></li>
   <li><a href="#chatlas.Chat.extract_data_async" id="toc-chatlas.Chat.extract_data_async" class="nav-link" data-scroll-target="#chatlas.Chat.extract_data_async">extract_data_async</a></li>
-  <li><a href="#chatlas.Chat.last_turn" id="toc-chatlas.Chat.last_turn" class="nav-link" data-scroll-target="#chatlas.Chat.last_turn">last_turn</a></li>
+  <li><a href="#chatlas.Chat.get_last_turn" id="toc-chatlas.Chat.get_last_turn" class="nav-link" data-scroll-target="#chatlas.Chat.get_last_turn">get_last_turn</a></li>
+  <li><a href="#chatlas.Chat.get_turns" id="toc-chatlas.Chat.get_turns" class="nav-link" data-scroll-target="#chatlas.Chat.get_turns">get_turns</a></li>
   <li><a href="#chatlas.Chat.register_tool" id="toc-chatlas.Chat.register_tool" class="nav-link" data-scroll-target="#chatlas.Chat.register_tool">register_tool</a></li>
   </ul></li>
-  <li><a href="#parameters-8" id="toc-parameters-8" class="nav-link" data-scroll-target="#parameters-8">Parameters</a>
+  <li><a href="#parameters-9" id="toc-parameters-9" class="nav-link" data-scroll-target="#parameters-9">Parameters</a>
   <ul class="collapse">
   <li><a href="#chatlas.Chat.set_echo_options" id="toc-chatlas.Chat.set_echo_options" class="nav-link" data-scroll-target="#chatlas.Chat.set_echo_options">set_echo_options</a></li>
   <li><a href="#chatlas.Chat.set_turns" id="toc-chatlas.Chat.set_turns" class="nav-link" data-scroll-target="#chatlas.Chat.set_turns">set_turns</a></li>
   <li><a href="#chatlas.Chat.stream" id="toc-chatlas.Chat.stream" class="nav-link" data-scroll-target="#chatlas.Chat.stream">stream</a></li>
   <li><a href="#chatlas.Chat.stream_async" id="toc-chatlas.Chat.stream_async" class="nav-link" data-scroll-target="#chatlas.Chat.stream_async">stream_async</a></li>
   <li><a href="#chatlas.Chat.tokens" id="toc-chatlas.Chat.tokens" class="nav-link" data-scroll-target="#chatlas.Chat.tokens">tokens</a></li>
-  <li><a href="#chatlas.Chat.turns" id="toc-chatlas.Chat.turns" class="nav-link" data-scroll-target="#chatlas.Chat.turns">turns</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -557,7 +557,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td><a href="#chatlas.Chat.system_prompt">system_prompt</a></td>
-<td>Get the system prompt for the chat.</td>
+<td>A property to get (or set) the system prompt for the chat.</td>
 </tr>
 </tbody>
 </table>
@@ -601,36 +601,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Extract structured data from the given input asynchronously.</td>
 </tr>
 <tr class="even">
-<td><a href="#chatlas.Chat.last_turn">last_turn</a></td>
+<td><a href="#chatlas.Chat.get_last_turn">get_last_turn</a></td>
 <td>Get the last turn in the chat with a specific role.</td>
 </tr>
 <tr class="odd">
+<td><a href="#chatlas.Chat.get_turns">get_turns</a></td>
+<td>Get all the turns (i.e., message contents) in the chat.</td>
+</tr>
+<tr class="even">
 <td><a href="#chatlas.Chat.register_tool">register_tool</a></td>
 <td>Register a tool (function) with the chat.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="#chatlas.Chat.set_echo_options">set_echo_options</a></td>
 <td>Set echo styling options for the chat.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="#chatlas.Chat.set_turns">set_turns</a></td>
 <td>Set the turns of the chat.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="#chatlas.Chat.stream">stream</a></td>
 <td>Generate a response from the chat in a streaming fashion.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="#chatlas.Chat.stream_async">stream_async</a></td>
 <td>Generate a response from the chat in a streaming fashion asynchronously.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="#chatlas.Chat.tokens">tokens</a></td>
 <td>Get the tokens for each turn in the chat.</td>
-</tr>
-<tr class="odd">
-<td><a href="#chatlas.Chat.turns">turns</a></td>
-<td>Get all the turns (i.e., message contents) in the chat.</td>
 </tr>
 </tbody>
 </table>
@@ -901,7 +901,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td>turns</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a href="../reference/Turn.html#chatlas.Turn">Turn</a>]]</td>
-<td>The <code>.turns()</code> to export. If not provided, the chat’s current turns will be used.</td>
+<td>The <code>.get_turns()</code> to export. If not provided, the chat’s current turns will be used.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
@@ -1077,9 +1077,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </section>
 </section>
-<section id="chatlas.Chat.last_turn" class="level3">
-<h3 class="anchored" data-anchor-id="chatlas.Chat.last_turn">last_turn</h3>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Chat.last_turn(role<span class="op">=</span><span class="st">'assistant'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="chatlas.Chat.get_last_turn" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Chat.get_last_turn">get_last_turn</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Chat.get_last_turn(role<span class="op">=</span><span class="st">'assistant'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Get the last turn in the chat with a specific role.</p>
 <section id="parameters-7" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-7">Parameters</h4>
@@ -1103,66 +1103,92 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 </section>
 </section>
+<section id="chatlas.Chat.get_turns" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Chat.get_turns">get_turns</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Chat.get_turns(include_system_prompt<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Get all the turns (i.e., message contents) in the chat.</p>
+<section id="parameters-8" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-8">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>include_system_prompt</td>
+<td><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></td>
+<td>Whether to include the system prompt in the turns.</td>
+<td><code>False</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
 <section id="chatlas.Chat.register_tool" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.register_tool">register_tool</h3>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Chat.register_tool(func, <span class="op">*</span>, model<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Chat.register_tool(func, <span class="op">*</span>, model<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Register a tool (function) with the chat.</p>
 <p>The function will always be invoked in the current Python process.</p>
 <section id="examples" class="level4 doc-section doc-section-examples">
 <h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h4>
 <p>If your tool has straightforward input parameters, you can just register the function directly (type hints and a docstring explaning both what the function does and what the parameters are for is strongly recommended):</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI, Tool</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(a: <span class="bu">int</span>, b: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">'''</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Add two numbers together.</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">####     Parameters {.doc-section .doc-section-----parameters}</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="co">    a : int</span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="co">        The first number to add.</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">    b : int</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">        The second number to add.</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">    '''</span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b</span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>chat.register_tool(add)</span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is 2 + 2?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>If your tool has more complex input parameters, you can provide a Pydantic model that corresponds to the input parameters for the function, This way, you can have fields that hold other model(s) (for more complex input parameters), and also more directly document the input parameters:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI, Tool</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel, Field</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AddParams(BaseModel):</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">'''Add two numbers together.'''</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(a: <span class="bu">int</span>, b: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">'''</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Add two numbers together.</span></span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    a: <span class="bu">int</span> <span class="op">=</span> Field(description<span class="op">=</span><span class="st">"The first number to add."</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">####     Parameters {.doc-section .doc-section-----parameters}</span></span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    b: <span class="bu">int</span> <span class="op">=</span> Field(description<span class="op">=</span><span class="st">"The second number to add."</span>)</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(a: <span class="bu">int</span>, b: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co">    a : int</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co">        The first number to add.</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co">    b : int</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">        The second number to add.</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">    '''</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b</span>
 <span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>chat.register_tool(add, model<span class="op">=</span>AddParams)</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is 2 + 2?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>chat.register_tool(add)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is 2 + 2?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If your tool has more complex input parameters, you can provide a Pydantic model that corresponds to the input parameters for the function, This way, you can have fields that hold other model(s) (for more complex input parameters), and also more directly document the input parameters:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI, Tool</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel, Field</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AddParams(BaseModel):</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">'''Add two numbers together.'''</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    a: <span class="bu">int</span> <span class="op">=</span> Field(description<span class="op">=</span><span class="st">"The first number to add."</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    b: <span class="bu">int</span> <span class="op">=</span> Field(description<span class="op">=</span><span class="st">"The second number to add."</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(a: <span class="bu">int</span>, b: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>chat.register_tool(add, model<span class="op">=</span>AddParams)</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is 2 + 2?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
 </section>
-<section id="parameters-8" class="level2">
-<h2 class="anchored" data-anchor-id="parameters-8">Parameters</h2>
+<section id="parameters-9" class="level2">
+<h2 class="anchored" data-anchor-id="parameters-9">Parameters</h2>
 <p>func The function to be invoked when the tool is called. model A Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function.</p>
 <section id="chatlas.Chat.set_echo_options" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.set_echo_options">set_echo_options</h3>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Chat.set_echo_options(rich_markdown<span class="op">=</span><span class="va">None</span>, rich_console<span class="op">=</span><span class="va">None</span>, css_styles<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Chat.set_echo_options(rich_markdown<span class="op">=</span><span class="va">None</span>, rich_console<span class="op">=</span><span class="va">None</span>, css_styles<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Set echo styling options for the chat.</p>
-<section id="parameters-9" class="level4 doc-section doc-section-parameters">
-<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-9">Parameters</h4>
+<section id="parameters-10" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-10">Parameters</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -1197,11 +1223,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="chatlas.Chat.set_turns" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.set_turns">set_turns</h3>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Chat.set_turns(turns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>Chat.set_turns(turns)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Set the turns of the chat.</p>
 <p>This method is primarily useful for clearing or setting the turns of the chat (i.e., limiting the context window).</p>
-<section id="parameters-10" class="level4 doc-section doc-section-parameters">
-<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-10">Parameters</h4>
+<section id="parameters-11" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-11">Parameters</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -1224,10 +1250,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="chatlas.Chat.stream" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.stream">stream</h3>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>Chat.stream(<span class="op">*</span>args, echo<span class="op">=</span><span class="st">'none'</span>, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Chat.stream(<span class="op">*</span>args, echo<span class="op">=</span><span class="st">'none'</span>, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Generate a response from the chat in a streaming fashion.</p>
-<section id="parameters-11" class="level4 doc-section doc-section-parameters">
-<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-11">Parameters</h4>
+<section id="parameters-12" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-12">Parameters</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -1281,10 +1307,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="chatlas.Chat.stream_async" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.stream_async">stream_async</h3>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Chat.stream_async(<span class="op">*</span>args, echo<span class="op">=</span><span class="st">'none'</span>, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>Chat.stream_async(<span class="op">*</span>args, echo<span class="op">=</span><span class="st">'none'</span>, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Generate a response from the chat in a streaming fashion asynchronously.</p>
-<section id="parameters-12" class="level4 doc-section doc-section-parameters">
-<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-12">Parameters</h4>
+<section id="parameters-13" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-13">Parameters</h4>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -1338,7 +1364,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="chatlas.Chat.tokens" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.tokens">tokens</h3>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>Chat.tokens()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Chat.tokens()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Get the tokens for each turn in the chat.</p>
 <section id="returns-8" class="level4 doc-section doc-section-returns">
 <h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-8">Returns</h4>
@@ -1355,32 +1381,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td></td>
 <td><a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a>[<a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>] | None]</td>
 <td>A list of tuples, where each tuple contains the start and end token indices for a turn.</td>
-</tr>
-</tbody>
-</table>
-</section>
-</section>
-<section id="chatlas.Chat.turns" class="level3">
-<h3 class="anchored" data-anchor-id="chatlas.Chat.turns">turns</h3>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Chat.turns(include_system_prompt<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Get all the turns (i.e., message contents) in the chat.</p>
-<section id="parameters-13" class="level4 doc-section doc-section-parameters">
-<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-13">Parameters</h4>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>include_system_prompt</td>
-<td><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></td>
-<td>Whether to include the system prompt in the turns.</td>
-<td><code>False</code></td>
 </tr>
 </tbody>
 </table>
