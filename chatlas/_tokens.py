@@ -4,6 +4,7 @@ import copy
 from threading import Lock
 from typing import TYPE_CHECKING
 
+from ._logging import logger
 from ._typing_extensions import TypedDict
 
 if TYPE_CHECKING:
@@ -26,6 +27,11 @@ class ThreadSafeTokenCounter:
         self._tokens: dict[str, TokenUsage] = {}
 
     def log_tokens(self, name: str, input_tokens: int, output_tokens: int) -> None:
+        logger.info(
+            f"Provider '{name}' generated a response of {output_tokens} tokens "
+            f"from an input of {input_tokens} tokens."
+        )
+
         with self._lock:
             if name not in self._tokens:
                 self._tokens[name] = {
