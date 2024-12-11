@@ -9,10 +9,16 @@ Developer experience is also a key focus of chatlas: typing support, rich consol
 
 ## Install
 
-`chatlas` isn't yet on pypi, but you can install from Github:
+Install the latest stable release from PyPI:
 
 ```bash
-pip install git+https://github.com/posit-dev/chatlas
+pip install -U chatlas
+```
+
+Or, install the latest development version from GitHub:
+
+```bash
+pip install -U git+https://github.com/posit-dev/chatlas
 ```
 
 ## Model providers
