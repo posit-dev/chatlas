@@ -1,5 +1,13 @@
 # chatlas
 
+<p>
+<!-- badges start -->
+<a href="https://pypi.org/project/chatlas/"><img alt="PyPI" src="https://img.shields.io/pypi/v/chatlas?logo=python&logoColor=white&color=orange"></a>
+<a href="https://choosealicense.com/licenses/mit/"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License"></a>
+<a href="https://github.com/posit-dev/chatlas"><img src="https://github.com/posit-dev/chatlas/actions/workflows/test.yml/badge.svg?branch=main" alt="Python Tests"></a>
+<!-- badges end -->
+</p>
+
 chatlas provides a simple and unified interface across large language model (llm) providers in Python. 
 It abstracts away complexity from common tasks like streaming chat interfaces, tool calling, structured output, and much more.
 chatlas helps you prototype faster without painting you into a corner; for example, switching providers is as easy as changing one line of code, but provider specific features are still accessible when needed.
@@ -75,7 +83,7 @@ From a `chat` instance, it's simple to start a web-based or terminal-based chat 
 chat.app()
 ```
 
-<div style="display:flex;justify-content:center;">
+<div align="center">
 <img width="500" alt="A web app for chatting with an LLM via chatlas" src="https://github.com/user-attachments/assets/e43f60cb-3686-435a-bd11-8215cb024d2e" class="border rounded">
 </div>
 
@@ -231,7 +239,7 @@ asyncio.run(main())
 
 `chatlas` has full typing support, meaning that, among other things, autocompletion just works in your favorite editor:
 
-<div style="display:flex;justify-content:center;">
+<div align="center">
 <img width="500" alt="Autocompleting model options in ChatOpenAI" src="https://github.com/user-attachments/assets/163d6d8a-7d58-422d-b3af-cc9f2adee759" class="rounded">
 </div>
 
@@ -251,7 +259,7 @@ This shows important information like tool call results, finish reasons, and mor
 If the problem isn't self-evident, you can also reach into the `.get_last_turn()`, which contains the full response object, with full details about the completion.
 
 
-<div style="display:flex;justify-content:center;">
+<div align="center">
   <img width="500" alt="Turn completion details with typing support" src="https://github.com/user-attachments/assets/eaea338d-e44a-4e23-84a7-2e998d8af3ba" class="rounded">
 </div>
 
