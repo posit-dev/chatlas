@@ -18,7 +18,7 @@ jobs:
     environment:
       name: pypi
       url: https://pypi.org/project/chatlas/
-      
+
     permissions:  # for trusted publishing
       id-token: write
 
@@ -34,7 +34,7 @@ jobs:
         run: uv python install ${{ env.PYTHON_VERSION }}
 
       - name: 📦 Install the project
-        run: uv sync --python ${{ env.PYTHON_VERSION }} --no-dev --extra test
+        run: uv sync --python ${{ env.PYTHON_VERSION }} --all-extras
 
       - name: 🧪 Check tests
         run: make check-tests
