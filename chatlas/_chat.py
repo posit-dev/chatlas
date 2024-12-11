@@ -87,7 +87,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         self.provider = provider
         self._turns: list[Turn] = list(turns or [])
-        self.tools: dict[str, Tool] = {}
+        self._tools: dict[str, Tool] = {}
         self._echo_options: EchoOptions = {
             "rich_markdown": {},
             "rich_console": {},
@@ -696,7 +696,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             name and docstring of the function.
         """
         tool = Tool(func, model=model)
-        self.tools[tool.name] = tool
+        self._tools[tool.name] = tool
 
     def export(
         self,
@@ -869,7 +869,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]:
-        if any(x._is_async for x in self.tools.values()):
+        if any(x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
         def emit(text: str | Content):
@@ -884,7 +884,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             response = self.provider.chat_perform(
                 stream=True,
                 turns=[*self._turns, user_turn],
-                tools=self.tools,
+                tools=self._tools,
                 data_model=data_model,
                 kwargs=kwargs,
             )
@@ -910,7 +910,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             response = self.provider.chat_perform(
                 stream=False,
                 turns=[*self._turns, user_turn],
-                tools=self.tools,
+                tools=self._tools,
                 data_model=data_model,
                 kwargs=kwargs,
             )
@@ -948,7 +948,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             response = await self.provider.chat_perform_async(
                 stream=True,
                 turns=[*self._turns, user_turn],
-                tools=self.tools,
+                tools=self._tools,
                 data_model=data_model,
                 kwargs=kwargs,
             )
@@ -974,7 +974,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             response = await self.provider.chat_perform_async(
                 stream=False,
                 turns=[*self._turns, user_turn],
-                tools=self.tools,
+                tools=self._tools,
                 data_model=data_model,
                 kwargs=kwargs,
             )
@@ -999,7 +999,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         results: list[ContentToolResult] = []
         for x in turn.contents:
             if isinstance(x, ContentToolRequest):
-                tool_def = self.tools.get(x.name, None)
+                tool_def = self._tools.get(x.name, None)
                 func = tool_def.func if tool_def is not None else None
                 results.append(self._invoke_tool(func, x.arguments, x.id))
 
@@ -1016,7 +1016,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         results: list[ContentToolResult] = []
         for x in turn.contents:
             if isinstance(x, ContentToolRequest):
-                tool_def = self.tools.get(x.name, None)
+                tool_def = self._tools.get(x.name, None)
                 func = tool_def.func if tool_def is not None else None
                 results.append(await self._invoke_tool_async(func, x.arguments, x.id))
 
