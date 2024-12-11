@@ -74,7 +74,7 @@ get_current_temperature(46.7867, -92.1005)
 In order for the LLM to make use of our tool, we need to register it with the `chat` object. This is done by calling the `register_tool` method on the chat object.
 
 ```{python}
-chat.register_tool(get_current_time)
+chat.register_tool(get_current_temperature)
 ```
 
 Now let's retry our original question:
