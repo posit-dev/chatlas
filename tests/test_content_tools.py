@@ -1,7 +1,6 @@
 from typing import Union
 
 import pytest
-
 from chatlas import ChatOpenAI
 from chatlas.types import ContentToolResult
 
@@ -16,8 +15,8 @@ def test_register_tool():
 
     chat.register_tool(add)
 
-    assert len(chat.tools) == 1
-    tool = chat.tools["add"]
+    assert len(chat._tools) == 1
+    tool = chat._tools["add"]
     assert tool.name == "add"
     assert tool.func == add
     assert tool.schema["function"]["name"] == "add"
@@ -48,8 +47,8 @@ def test_register_tool_with_complex_parameters():
 
     chat.register_tool(foo)
 
-    assert len(chat.tools) == 1
-    tool = chat.tools["foo"]
+    assert len(chat._tools) == 1
+    tool = chat._tools["foo"]
     assert tool.name == "foo"
     assert tool.func == foo
     assert tool.schema["function"]["name"] == "foo"
