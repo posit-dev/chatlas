@@ -122,7 +122,7 @@ _ = chat.chat(question)
 
 ### Teach it about new features
 
-You can imagine LLMs as being a sort of an average of the internet at a given point in time. That means they will provide popular answers, which will tend to reflect older coding styles (either because the new features aren't in their index, or the older features are so much more popular). So if you want your code to use specific features that are relatively recent, you might need to provide the examples yourself:
+You can imagine LLMs as being a sort of an average of the internet at a given point in time. That means they will provide popular answers, which will tend to reflect older coding styles (either because the new features aren't in their index, or the older features are so much more popular). So if you want your code to use specific newer language features, you might need to provide the examples yourself:
 
 
 ```{python}
@@ -150,11 +150,11 @@ _ = chat.chat(question)
 
 ## Structured data
 
-Providing a rich set of examples is a great way to encourage the output to produce exactly what you want. This is also known as **multi-shot prompting**. Here we'll work through a prompt that I designed to extract structured data from recipes, but the same ideas apply in many other situations.
+Providing a rich set of examples is a great way to encourage the output to produce exactly what you want. This is known as **multi-shot prompting**. Below we'll work through a prompt that I designed to extract structured data from recipes, but the same ideas apply in many other situations.
 
 ### Getting started
 
-My overall goal is to turn a list of ingredients, like the following, into a nicely structured JSON that I can then analyse in Python (e.g. to compute the total weight, scale the recipe up or down, or to convert the units from volumes to weights).
+My overall goal is to turn a list of ingredients, like the following, into a nicely structured JSON that I can then analyse in Python (e.g. compute the total weight, scale the recipe up or down, or convert the units from volumes to weights).
 
 ```{python}
 ingredients = """
@@ -173,7 +173,7 @@ chat = ChatOpenAI(model="gpt-4o-mini")
 
 (This isn't the ingredient list for a real recipe but it includes a sampling of styles that I encountered in my project.)
 
-If you don't have strong feelings about what the data structure should look like, you can start with a very loose prompt and see what you get back. I find this a useful pattern for underspecified problems where a big part of the problem is just defining precisely what problem you want to solve. Seeing the LLM's attempt at a data structure gives me something to immediately react to, rather than having to start from a blank page.
+If you don't have strong feelings about what the data structure should look like, you can start with a very loose prompt and see what you get back. I find this a useful pattern for underspecified problems where the heavy lifting lies with precisely defining the problem you want to solve. Seeing the LLM's attempt to create a data structure gives me something to react to, rather than having to start from a blank page.
 
 ```{python}
 instruct_json = """
@@ -185,7 +185,7 @@ chat.system_prompt = instruct_json
 _ = chat.chat(ingredients)
 ```
 
-(I don't know if the colour text, "You're an expert baker who also loves JSON", does anything, but I like to think this helps the LLM get into the right mindset of a very nerdy baker.)
+(I don't know if the additional colour, "You're an expert baker who also loves JSON", does anything, but I like to think this helps the LLM get into the right mindset of a very nerdy baker.)
 
 ### Provide examples
 
@@ -209,7 +209,7 @@ chat.system_prompt = instruct_json + "\n" + instruct_weight
 _ = chat.chat(ingredients)
 ```
 
-Just providing the examples seems to work remarkably well. But I found it useful to also include description of what the examples are trying to accomplish. I'm not sure if this helps the LLM or not, but it certainly makes it easier for me to understand the organisation and check that I've covered the key pieces that I'm interested in.
+Just providing the examples seems to work remarkably well. But I found it useful to also include a description of what the examples are trying to accomplish. I'm not sure if this helps the LLM or not, but it certainly makes it easier for me to understand the organisation and check that I've covered the key pieces I'm interested in.
 
 ```{python}
 instruct_weight = """
@@ -233,7 +233,7 @@ instruct_weight = """
 
 This structure also allows me to give the LLMs a hint about how I want multiple ingredients to be stored, i.e. as an JSON array.
 
-I then iterated on the prompt, looking at the results from different recipes to get a sense of what the LLM was getting wrong. Much of this felt like I was iterating on my understanding of the problem as I didn't start by knowing exactly how I wanted the data. For example, when I started out I didn't really think about all the various ways that ingredients are specified. For later analysis, I always want quantities to be number, even if they were originally fractions, or the if the units aren't precise (like a pinch). It made me to realise that some ingredients are unitless.
+I then iterated on the prompt, looking at the results from different recipes to get a sense of what the LLM was getting wrong. Much of this felt like I was iterating on my own understanding of the problem as I didn't start by knowing exactly how I wanted the data. For example, when I started out I didn't really think about all the various ways that ingredients are specified. For later analysis, I always want quantities to be number, even if they were originally fractions, or the if the units aren't precise (like a pinch). It made me to realise that some ingredients are unitless.
 
 ```{python}
 instruct_unit = """
@@ -269,7 +269,7 @@ You might want to take a look at the [full prompt](https://gist.github.com/hadle
 
 ### Structured data
 
-Now that I've iterated to get a data structure that I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for using [structured data](structured-data.qmd). This guarantees that the LLM will only return JSON, the JSON will have the fields that you expect, and that chatlas will convert it into an Python data structure for you.
+Now that I've iterated to get a data structure I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for when dealing with [structured data](structured-data.qmd). This guarantees that the LLM will only return JSON, that the JSON will have the fields that you expect, and that chatlas will convert it into an Python data structure for you.
 
 ```{python}
 from pydantic import BaseModel, Field
@@ -289,7 +289,7 @@ chat.extract_data(ingredients, data_model=Ingredients)
 
 ### Capturing raw input
 
-One thing that I'd do next time would also be to include the raw ingredient name in the output. This doesn't make much difference here, in this simple example, but it makes it much easier to align the input and the output and start to develop automated measures of how well my prompt is doing.
+One thing that I'd do next time would also be to include the raw ingredient names in the output. This doesn't make much difference in this simple example but it makes it much easier to align the input with the output and to start developing automated measures of how well my prompt is doing.
 
 ```{python}
 instruct_weight_input = """
@@ -334,7 +334,7 @@ _ = chat.chat(ingredients)
 ```
 
 
-When I ran it while writing this vignette, it seems to be working out the weight of the ingredients specified in volume, even though the prompt specifically asks it not to do that. This may suggest I need to broaden my examples.
+When I ran it while writing this vignette, it seemed to be working out the weight of the ingredients specified in volume, even though the prompt specifically asks it not to. This may suggest I need to broaden my examples.
 
 ## Token usage
 
