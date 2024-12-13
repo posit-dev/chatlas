@@ -39,6 +39,8 @@ website:
             href: tool-calling.qmd
           - text: Build a chatbot
             href: web-apps.qmd
+          - text: Retrieval-Augmented Generation (RAG)
+            href: rag.qmd
     right:
       - icon: github
         href: https://github.com/posit-dev/chatlas

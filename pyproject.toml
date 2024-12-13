@@ -60,6 +60,8 @@ docs = [
     # Articles require
     "ipywidgets",
     "pandas",
+    "sentence-transformers",
+    "numpy",
 ]
 
 [tool.uv]

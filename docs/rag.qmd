@@ -1,0 +1,78 @@
+## Retrieval-Augmented Generation (RAG)
+
+Retrieval-Augmented Generation (RAG) helps LLMs gain the context they need to _accurately_ answer a question. Nowadays, LLMs are trained on a vast amount of data, but they can't possibly know everything, especially when it comes to real-time or sensitive information that isn't publicly available. In this article, we'll walk through a simple example of how to leverage RAG in combination with `chatlas`.
+
+The core idea of RAG is fairly simple, yet general: given a set of documents and a user query, find the document(s) that are the most "similar" to the query and supply those documents as additional context to the LLM. The LLM can then use this context to generate a response to the user query. There are many ways to measure similarity between a query and a document, but one common approach is to use embeddings. Embeddings are dense, low-dimensional vectors that represent the semantic content of a piece of text. By comparing the embeddings of the query and each document, we can compute a similarity score that tells us how closely related the query is to each document.
+
+There are also many different ways to generate embeddings, but one popular method is to use pre-trained models like [Sentence Transformers](https://sbert.net/). Different models are trained on different datasets and thus have different strengths and weaknesses, so it's worth experimenting with a few to see which one works best for your particular use case. In our example, we'll use the `all-MiniLM-L12-v2` model, which is a popular choice thanks to its balance of speed and accuracy.
+
+```{python}
+from sentence_transformers import SentenceTransformer
+
+embed_model = SentenceTransformer("sentence-transformers/all-MiniLM-L12-v2")
+```
+
+Supplied with an embedding model, we can now compute embeddings for each document in our set and for a `user_query`, then compare the query embedding to each document embedding to find the most similar document(s). A common way to measure similarity between two vectors is to compute the [cosine similarity](https://en.wikipedia.org/wiki/Cosine_similarity). The following code demonstrates how to do this:
+
+```{python}
+import numpy as np
+
+# Our list of documents (one document per list element)
+documents = [
+    "The Python programming language was created by Guido van Rossum.",
+    "Python is known for its simple, readable syntax.",
+    "Python supports multiple programming paradigms.",
+]
+
+# Compute embeddings for each document (do this once for performance reasons)
+embeddings = [embed_model.encode([doc])[0] for doc in documents]
+
+
+def get_top_k_similar_documents(
+    user_query,
+    documents,
+    embeddings,
+    embed_model,
+    top_k=3,
+):
+    # Compute embedding for the user query
+    query_embedding = embed_model.encode([user_query])[0]
+
+    # Calculate cosine similarity between the query and each document
+    similarities = np.dot(embeddings, query_embedding) / (
+        np.linalg.norm(embeddings, axis=1) * np.linalg.norm(query_embedding)
+    )
+
+    # Get the top-k most similar documents
+    top_indices = np.argsort(similarities)[-top_k:][::-1]
+    return [documents[i] for i in top_indices]
+
+
+user_query = "Who created Python?"
+
+top_docs = get_top_k_similar_documents(
+    user_query,
+    documents,
+    embeddings,
+    embed_model,
+    top_k=3,
+)
+```
+
+And, now that we have the most similar documents, we can supply them to the LLM as context for generating a response to the user query. Here's how we might do that using `chatlas`:
+
+```{python}
+from chatlas import ChatAnthropic
+
+chat = ChatAnthropic(
+    system_prompt="""
+    You are a helpful AI assistant. Using the provided context, 
+    answer the user's question. If you cannot answer the question based on the 
+    context, say so.
+"""
+)
+
+_ = chat.chat(
+    f"Context: {top_docs}\nQuestion: {user_query}"
+)
+```
