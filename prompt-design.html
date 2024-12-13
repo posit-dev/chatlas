@@ -251,7 +251,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="code-generation" class="level2">
 <h2 class="anchored" data-anchor-id="code-generation">Code generation</h2>
 <p>Let’s explore prompt design for a simple code generation task:</p>
-<div id="368c888e" class="cell" data-execution_count="1">
+<div id="cbb3af35" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatAnthropic, ChatOpenAI</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>question <span class="op">=</span> <span class="st">"""</span></span>
@@ -262,11 +262,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="basic-flavour" class="level3">
 <h3 class="anchored" data-anchor-id="basic-flavour">Basic flavour</h3>
 <p>When I don’t provide a system prompt, I sometimes get answers in a different language (like R):</p>
-<div id="2e344743" class="cell" data-execution_count="2">
+<div id="7817f08b" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatAnthropic()</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> chat.chat(question)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="c820e459" class="cell" data-execution_count="3">
+<div id="8a3a74b7" class="cell" data-execution_count="3">
 <div class="cell-output cell-output-display">
 <div class="chatlas-markdown">
 </div>
@@ -284,14 +284,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  )))</span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Alternative base R approach</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(. <span class="sc">~</span> age <span class="sc">+</span> sex, <span class="at">data =</span> df[,<span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"sex"</span>, letters)], </span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(. <span class="sc">~</span> age <span class="sc">+</span> sex, <span class="at">data =</span> df[,<span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"sex"</span>, letters[<span class="dv">1</span><span class="sc">:</span><span class="dv">26</span>])], </span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">FUN =</span> <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="at">mean =</span> <span class="fu">mean</span>(x), <span class="at">median =</span> <span class="fu">median</span>(x)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This will: 1. Group the data by age and sex 2. Calculate both mean and median for each variable a through z 3. Handle missing values with na.rm = TRUE 4. Return a dataframe with results for each age-sex combination</p>
 <p>The output will have columns for age, sex, and mean/median values for each variable.</p>
 </div>
 </div>
 <p>I can ensure that I always get Python code by providing a system prompt:</p>
-<div id="62849905" class="cell" data-execution_count="4">
+<div id="895cd59f" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>chat.system_prompt <span class="op">=</span> <span class="st">"You are a helpful Python (not R) programming assistant."</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> chat.chat(question)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
@@ -299,35 +299,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><br></p>
-<p>Here’s how to compute mean and median for variables a through z using Python, particularly with pandas:</p>
+<p>Here’s how to compute mean and median for variables a through z in Python using pandas:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming your data is in a DataFrame called df</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> df.groupby([<span class="st">'age'</span>, <span class="st">'sex'</span>])[<span class="bu">list</span>(<span class="st">'abcdefghijklmnopqrstuvwxyz'</span>)].agg([<span class="st">'mean'</span>, <span class="st">'median'</span>])</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># If you want to reset the index to make age and sex regular columns</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> result.reset_index()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Alternative approach with more explicit control:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the variables you want to analyze</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>variables <span class="op">=</span> <span class="bu">list</span>(<span class="st">'abcdefghijklmnopqrstuvwxyz'</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by age and sex, then calculate both statistics for each variable</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> df.groupby([<span class="st">'age'</span>, <span class="st">'sex'</span>])[variables].agg({</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    var: [<span class="st">'mean'</span>, <span class="st">'median'</span>] <span class="cf">for</span> var <span class="kw">in</span> variables</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: flatten column names</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>result.columns <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span>col[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>col[<span class="dv">1</span>]<span class="sc">}</span><span class="ss">'</span> <span class="cf">for</span> col <span class="kw">in</span> result.columns]</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> result.reset_index()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This will: 1. Group your data by age and sex 2. Calculate both mean and median for each variable from ‘a’ to ‘z’ 3. Return a DataFrame with results for each age-sex combination</p>
-<p>The resulting DataFrame will have a multi-level column structure where: - First level: variable names (a through z) - Second level: statistics (mean and median) - Rows will be unique age-sex combinations</p>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by age and sex, then calculate mean and median for all variables a through z</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> df.groupby([<span class="st">'age'</span>, <span class="st">'sex'</span>])[<span class="bu">list</span>(<span class="st">'abcdefghijklmnopqrstuvwxyz'</span>)].agg([<span class="st">'mean'</span>, <span class="st">'median'</span>])</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># If you want to handle missing values:</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> df.groupby([<span class="st">'age'</span>, <span class="st">'sex'</span>])[<span class="bu">list</span>(<span class="st">'abcdefghijklmnopqrstuvwxyz'</span>)].agg({</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    col: [<span class="st">'mean'</span>, <span class="st">'median'</span>] <span class="cf">for</span> col <span class="kw">in</span> <span class="bu">list</span>(<span class="st">'abcdefghijklmnopqrstuvwxyz'</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>}).fillna(<span class="dv">0</span>)  <span class="co"># or use .dropna() instead of fillna() if you prefer to remove NaN values</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># To make the output more readable, you can flatten the column names:</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>result.columns <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>stat<span class="sc">}</span><span class="ss">'</span> <span class="cf">for</span> col, stat <span class="kw">in</span> result.columns]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This will: 1. Group your data by age and sex 2. Calculate mean and median for each variable from ‘a’ to ‘z’ 3. Return a DataFrame where: - The index will be the age and sex combinations - The columns will be each variable’s mean and median - Column names will be in the format ‘variable_statistic’ (e.g., ‘a_mean’, ‘a_median’, etc.)</p>
+<p>Example output might look like:</p>
+<pre><code>                a_mean  a_median  b_mean  b_median  ...  z_mean  z_median
+age sex                                            ...
+20  M          23.5    24.0      45.2    46.0      ...  12.3    12.0
+    F          22.1    21.0      44.8    45.0      ...  11.9    12.0
+21  M          24.2    25.0      46.1    46.0      ...  12.5    13.0
+    F          23.8    24.0      45.9    46.0      ...  12.2    12.0
+...</code></pre>
 </div>
 </div>
 <p>Note that I’m using both a system prompt (which defines the general behaviour) and a user prompt (which asks the specific question). You could put all of the content in the user prompt and get similar results, but I think it’s helpful to use both to cleanly divide the general framing of the response from the specific questions that you want to ask.</p>
 <p>Since I’m mostly interested in the code, I ask it to drop the explanation:</p>
-<div id="d9a895e9" class="cell" data-execution_count="5">
+<div id="438424b3" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>chat.system_prompt <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="st">  You are a helpful Python (not R) programming assistant.</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st">  Just give me the code without any text explanation.</span></span>
@@ -340,16 +339,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><br></p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Define variables</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="bu">vars</span> <span class="op">=</span> <span class="bu">list</span>(<span class="st">'abcdefghijklmnopqrstuvwxyz'</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute mean and median </span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> df.groupby([<span class="st">'age'</span>, <span class="st">'sex'</span>])[<span class="bu">vars</span>].agg([<span class="st">'mean'</span>, <span class="st">'median'</span>])</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> result.reset_index()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> df.groupby([<span class="st">'age'</span>, <span class="st">'sex'</span>])[<span class="bu">list</span>(<span class="st">'abcdefghijklmnopqrstuvwxyz'</span>)].agg([<span class="st">'mean'</span>, <span class="st">'median'</span>])</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>result.columns <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>stat<span class="sc">}</span><span class="ss">'</span> <span class="cf">for</span> col, stat <span class="kw">in</span> result.columns]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <p>In this case, I seem to mostly get pandas code. But if you want a different style, you can ask for it:</p>
-<div id="abfbc561" class="cell" data-execution_count="6">
+<div id="cdbc8d16" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>chat.system_prompt <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">  You are a helpful Python (not R) programming assistant who prefers polars to pandas.</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">  Just give me the code without any text explanation.</span></span>
@@ -362,22 +357,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><br></p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> polars <span class="im">as</span> pl</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="bu">vars</span> <span class="op">=</span> <span class="bu">list</span>(<span class="st">'abcdefghijklmnopqrstuvwxyz'</span>)</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> (df</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    .groupby([<span class="st">'age'</span>, <span class="st">'sex'</span>])</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    .agg([</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        pl.col(<span class="bu">vars</span>).mean(),</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>        pl.col(<span class="bu">vars</span>).median()</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    ])</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> df.groupby([<span class="st">'age'</span>, <span class="st">'sex'</span>]).agg([</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    pl.col(c).mean().alias(<span class="ss">f'</span><span class="sc">{</span>c<span class="sc">}</span><span class="ss">_mean'</span>) <span class="cf">for</span> c <span class="kw">in</span> <span class="st">'abcdefghijklmnopqrstuvwxyz'</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>] <span class="op">+</span> [</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    pl.col(c).median().alias(<span class="ss">f'</span><span class="sc">{</span>c<span class="sc">}</span><span class="ss">_median'</span>) <span class="cf">for</span> c <span class="kw">in</span> <span class="st">'abcdefghijklmnopqrstuvwxyz'</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div></div></div></div></section>
 <section id="be-explicit" class="level3">
 <h3 class="anchored" data-anchor-id="be-explicit">Be explicit</h3>
 <p>If there’s something about the output that you don’t like, you can try being more explicit about it. For example, the code isn’t styled quite how I like, so I provide more details about what I do want:</p>
-<div id="c0bd2524" class="cell" data-execution_count="7">
+<div id="114ff16e" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>chat.system_prompt <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="st">  You are a helpful Python (not R) programming assistant who prefers siuba to pandas.</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">  Just give me the code. I don't want any explanation or sample data.</span></span>
@@ -394,20 +385,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> siuba <span class="im">import</span> <span class="op">*</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> siuba.dply.vector <span class="im">import</span> <span class="op">*</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="bu">vars</span> <span class="op">=</span> <span class="bu">list</span>(<span class="st">'abcdefghijklmnopqrstuvwxyz'</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> (df</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;&gt;</span> group_by(_[<span class="st">"age"</span>], _[<span class="st">"sex"</span>])</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;&gt;</span> summarize(</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>{<span class="ss">f"</span><span class="sc">{</span>var<span class="sc">}</span><span class="ss">_mean"</span>: _[var].mean() <span class="cf">for</span> var <span class="kw">in</span> <span class="bu">vars</span>},</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>{<span class="ss">f"</span><span class="sc">{</span>var<span class="sc">}</span><span class="ss">_median"</span>: _[var].median() <span class="cf">for</span> var <span class="kw">in</span> <span class="bu">vars</span>}</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> (df </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;&gt;</span> group_by(_.age, _.sex)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">&gt;&gt;</span> summarize(<span class="op">**</span>{</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="ss">f"</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>stat<span class="sc">}</span><span class="ss">"</span>: call(stat, _[col])</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> col <span class="kw">in</span> <span class="st">"abcdefghijklmnopqrstuvwxyz"</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> stat <span class="kw">in</span> [<span class="st">"mean"</span>, <span class="st">"median"</span>]</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  }))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <p>This still doesn’t yield exactly the code that I’d write, but it’s prety close.</p>
 <p>You could provide a different prompt if you were looking for more explanation of the code:</p>
-<div id="adcca653" class="cell" data-execution_count="8">
+<div id="73f03f84" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>chat.system_prompt <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="st">  You are an an expert Python (not R) programmer and a warm and supportive teacher.</span></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="st">  Help me understand the code you produce by explaining each function call with</span></span>
@@ -421,28 +410,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><br></p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Create list of letter variables</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="bu">vars</span> <span class="op">=</span> <span class="bu">list</span>(<span class="st">'abcdefghijklmnopqrstuvwxyz'</span>)</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Define both aggregation functions at once</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>aggs <span class="op">=</span> [<span class="st">'mean'</span>, <span class="st">'median'</span>] </span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by age and sex, compute both stats for all letter variables</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> (df</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    .groupby([<span class="st">'age'</span>, <span class="st">'sex'</span>])  <span class="co"># Group by these two variables</span></span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    [<span class="bu">vars</span>]                    <span class="co"># Select only the letter columns</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    .agg(aggs)               <span class="co"># Calculate both statistics</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    .reset_index()           <span class="co"># Convert groups back to columns</span></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Create list of letters a-z to use as column names</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>cols <span class="op">=</span> <span class="bu">list</span>(<span class="st">'abcdefghijklmnopqrstuvwxyz'</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by age &amp; sex, compute mean and median for all letter columns</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> df.groupby([<span class="st">'age'</span>, <span class="st">'sex'</span>])[cols].agg([</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">'mean'</span>,    <span class="co"># Calculate mean for each column</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">'median'</span>   <span class="co"># Calculate median for each column</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Flatten the multi-level column names for readability </span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>result.columns <span class="op">=</span> [<span class="ss">f'</span><span class="sc">{</span>col<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>stat<span class="sc">}</span><span class="ss">'</span> <span class="cf">for</span> col, stat <span class="kw">in</span> result.columns]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div></div></section>
 <section id="teach-it-about-new-features" class="level3">
 <h3 class="anchored" data-anchor-id="teach-it-about-new-features">Teach it about new features</h3>
-<p>You can imagine LLMs as being a sort of an average of the internet at a given point in time. That means they will provide popular answers, which will tend to reflect older coding styles (either because the new features aren’t in their index, or the older features are so much more popular). So if you want your code to use specific features that are relatively recent, you might need to provide the examples yourself:</p>
-<div id="605f2231" class="cell" data-execution_count="9">
+<p>You can imagine LLMs as being a sort of an average of the internet at a given point in time. That means they will provide popular answers, which will tend to reflect older coding styles (either because the new features aren’t in their index, or the older features are so much more popular). So if you want your code to use specific newer language features, you might need to provide the examples yourself:</p>
+<div id="36bff6eb" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>chat.system_prompt <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="st">  You are an expert R programmer.</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="st">  Just give me the code; no explanation in text.</span></span>
@@ -481,11 +467,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="structured-data" class="level2">
 <h2 class="anchored" data-anchor-id="structured-data">Structured data</h2>
-<p>Providing a rich set of examples is a great way to encourage the output to produce exactly what you want. This is also known as <strong>multi-shot prompting</strong>. Here we’ll work through a prompt that I designed to extract structured data from recipes, but the same ideas apply in many other situations.</p>
+<p>Providing a rich set of examples is a great way to encourage the output to produce exactly what you want. This is known as <strong>multi-shot prompting</strong>. Below we’ll work through a prompt that I designed to extract structured data from recipes, but the same ideas apply in many other situations.</p>
 <section id="getting-started" class="level3">
 <h3 class="anchored" data-anchor-id="getting-started">Getting started</h3>
-<p>My overall goal is to turn a list of ingredients, like the following, into a nicely structured JSON that I can then analyse in Python (e.g.&nbsp;to compute the total weight, scale the recipe up or down, or to convert the units from volumes to weights).</p>
-<div id="a263aafe" class="cell" data-execution_count="10">
+<p>My overall goal is to turn a list of ingredients, like the following, into a nicely structured JSON that I can then analyse in Python (e.g.&nbsp;compute the total weight, scale the recipe up or down, or convert the units from volumes to weights).</p>
+<div id="a69a903a" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ingredients <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="st">  ¾ cup (150g) dark brown sugar</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="st">  2 large eggs</span></span>
@@ -500,8 +486,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(model<span class="op">=</span><span class="st">"gpt-4o-mini"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>(This isn’t the ingredient list for a real recipe but it includes a sampling of styles that I encountered in my project.)</p>
-<p>If you don’t have strong feelings about what the data structure should look like, you can start with a very loose prompt and see what you get back. I find this a useful pattern for underspecified problems where a big part of the problem is just defining precisely what problem you want to solve. Seeing the LLM’s attempt at a data structure gives me something to immediately react to, rather than having to start from a blank page.</p>
-<div id="d4d27a69" class="cell" data-execution_count="11">
+<p>If you don’t have strong feelings about what the data structure should look like, you can start with a very loose prompt and see what you get back. I find this a useful pattern for underspecified problems where the heavy lifting lies with precisely defining the problem you want to solve. Seeing the LLM’s attempt to create a data structure gives me something to react to, rather than having to start from a blank page.</p>
+<div id="16d89a7b" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>instruct_json <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="st">  You're an expert baker who also loves JSON. I am going to give you a list of</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="st">  ingredients and your job is to return nicely structured JSON. Just return the</span></span>
@@ -514,15 +500,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><br></p>
-<p>{ “ingredients”: [ { “name”: “dark brown sugar”, “amount”: “¾ cup”, “grams”: 150 }, { “name”: “large eggs”, “amount”: “2” }, { “name”: “sour cream”, “amount”: “¾ cup”, “grams”: 165 }, { “name”: “unsalted butter”, “amount”: “½ cup”, “grams”: 113, “state”: “melted” }, { “name”: “vanilla extract”, “amount”: “1 teaspoon” }, { “name”: “kosher salt”, “amount”: “¾ teaspoon” }, { “name”: “neutral oil”, “amount”: “⅓ cup”, “milliliters”: 80 }, { “name”: “all-purpose flour”, “amount”: “1½ cups”, “grams”: 190 }, { “name”: “sugar”, “amount”: “150g plus 1½ teaspoons” } ] }</p>
+<p>{ “ingredients”: [ { “name”: “dark brown sugar”, “quantity”: “¾ cup”, “weight”: “150g” }, { “name”: “large eggs”, “quantity”: “2” }, { “name”: “sour cream”, “quantity”: “¾ cup”, “weight”: “165g” }, { “name”: “unsalted butter”, “quantity”: “½ cup”, “weight”: “113g”, “state”: “melted” }, { “name”: “vanilla extract”, “quantity”: “1 teaspoon” }, { “name”: “kosher salt”, “quantity”: “¾ teaspoon” }, { “name”: “neutral oil”, “quantity”: “⅓ cup”, “volume”: “80ml” }, { “name”: “all-purpose flour”, “quantity”: “1½ cups”, “weight”: “190g” }, { “name”: “sugar”, “quantity”: “150g plus 1½ teaspoons” } ] }</p>
 </div>
 </div>
-<p>(I don’t know if the colour text, “You’re an expert baker who also loves JSON”, does anything, but I like to think this helps the LLM get into the right mindset of a very nerdy baker.)</p>
+<p>(I don’t know if the additional colour, “You’re an expert baker who also loves JSON”, does anything, but I like to think this helps the LLM get into the right mindset of a very nerdy baker.)</p>
 </div></section>
 <section id="provide-examples" class="level3">
 <h3 class="anchored" data-anchor-id="provide-examples">Provide examples</h3>
 <p>This isn’t a bad start, but I prefer to cook with weight and I only want to see volumes if weight isn’t available so I provide a couple of examples of what I’m looking for. I was pleasantly suprised that I can provide the input and output examples in such a loose format.</p>
-<div id="241e9d45" class="cell" data-execution_count="12">
+<div id="38412dd8" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>instruct_weight <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="st">  Here are some examples of the sort of output I'm looking for:</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -543,11 +529,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><br></p>
-<p>{ “ingredients”: [ { “name”: “dark brown sugar”, “quantity”: 150, “unit”: “g” }, { “name”: “large eggs”, “quantity”: 2, “unit”: “count” }, { “name”: “sour cream”, “quantity”: 165, “unit”: “g” }, { “name”: “unsalted butter”, “quantity”: 113, “unit”: “g”, “state”: “melted” }, { “name”: “vanilla extract”, “quantity”: 1, “unit”: “teaspoon” }, { “name”: “kosher salt”, “quantity”: 0.75, “unit”: “teaspoon” }, { “name”: “neutral oil”, “quantity”: 80, “unit”: “ml” }, { “name”: “all-purpose flour”, “quantity”: 190, “unit”: “g” }, { “name”: “sugar”, “quantity”: 150, “unit”: “g plus 1½ teaspoons” } ] }</p>
+<p>{ “ingredients”: [ { “name”: “dark brown sugar”, “quantity”: 150, “unit”: “g” }, { “name”: “large eggs”, “quantity”: 2, “unit”: “count” }, { “name”: “sour cream”, “quantity”: 165, “unit”: “g” }, { “name”: “unsalted butter”, “quantity”: 113, “unit”: “g”, “state”: “melted” }, { “name”: “vanilla extract”, “quantity”: 1, “unit”: “teaspoon” }, { “name”: “kosher salt”, “quantity”: ¾, “unit”: “teaspoon” }, { “name”: “neutral oil”, “quantity”: 80, “unit”: “ml” }, { “name”: “all-purpose flour”, “quantity”: 190, “unit”: “g” }, { “name”: “sugar”, “quantity”: “150g plus 1½ teaspoons”, “unit”: “g” } ] }</p>
 </div>
 </div>
-<p>Just providing the examples seems to work remarkably well. But I found it useful to also include description of what the examples are trying to accomplish. I’m not sure if this helps the LLM or not, but it certainly makes it easier for me to understand the organisation and check that I’ve covered the key pieces that I’m interested in.</p>
-<div id="5a21be90" class="cell" data-execution_count="13">
+<p>Just providing the examples seems to work remarkably well. But I found it useful to also include a description of what the examples are trying to accomplish. I’m not sure if this helps the LLM or not, but it certainly makes it easier for me to understand the organisation and check that I’ve covered the key pieces I’m interested in.</p>
+<div id="6268f16f" class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>instruct_weight <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="st">  * If an ingredient has both weight and volume, extract only the weight:</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -567,8 +553,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This structure also allows me to give the LLMs a hint about how I want multiple ingredients to be stored, i.e.&nbsp;as an JSON array.</p>
-<p>I then iterated on the prompt, looking at the results from different recipes to get a sense of what the LLM was getting wrong. Much of this felt like I was iterating on my understanding of the problem as I didn’t start by knowing exactly how I wanted the data. For example, when I started out I didn’t really think about all the various ways that ingredients are specified. For later analysis, I always want quantities to be number, even if they were originally fractions, or the if the units aren’t precise (like a pinch). It made me to realise that some ingredients are unitless.</p>
-<div id="81d2e722" class="cell" data-execution_count="14">
+<p>I then iterated on the prompt, looking at the results from different recipes to get a sense of what the LLM was getting wrong. Much of this felt like I was iterating on my own understanding of the problem as I didn’t start by knowing exactly how I wanted the data. For example, when I started out I didn’t really think about all the various ways that ingredients are specified. For later analysis, I always want quantities to be number, even if they were originally fractions, or the if the units aren’t precise (like a pinch). It made me to realise that some ingredients are unitless.</p>
+<div id="9741b6c7" class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>instruct_unit <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="st">* If the unit uses a fraction, convert it to a decimal.</span></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -601,8 +587,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div></section>
 <section id="structured-data-1" class="level3">
 <h3 class="anchored" data-anchor-id="structured-data-1">Structured data</h3>
-<p>Now that I’ve iterated to get a data structure that I like, it seems useful to formalise it and tell the LLM exactly what I’m looking for using <a href="./structured-data.html">structured data</a>. This guarantees that the LLM will only return JSON, the JSON will have the fields that you expect, and that chatlas will convert it into an Python data structure for you.</p>
-<div id="c3692698" class="cell" data-execution_count="15">
+<p>Now that I’ve iterated to get a data structure I like, it seems useful to formalise it and tell the LLM exactly what I’m looking for when dealing with <a href="./structured-data.html">structured data</a>. This guarantees that the LLM will only return JSON, that the JSON will have the fields that you expect, and that chatlas will convert it into an Python data structure for you.</p>
+<div id="092fe3db" class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel, Field</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Ingredient(BaseModel):</span>
@@ -625,14 +611,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   {'name': 'kosher salt', 'quantity': 0.75, 'unit': 'teaspoon'},
   {'name': 'neutral oil', 'quantity': 80, 'unit': 'ml'},
   {'name': 'all-purpose flour', 'quantity': 190, 'unit': 'g'},
-  {'name': 'sugar', 'quantity': 150, 'unit': 'g plus 1½ teaspoons'}]}</code></pre>
+  {'name': 'sugar', 'quantity': 150, 'unit': 'g'}]}</code></pre>
 </div>
 </div>
 </section>
 <section id="capturing-raw-input" class="level3">
 <h3 class="anchored" data-anchor-id="capturing-raw-input">Capturing raw input</h3>
-<p>One thing that I’d do next time would also be to include the raw ingredient name in the output. This doesn’t make much difference here, in this simple example, but it makes it much easier to align the input and the output and start to develop automated measures of how well my prompt is doing.</p>
-<div id="e25737f9" class="cell" data-execution_count="16">
+<p>One thing that I’d do next time would also be to include the raw ingredient names in the output. This doesn’t make much difference in this simple example but it makes it much easier to align the input with the output and to start developing automated measures of how well my prompt is doing.</p>
+<div id="655daf97" class="cell" data-execution_count="16">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>instruct_weight_input <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="st">  * If an ingredient has both weight and volume, extract only the weight:</span></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -652,7 +638,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>I think this is particularly important if you’re working with even less structured text. For example, imagine you had this text:</p>
-<div id="19431655" class="cell" data-execution_count="17">
+<div id="6d3ac709" class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>recipe <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="st">  In a large bowl, cream together one cup of softened unsalted butter and a</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="st">  quarter cup of white sugar until smooth. Beat in an egg and 1 teaspoon of</span></span>
@@ -665,7 +651,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Including the input text in the output makes it easier to see if it’s doing a good job:</p>
-<div id="791fa396" class="cell" data-execution_count="18">
+<div id="ee61b112" class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>chat.system_prompt <span class="op">=</span> instruct_json <span class="op">+</span> <span class="st">"</span><span class="ch">\n</span><span class="st">"</span> <span class="op">+</span> instruct_weight_input</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> chat.chat(ingredients)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
@@ -673,20 +659,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><br></p>
-<p>{ “ingredients”: [ { “name”: “dark brown sugar”, “quantity”: 150, “unit”: “g” }, { “name”: “large eggs”, “quantity”: 2, “unit”: “count” }, { “name”: “sour cream”, “quantity”: 165, “unit”: “g” }, { “name”: “unsalted butter”, “quantity”: 113, “unit”: “g”, “state”: “melted” }, { “name”: “vanilla extract”, “quantity”: 1, “unit”: “teaspoon” }, { “name”: “kosher salt”, “quantity”: 0.75, “unit”: “teaspoon” }, { “name”: “neutral oil”, “quantity”: 80, “unit”: “ml” }, { “name”: “all-purpose flour”, “quantity”: 190, “unit”: “g” }, { “name”: “sugar”, “quantity”: “150g plus 1½ teaspoons” } ] }</p>
+<p>{ “ingredients”: [ { “name”: “dark brown sugar”, “quantity”: 150, “unit”: “g” }, { “name”: “large eggs”, “quantity”: 2, “unit”: “count” }, { “name”: “sour cream”, “quantity”: 165, “unit”: “g” }, { “name”: “unsalted butter”, “quantity”: 113, “unit”: “g”, “state”: “melted” }, { “name”: “vanilla extract”, “quantity”: 1, “unit”: “teaspoon” }, { “name”: “kosher salt”, “quantity”: 0.75, “unit”: “teaspoon” }, { “name”: “neutral oil”, “quantity”: 80, “unit”: “ml” }, { “name”: “all-purpose flour”, “quantity”: 190, “unit”: “g” }, { “name”: “sugar”, “quantity”: “150g plus 1½ teaspoons”, “unit”: “g” } ] }</p>
 </div>
 </div>
-<p>When I ran it while writing this vignette, it seems to be working out the weight of the ingredients specified in volume, even though the prompt specifically asks it not to do that. This may suggest I need to broaden my examples.</p>
+<p>When I ran it while writing this vignette, it seemed to be working out the weight of the ingredients specified in volume, even though the prompt specifically asks it not to. This may suggest I need to broaden my examples.</p>
 </div></section>
 </section>
 <section id="token-usage" class="level2">
 <h2 class="anchored" data-anchor-id="token-usage">Token usage</h2>
-<div id="8f859595" class="cell" data-execution_count="19">
+<div id="032c083d" class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> token_usage</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>token_usage()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="18">
-<pre><code>[{'name': 'Anthropic', 'input': 5583, 'output': 1083},
- {'name': 'OpenAI', 'input': 2778, 'output': 918}]</code></pre>
+<pre><code>[{'name': 'Anthropic', 'input': 6504, 'output': 1270},
+ {'name': 'OpenAI', 'input': 2909, 'output': 1043}]</code></pre>
 </div>
 </div>
 
