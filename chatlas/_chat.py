@@ -176,7 +176,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if value is not None:
             self._turns.insert(0, Turn("system", value))
 
-    @property
     def token_usage(self) -> tuple[int, int]:
         """
         Get the current token usage for the chat.
@@ -199,7 +198,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         Get the token count for the given input.
 
-        This is useful for estimating the number of tokens your input will cost 
+        This is useful for estimating the number of tokens your input will cost
         before sending it to the model.
 
         Parameters
@@ -226,7 +225,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         # Once input is sent, you can get the actual input and output
         # token counts from the chat object
         chat.chat("What is 2 + 2?", echo="none")
-        print(chat.token_usage)
+        print(chat.token_usage())
         ```
         """
 
