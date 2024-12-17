@@ -8,6 +8,7 @@ from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
 import openai
 import openai.types.chat.chat_completion_assistant_message_param
 import openai.types.chat.chat_completion_audio_param
+import openai.types.chat.chat_completion_developer_message_param
 import openai.types.chat.chat_completion_function_call_option_param
 import openai.types.chat.chat_completion_function_message_param
 import openai.types.chat.chat_completion_named_tool_choice_param
@@ -26,6 +27,7 @@ import openai.types.shared_params.response_format_text
 class SubmitInputArgs(TypedDict, total=False):
     messages: Iterable[
         Union[
+            openai.types.chat.chat_completion_developer_message_param.ChatCompletionDeveloperMessageParam,
             openai.types.chat.chat_completion_system_message_param.ChatCompletionSystemMessageParam,
             openai.types.chat.chat_completion_user_message_param.ChatCompletionUserMessageParam,
             openai.types.chat.chat_completion_assistant_message_param.ChatCompletionAssistantMessageParam,
@@ -36,6 +38,8 @@ class SubmitInputArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "o1",
+            "o1-2024-12-17",
             "o1-preview",
             "o1-preview-2024-09-12",
             "o1-mini",
@@ -44,10 +48,11 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-4o-2024-11-20",
             "gpt-4o-2024-08-06",
             "gpt-4o-2024-05-13",
-            "gpt-4o-realtime-preview",
-            "gpt-4o-realtime-preview-2024-10-01",
             "gpt-4o-audio-preview",
             "gpt-4o-audio-preview-2024-10-01",
+            "gpt-4o-audio-preview-2024-12-17",
+            "gpt-4o-mini-audio-preview",
+            "gpt-4o-mini-audio-preview-2024-12-17",
             "chatgpt-4o-latest",
             "gpt-4o-mini",
             "gpt-4o-mini-2024-07-18",
@@ -100,6 +105,7 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.NotGiven,
     ]
     presence_penalty: Union[float, None, openai.NotGiven]
+    reasoning_effort: Union[Literal["low", "medium", "high"], openai.NotGiven]
     response_format: Union[
         openai.types.shared_params.response_format_text.ResponseFormatText,
         openai.types.shared_params.response_format_json_object.ResponseFormatJSONObject,

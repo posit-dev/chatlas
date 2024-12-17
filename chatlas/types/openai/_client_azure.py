@@ -17,6 +17,7 @@ class ChatAzureClientArgs(TypedDict, total=False):
     organization: str | None
     project: str | None
     base_url: str | None
+    websocket_base_url: str | httpx.URL | None
     timeout: float | openai.Timeout | None | openai.NotGiven
     max_retries: int
     default_headers: Optional[Mapping[str, str]]

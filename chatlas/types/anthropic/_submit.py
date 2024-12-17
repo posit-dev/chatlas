@@ -6,7 +6,6 @@
 from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
 
 import anthropic
-import anthropic._types
 import anthropic.types.message_param
 import anthropic.types.text_block_param
 import anthropic.types.tool_choice_any_param
@@ -51,7 +50,7 @@ class SubmitInputArgs(TypedDict, total=False):
     tools: Union[Iterable[anthropic.types.tool_param.ToolParam], anthropic.NotGiven]
     top_k: int | anthropic.NotGiven
     top_p: float | anthropic.NotGiven
-    extra_headers: Optional[Mapping[str, Union[str, anthropic._types.Omit]]]
+    extra_headers: Optional[Mapping[str, Union[str, anthropic.Omit]]]
     extra_query: Optional[Mapping[str, object]]
     extra_body: object | None
     timeout: float | anthropic.Timeout | None | anthropic.NotGiven

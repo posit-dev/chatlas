@@ -18,12 +18,4 @@ class ChatClientArgs(TypedDict, total=False):
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
     http_client: httpx.AsyncClient
-    transport: httpx.AsyncBaseTransport
-    proxies: Union[
-        str,
-        httpx.Proxy,
-        dict[str | httpx.URL, Union[None, str, httpx.URL, httpx.Proxy]],
-        None,
-    ]
-    connection_pool_limits: httpx.Limits
     _strict_response_validation: bool
