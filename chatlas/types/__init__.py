@@ -10,7 +10,6 @@ from .._content import (
     ContentToolResult,
     ImageContentTypes,
 )
-from .._tokens import TokenUsage
 from .._utils import MISSING, MISSING_TYPE
 
 __all__ = (
@@ -26,7 +25,6 @@ __all__ = (
     "ChatResponseAsync",
     "ImageContentTypes",
     "SubmitInputArgsT",
-    "TokenUsage",
     "MISSING_TYPE",
     "MISSING",
 )

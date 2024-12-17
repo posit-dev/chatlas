@@ -10,7 +10,6 @@ from ._ollama import ChatOllama
 from ._openai import ChatAzureOpenAI, ChatOpenAI
 from ._perplexity import ChatPerplexity
 from ._provider import Provider
-from ._tokens import token_usage
 from ._tools import Tool
 from ._turn import Turn
 
@@ -31,7 +30,6 @@ __all__ = (
     "interpolate",
     "interpolate_file",
     "Provider",
-    "token_usage",
     "Tool",
     "Turn",
     "types",
