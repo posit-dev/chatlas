@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from ._chat import Chat
 from ._content import (
     Content,
+    ContentImage,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -18,7 +19,6 @@ from ._content import (
 from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import Provider
-from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
 from ._utils import MISSING, MISSING_TYPE, is_testing
@@ -349,6 +349,50 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
     def value_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
 
+    def token_count(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        has_data_model: bool,
+    ) -> int:
+        try:
+            import tiktoken
+        except ImportError:
+            raise ImportError(
+                "The tiktoken package is required for token counting. "
+                "Please install it with `pip install tiktoken`."
+            )
+
+        encoding = tiktoken.encoding_for_model(self._model)
+
+        res: int = 0
+        for arg in args:
+            if isinstance(arg, str):
+                res += len(encoding.encode(arg))
+            elif isinstance(arg, ContentText):
+                res += len(encoding.encode(arg.text))
+            elif isinstance(arg, ContentImage):
+                res += self._image_token_count(arg)
+            elif isinstance(arg, ContentToolResult):
+                res += len(encoding.encode(arg.get_final_value()))
+            else:
+                raise NotImplementedError(
+                    f"Token counting for {type(arg)} not yet implemented."
+                )
+
+        return res
+
+    @staticmethod
+    def _image_token_count(image: ContentImage) -> int:
+        if isinstance(image, ContentImageRemote) and image.detail == "low":
+            return 85
+        else:
+            # This is just the max token count for an image The highest possible
+            # resolution is 768 x 2048, and 8 tiles of size 512px can fit inside
+            # TODO: this is obviously a very conservative estimate and could be improved
+            # https://platform.openai.com/docs/guides/vision/calculating-costs
+            return 170 * 8 + 85
+
     @staticmethod
     def _as_message_param(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
         from openai.types.chat import (
@@ -505,8 +549,6 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         if usage is None and hasattr(completion, "x_groq"):
             usage = completion.x_groq["usage"]  # type: ignore
             tokens = usage["prompt_tokens"], usage["completion_tokens"]
-
-        tokens_log(self, tokens)
 
         return Turn(
             "assistant",

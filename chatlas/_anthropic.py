@@ -18,9 +18,8 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._provider import Provider
-from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
+from ._turn import Turn, normalize_turns, user_turn
 
 if TYPE_CHECKING:
     from anthropic.types import (
@@ -380,6 +379,38 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
     def value_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
 
+    def token_count(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        has_data_model: bool,
+    ) -> int:
+        turn = user_turn(*args)
+
+        kwargs = self._chat_perform_args(
+            stream=False,
+            turns=[turn],
+            tools=tools,
+            data_model=None if not has_data_model else BaseModel,
+        )
+
+        args_to_keep = [
+            "messages",
+            "model",
+            "system",
+            "tools",
+            "tool_choice",
+        ]
+
+        kwargs_final = {}
+        for arg in args_to_keep:
+            if arg in kwargs:
+                kwargs_final[arg] = kwargs[arg]
+
+        res = self._client.messages.count_tokens(**kwargs_final)
+
+        return res.input_tokens
+
     def _as_message_params(self, turns: list[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
         for turn in turns:
@@ -475,8 +506,6 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                     )
 
         tokens = completion.usage.input_tokens, completion.usage.output_tokens
-
-        tokens_log(self, tokens)
 
         return Turn(
             "assistant",

@@ -14,6 +14,7 @@ from typing import (
 
 from pydantic import BaseModel
 
+from ._content import Content
 from ._tools import Tool
 from ._turn import Turn
 
@@ -141,3 +142,11 @@ class Provider(
         completion: ChatCompletionT,
         has_data_model: bool,
     ) -> Turn: ...
+
+    @abstractmethod
+    def token_count(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        has_data_model: bool,
+    ) -> int: ...

@@ -18,7 +18,7 @@ from ._content import (
 from ._logging import log_model_default
 from ._provider import Provider
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
+from ._turn import Turn, normalize_turns, user_turn
 
 if TYPE_CHECKING:
     from google.generativeai.types.content_types import (
@@ -331,6 +331,31 @@ class GoogleProvider(
 
     def value_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
+
+    def token_count(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        has_data_model: bool,
+    ):
+        turn = user_turn(*args)
+
+        kwargs = self._chat_perform_args(
+            stream=False,
+            turns=[turn],
+            tools=tools,
+            data_model=None if not has_data_model else BaseModel,
+        )
+
+        args_to_keep = ["contents", "tools"]
+
+        kwargs_final = {}
+        for arg in args_to_keep:
+            if arg in kwargs:
+                kwargs_final[arg] = kwargs[arg]
+
+        res = self._client.count_tokens(**kwargs_final)
+        return res.total_tokens
 
     def _google_contents(self, turns: list[Turn]) -> list["ContentDict"]:
         contents: list["ContentDict"] = []
