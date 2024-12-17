@@ -17,18 +17,18 @@ Using Shiny's [`ui.Chat` component](https://shiny.posit.co/py/components/display
 from chatlas import ChatAnthropic
 from shiny.express import ui
 
-chat_ui = ui.Chat(
+chat = ui.Chat(
     id="ui_chat",
     messages=["Hi! How can I help you today?"],
 )
-chat_ui.ui()
+chat.ui()
 
-chat = ChatAnthropic()
+chat_model = ChatAnthropic()
 
 @chat_ui.on_user_submit
-async def _():
-    response = chat.stream(chat_ui.user_input())
-    await chat_ui.append_message_stream(response)
+async def handle_user_input():
+    response = chat_model.stream(chat.user_input())
+    await chat.append_message_stream(response)
 ```
 
 ## Streamlit
