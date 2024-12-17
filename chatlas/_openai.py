@@ -412,7 +412,13 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                         contents.append({"type": "text", "text": ""})
                     elif isinstance(x, ContentImageRemote):
                         contents.append(
-                            {"type": "image_url", "image_url": {"url": x.url}}
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": x.url,
+                                    "detail": x.detail,
+                                },
+                            }
                         )
                     elif isinstance(x, ContentImageInline):
                         contents.append(
