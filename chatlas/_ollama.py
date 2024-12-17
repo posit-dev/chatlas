@@ -48,6 +48,13 @@ def ChatOllama(
     (e.g. `ollama pull llama3.2`).
     :::
 
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatOllama` requires the `ollama` package (e.g., `pip install ollama`).
+    :::
+
+
     Examples
     --------
 
@@ -103,6 +110,7 @@ def ChatOllama(
 
     return ChatOpenAI(
         system_prompt=system_prompt,
+        api_key="ollama",  # ignored
         turns=turns,
         base_url=f"{base_url}/v1",
         model=model,
