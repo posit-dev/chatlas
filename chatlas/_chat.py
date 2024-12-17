@@ -199,9 +199,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         Get the token count for the given input.
 
-        Get the token count for the given input. This can be useful for
-        understanding how many tokens your input will cost before sending it to
-        the model.
+        This is useful for estimating the number of tokens your input will cost 
+        before sending it to the model.
 
         Parameters
         ----------
@@ -224,11 +223,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         # Estimate the token count before sending the input
         print(chat.token_count("What is 2 + 2?"))
 
-        # Once input is sent, you can get the actual input and output token counts
+        # Once input is sent, you can get the actual input and output
+        # token counts from the chat object
         chat.chat("What is 2 + 2?", echo="none")
-        print(chat.last_turn().tokens)
+        print(chat.token_usage)
         ```
-
         """
 
         return self.provider.token_count(
