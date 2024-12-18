@@ -103,8 +103,8 @@ class VLLMProvider(OpenAIProvider):
         self,
         base_url: str,
         model: str,
-        seed: int | None,
-        api_key: str | None,
+        seed: Optional[int],
+        api_key: Optional[str],
         kwargs: Optional["ChatClientArgs"],
     ):
         self.base_url = base_url
