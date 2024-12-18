@@ -17,6 +17,7 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._provider import Provider
+from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns, user_turn
 
@@ -445,6 +446,8 @@ class GoogleProvider(
             usage.prompt_token_count,
             usage.candidates_token_count,
         )
+
+        tokens_log(self, tokens)
 
         finish = message.candidates[0].finish_reason
 

@@ -176,19 +176,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if value is not None:
             self._turns.insert(0, Turn("system", value))
 
-    def token_usage(self) -> tuple[int, int]:
+    def tokens(self) -> list[tuple[int, int] | None]:
         """
-        Get the current token usage for the chat.
-
+        Get the tokens for each turn in the chat.
         Returns
         -------
-        tuple[int, int]
-            The input and output token usage for the chat.
+        list[tuple[int, int] | None]
+            A list of tuples, where each tuple contains the start and end token
+            indices for a turn.
         """
-        turn = self.get_last_turn(role="assistant")
-        if turn is None:
-            return 0, 0
-        return turn.tokens or (0, 0)
+        return [turn.tokens for turn in self._turns]
 
     def token_count(
         self,

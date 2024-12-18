@@ -19,6 +19,7 @@ from ._content import (
 from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import Provider
+from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
 from ._utils import MISSING, MISSING_TYPE, is_testing
@@ -549,6 +550,8 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         if usage is None and hasattr(completion, "x_groq"):
             usage = completion.x_groq["usage"]  # type: ignore
             tokens = usage["prompt_tokens"], usage["completion_tokens"]
+
+        tokens_log(self, tokens)
 
         return Turn(
             "assistant",
