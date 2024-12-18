@@ -179,6 +179,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def tokens(self) -> list[tuple[int, int] | None]:
         """
         Get the tokens for each turn in the chat.
+
         Returns
         -------
         list[tuple[int, int] | None]

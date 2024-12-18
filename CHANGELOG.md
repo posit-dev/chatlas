@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `ChatOllama` no longer fails when a `OPENAI_API_KEY` environment variable is not set.
 * `ChatOpenAI` now correctly includes the relevant `detail` on `ContentImageRemote()` input.
+* `ChatGoogle` now correctly logs its `token_usage()`. (#23)
 
 
 ## [0.2.0] - 2024-12-11
