@@ -188,6 +188,51 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         return [turn.tokens for turn in self._turns]
 
+    def token_count(
+        self,
+        *args: Content | str,
+        extract_data: bool = False,
+    ) -> int:
+        """
+        Get the token count for the given input.
+
+        This is useful for estimating the number of tokens your input will cost
+        before sending it to the model.
+
+        Parameters
+        ----------
+        args
+            The input to get a token count for.
+        extract_data
+            Whether or not the input is for data extraction (i.e., `.extract_data()`).
+
+        Returns
+        -------
+        int
+            The token count for the input.
+
+        Examples
+        --------
+        ```python
+        from chatlas import ChatOpenAI
+
+        chat = ChatOpenAI()
+        # Estimate the token count before sending the input
+        print(chat.token_count("What is 2 + 2?"))
+
+        # Once input is sent, you can get the actual input and output
+        # token counts from the chat object
+        chat.chat("What is 2 + 2?", echo="none")
+        print(chat.token_usage())
+        ```
+        """
+
+        return self.provider.token_count(
+            *args,
+            tools=self._tools,
+            has_data_model=extract_data,
+        )
+
     def app(
         self,
         *,
