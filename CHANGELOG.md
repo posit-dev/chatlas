@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* The `Chat` class gains a `.token_count()` method to help estimate token cost of new input before generating a response for it. (#23)
 * `Chat`'s `.tokens()` method gains a `values` argument. Set it to `"discrete"` to get a result that can be summed to determine the token cost of submitting the current turns. The default (`"cumulative"`), remains the same (the result can be summed to determine the overall token cost of the conversation).
+* `Chat` gains a `.token_count()` method to help estimate token cost of new input. (#23)
 
 ### Bug fixes
 
