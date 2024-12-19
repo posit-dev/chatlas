@@ -354,7 +354,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         self,
         *args: Content | str,
         tools: dict[str, Tool],
-        has_data_model: bool,
+        data_model: Optional[type[BaseModel]],
     ) -> int:
         try:
             import tiktoken
@@ -382,6 +382,14 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                 )
 
         return res
+
+    async def token_count_async(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
+    ) -> int:
+        return self.token_count(*args, tools=tools, data_model=data_model)
 
     @staticmethod
     def _image_token_count(image: ContentImage) -> int:

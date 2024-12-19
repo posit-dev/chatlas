@@ -337,26 +337,50 @@ class GoogleProvider(
         self,
         *args: Content | str,
         tools: dict[str, Tool],
-        has_data_model: bool,
+        data_model: Optional[type[BaseModel]],
     ):
+        kwargs = self._token_count_args(
+            *args,
+            tools=tools,
+            data_model=data_model,
+        )
+
+        res = self._client.count_tokens(**kwargs)
+        return res.total_tokens
+
+    async def token_count_async(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
+    ):
+        kwargs = self._token_count_args(
+            *args,
+            tools=tools,
+            data_model=data_model,
+        )
+
+        res = await self._client.count_tokens_async(**kwargs)
+        return res.total_tokens
+
+    def _token_count_args(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
+    ) -> dict[str, Any]:
         turn = user_turn(*args)
 
         kwargs = self._chat_perform_args(
             stream=False,
             turns=[turn],
             tools=tools,
-            data_model=None if not has_data_model else BaseModel,
+            data_model=data_model,
         )
 
         args_to_keep = ["contents", "tools"]
 
-        kwargs_final = {}
-        for arg in args_to_keep:
-            if arg in kwargs:
-                kwargs_final[arg] = kwargs[arg]
-
-        res = self._client.count_tokens(**kwargs_final)
-        return res.total_tokens
+        return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
     def _google_contents(self, turns: list[Turn]) -> list["ContentDict"]:
         contents: list["ContentDict"] = []

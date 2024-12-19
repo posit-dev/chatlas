@@ -148,5 +148,13 @@ class Provider(
         self,
         *args: Content | str,
         tools: dict[str, Tool],
-        has_data_model: bool,
+        data_model: Optional[type[BaseModel]],
+    ) -> int: ...
+
+    @abstractmethod
+    async def token_count_async(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
     ) -> int: ...
