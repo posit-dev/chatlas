@@ -194,10 +194,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         extract_data: bool = False,
     ) -> int:
         """
-        Get the token count for the given input.
+        Get an estimated token count for the given input.
 
-        This is useful for estimating the number of tokens your input will cost
-        before sending it to the model.
+        Estimate the token size of input content. This can help determine whether input(s) 
+        and/or conversation history (i.e., `.get_turns()`) should be reduced in size before
+        sending it to the model.
 
         Parameters
         ----------
