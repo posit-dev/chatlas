@@ -176,17 +176,91 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if value is not None:
             self._turns.insert(0, Turn("system", value))
 
-    def tokens(self) -> list[tuple[int, int] | None]:
+    def tokens(self) -> list[int]:
         """
         Get the tokens for each turn in the chat.
 
         Returns
         -------
-        list[tuple[int, int] | None]
-            A list of tuples, where each tuple contains the start and end token
-            indices for a turn.
+        list[int]
+            A list of token counts for each (non-system )turn in the chat. The
+            1st turn includes the tokens count for the system prompt (if any).
+
+        Raises
+        ------
+        ValueError
+            If the chat's turns (i.e., `.get_turns()`) are not in an expected
+            format. This may happen if the chat history is manually set (i.e.,
+            `.set_turns()`). In this case, you can inspect the "raw" token
+            values via the `.get_turns()` method (each turn has a `.tokens`
+            attribute).
         """
-        return [turn.tokens for turn in self._turns]
+
+        turns = self.get_turns(include_system_prompt=False)
+
+        if len(turns) == 0:
+            return []
+
+        err_info = (
+            "This can happen if the chat history is manually set (i.e., `.set_turns()`). "
+            "Consider getting the 'raw' token values via the `.get_turns()` method "
+            "(each turn has a `.tokens` attribute)."
+        )
+
+        # Sanity checks for the assumptions made to figure out user token counts
+        if len(turns) == 1:
+            raise ValueError(
+                "Expected at least two turns in the chat history. " + err_info
+            )
+
+        if len(turns) % 2 != 0:
+            raise ValueError(
+                "Expected an even number of turns in the chat history. " + err_info
+            )
+
+        if turns[0].role != "user":
+            raise ValueError(
+                "Expected the 1st non-system turn to have role='user'. " + err_info
+            )
+
+        if turns[1].role != "assistant":
+            raise ValueError(
+                "Expected the 2nd turn non-system to have role='assistant'. " + err_info
+            )
+
+        if turns[1].tokens is None:
+            raise ValueError(
+                "Expected the 1st assistant turn to contain token counts. " + err_info
+            )
+
+        res: list[int] = [
+            # Implied token count for the 1st user input
+            turns[1].tokens[0],
+            # The token count for the 1st assistant response
+            turns[1].tokens[1],
+        ]
+        for i in range(1, len(turns) - 1, 2):
+            ti = turns[i]
+            tj = turns[i + 2]
+            if ti.role != "assistant" or tj.role != "assistant":
+                raise ValueError(
+                    "Expected even turns to have role='assistant'." + err_info
+                )
+            if ti.tokens is None or tj.tokens is None:
+                raise ValueError(
+                    "Expected role='assistant' turns to contain token counts."
+                    + err_info
+                )
+            res.extend(
+                [
+                    # Implied token count for the user input
+                    tj.tokens[0] - sum(ti.tokens),
+                    # The token count for the assistant response
+                    tj.tokens[1],
+                ]
+            )
+
+        return res
 
     def app(
         self,
