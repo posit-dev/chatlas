@@ -1,5 +1,33 @@
+from chatlas import ChatOpenAI, Turn
 from chatlas._openai import OpenAIAzureProvider, OpenAIProvider
 from chatlas._tokens import token_usage, tokens_log, tokens_reset
+
+
+def test_tokens_method():
+    chat = ChatOpenAI()
+    assert chat.tokens(values="discrete") == []
+
+    chat = ChatOpenAI(
+        turns=[
+            Turn(role="user", contents="Hi"),
+            Turn(role="assistant", contents="Hello", tokens=(2, 10)),
+        ]
+    )
+
+    assert chat.tokens(values="discrete") == [2, 10]
+
+    chat = ChatOpenAI(
+        turns=[
+            Turn(role="user", contents="Hi"),
+            Turn(role="assistant", contents="Hello", tokens=(2, 10)),
+            Turn(role="user", contents="Hi"),
+            Turn(role="assistant", contents="Hello", tokens=(14, 10)),
+        ]
+    )
+
+    assert chat.tokens(values="discrete") == [2, 10, 2, 10]
+
+    assert chat.tokens(values="cumulative") == [None, (2, 10), None, (14, 10)]
 
 
 def test_usage_is_none():
