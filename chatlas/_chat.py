@@ -329,9 +329,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Examples
         --------
         ```python
-        from chatlas import ChatOpenAI
+        from chatlas import ChatAnthropic
 
-        chat = ChatOpenAI()
+        chat = ChatAnthropic()
         # Estimate the token count before sending the input
         print(chat.token_count("What is 2 + 2?"))
 
