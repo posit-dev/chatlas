@@ -320,6 +320,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         int
             The token count for the input.
 
+        Note
+        ----
+        Remember that the token count is an estimate. Also, models based on
+        `ChatOpenAI()` currently does not take tools into account when
+        estimating token counts.
+
         Examples
         --------
         ```python
