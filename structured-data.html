@@ -232,7 +232,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like. This will generally work well most of the time, but there’s no guarantee that you’ll actually get the exact format that you want. In particular, if you’re trying to get JSON, find that it’s typically surrounded in <code>```json</code>, and you’ll occassionally get text that isn’t actually valid JSON. To avoid these challenges you can use a recent LLM feature: <strong>structured data</strong> (aka structured output). With structured data, you supply a type specification that exactly defines the object structure that you want and the LLM will guarantee that’s what you get back.</p>
-<div id="66762177" class="cell" data-execution_count="1">
+<div id="78992ae9" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> json</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
@@ -241,7 +241,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="structured-data-basics" class="level2">
 <h2 class="anchored" data-anchor-id="structured-data-basics">Structured data basics</h2>
 <p>To extract structured data you call the <code>.extract_data()</code> method instead of the <code>.chat()</code> method. You’ll also need to define a type specification that describes the structure of the data that you want (more on that shortly). Here’s a simple example that extracts two specific values from a string:</p>
-<div id="c29f427a" class="cell" data-execution_count="2">
+<div id="899eb356" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person(BaseModel):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    age: <span class="bu">int</span></span>
@@ -257,7 +257,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>The same basic idea works with images too:</p>
-<div id="c1fe4d0c" class="cell" data-execution_count="3">
+<div id="a20d7ff8" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> content_image_url</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Image(BaseModel):</span>
@@ -269,8 +269,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  data_model<span class="op">=</span>Image,</span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="3">
-<pre><code>{'primary_shape': 'ellipse with a letter inside',
- 'primary_colour': 'gray and blue'}</code></pre>
+<pre><code>{'primary_shape': 'letter R with an ellipse',
+ 'primary_colour': 'blue and gray'}</code></pre>
 </div>
 </div>
 </section>
@@ -278,7 +278,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="data-types-basics">Data types basics</h2>
 <p>To define your desired type specification (also known as a <strong>schema</strong>), you use a <a href="https://docs.pydantic.dev/latest/concepts/models/">pydantic model</a>.</p>
 <p>In addition to the model definition with field names and types, you may also want to provide the LLM with an additional context about what each field/model represents. In this case, include a <code>Field(description="...")</code> for each field, and a docstring for each model. This is a good place to ask nicely for other attributes you’ll like the value to possess (e.g.&nbsp;minimum or maximum values, date formats, …). You aren’t guaranteed that these requests will be honoured, but the LLM will usually make a best effort to do so.</p>
-<div id="8fc68a34" class="cell" data-execution_count="4">
+<div id="6a3afc45" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person(BaseModel):</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""A person"""</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -297,7 +297,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The following examples are <a href="https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb">closely inspired by the Claude documentation</a> and hint at some of the ways you can use structured data extraction.</p>
 <section id="example-1-article-summarisation" class="level3">
 <h3 class="anchored" data-anchor-id="example-1-article-summarisation">Example 1: Article summarisation</h3>
-<div id="6d6972a1" class="cell" data-execution_count="5">
+<div id="365db0a3" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"examples/third-party-testing.txt"</span>) <span class="im">as</span> f:</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> f.read()</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -327,25 +327,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(json.dumps(data, indent<span class="op">=</span><span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>{
-  "author": "Anthropic",
+  "author": "AI Policy Collective",
   "topics": [
-    "AI policy",
-    "third-party testing",
-    "AI safety",
-    "regulatory measures",
-    "AI transparency",
-    "national security threats"
+    "AI Policy",
+    "Technology",
+    "Regulation",
+    "Third-party Testing",
+    "Societal Impact"
   ],
-  "summary": "### Summary of the Article\n\nThis article from Anthropic argues for the importance of implementing effective third-party testing for advanced AI systems, particularly those with large-scale, generative capabilities. The piece identifies the need for a structured testing regime informed by industry, governmental, and academic insights as vital for mitigating potential societal harms that AI may cause, whether intentional or accidental. \n\nKey points highlighted include:\n\n1. **Current Challenges and Needs:**\n   - Existing regulatory frameworks do not sufficiently cover such versatile systems like Claude or ChatGPT, which could have wide-ranging applications and associated risks.\n   - There's a lack of comprehensive systems to address issues such as election integrity, harmful biases, or national security threats unless third-party testing is introduced.\n\n2. **Proposed Solutions:**\n   - Development of a robust testing network with trusted external parties assessing AI models for safety standards, ensuring fair and accountable deployment.\n   - Graduated testing processes that start with rapid automated evaluations and escalate to in-depth human-led investigations when necessary.\n\n3. **Role of Various Stakeholders:**\n   - Contributions from academic, governmental, and private sectors will be essential, with universities and private firms conducting checks and governments ensuring standardizations and the funding of necessary infrastructure.\n   - Multiple stages of testing are suggested, including refining industry practices and determining national security risks potentially posed by AI capabilities.\n\n4. **Anticipated Challenges:**\n   - Possible obstacles include balancing regulatory burdens so smaller companies aren't hampered, avoiding regulatory capture by vested interests, and aligning open model dissemination with adequate safety measures.\n\n5. **Policy Directions:**\n   - Anthropic highlights its commitment to supporting the development of fair and effective AI policies through proactive engagement in responsible scaling and advocating for more government-backed testing initiatives.\n   - Discusses wider policy discussions surrounding open-source AI models and potential regulatory captures that could disproportionately favor larger companies.\n\nThis comprehensive approach aims to navigate the intricacies of AI systems' oversight, ensuring that technology is harnessed safely and ethically for societal benefit.",
-  "coherence": 90,
-  "persuasion": 0.8
+  "summary": "The article underscores the importance of integrating third-party testing into AI policy to mitigate both deliberate and accidental societal harms. It argues that as AI systems, especially large-scale generative models, become increasingly advanced and versatile, they pose potential risks, including malicious misuse and errors that could have severe societal impacts. A robust third-party testing regime would complement industry self-governance by offering independent validation of AI system safety. \n\nBy iterating on testing standards and procedures, and grounding them in collaboration among industry leaders, governments, and academia, the policy aims to maintain balance -- ensuring AI innovations are safely utilized without stifling smaller tech entities. The article suggests an ecosystem approach to testing involving diverse players such as private companies, academic institutions, and government agencies, drawing parallels to existing safety standards in sectors like pharmaceuticals and aerospace. This would also help manage national security-related threats and reduce risks of regulatory capture within the tech industry.",
+  "coherence": 85,
+  "persuasion": 0.85
 }</code></pre>
 </div>
 </div>
 </section>
 <section id="example-2-named-entity-recognition" class="level3">
 <h3 class="anchored" data-anchor-id="example-2-named-entity-recognition">Example 2: Named entity recognition</h3>
-<div id="12f59b13" class="cell" data-execution_count="6">
+<div id="83eec6a6" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco."</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -392,31 +391,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td data-quarto-table-cell-role="th">1</td>
 <td>Google</td>
 <td>organization</td>
-<td>John works at Google in New York</td>
+<td>John works at</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
 <td>New York</td>
 <td>location</td>
-<td>John works at Google in New York</td>
+<td>work location of John</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
 <td>Sarah</td>
 <td>person</td>
-<td>John met with Sarah, the CEO, last week in San...</td>
+<td>met with John, CEO of Acme Inc.</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
-<td>Acme Inc.</td>
-<td>organization</td>
-<td>Sarah, the CEO of Acme Inc.</td>
+<td>CEO</td>
+<td>job_title</td>
+<td>Sarah is the CEO of Acme Inc.</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
+<td>Acme Inc.</td>
+<td>organization</td>
+<td>Sarah is the CEO of</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
 <td>San Francisco</td>
 <td>location</td>
-<td>John met with Sarah last week in San Francisco</td>
+<td>meeting location between John and Sarah</td>
 </tr>
 </tbody>
 </table>
@@ -427,7 +432,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="example-3-sentiment-analysis" class="level3">
 <h3 class="anchored" data-anchor-id="example-3-sentiment-analysis">Example 3: Sentiment analysis</h3>
-<div id="5f2acb32" class="cell" data-execution_count="7">
+<div id="e7d1fa1f" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"The product was okay, but the customer service was terrible. I probably won't buy from them again."</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Sentiment(BaseModel):</span>
@@ -456,7 +461,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="example-4-text-classification" class="level3">
 <h3 class="anchored" data-anchor-id="example-4-text-classification">Example 4: Text classification</h3>
-<div id="2829fce2" class="cell" data-execution_count="8">
+<div id="798b6466" class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Literal</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"The new quantum computing breakthrough could revolutionize the tech industry."</span></span>
@@ -496,32 +501,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td data-quarto-table-cell-role="th">0</td>
 <td>Technology</td>
-<td>0.85</td>
+<td>0.65</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
 <td>Business</td>
-<td>0.10</td>
+<td>0.25</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
-<td>Other</td>
-<td>0.05</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">3</td>
-<td>Politics</td>
-<td>0.00</td>
-</tr>
-<tr class="odd">
-<td data-quarto-table-cell-role="th">4</td>
-<td>Sports</td>
-<td>0.00</td>
-</tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
-<td>Entertainment</td>
-<td>0.00</td>
+<td>Science</td>
+<td>0.10</td>
 </tr>
 </tbody>
 </table>
@@ -532,7 +522,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="example-5-working-with-unknown-keys" class="level3">
 <h3 class="anchored" data-anchor-id="example-5-working-with-unknown-keys">Example 5: Working with unknown keys</h3>
-<div id="f98708f3" class="cell" data-execution_count="9">
+<div id="adbc789f" class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatAnthropic</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -587,7 +577,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 <p>Even without any descriptions, ChatGPT does pretty well:</p>
-<div id="f0f80aee" class="cell" data-execution_count="10">
+<div id="1e4cff07" class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> content_image_file</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -654,7 +644,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Rent</td>
 <td>100001</td>
 <td>1000000</td>
-<td>False</td>
+<td>True</td>
 </tr>
 </tbody>
 </table>
@@ -671,7 +661,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="required-vs-optional">Required vs optional</h3>
 <p>By default, model fields are in a sense “required”, unless <code>None</code> is allowed in their type definition. Including <code>None</code> is a good idea if there’s any possibility of the input not containing the required fields as LLMs may hallucinate data in order to fulfill your spec.</p>
 <p>For example, here the LLM hallucinates a date even though there isn’t one in the text:</p>
-<div id="a2101147" class="cell" data-execution_count="11">
+<div id="7e01c11f" class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ArticleSpec(BaseModel):</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Information about an article written in markdown"""</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -698,13 +688,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>{
   "title": "Structured Data",
   "author": "Hadley Wickham",
-  "date": "2023-10-25"
+  "date": "2023-10-19"
 }</code></pre>
 </div>
 </div>
 <p>Note that I’ve used more of an explict prompt here. For this example, I found that this generated better results, and it’s a useful place to put additional instructions.</p>
 <p>If let the LLM know that the fields are all optional, it’ll instead return <code>None</code> for the missing fields:</p>
-<div id="d577b6be" class="cell" data-execution_count="12">
+<div id="e1e57c51" class="cell" data-execution_count="12">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ArticleSpec(BaseModel):</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Information about an article written in markdown"""</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -743,11 +733,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="token-usage" class="level2">
 <h2 class="anchored" data-anchor-id="token-usage">Token usage</h2>
 <p>Below is a summary of the tokens used to create the output in this example.</p>
-<div id="0f600b43" class="cell" type="asis" data-execution_count="13">
+<div id="fc2eac45" class="cell" type="asis" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> token_usage</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>token_usage()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
-<pre><code>[{'name': 'OpenAI', 'input': 6081, 'output': 907},
+<pre><code>[{'name': 'OpenAI', 'input': 6266, 'output': 646},
  {'name': 'Anthropic', 'input': 463, 'output': 139}]</code></pre>
 </div>
 </div>
@@ -1177,7 +1167,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/structured-data.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div></div></footer><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"bottom","closeEffect":"zoom"});
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/structured-data.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div></div></footer><script>var lightboxQuarto = GLightbox({"selector":".lightbox","descPosition":"bottom","closeEffect":"zoom","loop":false,"openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
