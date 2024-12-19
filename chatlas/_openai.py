@@ -295,9 +295,11 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             "stream": stream,
             "messages": self._as_message_param(turns),
             "model": self._model,
-            "seed": self._seed,
             **(kwargs or {}),
         }
+
+        if self._seed is not None:
+            kwargs_full["seed"] = self._seed
 
         if tool_schemas:
             kwargs_full["tools"] = tool_schemas
