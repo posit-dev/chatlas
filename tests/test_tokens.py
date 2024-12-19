@@ -1,4 +1,4 @@
-from chatlas import ChatOpenAI, Turn
+from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
 from chatlas._openai import OpenAIAzureProvider, OpenAIProvider
 from chatlas._tokens import token_usage, tokens_log, tokens_reset
 
@@ -26,8 +26,18 @@ def test_tokens_method():
     )
 
     assert chat.tokens(values="discrete") == [2, 10, 2, 10]
-
     assert chat.tokens(values="cumulative") == [None, (2, 10), None, (14, 10)]
+
+
+def test_token_count_method():
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    assert chat.token_count("What is 1 + 1?") == 31
+
+    chat = ChatAnthropic(model="claude-3-5-sonnet-20241022")
+    assert chat.token_count("What is 1 + 1?") == 16
+
+    chat = ChatGoogle(model="gemini-1.5-flash")
+    assert chat.token_count("What is 1 + 1?") == 9
 
 
 def test_usage_is_none():

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from ._chat import Chat
 from ._content import (
     Content,
+    ContentImage,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -20,7 +21,7 @@ from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
+from ._turn import Turn, normalize_turns, user_turn
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -350,6 +351,57 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
     def value_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
+
+    def token_count(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
+    ) -> int:
+        try:
+            import tiktoken
+        except ImportError:
+            raise ImportError(
+                "The tiktoken package is required for token counting. "
+                "Please install it with `pip install tiktoken`."
+            )
+
+        encoding = tiktoken.encoding_for_model(self._model)
+
+        turn = user_turn(*args)
+
+        # Count the tokens in image contents
+        image_tokens = sum(
+            self._image_token_count(x)
+            for x in turn.contents
+            if isinstance(x, ContentImage)
+        )
+
+        # For other contents, get the token count from the actual message param
+        other_contents = [x for x in turn.contents if not isinstance(x, ContentImage)]
+        other_full = self._as_message_param([Turn("user", other_contents)])
+        other_tokens = len(encoding.encode(str(other_full)))
+
+        return other_tokens + image_tokens
+
+    async def token_count_async(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
+    ) -> int:
+        return self.token_count(*args, tools=tools, data_model=data_model)
+
+    @staticmethod
+    def _image_token_count(image: ContentImage) -> int:
+        if isinstance(image, ContentImageRemote) and image.detail == "low":
+            return 85
+        else:
+            # This is just the max token count for an image The highest possible
+            # resolution is 768 x 2048, and 8 tiles of size 512px can fit inside
+            # TODO: this is obviously a very conservative estimate and could be improved
+            # https://platform.openai.com/docs/guides/vision/calculating-costs
+            return 170 * 8 + 85
 
     @staticmethod
     def _as_message_param(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:

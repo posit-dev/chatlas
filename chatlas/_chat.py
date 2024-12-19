@@ -294,6 +294,93 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return res
 
+    def token_count(
+        self,
+        *args: Content | str,
+        data_model: Optional[type[BaseModel]] = None,
+    ) -> int:
+        """
+        Get an estimated token count for the given input.
+
+        Estimate the token size of input content. This can help determine whether input(s)
+        and/or conversation history (i.e., `.get_turns()`) should be reduced in size before
+        sending it to the model.
+
+        Parameters
+        ----------
+        args
+            The input to get a token count for.
+        data_model
+            If the input is meant for data extraction (i.e., `.extract_data()`), then
+            this should be the Pydantic model that describes the structure of the data to
+            extract.
+
+        Returns
+        -------
+        int
+            The token count for the input.
+
+        Note
+        ----
+        Remember that the token count is an estimate. Also, models based on
+        `ChatOpenAI()` currently does not take tools into account when
+        estimating token counts.
+
+        Examples
+        --------
+        ```python
+        from chatlas import ChatAnthropic
+
+        chat = ChatAnthropic()
+        # Estimate the token count before sending the input
+        print(chat.token_count("What is 2 + 2?"))
+
+        # Once input is sent, you can get the actual input and output
+        # token counts from the chat object
+        chat.chat("What is 2 + 2?", echo="none")
+        print(chat.token_usage())
+        ```
+        """
+
+        return self.provider.token_count(
+            *args,
+            tools=self._tools,
+            data_model=data_model,
+        )
+
+    async def token_count_async(
+        self,
+        *args: Content | str,
+        data_model: Optional[type[BaseModel]] = None,
+    ) -> int:
+        """
+        Get an estimated token count for the given input asynchronously.
+
+        Estimate the token size of input content. This can help determine whether input(s)
+        and/or conversation history (i.e., `.get_turns()`) should be reduced in size before
+        sending it to the model.
+
+        Parameters
+        ----------
+        args
+            The input to get a token count for.
+        data_model
+            If this input is meant for data extraction (i.e., `.extract_data_async()`),
+            then this should be the Pydantic model that describes the structure of the data
+            to extract.
+
+        Returns
+        -------
+        int
+            The token count for the input.
+        """
+
+        return await self.provider.token_count_async(
+            *args,
+            tools=self._tools,
+            data_model=data_model,
+        )
+
     def app(
         self,
         *,

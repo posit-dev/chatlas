@@ -17,8 +17,9 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._provider import Provider
+from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
+from ._turn import Turn, normalize_turns, user_turn
 
 if TYPE_CHECKING:
     from google.generativeai.types.content_types import (
@@ -332,6 +333,55 @@ class GoogleProvider(
     def value_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
 
+    def token_count(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
+    ):
+        kwargs = self._token_count_args(
+            *args,
+            tools=tools,
+            data_model=data_model,
+        )
+
+        res = self._client.count_tokens(**kwargs)
+        return res.total_tokens
+
+    async def token_count_async(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
+    ):
+        kwargs = self._token_count_args(
+            *args,
+            tools=tools,
+            data_model=data_model,
+        )
+
+        res = await self._client.count_tokens_async(**kwargs)
+        return res.total_tokens
+
+    def _token_count_args(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
+    ) -> dict[str, Any]:
+        turn = user_turn(*args)
+
+        kwargs = self._chat_perform_args(
+            stream=False,
+            turns=[turn],
+            tools=tools,
+            data_model=data_model,
+        )
+
+        args_to_keep = ["contents", "tools"]
+
+        return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
+
     def _google_contents(self, turns: list[Turn]) -> list["ContentDict"]:
         contents: list["ContentDict"] = []
         for turn in turns:
@@ -420,6 +470,8 @@ class GoogleProvider(
             usage.prompt_token_count,
             usage.candidates_token_count,
         )
+
+        tokens_log(self, tokens)
 
         finish = message.candidates[0].finish_reason
 

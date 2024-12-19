@@ -20,7 +20,7 @@ from ._logging import log_model_default
 from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
+from ._turn import Turn, normalize_turns, user_turn
 
 if TYPE_CHECKING:
     from anthropic.types import (
@@ -379,6 +379,59 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
 
     def value_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
+
+    def token_count(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
+    ) -> int:
+        kwargs = self._token_count_args(
+            *args,
+            tools=tools,
+            data_model=data_model,
+        )
+        res = self._client.messages.count_tokens(**kwargs)
+        return res.input_tokens
+
+    async def token_count_async(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
+    ) -> int:
+        kwargs = self._token_count_args(
+            *args,
+            tools=tools,
+            data_model=data_model,
+        )
+        res = await self._async_client.messages.count_tokens(**kwargs)
+        return res.input_tokens
+
+    def _token_count_args(
+        self,
+        *args: Content | str,
+        tools: dict[str, Tool],
+        data_model: Optional[type[BaseModel]],
+    ) -> dict[str, Any]:
+        turn = user_turn(*args)
+
+        kwargs = self._chat_perform_args(
+            stream=False,
+            turns=[turn],
+            tools=tools,
+            data_model=data_model,
+        )
+
+        args_to_keep = [
+            "messages",
+            "model",
+            "system",
+            "tools",
+            "tool_choice",
+        ]
+
+        return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
     def _as_message_params(self, turns: list[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
