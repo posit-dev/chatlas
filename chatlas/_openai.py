@@ -21,7 +21,7 @@ from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
+from ._turn import Turn, normalize_turns, user_turn
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -366,22 +366,21 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
         encoding = tiktoken.encoding_for_model(self._model)
 
-        res: int = 0
-        for arg in args:
-            if isinstance(arg, str):
-                res += len(encoding.encode(arg))
-            elif isinstance(arg, ContentText):
-                res += len(encoding.encode(arg.text))
-            elif isinstance(arg, ContentImage):
-                res += self._image_token_count(arg)
-            elif isinstance(arg, ContentToolResult):
-                res += len(encoding.encode(arg.get_final_value()))
-            else:
-                raise NotImplementedError(
-                    f"Token counting for {type(arg)} not yet implemented."
-                )
+        turn = user_turn(*args)
 
-        return res
+        # Count the tokens in image contents
+        image_tokens = sum(
+            self._image_token_count(x)
+            for x in turn.contents
+            if isinstance(x, ContentImage)
+        )
+
+        # For other contents, get the token count from the actual message param
+        other_contents = [x for x in turn.contents if not isinstance(x, ContentImage)]
+        other_full = self._as_message_param([Turn("user", other_contents)])
+        other_tokens = len(encoding.encode(str(other_full)))
+
+        return other_tokens + image_tokens
 
     async def token_count_async(
         self,
