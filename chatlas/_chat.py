@@ -178,32 +178,33 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             self._turns.insert(0, Turn("system", value))
 
     @overload
-    def tokens(
-        self,
-        format: Literal["overall"],
-    ) -> list[tuple[int, int] | None]:
-        pass
+    def tokens(self) -> list[tuple[int, int] | None]: ...
 
     @overload
     def tokens(
         self,
-        format: Literal["input"]
-    ) -> list[int]:
-        pass
+        values: Literal["cumulative"],
+    ) -> list[tuple[int, int] | None]: ...
+
+    @overload
+    def tokens(
+        self,
+        values: Literal["discrete"],
+    ) -> list[int]: ...
 
     def tokens(
         self,
-        format: Literal["overall", "input"] = "overall",
+        values: Literal["cumulative", "discrete"] = "discrete",
     ) -> list[int] | list[tuple[int, int] | None]:
         """
         Get the tokens for each turn in the chat.
 
         Parameters
         ----------
-        format
-            If "overall" (the default), the result can be summed to get the
+        values
+            If "cumulative" (the default), the result can be summed to get the
             chat's overall token usage (helpful for computing overall cost of
-            the chat). If "input", the result can be summed to get the number of
+            the chat). If "discrete", the result can be summed to get the number of
             tokens the turns will cost to generate the next response (helpful
             for estimating cost of the next response, or for determining if you
             are about to exceed the token limit).
@@ -226,7 +227,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         turns = self.get_turns(include_system_prompt=False)
 
-        if format == "overall":
+        if values == "cumulative":
             return [turn.tokens for turn in turns]
 
         if len(turns) == 0:
