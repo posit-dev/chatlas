@@ -519,6 +519,30 @@ def ChatBedrockAnthropic(
     :::
 
     ::: {.callout-note}
+    ## AWS model errors
+
+    #### Access
+
+    Be sure to activate your model in the `aws_region=` that you are using. If `aws_region=None` (default), the region is (https://github.com/anthropics/anthropic-sdk-python/blob/93cbbbde964e244f02bf1bd2b579c5fabce4e267/src/anthropic/lib/bedrock/_client.py#L136) set to `os.environ.get("AWS_REGION") or "us-east-1"`.
+    
+    This default value will **not** respect to your AWS config's default region.
+
+    If the model is not activated in the same region, a similar error will be thrown: `Error code: 403 - {'message': "You don't have access to the model with the specified model ID."}`
+
+    #### Cross region inference ID
+
+    Use the "Cross Region" ID for your model. For example, if my model ID is `anthropic.claude-3-5-sonnet-20240620-v1:0`, then my cross region ID is `us.anthropic.claude-3-5-sonnet-20240620-v1:0`.
+
+    If the model ID is used directly, a similar error will be thrown: `Error code: 400 - {'message': 'Invocation of model ID anthropic.claude-3-5-sonnet-20240620-v1:0 with on-demand throughput isn’t supported. Retry your request with the ID or ARN of an inference profile that contains this model.'}`
+
+    #### Valid
+
+    If an incorrect model name is used, a similar error will be thrown: `Error code: 400 - {'message': 'The provided model identifier is invalid.'}`
+
+    Please be sure to copy the correct model's cross region ID.
+    :::
+
+    ::: {.callout-note}
     ## Python requirements
 
     `ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras
