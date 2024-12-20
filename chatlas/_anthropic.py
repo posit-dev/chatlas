@@ -628,6 +628,53 @@ def ChatBedrockAnthropic(
         Additional arguments to pass to the `anthropic.AnthropicBedrock()`
         client constructor.
 
+    Troubleshooting
+    ---------------
+
+    If you encounter 400 or 403 errors when trying to use the model, keep the
+    following in mind:
+
+    ::: {.callout-note}
+    #### Incorrect model name
+
+    If the model name is completely incorrect, you'll see an error like
+    `Error code: 400 - {'message': 'The provided model identifier is invalid.'}`
+
+    Make sure the model name is correct and active in the specified region.
+    :::
+
+    ::: {.callout-note}
+    #### Models are region specific
+
+    If you encounter errors similar to `Error code: 403 - {'message': "You don't
+    have access to the model with the specified model ID."}`, make sure your
+    model is active in the relevant `aws_region`.
+
+    Keep in mind, if `aws_region` is not specified, and AWS_REGION is not set,
+    the region defaults to us-east-1, which may not match to your AWS config's
+    default region.
+    :::
+
+    ::: {.callout-note}
+    #### Cross region inference ID
+
+    In some cases, even if you have the right model and the right region, you
+    may still encounter an error like  `Error code: 400 - {'message':
+    'Invocation of model ID anthropic.claude-3-5-sonnet-20240620-v1:0 with
+    on-demand throughput isn't supported. Retry your request with the ID or ARN
+    of an inference profile that contains this model.'}`
+
+    In this case, you'll need to look up the 'cross region inference ID' for
+    your model. This might required opening your `aws-console` and navigating to
+    the 'Anthropic Bedrock' service page. From there, go to the 'cross region
+    inference' tab and copy the relevant ID.
+
+    For example, if the desired model ID is
+    `anthropic.claude-3-5-sonnet-20240620-v1:0`, the cross region ID might look
+    something like `us.anthropic.claude-3-5-sonnet-20240620-v1:0`.
+    :::
+
+
     Returns
     -------
     Chat
