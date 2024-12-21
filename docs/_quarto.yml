@@ -4,6 +4,7 @@ project:
     - python index.py
   resources:
     - objects.txt
+    - images/logo.png
 
 metadata-files:
   - _sidebar.yml
