@@ -1,4 +1,4 @@
-# chatlas
+# chatlas <a href="https://posit-dev.github.io/chatlas"><img src="docs/images/logo.png" align="right" height="138" alt="chatlas website" /></a>
 
 <p>
 <!-- badges start -->
@@ -13,7 +13,7 @@ It abstracts away complexity from common tasks like streaming chat interfaces, t
 chatlas helps you prototype faster without painting you into a corner; for example, switching providers is as easy as changing one line of code, but provider specific features are still accessible when needed.
 Developer experience is also a key focus of chatlas: typing support, rich console output, and built-in tooling are all included.
 
-(Looking for something similar to chatlas, but in R? Check out [elmer](https://elmer.tidyverse.org/)!)
+(Looking for something similar to chatlas, but in R? Check out [ellmer](https://ellmer.tidyverse.org/)!)
 
 ## Install
 
