@@ -50,6 +50,10 @@ chatlas.Chat.stream_async py:function 1 reference/Chat.html#chatlas.Chat.stream_
 chatlas._chat.Chat.stream_async py:function 1 reference/Chat.html#chatlas.Chat.stream_async chatlas.Chat.stream_async
 chatlas.Chat.system_prompt py:attribute 1 reference/Chat.html#chatlas.Chat.system_prompt -
 chatlas._chat.Chat.system_prompt py:attribute 1 reference/Chat.html#chatlas.Chat.system_prompt chatlas.Chat.system_prompt
+chatlas.Chat.token_count py:function 1 reference/Chat.html#chatlas.Chat.token_count -
+chatlas._chat.Chat.token_count py:function 1 reference/Chat.html#chatlas.Chat.token_count chatlas.Chat.token_count
+chatlas.Chat.token_count_async py:function 1 reference/Chat.html#chatlas.Chat.token_count_async -
+chatlas._chat.Chat.token_count_async py:function 1 reference/Chat.html#chatlas.Chat.token_count_async chatlas.Chat.token_count_async
 chatlas.Chat.tokens py:function 1 reference/Chat.html#chatlas.Chat.tokens -
 chatlas._chat.Chat.tokens py:function 1 reference/Chat.html#chatlas.Chat.tokens chatlas.Chat.tokens
 chatlas.Chat py:class 1 reference/Chat.html#chatlas.Chat -
