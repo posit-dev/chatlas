@@ -9,9 +9,9 @@
 </p>
 
 chatlas provides a simple and unified interface across large language model (llm) providers in Python. 
-It abstracts away complexity from common tasks like streaming chat interfaces, tool calling, structured output, and much more.
-chatlas helps you prototype faster without painting you into a corner; for example, switching providers is as easy as changing one line of code, but provider specific features are still accessible when needed.
-Developer experience is also a key focus of chatlas: typing support, rich console output, and built-in tooling are all included.
+It helps you prototype faster by abstracting away complexity from common tasks like streaming chat interfaces, tool calling, structured output, and much more.
+Switching providers is also as easy as changing one line of code, but you can also reach for provider-specific features when you need them.
+Developer experience is also a key focus of chatlas: typing support, rich console output, and extension points are all included.
 
 (Looking for something similar to chatlas, but in R? Check out [ellmer](https://ellmer.tidyverse.org/)!)
 
