@@ -198,7 +198,7 @@ class ContentToolResult(Content):
     def __str__(self):
         comment = f"# tool result ({self.id})"
         val = self.get_final_value()
-        return f"""\n```python\n{comment}\n"{val}"\n```\n"""
+        return f"""\n```python\n{comment}\n{val}\n```\n"""
 
     def _repr_markdown_(self):
         return self.__str__()
@@ -213,7 +213,7 @@ class ContentToolResult(Content):
     def get_final_value(self) -> str:
         if self.error:
             return f"Tool calling failed with error: '{self.error}'"
-        return str(self.value)
+        return repr(self.value)
 
 
 @dataclass
