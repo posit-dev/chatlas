@@ -1,4 +1,5 @@
 import pytest
+
 from chatlas import ChatOpenAI
 
 from .conftest import (
@@ -21,7 +22,10 @@ def test_openai_simple_request():
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (27, 2)
+    assert turn.tokens is not None
+    assert len(turn.tokens) == 2
+    assert turn.tokens[0] == 27
+    # Not testing turn.tokens[1] because it's not deterministic. Typically 1 or 2.
     assert turn.finish_reason == "stop"
 
 
