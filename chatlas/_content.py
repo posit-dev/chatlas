@@ -155,7 +155,7 @@ class ContentToolRequest(Content):
         args_str = self._arguments_str()
         func_call = f"{self.name}({args_str})"
         comment = f"# tool request ({self.id})"
-        return f"\n```python\n{comment}\n{func_call}\n```\n"
+        return f"```python\n{comment}\n{func_call}\n```\n"
 
     def _repr_markdown_(self):
         return self.__str__()
@@ -246,7 +246,7 @@ class ContentJson(Content):
         return json.dumps(self.value, indent=2)
 
     def _repr_markdown_(self):
-        return f"""\n```json\n{self.__str__()}\n```\n"""
+        return f"""```json\n{self.__str__()}\n```"""
 
     def __repr__(self, indent: int = 0):
         return " " * indent + f"<ContentJson value={self.value}>"
