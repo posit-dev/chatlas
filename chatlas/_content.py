@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from pprint import pformat
 from typing import Any, Literal, Optional
 
 ImageContentTypes = Literal[
@@ -195,10 +196,20 @@ class ContentToolResult(Content):
     value: Any = None
     error: Optional[str] = None
 
+    def _get_value_and_language(self) -> tuple[str, str]:
+        if self.error:
+            return f"Tool calling failed with error: '{self.error}'", ""
+        try:
+            json_val = json.loads(self.value)
+            return pformat(json_val, indent=2, sort_dicts=False), "python"
+        except:  # noqa: E722
+            return str(self.value), ""
+
     def __str__(self):
         comment = f"# tool result ({self.id})"
-        val = self.get_final_value()
-        return f"""\n```python\n{comment}\n{val}\n```\n"""
+        value, language = self._get_value_and_language()
+
+        return f"""```{language}\n{comment}\n{value}\n```"""
 
     def _repr_markdown_(self):
         return self.__str__()
@@ -211,9 +222,8 @@ class ContentToolResult(Content):
         return res + ">"
 
     def get_final_value(self) -> str:
-        if self.error:
-            return f"Tool calling failed with error: '{self.error}'"
-        return repr(self.value)
+        value, _language = self._get_value_and_language()
+        return value
 
 
 @dataclass
