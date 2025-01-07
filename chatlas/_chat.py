@@ -388,6 +388,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         port: int = 0,
         launch_browser: bool = True,
         bg_thread: Optional[bool] = None,
+        echo: Optional[Literal["text", "all", "none"]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ):
         """
@@ -438,7 +439,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     return
                 if stream:
                     await chat.append_message_stream(
-                        self.stream(user_input, kwargs=kwargs)
+                        await self.stream_async(
+                            user_input,
+                            kwargs=kwargs,
+                        )
                     )
                 else:
                     await chat.append_message(str(self.chat(user_input, kwargs=kwargs)))
