@@ -963,11 +963,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         is_html = filename.suffix == ".html"
 
         # Get contents from each turn
-        contents = ""
+        content_arr: list[str] = []
         for turn in turns:
             turn_content = "\n\n".join(
                 [
-                    str(content)
+                    str(content).strip()
                     for content in turn.contents
                     if include == "all" or isinstance(content, ContentText)
                 ]
@@ -978,7 +978,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn_content = f"<shiny-{msg_type}-message content='{content_attr}'></shiny-{msg_type}-message>"
             else:
                 turn_content = f"## {turn.role.capitalize()}\n\n{turn_content}"
-            contents += f"{turn_content}\n\n"
+            content_arr.append(turn_content)
+        contents = "\n\n".join(content_arr)
 
         # Shiny chat message components requires container elements
         if is_html:

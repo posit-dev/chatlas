@@ -7,6 +7,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [Development]
+
+### New features
+
+### Bug fixes
+
+* Update formatting of exported markdown to use `repr()` instead of `str()` when exporting tool call results. (#30)
+
 ## [0.3.0] - 2024-12-20
 
 ### New features
@@ -23,4 +31,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.0] - 2024-12-11
 
-First stable release of `chatlas`, see the website to learn more <https://posit-dev.github.io/chatlas/> 
+First stable release of `chatlas`, see the website to learn more <https://posit-dev.github.io/chatlas/>
