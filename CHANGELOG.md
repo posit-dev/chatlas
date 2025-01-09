@@ -11,8 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* Added `.app(*, echo=)` support. This allows for chatlas to change the echo behavior when running the Shiny app. (#31)
+
 ### Bug fixes
 
+* Fix broken `Chat`'s Shiny app when `.app(*, stream=True)` by using async chat tools. (#31)
 * Update formatting of exported markdown to use `repr()` instead of `str()` when exporting tool call results. (#30)
 
 ## [0.3.0] - 2024-12-20
