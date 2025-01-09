@@ -388,6 +388,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         port: int = 0,
         launch_browser: bool = True,
         bg_thread: Optional[bool] = None,
+        echo: Optional[Literal["text", "all", "none"]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ):
         """
@@ -404,6 +405,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         bg_thread
             Whether to run the app in a background thread. If `None`, the app will
             run in a background thread if the current environment is a notebook.
+        echo
+            Whether to echo text content, all content (i.e., tool calls), or no content. Defaults to `"none"` when `stream=True` and `"text"` when `stream=False`.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -438,10 +441,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     return
                 if stream:
                     await chat.append_message_stream(
-                        self.stream(user_input, kwargs=kwargs)
+                        await self.stream_async(
+                            user_input,
+                            kwargs=kwargs,
+                            echo=echo or "none",
+                        )
                     )
                 else:
-                    await chat.append_message(str(self.chat(user_input, kwargs=kwargs)))
+                    await chat.append_message(
+                        str(
+                            self.chat(
+                                user_input,
+                                kwargs=kwargs,
+                                echo=echo or "text",
+                            )
+                        )
+                    )
 
         app = App(app_ui, server)
 
