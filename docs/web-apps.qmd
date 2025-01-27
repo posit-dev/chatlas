@@ -25,7 +25,7 @@ chat.ui()
 
 chat_model = ChatAnthropic()
 
-@chat_ui.on_user_submit
+@chat.on_user_submit
 async def handle_user_input():
     response = chat_model.stream(chat.user_input())
     await chat.append_message_stream(response)
