@@ -14,7 +14,6 @@ from ._openai import ChatAzureOpenAI, ChatOpenAI
 from ._perplexity import ChatPerplexity
 from ._turn import Turn
 
-
 _provider_chat_model_map = {
     "anthropic": ChatAnthropic,
     "bedrock:anthropic": ChatBedrockAnthropic,
@@ -36,10 +35,10 @@ def ChatAuto(
 ) -> Chat:
     """
     Factory function to create a Chat instance based on a provider specified in code or in an environment variable.
-    
+
     This function creates a Chat instance based on the specified provider, with optional system prompt and conversation turns.
     The provider can be specified either through the function parameter or via the CHATLAS_CHAT_PROVIDER environment variable.
-    Additional configuration can be provided through kwargs or the CHATLAS_CHAT_ARGS environment variable (as JSON). This allows 
+    Additional configuration can be provided through kwargs or the CHATLAS_CHAT_ARGS environment variable (as JSON). This allows
     you to easily switch between different chat providers by changing the environment variable without modifying your code.
 
     Prerequisites
@@ -70,7 +69,7 @@ def ChatAuto(
     ```
 
     Then, you can use the `ChatAuto` function to create a Chat instance:
-    
+
     ```python
     import os
     from chatlas import ChatAuto
@@ -102,15 +101,16 @@ def ChatAuto(
         `system`, `user`, or `assistant`, but `tool` is also possible). Normally
         there is also a `content` field, which is a string.
     **kwargs
-        Additional keyword arguments to pass to the Chat constructor. These can also be provided via the CHATLAS_CHAT_ARGS 
-        environment variable as a JSON string. The values will be injected into the Chat constructor of the specified provider.
+        Additional keyword arguments to pass to the Chat constructor. These can also
+        be provided via the CHATLAS_CHAT_ARGS environment variable as a JSON string.
+        The values will be injected into the Chat constructor of the specified provider.
         See the documentation for each provider for more details on the available options.
-    
+
     Returns
     -------
         Chat
             A configured Chat instance for the specified provider.
-    
+
     Raises
     ------
         ValueError
@@ -119,7 +119,9 @@ def ChatAuto(
     provider = os.environ.get("CHATLAS_CHAT_PROVIDER", provider)
 
     if provider not in _provider_chat_model_map:
-        raise ValueError("Provider name is required as parameter or `CHATLAS_CHAT_PROVIDER` must be set.")
+        raise ValueError(
+            "Provider name is required as parameter or `CHATLAS_CHAT_PROVIDER` must be set."
+        )
 
     kwargs |= dict(
         system_prompt=system_prompt,
@@ -128,5 +130,5 @@ def ChatAuto(
 
     if env_kwargs := os.environ.get("CHATLAS_CHAT_ARGS"):
         kwargs |= json.loads(env_kwargs)
-        
+
     return _provider_chat_model_map[provider](**kwargs)
