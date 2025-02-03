@@ -1,5 +1,6 @@
 from . import types
 from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
+from ._auto import ChatAuto
 from ._chat import Chat
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._github import ChatGithub
@@ -16,6 +17,7 @@ from ._turn import Turn
 
 __all__ = (
     "ChatAnthropic",
+    "ChatAuto",
     "ChatBedrockAnthropic",
     "ChatGithub",
     "ChatGoogle",
