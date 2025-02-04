@@ -104,6 +104,7 @@ deps =
   pyright
   pytest
   syrupy
+  mcp
 commands = pyright
 """
 

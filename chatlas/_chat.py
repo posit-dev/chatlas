@@ -20,7 +20,10 @@ from typing import (
     overload,
 )
 
-from mcp import ClientSession
+from mcp import (
+    ClientSession as MCPClientSession,
+    Tool as MCPTool,
+)
 from mcp.client.sse import sse_client
 from mcp.client.stdio import StdioServerParameters, stdio_client
 from pydantic import BaseModel
@@ -99,7 +102,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "css_styles": {},
         }
 
-        self._mcp_sessions: dict[str, ClientSession] = {}
+        self._mcp_sessions: dict[str, MCPClientSession] = {}
         self._mcp_exit_stack: AsyncExitStack = AsyncExitStack()
 
     def get_turns(
@@ -831,59 +834,63 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return json.value
 
     async def _register_mcp_tools(
-        self, session: ClientSession, exclude_tools: list[str] = []
-    ):
+        self,
+        session: MCPClientSession,
+        include_tools: Optional[list[str]] = None,
+        exclude_tools: Optional[list[str]] = None,
+    ):  
+        assert not (include_tools and exclude_tools), "Cannot specify both include_tools and exclude_tools."
+
         response = await session.list_tools()
-        tools = response.tools
-        print("\nConnected to server with tools:", [tool.name for tool in tools])
-
-        def _register_mcp_tool(mcp_tool):
-            async def _call(**args: Any) -> Any:
-                result = await session.call_tool(mcp_tool.name, args)
-                if result.content[0].type == "text":
-                    return result.content[0].text
-                else:
-                    raise RuntimeError(
-                        f"Unexpected content type: {result.content[0].type}"
-                    )
-
-            tool = Tool(
-                func=_call,
-                name=mcp_tool.name,
-                description=mcp_tool.description,
-                parameters=mcp_tool.inputSchema,
+        for tool in response.tools:
+            if include_tools:
+                if tool.name not in include_tools:
+                    continue
+            if exclude_tools:
+                if tool.name in exclude_tools:
+                    continue
+            self._tools[tool.name] = Tool.from_mcp(
+                session=session,
+                mcp_tool=tool,
             )
-            self._tools[tool.name] = tool
-
-        for tool in tools:
-            if tool.name not in exclude_tools:
-                _register_mcp_tool(tool)
 
     async def register_sse_mcp_server_async(
         self,
-        server_url: str,
-        exclude_tools: list[str] = [],
+        name: str,
+        url: str,
+        include_tools: Optional[list[str]] = None,
+        exclude_tools: Optional[list[str]] = None,
         transport_kwargs: dict[str, Any] = {},
-    ):
-        transport = await self._mcp_exit_stack.enter_async_context(
-            sse_client(server_url, **transport_kwargs)
-        )
-        self._mcp_sessions[server_url] = await self._mcp_exit_stack.enter_async_context(
-            ClientSession(*transport)
-        )
-        session = self._mcp_sessions[server_url]
+    ):  
+        assert name not in self._mcp_sessions, f"Session {name} already exists."
 
+        transport = await self._mcp_exit_stack.enter_async_context(
+            sse_client(url, **transport_kwargs)
+        )
+        self._mcp_sessions[name] = await self._mcp_exit_stack.enter_async_context(
+            MCPClientSession(*transport)
+        )
+        session = self._mcp_sessions[name]
         await session.initialize()
-        await self._register_mcp_tools(session, exclude_tools=exclude_tools)
+
+        await self._register_mcp_tools(
+            session,
+            include_tools=include_tools,
+            exclude_tools=exclude_tools,
+        )
 
     async def register_stdio_mcp_server_async(
         self,
+        name: str,
         command: str,
         args: list[str],
         env: dict[str, str] | None = None,
-        exclude_tools: list[str] = [],
+        include_tools: Optional[list[str]] = None,
+        exclude_tools: Optional[list[str]] = None,
         transport_kwargs: dict[str, Any] = {},
-    ):
+    ):  
+        assert name not in self._mcp_sessions, f"Session {name} already exists."
+
         server_params = StdioServerParameters(
             command=command,
             args=args,
@@ -894,16 +901,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         transport = await self._mcp_exit_stack.enter_async_context(
             stdio_client(server_params)
         )
-        session_name = command + " " + args[0]
-        self._mcp_sessions[
-            session_name
-        ] = await self._mcp_exit_stack.enter_async_context(ClientSession(*transport))
-        session = self._mcp_sessions[session_name]
-
+        self._mcp_sessions[name] = await self._mcp_exit_stack.enter_async_context(MCPClientSession(*transport))
+        session = self._mcp_sessions[name]
         await session.initialize()
-        await self._register_mcp_tools(session, exclude_tools=exclude_tools)
 
-    async def cleanup_mcp_servers(self):
+        await self._register_mcp_tools(
+            session,
+            include_tools=include_tools,
+            exclude_tools=exclude_tools,
+        )
+
+    async def close_mcp_sessions(self):
         """Clean up resources."""
         await self._mcp_exit_stack.aclose()
 

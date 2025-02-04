@@ -4,6 +4,12 @@ import inspect
 import warnings
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional
 
+from mcp import (
+    ClientSession as MCPClientSession,
+)
+from mcp import (
+    Tool as MCPTool,
+)
 from pydantic import BaseModel, Field, create_model
 
 from . import _utils
@@ -81,6 +87,28 @@ class Tool:
             func=func,
             name=model.__name__ or func.__name__,
             description=model.__doc__ or func.__doc__ or "",
+            parameters=params,
+        )
+
+    @classmethod
+    def from_mcp(
+        cls: type["Tool"],
+        session: MCPClientSession,
+        mcp_tool: MCPTool,
+    ):
+        async def _call(**args: Any) -> Any:
+            result = await session.call_tool(mcp_tool.name, args)
+            if result.content[0].type == "text":
+                return result.content[0].text
+            else:
+                raise RuntimeError(f"Unexpected content type: {result.content[0].type}")
+
+        params = mcp_tool_input_schema_to_param_schema(mcp_tool.inputSchema)
+
+        return cls(
+            func=_call,
+            name=mcp_tool.name,
+            description=mcp_tool.description or "",
             parameters=params,
         )
 
@@ -168,5 +196,26 @@ def basemodel_to_param_schema(model: type[BaseModel]) -> dict[str, object]:
         for prop in params["properties"].values():
             if "title" in prop:
                 del prop["title"]
+
+    return params
+
+
+def mcp_tool_input_schema_to_param_schema(
+    input_schema: dict[str, Any],
+) -> dict[str, object]:
+    params = input_schema
+
+    # For some reason, mcp (or pydantic?) wants to include a title
+    # at the model and field level. I don't think we actually need or want this.
+    if "title" in params:
+        del params["title"]
+
+    if "properties" in params and isinstance(params["properties"], dict):
+        for prop in params["properties"].values():
+            if "title" in prop:
+                del prop["title"]
+
+    if "additionalProperties" not in params:
+        params["additionalProperties"] = False
 
     return params
