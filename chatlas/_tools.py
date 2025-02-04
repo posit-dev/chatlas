@@ -37,14 +37,52 @@ class Tool:
 
     def __init__(
         self,
+        *,
+        func: Callable[..., Any] | Callable[..., Awaitable[Any]],
+        name: str,
+        description: str,
+        parameters: dict[str, Any],
+    ):
+        self.name = name
+        self.func = func
+        self._is_async = _utils.is_async_callable(func)
+        self.schema = {
+            "type": "function",
+            "function": {
+                "name": name,
+                "description": description,
+                "parameters": parameters,
+            },
+        }
+
+    @classmethod
+    def from_func(
+        cls: type["Tool"],
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
         model: Optional[type[BaseModel]] = None,
     ):
-        self.func = func
-        self._is_async = _utils.is_async_callable(func)
-        self.schema = func_to_schema(func, model)
-        self.name = self.schema["function"]["name"]
+        if model is None:
+            model = func_to_basemodel(func)
+
+        # Throw if there is a mismatch between the model and the function parameters
+        params = inspect.signature(func).parameters
+        fields = model.model_fields
+        diff = set(params) ^ set(fields)
+        if diff:
+            raise ValueError(
+                f"`model` fields must match tool function parameters exactly. "
+                f"Fields found in one but not the other: {diff}"
+            )
+
+        params = basemodel_to_param_schema(model)
+
+        return cls(
+            func=func,
+            name=model.__name__ or func.__name__,
+            description=model.__doc__ or func.__doc__ or "",
+            parameters=params,
+        )
 
 
 def func_to_schema(

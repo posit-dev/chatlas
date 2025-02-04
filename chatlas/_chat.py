@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from contextlib import AsyncExitStack
 from pathlib import Path
 from threading import Thread
 from typing import (
@@ -19,6 +20,9 @@ from typing import (
     overload,
 )
 
+from mcp import ClientSession
+from mcp.client.sse import sse_client
+from mcp.client.stdio import StdioServerParameters, stdio_client
 from pydantic import BaseModel
 
 from ._content import (
@@ -94,6 +98,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "rich_console": {},
             "css_styles": {},
         }
+
+        self._mcp_sessions: dict[str, ClientSession] = {}
+        self._mcp_exit_stack: AsyncExitStack = AsyncExitStack()
 
     def get_turns(
         self,
@@ -823,6 +830,83 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         json = res[0]
         return json.value
 
+    async def _register_mcp_tools(
+        self, session: ClientSession, exclude_tools: list[str] = []
+    ):
+        response = await session.list_tools()
+        tools = response.tools
+        print("\nConnected to server with tools:", [tool.name for tool in tools])
+
+        def _register_mcp_tool(mcp_tool):
+            async def _call(**args: Any) -> Any:
+                result = await session.call_tool(mcp_tool.name, args)
+                if result.content[0].type == "text":
+                    return result.content[0].text
+                else:
+                    raise RuntimeError(
+                        f"Unexpected content type: {result.content[0].type}"
+                    )
+
+            tool = Tool(
+                func=_call,
+                name=mcp_tool.name,
+                description=mcp_tool.description,
+                parameters=mcp_tool.inputSchema,
+            )
+            self._tools[tool.name] = tool
+
+        for tool in tools:
+            if tool.name not in exclude_tools:
+                _register_mcp_tool(tool)
+
+    async def register_sse_mcp_server_async(
+        self,
+        server_url: str,
+        exclude_tools: list[str] = [],
+        transport_kwargs: dict[str, Any] = {},
+    ):
+        transport = await self._mcp_exit_stack.enter_async_context(
+            sse_client(server_url, **transport_kwargs)
+        )
+        self._mcp_sessions[server_url] = await self._mcp_exit_stack.enter_async_context(
+            ClientSession(*transport)
+        )
+        session = self._mcp_sessions[server_url]
+
+        await session.initialize()
+        await self._register_mcp_tools(session, exclude_tools=exclude_tools)
+
+    async def register_stdio_mcp_server_async(
+        self,
+        command: str,
+        args: list[str],
+        env: dict[str, str] | None = None,
+        exclude_tools: list[str] = [],
+        transport_kwargs: dict[str, Any] = {},
+    ):
+        server_params = StdioServerParameters(
+            command=command,
+            args=args,
+            env=env,
+            **transport_kwargs,
+        )
+
+        transport = await self._mcp_exit_stack.enter_async_context(
+            stdio_client(server_params)
+        )
+        session_name = command + " " + args[0]
+        self._mcp_sessions[
+            session_name
+        ] = await self._mcp_exit_stack.enter_async_context(ClientSession(*transport))
+        session = self._mcp_sessions[session_name]
+
+        await session.initialize()
+        await self._register_mcp_tools(session, exclude_tools=exclude_tools)
+
+    async def cleanup_mcp_servers(self):
+        """Clean up resources."""
+        await self._mcp_exit_stack.aclose()
+
     def register_tool(
         self,
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
@@ -903,7 +987,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Note that the name and docstring of the model takes precedence over the
             name and docstring of the function.
         """
-        tool = Tool(func, model=model)
+        tool = Tool.from_func(func, model=model)
         self._tools[tool.name] = tool
 
     def export(
