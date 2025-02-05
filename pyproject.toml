@@ -8,7 +8,7 @@ dependencies = [
   "pydantic>=2.0",
   "jinja2",
   "rich",
-  "mcp==1.2.1",
+  "mcp>=1.2.1",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
