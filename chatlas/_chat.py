@@ -863,6 +863,45 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         exclude_tools: Optional[list[str]] = None,
         transport_kwargs: dict[str, Any] = {},
     ):
+        """
+        Register a SSE-based MCP server session asynchronously.
+
+        This method establishes a new SSE (Server-Sent Events) connection to an MCP server and registers
+        the available tools. The server is identified by a unique name and URL.
+
+        Parameters
+        ----------
+        name
+            Unique identifier for this MCP server session
+        url
+            URL endpoint of the MCP server
+        include_tools
+            List of tool names to include. If None, all available tools will be included. Defaults to None.
+        exclude_tools
+            List of tool names to exclude. This parameter and include_tools are mutually exclusive. Defaults to None.
+        transport_kwargs
+            Additional keyword arguments to pass to the SSE transport layer. Defaults to {}.
+
+        Raises
+        ------
+        AssertionError
+            If a session with the given name already exists
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        ```python
+        await chat.register_sse_mcp_server_async(
+            name="my_server",
+            url="http://localhost:8080/sse",
+            include_tools=["tool1", "tool2"],
+            transport_kwargs={"timeout": 30},
+        )
+        ```
+        """
         assert name not in self._mcp_sessions, f"Session {name} already exists."
 
         transport = await self._mcp_exit_stack.enter_async_context(
@@ -890,6 +929,51 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         exclude_tools: Optional[list[str]] = None,
         transport_kwargs: dict[str, Any] = {},
     ):
+        """
+        Register a stdio-based MCP server session asynchronously.
+
+        This method establishes a new stdio connection to an MCP server and registers
+        the available tools. The server is identified by a unique name and command.
+
+        Parameters
+        ----------
+        name
+            Unique identifier for this MCP server session
+        command
+            Command to execute to start the MCP server
+        args
+            Arguments to pass to the command
+        env
+            Environment variables to set for the command. Defaults to None.
+        include_tools
+            List of tool names to include. If None, all available tools will be included. Defaults to None.
+        exclude_tools
+            List of tool names to exclude. This parameter and include_tools are mutually exclusive. Defaults to None.
+        transport_kwargs
+            Additional keyword arguments to pass to the stdio transport layer. Defaults to {}.
+
+        Raises
+        ------
+        AssertionError
+            If a session with the given name already exists
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        ```python
+        await chat.register_stdio_mcp_server_async(
+            name="my_server",
+            command="python",
+            args=["-m", "my_mcp_server"],
+            env={"DEBUG": "1"},
+            include_tools=["tool1", "tool2"],
+            transport_kwargs={"timeout": 30},
+        )
+        ```
+        """
         assert name not in self._mcp_sessions, f"Session {name} already exists."
 
         server_params = StdioServerParameters(

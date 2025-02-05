@@ -31,12 +31,12 @@ class Tool:
     ----------
     func
         The function to be invoked when the tool is called.
-    model
-        A Pydantic model that describes the input parameters for the function.
-        If not provided, the model will be inferred from the function's type hints.
-        The primary reason why you might want to provide a model in
-        Note that the name and docstring of the model takes precedence over the
-        name and docstring of the function.
+    name
+        The name of the tool.
+    description
+        A description of what the tool does.
+    parameters
+        A dictionary describing the input parameters and their types.
     """
 
     func: Callable[..., Any] | Callable[..., Awaitable[Any]]
@@ -67,7 +67,32 @@ class Tool:
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
         model: Optional[type[BaseModel]] = None,
-    ):
+    ) -> "Tool":
+        """
+        Create a Tool from a Python function
+
+        Parameters
+        ----------
+        func
+            The function to wrap as a tool.
+        model
+            A Pydantic model that describes the input parameters for the function.
+            If not provided, the model will be inferred from the function's type hints.
+            The primary reason why you might want to provide a model in
+            Note that the name and docstring of the model takes precedence over the
+            name and docstring of the function.
+
+        Returns
+        -------
+        Tool
+            A new Tool instance wrapping the provided function.
+
+        Raises
+        ------
+        ValueError
+            If there is a mismatch between model fields and function parameters.
+        """
+
         if model is None:
             model = func_to_basemodel(func)
 
@@ -95,7 +120,23 @@ class Tool:
         cls: type["Tool"],
         session: MCPClientSession,
         mcp_tool: MCPTool,
-    ):
+    ) -> "Tool":
+        """
+        Create a Tool from an MCP tool
+
+        Parameters
+        ----------
+        session
+            The MCP client session to use for calling the tool.
+        mcp_tool
+            The MCP tool to wrap.
+
+        Returns
+        -------
+        Tool
+            A new Tool instance wrapping the MCP tool.
+        """
+
         async def _call(**args: Any) -> Any:
             result = await session.call_tool(mcp_tool.name, args)
             if result.content[0].type == "text":
