@@ -10,4 +10,4 @@ async def get_current_date():
     return "2024-01-01"
 
 if __name__ == "__main__":
-    mcp.run(transport='stdio')
+    mcp.run(transport='sse')

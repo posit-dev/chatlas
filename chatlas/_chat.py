@@ -22,7 +22,6 @@ from typing import (
 
 from mcp import (
     ClientSession as MCPClientSession,
-    Tool as MCPTool,
 )
 from mcp.client.sse import sse_client
 from mcp.client.stdio import StdioServerParameters, stdio_client
@@ -838,8 +837,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         session: MCPClientSession,
         include_tools: Optional[list[str]] = None,
         exclude_tools: Optional[list[str]] = None,
-    ):  
-        assert not (include_tools and exclude_tools), "Cannot specify both include_tools and exclude_tools."
+    ):
+        assert not (include_tools and exclude_tools), (
+            "Cannot specify both include_tools and exclude_tools."
+        )
 
         response = await session.list_tools()
         for tool in response.tools:
@@ -861,7 +862,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         include_tools: Optional[list[str]] = None,
         exclude_tools: Optional[list[str]] = None,
         transport_kwargs: dict[str, Any] = {},
-    ):  
+    ):
         assert name not in self._mcp_sessions, f"Session {name} already exists."
 
         transport = await self._mcp_exit_stack.enter_async_context(
@@ -888,7 +889,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         include_tools: Optional[list[str]] = None,
         exclude_tools: Optional[list[str]] = None,
         transport_kwargs: dict[str, Any] = {},
-    ):  
+    ):
         assert name not in self._mcp_sessions, f"Session {name} already exists."
 
         server_params = StdioServerParameters(
@@ -901,7 +902,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         transport = await self._mcp_exit_stack.enter_async_context(
             stdio_client(server_params)
         )
-        self._mcp_sessions[name] = await self._mcp_exit_stack.enter_async_context(MCPClientSession(*transport))
+        self._mcp_sessions[name] = await self._mcp_exit_stack.enter_async_context(
+            MCPClientSession(*transport)
+        )
         session = self._mcp_sessions[name]
         await session.initialize()
 

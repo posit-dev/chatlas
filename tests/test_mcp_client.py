@@ -1,16 +1,12 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 import sys
-from time import sleep
-from typing import Callable
 
 import httpx
 import pytest
-from mcp.server.fastmcp import FastMCP
-from chatlas import ChatOpenAI, ChatBedrockAnthropic
+from chatlas import ChatOpenAI
 from chatlas._tools import Tool
 import asyncio
-import threading
 import subprocess
 
 @asynccontextmanager
@@ -21,9 +17,6 @@ async def sse_mcp_server(script_path: str):
         stdin=subprocess.PIPE,
     )
 
-    await asyncio.sleep(1.0)
-
-    # Wait for server to be accessible
     async with httpx.AsyncClient() as client:
         while True:
             try:
@@ -41,43 +34,10 @@ async def sse_mcp_server(script_path: str):
 def get_resource(resource_name: str) -> str:
     return str(Path(__file__).parent / "resources" / resource_name)
 
-# @asynccontextmanager
-# async def sse_mcp_server(tools: list[tuple[Callable, str, str]]):
-#     mcp = FastMCP("test", host="localhost", port=8000)
-    
-#     for tool in tools:
-#         mcp.add_tool(tool[0], name=tool[1], description=tool[2])
-    
-#     def run_mcp():
-#         loop = asyncio.new_event_loop()
-#         asyncio.set_event_loop(loop)
-#         loop.run_until_complete(mcp.run_sse_async())
-    
-#     # Start MCP server in background thread
-#     thread = threading.Thread(target=run_mcp, daemon=True)
-#     thread.start()
-    
-#     # Wait for server to be accessible
-#     async with httpx.AsyncClient() as client:
-#         while True:
-#             try:
-#                 await client.get("http://localhost:8000")
-#                 break
-#             except httpx.ConnectError:
-#                 await asyncio.sleep(0.1)
-    
-#     try:
-#         yield
-#     finally:
-#         thread.join(timeout=1.0)
-
 
 @pytest.mark.asyncio
 async def test_register_sse_mcp_server():
-    chat = ChatBedrockAnthropic(
-        model="anthropic.claude-3-5-sonnet-20240620-v1:0",
-        aws_region="us-east-1",
-    )
+    chat = ChatOpenAI()
 
     async with sse_mcp_server(get_resource("sse_mcp_server_add.py")):
         await chat.register_sse_mcp_server_async("test", "http://localhost:8000/sse",)
@@ -103,10 +63,7 @@ async def test_register_sse_mcp_server():
 
 @pytest.mark.asyncio
 async def test_register_stdio_mcp_server():
-    chat = ChatBedrockAnthropic(
-        model="anthropic.claude-3-5-sonnet-20240620-v1:0",
-        aws_region="us-east-1",
-    )
+    chat = ChatOpenAI()
 
     await chat.register_stdio_mcp_server_async(
         name="test",
@@ -135,10 +92,7 @@ async def test_register_stdio_mcp_server():
 
 @pytest.mark.asyncio
 async def test_register_multiple_mcp_servers():
-    chat = ChatBedrockAnthropic(
-        model="anthropic.claude-3-5-sonnet-20240620-v1:0",
-        aws_region="us-east-1",
-    )
+    chat = ChatOpenAI()
 
     await chat.register_stdio_mcp_server_async(
         name="stdio_test",
@@ -193,11 +147,7 @@ async def test_register_multiple_mcp_servers():
 
 @pytest.mark.asyncio
 async def test_call_sse_mcp_tool():
-    chat = ChatBedrockAnthropic(
-        system_prompt="Be very terse, not even punctuation.",
-        model="anthropic.claude-3-5-sonnet-20240620-v1:0",
-        aws_region="us-east-1",
-    )
+    chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
     
     async with sse_mcp_server(get_resource("sse_mcp_server_current_date.py")):
         await chat.register_sse_mcp_server_async("test", "http://localhost:8000/sse")
@@ -214,11 +164,7 @@ async def test_call_sse_mcp_tool():
 
 @pytest.mark.asyncio
 async def test_call_stdio_mcp_tool():
-    chat = ChatBedrockAnthropic(
-        system_prompt="Be very terse, not even punctuation.",
-        model="anthropic.claude-3-5-sonnet-20240620-v1:0",
-        aws_region="us-east-1",
-    )
+    chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
     await chat.register_stdio_mcp_server_async(
         name="stdio_test",
