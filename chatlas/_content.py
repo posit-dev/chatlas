@@ -185,14 +185,26 @@ class ContentToolResult(Content):
     Parameters
     ----------
     id
-        The unique identifier of the tool request.
+        The unique identifier for the tool result.
+    name
+        The name of the tool/function that was called.
     value
         The value returned by the tool/function.
     error
         An error message if the tool/function call failed.
+
+    Note
+    ----
+    If the tool/function call failed, the `value` field will be `None` and the
+    `error` field will contain the error message.
+    If the tool/function call succeeded, the `value` field will contain the
+    return value and the `error` field will be `None`.
+    To get the actual result sent to the model assistant, use the `get_final_value()`
+    method.
     """
 
     id: str
+    name: str
     value: Any = None
     error: Optional[str] = None
 
@@ -206,7 +218,7 @@ class ContentToolResult(Content):
             return str(self.value), ""
 
     def __str__(self):
-        comment = f"# tool result ({self.id})"
+        comment = f"# tool ({self.name}) result ({self.id})"
         value, language = self._get_value_and_language()
 
         return f"""```{language}\n{comment}\n{value}\n```"""
@@ -216,7 +228,9 @@ class ContentToolResult(Content):
 
     def __repr__(self, indent: int = 0):
         res = " " * indent
-        res += f"<ContentToolResult value='{self.value}' id='{self.id}'"
+        res += (
+            f"<ContentToolResult value='{self.value}' name='{self.name}' id='{self.id}'"
+        )
         if self.error:
             res += f" error='{self.error}'"
         return res + ">"

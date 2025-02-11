@@ -16,6 +16,7 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
+    cast,
     overload,
 )
 
@@ -40,7 +41,7 @@ from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
-from ._utils import html_escape
+from ._utils import html_escape, is_async_callable, wrap_async
 
 
 class AnyTypeDict(TypedDict, total=False):
@@ -89,6 +90,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self.provider = provider
         self._turns: list[Turn] = list(turns or [])
         self._tools: dict[str, Tool] = {}
+        self._on_tool_request: Optional[
+            Callable[[ContentToolRequest], None]
+            | Callable[[ContentToolRequest], Awaitable[None]]
+        ] = None
+        self._on_tool_result: Optional[
+            Callable[[ContentToolResult], None]
+            | Callable[[ContentToolResult], Awaitable[None]]
+        ] = None
         self._echo_options: EchoOptions = {
             "rich_markdown": {},
             "rich_console": {},
@@ -906,6 +915,34 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tool = Tool(func, model=model)
         self._tools[tool.name] = tool
 
+    def on_tool_request(
+        self,
+        func: Callable[[ContentToolRequest], None]
+        | Callable[[ContentToolRequest], Awaitable[None]],
+    ):
+        """
+        Register a function to be called when a tool is requested.
+
+        This function will be called with a single argument, a `ContentToolRequest`
+        object, which contains the tool name and the input parameters for the tool.
+        """
+        self._on_tool_request = func
+
+    def on_tool_result(
+        self,
+        func: Callable[[ContentToolResult], None]
+        | Callable[[ContentToolResult], Awaitable[None]],
+    ):
+        """
+        Register a function to be called when a tool result is received.
+
+        This function will be called with a single argument, a `ContentToolResult`
+        object, which contains the tool name and the output of the tool.
+
+        TODO: explain how to check for errors in the tool result
+        """
+        self._on_tool_result = func
+
     def export(
         self,
         filename: str | Path,
@@ -1205,12 +1242,30 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if turn is None:
             return None
 
+        on_request = self._on_tool_request
+        if on_request is not None and is_async_callable(on_request):
+            raise ValueError(
+                "Cannot use async on_tool_request callback in a synchronous chat"
+            )
+
+        on_result = self._on_tool_result
+        if on_result is not None and is_async_callable(on_result):
+            raise ValueError(
+                "Cannot use async on_tool_result callback in a synchronous chat"
+            )
+
+        on_result = cast(Callable[[ContentToolResult], None], on_result)
+
         results: list[ContentToolResult] = []
         for x in turn.contents:
             if isinstance(x, ContentToolRequest):
+                if on_request is not None:
+                    on_request(x)
                 tool_def = self._tools.get(x.name, None)
                 func = tool_def.func if tool_def is not None else None
-                results.append(self._invoke_tool(func, x.arguments, x.id))
+                results.append(
+                    self._invoke_tool(func, x.arguments, x.id, x.name, on_result)
+                )
 
         if not results:
             return None
@@ -1222,12 +1277,28 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if turn is None:
             return None
 
+        on_request = self._on_tool_request
+        if on_request is not None:
+            on_request = wrap_async(on_request)
+
+        on_result = self._on_tool_result
+        if on_result is not None:
+            on_result = wrap_async(on_result)
+
+        on_result = cast(Callable[[ContentToolResult], Awaitable[None]], on_result)
+
         results: list[ContentToolResult] = []
         for x in turn.contents:
             if isinstance(x, ContentToolRequest):
+                if on_request is not None:
+                    await on_request(x)
                 tool_def = self._tools.get(x.name, None)
                 func = tool_def.func if tool_def is not None else None
-                results.append(await self._invoke_tool_async(func, x.arguments, x.id))
+                results.append(
+                    await self._invoke_tool_async(
+                        func, x.arguments, x.id, x.name, on_result
+                    )
+                )
 
         if not results:
             return None
@@ -1239,40 +1310,62 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         func: Callable[..., Any] | None,
         arguments: object,
         id_: str,
+        name: str,
+        on_result: Optional[Callable[[ContentToolResult], None]] = None,
     ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id_, None, "Unknown tool")
+            res = ContentToolResult(id_, name, None, "Unknown tool")
+            if on_result is not None:
+                on_result(res)
+            return res
 
+        res = None
         try:
             if isinstance(arguments, dict):
                 result = func(**arguments)
             else:
                 result = func(arguments)
 
-            return ContentToolResult(id_, result, None)
+            res = ContentToolResult(id_, name, result, None)
         except Exception as e:
             log_tool_error(func.__name__, str(arguments), e)
-            return ContentToolResult(id_, None, str(e))
+            res = ContentToolResult(id_, name, None, str(e))
+
+        if on_result is not None:
+            on_result(res)
+
+        return res
 
     @staticmethod
     async def _invoke_tool_async(
         func: Callable[..., Awaitable[Any]] | None,
         arguments: object,
         id_: str,
+        name: str,
+        on_result: Optional[Callable[[ContentToolResult], Awaitable[None]]] = None,
     ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id_, None, "Unknown tool")
+            res = ContentToolResult(id_, name, None, "Unknown tool")
+            if on_result is not None:
+                await on_result(res)
+            return res
 
+        res = None
         try:
             if isinstance(arguments, dict):
                 result = await func(**arguments)
             else:
                 result = await func(arguments)
 
-            return ContentToolResult(id_, result, None)
+            res = ContentToolResult(id_, name, result, None)
         except Exception as e:
             log_tool_error(func.__name__, str(arguments), e)
-            return ContentToolResult(id_, None, str(e))
+            res = ContentToolResult(id_, name, None, str(e))
+
+        if on_result is not None:
+            await on_result(res)
+
+        return res
 
     def _markdown_display(
         self, echo: Literal["text", "all", "none"]
