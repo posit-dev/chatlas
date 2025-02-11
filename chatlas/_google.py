@@ -461,6 +461,7 @@ class GoogleProvider(
                 contents.append(
                     ContentToolResult(
                         func.name,
+                        func.name,
                         value=func.response,
                     )
                 )
