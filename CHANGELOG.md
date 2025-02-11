@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 
 * Added `.app(*, echo=)` support. This allows for chatlas to change the echo behavior when running the Shiny app. (#31)
+* Added support for `Chat` providers to be [MCP clients](https://modelcontextprotocol.io/) and register with remote tools over SSE or stdio.
 
 ### Bug fixes
 
