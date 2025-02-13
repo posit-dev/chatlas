@@ -1109,7 +1109,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             turn = self.provider.stream_turn(
                 result,
                 has_data_model=data_model is not None,
-                stream=response,
             )
 
             if echo == "all":
@@ -1170,10 +1169,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
-            turn = await self.provider.stream_turn_async(
+            turn = self.provider.stream_turn(
                 result,
                 has_data_model=data_model is not None,
-                stream=response,
             )
 
             if echo == "all":

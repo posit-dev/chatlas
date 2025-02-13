@@ -311,7 +311,8 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             if stream:
                 stream = False
                 warnings.warn(
-                    "Anthropic does not support structured data extraction in streaming mode."
+                    "Anthropic does not support structured data extraction in streaming mode.",
+                    stacklevel=2,
                 )
 
         kwargs_full: "SubmitInputArgs" = {
@@ -371,10 +372,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
 
         return completion
 
-    def stream_turn(self, completion, has_data_model, stream) -> Turn:
-        return self._as_turn(completion, has_data_model)
-
-    async def stream_turn_async(self, completion, has_data_model, stream) -> Turn:
+    def stream_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
 
     def value_turn(self, completion, has_data_model) -> Turn:
