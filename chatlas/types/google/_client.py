@@ -3,99 +3,20 @@
 # ---------------------------------------------------------
 
 
-from typing import Any, Callable, Iterable, TypedDict, Union
+from typing import Optional, TypedDict, Union
 
-import google.ai.generativelanguage_v1beta.types.content
-import google.ai.generativelanguage_v1beta.types.file
-import google.ai.generativelanguage_v1beta.types.generative_service
-import google.generativeai.types.content_types
-import google.generativeai.types.file_types
-import google.generativeai.types.generation_types
+import google.auth.credentials
+import google.genai.client
+import google.genai.types
 
 
 class ChatClientArgs(TypedDict, total=False):
-    model_name: str
-    generation_config: Union[
-        google.ai.generativelanguage_v1beta.types.generative_service.GenerationConfig,
-        google.generativeai.types.generation_types.GenerationConfigDict,
-        google.generativeai.types.generation_types.GenerationConfig,
-        None,
-    ]
-    tools: Union[
-        google.generativeai.types.content_types.FunctionLibrary,
-        Iterable[
-            Union[
-                str,
-                google.generativeai.types.content_types.Tool,
-                google.ai.generativelanguage_v1beta.types.content.Tool,
-                google.generativeai.types.content_types.ToolDict,
-                Iterable[
-                    Union[
-                        google.generativeai.types.content_types.FunctionDeclaration,
-                        google.ai.generativelanguage_v1beta.types.content.FunctionDeclaration,
-                        dict[str, Any],
-                        Callable[..., Any],
-                    ]
-                ],
-                google.generativeai.types.content_types.FunctionDeclaration,
-                google.ai.generativelanguage_v1beta.types.content.FunctionDeclaration,
-                dict[str, Any],
-                Callable[..., Any],
-            ]
-        ],
-        str,
-        google.generativeai.types.content_types.Tool,
-        google.ai.generativelanguage_v1beta.types.content.Tool,
-        google.generativeai.types.content_types.ToolDict,
-        Iterable[
-            Union[
-                google.generativeai.types.content_types.FunctionDeclaration,
-                google.ai.generativelanguage_v1beta.types.content.FunctionDeclaration,
-                dict[str, Any],
-                Callable[..., Any],
-            ]
-        ],
-        google.generativeai.types.content_types.FunctionDeclaration,
-        google.ai.generativelanguage_v1beta.types.content.FunctionDeclaration,
-        dict[str, Any],
-        Callable[..., Any],
-        None,
-    ]
-    tool_config: Union[
-        google.generativeai.types.content_types.ToolConfigDict,
-        google.ai.generativelanguage_v1beta.types.content.ToolConfig,
-        None,
-    ]
-    system_instruction: Union[
-        google.ai.generativelanguage_v1beta.types.content.Content,
-        google.generativeai.types.content_types.ContentDict,
-        Iterable[
-            Union[
-                google.ai.generativelanguage_v1beta.types.content.Part,
-                google.generativeai.types.content_types.PartDict,
-                google.ai.generativelanguage_v1beta.types.content.Blob,
-                google.generativeai.types.content_types.BlobDict,
-                Any,
-                str,
-                google.ai.generativelanguage_v1beta.types.content.FunctionCall,
-                google.ai.generativelanguage_v1beta.types.content.FunctionResponse,
-                google.generativeai.types.file_types.FileDataDict,
-                google.ai.generativelanguage_v1beta.types.content.FileData,
-                google.ai.generativelanguage_v1beta.types.file.File,
-                google.generativeai.types.file_types.File,
-            ]
-        ],
-        google.ai.generativelanguage_v1beta.types.content.Part,
-        google.generativeai.types.content_types.PartDict,
-        google.ai.generativelanguage_v1beta.types.content.Blob,
-        google.generativeai.types.content_types.BlobDict,
-        Any,
-        str,
-        google.ai.generativelanguage_v1beta.types.content.FunctionCall,
-        google.ai.generativelanguage_v1beta.types.content.FunctionResponse,
-        google.generativeai.types.file_types.FileDataDict,
-        google.ai.generativelanguage_v1beta.types.content.FileData,
-        google.ai.generativelanguage_v1beta.types.file.File,
-        google.generativeai.types.file_types.File,
-        None,
+    vertexai: Optional[bool]
+    api_key: Optional[str]
+    credentials: Optional[google.auth.credentials.Credentials]
+    project: Optional[str]
+    location: Optional[str]
+    debug_config: Optional[google.genai.client.DebugConfig]
+    http_options: Union[
+        google.genai.types.HttpOptions, google.genai.types.HttpOptionsDict, None
     ]

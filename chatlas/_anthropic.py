@@ -311,7 +311,8 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             if stream:
                 stream = False
                 warnings.warn(
-                    "Anthropic does not support structured data extraction in streaming mode."
+                    "Anthropic does not support structured data extraction in streaming mode.",
+                    stacklevel=2,
                 )
 
         kwargs_full: "SubmitInputArgs" = {

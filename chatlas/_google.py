@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any, Literal, Optional, overload
+from typing import TYPE_CHECKING, Any, Literal, Optional, Sequence, overload
 
 from pydantic import BaseModel
 
@@ -22,15 +22,12 @@ from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns, user_turn
 
 if TYPE_CHECKING:
-    from google.generativeai.types.content_types import (
-        ContentDict,
+    from google.genai.types import Content as GoogleContent
+    from google.genai.types import (
         FunctionDeclaration,
-        PartType,
-    )
-    from google.generativeai.types.generation_types import (
-        AsyncGenerateContentResponse,
+        GenerateContentConfig,
         GenerateContentResponse,
-        GenerationConfig,
+        Part,
     )
 
     from .types.google import ChatClientArgs, SubmitInputArgs
@@ -145,21 +142,18 @@ def ChatGoogle(
     """
 
     if model is None:
-        model = log_model_default("gemini-1.5-flash")
-
-    turns = normalize_turns(
-        turns or [],
-        system_prompt=system_prompt,
-    )
+        model = log_model_default("gemini-2.0-flash")
 
     return Chat(
         provider=GoogleProvider(
-            turns=turns,
             model=model,
             api_key=api_key,
             kwargs=kwargs,
         ),
-        turns=turns,
+        turns=normalize_turns(
+            turns or [],
+            system_prompt=system_prompt,
+        ),
     )
 
 
@@ -173,35 +167,26 @@ class GoogleProvider(
     def __init__(
         self,
         *,
-        turns: list[Turn],
         model: str,
         api_key: str | None,
         kwargs: Optional["ChatClientArgs"],
     ):
         try:
-            from google.generativeai import GenerativeModel
+            from google import genai
         except ImportError:
             raise ImportError(
-                f"The {self.__class__.__name__} class requires the `google-generativeai` package. "
-                "Install it with `pip install google-generativeai`."
+                f"The {self.__class__.__name__} class requires the `google-genai` package. "
+                "Install it with `pip install google-genai`."
             )
 
-        if api_key is not None:
-            import google.generativeai as genai
-
-            genai.configure(api_key=api_key)
-
-        system_prompt = None
-        if len(turns) > 0 and turns[0].role == "system":
-            system_prompt = turns[0].text
+        self._model = model
 
         kwargs_full: "ChatClientArgs" = {
-            "model_name": model,
-            "system_instruction": system_prompt,
+            "api_key": api_key,
             **(kwargs or {}),
         }
 
-        self._client = GenerativeModel(**kwargs_full)
+        self._client = genai.Client(**kwargs_full)
 
     @overload
     def chat_perform(
@@ -234,7 +219,10 @@ class GoogleProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        return self._client.generate_content(**kwargs)
+        if stream:
+            return self._client.models.generate_content_stream(**kwargs)
+        else:
+            return self._client.models.generate_content(**kwargs)
 
     @overload
     async def chat_perform_async(
@@ -267,7 +255,10 @@ class GoogleProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        return await self._client.generate_content_async(**kwargs)
+        if stream:
+            return await self._client.aio.models.generate_content_stream(**kwargs)
+        else:
+            return await self._client.aio.models.generate_content(**kwargs)
 
     def _chat_perform_args(
         self,
@@ -277,15 +268,17 @@ class GoogleProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
+        # 
         kwargs_full: "SubmitInputArgs" = {
             "contents": self._google_contents(turns),
-            "stream": stream,
             "tools": self._gemini_tools(list(tools.values())) if tools else None,
             **(kwargs or {}),
         }
 
+        # TODO: need to add in system_prompt here!!!
+
         if data_model:
-            config = kwargs_full.get("generation_config", {})
+            config = kwargs_full.get("config", {})
             params = basemodel_to_param_schema(data_model)
 
             if "additionalProperties" in params:
@@ -295,18 +288,16 @@ class GoogleProvider(
             if isinstance(config, dict):
                 config["response_schema"] = params
                 config["response_mime_type"] = mime_type
-            elif isinstance(config, GenerationConfig):
+            elif isinstance(config, GenerateContentConfig):
                 config.response_schema = params
                 config.response_mime_type = mime_type
 
-            kwargs_full["generation_config"] = config
+            kwargs_full["config"] = config
 
         return kwargs_full
 
     def stream_text(self, chunk) -> Optional[str]:
-        if chunk.parts:
-            return chunk.text
-        return None
+        return chunk.text
 
     def stream_merge_chunks(self, completion, chunk):
         # The .resolve() in .stream_turn() does the merging for us
@@ -345,8 +336,8 @@ class GoogleProvider(
             data_model=data_model,
         )
 
-        res = self._client.count_tokens(**kwargs)
-        return res.total_tokens
+        res = self._client.models.count_tokens(**kwargs)
+        return res.total_tokens or 0
 
     async def token_count_async(
         self,
@@ -360,8 +351,8 @@ class GoogleProvider(
             data_model=data_model,
         )
 
-        res = await self._client.count_tokens_async(**kwargs)
-        return res.total_tokens
+        res = await self._client.aio.models.count_tokens(**kwargs)
+        return res.total_tokens or 0
 
     def _token_count_args(
         self,
@@ -382,34 +373,34 @@ class GoogleProvider(
 
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
-    def _google_contents(self, turns: list[Turn]) -> list["ContentDict"]:
-        contents: list["ContentDict"] = []
+    def _google_contents(self, turns: list[Turn]) -> Sequence["GoogleContent"]:
+        from google.genai.types import Content as GoogleContent
+
+        contents: list["GoogleContent"] = []
         for turn in turns:
             if turn.role == "system":
                 continue  # System messages are handled separately
             elif turn.role == "user":
                 parts = [self._as_part_type(c) for c in turn.contents]
-                contents.append({"role": turn.role, "parts": parts})
+                contents.append(GoogleContent(role=turn.role, parts=parts))
             elif turn.role == "assistant":
                 parts = [self._as_part_type(c) for c in turn.contents]
-                contents.append({"role": "model", "parts": parts})
+                contents.append(GoogleContent(role="model", parts=parts))
             else:
                 raise ValueError(f"Unknown role {turn.role}")
         return contents
 
-    def _as_part_type(self, content: Content) -> "PartType":
-        from google.generativeai.types.content_types import protos
+    def _as_part_type(self, content: Content) -> "Part":
+        from google.genai.types import Part
 
         if isinstance(content, ContentText):
-            return protos.Part(text=content.text)
+            return Part.from_text(text=content.text)
         elif isinstance(content, ContentJson):
-            return protos.Part(text="<structured data/>")
+            return Part.from_text(text="<structured data/>")
         elif isinstance(content, ContentImageInline):
-            return protos.Part(
-                inline_data={
-                    "mime_type": content.content_type,
-                    "data": content.data,
-                }
+            return Part.from_uri(
+                file_uri=f"data:{content.content_type};base64,{content.data}",
+                mime_type=content.content_type,
             )
         elif isinstance(content, ContentImageRemote):
             raise NotImplementedError(
@@ -417,31 +408,34 @@ class GoogleProvider(
                 "Consider downloading the image and using content_image_file() instead."
             )
         elif isinstance(content, ContentToolRequest):
-            return protos.Part(
-                function_call={
-                    "name": content.id,
-                    "args": content.arguments,
-                }
+            return Part.from_function_call(
+                id=content.id,
+                name=content.name,
+                args=content.arguments,
             )
         elif isinstance(content, ContentToolResult):
-            return protos.Part(
-                function_response={
-                    "name": content.id,
-                    "response": {"value": content.get_final_value()},
-                }
+            return Part.from_function_response(
+                name=content.id,
+                response={"result": content.get_final_value()},
             )
         raise ValueError(f"Unknown content type: {type(content)}")
 
     def _as_turn(
         self,
-        message: "GenerateContentResponse | AsyncGenerateContentResponse",
+        message: "GenerateContentResponse",
         has_data_model: bool,
     ) -> Turn:
         contents = []
 
-        msg = message.candidates[0].content
+        if message.candidates is None:
+            return Turn("assistant", contents)
 
-        for part in msg.parts:
+        content = message.candidates[0].content
+
+        if content is None or content.parts is None:
+            return Turn("assistant", contents)
+
+        for part in content.parts:
             if part.text:
                 if has_data_model:
                     contents.append(ContentJson(json.loads(part.text)))
@@ -449,27 +443,31 @@ class GoogleProvider(
                     contents.append(ContentText(part.text))
             if part.function_call:
                 func = part.function_call
-                contents.append(
-                    ContentToolRequest(
-                        func.name,
-                        name=func.name,
-                        arguments=dict(func.args),
+                if func.name:
+                    contents.append(
+                        ContentToolRequest(
+                            func.name,
+                            name=func.name,
+                            arguments=func.args,
+                        )
                     )
-                )
             if part.function_response:
                 func = part.function_response
-                contents.append(
-                    ContentToolResult(
-                        func.name,
-                        value=func.response,
+                if func.name:
+                    contents.append(
+                        ContentToolResult(
+                            func.name,
+                            value=func.response,
+                        )
                     )
-                )
 
         usage = message.usage_metadata
-        tokens = (
-            usage.prompt_token_count,
-            usage.candidates_token_count,
-        )
+        tokens = (0, 0)
+        if usage:
+            tokens = (
+                usage.prompt_token_count or 0,
+                usage.candidates_token_count or 0,
+            )
 
         tokens_log(self, tokens)
 
@@ -479,12 +477,12 @@ class GoogleProvider(
             "assistant",
             contents,
             tokens=tokens,
-            finish_reason=finish.name,
+            finish_reason=finish.name if finish else None,
             completion=message,
         )
 
     def _gemini_tools(self, tools: list[Tool]) -> list["FunctionDeclaration"]:
-        from google.generativeai.types.content_types import FunctionDeclaration
+        from google.genai.types import FunctionDeclaration
 
         res: list["FunctionDeclaration"] = []
         for tool in tools:
