@@ -1261,7 +1261,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         id_: str,
     ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id_, None, "Unknown tool")
+            return ContentToolResult(id_, value=None, error="Unknown tool")
 
         name = func.__name__
 
