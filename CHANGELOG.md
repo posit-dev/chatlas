@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added `.app(*, echo=)` support. This allows for chatlas to change the echo behavior when running the Shiny app. (#31)
 
+### Improvements
+
+* Migrated `ChatGoogle()`'s underlying python SDK from `google-generative` to `google-genai`. As a result, streaming tools are now supported, and utilizing Vertex AI is now easier. (#50)
+
 ### Bug fixes
 
 * Fix broken `Chat`'s Shiny app when `.app(*, stream=True)` by using async chat tools. (#31)
