@@ -20,6 +20,8 @@ chatlas.ChatOpenAI py:function 1 reference/ChatOpenAI.html#chatlas.ChatOpenAI -
 chatlas._openai.ChatOpenAI py:function 1 reference/ChatOpenAI.html#chatlas.ChatOpenAI chatlas.ChatOpenAI
 chatlas.ChatPerplexity py:function 1 reference/ChatPerplexity.html#chatlas.ChatPerplexity -
 chatlas._perplexity.ChatPerplexity py:function 1 reference/ChatPerplexity.html#chatlas.ChatPerplexity chatlas.ChatPerplexity
+chatlas.ChatVertex py:function 1 reference/ChatVertex.html#chatlas.ChatVertex -
+chatlas._google.ChatVertex py:function 1 reference/ChatVertex.html#chatlas.ChatVertex chatlas.ChatVertex
 chatlas.Chat.app py:function 1 reference/Chat.html#chatlas.Chat.app -
 chatlas._chat.Chat.app py:function 1 reference/Chat.html#chatlas.Chat.app chatlas.Chat.app
 chatlas.Chat.chat py:function 1 reference/Chat.html#chatlas.Chat.chat -
