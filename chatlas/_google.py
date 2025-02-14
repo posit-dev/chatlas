@@ -429,6 +429,8 @@ class GoogleProvider(
             else:
                 resp = {"result": str(content.value)}
             return Part(
+                # TODO: seems function response parts might need role='tool'???
+                # https://github.com/googleapis/python-genai/blame/c8cfef85c/README.md#L344
                 function_response=FunctionResponse(
                     id=content.id,
                     name=content.name,
