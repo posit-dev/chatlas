@@ -29,8 +29,7 @@ def test_google_simple_request():
     turn = chat.get_last_turn()
     assert turn is not None
     assert turn.tokens == (16, 2)
-    # TODO: why is this now None?
-    # assert turn.finish_reason == "STOP"
+    assert turn.finish_reason == "STOP"
 
 
 @pytest.mark.asyncio
@@ -44,8 +43,7 @@ async def test_google_simple_streaming_request():
     assert "2" in "".join(res)
     turn = chat.get_last_turn()
     assert turn is not None
-    turn.finish_reason
-    # assert turn.finish_reason == "STOP"
+    assert turn.finish_reason == "STOP"
 
 
 def test_google_respects_turns_interface():
