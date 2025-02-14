@@ -70,6 +70,7 @@ quartodoc:
         - ChatOllama
         - ChatOpenAI
         - ChatPerplexity
+        - ChatVertex
     - title: The chat object
       desc: Methods and attributes available on a chat instance
       contents:

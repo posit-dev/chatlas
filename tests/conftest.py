@@ -3,9 +3,10 @@ from pathlib import Path
 from typing import Awaitable, Callable
 
 import pytest
-from chatlas import Chat, Turn, content_image_file, content_image_url
 from PIL import Image
 from pydantic import BaseModel
+
+from chatlas import Chat, Turn, content_image_file, content_image_url
 
 ChatFun = Callable[..., Chat]
 
@@ -137,13 +138,19 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
 
 
 def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = True):
-    chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
+    chat = chat_fun(
+        system_prompt="""
+        Be very terse, not even punctuation. If asked for equipment to pack,
+        first use the weather_forecast tool provided to you. Then, use the
+        equipment tool provided to you.
+        """
+    )
 
-    def forecast(city: str):
+    def weather_forecast(city: str):
         """Gets the weather forecast for a city"""
         return "rainy" if city == "New York" else "sunny"
 
-    chat.register_tool(forecast)
+    chat.register_tool(weather_forecast)
 
     def equipment(weather: str):
         """Gets the equipment needed for a weather condition"""

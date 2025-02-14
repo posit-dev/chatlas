@@ -11,7 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* Added a `ChatVertex()` class to interact with Google Cloud's Vertex AI. (#50)
 * Added `.app(*, echo=)` support. This allows for chatlas to change the echo behavior when running the Shiny app. (#31)
+
+### Improvements
+
+* Migrated `ChatGoogle()`'s underlying python SDK from `google-generative` to `google-genai`. As a result, streaming tools are now working properly. (#50)
 
 ### Bug fixes
 

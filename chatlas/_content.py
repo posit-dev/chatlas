@@ -188,12 +188,15 @@ class ContentToolResult(Content):
         The unique identifier of the tool request.
     value
         The value returned by the tool/function.
+    name
+        The name of the tool/function that was called.
     error
         An error message if the tool/function call failed.
     """
 
     id: str
     value: Any = None
+    name: Optional[str] = None
     error: Optional[str] = None
 
     def _get_value_and_language(self) -> tuple[str, str]:
