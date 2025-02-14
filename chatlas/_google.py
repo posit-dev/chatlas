@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
@@ -28,6 +29,7 @@ if TYPE_CHECKING:
         GenerateContentResponse,
         GenerateContentResponseDict,
         Part,
+        PartDict,
     )
 
     from .types.google import ChatClientArgs, SubmitInputArgs
@@ -265,7 +267,8 @@ class GoogleProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        from google.genai.types import GenerateContentConfig
+        from google.genai.types import FunctionDeclaration, GenerateContentConfig
+        from google.genai.types import Tool as GoogleTool
 
         kwargs_full: "SubmitInputArgs" = {
             "model": self._model,
@@ -288,14 +291,27 @@ class GoogleProvider(
             config.response_mime_type = "application/json"
 
         if tools:
-            config.tools = [tool.func for tool in tools.values()]
+            config.tools = [
+                GoogleTool(
+                    function_declarations=[
+                        FunctionDeclaration.from_callable(
+                            client=self._client, callable=tool.func
+                        )
+                        for tool in tools.values()
+                    ]
+                )
+            ]
 
         kwargs_full["config"] = config
 
         return kwargs_full
 
     def stream_text(self, chunk) -> Optional[str]:
-        return chunk.text
+        try:
+            # Errors if there is no text (e.g., tool request)
+            return chunk.text
+        except Exception:
+            return None
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()
@@ -388,9 +404,9 @@ class GoogleProvider(
             return Part.from_text(text=content.text)
         elif isinstance(content, ContentJson):
             return Part.from_text(text="<structured data/>")
-        elif isinstance(content, ContentImageInline):
-            return Part.from_uri(
-                file_uri=f"data:{content.content_type};base64,{content.data}",
+        elif isinstance(content, ContentImageInline) and content.data:
+            return Part.from_bytes(
+                data=base64.b64decode(content.data),
                 mime_type=content.content_type,
             )
         elif isinstance(content, ContentImageRemote):
@@ -408,11 +424,15 @@ class GoogleProvider(
                 )
             )
         elif isinstance(content, ContentToolResult):
+            if content.error:
+                resp = {"error": content.error}
+            else:
+                resp = {"result": str(content.value)}
             return Part(
                 function_response=FunctionResponse(
                     id=content.id,
-                    # name=content.name,
-                    response={"result": content.get_final_value()},
+                    name=content.name,
+                    response=resp,
                 )
             )
         raise ValueError(f"Unknown content type: {type(content)}")
@@ -422,18 +442,21 @@ class GoogleProvider(
         message: "GenerateContentResponseDict",
         has_data_model: bool,
     ) -> Turn:
-        contents = []
-
         candidates = message.get("candidates")
         if not candidates:
-            return Turn("assistant", contents)
-        content = candidates[0].get("content")
-        if content is None:
-            return Turn("assistant", contents)
-        parts = content.get("parts")
-        if parts is None:
-            return Turn("assistant", contents)
+            return Turn("assistant", "")
 
+        parts: list["PartDict"] = []
+        finish_reason = None
+        for candidate in candidates:
+            content = candidate.get("content")
+            if content:
+                parts.extend(content.get("parts") or {})
+            finish = candidate.get("finish_reason")
+            if finish:
+                finish_reason = finish
+
+        contents: list[Content] = []
         for part in parts:
             text = part.get("text")
             if text:
@@ -443,25 +466,26 @@ class GoogleProvider(
                     contents.append(ContentText(text))
             function_call = part.get("function_call")
             if function_call:
+                # Seems name is required but id is optional?
                 name = function_call.get("name")
-                Id = function_call.get("id")
-                if name and Id:
+                if name:
                     contents.append(
                         ContentToolRequest(
-                            id=Id,
+                            id=function_call.get("id") or name,
                             name=name,
                             arguments=function_call.get("args"),
                         )
                     )
             function_response = part.get("function_response")
             if function_response:
+                # Seems name is required but id is optional?
                 name = function_response.get("name")
-                Id = function_response.get("id")
-                if name and Id:
+                if name:
                     contents.append(
                         ContentToolResult(
-                            name,
+                            id=function_response.get("id") or name,
                             value=function_response.get("response"),
+                            name=name,
                         )
                     )
 
@@ -475,12 +499,10 @@ class GoogleProvider(
 
         tokens_log(self, tokens)
 
-        finish = candidates[0].get("finish_reason")
-
         return Turn(
             "assistant",
             contents,
             tokens=tokens,
-            finish_reason=finish.name if finish else None,
+            finish_reason=finish_reason.name if finish_reason else None,
             completion=message,
         )
