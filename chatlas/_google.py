@@ -95,16 +95,12 @@ def ChatGoogle(
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `GOOGLE_API_KEY` environment variable.
     kwargs
-        Additional arguments to pass to the `genai.GenerativeModel` constructor.
+        Additional arguments to pass to the `genai.Client` constructor.
 
     Returns
     -------
     Chat
         A Chat object.
-
-    Limitations
-    -----------
-    `ChatGoogle` currently doesn't work with streaming tools.
 
     Note
     ----
@@ -508,3 +504,99 @@ class GoogleProvider(
             finish_reason=finish_reason.name if finish_reason else None,
             completion=message,
         )
+
+
+def ChatVertex(
+    *,
+    model: Optional[str] = None,
+    project: Optional[str] = None,
+    location: Optional[str] = None,
+    api_key: Optional[str] = None,
+    system_prompt: Optional[str] = None,
+    turns: Optional[list[Turn]] = None,
+    kwargs: Optional["ChatClientArgs"] = None,
+) -> Chat["SubmitInputArgs", GenerateContentResponse]:
+    """
+    Chat with a Google Vertex AI model.
+
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatGoogle` requires the `google-genai` package
+    (e.g., `pip install google-genai`).
+    :::
+
+    ::: {.callout-note}
+    ## Credentials
+
+    To use Google's models (i.e., Vertex AI), you'll need to sign up for an account
+    with [Vertex AI](https://cloud.google.com/vertex-ai), then specify the appropriate
+    model, project, and location.
+    :::
+
+    Parameters
+    ----------
+    model
+        The model to use for the chat. The default, None, will pick a reasonable
+        default, and warn you about it. We strongly recommend explicitly choosing
+        a model for all but the most casual use.
+    project
+        The Google Cloud project ID (e.g., "your-project-id"). If not provided, the
+        GOOGLE_CLOUD_PROJECT environment variable will be used.
+    location
+        The Google Cloud location (e.g., "us-central1"). If not provided, the
+        GOOGLE_CLOUD_LOCATION environment variable will be used.
+    system_prompt
+        A system prompt to set the behavior of the assistant.
+    turns
+        A list of turns to start the chat with (i.e., continuing a previous
+        conversation). If not provided, the conversation begins from scratch.
+        Do not provide non-`None` values for both `turns` and `system_prompt`.
+        Each message in the list should be a dictionary with at least `role`
+        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
+        Normally there is also a `content` field, which is a string.
+
+    Returns
+    -------
+    Chat
+        A Chat object.
+
+    Examples
+    --------
+
+    ```python
+    import os
+    from chatlas import ChatVertex
+
+    chat = ChatVertex(
+        project="your-project-id",
+        location="us-central1",
+    )
+    chat.chat("What is the capital of France?")
+    ```
+    """
+
+    if kwargs is None:
+        kwargs = {}
+
+    kwargs["vertexai"] = True
+    kwargs["project"] = project
+    kwargs["location"] = location
+
+    if model is None:
+        model = log_model_default("gemini-2.0-flash")
+
+    return Chat(
+        provider=GoogleProvider(
+            model=model,
+            api_key=api_key,
+            kwargs=kwargs,
+        ),
+        turns=normalize_turns(
+            turns or [],
+            system_prompt=system_prompt,
+        ),
+    )
