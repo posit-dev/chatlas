@@ -372,7 +372,7 @@ class GoogleProvider(
             data_model=data_model,
         )
 
-        args_to_keep = ["contents", "tools"]
+        args_to_keep = ["model", "contents", "tools"]
 
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
