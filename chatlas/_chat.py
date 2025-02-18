@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import os
 from pathlib import Path
 from threading import Thread
@@ -1391,7 +1392,7 @@ class ChatResponse:
 
     @property
     def consumed(self) -> bool:
-        return self._generator.gi_frame is None
+        return inspect.getgeneratorstate(self._generator) == inspect.GEN_CLOSED
 
     def __str__(self) -> str:
         return self.get_content()
@@ -1441,7 +1442,7 @@ class ChatResponseAsync:
 
     @property
     def consumed(self) -> bool:
-        return self._generator.ag_frame is None
+        return inspect.getasyncgenstate(self._generator) == inspect.AGEN_CLOSED
 
 
 # ----------------------------------------------------------------------------
