@@ -83,6 +83,7 @@ skip-excluded-dirs = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["chatlas"]
+include = ["py.typed"]
 
 [tool.pyright]
 include = ["chatlas"]
