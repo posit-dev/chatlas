@@ -440,6 +440,8 @@ class GoogleProvider(
         message: "GenerateContentResponseDict",
         has_data_model: bool,
     ) -> Turn:
+        from google.genai.types import FinishReason
+
         candidates = message.get("candidates")
         if not candidates:
             return Turn("assistant", "")
@@ -497,11 +499,14 @@ class GoogleProvider(
 
         tokens_log(self, tokens)
 
+        if isinstance(finish_reason, FinishReason):
+            finish_reason = finish_reason.name
+
         return Turn(
             "assistant",
             contents,
             tokens=tokens,
-            finish_reason=finish_reason.name if finish_reason else None,
+            finish_reason=finish_reason,
             completion=message,
         )
 
