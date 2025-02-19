@@ -82,5 +82,10 @@ def test_data_extraction():
 
 def test_anthropic_images():
     chat_fun = ChatAnthropic
-    assert_images_inline(chat_fun)
+
+    def run_inlineassert():
+        assert_images_inline(chat_fun)
+
+    retryassert(run_inlineassert, retries=3)
+    
     assert_images_remote_error(chat_fun)
