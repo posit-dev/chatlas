@@ -3,10 +3,9 @@ from pathlib import Path
 from typing import Awaitable, Callable
 
 import pytest
+from chatlas import Chat, Turn, content_image_file, content_image_url
 from PIL import Image
 from pydantic import BaseModel
-
-from chatlas import Chat, Turn, content_image_file, content_image_url
 
 ChatFun = Callable[..., Chat]
 
@@ -111,8 +110,22 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
     )
     assert "2024-01-01" in await response.get_content()
 
+    # Can't use async tools in a synchronous chat...
     with pytest.raises(Exception, match="async tools in a synchronous chat"):
         str(chat.chat("Great. Do it again.", stream=stream))
+
+    # ... but we can use synchronous tools in an async chat
+    def get_current_date2():
+        """Gets the current date"""
+        return "2024-01-01"
+
+    chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
+    chat.register_tool(get_current_date2)
+
+    response = await chat.chat_async(
+        "What's the current date in YMD format?", stream=stream
+    )
+    assert "2024-01-01" in await response.get_content()
 
 
 def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):

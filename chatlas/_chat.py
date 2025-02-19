@@ -42,7 +42,7 @@ from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
-from ._utils import html_escape
+from ._utils import html_escape, wrap_async
 
 
 class AnyTypeDict(TypedDict, total=False):
@@ -1226,7 +1226,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         for x in turn.contents:
             if isinstance(x, ContentToolRequest):
                 tool_def = self._tools.get(x.name, None)
-                func = tool_def.func if tool_def is not None else None
+                func = None
+                if tool_def:
+                    if tool_def._is_async:
+                        func = tool_def.func
+                    else:
+                        func = wrap_async(tool_def.func)
                 results.append(await self._invoke_tool_async(func, x.arguments, x.id))
 
         if not results:
