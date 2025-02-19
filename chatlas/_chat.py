@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import os
+import sys
 from pathlib import Path
 from threading import Thread
 from typing import (
@@ -1442,6 +1443,10 @@ class ChatResponseAsync:
 
     @property
     def consumed(self) -> bool:
+        if sys.version_info < (3, 12):
+            raise NotImplementedError(
+                "Checking for consumed state is only supported in Python 3.12+"
+            )
         return inspect.getasyncgenstate(self._generator) == inspect.AGEN_CLOSED
 
 
