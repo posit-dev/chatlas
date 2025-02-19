@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Literal, Optional, TypedDict, cast, overload
+from typing import TYPE_CHECKING, Literal, Optional, TypedDict, overload
 
 from pydantic import BaseModel
 
@@ -8,7 +8,7 @@ from ._logging import log_model_default
 from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, normalize_turns
-from ._typing_extensions import NotRequired
+from ._utils import drop_none
 
 if TYPE_CHECKING:
     from snowflake.snowpark import Column
@@ -27,108 +27,83 @@ class ConversationMessage(TypedDict):
     content: str
 
 
-class ConnectionToml(TypedDict):
-    """
-    Connect by using the connections.toml file
-
-    As described in the Snowpark documentation:
-    https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file
-    """
-
-    connection_name: str
-    "The name of the connection (i.e., section) within the connections.toml file"
-
-
-class Connection(TypedDict):
-    """
-    Connect by specifying connection parameters
-
-    As described in the Snowpark documentation:
-    https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-specifying-connection-parameters
-    """
-
-    account: str
-    """
-    Your snowflake account identifier
-
-    As described in the Snowpark documentation:
-    https://docs.snowflake.com/en/user-guide/admin-account-identifier
-    """
-
-    user: str
-    "Your snowflake user name"
-
-    password: str
-    "Your snowflake password"
-
-    role: NotRequired[str]
-    "Your snowflake role"
-
-    warehouse: NotRequired[str]
-    "Your snowflake warehouse"
-
-    database: NotRequired[str]
-    "Your snowflake database"
-
-    schema: NotRequired[str]
-    "Your snowflake schema"
-
-
-class ConnectionSSO(TypedDict):
-    """
-    Use single sign-on (SSO) through a web browser
-
-    As described in the Snowpark documentation:
-    https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#using-single-sign-on-sso-through-a-web-browser
-    """
-
-    account: str
-    """
-    Your snowflake account identifier
-
-    As described in the Snowpark documentation:
-    https://docs.snowflake.com/en/user-guide/admin-account-identifier
-    """
-
-    user: str
-    "Your snowflake user name"
-
-    role: str
-    "Your snowflake role"
-
-    database: str
-    "Your snowflake database"
-
-    schema: str
-    "Your snowflake schema"
-
-    warehouse: str
-    "Your snowflake warehouse"
-
-    authenticator: Literal["externalbrowser"]
-
-
 def ChatSnowflake(
     *,
-    connection_config: ConnectionToml | Connection | ConnectionSSO,
-    system_prompt: Optional[str] = None,
-    model: Optional[str] = None,
+    system_prompt: str | None,
+    model: str | None,
     turns: Optional[list[Turn]] = None,
+    connection_name: str | None,
+    account: str | None,
+    user: str | None,
+    password: str | None,
+    role: str | None,
+    warehouse: str | None,
+    database: str | None,
+    schema: str | None,
+    authenticator: str | None,
 ) -> Chat["SubmitInputArgs", Completion]:
     """
-    Chat with a model hosted on Snowflake
+    Chat with a Snowflake Cortex LLM
+
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## Snowflake credentials
+
+    Snowflake provides at least a few ways to authenticate. You can use a
+    `connections.toml` file (and specify the `connection_name` argument), specify the
+    connection parameters directly (with `account`, `user`, `password`, etc.),
+    or use single sign-on (SSO) through a web browser.
+
+    For more information, see the Snowflake documentation:
+    https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session
+    :::
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatSnowflake`, requires the `snowflake-ml-python` package
+    (e.g., `pip install snowflake-ml-python`).
+    :::
+
 
     Parameters
     ----------
-    connection_config
-        The connection configuration to use. This can be either a `ConnectionToml`,
-        `Connection`, or `ConnectionSSO` dictionary.
     system_prompt
         A system prompt to set the behavior of the assistant.
     model
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
         choosing a model for all but the most casual use.
+    turns
+        A list of turns to start the chat with (i.e., continuing a previous
+        conversation). If not provided, the conversation begins from scratch. Do
+        not provide non-None values for both `turns` and `system_prompt`. Each
+        message in the list should be a dictionary with at least `role` (usually
+        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
+        there is also a `content` field, which is a string.
+    connection_name
+        The name of the connection (i.e., section) within the connections.toml file.
+    account
+        Your Snowflake account identifier. Required if `connection_name` is not provided.
+        https://docs.snowflake.com/en/user-guide/admin-account-identifier
+    user
+        Your Snowflake user name. Required if `connection_name` is not provided.
+    password
+        Your Snowflake password. Required if `connection_name` is not provided and
+        you are not using single sign-on (SSO).
+    role
+        Your Snowflake role.
+    warehouse
+        Your Snowflake warehouse.
+    database
+        Your Snowflake database.
+    schema
+        Your Snowflake schema.
+    authenticator
+        The authenticator to use. Only required if you are using single sign-on (SSO).
+        The only supported value in this case is "externalbrowser".
     """
 
     if model is None:
@@ -136,8 +111,16 @@ def ChatSnowflake(
 
     return Chat(
         provider=SnowflakeProvider(
-            connection_config=connection_config,
             model=model,
+            connection_name=connection_name,
+            account=account,
+            user=user,
+            password=password,
+            role=role,
+            warehouse=warehouse,
+            database=database,
+            schema=schema,
+            authenticator=authenticator,
         ),
         turns=normalize_turns(
             turns or [],
@@ -151,7 +134,15 @@ class SnowflakeProvider(Provider[Completion, CompletionChunk, CompletionChunk]):
         self,
         *,
         model: str,
-        connection_config: ConnectionToml | Connection | ConnectionSSO,
+        connection_name: str | None,
+        account: str | None,
+        user: str | None,
+        password: str | None,
+        role: str | None,
+        warehouse: str | None,
+        database: str | None,
+        schema: str | None,
+        authenticator: str | None,
     ):
         try:
             from snowflake.snowpark import Session
@@ -161,10 +152,22 @@ class SnowflakeProvider(Provider[Completion, CompletionChunk, CompletionChunk]):
                 "Please install it via `pip install snowflake-ml-python`."
             )
 
-        config = cast(dict[str, Any], connection_config)
+        configs: dict[str, str | int] = drop_none(
+            {
+                "connection_name": connection_name,
+                "account": account,
+                "user": user,
+                "password": password,
+                "role": role,
+                "warehouse": warehouse,
+                "database": database,
+                "schema": schema,
+                "authenticator": authenticator,
+            }
+        )
 
         self._model = model
-        self._session = Session.builder.configs(config).create()
+        self._session = Session.builder.configs(configs).create()
 
     def __del__(self):
         self._session.close()
