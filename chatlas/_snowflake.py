@@ -29,18 +29,18 @@ class ConversationMessage(TypedDict):
 
 def ChatSnowflake(
     *,
-    system_prompt: str | None,
-    model: str | None,
+    system_prompt: Optional[str] = None,
+    model: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
-    connection_name: str | None,
-    account: str | None,
-    user: str | None,
-    password: str | None,
-    role: str | None,
-    warehouse: str | None,
-    database: str | None,
-    schema: str | None,
-    authenticator: str | None,
+    connection_name: Optional[str] = None,
+    account: Optional[str] = None,
+    user: Optional[str] = None,
+    password: Optional[str] = None,
+    role: Optional[str] = None,
+    warehouse: Optional[str] = None,
+    database: Optional[str] = None,
+    schema: Optional[str] = None,
+    authenticator: Optional[str] = None,
 ) -> Chat["SubmitInputArgs", Completion]:
     """
     Chat with a Snowflake Cortex LLM
