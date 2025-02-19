@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* Fixed a bug where synchronous chat tools would not work properly when used in a `_async()` context. (#56)
 * Fix broken `Chat`'s Shiny app when `.app(*, stream=True)` by using async chat tools. (#31)
 * Update formatting of exported markdown to use `repr()` instead of `str()` when exporting tool call results. (#30)
 
