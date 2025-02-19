@@ -61,6 +61,13 @@ def is_async_callable(
     return False
 
 
+T = TypeVar("T")
+
+
+def drop_none(x: dict[str, T | None]) -> dict[str, T]:
+    return {k: v for k, v in x.items() if v is not None}
+
+
 # https://docs.pytest.org/en/latest/example/simple.html#pytest-current-test-environment-variable
 def is_testing():
     return os.environ.get("PYTEST_CURRENT_TEST", None) is not None
