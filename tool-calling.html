@@ -64,6 +64,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./images/posit-logo.png" rel="icon" type="image/png">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -108,6 +109,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
+<meta property="og:title" content="chatlas">
+<meta property="og:description" content="A streamlined Python interface to various LLMs.">
+<meta property="og:image" content="https://posit-dev.github.io/chatlas/images/logo.png">
+<meta property="og:site_name" content="chatlas">
+<meta property="og:image:height" content="2911">
+<meta property="og:image:width" content="2521">
+<meta name="twitter:title" content="chatlas">
+<meta name="twitter:description" content="A streamlined Python interface to various LLMs.">
+<meta name="twitter:image" content="https://posit-dev.github.io/chatlas/images/logo.png">
+<meta name="twitter:image-height" content="2911">
+<meta name="twitter:image-width" content="2521">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 
 <body class="nav-fixed">
@@ -195,7 +208,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#trouble-shooting" id="toc-trouble-shooting" class="nav-link" data-scroll-target="#trouble-shooting">Trouble-shooting</a></li>
   <li><a href="#tool-limitations" id="toc-tool-limitations" class="nav-link" data-scroll-target="#tool-limitations">Tool limitations</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/tool-calling.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/tool-calling.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -236,13 +249,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 <p>The value that the chat model brings is not in helping with execution, but with knowing when it makes sense to call a tool, what values to pass as arguments, and how to use the results in formulating its response.</p>
-<div id="8008d1ee" class="cell" data-execution_count="1">
+<div id="7261212e" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="motivating-example" class="level3">
 <h3 class="anchored" data-anchor-id="motivating-example">Motivating example</h3>
 <p>Let’s take a look at an example where we really need an external tool. Chat models generally do not have access to “real-time” information, such as current events, weather, etc. Let’s see what happens when we ask the chat model about the weather in a specific location:</p>
-<div id="dadf7db1" class="cell" data-execution_count="2">
+<div id="7f75eef1" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(model<span class="op">=</span><span class="st">"gpt-4o-mini"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> chat.chat(<span class="st">"What's the weather like today in Duluth, MN?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
@@ -250,7 +263,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><br></p>
-<p>I’m unable to provide real-time weather updates. I recommend checking a reliable weather website or app for the most current conditions in Duluth, MN.</p>
+<p>I’m unable to provide real-time weather updates. To get the current weather in Duluth, MN, I recommend checking a reliable weather website or app for the most accurate and up-to-date information.</p>
 </div>
 </div>
 <p>Fortunately, the model is smart enough to know that it doesn’t have access to real-time information, and it doesn’t try to make up an answer. However, we can help it out by providing a tool that can fetch the weather for a given location.</p>
@@ -258,7 +271,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="defining-a-tool-function" class="level3">
 <h3 class="anchored" data-anchor-id="defining-a-tool-function">Defining a tool function</h3>
 <p>At it turns out, LLMs are pretty good at figuring out ‘structure’ like latitude and longitude from ‘unstructured’ things like a location name. So we can write a tool function that takes a latitude and longitude and returns the current temperature at that location. Here’s an example of how you might write such a function using the <a href="https://open-meteo.com/">Open-Meteo API</a>:</p>
-<div id="d4ce5ad6" class="cell" data-execution_count="3">
+<div id="bd32265e" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_current_temperature(latitude: <span class="bu">float</span>, longitude: <span class="bu">float</span>):</span>
@@ -285,24 +298,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p><strong>Providing these hints and documentation is very important</strong>, as it helps the chat model understand how to use your tool correctly!</p>
 <p>Let’s test it:</p>
-<div id="f14e0836" class="cell" data-execution_count="4">
+<div id="ff5088bc" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>get_current_temperature(<span class="fl">46.7867</span>, <span class="op">-</span><span class="fl">92.1005</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<pre><code>{'time': '2025-02-16T17:45',
+<pre><code>{'time': '2025-02-19T22:45',
  'interval': 900,
- 'temperature_2m': -14.3,
- 'wind_speed_10m': 13.2}</code></pre>
+ 'temperature_2m': -12.8,
+ 'wind_speed_10m': 10.0}</code></pre>
 </div>
 </div>
 </section>
 <section id="using-the-tool" class="level3">
 <h3 class="anchored" data-anchor-id="using-the-tool">Using the tool</h3>
 <p>In order for the LLM to make use of our tool, we need to register it with the <code>chat</code> object. This is done by calling the <code>register_tool</code> method on the chat object.</p>
-<div id="09b5efbe" class="cell" data-execution_count="5">
+<div id="3c0947cb" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>chat.register_tool(get_current_temperature)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now let’s retry our original question:</p>
-<div id="1bd5db27" class="cell" data-execution_count="6">
+<div id="faf7f994" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> chat.chat(<span class="st">"What's the weather like today in Duluth, MN?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div class="chatlas-markdown">
@@ -310,7 +323,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><br></p>
 <p><br></p>
-<p>Today in Duluth, MN, the temperature is approximately -14.3°C, with a wind speed of 16.2 km/h. Make sure to bundle up if you’re going outside!</p>
+<p>Today in Duluth, MN, the temperature is -12.6°C, with a wind speed of 10.0 km/h. Make sure to bundle up if you’re heading outside!</p>
 </div>
 </div>
 <p>That’s correct! Without any further guidance, the chat model decided to call our tool function and successfully used its result in formulating its response.</p>
@@ -319,7 +332,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="trouble-shooting" class="level3">
 <h3 class="anchored" data-anchor-id="trouble-shooting">Trouble-shooting</h3>
 <p>When the execution of a tool function fails, chatlas sends the exception message back to the chat model. This can be useful for gracefully handling errors in the chat model. However, this can also lead to confusion as to why a response did not come back as expected. If you encounter such a situation, you can set <code>echo="all"</code> in the <code>chat.chat()</code> method to see the full conversation, including tool calls and their results.</p>
-<div id="f475d56c" class="cell" data-execution_count="7">
+<div id="61fac91d" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_current_temperature(latitude: <span class="bu">float</span>, longitude: <span class="bu">float</span>):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Get the current weather given a latitude and longitude."</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Failed to get current temperature"</span>)</span>
@@ -333,7 +346,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><br></p>
 <p><br></p>
-<p>I am currently unable to retrieve the weather information for Duluth, MN. I recommend checking a reliable weather website or app for the most accurate and up-to-date weather conditions.</p>
+<p>I encountered an issue retrieving the current weather information for Duluth, MN. However, you can check a reliable weather website or app for the latest updates on the weather in the area.</p>
 </div>
 </div>
 </div></section>
@@ -766,7 +779,20 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/blob/main/tool-calling.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div></div></footer><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","closeEffect":"zoom","descPosition":"bottom","loop":false});
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>Proudly supported by <a href="https://posit.co"><img src="https://posit.co/wp-content/uploads/2024/06/Posit-Logos-2024_horiz-full-color.svg" class="img-fluid" alt="Posit" width="65"></a></p>
+</div>   
+    <div class="nav-footer-center">
+      &nbsp;
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/tool-calling.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+<script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","loop":false,"descPosition":"bottom","openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
