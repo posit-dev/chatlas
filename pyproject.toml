@@ -49,6 +49,7 @@ dev = [
     "google-genai>=1.2.0",
     "numpy>1.24.4",
     "tiktoken",
+    "snowflake-ml-python"
 ]
 docs = [
     "griffe>=1",
