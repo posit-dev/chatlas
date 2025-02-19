@@ -30,20 +30,9 @@ consumed
 
 | Name | Description |
 | --- | --- |
-| [display](#chatlas.types.ChatResponse.display) | Display the content in a rich console. |
-| [get_string](#chatlas.types.ChatResponse.get_string) | Get the chat response content as a string. |
+| [get_content](#chatlas.types.ChatResponse.get_content) | Get the chat response content as a string. |
 
-### display { #chatlas.types.ChatResponse.display }
-
-```python
-types.ChatResponse.display()
-```
-
-Display the content in a rich console.
-
-This method gets called automatically when the object is displayed.
-
-### get_string { #chatlas.types.ChatResponse.get_string }
+### get_content { #chatlas.types.ChatResponse.get_content }
 
 ```python
 types.ChatResponse.get_content()

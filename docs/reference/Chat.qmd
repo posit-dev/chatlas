@@ -20,45 +20,60 @@ You should generally not create this object yourself, but instead call
 
 | Name | Description |
 | --- | --- |
-| [system_prompt](#chatlas.Chat.system_prompt) | Get the system prompt for the chat. |
+| [system_prompt](#chatlas.Chat.system_prompt) | A property to get (or set) the system prompt for the chat. |
 
 ## Methods
 
 | Name | Description |
 | --- | --- |
-| [app](#chatlas.Chat.app) | Enter a chat browser to interact with the LLM. |
+| [app](#chatlas.Chat.app) | Enter a web-based chat app to interact with the LLM. |
 | [chat](#chatlas.Chat.chat) | Generate a response from the chat. |
 | [chat_async](#chatlas.Chat.chat_async) | Generate a response from the chat asynchronously. |
 | [console](#chatlas.Chat.console) | Enter a chat console to interact with the LLM. |
+| [export](#chatlas.Chat.export) | Export the chat history to a file. |
 | [extract_data](#chatlas.Chat.extract_data) | Extract structured data from the given input. |
 | [extract_data_async](#chatlas.Chat.extract_data_async) | Extract structured data from the given input asynchronously. |
 | [get_last_turn](#chatlas.Chat.get_last_turn) | Get the last turn in the chat with a specific role. |
+| [get_turns](#chatlas.Chat.get_turns) | Get all the turns (i.e., message contents) in the chat. |
 | [register_tool](#chatlas.Chat.register_tool) | Register a tool (function) with the chat. |
+| [set_echo_options](#chatlas.Chat.set_echo_options) | Set echo styling options for the chat. |
 | [set_turns](#chatlas.Chat.set_turns) | Set the turns of the chat. |
+| [stream](#chatlas.Chat.stream) | Generate a response from the chat in a streaming fashion. |
+| [stream_async](#chatlas.Chat.stream_async) | Generate a response from the chat in a streaming fashion asynchronously. |
+| [token_count](#chatlas.Chat.token_count) | Get an estimated token count for the given input. |
+| [token_count_async](#chatlas.Chat.token_count_async) | Get an estimated token count for the given input asynchronously. |
 | [tokens](#chatlas.Chat.tokens) | Get the tokens for each turn in the chat. |
-| [turns](#chatlas.Chat.turns) | Get all the turns (i.e., message contents) in the chat. |
 
 ### app { #chatlas.Chat.app }
 
 ```python
-Chat.app(stream=True, launch_browser=True, port=0, kwargs=None)
+Chat.app(
+    stream=True,
+    port=0,
+    launch_browser=True,
+    bg_thread=None,
+    echo=None,
+    kwargs=None,
+)
 ```
 
-Enter a chat browser to interact with the LLM.
+Enter a web-based chat app to interact with the LLM.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name           | Type                                                                                  | Description                                                                          | Default   |
-|----------------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
-| stream         | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
-| launch_browser | [bool](`bool`)                                                                        | Whether to launch a browser window.                                                  | `True`    |
-| port           | [int](`int`)                                                                          | The port to run the app on (the default is 0, which will choose a random port).      | `0`       |
-| kwargs         | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas._chat.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| Name           | Type                                                                                        | Description                                                                                                                                            | Default   |
+|----------------|---------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| stream         | [bool](`bool`)                                                                              | Whether to stream the response (i.e., have the response appear in chunks).                                                                             | `True`    |
+| port           | [int](`int`)                                                                                | The port to run the app on (the default is 0, which will choose a random port).                                                                        | `0`       |
+| launch_browser | [bool](`bool`)                                                                              | Whether to launch a browser window.                                                                                                                    | `True`    |
+| bg_thread      | [Optional](`typing.Optional`)\[[bool](`bool`)\]                                             | Whether to run the app in a background thread. If `None`, the app will run in a background thread if the current environment is a notebook.            | `None`    |
+| echo           | [Optional](`typing.Optional`)\[[Literal](`typing.Literal`)\[\'text\', \'all\', \'none\'\]\] | Whether to echo text content, all content (i.e., tool calls), or no content. Defaults to `"none"` when `stream=True` and `"text"` when `stream=False`. | `None`    |
+| kwargs         | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas._chat.SubmitInputArgsT`)\]       | Additional keyword arguments to pass to the method used for requesting the response.                                                                   | `None`    |
 
 ### chat { #chatlas.Chat.chat }
 
 ```python
-Chat.chat(*args, stream=True, kwargs=None)
+Chat.chat(*args, echo='text', stream=True, kwargs=None)
 ```
 
 Generate a response from the chat.
@@ -68,45 +83,54 @@ Generate a response from the chat.
 | Name   | Type                                                                                  | Description                                                                          | Default   |
 |--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
 | args   | [Content](`chatlas._content.Content`) \| [str](`str`)                                 | The user input(s) to generate a response from.                                       | `()`      |
+| echo   | [Literal](`typing.Literal`)\[\'text\', \'all\', \'none\'\]                            | Whether to echo text content, all content (i.e., tool calls), or no content.         | `'text'`  |
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
 | kwargs | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas._chat.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
 
 #### Returns {.doc-section .doc-section-returns}
 
-| Name   | Type                                         | Description               |
-|--------|----------------------------------------------|---------------------------|
-|        | [ChatResponse](`chatlas._chat.ChatResponse`) | A response from the chat. |
+| Name   | Type                                         | Description                                                                                                |
+|--------|----------------------------------------------|------------------------------------------------------------------------------------------------------------|
+|        | [ChatResponse](`chatlas._chat.ChatResponse`) | A (consumed) response from the chat. Apply `str()` to this object to get the text content of the response. |
 
 ### chat_async { #chatlas.Chat.chat_async }
 
 ```python
-Chat.chat_async(*args, stream=True, kwargs=None)
+Chat.chat_async(*args, echo='text', stream=True, kwargs=None)
 ```
 
 Generate a response from the chat asynchronously.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name   | Type                                                                                  | Description                                                                          | Default   |
-|--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
-| args   | [Content](`chatlas._content.Content`) \| [str](`str`)                                 | The user input(s) to generate a response from.                                       | `()`      |
-| stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).           | `True`    |
-| kwargs | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas._chat.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+| Name   | Type                                                                                  | Description                                                                               | Default   |
+|--------|---------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|-----------|
+| args   | [Content](`chatlas._content.Content`) \| [str](`str`)                                 | The user input(s) to generate a response from.                                            | `()`      |
+| echo   | [Literal](`typing.Literal`)\[\'text\', \'all\', \'none\'\]                            | Whether to echo text content, all content (i.e., tool calls, images, etc), or no content. | `'text'`  |
+| stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).                | `True`    |
+| kwargs | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas._chat.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response.      | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                   | Description                                                                                                |
+|--------|--------------------------------------------------------|------------------------------------------------------------------------------------------------------------|
+|        | [ChatResponseAsync](`chatlas._chat.ChatResponseAsync`) | A (consumed) response from the chat. Apply `str()` to this object to get the text content of the response. |
 
 ### console { #chatlas.Chat.console }
 
 ```python
-Chat.console(stream=True, kwargs=None)
+Chat.console(echo='text', stream=True, kwargs=None)
 ```
 
 Enter a chat console to interact with the LLM.
 
-Press Ctrl+C to quit.
+To quit, input 'exit' or press Ctrl+C.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
 | Name   | Type                                                                                  | Description                                                                         | Default   |
 |--------|---------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|-----------|
+| echo   | [Literal](`typing.Literal`)\[\'text\', \'all\', \'none\'\]                            | Whether to echo text content, all content (i.e., tool calls), or no content.        | `'text'`  |
 | stream | [bool](`bool`)                                                                        | Whether to stream the response (i.e., have the response appear in chunks).          | `True`    |
 | kwargs | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas._chat.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response | `None`    |
 
@@ -116,20 +140,55 @@ Press Ctrl+C to quit.
 |--------|--------|---------------|
 |        | None   |               |
 
+### export { #chatlas.Chat.export }
+
+```python
+Chat.export(
+    filename,
+    *,
+    turns=None,
+    title=None,
+    include='text',
+    include_system_prompt=True,
+    overwrite=False,
+)
+```
+
+Export the chat history to a file.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                  | Type                                                                                           | Description                                                                           | Default    |
+|-----------------------|------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------|------------|
+| filename              | [str](`str`) \| [Path](`pathlib.Path`)                                                         | The filename to export the chat to. Currently this must be a `.md` or `.html` file.   | _required_ |
+| turns                 | [Optional](`typing.Optional`)\[[Sequence](`typing.Sequence`)\[[Turn](`chatlas._turn.Turn`)\]\] | The `.get_turns()` to export. If not provided, the chat's current turns will be used. | `None`     |
+| title                 | [Optional](`typing.Optional`)\[[str](`str`)\]                                                  | A title to place at the top of the exported file.                                     | `None`     |
+| overwrite             | [bool](`bool`)                                                                                 | Whether to overwrite the file if it already exists.                                   | `False`    |
+| include               | [Literal](`typing.Literal`)\[\'text\', \'all\'\]                                               | Whether to include text content, all content (i.e., tool calls), or no content.       | `'text'`   |
+| include_system_prompt | [bool](`bool`)                                                                                 | Whether to include the system prompt in a <details> tag.                              | `True`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                   | Description                    |
+|--------|------------------------|--------------------------------|
+|        | [Path](`pathlib.Path`) | The path to the exported file. |
+
 ### extract_data { #chatlas.Chat.extract_data }
 
 ```python
-Chat.extract_data(*args, data_model)
+Chat.extract_data(*args, data_model, echo='none', stream=False)
 ```
 
 Extract structured data from the given input.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name       | Type                                                  | Description                                                       | Default    |
-|------------|-------------------------------------------------------|-------------------------------------------------------------------|------------|
-| args       | [Content](`chatlas._content.Content`) \| [str](`str`) | The input to extract data from.                                   | `()`       |
-| data_model | [type](`type`)\[[BaseModel](`pydantic.BaseModel`)\]   | A Pydantic model describing the structure of the data to extract. | _required_ |
+| Name       | Type                                                       | Description                                                                  | Default    |
+|------------|------------------------------------------------------------|------------------------------------------------------------------------------|------------|
+| args       | [Content](`chatlas._content.Content`) \| [str](`str`)      | The input to extract data from.                                              | `()`       |
+| data_model | [type](`type`)\[[BaseModel](`pydantic.BaseModel`)\]        | A Pydantic model describing the structure of the data to extract.            | _required_ |
+| echo       | [Literal](`typing.Literal`)\[\'text\', \'all\', \'none\'\] | Whether to echo text content, all content (i.e., tool calls), or no content. | `'none'`   |
+| stream     | [bool](`bool`)                                             | Whether to stream the response (i.e., have the response appear in chunks).   | `False`    |
 
 #### Returns {.doc-section .doc-section-returns}
 
@@ -140,17 +199,19 @@ Extract structured data from the given input.
 ### extract_data_async { #chatlas.Chat.extract_data_async }
 
 ```python
-Chat.extract_data_async(*args, data_model)
+Chat.extract_data_async(*args, data_model, echo='none', stream=False)
 ```
 
 Extract structured data from the given input asynchronously.
 
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name       | Type                                                  | Description                                                       | Default    |
-|------------|-------------------------------------------------------|-------------------------------------------------------------------|------------|
-| args       | [Content](`chatlas._content.Content`) \| [str](`str`) | The input to extract data from.                                   | `()`       |
-| data_model | [type](`type`)\[[BaseModel](`pydantic.BaseModel`)\]   | A Pydantic model describing the structure of the data to extract. | _required_ |
+| Name       | Type                                                       | Description                                                                                                            | Default    |
+|------------|------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|------------|
+| args       | [Content](`chatlas._content.Content`) \| [str](`str`)      | The input to extract data from.                                                                                        | `()`       |
+| data_model | [type](`type`)\[[BaseModel](`pydantic.BaseModel`)\]        | A Pydantic model describing the structure of the data to extract.                                                      | _required_ |
+| echo       | [Literal](`typing.Literal`)\[\'text\', \'all\', \'none\'\] | Whether to echo text content, all content (i.e., tool calls), or no content                                            | `'none'`   |
+| stream     | [bool](`bool`)                                             | Whether to stream the response (i.e., have the response appear in chunks). Defaults to `True` if `echo` is not "none". | `False`    |
 
 #### Returns {.doc-section .doc-section-returns}
 
@@ -171,6 +232,20 @@ Get the last turn in the chat with a specific role.
 | Name   | Type                                                               | Description                     | Default       |
 |--------|--------------------------------------------------------------------|---------------------------------|---------------|
 | role   | [Literal](`typing.Literal`)\[\'assistant\', \'user\', \'system\'\] | The role of the turn to return. | `'assistant'` |
+
+### get_turns { #chatlas.Chat.get_turns }
+
+```python
+Chat.get_turns(include_system_prompt=False)
+```
+
+Get all the turns (i.e., message contents) in the chat.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                  | Type           | Description                                        | Default   |
+|-----------------------|----------------|----------------------------------------------------|-----------|
+| include_system_prompt | [bool](`bool`) | Whether to include the system prompt in the turns. | `False`   |
 
 ### register_tool { #chatlas.Chat.register_tool }
 
@@ -250,6 +325,22 @@ model
     Note that the name and docstring of the model takes precedence over the
     name and docstring of the function.
 
+### set_echo_options { #chatlas.Chat.set_echo_options }
+
+```python
+Chat.set_echo_options(rich_markdown=None, rich_console=None, css_styles=None)
+```
+
+Set echo styling options for the chat.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                                                                                 | Description                                                                                                               | Default   |
+|---------------|--------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|-----------|
+| rich_markdown | [Optional](`typing.Optional`)\[[dict](`dict`)\[[str](`str`), [Any](`typing.Any`)\]\] | A dictionary of options to pass to `rich.markdown.Markdown()`. This is only relevant when outputting to the console.      | `None`    |
+| rich_console  | [Optional](`typing.Optional`)\[[dict](`dict`)\[[str](`str`), [Any](`typing.Any`)\]\] | A dictionary of options to pass to `rich.console.Console()`. This is only relevant when outputting to the console.        | `None`    |
+| css_styles    | [Optional](`typing.Optional`)\[[dict](`dict`)\[[str](`str`), [str](`str`)\]\]        | A dictionary of CSS styles to apply to `IPython.display.Markdown()`. This is only relevant when outputing to the browser. | `None`    |
+
 ### set_turns { #chatlas.Chat.set_turns }
 
 ```python
@@ -267,30 +358,143 @@ chat (i.e., limiting the context window).
 |--------|---------------------------------------------------------------|-----------------------------------------------------------------|------------|
 | turns  | [Sequence](`typing.Sequence`)\[[Turn](`chatlas._turn.Turn`)\] | The turns to set. Turns with the role "system" are not allowed. | _required_ |
 
+### stream { #chatlas.Chat.stream }
+
+```python
+Chat.stream(*args, echo='none', kwargs=None)
+```
+
+Generate a response from the chat in a streaming fashion.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                                                                  | Description                                                                          | Default   |
+|--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
+| args   | [Content](`chatlas._content.Content`) \| [str](`str`)                                 | The user input(s) to generate a response from.                                       | `()`      |
+| echo   | [Literal](`typing.Literal`)\[\'text\', \'all\', \'none\'\]                            | Whether to echo text content, all content (i.e., tool calls), or no content.         | `'none'`  |
+| kwargs | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas._chat.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                         | Description                                                                               |
+|--------|----------------------------------------------|-------------------------------------------------------------------------------------------|
+|        | [ChatResponse](`chatlas._chat.ChatResponse`) | An (unconsumed) response from the chat. Iterate over this object to consume the response. |
+
+### stream_async { #chatlas.Chat.stream_async }
+
+```python
+Chat.stream_async(*args, echo='none', kwargs=None)
+```
+
+Generate a response from the chat in a streaming fashion asynchronously.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                                                                  | Description                                                                          | Default   |
+|--------|---------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------|-----------|
+| args   | [Content](`chatlas._content.Content`) \| [str](`str`)                                 | The user input(s) to generate a response from.                                       | `()`      |
+| echo   | [Literal](`typing.Literal`)\[\'text\', \'all\', \'none\'\]                            | Whether to echo text content, all content (i.e., tool calls), or no content.         | `'none'`  |
+| kwargs | [Optional](`typing.Optional`)\[[SubmitInputArgsT](`chatlas._chat.SubmitInputArgsT`)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                   | Description                                                                               |
+|--------|--------------------------------------------------------|-------------------------------------------------------------------------------------------|
+|        | [ChatResponseAsync](`chatlas._chat.ChatResponseAsync`) | An (unconsumed) response from the chat. Iterate over this object to consume the response. |
+
+### token_count { #chatlas.Chat.token_count }
+
+```python
+Chat.token_count(*args, data_model=None)
+```
+
+Get an estimated token count for the given input.
+
+Estimate the token size of input content. This can help determine whether input(s)
+and/or conversation history (i.e., `.get_turns()`) should be reduced in size before
+sending it to the model.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                                                                 | Description                                                                                                                                                      | Default   |
+|------------|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| args       | [Content](`chatlas._content.Content`) \| [str](`str`)                                | The input to get a token count for.                                                                                                                              | `()`      |
+| data_model | [Optional](`typing.Optional`)\[[type](`type`)\[[BaseModel](`pydantic.BaseModel`)\]\] | If the input is meant for data extraction (i.e., `.extract_data()`), then this should be the Pydantic model that describes the structure of the data to extract. | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description                    |
+|--------|--------------|--------------------------------|
+|        | [int](`int`) | The token count for the input. |
+
+#### Note {.doc-section .doc-section-note}
+
+Remember that the token count is an estimate. Also, models based on
+`ChatOpenAI()` currently does not take tools into account when
+estimating token counts.
+
+#### Examples {.doc-section .doc-section-examples}
+
+```python
+from chatlas import ChatAnthropic
+
+chat = ChatAnthropic()
+# Estimate the token count before sending the input
+print(chat.token_count("What is 2 + 2?"))
+
+# Once input is sent, you can get the actual input and output
+# token counts from the chat object
+chat.chat("What is 2 + 2?", echo="none")
+print(chat.token_usage())
+```
+
+### token_count_async { #chatlas.Chat.token_count_async }
+
+```python
+Chat.token_count_async(*args, data_model=None)
+```
+
+Get an estimated token count for the given input asynchronously.
+
+Estimate the token size of input content. This can help determine whether input(s)
+and/or conversation history (i.e., `.get_turns()`) should be reduced in size before
+sending it to the model.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                                                                 | Description                                                                                                                                                             | Default   |
+|------------|--------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| args       | [Content](`chatlas._content.Content`) \| [str](`str`)                                | The input to get a token count for.                                                                                                                                     | `()`      |
+| data_model | [Optional](`typing.Optional`)\[[type](`type`)\[[BaseModel](`pydantic.BaseModel`)\]\] | If this input is meant for data extraction (i.e., `.extract_data_async()`), then this should be the Pydantic model that describes the structure of the data to extract. | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description                    |
+|--------|--------------|--------------------------------|
+|        | [int](`int`) | The token count for the input. |
+
 ### tokens { #chatlas.Chat.tokens }
 
 ```python
-Chat.tokens()
+Chat.tokens(values='discrete')
 ```
 
 Get the tokens for each turn in the chat.
 
-#### Returns {.doc-section .doc-section-returns}
-
-| Name   | Type                                                             | Description                                                                             |
-|--------|------------------------------------------------------------------|-----------------------------------------------------------------------------------------|
-|        | [list](`list`)\[[tuple](`tuple`)\[[int](`int`), [int](`int`)\]\] | A list of tuples, where each tuple contains the start and end token indices for a turn. |
-
-### turns { #chatlas.Chat.turns }
-
-```python
-Chat.get_turns(include_system_prompt=False)
-```
-
-Get all the turns (i.e., message contents) in the chat.
-
 #### Parameters {.doc-section .doc-section-parameters}
 
-| Name                  | Type           | Description                                        | Default   |
-|-----------------------|----------------|----------------------------------------------------|-----------|
-| include_system_prompt | [bool](`bool`) | Whether to include the system prompt in the turns. | `False`   |
+| Name   | Type                                                        | Description                                                                                                                                                                                                                                                                                                                                                                              | Default      |
+|--------|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
+| values | [Literal](`typing.Literal`)\[\'cumulative\', \'discrete\'\] | If "cumulative" (the default), the result can be summed to get the chat's overall token usage (helpful for computing overall cost of the chat). If "discrete", the result can be summed to get the number of tokens the turns will cost to generate the next response (helpful for estimating cost of the next response, or for determining if you are about to exceed the token limit). | `'discrete'` |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                           | Description                                                                                                                           |
+|--------|--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|
+|        | [list](`list`)\[[int](`int`)\] | A list of token counts for each (non-system) turn in the chat. The 1st turn includes the tokens count for the system prompt (if any). |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type                       | Description                                                                                                                                                                                                                                                                     |
+|--------|----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | [ValueError](`ValueError`) | If the chat's turns (i.e., `.get_turns()`) are not in an expected format. This may happen if the chat history is manually set (i.e., `.set_turns()`). In this case, you can inspect the "raw" token values via the `.get_turns()` method (each turn has a `.tokens` attribute). |

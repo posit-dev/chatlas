@@ -1,4 +1,6 @@
-# chatlas <a href="https://posit-dev.github.io/chatlas"><img src="docs/images/logo.png" align="right" height="138" alt="chatlas website" /></a>
+<h1 class="unnumbered unlisted"> chatlas <a href="https://posit-dev.github.io/chatlas"><img src="docs/images/logo.png" align="right" height="138" alt="chatlas website" /></a> </h1> 
+
+
 
 <p>
 <!-- badges start -->
