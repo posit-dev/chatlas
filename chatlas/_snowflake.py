@@ -41,7 +41,7 @@ def ChatSnowflake(
     database: Optional[str] = None,
     schema: Optional[str] = None,
     authenticator: Optional[str] = None,
-) -> Chat["SubmitInputArgs", Completion]:
+) -> Chat["SubmitInputArgs", "Completion"]:
     """
     Chat with a Snowflake Cortex LLM
 
@@ -129,7 +129,7 @@ def ChatSnowflake(
     )
 
 
-class SnowflakeProvider(Provider[Completion, CompletionChunk, CompletionChunk]):
+class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChunk"]):
     def __init__(
         self,
         *,
@@ -168,9 +168,6 @@ class SnowflakeProvider(Provider[Completion, CompletionChunk, CompletionChunk]):
 
         self._model = model
         self._session = Session.builder.configs(configs).create()
-
-    def __del__(self):
-        self._session.close()
 
     @overload
     def chat_perform(
