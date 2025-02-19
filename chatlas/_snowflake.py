@@ -254,6 +254,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
 
         # TODO: implement data_model?
         # https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-llm-rest-api#structured-output-example
+        # https://github.com/snowflakedb/snowflake-ml-python/pull/141
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
