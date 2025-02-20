@@ -36,7 +36,12 @@ jobs:
       # Fail if there are changes under chatlas/types and throw a useful error message
       - name: Check for changes
         run: |
-          if [[ -n $(git diff --ignore-space-at-eol chatlas/types) ]]; then
+          echo "Checking for changes in types..."
+          git status chatlas/types
+          git diff --stat chatlas/types
+          if [[ -n $(git diff chatlas/types) ]]; then
+            echo "Changes detected:"
+            git diff chatlas/types
             echo "::error::Types are out of date. Please run 'make update-types' and commit the changes."
             exit 1
           fi
