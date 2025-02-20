@@ -46,7 +46,6 @@ class LiveMarkdownDisplay(MarkdownDisplay):
         self.content: str = ""
         self.live = Live(
             auto_refresh=False,
-            vertical_overflow="visible",
             console=Console(
                 **echo_options["rich_console"],
             ),
