@@ -10,6 +10,7 @@ from ._ollama import ChatOllama
 from ._openai import ChatAzureOpenAI, ChatOpenAI
 from ._perplexity import ChatPerplexity
 from ._provider import Provider
+from ._snowflake import ChatSnowflake
 from ._tokens import token_usage
 from ._tools import Tool
 from ._turn import Turn
@@ -24,6 +25,7 @@ __all__ = (
     "ChatOpenAI",
     "ChatAzureOpenAI",
     "ChatPerplexity",
+    "ChatSnowflake",
     "ChatVertex",
     "Chat",
     "content_image_file",
