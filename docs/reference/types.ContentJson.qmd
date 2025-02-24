@@ -4,3 +4,13 @@
 types.ContentJson(self, value)
 ```
 
+JSON content
+
+This content type primarily exists to signal structured data extraction
+(i.e., data extracted via [](`~chatlas.Chat`)'s `.extract_data()` method)
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                                | Description             | Default    |
+|--------|-----------------------------------------------------|-------------------------|------------|
+| value  | [dict](`dict`)\[[str](`str`), [Any](`typing.Any`)\] | The JSON data extracted | _required_ |

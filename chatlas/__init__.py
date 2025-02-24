@@ -3,7 +3,7 @@ from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._chat import Chat
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._github import ChatGithub
-from ._google import ChatGoogle
+from ._google import ChatGoogle, ChatVertex
 from ._groq import ChatGroq
 from ._interpolate import interpolate, interpolate_file
 from ._ollama import ChatOllama
@@ -24,6 +24,7 @@ __all__ = (
     "ChatOpenAI",
     "ChatAzureOpenAI",
     "ChatPerplexity",
+    "ChatVertex",
     "Chat",
     "content_image_file",
     "content_image_plot",

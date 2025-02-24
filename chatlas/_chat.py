@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import inspect
 import os
+import sys
 from pathlib import Path
 from threading import Thread
 from typing import (
@@ -1146,7 +1148,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             turn = self.provider.stream_turn(
                 result,
                 has_data_model=data_model is not None,
-                stream=response,
             )
 
             if echo == "all":
@@ -1207,10 +1208,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
-            turn = await self.provider.stream_turn_async(
+            turn = self.provider.stream_turn(
                 result,
                 has_data_model=data_model is not None,
-                stream=response,
             )
 
             if echo == "all":
@@ -1293,7 +1293,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 if on_request is not None:
                     await on_request(x)
                 tool_def = self._tools.get(x.name, None)
-                func = tool_def.func if tool_def is not None else None
+                func = None
+                if tool_def:
+                    if tool_def._is_async:
+                        func = tool_def.func
+                    else:
+                        func = wrap_async(tool_def.func)
                 results.append(
                     await self._invoke_tool_async(
                         func, x.arguments, x.id, x.name, on_result
@@ -1314,10 +1319,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         on_result: Optional[Callable[[ContentToolResult], None]] = None,
     ) -> ContentToolResult:
         if func is None:
-            res = ContentToolResult(id_, name, None, "Unknown tool")
+            res = ContentToolResult(id_, value=None, error="Unknown tool", name=name)
             if on_result is not None:
                 on_result(res)
             return res
+
+        name = func.__name__
 
         res = None
         try:
@@ -1326,10 +1333,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             else:
                 result = func(arguments)
 
-            res = ContentToolResult(id_, name, result, None)
+            return ContentToolResult(id_, value=result, error=None, name=name)
         except Exception as e:
-            log_tool_error(func.__name__, str(arguments), e)
-            res = ContentToolResult(id_, name, None, str(e))
+            log_tool_error(name, str(arguments), e)
+            res = ContentToolResult(id_, value=None, error=str(e), name=name)
 
         if on_result is not None:
             on_result(res)
@@ -1345,10 +1352,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         on_result: Optional[Callable[[ContentToolResult], Awaitable[None]]] = None,
     ) -> ContentToolResult:
         if func is None:
-            res = ContentToolResult(id_, name, None, "Unknown tool")
+            res = ContentToolResult(id_, value=None, error="Unknown tool", name=name)
             if on_result is not None:
                 await on_result(res)
             return res
+
+        name = func.__name__
 
         res = None
         try:
@@ -1357,15 +1366,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             else:
                 result = await func(arguments)
 
-            res = ContentToolResult(id_, name, result, None)
+            return ContentToolResult(id_, value=result, error=None, name=name)
         except Exception as e:
             log_tool_error(func.__name__, str(arguments), e)
-            res = ContentToolResult(id_, name, None, str(e))
+            res = ContentToolResult(id_, value=None, error=str(e), name=name)
+            if on_result is not None:
+                await on_result(res)
 
-        if on_result is not None:
-            await on_result(res)
-
-        return res
+            return res
 
     def _markdown_display(
         self, echo: Literal["text", "all", "none"]
@@ -1482,7 +1490,7 @@ class ChatResponse:
 
     @property
     def consumed(self) -> bool:
-        return self._generator.gi_frame is None
+        return inspect.getgeneratorstate(self._generator) == inspect.GEN_CLOSED
 
     def __str__(self) -> str:
         return self.get_content()
@@ -1532,7 +1540,11 @@ class ChatResponseAsync:
 
     @property
     def consumed(self) -> bool:
-        return self._generator.ag_frame is None
+        if sys.version_info < (3, 12):
+            raise NotImplementedError(
+                "Checking for consumed state is only supported in Python 3.12+"
+            )
+        return inspect.getasyncgenstate(self._generator) == inspect.AGEN_CLOSED
 
 
 # ----------------------------------------------------------------------------

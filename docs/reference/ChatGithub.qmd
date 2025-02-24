@@ -2,13 +2,13 @@
 
 ```python
 ChatGithub(
-    system_prompt=None
-    turns=None
-    model=None
-    api_key=None
-    base_url='https://models.inference.ai.azure.com/'
-    seed=MISSING
-    kwargs=None
+    system_prompt=None,
+    turns=None,
+    model=None,
+    api_key=None,
+    base_url='https://models.inference.ai.azure.com/',
+    seed=MISSING,
+    kwargs=None,
 )
 ```
 

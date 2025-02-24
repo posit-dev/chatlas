@@ -14,9 +14,10 @@ pagetitle: "chatlas"
 {readme_src}
 """
 
-# The root for the README is the home directory, but for the Quarto site, it is the docs directory
-index_src = index_src.replace('src="docs/', 'src="')
-index_src = index_src.replace("src='docs/", "src='")
+# On Github, asset links are relative to the root directory,
+# but on the Quarto site, they are relative to the docs directory.
+# So, we need to adjust the asset links in the README.
+index_src = index_src.replace("docs/images/", "images/")
 
 index = docs_dir / "index.qmd"
 

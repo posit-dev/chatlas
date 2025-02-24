@@ -190,6 +190,8 @@ class ContentToolResult(Content):
         The name of the tool/function that was called.
     value
         The value returned by the tool/function.
+    name
+        The name of the tool/function that was called.
     error
         An error message if the tool/function call failed.
 
@@ -206,6 +208,7 @@ class ContentToolResult(Content):
     id: str
     name: str
     value: Any = None
+    name: Optional[str] = None
     error: Optional[str] = None
 
     def _get_value_and_language(self) -> tuple[str, str]:

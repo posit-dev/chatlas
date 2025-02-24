@@ -18,7 +18,6 @@ class SubmitInputArgs(TypedDict, total=False):
     max_tokens: int
     messages: Iterable[anthropic.types.message_param.MessageParam]
     model: Union[
-        str,
         Literal[
             "claude-3-5-haiku-latest",
             "claude-3-5-haiku-20241022",
@@ -32,6 +31,7 @@ class SubmitInputArgs(TypedDict, total=False):
             "claude-2.1",
             "claude-2.0",
         ],
+        str,
     ]
     stop_sequences: Union[list[str], anthropic.NotGiven]
     stream: Union[Literal[False], Literal[True], anthropic.NotGiven]

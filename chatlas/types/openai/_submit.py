@@ -38,6 +38,8 @@ class SubmitInputArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "o3-mini",
+            "o3-mini-2025-01-31",
             "o1",
             "o1-2024-12-17",
             "o1-preview",
@@ -105,7 +107,7 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.NotGiven,
     ]
     presence_penalty: Union[float, None, openai.NotGiven]
-    reasoning_effort: Union[Literal["low", "medium", "high"], openai.NotGiven]
+    reasoning_effort: Union[Literal["low", "medium", "high"], None, openai.NotGiven]
     response_format: Union[
         openai.types.shared_params.response_format_text.ResponseFormatText,
         openai.types.shared_params.response_format_json_object.ResponseFormatJSONObject,

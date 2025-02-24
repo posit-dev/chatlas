@@ -110,8 +110,22 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
     )
     assert "2024-01-01" in await response.get_content()
 
+    # Can't use async tools in a synchronous chat...
     with pytest.raises(Exception, match="async tools in a synchronous chat"):
         str(chat.chat("Great. Do it again.", stream=stream))
+
+    # ... but we can use synchronous tools in an async chat
+    def get_current_date2():
+        """Gets the current date"""
+        return "2024-01-01"
+
+    chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
+    chat.register_tool(get_current_date2)
+
+    response = await chat.chat_async(
+        "What's the current date in YMD format?", stream=stream
+    )
+    assert "2024-01-01" in await response.get_content()
 
 
 def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
@@ -137,13 +151,19 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
 
 
 def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = True):
-    chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
+    chat = chat_fun(
+        system_prompt="""
+        Be very terse, not even punctuation. If asked for equipment to pack,
+        first use the weather_forecast tool provided to you. Then, use the
+        equipment tool provided to you.
+        """
+    )
 
-    def forecast(city: str):
+    def weather_forecast(city: str):
         """Gets the weather forecast for a city"""
         return "rainy" if city == "New York" else "sunny"
 
-    chat.register_tool(forecast)
+    chat.register_tool(weather_forecast)
 
     def equipment(weather: str):
         """Gets the equipment needed for a weather condition"""
