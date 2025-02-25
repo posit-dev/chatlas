@@ -251,9 +251,15 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         if tools:
             raise ValueError("Snowflake does not currently support tools.")
 
-        # TODO: implement data_model?
-        # https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-llm-rest-api#structured-output-example
+        # TODO: implement data_model when this PR makes it into snowflake-ml-python
         # https://github.com/snowflakedb/snowflake-ml-python/pull/141
+        # https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-llm-rest-api#structured-output-example
+        if data_model:
+            raise NotImplementedError(
+                "The snowflake-ml-python package currently doesn't support structured output. "
+                "Upvote this PR to help prioritize it: "
+                "https://github.com/snowflakedb/snowflake-ml-python/pull/141"
+            )
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
