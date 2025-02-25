@@ -5,7 +5,8 @@ import io
 import os
 import re
 import warnings
-from typing import Literal, Union, cast
+import mimetypes
+from typing import Literal, Union, cast, Optional
 
 from ._content import ContentImageInline, ContentImageRemote, ImageContentTypes
 from ._utils import MISSING, MISSING_TYPE
@@ -14,6 +15,7 @@ __all__ = (
     "content_image_url",
     "content_image_file",
     "content_image_plot",
+    "content_file",
 )
 
 
@@ -266,6 +268,74 @@ def content_image_plot(
         return ContentImageInline("image/png", base64_data)
     finally:
         fig.set_size_inches(*size)
+
+
+def content_file(
+    path: str,
+    content_type: Optional[str] = None,
+) -> ContentFile:
+    """
+    Encode arbitrary file content for chat input.
+
+    This function is used to prepare files for input to the chatbot. It can handle
+    various file types and automatically detects the MIME type if not specified.
+
+    Parameters
+    ----------
+    path
+        The path to the file to include in the chat input.
+    content_type
+        The content type of the file. If not provided, it will be detected from the file extension.
+
+    Returns
+    -------
+    [](`~chatlas.types.ContentFile`)
+        Content suitable for a [](`~chatlas.Turn`) object.
+
+    Examples
+    --------
+    ```python
+    from chatlas import ChatGoogle, content_file
+
+    chat = ChatGoogle()
+    chat.chat(
+        "Analyze the data in this CSV file",
+        content_file("path/to/data.csv"),
+    )
+    ```
+
+    Raises
+    ------
+    FileNotFoundError
+        If the specified file does not exist.
+    """
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"{path} must be an existing file.")
+
+    # Get the filename from the path
+    filename = os.path.basename(path)
+
+    # Determine content type if not provided
+    if content_type is None:
+        detected_type = mimetypes.guess_type(path)[0]
+        if detected_type is None:
+            # Default to octet-stream if can't determine
+            content_type = "application/octet-stream"
+        else:
+            content_type = detected_type
+
+    # Read and encode file
+    with open(path, "rb") as file:
+        base64_data = base64.b64encode(file.read()).decode("utf-8")
+
+    # Import here to avoid circular import
+    from ._content import ContentFile
+
+    return ContentFile(
+        content_type=content_type,
+        data=base64_data,
+        filename=filename,
+    )
 
 
 class MissingResizeWarning(RuntimeWarning):

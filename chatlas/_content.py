@@ -15,6 +15,12 @@ ImageContentTypes = Literal[
 Allowable content types for images.
 """
 
+# Add more MIME types for other common file types
+FileContentTypes = str
+"""
+Content type for arbitrary files.
+"""
+
 
 class Content:
     """
@@ -60,6 +66,39 @@ class ContentImage(Content):
     """
 
     pass
+
+
+@dataclass
+class ContentFile(Content):
+    """
+    File content for a [](`~chatlas.Turn`)
+
+    Parameters
+    ----------
+    content_type
+        The MIME type of the file.
+    data
+        The base64-encoded file data.
+    filename
+        The original filename.
+    """
+
+    content_type: FileContentTypes
+    data: str
+    filename: str
+
+    def __str__(self):
+        return f"[File: {self.filename}]"
+
+    def _repr_markdown_(self):
+        return f"**File:** {self.filename} ({self.content_type})"
+
+    def __repr__(self, indent: int = 0):
+        n_bytes = len(self.data) if self.data else 0
+        return (
+            " " * indent
+            + f"<ContentFile filename='{self.filename}' content_type='{self.content_type}' size={n_bytes}>"
+        )
 
 
 @dataclass

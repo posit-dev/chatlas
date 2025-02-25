@@ -405,6 +405,11 @@ class GoogleProvider(
                 data=base64.b64decode(content.data),
                 mime_type=content.content_type,
             )
+        elif isinstance(content, ContentFile) and content.data:
+            return Part.from_bytes(
+                data=base64.b64decode(content.data),
+                mime_type=content.content_type,
+            )
         elif isinstance(content, ContentImageRemote):
             raise NotImplementedError(
                 "Remote images aren't supported by Google (Gemini). "

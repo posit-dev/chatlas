@@ -1,7 +1,7 @@
 from . import types
 from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._chat import Chat
-from ._content_image import content_image_file, content_image_plot, content_image_url
+from ._content_image import content_file, content_image_file, content_image_plot, content_image_url
 from ._github import ChatGithub
 from ._google import ChatGoogle, ChatVertex
 from ._groq import ChatGroq
@@ -26,6 +26,7 @@ __all__ = (
     "ChatPerplexity",
     "ChatVertex",
     "Chat",
+    "content_file",
     "content_image_file",
     "content_image_plot",
     "content_image_url",
