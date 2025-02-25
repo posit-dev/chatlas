@@ -15,6 +15,11 @@ from ._tokens import token_usage
 from ._tools import Tool
 from ._turn import Turn
 
+try:
+    from ._version import version as __version__
+except ImportError:  # pragma: no cover
+    __version__ = "0.0.0"  # stub value for docs
+
 __all__ = (
     "ChatAnthropic",
     "ChatBedrockAnthropic",
