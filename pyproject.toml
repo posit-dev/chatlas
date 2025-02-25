@@ -81,6 +81,9 @@ source = "vcs"
 [tool.hatch.build]
 skip-excluded-dirs = true
 
+[tool.hatch.build.hooks.vcs]
+version-file = "chatlas/_version.py"
+
 [tool.hatch.build.targets.wheel]
 packages = ["chatlas"]
 include = ["py.typed"]
