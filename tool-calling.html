@@ -73,7 +73,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-0c8af03b2fbd4cf44d6703e337af0e8d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-0b73ee7789f741ec7e01468c61f6e4a7.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-27f49594169cb862f7f7a95211b10a80.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
@@ -249,13 +249,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 <p>The value that the chat model brings is not in helping with execution, but with knowing when it makes sense to call a tool, what values to pass as arguments, and how to use the results in formulating its response.</p>
-<div id="7261212e" class="cell" data-execution_count="1">
+<div id="9a2b0bdb" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="motivating-example" class="level3">
 <h3 class="anchored" data-anchor-id="motivating-example">Motivating example</h3>
 <p>Let’s take a look at an example where we really need an external tool. Chat models generally do not have access to “real-time” information, such as current events, weather, etc. Let’s see what happens when we ask the chat model about the weather in a specific location:</p>
-<div id="7f75eef1" class="cell" data-execution_count="2">
+<div id="7106f1c0" class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(model<span class="op">=</span><span class="st">"gpt-4o-mini"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> chat.chat(<span class="st">"What's the weather like today in Duluth, MN?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
@@ -263,7 +263,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><br></p>
-<p>I’m unable to provide real-time weather updates. To get the current weather in Duluth, MN, I recommend checking a reliable weather website or app for the most accurate and up-to-date information.</p>
+<p>I’m unable to provide real-time data, including current weather updates. However, you can easily check the weather for Duluth, MN, on a reliable weather website or app for the latest information.</p>
 </div>
 </div>
 <p>Fortunately, the model is smart enough to know that it doesn’t have access to real-time information, and it doesn’t try to make up an answer. However, we can help it out by providing a tool that can fetch the weather for a given location.</p>
@@ -271,7 +271,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="defining-a-tool-function" class="level3">
 <h3 class="anchored" data-anchor-id="defining-a-tool-function">Defining a tool function</h3>
 <p>At it turns out, LLMs are pretty good at figuring out ‘structure’ like latitude and longitude from ‘unstructured’ things like a location name. So we can write a tool function that takes a latitude and longitude and returns the current temperature at that location. Here’s an example of how you might write such a function using the <a href="https://open-meteo.com/">Open-Meteo API</a>:</p>
-<div id="bd32265e" class="cell" data-execution_count="3">
+<div id="4557fb34" class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_current_temperature(latitude: <span class="bu">float</span>, longitude: <span class="bu">float</span>):</span>
@@ -298,24 +298,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p><strong>Providing these hints and documentation is very important</strong>, as it helps the chat model understand how to use your tool correctly!</p>
 <p>Let’s test it:</p>
-<div id="ff5088bc" class="cell" data-execution_count="4">
+<div id="50aed24c" class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>get_current_temperature(<span class="fl">46.7867</span>, <span class="op">-</span><span class="fl">92.1005</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="4">
-<pre><code>{'time': '2025-02-19T22:45',
+<pre><code>{'time': '2025-02-25T23:00',
  'interval': 900,
- 'temperature_2m': -12.8,
- 'wind_speed_10m': 10.0}</code></pre>
+ 'temperature_2m': 7.9,
+ 'wind_speed_10m': 9.2}</code></pre>
 </div>
 </div>
 </section>
 <section id="using-the-tool" class="level3">
 <h3 class="anchored" data-anchor-id="using-the-tool">Using the tool</h3>
 <p>In order for the LLM to make use of our tool, we need to register it with the <code>chat</code> object. This is done by calling the <code>register_tool</code> method on the chat object.</p>
-<div id="3c0947cb" class="cell" data-execution_count="5">
+<div id="826aa752" class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>chat.register_tool(get_current_temperature)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Now let’s retry our original question:</p>
-<div id="faf7f994" class="cell" data-execution_count="6">
+<div id="904d33d9" class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>_ <span class="op">=</span> chat.chat(<span class="st">"What's the weather like today in Duluth, MN?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <div class="chatlas-markdown">
@@ -323,7 +323,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><br></p>
 <p><br></p>
-<p>Today in Duluth, MN, the temperature is -12.6°C, with a wind speed of 10.0 km/h. Make sure to bundle up if you’re heading outside!</p>
+<p>Today in Duluth, MN, the current temperature is approximately 7.9°F with a wind speed of 9.2 mph.</p>
 </div>
 </div>
 <p>That’s correct! Without any further guidance, the chat model decided to call our tool function and successfully used its result in formulating its response.</p>
@@ -332,7 +332,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="trouble-shooting" class="level3">
 <h3 class="anchored" data-anchor-id="trouble-shooting">Trouble-shooting</h3>
 <p>When the execution of a tool function fails, chatlas sends the exception message back to the chat model. This can be useful for gracefully handling errors in the chat model. However, this can also lead to confusion as to why a response did not come back as expected. If you encounter such a situation, you can set <code>echo="all"</code> in the <code>chat.chat()</code> method to see the full conversation, including tool calls and their results.</p>
-<div id="61fac91d" class="cell" data-execution_count="7">
+<div id="f522acc5" class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_current_temperature(latitude: <span class="bu">float</span>, longitude: <span class="bu">float</span>):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Get the current weather given a latitude and longitude."</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Failed to get current temperature"</span>)</span>
@@ -346,7 +346,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-display cell-output-markdown">
 <p><br></p>
 <p><br></p>
-<p>I encountered an issue retrieving the current weather information for Duluth, MN. However, you can check a reliable weather website or app for the latest updates on the weather in the area.</p>
+<p>I encountered an issue while trying to retrieve the current weather data for Duluth, MN. However, I recommend checking a reliable weather website or app for the latest updates on the weather.</p>
 </div>
 </div>
 </div></section>
@@ -792,7 +792,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>
   </div>
 </footer>
-<script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","loop":false,"descPosition":"bottom","openEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","openEffect":"zoom","loop":false,"selector":".lightbox"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
