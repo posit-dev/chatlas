@@ -49,9 +49,9 @@ dev = [
     "google-genai>=1.2.0",
     "numpy>1.24.4",
     "tiktoken",
-    # Newer versions of Python aren't supported :(
-    # https://github.com/snowflakedb/snowflake-ml-python?tab=readme-ov-file#installation
-    "snowflake-ml-python;python_version<='3.11'",
+    "snowflake-ml-python",
+    # torch (a dependency of snowflake-ml-python) is not yet compatible with Python >3.11
+    "torch;python_version<='3.11'",
 ]
 docs = [
     "griffe>=1",
