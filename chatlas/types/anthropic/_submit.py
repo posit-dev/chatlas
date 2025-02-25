@@ -8,10 +8,14 @@ from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
 import anthropic
 import anthropic.types.message_param
 import anthropic.types.text_block_param
+import anthropic.types.thinking_config_disabled_param
+import anthropic.types.thinking_config_enabled_param
+import anthropic.types.tool_bash_20250124_param
 import anthropic.types.tool_choice_any_param
 import anthropic.types.tool_choice_auto_param
 import anthropic.types.tool_choice_tool_param
 import anthropic.types.tool_param
+import anthropic.types.tool_text_editor_20250124_param
 
 
 class SubmitInputArgs(TypedDict, total=False):
@@ -19,6 +23,8 @@ class SubmitInputArgs(TypedDict, total=False):
     messages: Iterable[anthropic.types.message_param.MessageParam]
     model: Union[
         Literal[
+            "claude-3-7-sonnet-latest",
+            "claude-3-7-sonnet-20250219",
             "claude-3-5-haiku-latest",
             "claude-3-5-haiku-20241022",
             "claude-3-5-sonnet-latest",
@@ -41,13 +47,27 @@ class SubmitInputArgs(TypedDict, total=False):
         anthropic.NotGiven,
     ]
     temperature: float | anthropic.NotGiven
+    thinking: Union[
+        anthropic.types.thinking_config_enabled_param.ThinkingConfigEnabledParam,
+        anthropic.types.thinking_config_disabled_param.ThinkingConfigDisabledParam,
+        anthropic.NotGiven,
+    ]
     tool_choice: Union[
         anthropic.types.tool_choice_auto_param.ToolChoiceAutoParam,
         anthropic.types.tool_choice_any_param.ToolChoiceAnyParam,
         anthropic.types.tool_choice_tool_param.ToolChoiceToolParam,
         anthropic.NotGiven,
     ]
-    tools: Union[Iterable[anthropic.types.tool_param.ToolParam], anthropic.NotGiven]
+    tools: Union[
+        Iterable[
+            Union[
+                anthropic.types.tool_bash_20250124_param.ToolBash20250124Param,
+                anthropic.types.tool_text_editor_20250124_param.ToolTextEditor20250124Param,
+                anthropic.types.tool_param.ToolParam,
+            ]
+        ],
+        anthropic.NotGiven,
+    ]
     top_k: int | anthropic.NotGiven
     top_p: float | anthropic.NotGiven
     extra_headers: Optional[Mapping[str, Union[str, anthropic.Omit]]]
