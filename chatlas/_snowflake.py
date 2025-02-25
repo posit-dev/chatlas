@@ -38,7 +38,7 @@ def ChatSnowflake(
     password: Optional[str] = None,
     private_key_file: Optional[str] = None,
     private_key_file_pwd: Optional[str] = None,
-    kwargs: Optional[dict[str, str | int]] = None,
+    kwargs: Optional[dict[str, "str | int"]] = None,
 ) -> Chat["SubmitInputArgs", "Completion"]:
     """
     Chat with a Snowflake Cortex LLM
