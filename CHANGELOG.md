@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [UNRELEASED]
 
 * Updated `ChatAnthropic()`'s `model` default to `"claude-3-7-sonnet-latest"`. (#62)
+* Fix an issue with tool calls not working with `ChatVertex()`. (#61)
 
 
 ## [0.4.0] - 2025-02-19

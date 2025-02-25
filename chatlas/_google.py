@@ -413,7 +413,7 @@ class GoogleProvider(
         elif isinstance(content, ContentToolRequest):
             return Part(
                 function_call=FunctionCall(
-                    id=content.id,
+                    id=content.id if content.name != content.id else None,
                     name=content.name,
                     # Goes in a dict, so should come out as a dict
                     args=cast(dict[str, Any], content.arguments),
@@ -428,7 +428,7 @@ class GoogleProvider(
                 # TODO: seems function response parts might need role='tool'???
                 # https://github.com/googleapis/python-genai/blame/c8cfef85c/README.md#L344
                 function_response=FunctionResponse(
-                    id=content.id,
+                    id=content.id if content.name != content.id else None,
                     name=content.name,
                     response=resp,
                 )
