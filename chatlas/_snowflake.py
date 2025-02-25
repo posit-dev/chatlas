@@ -36,6 +36,8 @@ def ChatSnowflake(
     account: Optional[str] = None,
     user: Optional[str] = None,
     password: Optional[str] = None,
+    private_key_file: Optional[str] = None,
+    private_key_file_pwd: Optional[str] = None,
     role: Optional[str] = None,
     warehouse: Optional[str] = None,
     database: Optional[str] = None,
@@ -85,14 +87,23 @@ def ChatSnowflake(
         there is also a `content` field, which is a string.
     connection_name
         The name of the connection (i.e., section) within the connections.toml file.
+        This is useful if you want to keep your credentials in a connections.toml file
+        rather than specifying them directly in the arguments.
+        https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file
     account
         Your Snowflake account identifier. Required if `connection_name` is not provided.
         https://docs.snowflake.com/en/user-guide/admin-account-identifier
     user
         Your Snowflake user name. Required if `connection_name` is not provided.
     password
-        Your Snowflake password. Required if `connection_name` is not provided and
-        you are not using single sign-on (SSO).
+        Your Snowflake password. Required if doing password authentication and
+        `connection_name` is not provided.
+    private_key_file
+        The path to your private key file. Required if you are using key pair authentication.
+        https://docs.snowflake.com/en/user-guide/key-pair-auth
+    private_key_file_pwd
+        The password for your private key file. Required if you are using key pair authentication.
+        https://docs.snowflake.com/en/user-guide/key-pair-auth
     role
         Your Snowflake role.
     warehouse
@@ -116,6 +127,8 @@ def ChatSnowflake(
             account=account,
             user=user,
             password=password,
+            private_key_file=private_key_file,
+            private_key_file_pwd=private_key_file_pwd,
             role=role,
             warehouse=warehouse,
             database=database,
@@ -138,6 +151,8 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         account: str | None,
         user: str | None,
         password: str | None,
+        private_key_file: str | None,
+        private_key_file_pwd: str | None,
         role: str | None,
         warehouse: str | None,
         database: str | None,
@@ -158,6 +173,8 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
                 "account": account,
                 "user": user,
                 "password": password,
+                "private_key_file": private_key_file,
+                "private_key_file_pwd": private_key_file_pwd,
                 "role": role,
                 "warehouse": warehouse,
                 "database": database,
