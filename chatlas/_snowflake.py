@@ -38,11 +38,7 @@ def ChatSnowflake(
     password: Optional[str] = None,
     private_key_file: Optional[str] = None,
     private_key_file_pwd: Optional[str] = None,
-    role: Optional[str] = None,
-    warehouse: Optional[str] = None,
-    database: Optional[str] = None,
-    schema: Optional[str] = None,
-    authenticator: Optional[str] = None,
+    kwargs: Optional[dict[str, str | int]] = None,
 ) -> Chat["SubmitInputArgs", "Completion"]:
     """
     Chat with a Snowflake Cortex LLM
@@ -51,22 +47,27 @@ def ChatSnowflake(
     -------------
 
     ::: {.callout-note}
-    ## Snowflake credentials
-
-    Snowflake provides at least a few ways to authenticate. You can use a
-    `connections.toml` file (and specify the `connection_name` argument), specify the
-    connection parameters directly (with `account`, `user`, `password`, etc.),
-    or use single sign-on (SSO) through a web browser.
-
-    For more information, see the Snowflake documentation:
-    https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session
-    :::
-
-    ::: {.callout-note}
     ## Python requirements
 
     `ChatSnowflake`, requires the `snowflake-ml-python` package
     (e.g., `pip install snowflake-ml-python`).
+    :::
+
+    ::: {.callout-note}
+    ## Snowflake credentials
+
+    Snowflake provides a handful of ways to authenticate, but it's recommended
+    to use [key-pair
+    auth](https://docs.snowflake.com/en/developer-guide/python-connector/python-connector-connect#label-python-connection-toml)
+    to generate a `private_key_file`. It's also recommended to place your
+    credentials in a [`connections.toml`
+    file](https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file).
+
+    This way, once your credentials are in the `connections.toml` file, you can
+    simply call `ChatSnowflake(connection_name="my_connection")` to
+    authenticate. If you don't want to use a `connections.toml` file, you can
+    specify the connection parameters directly (with `account`, `user`,
+    `password`, etc.).
     :::
 
 
@@ -104,17 +105,10 @@ def ChatSnowflake(
     private_key_file_pwd
         The password for your private key file. Required if you are using key pair authentication.
         https://docs.snowflake.com/en/user-guide/key-pair-auth
-    role
-        Your Snowflake role.
-    warehouse
-        Your Snowflake warehouse.
-    database
-        Your Snowflake database.
-    schema
-        Your Snowflake schema.
-    authenticator
-        The authenticator to use. Only required if you are using single sign-on (SSO).
-        The only supported value in this case is "externalbrowser".
+    kwargs
+        Additional keyword arguments passed along to the Snowflake connection builder. These can
+        include any parameters supported by the `snowflake-ml-python` package.
+        https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-specifying-connection-parameters
     """
 
     if model is None:
@@ -129,11 +123,7 @@ def ChatSnowflake(
             password=password,
             private_key_file=private_key_file,
             private_key_file_pwd=private_key_file_pwd,
-            role=role,
-            warehouse=warehouse,
-            database=database,
-            schema=schema,
-            authenticator=authenticator,
+            kwargs=kwargs,
         ),
         turns=normalize_turns(
             turns or [],
@@ -153,11 +143,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         password: str | None,
         private_key_file: str | None,
         private_key_file_pwd: str | None,
-        role: str | None,
-        warehouse: str | None,
-        database: str | None,
-        schema: str | None,
-        authenticator: str | None,
+        kwargs: dict[str, str | int] | None,
     ):
         try:
             from snowflake.snowpark import Session
@@ -175,11 +161,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
                 "password": password,
                 "private_key_file": private_key_file,
                 "private_key_file_pwd": private_key_file_pwd,
-                "role": role,
-                "warehouse": warehouse,
-                "database": database,
-                "schema": schema,
-                "authenticator": authenticator,
+                **(kwargs or {}),
             }
         )
 
