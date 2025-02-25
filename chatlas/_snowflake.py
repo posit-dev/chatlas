@@ -43,6 +43,8 @@ def ChatSnowflake(
     """
     Chat with a Snowflake Cortex LLM
 
+    https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions
+
     Prerequisites
     -------------
 
