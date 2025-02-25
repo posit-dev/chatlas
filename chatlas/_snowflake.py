@@ -137,13 +137,13 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         self,
         *,
         model: str,
-        connection_name: str | None,
-        account: str | None,
-        user: str | None,
-        password: str | None,
-        private_key_file: str | None,
-        private_key_file_pwd: str | None,
-        kwargs: dict[str, str | int] | None,
+        connection_name: Optional[str],
+        account: Optional[str],
+        user: Optional[str],
+        password: Optional[str],
+        private_key_file: Optional[str],
+        private_key_file_pwd: Optional[str],
+        kwargs: Optional[dict[str, "str | int"]],
     ):
         try:
             from snowflake.snowpark import Session
@@ -286,7 +286,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
 
     def token_count(
         self,
-        *args: Content | str,
+        *args: "Content | str",
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]],
     ) -> int:
@@ -296,7 +296,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
 
     async def token_count_async(
         self,
-        *args: Content | str,
+        *args: "Content | str",
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]],
     ) -> int:

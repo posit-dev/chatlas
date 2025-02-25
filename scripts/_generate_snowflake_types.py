@@ -1,8 +1,7 @@
 from pathlib import Path
 
-from snowflake.cortex import complete
-
 from _utils import generate_typeddict_code, write_code_to_file
+from snowflake.cortex import complete
 
 types_dir = Path(__file__).parent.parent / "chatlas" / "types"
 provider_dir = types_dir / "snowflake"
@@ -19,17 +18,6 @@ write_code_to_file(
     create_args,
     provider_dir / "_submit.py",
 )
-
-# init_args = generate_typeddict_code(
-#     AsyncOpenAI.__init__,
-#     "ChatClientArgs",
-#     excluded_fields={"self"},
-# )
-# 
-# write_code_to_file(
-#     init_args,
-#     provider_dir / "_client.py",
-# )
 
 init = """
 from ._submit import SubmitInputArgs

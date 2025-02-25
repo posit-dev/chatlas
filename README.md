@@ -45,8 +45,8 @@ pip install -U git+https://github.com/posit-dev/chatlas
 
 It also supports the following enterprise cloud providers:
 
-* Azure OpenAI: [`ChatAzureOpenAI()`](https://posit-dev.github.io/chatlas/reference/ChatAzureOpenAI.html).
 * AWS Bedrock: [`ChatBedrockAnthropic()`](https://posit-dev.github.io/chatlas/reference/ChatBedrockAnthropic.html).
+* Azure OpenAI: [`ChatAzureOpenAI()`](https://posit-dev.github.io/chatlas/reference/ChatAzureOpenAI.html).
 * Snowflake Cortex: [`ChatSnowflake()`](https://posit-dev.github.io/chatlas/reference/ChatSnowflake.html).
 * Vertex AI: [`ChatVertex()`](https://posit-dev.github.io/chatlas/reference/ChatVertex.html).
 
