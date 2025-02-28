@@ -43,7 +43,7 @@ def ChatGithub(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatGithub` requires the `openai` package (e.g., `pip install openai`).
+    `ChatGithub` requires the `openai` package: `pip install chatlas[github]`.
     :::
 
 
