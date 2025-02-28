@@ -74,6 +74,7 @@ groq = ["openai"]
 ollama = ["openai"]
 openai = ["openai"]
 perplexity = ["openai"]
+snowflake = ["snowflake-ml-python"]
 
 [tool.uv]
 dev-dependencies = [
