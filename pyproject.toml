@@ -79,6 +79,9 @@ groq = [
 ollama = [
     "openai"
 ]
+openai = [
+    "openai"
+]
 
 [tool.uv]
 dev-dependencies = [
