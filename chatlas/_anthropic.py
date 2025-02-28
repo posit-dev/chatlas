@@ -572,8 +572,8 @@ def ChatBedrockAnthropic(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras
-    (e.g., `pip install anthropic[bedrock]`).
+    `ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras:
+    `pip install "chatlas[bedrock-anthropic]"`
     :::
 
     Examples
