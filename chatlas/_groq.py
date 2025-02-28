@@ -41,7 +41,7 @@ def ChatGroq(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatGroq` requires the `openai` package (e.g., `pip install openai`).
+    `ChatGroq` requires the `openai` package: `pip install chatlas[groq]`.
     :::
 
     Examples

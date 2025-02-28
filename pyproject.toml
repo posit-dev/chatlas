@@ -73,6 +73,9 @@ anthropic = [
 github = [
     "openai"
 ]
+groq = [
+    "openai"
+]
 
 [tool.uv]
 dev-dependencies = [
