@@ -70,6 +70,7 @@ docs = [
 # Provider extras ----
 anthropic = ["anthropic"]
 github = ["openai"]
+google = ["google-genai"]
 groq = ["openai"]
 ollama = ["openai"]
 openai = ["openai"]
