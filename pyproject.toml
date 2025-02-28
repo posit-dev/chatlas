@@ -67,21 +67,13 @@ docs = [
     "sentence-transformers",
     "numpy",
 ]
-anthropic = [
-    "anthropic"
-]
-github = [
-    "openai"
-]
-groq = [
-    "openai"
-]
-ollama = [
-    "openai"
-]
-openai = [
-    "openai"
-]
+# Provider extras ----
+anthropic = ["anthropic"]
+github = ["openai"]
+groq = ["openai"]
+ollama = ["openai"]
+openai = ["openai"]
+perplexity = ["openai"]
 
 [tool.uv]
 dev-dependencies = [
