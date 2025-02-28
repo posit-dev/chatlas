@@ -61,9 +61,9 @@ class SubmitInputArgs(TypedDict, total=False):
     tools: Union[
         Iterable[
             Union[
+                anthropic.types.tool_param.ToolParam,
                 anthropic.types.tool_bash_20250124_param.ToolBash20250124Param,
                 anthropic.types.tool_text_editor_20250124_param.ToolTextEditor20250124Param,
-                anthropic.types.tool_param.ToolParam,
             ]
         ],
         anthropic.NotGiven,
