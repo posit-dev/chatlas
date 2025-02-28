@@ -67,6 +67,18 @@ docs = [
     "sentence-transformers",
     "numpy",
 ]
+# Provider extras ----
+anthropic = ["anthropic"]
+bedrock-anthropic = ["anthropic[bedrock]"]
+github = ["openai"]
+google = ["google-genai"]
+groq = ["openai"]
+ollama = ["openai"]
+openai = ["openai"]
+azure-openai = ["openai"]
+perplexity = ["openai"]
+snowflake = ["snowflake-ml-python"]
+vertex = ["google-genai"]
 
 [tool.uv]
 dev-dependencies = [

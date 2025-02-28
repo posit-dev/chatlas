@@ -79,7 +79,7 @@ def ChatOpenAI(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatOpenAI` requires the `openai` package (e.g., `pip install openai`).
+    `ChatOpenAI` requires the `openai` package: `pip install "chatlas[openai]"`.
     :::
 
     Examples
@@ -592,7 +592,8 @@ def ChatAzureOpenAI(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatAzureOpenAI` requires the `openai` package (e.g., `pip install openai`).
+    `ChatAzureOpenAI` requires the `openai` package:
+    `pip install "chatlas[azure-openai]"`.
     :::
 
     Examples

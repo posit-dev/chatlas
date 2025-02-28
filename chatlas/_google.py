@@ -61,8 +61,7 @@ def ChatGoogle(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatGoogle` requires the `google-genai` package
-    (e.g., `pip install google-genai`).
+    `ChatGoogle` requires the `google-genai` package: `pip install "chatlas[google]"`.
     :::
 
     Examples
@@ -530,8 +529,7 @@ def ChatVertex(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatGoogle` requires the `google-genai` package
-    (e.g., `pip install google-genai`).
+    `ChatGoogle` requires the `google-genai` package: `pip install "chatlas[vertex]"`.
     :::
 
     ::: {.callout-note}
