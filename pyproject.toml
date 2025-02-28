@@ -76,6 +76,9 @@ github = [
 groq = [
     "openai"
 ]
+ollama = [
+    "openai"
+]
 
 [tool.uv]
 dev-dependencies = [
