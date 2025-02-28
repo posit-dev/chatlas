@@ -61,7 +61,7 @@ def ChatGoogle(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatGoogle` requires the `google-genai` package: `pip install chatlas[google]`.
+    `ChatGoogle` requires the `google-genai` package: `pip install "chatlas[google]"`.
     :::
 
     Examples

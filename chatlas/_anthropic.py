@@ -82,7 +82,7 @@ def ChatAnthropic(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatAnthropic` requires the `anthropic` package: `pip install chatlas[anthropic]`.
+    `ChatAnthropic` requires the `anthropic` package: `pip install "chatlas[anthropic]"`.
     :::
 
     Examples

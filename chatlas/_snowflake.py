@@ -52,7 +52,7 @@ def ChatSnowflake(
     ## Python requirements
 
     `ChatSnowflake`, requires the `snowflake-ml-python` package:
-    `pip install chatlas[snowflake]`.
+    `pip install "chatlas[snowflake]"`.
     :::
 
     ::: {.callout-note}

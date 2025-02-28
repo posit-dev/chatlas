@@ -79,7 +79,7 @@ def ChatOpenAI(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatOpenAI` requires the `openai` package: `pip install chatlas[openai]`.
+    `ChatOpenAI` requires the `openai` package: `pip install "chatlas[openai]"`.
     :::
 
     Examples
