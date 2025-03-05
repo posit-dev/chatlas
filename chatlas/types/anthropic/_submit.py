@@ -13,6 +13,7 @@ import anthropic.types.thinking_config_enabled_param
 import anthropic.types.tool_bash_20250124_param
 import anthropic.types.tool_choice_any_param
 import anthropic.types.tool_choice_auto_param
+import anthropic.types.tool_choice_none_param
 import anthropic.types.tool_choice_tool_param
 import anthropic.types.tool_param
 import anthropic.types.tool_text_editor_20250124_param
@@ -56,6 +57,7 @@ class SubmitInputArgs(TypedDict, total=False):
         anthropic.types.tool_choice_auto_param.ToolChoiceAutoParam,
         anthropic.types.tool_choice_any_param.ToolChoiceAnyParam,
         anthropic.types.tool_choice_tool_param.ToolChoiceToolParam,
+        anthropic.types.tool_choice_none_param.ToolChoiceNoneParam,
         anthropic.NotGiven,
     ]
     tools: Union[
