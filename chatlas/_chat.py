@@ -1249,7 +1249,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             else:
                 result = func(arguments)
 
-            return ContentToolResult(id_, result, None)
+            if isinstance(result, ContentToolResult):
+                result.id = id_
+                return result
+            else:
+                return ContentToolResult(id_, result, None)
         except Exception as e:
             log_tool_error(func.__name__, str(arguments), e)
             return ContentToolResult(id_, None, str(e))
@@ -1269,7 +1273,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             else:
                 result = await func(arguments)
 
-            return ContentToolResult(id_, result, None)
+            if isinstance(result, ContentToolResult):
+                result.id = id_
+                return result
+            else:
+                return ContentToolResult(id_, result, None)
         except Exception as e:
             log_tool_error(func.__name__, str(arguments), e)
             return ContentToolResult(id_, None, str(e))

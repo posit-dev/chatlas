@@ -479,7 +479,9 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 and isinstance(content.value, list)
                 and all(isinstance(x, Content) for x in content.value)
             ):
-                final_value = content.value
+                final_value = [
+                    AnthropicProvider._as_content_block(x) for x in content.value
+                ]
             else:
                 final_value = content.get_final_value()
             return {
