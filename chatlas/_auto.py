@@ -45,19 +45,22 @@ _provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
 
 
 def ChatAuto(
-    default_provider: Optional[AutoProviders] = None,
     system_prompt: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
+    *,
+    provider: Optional[AutoProviders] = None,
+    model: Optional[str] = None,
     **kwargs,
 ) -> Chat:
     """
     Create a Chat instance using a provider determined by environment variables.
 
     Create a Chat instance based on the specified provider, with optional system
-    prompt and conversation turns. The provider can be specified either through
-    the function parameter or via the `CHATLAS_CHAT_PROVIDER` environment
-    variable. Additional configuration can be provided through kwargs or the
-    `CHATLAS_CHAT_ARGS` environment variable (as JSON).
+    prompt and conversation turns. The provider and model be specified either
+    through the function parameters or via the `CHATLAS_CHAT_PROVIDER` or
+    `CHATLAS_CHAT_MODEL` environment variables. Additional configuration can be
+    provided through kwargs or the `CHATLAS_CHAT_ARGS` environment variable (as
+    JSON).
 
     The design of `ChatAuto()` allows you to easily switch between different
     chat providers by changing the environment variable without modifying your
@@ -71,8 +74,8 @@ def ChatAuto(
       default parameters that are used when the associated `CHATLAS_CHAT_`
       environment variables are not set.
 
-    * When `CHATLAS_CHAT_PROVIDER` is set, it is used in place of
-      `default_provider`.
+    * When `CHATLAS_CHAT_PROVIDER` or `CHATLAS_CHAT_MODEL` are set, they are
+      used in place of `provider` and `model`.
 
     * When `CHATLAS_CHAT_ARGS` is set, it is merged with `kwargs`, where the
       values in the environment variable take precedence.
@@ -103,7 +106,8 @@ def ChatAuto(
 
     ```bash
     export CHATLAS_CHAT_PROVIDER=anthropic
-    export CHATLAS_CHAT_ARGS='{"model": "claude-3-haiku-20240229", "kwargs": {"max_retries": 3}}'
+    export CHATLAS_CHAT_MODEL=claude-3-haiku-20240229
+    export CHATLAS_CHAT_ARGS='{"kwargs": {"max_retries": 3}}'
     export ANTHROPIC_API_KEY=your_api_key
     ```
 
@@ -119,14 +123,18 @@ def ChatAuto(
 
     Parameters
     ----------
-    default_provider
-        The name of the chat provider to use. Provides are strings formatted in
-        kebab-case, e.g. to use `ChatBedrockAnthropic` set
+    provider
+        The name of the default chat provider to use. Providers are strings
+        formatted in kebab-case, e.g. to use `ChatBedrockAnthropic` set
         `provider="bedrock-anthropic"`.
 
         This value can also be provided via the `CHATLAS_CHAT_PROVIDER`
-        environment variable, which takes precedence over `default_provider`
+        environment variable, which takes precedence over `provider`
         when set.
+    model
+        The name of the default model to use. This value can also be provided
+        via the `CHATLAS_CHAT_MODEL` environment variable, which takes
+        precedence over `model` when set.
     system_prompt
         A system prompt to set the behavior of the assistant.
     turns
@@ -160,20 +168,23 @@ def ChatAuto(
         If no valid provider is specified either through parameters or
         environment variables.
     """
-    provider = os.environ.get("CHATLAS_CHAT_PROVIDER", default_provider)
+    the_provider = os.environ.get("CHATLAS_CHAT_PROVIDER", provider)
 
-    if provider is None:
+    if the_provider is None:
         raise ValueError(
             "Provider name is required as parameter or `CHATLAS_CHAT_PROVIDER` must be set."
         )
-    elif provider not in _provider_chat_model_map:
+    elif the_provider not in _provider_chat_model_map:
         raise ValueError(
-            f"Provider name '{provider}' is not a known chatlas provider: "
+            f"Provider name '{the_provider}' is not a known chatlas provider: "
             f"{', '.join(_provider_chat_model_map.keys())}"
         )
 
+    if env_model := os.environ.get("CHATLAS_CHAT_MODEL"):
+        model = env_model
+
     # `system_prompt` and `turns` always come from `ChatAuto()`
-    base_args = {"system_prompt": system_prompt, "turns": turns}
+    base_args = {"system_prompt": system_prompt, "turns": turns, "model": model}
 
     env_kwargs = {}
     if env_kwargs_str := os.environ.get("CHATLAS_CHAT_ARGS"):
@@ -182,4 +193,4 @@ def ChatAuto(
     kwargs = {**kwargs, **env_kwargs, **base_args}
     kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
-    return _provider_chat_model_map[provider](**kwargs)
+    return _provider_chat_model_map[the_provider](**kwargs)
