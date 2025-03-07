@@ -4,3 +4,4 @@
 types.ContentText(self, text)
 ```
 
+Text content for a [](`~chatlas.Turn`)

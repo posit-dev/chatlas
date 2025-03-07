@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from google.generativeai import GenerativeModel
-
 from _utils import generate_typeddict_code, write_code_to_file
+from google.genai import Client
+from google.genai.models import Models
 
 types_dir = Path(__file__).parent.parent / "chatlas" / "types"
 provider_dir = types_dir / "google"
@@ -11,13 +11,9 @@ for file in provider_dir.glob("*.py"):
     file.unlink()
 
 google_src = generate_typeddict_code(
-    GenerativeModel.generate_content,
+    Models.generate_content,
     "SubmitInputArgs",
-    excluded_fields={
-        "self",
-        # TODO: the generated code for this field is incorrect
-        "safety_settings",
-    },
+    excluded_fields={"self"},
 )
 
 write_code_to_file(
@@ -26,13 +22,9 @@ write_code_to_file(
 )
 
 init_args = generate_typeddict_code(
-    GenerativeModel.__init__,
+    Client.__init__,
     "ChatClientArgs",
-    excluded_fields={
-        "self",
-        # TODO: the generated code for this field is incorrect
-        "safety_settings",
-    },
+    excluded_fields={"self"},
 )
 
 write_code_to_file(

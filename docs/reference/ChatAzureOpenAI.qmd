@@ -2,14 +2,14 @@
 
 ```python
 ChatAzureOpenAI(
-    endpoint
-    deployment_id
-    api_version
-    api_key=None
-    system_prompt=None
-    turns=None
-    seed=MISSING
-    kwargs=None
+    endpoint,
+    deployment_id,
+    api_version,
+    api_key=None,
+    system_prompt=None,
+    turns=None,
+    seed=MISSING,
+    kwargs=None,
 )
 ```
 

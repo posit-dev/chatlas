@@ -72,7 +72,7 @@ def ChatAnthropic(
     ::: {.callout-note}
     ## API key
 
-    Note that a Claude Prop membership does not give you the ability to call
+    Note that a Claude Pro membership does not give you the ability to call
     models via the API. You will need to go to the [developer
     console](https://console.anthropic.com/account/keys) to sign up (and pay
     for) a developer account that will give you an API key that you can use with
@@ -82,7 +82,7 @@ def ChatAnthropic(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatAnthropic` requires the `anthropic` package (e.g., `pip install anthropic`).
+    `ChatAnthropic` requires the `anthropic` package: `pip install "chatlas[anthropic]"`.
     :::
 
     Examples
@@ -164,7 +164,7 @@ def ChatAnthropic(
     """
 
     if model is None:
-        model = log_model_default("claude-3-5-sonnet-latest")
+        model = log_model_default("claude-3-7-sonnet-latest")
 
     return Chat(
         provider=AnthropicProvider(
@@ -311,7 +311,8 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             if stream:
                 stream = False
                 warnings.warn(
-                    "Anthropic does not support structured data extraction in streaming mode."
+                    "Anthropic does not support structured data extraction in streaming mode.",
+                    stacklevel=2,
                 )
 
         kwargs_full: "SubmitInputArgs" = {
@@ -371,10 +372,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
 
         return completion
 
-    def stream_turn(self, completion, has_data_model, stream) -> Turn:
-        return self._as_turn(completion, has_data_model)
-
-    async def stream_turn_async(self, completion, has_data_model, stream) -> Turn:
+    def stream_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
 
     def value_turn(self, completion, has_data_model) -> Turn:
@@ -574,8 +572,8 @@ def ChatBedrockAnthropic(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras
-    (e.g., `pip install anthropic[bedrock]`).
+    `ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras:
+    `pip install "chatlas[bedrock-anthropic]"`
     :::
 
     Examples

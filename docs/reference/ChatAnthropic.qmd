@@ -2,12 +2,12 @@
 
 ```python
 ChatAnthropic(
-    system_prompt=None
-    turns=None
-    model=None
-    api_key=None
-    max_tokens=4096
-    kwargs=None
+    system_prompt=None,
+    turns=None,
+    model=None,
+    api_key=None,
+    max_tokens=4096,
+    kwargs=None,
 )
 ```
 

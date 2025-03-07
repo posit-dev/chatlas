@@ -1,6 +1,7 @@
 from typing import Union
 
 import pytest
+
 from chatlas import ChatOpenAI
 from chatlas.types import ContentToolResult
 

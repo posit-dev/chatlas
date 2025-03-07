@@ -2,13 +2,13 @@
 
 ```python
 ChatOpenAI(
-    system_prompt=None
-    turns=None
-    model=None
-    api_key=None
-    base_url='https://api.openai.com/v1'
-    seed=MISSING
-    kwargs=None
+    system_prompt=None,
+    turns=None,
+    model=None,
+    api_key=None,
+    base_url='https://api.openai.com/v1',
+    seed=MISSING,
+    kwargs=None,
 )
 ```
 

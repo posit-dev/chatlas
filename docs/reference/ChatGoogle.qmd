@@ -2,11 +2,11 @@
 
 ```python
 ChatGoogle(
-    system_prompt=None
-    turns=None
-    model=None
-    api_key=None
-    kwargs=None
+    system_prompt=None,
+    turns=None,
+    model=None,
+    api_key=None,
+    kwargs=None,
 )
 ```
 
@@ -25,8 +25,8 @@ and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?
 ::: {.callout-note}
 ## Python requirements
 
-`ChatGoogle` requires the `google-generativeai` package
-(e.g., `pip install google-generativeai`).
+`ChatGoogle` requires the `google-genai` package
+(e.g., `pip install google-genai`).
 :::
 
 ## Examples {.doc-section .doc-section-examples}
@@ -47,17 +47,13 @@ chat.chat("What is the capital of France?")
 | turns         | [Optional](`typing.Optional`)\[[list](`list`)\[[Turn](`chatlas._turn.Turn`)\]\] | A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-`None` values for both `turns` and `system_prompt`. Each message in the list should be a dictionary with at least `role` (usually `system`, `user`, or `assistant`, but `tool` is also possible). Normally there is also a `content` field, which is a string. | `None`    |
 | model         | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.                                                                                                                                                                                                                                 | `None`    |
 | api_key       | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The API key to use for authentication. You generally should not supply this directly, but instead set the `GOOGLE_API_KEY` environment variable.                                                                                                                                                                                                                                                                            | `None`    |
-| kwargs        | [Optional](`typing.Optional`)\[\'ChatClientArgs\'\]                             | Additional arguments to pass to the `genai.GenerativeModel` constructor.                                                                                                                                                                                                                                                                                                                                                    | `None`    |
+| kwargs        | [Optional](`typing.Optional`)\[\'ChatClientArgs\'\]                             | Additional arguments to pass to the `genai.Client` constructor.                                                                                                                                                                                                                                                                                                                                                             | `None`    |
 
 ## Returns {.doc-section .doc-section-returns}
 
 | Name   | Type                         | Description    |
 |--------|------------------------------|----------------|
 |        | [Chat](`chatlas._chat.Chat`) | A Chat object. |
-
-## Limitations {.doc-section .doc-section-limitations}
-
-`ChatGoogle` currently doesn't work with streaming tools.
 
 ## Note {.doc-section .doc-section-note}
 

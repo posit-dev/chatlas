@@ -2,6 +2,7 @@ import os
 import time
 
 import pytest
+
 from chatlas import ChatGoogle
 
 from .conftest import (
@@ -27,7 +28,7 @@ def test_google_simple_request():
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (17, 2)
+    assert turn.tokens == (16, 2)
     assert turn.finish_reason == "STOP"
 
 
@@ -55,14 +56,13 @@ def test_google_tool_variations():
     chat_fun = ChatGoogle
     # Avoid Google's rate limits
     time.sleep(3)
-    assert_tools_simple(chat_fun, stream=False)
+    assert_tools_simple(chat_fun)
     time.sleep(3)
-    assert_tools_parallel(chat_fun, stream=False)
+    assert_tools_parallel(chat_fun)
     time.sleep(3)
     assert_tools_sequential(
         chat_fun,
         total_calls=6,
-        stream=False,
     )
     time.sleep(3)
 

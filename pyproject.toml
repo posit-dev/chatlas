@@ -46,9 +46,12 @@ dev = [
     "shiny",
     "openai",
     "anthropic[bedrock]",
-    "google-generativeai>=0.8.3",
+    "google-genai>=1.2.0",
     "numpy>1.24.4",
     "tiktoken",
+    "snowflake-ml-python",
+    # torch (a dependency of snowflake-ml-python) is not yet compatible with Python >3.11
+    "torch;python_version<='3.11'",
 ]
 docs = [
     "griffe>=1",
@@ -64,6 +67,18 @@ docs = [
     "sentence-transformers",
     "numpy",
 ]
+# Provider extras ----
+anthropic = ["anthropic"]
+bedrock-anthropic = ["anthropic[bedrock]"]
+github = ["openai"]
+google = ["google-genai"]
+groq = ["openai"]
+ollama = ["openai"]
+openai = ["openai"]
+azure-openai = ["openai"]
+perplexity = ["openai"]
+snowflake = ["snowflake-ml-python"]
+vertex = ["google-genai"]
 
 [tool.uv]
 dev-dependencies = [
@@ -81,8 +96,12 @@ source = "vcs"
 [tool.hatch.build]
 skip-excluded-dirs = true
 
+[tool.hatch.build.hooks.vcs]
+version-file = "chatlas/_version.py"
+
 [tool.hatch.build.targets.wheel]
 packages = ["chatlas"]
+include = ["py.typed"]
 
 [tool.pyright]
 include = ["chatlas"]

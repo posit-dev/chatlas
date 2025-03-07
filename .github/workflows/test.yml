@@ -50,6 +50,7 @@ jobs:
         run: make check-tests
 
       - name: 📝 Check types
+        if: ${{ matrix.config.python-version != '3.9' }}
         run: make check-types
 
       - name: 📐 Check formatting

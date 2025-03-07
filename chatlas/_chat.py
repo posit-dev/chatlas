@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import inspect
 import os
+import sys
 from pathlib import Path
 from threading import Thread
 from typing import (
@@ -40,7 +42,7 @@ from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
-from ._utils import html_escape
+from ._utils import html_escape, wrap_async
 
 
 class AnyTypeDict(TypedDict, total=False):
@@ -406,7 +408,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Whether to run the app in a background thread. If `None`, the app will
             run in a background thread if the current environment is a notebook.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no content. Defaults to `"none"` when `stream=True` and `"text"` when `stream=False`.
+            Whether to echo text content, all content (i.e., tool calls), or no
+            content. Defaults to `"none"` when `stream=True` and `"text"` when
+            `stream=False`.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -1109,7 +1113,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             turn = self.provider.stream_turn(
                 result,
                 has_data_model=data_model is not None,
-                stream=response,
             )
 
             if echo == "all":
@@ -1170,10 +1173,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
-            turn = await self.provider.stream_turn_async(
+            turn = self.provider.stream_turn(
                 result,
                 has_data_model=data_model is not None,
-                stream=response,
             )
 
             if echo == "all":
@@ -1226,7 +1228,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         for x in turn.contents:
             if isinstance(x, ContentToolRequest):
                 tool_def = self._tools.get(x.name, None)
-                func = tool_def.func if tool_def is not None else None
+                func = None
+                if tool_def:
+                    if tool_def._is_async:
+                        func = tool_def.func
+                    else:
+                        func = wrap_async(tool_def.func)
                 results.append(await self._invoke_tool_async(func, x.arguments, x.id))
 
         if not results:
@@ -1241,7 +1248,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         id_: str,
     ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id_, None, "Unknown tool")
+            return ContentToolResult(id_, value=None, error="Unknown tool")
+
+        name = func.__name__
 
         try:
             if isinstance(arguments, dict):
@@ -1249,10 +1258,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             else:
                 result = func(arguments)
 
-            return ContentToolResult(id_, result, None)
+            return ContentToolResult(id_, value=result, error=None, name=name)
         except Exception as e:
-            log_tool_error(func.__name__, str(arguments), e)
-            return ContentToolResult(id_, None, str(e))
+            log_tool_error(name, str(arguments), e)
+            return ContentToolResult(id_, value=None, error=str(e), name=name)
 
     @staticmethod
     async def _invoke_tool_async(
@@ -1261,7 +1270,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         id_: str,
     ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id_, None, "Unknown tool")
+            return ContentToolResult(id_, value=None, error="Unknown tool")
+
+        name = func.__name__
 
         try:
             if isinstance(arguments, dict):
@@ -1269,10 +1280,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             else:
                 result = await func(arguments)
 
-            return ContentToolResult(id_, result, None)
+            return ContentToolResult(id_, value=result, error=None, name=name)
         except Exception as e:
             log_tool_error(func.__name__, str(arguments), e)
-            return ContentToolResult(id_, None, str(e))
+            return ContentToolResult(id_, value=None, error=str(e), name=name)
 
     def _markdown_display(
         self, echo: Literal["text", "all", "none"]
@@ -1389,7 +1400,7 @@ class ChatResponse:
 
     @property
     def consumed(self) -> bool:
-        return self._generator.gi_frame is None
+        return inspect.getgeneratorstate(self._generator) == inspect.GEN_CLOSED
 
     def __str__(self) -> str:
         return self.get_content()
@@ -1439,7 +1450,11 @@ class ChatResponseAsync:
 
     @property
     def consumed(self) -> bool:
-        return self._generator.ag_frame is None
+        if sys.version_info < (3, 12):
+            raise NotImplementedError(
+                "Checking for consumed state is only supported in Python 3.12+"
+            )
+        return inspect.getasyncgenstate(self._generator) == inspect.AGEN_CLOSED
 
 
 # ----------------------------------------------------------------------------

@@ -79,7 +79,7 @@ def ChatOpenAI(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatOpenAI` requires the `openai` package (e.g., `pip install openai`).
+    `ChatOpenAI` requires the `openai` package: `pip install "chatlas[openai]"`.
     :::
 
     Examples
@@ -338,16 +338,13 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             return chunkd
         return merge_dicts(completion, chunkd)
 
-    def stream_turn(self, completion, has_data_model, stream) -> Turn:
+    def stream_turn(self, completion, has_data_model) -> Turn:
         from openai.types.chat import ChatCompletion
 
         delta = completion["choices"][0].pop("delta")  # type: ignore
         completion["choices"][0]["message"] = delta  # type: ignore
         completion = ChatCompletion.construct(**completion)
         return self._as_turn(completion, has_data_model)
-
-    async def stream_turn_async(self, completion, has_data_model, stream):
-        return self.stream_turn(completion, has_data_model, stream)
 
     def value_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
@@ -595,7 +592,8 @@ def ChatAzureOpenAI(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatAzureOpenAI` requires the `openai` package (e.g., `pip install openai`).
+    `ChatAzureOpenAI` requires the `openai` package:
+    `pip install "chatlas[azure-openai]"`.
     :::
 
     Examples
