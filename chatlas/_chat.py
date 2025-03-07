@@ -1421,14 +1421,14 @@ class ChatResponse:
 
     def __init__(self, generator: Generator[Stringable, None]):
         self._generator = generator
-        self.content: str = ""
+        self.contents: list[Stringable] = []
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[Stringable]:
         return self
 
-    def __next__(self) -> str:
-        chunk = str(next(self._generator))
-        self.content += chunk  # Keep track of accumulated content
+    def __next__(self) -> Stringable:
+        chunk = next(self._generator)
+        self.contents.append(chunk)
         return chunk
 
     def get_content(self) -> str:
@@ -1437,7 +1437,7 @@ class ChatResponse:
         """
         for _ in self:
             pass
-        return self.content
+        return "".join(str(x) for x in self.contents)
 
     @property
     def consumed(self) -> bool:
@@ -1473,21 +1473,21 @@ class ChatResponseAsync:
 
     def __init__(self, generator: AsyncGenerator[Stringable, None]):
         self._generator = generator
-        self.content: str = ""
+        self.contents: list[Stringable] = []
 
-    def __aiter__(self) -> AsyncIterator[str]:
+    def __aiter__(self) -> AsyncIterator[Stringable]:
         return self
 
-    async def __anext__(self) -> str:
-        chunk = str(await self._generator.__anext__())
-        self.content += chunk  # Keep track of accumulated content
+    async def __anext__(self) -> Stringable:
+        chunk = await self._generator.__anext__()
+        self.contents.append(chunk)
         return chunk
 
     async def get_content(self) -> str:
         "Get the chat response content as a string."
         async for _ in self:
             pass
-        return self.content
+        return "".join(str(x) for x in self.contents)
 
     @property
     def consumed(self) -> bool:
