@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Optional
+from typing import Callable, Literal, Optional
 
 from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._chat import Chat
@@ -15,7 +15,21 @@ from ._perplexity import ChatPerplexity
 from ._snowflake import ChatSnowflake
 from ._turn import Turn
 
-_provider_chat_model_map = {
+AutoProviders = Literal[
+    "anthropic",
+    "bedrock-anthropic",
+    "github",
+    "google",
+    "groq",
+    "ollama",
+    "openai",
+    "azure-openai",
+    "perplexity",
+    "snowflake",
+    "vertex",
+]
+
+_provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
     "anthropic": ChatAnthropic,
     "bedrock-anthropic": ChatBedrockAnthropic,
     "github": ChatGithub,
@@ -31,7 +45,7 @@ _provider_chat_model_map = {
 
 
 def ChatAuto(
-    provider: Optional[str] = None,
+    default_provider: Optional[AutoProviders] = None,
     system_prompt: Optional[str] = None,
     turns: Optional[list[Turn]] = None,
     **kwargs,
@@ -39,10 +53,13 @@ def ChatAuto(
     """
     Create a Chat instance using a provider determined by environment variables.
 
-    Create a Chat instance based on the specified provider, with optional system prompt and conversation turns.
-    The provider can be specified either through the function parameter or via the CHATLAS_CHAT_PROVIDER environment variable.
-    Additional configuration can be provided through kwargs or the CHATLAS_CHAT_ARGS environment variable (as JSON). This allows
-    you to easily switch between different chat providers by changing the environment variable without modifying your code.
+    Create a Chat instance based on the specified provider, with optional system
+    prompt and conversation turns. The provider can be specified either through
+    the function parameter or via the `CHATLAS_CHAT_PROVIDER` environment
+    variable. Additional configuration can be provided through kwargs or the
+    `CHATLAS_CHAT_ARGS` environment variable (as JSON). This allows you to
+    easily switch between different chat providers by changing the environment
+    variable without modifying your code.
 
     Prerequisites
     -------------
@@ -50,14 +67,17 @@ def ChatAuto(
     ::: {.callout-note}
     ## API key
 
-    Follow the instructions for the specific provider to obtain an API key. In order to use the specified provider, ensure
-    that an API key is set in the environment variable `CHATLAS_CHAT_API_KEY` or passed as a parameter to the function.
+    Follow the instructions for the specific provider to obtain an API key. In
+    order to use the specified provider, ensure that an API key is set in the
+    environment variable `CHATLAS_CHAT_API_KEY` or passed as a parameter to the
+    function.
     :::
 
     ::: {.callout-note}
     ## Python requirements
 
-    Follow the instructions for the specific provider to install the required Python packages.
+    Follow the instructions for the specific provider to install the required
+    Python packages.
     :::
 
 
@@ -83,17 +103,14 @@ def ChatAuto(
 
     Parameters
     ----------
-    provider
-        The name of the chat provider to use. Must be one of the supported providers:
-        - `anthropic`
-        - `bedrock:anthropic`
-        - `github`
-        - `google`
-        - `groq`
-        - `ollama`
-        - `azure:openai`
-        - `openai`
-        - `perplexity`
+    default_provider
+        The name of the chat provider to use. Provides are strings formatted in
+        kebab-case, e.g. to use `ChatBedrockAnthropic` set
+        `provider="bedrock-anthropic"`.
+
+        This value can also be provided via the `CHATLAS_CHAT_PROVIDER`
+        environment variable, which takes precedence over `default_provider`
+        when set.
     system_prompt
         A system prompt to set the behavior of the assistant.
     turns
@@ -104,10 +121,17 @@ def ChatAuto(
         `system`, `user`, or `assistant`, but `tool` is also possible). Normally
         there is also a `content` field, which is a string.
     **kwargs
-        Additional keyword arguments to pass to the Chat constructor. These can also
-        be provided via the CHATLAS_CHAT_ARGS environment variable as a JSON string.
-        The values will be injected into the Chat constructor of the specified provider.
-        See the documentation for each provider for more details on the available options.
+        Additional keyword arguments to pass to the Chat constructor. See the
+        documentation for each provider for more details on the available
+        options.
+
+        These arguments can also be provided via the `CHATLAS_CHAT_ARGS`
+        environment variable as a JSON string. When provided, the options
+        in the `CHATLAS_CHAT_ARGS` envvar take precedence over the options
+        passed to `kwargs`.
+
+        Note that `system_prompt` and `turns` in `kwargs` or in
+        `CHATLAS_CHAT_ARGS` are ignored.
 
     Returns
     -------
@@ -117,21 +141,28 @@ def ChatAuto(
     Raises
     ------
     ValueError
-        If no valid provider is specified either through parameters or environment variables.
+        If no valid provider is specified either through parameters or
+        environment variables.
     """
-    provider = os.environ.get("CHATLAS_CHAT_PROVIDER", provider)
+    provider = os.environ.get("CHATLAS_CHAT_PROVIDER", default_provider)
 
-    if provider not in _provider_chat_model_map:
+    if provider is None:
         raise ValueError(
             "Provider name is required as parameter or `CHATLAS_CHAT_PROVIDER` must be set."
         )
+    elif provider not in _provider_chat_model_map:
+        raise ValueError(
+            f"Provider name '{provider}' is not a known chatlas provider: "
+            f"{', '.join(_provider_chat_model_map.keys())}"
+        )
 
-    kwargs |= dict(
-        system_prompt=system_prompt,
-        turns=turns,
-    )
+    # `system_prompt` and `turns` always come from `ChatAuto()`
+    base_args = {"system_prompt": system_prompt, "turns": turns}
 
-    if env_kwargs := os.environ.get("CHATLAS_CHAT_ARGS"):
-        kwargs |= json.loads(env_kwargs)
+    env_kwargs = {}
+    if env_kwargs_str := os.environ.get("CHATLAS_CHAT_ARGS"):
+        env_kwargs = json.loads(env_kwargs_str)
+
+    kwargs = {**kwargs, **env_kwargs, **base_args}
 
     return _provider_chat_model_map[provider](**kwargs)
