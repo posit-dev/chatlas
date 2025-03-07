@@ -48,7 +48,7 @@ def test_auto_simple_request(provider, model, args):
         # ("bedrock:anthropic", {"model": "anthropic.claude-3-5-sonnet-20240620-v1:0", "aws_region": "us-east-1", "kwargs": {"max_retries": 2}}),
         ("openai", {"kwargs": {"max_retries": 2}}),
         ("anthropic", {"kwargs": {"max_retries": 2}}),
-        ("google", {"kwargs": {"max_retries": None}}),
+        ("google", {}),
         (
             "azure-openai",
             {"endpoint": "", "deployment_id": "1", "api_version": 1},
