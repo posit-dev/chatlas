@@ -126,28 +126,34 @@ def test_auto_respects_turns_interface(monkeypatch):
     assert_turns_existing(chat_fun)
 
 
-def convert_to_kebab_case(arr):
-    def process_string(s):
-        # Remove 'Chat' prefix if present
-        if s.startswith("Chat"):
-            s = s[4:]
+def chat_to_kebab_case(s):
+    if s == "ChatOpenAI":
+        return "openai"
+    elif s == "ChatAzureOpenAI":
+        return "azure-openai"
 
-        # Convert the string to a list of characters
-        result = []
-        for i, char in enumerate(s):
-            # Add hyphen before uppercase letters (except first character)
-            if i > 0 and char.isupper():
-                result.append("-")
-            result.append(char.lower())
+    # Remove 'Chat' prefix if present
+    if s.startswith("Chat"):
+        s = s[4:]
 
-        return "".join(result)
+    # Convert the string to a list of characters
+    result = []
+    for i, char in enumerate(s):
+        # Add hyphen before uppercase letters (except first character)
+        if i > 0 and char.isupper():
+            result.append("-")
+        result.append(char.lower())
 
-    return [process_string(s) for s in arr]
+    return "".join(result)
 
 
 def test_auto_includes_all_providers():
-    providers = [x for x in dir(chatlas) if x.startswith("Chat") and x != "Chat"]
-    providers = set(convert_to_kebab_case(providers))
+    providers = [
+        chat_to_kebab_case(x)
+        for x in dir(chatlas)
+        if x.startswith("Chat") and x != "Chat"
+    ]
+    providers = set(providers)
 
     missing = set(_provider_chat_model_map.keys()).difference(providers)
 
