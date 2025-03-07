@@ -2,16 +2,25 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional, Protocol
 
 from pydantic import BaseModel, Field, create_model
 
 from . import _utils
 
-__all__ = ("Tool",)
+__all__ = (
+    "Tool",
+    "ToolResult",
+)
 
 if TYPE_CHECKING:
     from openai.types.chat import ChatCompletionToolParam
+
+    from ._content import ContentToolRequest
+
+
+class Stringable(Protocol):
+    def __str__(self) -> str: ...
 
 
 class Tool:
@@ -40,11 +49,53 @@ class Tool:
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
         model: Optional[type[BaseModel]] = None,
+        on_request: Optional[Callable[[ContentToolRequest], Stringable]] = None,
     ):
         self.func = func
         self._is_async = _utils.is_async_callable(func)
         self.schema = func_to_schema(func, model)
         self.name = self.schema["function"]["name"]
+        self.on_request = on_request
+
+
+class ToolResult:
+    """
+    A result from a tool invocation
+
+    Return this value from a tool if you want to separate what gets sent
+    to the model vs what value gets yielded to the user.
+
+    Parameters
+    ----------
+    value
+        The tool's return value. If `serialized_value` is not provided, the
+        string representation of this value is sent to the model.
+    response_output
+        A value to yield when the tool is called during response generation. If
+        `None`, no value is yielded. This is primarily useful for producing
+        custom UI in the response output to indicate to the user that a tool
+        call has completed (for example, return shiny UI here when
+        `.stream()`-ing inside a shiny app).
+    serialized_value
+        The serialized value to send to the model. If `None`, the value is serialized
+        using `str()`. This is useful when the value is not JSON
+    """
+
+    def __init__(
+        self,
+        value: Stringable,
+        response_output: Optional[Stringable] = None,
+        serialized_value: Optional[str] = None,
+    ):
+        self.value = value
+        self.response_output = response_output
+        if serialized_value is None:
+            serialized_value = str(value)
+        self.serialized_value = serialized_value
+        # TODO: we could consider adding an "emit value" -- that is, the thing to
+        # display when `echo="all"` is used. I imagine that might be useful for
+        # advanced users, but let's not worry about it until someone asks for it.
+        # self.emit = emit
 
 
 def func_to_schema(
