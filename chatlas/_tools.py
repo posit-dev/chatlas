@@ -67,21 +67,31 @@ class ToolResult:
 
     Parameters
     ----------
-    assistant
-        The value to sent to the model. Must be stringify-able (i.e. have a `__str__` method).
-    output
-        A value to yield when a tool result occurs. If `None`, no value is yielded.
-        This is primarily useful for allowing a tool result to create custom UI
-        (for example, return shiny UI here when `.stream()`-ing in  a shiny app).
+    value
+        The tool's return value. If `serialized_value` is not provided, the
+        string representation of this value is sent to the model.
+    response_output
+        A value to yield when the tool is called during response generation. If
+        `None`, no value is yielded. This is primarily useful for producing
+        custom UI in the response output to indicate to the user that a tool
+        call has completed (for example, return shiny UI here when
+        `.stream()`-ing inside a shiny app).
+    serialized_value
+        The serialized value to send to the model. If `None`, the value is serialized
+        using `str()`. This is useful when the value is not JSON
     """
 
     def __init__(
         self,
-        assistant: Stringable,
-        output: Optional[Stringable] = None,
+        value: Stringable,
+        response_output: Optional[Stringable] = None,
+        serialized_value: Optional[str] = None,
     ):
-        self.assistant = assistant
-        self.output = output
+        self.value = value
+        self.response_output = response_output
+        if serialized_value is None:
+            serialized_value = str(value)
+        self.serialized_value = serialized_value
         # TODO: we could consider adding an "emit value" -- that is, the thing to
         # display when `echo="all"` is used. I imagine that might be useful for
         # advanced users, but let's not worry about it until someone asks for it.

@@ -1099,10 +1099,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     req = self._on_tool_request(x)
                     if req is not None:
                         yield req
-                    result, output = self._invoke_tool_request(x)
-                    if output is not None:
-                        yield output
-                    results.append(result)
+                    res = self._invoke_tool_request(x)
+                    if res.result and res.result.response_output is not None:
+                        yield res.result.response_output
+                    results.append(res)
 
             if results:
                 user_turn_result = Turn("user", results)
@@ -1136,10 +1136,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     req = self._on_tool_request(x)
                     if req is not None:
                         yield req
-                    result, output = await self._invoke_tool_request_async(x)
-                    if output is not None:
-                        yield output
-                    results.append(result)
+                    res = await self._invoke_tool_request_async(x)
+                    if res.result and res.result.response_output is not None:
+                        yield res.result.response_output
+                    results.append(res)
 
             if results:
                 user_turn_result = Turn("user", results)
@@ -1273,14 +1273,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         self._turns.extend([user_turn, turn])
 
-    def _invoke_tool_request(
-        self, x: ContentToolRequest
-    ) -> tuple[ContentToolResult, Stringable]:
+    def _invoke_tool_request(self, x: ContentToolRequest) -> ContentToolResult:
         tool_def = self._tools.get(x.name, None)
         func = tool_def.func if tool_def is not None else None
 
         if func is None:
-            return ContentToolResult(x.id, value=None, error="Unknown tool"), None
+            return ContentToolResult(x.id, result=None, error="Unknown tool")
 
         name = func.__name__
 
@@ -1290,18 +1288,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             else:
                 result = func(x.arguments)
 
-            value, output = (result, None)
-            if isinstance(result, ToolResult):
-                value, output = (result.assistant, result.output)
+            if not isinstance(result, ToolResult):
+                result = ToolResult(value=result)
 
-            return ContentToolResult(x.id, value=value, error=None, name=name), output
+            return ContentToolResult(x.id, result=result, error=None, name=name)
         except Exception as e:
             log_tool_error(name, str(x.arguments), e)
-            return ContentToolResult(x.id, value=None, error=str(e), name=name), None
+            return ContentToolResult(x.id, result=None, error=str(e), name=name)
 
     async def _invoke_tool_request_async(
         self, x: ContentToolRequest
-    ) -> tuple[ContentToolResult, Stringable]:
+    ) -> ContentToolResult:
         tool_def = self._tools.get(x.name, None)
         func = None
         if tool_def:
@@ -1311,7 +1308,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 func = wrap_async(tool_def.func)
 
         if func is None:
-            return ContentToolResult(x.id, value=None, error="Unknown tool"), None
+            return ContentToolResult(x.id, result=None, error="Unknown tool")
 
         name = func.__name__
 
@@ -1321,14 +1318,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             else:
                 result = await func(x.arguments)
 
-            value, output = (result, None)
-            if isinstance(result, ToolResult):
-                value, output = (result.assistant, result.output)
+            if not isinstance(result, ToolResult):
+                result = ToolResult(value=result)
 
-            return ContentToolResult(x.id, value=value, error=None, name=name), output
+            return ContentToolResult(x.id, result=result, error=None, name=name)
         except Exception as e:
             log_tool_error(func.__name__, str(x.arguments), e)
-            return ContentToolResult(x.id, value=None, error=str(e), name=name), None
+            return ContentToolResult(x.id, result=None, error=str(e), name=name)
 
     def _markdown_display(
         self, echo: Literal["text", "all", "none"]

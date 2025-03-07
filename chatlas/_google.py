@@ -20,7 +20,7 @@ from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
-from ._tools import Tool
+from ._tools import Tool, ToolResult
 from ._turn import Turn, normalize_turns, user_turn
 
 if TYPE_CHECKING:
@@ -483,7 +483,7 @@ class GoogleProvider(
                     contents.append(
                         ContentToolResult(
                             id=function_response.get("id") or name,
-                            result=function_response.get("response"),
+                            result=ToolResult(function_response.get("response")),
                             name=name,
                         )
                     )

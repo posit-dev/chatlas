@@ -3,7 +3,10 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pprint import pformat
-from typing import Any, Literal, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol, cast
+
+if TYPE_CHECKING:
+    from ._tools import ToolResult
 
 
 class Stringable(Protocol):
@@ -200,20 +203,21 @@ class ContentToolResult(Content):
     """
 
     id: str
-    value: Optional[Stringable] = None
+    result: Optional[ToolResult] = None
     name: Optional[str] = None
     error: Optional[str] = None
 
     def _get_value(self, pretty: bool = False) -> str:
         if self.error:
             return f"Tool calling failed with error: '{self.error}'"
+        result = cast(ToolResult, self.result)
         if not pretty:
-            return str(self.value)
+            return result.serialized_value
         try:
-            json_val = json.loads(self.value)  # type: ignore
+            json_val = json.loads(result.serialized_value)  # type: ignore
             return pformat(json_val, indent=2, sort_dicts=False)
         except:  # noqa: E722
-            return str(self.value)
+            return result.serialized_value
 
     # Primarily used for `echo="all"`...
     def __str__(self):
@@ -227,7 +231,8 @@ class ContentToolResult(Content):
 
     def __repr__(self, indent: int = 0):
         res = " " * indent
-        res += f"<ContentToolResult value='{self.value}' id='{self.id}'"
+        value = None if self.result is None else self.result.value
+        res += f"<ContentToolResult value='{value}' id='{self.id}'"
         if self.error:
             res += f" error='{self.error}'"
         return res + ">"
