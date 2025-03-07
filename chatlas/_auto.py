@@ -57,9 +57,25 @@ def ChatAuto(
     prompt and conversation turns. The provider can be specified either through
     the function parameter or via the `CHATLAS_CHAT_PROVIDER` environment
     variable. Additional configuration can be provided through kwargs or the
-    `CHATLAS_CHAT_ARGS` environment variable (as JSON). This allows you to
-    easily switch between different chat providers by changing the environment
-    variable without modifying your code.
+    `CHATLAS_CHAT_ARGS` environment variable (as JSON).
+
+    The design of `ChatAuto()` allows you to easily switch between different
+    chat providers by changing the environment variable without modifying your
+    code:
+
+    * `system_prompt` and `turns` are always used, regardless of how
+      `default_provider` or the additional options are set. These values define
+      key behavior of your chat.
+
+    * When provided to `ChatAuto()`, `default_provider` and `kwargs` serve as
+      default parameters that are used when the associated `CHATLAS_CHAT_`
+      environment variables are not set.
+
+    * When `CHATLAS_CHAT_PROVIDER` is set, it is used in place of
+      `default_provider`.
+
+    * When `CHATLAS_CHAT_ARGS` is set, it is merged with `kwargs`, where the
+      values in the environment variable take precedence.
 
     Prerequisites
     -------------
