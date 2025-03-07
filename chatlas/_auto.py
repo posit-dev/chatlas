@@ -7,23 +7,26 @@ from typing import Optional
 from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._chat import Chat
 from ._github import ChatGithub
-from ._google import ChatGoogle
+from ._google import ChatGoogle, ChatVertex
 from ._groq import ChatGroq
 from ._ollama import ChatOllama
 from ._openai import ChatAzureOpenAI, ChatOpenAI
 from ._perplexity import ChatPerplexity
+from ._snowflake import ChatSnowflake
 from ._turn import Turn
 
 _provider_chat_model_map = {
     "anthropic": ChatAnthropic,
-    "bedrock:anthropic": ChatBedrockAnthropic,
+    "bedrock-anthropic": ChatBedrockAnthropic,
     "github": ChatGithub,
     "google": ChatGoogle,
     "groq": ChatGroq,
     "ollama": ChatOllama,
-    "azure:openai": ChatAzureOpenAI,
     "openai": ChatOpenAI,
+    "azure-openai": ChatAzureOpenAI,
     "perplexity": ChatPerplexity,
+    "snowflake": ChatSnowflake,
+    "vertex": ChatVertex,
 }
 
 
