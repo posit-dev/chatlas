@@ -628,7 +628,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         echo: Literal["text", "all", "none"] = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> ChatResponse:
+    ) -> Generator[Stringable, None, None]:
         """
         Generate a response from the chat in a streaming fashion.
 
@@ -666,14 +666,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 for chunk in generator:
                     yield chunk
 
-        return ChatResponse(wrapper())
+        return wrapper()
 
     async def stream_async(
         self,
         *args: Content | str,
         echo: Literal["text", "all", "none"] = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> ChatResponseAsync:
+    ) -> AsyncGenerator[Stringable, None]:
         """
         Generate a response from the chat in a streaming fashion asynchronously.
 
@@ -709,7 +709,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 ):
                     yield chunk
 
-        return ChatResponseAsync(wrapper())
+        return wrapper()
 
     def extract_data(
         self,
