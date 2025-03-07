@@ -37,9 +37,9 @@ def ChatAuto(
     **kwargs,
 ) -> Chat:
     """
-    Factory function to create a Chat instance based on a provider specified in code or in an environment variable.
+    Create a Chat instance using a provider determined by environment variables.
 
-    This function creates a Chat instance based on the specified provider, with optional system prompt and conversation turns.
+    Create a Chat instance based on the specified provider, with optional system prompt and conversation turns.
     The provider can be specified either through the function parameter or via the CHATLAS_CHAT_PROVIDER environment variable.
     Additional configuration can be provided through kwargs or the CHATLAS_CHAT_ARGS environment variable (as JSON). This allows
     you to easily switch between different chat providers by changing the environment variable without modifying your code.
@@ -111,13 +111,13 @@ def ChatAuto(
 
     Returns
     -------
-        Chat
-            A configured Chat instance for the specified provider.
+    Chat
+        A configured Chat instance for the specified provider.
 
     Raises
     ------
-        ValueError
-            If no valid provider is specified either through parameters or environment variables.
+    ValueError
+        If no valid provider is specified either through parameters or environment variables.
     """
     provider = os.environ.get("CHATLAS_CHAT_PROVIDER", provider)
 
