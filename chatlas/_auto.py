@@ -164,5 +164,6 @@ def ChatAuto(
         env_kwargs = json.loads(env_kwargs_str)
 
     kwargs = {**kwargs, **env_kwargs, **base_args}
+    kwargs = {k: v for k, v in kwargs.items() if v is not None}
 
     return _provider_chat_model_map[provider](**kwargs)
