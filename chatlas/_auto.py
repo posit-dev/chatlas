@@ -67,10 +67,10 @@ def ChatAuto(
     code:
 
     * `system_prompt` and `turns` are always used, regardless of how
-      `default_provider` or the additional options are set. These values define
+      `provider` or the additional options are set. These values define
       key behavior of your chat.
 
-    * When provided to `ChatAuto()`, `default_provider` and `kwargs` serve as
+    * When provided to `ChatAuto()`, `provider` and `kwargs` serve as
       default parameters that are used when the associated `CHATLAS_CHAT_`
       environment variables are not set.
 
