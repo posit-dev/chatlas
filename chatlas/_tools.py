@@ -2,16 +2,25 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional, Protocol
 
 from pydantic import BaseModel, Field, create_model
 
 from . import _utils
 
-__all__ = ("Tool",)
+__all__ = (
+    "Tool",
+    "ToolResult",
+)
 
 if TYPE_CHECKING:
     from openai.types.chat import ChatCompletionToolParam
+
+    from ._content import ContentToolRequest
+
+
+class Stringable(Protocol):
+    def __str__(self) -> str: ...
 
 
 class Tool:
@@ -40,11 +49,43 @@ class Tool:
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
         model: Optional[type[BaseModel]] = None,
+        on_request: Optional[Callable[[ContentToolRequest], Stringable]] = None,
     ):
         self.func = func
         self._is_async = _utils.is_async_callable(func)
         self.schema = func_to_schema(func, model)
         self.name = self.schema["function"]["name"]
+        self.on_request = on_request
+
+
+class ToolResult:
+    """
+    A result from a tool invocation
+
+    Return this value from a tool if you want to separate what gets sent
+    to the model vs what value gets yielded to the user.
+
+    Parameters
+    ----------
+    assistant
+        The value to sent to the model. Must be stringify-able (i.e. have a `__str__` method).
+    output
+        A value to yield when a tool result occurs. If `None`, no value is yielded.
+        This is primarily useful for allowing a tool result to create custom UI
+        (for example, return shiny UI here when `.stream()`-ing in  a shiny app).
+    """
+
+    def __init__(
+        self,
+        assistant: Stringable,
+        output: Optional[Stringable] = None,
+    ):
+        self.assistant = assistant
+        self.output = output
+        # TODO: we could consider adding an "emit value" -- that is, the thing to
+        # display when `echo="all"` is used. I imagine that might be useful for
+        # advanced users, but let's not worry about it until someone asks for it.
+        # self.emit = emit
 
 
 def func_to_schema(

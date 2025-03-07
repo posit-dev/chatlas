@@ -3,7 +3,12 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pprint import pformat
-from typing import Any, Literal, Optional
+from typing import Any, Literal, Optional, Protocol
+
+
+class Stringable(Protocol):
+    def __str__(self) -> str: ...
+
 
 ImageContentTypes = Literal[
     "image/png",
@@ -195,7 +200,7 @@ class ContentToolResult(Content):
     """
 
     id: str
-    value: Any = None
+    value: Optional[Stringable] = None
     name: Optional[str] = None
     error: Optional[str] = None
 
