@@ -180,11 +180,14 @@ def ChatAuto(
             f"{', '.join(_provider_chat_model_map.keys())}"
         )
 
+    # `system_prompt` and `turns` always come from `ChatAuto()`
+    base_args = {"system_prompt": system_prompt, "turns": turns}
+
     if env_model := os.environ.get("CHATLAS_CHAT_MODEL"):
         model = env_model
 
-    # `system_prompt` and `turns` always come from `ChatAuto()`
-    base_args = {"system_prompt": system_prompt, "turns": turns, "model": model}
+    if model:
+        base_args["model"] = model
 
     env_kwargs = {}
     if env_kwargs_str := os.environ.get("CHATLAS_CHAT_ARGS"):
