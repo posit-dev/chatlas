@@ -210,7 +210,7 @@ class ContentToolResult(Content):
     def _get_value(self, pretty: bool = False) -> str:
         if self.error:
             return f"Tool calling failed with error: '{self.error}'"
-        result = cast(ToolResult, self.result)
+        result = cast("ToolResult", self.result)
         if not pretty:
             return result.serialized_value
         try:
