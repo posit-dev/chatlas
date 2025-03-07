@@ -4,6 +4,8 @@
 # The remainder of this file is compressed using zlib.
 chatlas.ChatAnthropic py:function 1 reference/ChatAnthropic.html#chatlas.ChatAnthropic -
 chatlas._anthropic.ChatAnthropic py:function 1 reference/ChatAnthropic.html#chatlas.ChatAnthropic chatlas.ChatAnthropic
+chatlas.ChatAuto py:function 1 reference/ChatAuto.html#chatlas.ChatAuto -
+chatlas._auto.ChatAuto py:function 1 reference/ChatAuto.html#chatlas.ChatAuto chatlas.ChatAuto
 chatlas.ChatAzureOpenAI py:function 1 reference/ChatAzureOpenAI.html#chatlas.ChatAzureOpenAI -
 chatlas._openai.ChatAzureOpenAI py:function 1 reference/ChatAzureOpenAI.html#chatlas.ChatAzureOpenAI chatlas.ChatAzureOpenAI
 chatlas.ChatBedrockAnthropic py:function 1 reference/ChatBedrockAnthropic.html#chatlas.ChatBedrockAnthropic -

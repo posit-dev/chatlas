@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>types.contenttoolrequest – chatlas</title>
+<title>chatauto – chatlas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -187,7 +187,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.ContentToolRequest.html">types.ContentToolRequest</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/ChatAnthropic.html">Chat model providers</a></li><li class="breadcrumb-item"><a href="../reference/ChatAuto.html">ChatAuto</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -222,7 +222,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/ChatAuto.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/ChatAuto.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">ChatAuto</span></a>
   </div>
 </li>
@@ -472,7 +472,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/types.ContentToolRequest.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/types.ContentToolRequest.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.ContentToolRequest</span></a>
   </div>
 </li>
@@ -536,12 +536,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.types.ContentToolRequest" id="toc-chatlas.types.ContentToolRequest" class="nav-link active" data-scroll-target="#chatlas.types.ContentToolRequest">types.ContentToolRequest</a>
+  <li><a href="#chatlas.ChatAuto" id="toc-chatlas.ChatAuto" class="nav-link active" data-scroll-target="#chatlas.ChatAuto">ChatAuto</a>
   <ul class="collapse">
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#raises" id="toc-raises" class="nav-link" data-scroll-target="#raises">Raises</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ContentToolRequest.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatAuto.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -549,11 +553,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="chatlas.types.ContentToolRequest" class="level1">
-<h1>types.ContentToolRequest</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>types.ContentToolRequest(<span class="va">self</span>, <span class="bu">id</span>, name, arguments)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>A request to call a tool/function</p>
-<p>This content type isn’t meant to be used directly. Instead, it’s automatically generated by <a href="../reference/Chat.html#chatlas.Chat"><code>Chat</code></a> when a tool/function is requested by the model assistant.</p>
+<section id="chatlas.ChatAuto" class="level1">
+<h1>ChatAuto</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ChatAuto(system_prompt<span class="op">=</span><span class="va">None</span>, turns<span class="op">=</span><span class="va">None</span>, <span class="op">*</span>, provider<span class="op">=</span><span class="va">None</span>, model<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Use environment variables (env vars) to configure the Chat provider and model.</p>
+<p>Creates a <code>:class:~chatlas.Chat</code> instance based on the specified provider. The provider may be specified through the <code>provider</code> parameter and/or the <code>CHATLAS_CHAT_PROVIDER</code> env var. If both are set, the env var takes precedence. Similarly, the provider’s model may be specified through the <code>model</code> parameter and/or the <code>CHATLAS_CHAT_MODEL</code> env var. Also, additional configuration may be provided through the <code>kwargs</code> parameter and/or the <code>CHATLAS_CHAT_ARGS</code> env var (as a JSON string). In this case, when both are set, they are merged, with the env var arguments taking precedence.</p>
+<p>As a result, <code>ChatAuto()</code> provides a convenient way to set a default provider and model in your Python code, while allowing you to override these settings through env vars (i.e., without modifying your code).</p>
+<section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
+<h2 class="doc-section doc-section-prerequisites anchored" data-anchor-id="prerequisites">Prerequisites</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+API key
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Follow the instructions for the specific provider to obtain an API key.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Python requirements
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Follow the instructions for the specific provider to install the required Python packages.</p>
+</div>
+</div>
+</section>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<p>First, set the environment variables for the provider, arguments, and API key:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CHATLAS_CHAT_PROVIDER</span><span class="op">=</span>anthropic</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CHATLAS_CHAT_MODEL</span><span class="op">=</span>claude-3-haiku-20240229</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">CHATLAS_CHAT_ARGS</span><span class="op">=</span><span class="st">'{"kwargs": {"max_retries": 3}}'</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">ANTHROPIC_API_KEY</span><span class="op">=</span>your_api_key</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then, you can use the <code>ChatAuto</code> function to create a Chat instance:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatAuto</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatAuto()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is the capital of France?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
@@ -567,22 +614,72 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td>id</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
-<td>A unique identifier for this request.</td>
-<td><em>required</em></td>
+<td>provider</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<code>AutoProviders</code>]</td>
+<td>The name of the default chat provider to use. Providers are strings formatted in kebab-case, e.g.&nbsp;to use <code>ChatBedrockAnthropic</code> set <code>provider="bedrock-anthropic"</code>. This value can also be provided via the <code>CHATLAS_CHAT_PROVIDER</code> environment variable, which takes precedence over <code>provider</code> when set.</td>
+<td><code>None</code></td>
 </tr>
 <tr class="even">
-<td>name</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
-<td>The name of the tool/function to call.</td>
-<td><em>required</em></td>
+<td>model</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>The name of the default model to use. This value can also be provided via the <code>CHATLAS_CHAT_MODEL</code> environment variable, which takes precedence over <code>model</code> when set.</td>
+<td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td>arguments</td>
-<td><a href="https://docs.python.org/3/library/functions.html#object">object</a></td>
-<td>The arguments to pass to the tool/function.</td>
-<td><em>required</em></td>
+<td>system_prompt</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>A system prompt to set the behavior of the assistant.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>turns</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="../reference/Turn.html#chatlas.Turn">Turn</a>]]</td>
+<td>A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-<code>None</code> values for both <code>turns</code> and <code>system_prompt</code>. Each message in the list should be a dictionary with at least <code>role</code> (usually <code>system</code>, <code>user</code>, or <code>assistant</code>, but <code>tool</code> is also possible). Normally there is also a <code>content</code> field, which is a string.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>**kwargs</td>
+<td></td>
+<td>Additional keyword arguments to pass to the Chat constructor. See the documentation for each provider for more details on the available options. These arguments can also be provided via the <code>CHATLAS_CHAT_ARGS</code> environment variable as a JSON string. When provided, the options in the <code>CHATLAS_CHAT_ARGS</code> envvar take precedence over the options passed to <code>kwargs</code>. Note that <code>system_prompt</code> and <code>turns</code> in <code>kwargs</code> or in <code>CHATLAS_CHAT_ARGS</code> are ignored.</td>
+<td><code>{}</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td><a href="../reference/Chat.html#chatlas.Chat">Chat</a></td>
+<td>A chat instance using the specified provider.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises" class="level2 doc-section doc-section-raises">
+<h2 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></td>
+<td>If no valid provider is specified either through parameters or environment variables.</td>
 </tr>
 </tbody>
 </table>
@@ -1020,7 +1117,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ContentToolRequest.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatAuto.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
