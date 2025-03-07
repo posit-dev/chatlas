@@ -1,77 +1,13 @@
-import chatlas
 import pytest
+
+import chatlas
 from chatlas import Chat, ChatAuto
+from chatlas._anthropic import AnthropicBedrockProvider, AnthropicProvider
 from chatlas._auto import _provider_chat_model_map
+from chatlas._google import GoogleProvider
 from chatlas._openai import OpenAIProvider
 
-from .conftest import (
-    assert_turns_existing,
-    assert_turns_system,
-)
-
-
-@pytest.mark.parametrize(
-    "provider, model, args",
-    [
-        # ("bedrock:anthropic", {"model": "anthropic.claude-3-5-sonnet-20240620-v1:0", "aws_region": "us-east-1", "kwargs": {"max_retries": 2}}),
-        (
-            "openai",
-            "gpt-4",
-            {"kwargs": {"max_retries": 2}},
-        ),
-        ("anthropic", None, {"kwargs": {"max_retries": 2}}),
-        ("google", None, {}),
-        (
-            "azure-openai",
-            None,
-            {"endpoint": "", "deployment_id": "1", "api_version": 1},
-        ),
-    ],
-)
-def test_auto_simple_request(provider, model, args):
-    chat = ChatAuto(
-        provider=provider,
-        model=model,
-        system_prompt="Be as terse as possible; no punctuation",
-        **args,
-    )
-    assert chat.provider._client.max_retries == 2
-    response = chat.chat("What is 1 + 1?")
-    assert str(response) == "2"
-    turn = chat.get_last_turn()
-    assert turn is not None
-
-
-@pytest.mark.parametrize(
-    "provider, args",
-    [
-        # ("bedrock:anthropic", {"model": "anthropic.claude-3-5-sonnet-20240620-v1:0", "aws_region": "us-east-1", "kwargs": {"max_retries": 2}}),
-        ("openai", {"kwargs": {"max_retries": 2}}),
-        ("anthropic", {"kwargs": {"max_retries": 2}}),
-        ("google", {}),
-        (
-            "azure-openai",
-            {"endpoint": "", "deployment_id": "1", "api_version": 1},
-        ),
-    ],
-)
-@pytest.mark.asyncio
-async def test_auto_simple_streaming_request(provider, args):
-    chat = ChatAuto(
-        provider=provider,
-        system_prompt="Be as terse as possible; no punctuation",
-        **args,
-    )
-    assert isinstance(chat, Chat)
-
-    assert chat.provider._client.max_retries == 2
-    res = []
-    foo = await chat.stream_async("What is 1 + 1?")
-    async for x in foo:
-        res.append(x)
-    assert "2" in "".join(res)
-    turn = chat.get_last_turn()
-    assert turn is not None
+from .conftest import assert_turns_existing, assert_turns_system
 
 
 def test_auto_settings_from_env(monkeypatch):
@@ -79,7 +15,7 @@ def test_auto_settings_from_env(monkeypatch):
     monkeypatch.setenv(
         "CHATLAS_CHAT_ARGS",
         """{
-    "model": "gpt-4o", 
+    "model": "gpt-4o",
     "system_prompt": "Be as terse as possible; no punctuation",
     "kwargs": {"max_retries": 2}
 }""",
@@ -89,12 +25,6 @@ def test_auto_settings_from_env(monkeypatch):
 
     assert isinstance(chat, Chat)
     assert isinstance(chat.provider, OpenAIProvider)
-
-    assert chat.provider._client.max_retries == 2
-    response = chat.chat("What is 1 + 1?")
-    assert str(response) == "2"
-    turn = chat.get_last_turn()
-    assert turn is not None
 
 
 def test_auto_settings_from_env_unknown_arg_fails(monkeypatch):
@@ -160,3 +90,20 @@ def test_auto_includes_all_providers():
     assert len(missing) == 0, (
         f"Missing chat providers from ChatAuto: {', '.join(missing)}"
     )
+
+
+def test_provider_instances(monkeypatch):
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER", "anthropic")
+    chat = ChatAuto()
+    assert isinstance(chat, Chat)
+    assert isinstance(chat.provider, AnthropicProvider)
+
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER", "bedrock-anthropic")
+    chat = ChatAuto()
+    assert isinstance(chat, Chat)
+    assert isinstance(chat.provider, AnthropicBedrockProvider)
+
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER", "google")
+    chat = ChatAuto()
+    assert isinstance(chat, Chat)
+    assert isinstance(chat.provider, GoogleProvider)

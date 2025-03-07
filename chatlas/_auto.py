@@ -53,32 +53,20 @@ def ChatAuto(
     **kwargs,
 ) -> Chat:
     """
-    Create a Chat instance using a provider determined by environment variables.
+    Use environment variables (env vars) to configure the Chat provider and model.
 
-    Create a Chat instance based on the specified provider, with optional system
-    prompt and conversation turns. The provider and model be specified either
-    through the function parameters or via the `CHATLAS_CHAT_PROVIDER` or
-    `CHATLAS_CHAT_MODEL` environment variables. Additional configuration can be
-    provided through kwargs or the `CHATLAS_CHAT_ARGS` environment variable (as
-    JSON).
+    Creates a `:class:~chatlas.Chat` instance based on the specified provider.
+    The provider may be specified through the `provider` parameter and/or the
+    `CHATLAS_CHAT_PROVIDER` env var. If both are set, the env var takes
+    precedence. Similarly, the provider's model may be specified through the
+    `model` parameter and/or the `CHATLAS_CHAT_MODEL` env var. Also, additional
+    configuration may be provided through the `kwargs` parameter and/or the
+    `CHATLAS_CHAT_ARGS` env var (as a JSON string). In this case, when both are
+    set, they are merged, with the env var arguments taking precedence.
 
-    The design of `ChatAuto()` allows you to easily switch between different
-    chat providers by changing the environment variable without modifying your
-    code:
-
-    * `system_prompt` and `turns` are always used, regardless of how
-      `provider` or the additional options are set. These values define
-      key behavior of your chat.
-
-    * When provided to `ChatAuto()`, `provider` and `kwargs` serve as
-      default parameters that are used when the associated `CHATLAS_CHAT_`
-      environment variables are not set.
-
-    * When `CHATLAS_CHAT_PROVIDER` or `CHATLAS_CHAT_MODEL` are set, they are
-      used in place of `provider` and `model`.
-
-    * When `CHATLAS_CHAT_ARGS` is set, it is merged with `kwargs`, where the
-      values in the environment variable take precedence.
+    As a result, `ChatAuto()` provides a convenient way to set a default
+    provider and model in your Python code, while allowing you to override
+    these settings through env vars (i.e., without modifying your code).
 
     Prerequisites
     -------------
@@ -86,10 +74,7 @@ def ChatAuto(
     ::: {.callout-note}
     ## API key
 
-    Follow the instructions for the specific provider to obtain an API key. In
-    order to use the specified provider, ensure that an API key is set in the
-    environment variable `CHATLAS_CHAT_API_KEY` or passed as a parameter to the
-    function.
+    Follow the instructions for the specific provider to obtain an API key.
     :::
 
     ::: {.callout-note}
@@ -114,7 +99,6 @@ def ChatAuto(
     Then, you can use the `ChatAuto` function to create a Chat instance:
 
     ```python
-    import os
     from chatlas import ChatAuto
 
     chat = ChatAuto()
@@ -160,7 +144,7 @@ def ChatAuto(
     Returns
     -------
     Chat
-        A configured Chat instance for the specified provider.
+        A chat instance using the specified provider.
 
     Raises
     ------
@@ -174,7 +158,7 @@ def ChatAuto(
         raise ValueError(
             "Provider name is required as parameter or `CHATLAS_CHAT_PROVIDER` must be set."
         )
-    elif the_provider not in _provider_chat_model_map:
+    if the_provider not in _provider_chat_model_map:
         raise ValueError(
             f"Provider name '{the_provider}' is not a known chatlas provider: "
             f"{', '.join(_provider_chat_model_map.keys())}"
