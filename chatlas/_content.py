@@ -199,21 +199,24 @@ class ContentToolResult(Content):
     name: Optional[str] = None
     error: Optional[str] = None
 
-    def _get_value_and_language(self) -> tuple[str, str]:
+    def _get_value(self, pretty: bool = False) -> str:
         if self.error:
-            return f"Tool calling failed with error: '{self.error}'", ""
+            return f"Tool calling failed with error: '{self.error}'"
+        if not pretty:
+            return str(self.value)
         try:
-            json_val = json.loads(self.value)
-            return pformat(json_val, indent=2, sort_dicts=False), "python"
+            json_val = json.loads(self.value)  # type: ignore
+            return pformat(json_val, indent=2, sort_dicts=False)
         except:  # noqa: E722
-            return str(self.value), ""
+            return str(self.value)
 
+    # Primarily used for `echo="all"`...
     def __str__(self):
         comment = f"# tool result ({self.id})"
-        value, language = self._get_value_and_language()
+        value = self._get_value(pretty=True)
+        return f"""```python\n{comment}\n{value}\n```"""
 
-        return f"""```{language}\n{comment}\n{value}\n```"""
-
+    # ... and for displaying in the notebook
     def _repr_markdown_(self):
         return self.__str__()
 
@@ -224,9 +227,9 @@ class ContentToolResult(Content):
             res += f" error='{self.error}'"
         return res + ">"
 
+    # The actual value to send to the model
     def get_final_value(self) -> str:
-        value, _language = self._get_value_and_language()
-        return value
+        return self._get_value()
 
 
 @dataclass
