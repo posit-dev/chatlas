@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* Fixed an issue with content getting duplicated when it overflows in a `Live()` console. (#71)
 * Fix an issue with tool calls not working with `ChatVertex()`. (#61)
 
 
