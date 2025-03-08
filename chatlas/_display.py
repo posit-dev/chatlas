@@ -6,6 +6,7 @@ from uuid import uuid4
 from rich.live import Live
 from rich.logging import RichHandler
 
+from ._live_render import LiveRender
 from ._logging import logger
 from ._typing_extensions import TypedDict
 
@@ -44,13 +45,22 @@ class LiveMarkdownDisplay(MarkdownDisplay):
         from rich.console import Console
 
         self.content: str = ""
-        self.live = Live(
+        live = Live(
             auto_refresh=False,
-            vertical_overflow="visible",
             console=Console(
                 **echo_options["rich_console"],
             ),
         )
+
+        # Monkeypatch LiveRender() with our own version that add "crop_above"
+        # https://github.com/Textualize/rich/blob/43d3b047/rich/live.py#L87-L89
+        live.vertical_overflow = "crop_above"
+        live._live_render = LiveRender(  # pyright: ignore[reportAttributeAccessIssue]
+            live.get_renderable(), vertical_overflow="crop_above"
+        )
+
+        self.live = live
+
         self._markdown_options = echo_options["rich_markdown"]
 
     def update(self, content: str):
