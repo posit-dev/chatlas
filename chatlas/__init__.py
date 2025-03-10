@@ -1,5 +1,6 @@
 from . import types
 from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
+from ._auto import ChatAuto
 from ._chat import Chat
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._github import ChatGithub
@@ -22,6 +23,7 @@ except ImportError:  # pragma: no cover
 
 __all__ = (
     "ChatAnthropic",
+    "ChatAuto",
     "ChatBedrockAnthropic",
     "ChatGithub",
     "ChatGoogle",

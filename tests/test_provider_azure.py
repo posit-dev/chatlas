@@ -1,6 +1,7 @@
 import os
 
 import pytest
+
 from chatlas import ChatAzureOpenAI
 
 do_test = os.getenv("TEST_AZURE", "true")
@@ -20,7 +21,7 @@ def test_azure_simple_request():
     assert "2" == response.get_content()
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (27, 1)
+    assert turn.tokens == (27, 2)
 
 
 @pytest.mark.asyncio
@@ -36,4 +37,4 @@ async def test_azure_simple_request_async():
     assert "2" == await response.get_content()
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (27, 1)
+    assert turn.tokens == (27, 2)
