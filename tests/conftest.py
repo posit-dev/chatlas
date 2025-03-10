@@ -3,9 +3,10 @@ from pathlib import Path
 from typing import Awaitable, Callable
 
 import pytest
-from chatlas import Chat, Turn, content_image_file, content_image_url
 from PIL import Image
 from pydantic import BaseModel
+
+from chatlas import Chat, Turn, content_image_file, content_image_url
 
 ChatFun = Callable[..., Chat]
 
@@ -223,3 +224,8 @@ def assert_images_remote_error(chat_fun: ChatFun):
         chat.chat("What's in this image?", image_remote)
 
     assert len(chat.get_turns()) == 0
+
+
+@pytest.fixture
+def test_images_dir():
+    return Path(__file__).parent / "images"

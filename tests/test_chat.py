@@ -97,7 +97,7 @@ def test_tool_results():
 
     def get_date():
         """Gets the current date"""
-        return ToolResult("2024-01-01", response_output=["Tool result..."])
+        return ToolResult("2024-01-01", user=["Tool result..."])
 
     chat.register_tool(get_date)
     chat.on_tool_request(lambda req: [f"Requesting tool {req.name}..."])
@@ -134,7 +134,7 @@ async def test_tool_results_async():
         import asyncio
 
         await asyncio.sleep(0.1)
-        return ToolResult("2024-01-01", response_output=["Tool result..."])
+        return ToolResult("2024-01-01", user=["Tool result..."])
 
     chat.register_tool(get_date)
     chat.on_tool_request(lambda req: [f"Requesting tool {req.name}..."])

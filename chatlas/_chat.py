@@ -1100,8 +1100,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     if req is not None:
                         yield req
                     res = self._invoke_tool_request(x)
-                    if res.result and res.result.response_output is not None:
-                        yield res.result.response_output
+                    if res.result and res.result.user is not None:
+                        yield res.result.user
                     results.append(res)
 
             if results:
@@ -1137,8 +1137,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     if req is not None:
                         yield req
                     res = await self._invoke_tool_request_async(x)
-                    if res.result and res.result.response_output is not None:
-                        yield res.result.response_output
+                    if res.result and res.result.user is not None:
+                        yield res.result.user
                     results.append(res)
 
             if results:
@@ -1289,7 +1289,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 result = func(x.arguments)
 
             if not isinstance(result, ToolResult):
-                result = ToolResult(value=result)
+                result = ToolResult(result)
 
             return ContentToolResult(x.id, result=result, error=None, name=name)
         except Exception as e:
@@ -1319,7 +1319,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 result = await func(x.arguments)
 
             if not isinstance(result, ToolResult):
-                result = ToolResult(value=result)
+                result = ToolResult(result)
 
             return ContentToolResult(x.id, result=result, error=None, name=name)
         except Exception as e:

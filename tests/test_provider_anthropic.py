@@ -1,4 +1,7 @@
+import base64
+
 import pytest
+
 from chatlas import ChatAnthropic
 
 from .conftest import (
@@ -94,3 +97,34 @@ def test_anthropic_images():
 
     retryassert(run_inlineassert, retries=3)
     assert_images_remote_error(chat_fun)
+
+
+def test_anthropic_image_tool(test_images_dir):
+    from chatlas import ToolResult
+
+    def get_picture():
+        "Returns an image"
+        with open(test_images_dir / "dice.png", "rb") as image:
+            bytez = image.read()
+        res = [
+            {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": base64.b64encode(bytez).decode("utf-8"),
+                },
+            }
+        ]
+        return ToolResult(res, format_as="as_is")
+
+    chat = ChatAnthropic()
+    chat.register_tool(get_picture)
+
+    res = chat.chat(
+        "You have a tool called 'get_picture' available to you. "
+        "When called, it returns an image. "
+        "Tell me what you see in the image."
+    )
+
+    assert "dice" in res.get_content()

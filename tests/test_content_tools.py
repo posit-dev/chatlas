@@ -114,7 +114,7 @@ def test_invoke_tool_returns_tool_result():
     assert isinstance(res, ContentToolResult)
     assert res.id == "x"
     assert res.error is None
-    assert res.result.value == 1
+    assert res.result.assistant == "1"
 
     res = chat._invoke_tool_request(
         ContentToolRequest(id="x", name="tool", arguments={"x": 1})
@@ -149,7 +149,7 @@ async def test_invoke_tool_returns_tool_result_async():
     assert isinstance(res, ContentToolResult)
     assert res.id == "x"
     assert res.error is None
-    assert res.result.value == 1
+    assert res.result.assistant == "1"
 
     res = await chat._invoke_tool_request_async(
         ContentToolRequest(id="x", name="tool", arguments={"x": 1})

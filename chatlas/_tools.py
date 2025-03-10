@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import inspect
+import json
 import warnings
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, Literal, Optional, Protocol
 
 from pydantic import BaseModel, Field, create_model
 
@@ -62,40 +63,68 @@ class ToolResult:
     """
     A result from a tool invocation
 
-    Return this value from a tool if you want to separate what gets sent
-    to the model vs what value gets yielded to the user.
+    Return an instance of this class from a tool function in order to:
+
+    1. Yield content for the user (i.e., the downstream consumer of a `.stream()` or `.chat()`)
+       to display.
+    2. Control how the tool result gets formatted for the model (i.e., the assistant).
 
     Parameters
     ----------
-    value
-        The tool's return value. If `serialized_value` is not provided, the
-        string representation of this value is sent to the model.
-    response_output
-        A value to yield when the tool is called during response generation. If
-        `None`, no value is yielded. This is primarily useful for producing
-        custom UI in the response output to indicate to the user that a tool
-        call has completed (for example, return shiny UI here when
-        `.stream()`-ing inside a shiny app).
-    serialized_value
-        The serialized value to send to the model. If `None`, the value is serialized
-        using `str()`. This is useful when the value is not JSON
+    assistant
+        The tool result to send to the llm (i.e., assistant). If the result is
+        not a string, `format_as` determines how to the value is formatted
+        before sending it to the model.
+    user
+        A value to yield to the user (i.e., the consumer of a `.stream()`) when
+        the tool is called. If `None`, no value is yielded. This is primarily
+        useful for producing custom UI in the response output to indicate to the
+        user that a tool call has completed (for example, return shiny UI here
+        when `.stream()`-ing inside a shiny app).
+    format_as
+        How to format the `assistant` value for the model. The default,
+        `"auto"`, first attempts to format the value as a JSON string. If that
+        fails, it gets converted to a string via `str()`. To force
+        `json.dumps()` or `str()`, set to `"json"` or `"str"`. Finally,
+        `"as_is"` is useful for doing your own formatting and/or passing a
+        non-string value (e.g., a list or dict) straight to the model.
+        Non-string values are useful for tools that return images or other
+        'known' non-text content types.
     """
 
     def __init__(
         self,
-        value: Stringable,
-        response_output: Optional[Stringable] = None,
-        serialized_value: Optional[str] = None,
+        assistant: Stringable,
+        *,
+        user: Optional[Stringable] = None,
+        format_as: Literal["auto", "json", "str", "as_is"] = "auto",
     ):
-        self.value = value
-        self.response_output = response_output
-        if serialized_value is None:
-            serialized_value = str(value)
-        self.serialized_value = serialized_value
+        # TODO: if called when an active user session, perhaps we could
+        # provide a smart default here
+        self.user = user
+        self.assistant = self._format_value(assistant, format_as)
         # TODO: we could consider adding an "emit value" -- that is, the thing to
         # display when `echo="all"` is used. I imagine that might be useful for
         # advanced users, but let's not worry about it until someone asks for it.
         # self.emit = emit
+
+    def _format_value(self, value: Stringable, mode: str) -> Stringable:
+        if isinstance(value, str):
+            return value
+
+        if mode == "auto":
+            try:
+                return json.dumps(value)
+            except Exception:
+                return str(value)
+        elif mode == "json":
+            return json.dumps(value)
+        elif mode == "str":
+            return str(value)
+        elif mode == "as_is":
+            return value
+        else:
+            raise ValueError(f"Unknown format mode: {mode}")
 
 
 def func_to_schema(
