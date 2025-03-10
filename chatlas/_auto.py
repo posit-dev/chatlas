@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import json
 import os
 from typing import Callable, Literal, Optional
+
+import orjson
 
 from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._chat import Chat
@@ -175,7 +176,7 @@ def ChatAuto(
 
     env_kwargs = {}
     if env_kwargs_str := os.environ.get("CHATLAS_CHAT_ARGS"):
-        env_kwargs = json.loads(env_kwargs_str)
+        env_kwargs = orjson.loads(env_kwargs_str)
 
     kwargs = {**kwargs, **env_kwargs, **base_args}
     kwargs = {k: v for k, v in kwargs.items() if v is not None}

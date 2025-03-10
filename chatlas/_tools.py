@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import inspect
-import json
 import warnings
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Literal, Optional, Protocol
 
+import orjson
 from pydantic import BaseModel, Field, create_model
 
 from . import _utils
@@ -85,7 +85,7 @@ class ToolResult:
         How to format the `assistant` value for the model. The default,
         `"auto"`, first attempts to format the value as a JSON string. If that
         fails, it gets converted to a string via `str()`. To force
-        `json.dumps()` or `str()`, set to `"json"` or `"str"`. Finally,
+        `orjson.dumps()` or `str()`, set to `"json"` or `"str"`. Finally,
         `"as_is"` is useful for doing your own formatting and/or passing a
         non-string value (e.g., a list or dict) straight to the model.
         Non-string values are useful for tools that return images or other
@@ -114,11 +114,11 @@ class ToolResult:
 
         if mode == "auto":
             try:
-                return json.dumps(value)
+                return orjson.dumps(value)
             except Exception:
                 return str(value)
         elif mode == "json":
-            return json.dumps(value)
+            return orjson.dumps(value)
         elif mode == "str":
             return str(value)
         elif mode == "as_is":

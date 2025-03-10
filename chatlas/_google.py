@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import base64
-import json
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
+import orjson
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -460,7 +460,7 @@ class GoogleProvider(
             text = part.get("text")
             if text:
                 if has_data_model:
-                    contents.append(ContentJson(json.loads(text)))
+                    contents.append(ContentJson(orjson.loads(text)))
                 else:
                     contents.append(ContentText(text))
             function_call = part.get("function_call")

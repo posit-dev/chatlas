@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pprint import pformat
 from typing import TYPE_CHECKING, Any, Literal, Optional, Protocol, cast
+
+import orjson
 
 if TYPE_CHECKING:
     from ._tools import ToolResult
@@ -214,7 +215,7 @@ class ContentToolResult(Content):
         if not pretty:
             return result.assistant
         try:
-            json_val = json.loads(result.assistant)  # type: ignore
+            json_val = orjson.loads(result.assistant)  # type: ignore
             return pformat(json_val, indent=2, sort_dicts=False)
         except:  # noqa: E722
             return result.assistant
@@ -259,7 +260,7 @@ class ContentJson(Content):
     value: dict[str, Any]
 
     def __str__(self):
-        return json.dumps(self.value, indent=2)
+        return orjson.dumps(self.value, option=orjson.OPT_INDENT_2)
 
     def _repr_markdown_(self):
         return f"""```json\n{self.__str__()}\n```"""
