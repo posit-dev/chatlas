@@ -8,6 +8,7 @@ dependencies = [
   "requests",
   "pydantic>=2.0",
   "jinja2",
+  "orjson",
   "rich",
 ]
 classifiers = [

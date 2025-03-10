@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import base64
-import json
 import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
 
+import orjson
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -366,8 +366,8 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             this_content = completion.content[chunk.index]
             if this_content.type == "tool_use" and isinstance(this_content.input, str):
                 try:
-                    this_content.input = json.loads(this_content.input or "{}")
-                except json.JSONDecodeError as e:
+                    this_content.input = orjson.loads(this_content.input or "{}")
+                except orjson.JSONDecodeError as e:
                     raise ValueError(f"Invalid JSON input: {e}")
         elif chunk.type == "message_delta":
             completion.stop_reason = chunk.delta.stop_reason

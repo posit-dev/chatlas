@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-import json
 import textwrap
 from pprint import pformat
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
+import orjson
 from pydantic import BaseModel, ConfigDict
 
 if TYPE_CHECKING:
@@ -230,7 +230,7 @@ class ContentToolResult(Content):
         The format used for sending the value to the model. The default,
         `"auto"`, first attempts to format the value as a JSON string. If that
         fails, it gets converted to a string via `str()`. To force
-        `json.dumps()` or `str()`, set to `"json"` or `"str"`. Finally,
+        `orjson.dumps()` or `str()`, set to `"json"` or `"str"`. Finally,
         `"as_is"` is useful for doing your own formatting and/or passing a
         non-string value (e.g., a list or dict) straight to the model.
         Non-string values are useful for tools that return images or other
@@ -308,9 +308,9 @@ class ContentToolResult(Content):
         # For string values, try to parse as JSON
         if isinstance(val, str):
             try:
-                json_val = json.loads(val)
+                json_val = orjson.loads(val)
                 return pformat(json_val, indent=2, sort_dicts=False)
-            except json.JSONDecodeError:
+            except orjson.JSONDecodeError:
                 # Not valid JSON, return as string
                 return val
 
@@ -329,11 +329,11 @@ class ContentToolResult(Content):
 
         if mode == "auto":
             try:
-                return json.dumps(val)
+                return orjson.dumps(val)
             except Exception:
                 return str(val)
         elif mode == "json":
-            return json.dumps(val)
+            return orjson.dumps(val)
         elif mode == "str":
             return str(val)
         elif mode == "as_is":
@@ -397,7 +397,7 @@ class ContentJson(Content):
     content_type: ContentTypeEnum = "json"
 
     def __str__(self):
-        return json.dumps(self.value, indent=2)
+        return orjson.dumps(self.value, option=orjson.OPT_INDENT_2)
 
     def _repr_markdown_(self):
         return f"""```json\n{self.__str__()}\n```"""

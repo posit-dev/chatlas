@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import base64
-import json
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
+import orjson
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -433,7 +433,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                                 "id": x.id,
                                 "function": {
                                     "name": x.name,
-                                    "arguments": json.dumps(x.arguments),
+                                    "arguments": str(orjson.dumps(x.arguments)),
                                 },
                                 "type": "function",
                             }
@@ -529,7 +529,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         contents: list[Content] = []
         if message.content is not None:
             if has_data_model:
-                data = json.loads(message.content)
+                data = orjson.loads(message.content)
                 contents = [ContentJson(value=data)]
             else:
                 contents = [ContentText(text=message.content)]
@@ -544,8 +544,8 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
                 args = {}
                 try:
-                    args = json.loads(func.arguments) if func.arguments else {}
-                except json.JSONDecodeError:
+                    args = orjson.loads(func.arguments) if func.arguments else {}
+                except orjson.JSONDecodeError:
                     raise ValueError(
                         f"The model's completion included a tool request ({func.name}) "
                         "with invalid JSON for input arguments: '{func.arguments}'"
