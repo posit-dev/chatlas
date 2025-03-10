@@ -472,12 +472,15 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 "input": content.arguments,
             }
         elif isinstance(content, ContentToolResult):
-            return {
+            res: ToolResultBlockParam = {
                 "type": "tool_result",
                 "tool_use_id": content.id,
-                "content": content.get_final_value(),
                 "is_error": content.error is not None,
             }
+            # Anthropic supports non-text contents like ImageBlockParam
+            res["content"] = content.get_final_value()  # type: ignore
+            return res
+
         raise ValueError(f"Unknown content type: {type(content)}")
 
     @staticmethod

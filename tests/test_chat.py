@@ -2,8 +2,9 @@ import re
 import tempfile
 
 import pytest
-from chatlas import ChatOpenAI, Turn
 from pydantic import BaseModel
+
+from chatlas import ChatOpenAI, ToolResult, Turn
 
 
 def test_simple_batch_chat():
@@ -89,6 +90,76 @@ def test_basic_export(snapshot):
         chat.export(tmpfile, title="My Chat")
         with open(tmpfile, "r") as f:
             assert snapshot == f.read()
+
+
+def test_tool_results():
+    chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
+
+    def get_date():
+        """Gets the current date"""
+        return ToolResult("2024-01-01", user=["Tool result..."])
+
+    chat.register_tool(get_date)
+    chat.on_tool_request(lambda req: [f"Requesting tool {req.name}..."])
+
+    results = []
+    for chunk in chat.stream("What's the date?"):
+        results.append(chunk)
+
+    # Make sure values haven't been str()'d yet
+    assert ["Requesting tool get_date..."] in results
+    assert ["Tool result..."] in results
+
+    response_str = "".join(str(chunk) for chunk in results)
+
+    assert "Requesting tool get_date..." in response_str
+    assert "Tool result..." in response_str
+    assert "2024-01-01" in response_str
+
+    chat.register_tool(get_date, on_request=lambda req: f"Calling {req.name}...")
+
+    response = chat.chat("What's the date?")
+    assert "Calling get_date..." in str(response)
+    assert "Requesting tool get_date..." not in str(response)
+    assert "Tool result..." in str(response)
+    assert "2024-01-01" in str(response)
+
+
+@pytest.mark.asyncio
+async def test_tool_results_async():
+    chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
+
+    async def get_date():
+        """Gets the current date"""
+        import asyncio
+
+        await asyncio.sleep(0.1)
+        return ToolResult("2024-01-01", user=["Tool result..."])
+
+    chat.register_tool(get_date)
+    chat.on_tool_request(lambda req: [f"Requesting tool {req.name}..."])
+
+    results = []
+    async for chunk in await chat.stream_async("What's the date?"):
+        results.append(chunk)
+
+    # Make sure values haven't been str()'d yet
+    assert ["Requesting tool get_date..."] in results
+    assert ["Tool result..."] in results
+
+    response_str = "".join(str(chunk) for chunk in results)
+
+    assert "Requesting tool get_date..." in response_str
+    assert "Tool result..." in response_str
+    assert "2024-01-01" in response_str
+
+    chat.register_tool(get_date, on_request=lambda req: [f"Calling {req.name}..."])
+
+    response = await chat.chat_async("What's the date?")
+    assert "Calling get_date..." in await response.get_content()
+    assert "Requesting tool get_date..." not in await response.get_content()
+    assert "Tool result..." in await response.get_content()
+    assert "2024-01-01" in await response.get_content()
 
 
 def test_extract_data():

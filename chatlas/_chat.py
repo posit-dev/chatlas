@@ -39,7 +39,7 @@ from ._display import (
 )
 from ._logging import log_tool_error
 from ._provider import Provider
-from ._tools import Tool
+from ._tools import Stringable, Tool, ToolResult
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
 from ._utils import html_escape, wrap_async
@@ -96,6 +96,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "rich_console": {},
             "css_styles": {},
         }
+        self._on_tool_request_default: Optional[
+            Callable[[ContentToolRequest], Stringable]
+        ] = None
 
     def get_turns(
         self,
@@ -625,7 +628,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         echo: Literal["text", "all", "none"] = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> ChatResponse:
+    ) -> Generator[Stringable, None, None]:
         """
         Generate a response from the chat in a streaming fashion.
 
@@ -658,19 +661,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             kwargs=kwargs,
         )
 
-        def wrapper() -> Generator[str, None, None]:
+        def wrapper() -> Generator[Stringable, None, None]:
             with display:
                 for chunk in generator:
                     yield chunk
 
-        return ChatResponse(wrapper())
+        return wrapper()
 
     async def stream_async(
         self,
         *args: Content | str,
         echo: Literal["text", "all", "none"] = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> ChatResponseAsync:
+    ) -> AsyncGenerator[Stringable, None]:
         """
         Generate a response from the chat in a streaming fashion asynchronously.
 
@@ -695,7 +698,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
-        async def wrapper() -> AsyncGenerator[str, None]:
+        async def wrapper() -> AsyncGenerator[Stringable, None]:
             with display:
                 async for chunk in self._chat_impl_async(
                     turn,
@@ -706,7 +709,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 ):
                     yield chunk
 
-        return ChatResponseAsync(wrapper())
+        return wrapper()
 
     def extract_data(
         self,
@@ -831,6 +834,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
+        on_request: Optional[Callable[[ContentToolRequest], Stringable]] = None,
         model: Optional[type[BaseModel]] = None,
     ):
         """
@@ -900,6 +904,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         func
             The function to be invoked when the tool is called.
+        on_request
+            A callable that will be passed a :class:`~chatlas.ContentToolRequest`
+            when the tool is requested. If defined, and the callable returns a
+            stringable object, that value will be yielded to the chat as a part
+            of the response.
         model
             A Pydantic model that describes the input parameters for the function.
             If not provided, the model will be inferred from the function's type hints.
@@ -907,8 +916,36 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Note that the name and docstring of the model takes precedence over the
             name and docstring of the function.
         """
-        tool = Tool(func, model=model)
+        tool = Tool(func, on_request=on_request, model=model)
         self._tools[tool.name] = tool
+
+    def on_tool_request(
+        self,
+        func: Callable[[ContentToolRequest], Stringable],
+    ):
+        """
+        Register a default function to be invoked when a tool is requested.
+
+        This function will be invoked if a tool is requested that does not have
+        a specific `on_request` function defined.
+
+        Parameters
+        ----------
+        func
+            A callable that will be passed a :class:`~chatlas.ContentToolRequest`
+            when the tool is requested. If defined, and the callable returns a
+            stringable object, that value will be yielded to the chat as a part
+            of the response.
+        """
+        self._on_tool_request_default = func
+
+    def _on_tool_request(self, req: ContentToolRequest) -> Stringable | None:
+        tool_def = self._tools.get(req.name, None)
+        if tool_def and tool_def.on_request:
+            return tool_def.on_request(req)
+        if self._on_tool_request_default:
+            return self._on_tool_request_default(req)
+        return None
 
     def export(
         self,
@@ -1040,7 +1077,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> Generator[str, None, None]:
+    ) -> Generator[Stringable, None, None]:
         user_turn_result: Turn | None = user_turn
         while user_turn_result is not None:
             for chunk in self._submit_turns(
@@ -1051,7 +1088,24 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 kwargs=kwargs,
             ):
                 yield chunk
-            user_turn_result = self._invoke_tools()
+
+            turn = self.get_last_turn(role="assistant")
+            assert turn is not None
+            user_turn_result = None
+
+            results: list[ContentToolResult] = []
+            for x in turn.contents:
+                if isinstance(x, ContentToolRequest):
+                    req = self._on_tool_request(x)
+                    if req is not None:
+                        yield req
+                    res = self._invoke_tool_request(x)
+                    if res.result and res.result.user is not None:
+                        yield res.result.user
+                    results.append(res)
+
+            if results:
+                user_turn_result = Turn("user", results)
 
     async def _chat_impl_async(
         self,
@@ -1060,7 +1114,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> AsyncGenerator[str, None]:
+    ) -> AsyncGenerator[Stringable, None]:
         user_turn_result: Turn | None = user_turn
         while user_turn_result is not None:
             async for chunk in self._submit_turns_async(
@@ -1071,7 +1125,24 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 kwargs=kwargs,
             ):
                 yield chunk
-            user_turn_result = await self._invoke_tools_async()
+
+            turn = self.get_last_turn(role="assistant")
+            assert turn is not None
+            user_turn_result = None
+
+            results: list[ContentToolResult] = []
+            for x in turn.contents:
+                if isinstance(x, ContentToolRequest):
+                    req = self._on_tool_request(x)
+                    if req is not None:
+                        yield req
+                    res = await self._invoke_tool_request_async(x)
+                    if res.result and res.result.user is not None:
+                        yield res.result.user
+                    results.append(res)
+
+            if results:
+                user_turn_result = Turn("user", results)
 
     def _submit_turns(
         self,
@@ -1085,7 +1156,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if any(x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
-        def emit(text: str | Content):
+        def emit(text: Stringable):
             display.update(str(text))
 
         emit("<br>\n\n")
@@ -1148,7 +1219,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
-        def emit(text: str | Content):
+        def emit(text: Stringable):
             display.update(str(text))
 
         emit("<br>\n\n")
@@ -1202,88 +1273,58 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         self._turns.extend([user_turn, turn])
 
-    def _invoke_tools(self) -> Turn | None:
-        turn = self.get_last_turn()
-        if turn is None:
-            return None
+    def _invoke_tool_request(self, x: ContentToolRequest) -> ContentToolResult:
+        tool_def = self._tools.get(x.name, None)
+        func = tool_def.func if tool_def is not None else None
 
-        results: list[ContentToolResult] = []
-        for x in turn.contents:
-            if isinstance(x, ContentToolRequest):
-                tool_def = self._tools.get(x.name, None)
-                func = tool_def.func if tool_def is not None else None
-                results.append(self._invoke_tool(func, x.arguments, x.id))
-
-        if not results:
-            return None
-
-        return Turn("user", results)
-
-    async def _invoke_tools_async(self) -> Turn | None:
-        turn = self.get_last_turn()
-        if turn is None:
-            return None
-
-        results: list[ContentToolResult] = []
-        for x in turn.contents:
-            if isinstance(x, ContentToolRequest):
-                tool_def = self._tools.get(x.name, None)
-                func = None
-                if tool_def:
-                    if tool_def._is_async:
-                        func = tool_def.func
-                    else:
-                        func = wrap_async(tool_def.func)
-                results.append(await self._invoke_tool_async(func, x.arguments, x.id))
-
-        if not results:
-            return None
-
-        return Turn("user", results)
-
-    @staticmethod
-    def _invoke_tool(
-        func: Callable[..., Any] | None,
-        arguments: object,
-        id_: str,
-    ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id_, value=None, error="Unknown tool")
+            return ContentToolResult(x.id, result=None, error="Unknown tool")
 
         name = func.__name__
 
         try:
-            if isinstance(arguments, dict):
-                result = func(**arguments)
+            if isinstance(x.arguments, dict):
+                result = func(**x.arguments)
             else:
-                result = func(arguments)
+                result = func(x.arguments)
 
-            return ContentToolResult(id_, value=result, error=None, name=name)
+            if not isinstance(result, ToolResult):
+                result = ToolResult(result)
+
+            return ContentToolResult(x.id, result=result, error=None, name=name)
         except Exception as e:
-            log_tool_error(name, str(arguments), e)
-            return ContentToolResult(id_, value=None, error=str(e), name=name)
+            log_tool_error(name, str(x.arguments), e)
+            return ContentToolResult(x.id, result=None, error=str(e), name=name)
 
-    @staticmethod
-    async def _invoke_tool_async(
-        func: Callable[..., Awaitable[Any]] | None,
-        arguments: object,
-        id_: str,
+    async def _invoke_tool_request_async(
+        self, x: ContentToolRequest
     ) -> ContentToolResult:
+        tool_def = self._tools.get(x.name, None)
+        func = None
+        if tool_def:
+            if tool_def._is_async:
+                func = tool_def.func
+            else:
+                func = wrap_async(tool_def.func)
+
         if func is None:
-            return ContentToolResult(id_, value=None, error="Unknown tool")
+            return ContentToolResult(x.id, result=None, error="Unknown tool")
 
         name = func.__name__
 
         try:
-            if isinstance(arguments, dict):
-                result = await func(**arguments)
+            if isinstance(x.arguments, dict):
+                result = await func(**x.arguments)
             else:
-                result = await func(arguments)
+                result = await func(x.arguments)
 
-            return ContentToolResult(id_, value=result, error=None, name=name)
+            if not isinstance(result, ToolResult):
+                result = ToolResult(result)
+
+            return ContentToolResult(x.id, result=result, error=None, name=name)
         except Exception as e:
-            log_tool_error(func.__name__, str(arguments), e)
-            return ContentToolResult(id_, value=None, error=str(e), name=name)
+            log_tool_error(func.__name__, str(x.arguments), e)
+            return ContentToolResult(x.id, result=None, error=str(e), name=name)
 
     def _markdown_display(
         self, echo: Literal["text", "all", "none"]
@@ -1378,16 +1419,16 @@ class ChatResponse:
         still be retrieved (via the `content` attribute).
     """
 
-    def __init__(self, generator: Generator[str, None]):
+    def __init__(self, generator: Generator[Stringable, None]):
         self._generator = generator
-        self.content: str = ""
+        self.contents: list[Stringable] = []
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[Stringable]:
         return self
 
-    def __next__(self) -> str:
+    def __next__(self) -> Stringable:
         chunk = next(self._generator)
-        self.content += chunk  # Keep track of accumulated content
+        self.contents.append(chunk)
         return chunk
 
     def get_content(self) -> str:
@@ -1396,7 +1437,7 @@ class ChatResponse:
         """
         for _ in self:
             pass
-        return self.content
+        return "".join(str(x) for x in self.contents)
 
     @property
     def consumed(self) -> bool:
@@ -1430,23 +1471,23 @@ class ChatResponseAsync:
         still be retrieved (via the `content` attribute).
     """
 
-    def __init__(self, generator: AsyncGenerator[str, None]):
+    def __init__(self, generator: AsyncGenerator[Stringable, None]):
         self._generator = generator
-        self.content: str = ""
+        self.contents: list[Stringable] = []
 
-    def __aiter__(self) -> AsyncIterator[str]:
+    def __aiter__(self) -> AsyncIterator[Stringable]:
         return self
 
-    async def __anext__(self) -> str:
+    async def __anext__(self) -> Stringable:
         chunk = await self._generator.__anext__()
-        self.content += chunk  # Keep track of accumulated content
+        self.contents.append(chunk)
         return chunk
 
     async def get_content(self) -> str:
         "Get the chat response content as a string."
         async for _ in self:
             pass
-        return self.content
+        return "".join(str(x) for x in self.contents)
 
     @property
     def consumed(self) -> bool:
