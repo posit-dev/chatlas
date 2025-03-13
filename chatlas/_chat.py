@@ -855,7 +855,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 mcp_tool=tool,
             )
 
-    async def register_sse_mcp_server_async(
+    async def register_mcp_sse_server_async(
         self,
         name: str,
         url: str,
@@ -894,7 +894,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Examples
         --------
         ```python
-        await chat.register_sse_mcp_server_async(
+        await chat.register_mcp_sse_server_async(
             name="my_server",
             url="http://localhost:8080/sse",
             include_tools=["tool1", "tool2"],
@@ -919,7 +919,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             exclude_tools=exclude_tools,
         )
 
-    async def register_stdio_mcp_server_async(
+    async def register_mcp_stdio_server_async(
         self,
         name: str,
         command: str,
@@ -964,7 +964,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Examples
         --------
         ```python
-        await chat.register_stdio_mcp_server_async(
+        await chat.register_mcp_sse_server_async(
             name="my_server",
             command="python",
             args=["-m", "my_mcp_server"],

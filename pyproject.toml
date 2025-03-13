@@ -3,17 +3,17 @@ name = "chatlas"
 description = "A simple and consistent interface for chatting with LLMs"
 dynamic = ["version"]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = [
   "pydantic>=2.0",
   "jinja2",
-  "rich",
-  "mcp>=1.2.1",
+  "rich"
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -63,6 +63,9 @@ docs = [
     "pandas",
     "sentence-transformers",
     "numpy",
+]
+mcp = [
+  "mcp>=1.4.0; python_version >= '3.10'"
 ]
 
 [tool.uv]
