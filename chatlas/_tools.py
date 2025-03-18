@@ -114,17 +114,36 @@ class ToolResult:
 
         if mode == "auto":
             try:
-                return orjson.dumps(value)
+                return to_json(value)
             except Exception:
                 return str(value)
         elif mode == "json":
-            return orjson.dumps(value)
+            return to_json(value)
         elif mode == "str":
             return str(value)
         elif mode == "as_is":
             return value
         else:
             raise ValueError(f"Unknown format mode: {mode}")
+
+
+def to_json(value: Any) -> str:
+    err = None
+    try:
+        return str(orjson.dumps(value))
+    except Exception as e:
+        err = e
+
+    # If the value has a to_json method, try using that
+    if hasattr(value, "to_json") and callable(value.to_json):
+        return str(value.to_json())
+
+    # If the value has a to_dict method, try using that
+    if hasattr(value, "to_dict") and callable(value.to_dict):
+        return str(orjson.dumps(value.to_dict()))
+
+    # If all else fails, return the error
+    raise err
 
 
 def func_to_schema(
