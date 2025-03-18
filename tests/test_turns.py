@@ -1,4 +1,5 @@
 import pytest
+
 from chatlas._turn import Turn, normalize_turns
 from chatlas.types import ContentImage, ContentText
 
@@ -26,5 +27,7 @@ def test_normalize_turns_errors():
 
 
 def test_can_extract_text_easily():
-    turn = Turn("assistant", [ContentText("ABC"), ContentImage(), ContentText("DEF")])
+    turn = Turn(
+        "assistant", [ContentText(text="ABC"), ContentImage(), ContentText(text="DEF")]
+    )
     assert turn.text == "ABCDEF"
