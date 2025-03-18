@@ -2,14 +2,16 @@ from __future__ import annotations
 
 from typing import Any, Generic, Literal, Optional, Sequence, TypeVar
 
-from ._content import Content, ContentText
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from ._content import Content, ContentText, ContentUnion, create_content
 
 __all__ = ("Turn",)
 
 CompletionT = TypeVar("CompletionT")
 
 
-class Turn(Generic[CompletionT]):
+class Turn(BaseModel, Generic[CompletionT]):
     """
     A user or assistant turn
 
@@ -64,6 +66,14 @@ class Turn(Generic[CompletionT]):
         This is only relevant for assistant turns.
     """
 
+    role: Literal["user", "assistant", "system"]
+    contents: list[ContentUnion] = Field(default_factory=list)
+    tokens: Optional[tuple[int, int]] = None
+    finish_reason: Optional[str] = None
+    completion: Optional[CompletionT] = Field(default=None, exclude=True)
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     def __init__(
         self,
         role: Literal["user", "assistant", "system"],
@@ -72,26 +82,34 @@ class Turn(Generic[CompletionT]):
         tokens: Optional[tuple[int, int]] = None,
         finish_reason: Optional[str] = None,
         completion: Optional[CompletionT] = None,
+        **kwargs,
     ):
-        self.role = role
-
         if isinstance(contents, str):
-            contents = [ContentText(contents)]
+            contents = [ContentText(text=contents)]
 
         contents2: list[Content] = []
         for x in contents:
             if isinstance(x, Content):
                 contents2.append(x)
             elif isinstance(x, str):
-                contents2.append(ContentText(x))
+                contents2.append(ContentText(text=x))
+            elif isinstance(x, dict):
+                contents2.append(create_content(x))
             else:
                 raise ValueError("All contents must be Content objects or str.")
 
-        self.contents = contents2
-        self.text = "".join(x.text for x in self.contents if isinstance(x, ContentText))
-        self.tokens = tokens
-        self.finish_reason = finish_reason
-        self.completion = completion
+        super().__init__(
+            role=role,
+            contents=contents2,
+            tokens=tokens,
+            finish_reason=finish_reason,
+            completion=completion,
+            **kwargs,
+        )
+
+    @property
+    def text(self) -> str:
+        return "".join(x.text for x in self.contents if isinstance(x, ContentText))
 
     def __str__(self) -> str:
         return self.text
@@ -109,17 +127,31 @@ class Turn(Generic[CompletionT]):
             res += "\n" + content.__repr__(indent=indent + 2)
         return res + "\n"
 
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, Turn):
-            return False
-        res = (
-            self.role == other.role
-            and self.contents == other.contents
-            and self.tokens == other.tokens
-            and self.finish_reason == other.finish_reason
-            and self.completion == other.completion
-        )
-        return res
+    @model_validator(mode="before")
+    @classmethod
+    def validate_contents(cls, data: dict[str, Any]) -> dict[str, Any]:
+        if not isinstance(data, dict):
+            return data
+        if "contents" not in data:
+            return data
+        contents = data["contents"]
+        if not isinstance(contents, list):
+            return data
+
+        validated_contents: list[Content] = []
+        for x in contents:
+            if not x:
+                continue
+            if isinstance(x, Content):
+                validated_contents.append(x)
+            elif isinstance(x, str):
+                validated_contents.append(ContentText(text=x))
+            if isinstance(x, dict):
+                validated_contents.append(create_content(x))
+
+        data["contents"] = validated_contents
+
+        return data
 
 
 def user_turn(*args: Content | str) -> Turn:

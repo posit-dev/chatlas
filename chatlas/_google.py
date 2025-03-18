@@ -402,7 +402,7 @@ class GoogleProvider(
         elif isinstance(content, ContentImageInline) and content.data:
             return Part.from_bytes(
                 data=base64.b64decode(content.data),
-                mime_type=content.content_type,
+                mime_type=content.image_content_type,
             )
         elif isinstance(content, ContentImageRemote):
             raise NotImplementedError(
