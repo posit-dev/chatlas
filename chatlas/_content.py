@@ -329,17 +329,27 @@ class ContentToolResult(Content):
 
         if mode == "auto":
             try:
-                return orjson.dumps(val)
+                return self._to_json(val)
             except Exception:
                 return str(val)
         elif mode == "json":
-            return orjson.dumps(val)
+            return self._to_json(val)
         elif mode == "str":
             return str(val)
         elif mode == "as_is":
             return val
         else:
             raise ValueError(f"Unknown format mode: {mode}")
+
+    @staticmethod
+    def _to_json(value: Any) -> object:
+        if hasattr(value, "to_json") and callable(value.to_json):
+            return value.to_json()
+
+        if hasattr(value, "to_dict") and callable(value.to_dict):
+            value = value.to_dict()
+
+        return orjson.dumps(value)
 
     def tagify(self) -> "TagChild":
         """
