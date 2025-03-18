@@ -46,6 +46,9 @@ class SubmitInputArgs(TypedDict, total=False):
             "o1-preview-2024-09-12",
             "o1-mini",
             "o1-mini-2024-09-12",
+            "computer-use-preview",
+            "computer-use-preview-2025-02-04",
+            "computer-use-preview-2025-03-11",
             "gpt-4.5-preview",
             "gpt-4.5-preview-2025-02-27",
             "gpt-4o",
@@ -112,8 +115,8 @@ class SubmitInputArgs(TypedDict, total=False):
     reasoning_effort: Union[Literal["low", "medium", "high"], None, openai.NotGiven]
     response_format: Union[
         openai.types.shared_params.response_format_text.ResponseFormatText,
-        openai.types.shared_params.response_format_json_object.ResponseFormatJSONObject,
         openai.types.shared_params.response_format_json_schema.ResponseFormatJSONSchema,
+        openai.types.shared_params.response_format_json_object.ResponseFormatJSONObject,
         openai.NotGiven,
     ]
     seed: Union[int, None, openai.NotGiven]
