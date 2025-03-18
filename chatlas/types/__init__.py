@@ -1,5 +1,8 @@
-from .._chat import ChatResponseAsync  # noqa: A005
-from .._chat import ChatResponse, SubmitInputArgsT
+from .._chat import (  # noqa: A005
+  ChatResponse,
+  ChatResponseAsync,
+  SubmitInputArgsT,
+)
 from .._content import (
     Content,
     ContentImage,
