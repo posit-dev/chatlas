@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Generic, Literal, Optional, Sequence, TypeVar
+from typing import Generic, Literal, Optional, Sequence, TypeVar
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 from ._content import Content, ContentText, ContentUnion, create_content
 
@@ -126,32 +126,6 @@ class Turn(BaseModel, Generic[CompletionT]):
         for content in self.contents:
             res += "\n" + content.__repr__(indent=indent + 2)
         return res + "\n"
-
-    @model_validator(mode="before")
-    @classmethod
-    def validate_contents(cls, data: dict[str, Any]) -> dict[str, Any]:
-        if not isinstance(data, dict):
-            return data
-        if "contents" not in data:
-            return data
-        contents = data["contents"]
-        if not isinstance(contents, list):
-            return data
-
-        validated_contents: list[Content] = []
-        for x in contents:
-            if not x:
-                continue
-            if isinstance(x, Content):
-                validated_contents.append(x)
-            elif isinstance(x, str):
-                validated_contents.append(ContentText(text=x))
-            if isinstance(x, dict):
-                validated_contents.append(create_content(x))
-
-        data["contents"] = validated_contents
-
-        return data
 
 
 def user_turn(*args: Content | str) -> Turn:
