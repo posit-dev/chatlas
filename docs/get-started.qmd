@@ -94,7 +94,7 @@ LLMs can also be useful to solve general programming problems. For example:
 
 * You could use [GitHub's REST API](https://docs.github.com/en/rest/issues?apiVersion=2022-11-28) to find unlabelled issues, extract the text, and ask the LLM to figure out what labels might be most appropriate. Or maybe an LLM might be able to help people create better reprexes, or simplify reprexes that are too complicated?
 
-* Write a detailed prompt that teaches the LLM about something it wouldn't otherwise know about. For example, you might write a guide to updating code to use a new version of a package. If you have a programmable IDE, you could imagine being able to select code, transform it, and then replace the existing text. A real example of this is the R package [pal](https://simonpcouch.github.io/pal/), which includes prompts for updating source code to use the latest conventions in R for documentation, testing, error handling, and more.
+* Write a detailed prompt that teaches the LLM about something it wouldn't otherwise know about. For example, you might write a guide to updating code to use a new version of a package. If you have a programmable IDE, you could imagine being able to select code, transform it, and then replace the existing text. A real example of this is the R package [chores](https://simonpcouch.github.io/chores/), which includes prompts for updating source code to use the latest conventions in R for documentation, testing, error handling, and more.
 
 
 ## Miscellaneous
