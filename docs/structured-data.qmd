@@ -47,7 +47,7 @@ chat.extract_data(
 
 To define your desired type specification (also known as a **schema**), you use a [pydantic model](https://docs.pydantic.dev/latest/concepts/models/). 
 
-In addition to the model definition with field names and types, you may also want to provide the LLM with an additional context about what each field/model represents. In this case, include a `Field(description="...")` for each field, and a docstring for each model. This is a good place to ask nicely for other attributes you'll like the value to possess (e.g. minimum or maximum values, date formats, ...). You aren't guaranteed that these requests will be honoured, but the LLM will usually make a best effort to do so.
+In addition to the model definition with field names and types, you may also want to provide the LLM with an additional context about what each field/model represents. In this case, include a `Field(description="...")` for each field, and a docstring for each model. This is a good place to ask nicely for other attributes you'll like the value to have (e.g. minimum or maximum values, date formats, ...). There's no guarantee that these requests will be honoured, but the LLM will usually make a best effort to do so.
 
 ```{python}
 class Person(BaseModel):
@@ -66,7 +66,7 @@ Now we'll dive into some examples before coming back to talk more data types det
 
 ## Examples
 
-The following examples are [closely inspired by the Claude documentation](https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb) and hint at some of the ways you can use structured data extraction.
+The following examples, which [closely inspired by the Claude documentation](https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb), hint at some of the ways you can use structured data extraction.
 
 ### Example 1: Article summarisation
 
@@ -155,7 +155,7 @@ chat = ChatOpenAI()
 chat.extract_data(text, data_model=Sentiment)
 ```
 
-Note that we've asked nicely for the scores to sum 1, and they do in this example (at least when I ran the code), but it's not guaranteed.
+Note that while we've asked nicely for the scores to sum 1, which they do in this example (at least when I ran the code), this is not guaranteed.
 
 ### Example 4: Text classification
 
@@ -217,11 +217,9 @@ supports adding arbitrary additional properties.
 
 ### Example 6: Extracting data from an image
 
-This example comes from [Dan Nguyen](https://gist.github.com/dannguyen/faaa56cebf30ad51108a9fe4f8db36d8) and you can see other interesting applications at that link. The goal is to extract structured data from this screenshot:
+The final example comes from [Dan Nguyen](https://gist.github.com/dannguyen/faaa56cebf30ad51108a9fe4f8db36d8) (you can see other interesting applications at that link). The goal is to extract structured data from this screenshot:
 
-The goal is to extract structured data from this screenshot:
-
-![A screenshot of schedule A: a table showing assets and "unearned" income](congressional-assets.png)
+![Screenshot of schedule A: a table showing assets and "unearned" income](congressional-assets.png)
 
 Even without any descriptions, ChatGPT does pretty well:
 
@@ -289,9 +287,9 @@ data = chat.extract_data(prompt, data_model=ArticleSpec)
 print(json.dumps(data, indent=2))
 ```
 
-Note that I've used more of an explict prompt here. For this example, I found that this generated better results, and it's a useful place to put additional instructions.
+Note that I've used more of an explict prompt here. For this example, I found that this generated better results and that it's a useful place to put additional instructions.
 
-If let the LLM know that the fields are all optional, it'll instead return `None` for the missing fields:
+If I let the LLM know that the fields are all optional, it'll return `None` for the missing fields:
 
 ```{python}
 class ArticleSpec(BaseModel):
