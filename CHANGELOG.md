@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Added a `ChatSnowflake()` class to interact with [Snowflake Cortex LLM](https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions). (#54)
 * Added a `ChatAuto()` class, allowing for configuration of chat providers and models via environment variables. (#38, thanks @mconflitti-pbc)
+* Added a `ToolResult()` class which allow for: (1) control how results get formatted when sent to the model and (2) yield additional content to the user (i.e., the downstream consumer of a `.stream()` or `.chat()`) for display when the tool is called. (#69)
+* Added a `on_request` parameter to `.register_tool()`. When tool is requested, this callback executes, and the result is yielded to the user. (#69)
+* Added a `Chat.on_tool_request()` method for registering a default tool request handler. (#69)
+
+
+### Changes
+
+* By default, tool results are formatted as a JSON string when sent to the model. (#69)
 
 ### Improvements
 
