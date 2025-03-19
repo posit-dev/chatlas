@@ -68,7 +68,7 @@ def content_image_url(
         if content_type not in ["image/png", "image/jpeg", "image/webp", "image/gif"]:
             raise ValueError(f"Unsupported image content type: {content_type}")
         content_type = cast(ImageContentTypes, content_type)
-        return ContentImageInline(content_type, base64_data)
+        return ContentImageInline(image_content_type=content_type, data=base64_data)
     else:
         return ContentImageRemote(url=url, detail=detail)
 
@@ -191,7 +191,7 @@ def content_image_file(
         img.save(buffer, format=img.format)
         base64_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
-    return ContentImageInline(content_type, base64_data)
+    return ContentImageInline(image_content_type=content_type, data=base64_data)
 
 
 def content_image_plot(
@@ -263,7 +263,7 @@ def content_image_plot(
         fig.savefig(buf, format="png", dpi=dpi, bbox_inches="tight")
         buf.seek(0)
         base64_data = base64.b64encode(buf.getvalue()).decode("utf-8")
-        return ContentImageInline("image/png", base64_data)
+        return ContentImageInline(image_content_type="image/png", data=base64_data)
     finally:
         fig.set_size_inches(*size)
 

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
 from pprint import pformat
-from typing import Any, Literal, Optional
+from typing import Any, Literal, Optional, Union
+
+from pydantic import BaseModel, ConfigDict
 
 ImageContentTypes = Literal[
     "image/png",
@@ -15,11 +16,26 @@ ImageContentTypes = Literal[
 Allowable content types for images.
 """
 
+ContentTypeEnum = Literal[
+    "text",
+    "image_remote",
+    "image_inline",
+    "tool_request",
+    "tool_result",
+    "json",
+]
+"""
+A discriminated union of all content types.
+"""
 
-class Content:
+
+class Content(BaseModel):
     """
     Base class for all content types that can be appear in a [](`~chatlas.Turn`)
     """
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    content_type: ContentTypeEnum
 
     def __str__(self):
         raise NotImplementedError
@@ -31,13 +47,13 @@ class Content:
         raise NotImplementedError
 
 
-@dataclass
 class ContentText(Content):
     """
     Text content for a [](`~chatlas.Turn`)
     """
 
     text: str
+    content_type: ContentTypeEnum = "text"
 
     def __str__(self):
         return self.text
@@ -62,7 +78,6 @@ class ContentImage(Content):
     pass
 
 
-@dataclass
 class ContentImageRemote(ContentImage):
     """
     Image content from a URL.
@@ -81,6 +96,8 @@ class ContentImageRemote(ContentImage):
     url: str
     detail: Literal["auto", "low", "high"] = "auto"
 
+    content_type: ContentTypeEnum = "image_remote"
+
     def __str__(self):
         return f"![]({self.url})"
 
@@ -94,7 +111,6 @@ class ContentImageRemote(ContentImage):
         )
 
 
-@dataclass
 class ContentImageInline(ContentImage):
     """
     Inline image content.
@@ -105,17 +121,19 @@ class ContentImageInline(ContentImage):
 
     Parameters
     ----------
-    content_type
+    image_content_type
         The content type of the image.
     data
         The base64-encoded image data.
     """
 
-    content_type: ImageContentTypes
+    image_content_type: ImageContentTypes
     data: Optional[str] = None
 
+    content_type: ContentTypeEnum = "image_inline"
+
     def __str__(self):
-        return f"![](data:{self.content_type};base64,{self.data})"
+        return f"![](data:{self.image_content_type};base64,{self.data})"
 
     def _repr_markdown_(self):
         return self.__str__()
@@ -124,11 +142,10 @@ class ContentImageInline(ContentImage):
         n_bytes = len(self.data) if self.data else 0
         return (
             " " * indent
-            + f"<ContentImageInline content_type='{self.content_type}' size={n_bytes}>"
+            + f"<ContentImageInline content_type='{self.image_content_type}' size={n_bytes}>"
         )
 
 
-@dataclass
 class ContentToolRequest(Content):
     """
     A request to call a tool/function
@@ -150,6 +167,8 @@ class ContentToolRequest(Content):
     id: str
     name: str
     arguments: object
+
+    content_type: ContentTypeEnum = "tool_request"
 
     def __str__(self):
         args_str = self._arguments_str()
@@ -173,7 +192,6 @@ class ContentToolRequest(Content):
         return str(self.arguments)
 
 
-@dataclass
 class ContentToolResult(Content):
     """
     The result of calling a tool/function
@@ -199,6 +217,8 @@ class ContentToolResult(Content):
     name: Optional[str] = None
     error: Optional[str] = None
 
+    content_type: ContentTypeEnum = "tool_result"
+
     def _get_value(self, pretty: bool = False) -> str:
         if self.error:
             return f"Tool calling failed with error: '{self.error}'"
@@ -207,7 +227,7 @@ class ContentToolResult(Content):
         try:
             json_val = json.loads(self.value)  # type: ignore
             return pformat(json_val, indent=2, sort_dicts=False)
-        except:  # noqa: E722
+        except:  # noqa
             return str(self.value)
 
     # Primarily used for `echo="all"`...
@@ -232,7 +252,6 @@ class ContentToolResult(Content):
         return self._get_value()
 
 
-@dataclass
 class ContentJson(Content):
     """
     JSON content
@@ -248,6 +267,8 @@ class ContentJson(Content):
 
     value: dict[str, Any]
 
+    content_type: ContentTypeEnum = "json"
+
     def __str__(self):
         return json.dumps(self.value, indent=2)
 
@@ -256,3 +277,40 @@ class ContentJson(Content):
 
     def __repr__(self, indent: int = 0):
         return " " * indent + f"<ContentJson value={self.value}>"
+
+
+ContentUnion = Union[
+    ContentText,
+    ContentImageRemote,
+    ContentImageInline,
+    ContentToolRequest,
+    ContentToolResult,
+    ContentJson,
+]
+
+
+def create_content(data: dict[str, Any]) -> ContentUnion:
+    """
+    Factory function to create the appropriate Content subclass based on the data.
+
+    This is useful when deserializing content from JSON.
+    """
+    if not isinstance(data, dict):
+        raise ValueError("Content data must be a dictionary")
+
+    ct = data.get("content_type")
+
+    if ct == "text":
+        return ContentText.model_validate(data)
+    elif ct == "image_remote":
+        return ContentImageRemote.model_validate(data)
+    elif ct == "image_inline":
+        return ContentImageInline.model_validate(data)
+    elif ct == "tool_request":
+        return ContentToolRequest.model_validate(data)
+    elif ct == "tool_result":
+        return ContentToolResult.model_validate(data)
+    elif ct == "json":
+        return ContentJson.model_validate(data)
+    else:
+        raise ValueError(f"Unknown content type: {ct}")

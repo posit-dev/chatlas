@@ -1248,7 +1248,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         id_: str,
     ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id_, value=None, error="Unknown tool")
+            return ContentToolResult(id=id_, value=None, error="Unknown tool")
 
         name = func.__name__
 
@@ -1258,10 +1258,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             else:
                 result = func(arguments)
 
-            return ContentToolResult(id_, value=result, error=None, name=name)
+            return ContentToolResult(id=id_, value=result, error=None, name=name)
         except Exception as e:
             log_tool_error(name, str(arguments), e)
-            return ContentToolResult(id_, value=None, error=str(e), name=name)
+            return ContentToolResult(id=id_, value=None, error=str(e), name=name)
 
     @staticmethod
     async def _invoke_tool_async(
@@ -1270,7 +1270,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         id_: str,
     ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id_, value=None, error="Unknown tool")
+            return ContentToolResult(id=id_, value=None, error="Unknown tool")
 
         name = func.__name__
 
@@ -1280,10 +1280,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             else:
                 result = await func(arguments)
 
-            return ContentToolResult(id_, value=result, error=None, name=name)
+            return ContentToolResult(id=id_, value=result, error=None, name=name)
         except Exception as e:
             log_tool_error(func.__name__, str(arguments), e)
-            return ContentToolResult(id_, value=None, error=str(e), name=name)
+            return ContentToolResult(id=id_, value=None, error=str(e), name=name)
 
     def _markdown_display(
         self, echo: Literal["text", "all", "none"]

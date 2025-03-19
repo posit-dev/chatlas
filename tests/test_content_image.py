@@ -13,7 +13,7 @@ def test_can_create_image_from_url():
 def test_can_create_inline_image_from_data_url():
     obj = content_image_url("data:image/png;base64,abcd")
     assert isinstance(obj, ContentImageInline)
-    assert obj.content_type == "image/png"
+    assert obj.image_content_type == "image/png"
     assert obj.data == "abcd"
 
 
@@ -47,7 +47,7 @@ def test_can_create_image_from_plot():
 
     obj = content_image_plot()
     assert isinstance(obj, ContentImageInline)
-    assert obj.content_type == "image/png"
+    assert obj.image_content_type == "image/png"
 
     plt.close()
 

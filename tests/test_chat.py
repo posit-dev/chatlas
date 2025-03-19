@@ -2,8 +2,9 @@ import re
 import tempfile
 
 import pytest
-from chatlas import ChatOpenAI, Turn
 from pydantic import BaseModel
+
+from chatlas import ChatOpenAI, Turn
 
 
 def test_simple_batch_chat():
@@ -162,3 +163,15 @@ def test_modify_system_prompt():
     # string -> NULL
     chat.system_prompt = None
     assert chat.system_prompt is None
+
+
+def test_json_serialize():
+    chat = ChatOpenAI()
+    chat.chat("Tell me a short joke", echo="none")
+    turns = chat.get_turns()
+    turns_json = [x.model_dump_json() for x in turns]
+    turns_restored = [Turn.model_validate_json(x) for x in turns_json]
+    assert len(turns) == 2
+    # Completion objects, at least of right now, aren't included in the JSON
+    turns[1].completion = None
+    assert turns == turns_restored

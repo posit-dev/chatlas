@@ -455,7 +455,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 "type": "image",
                 "source": {
                     "type": "base64",
-                    "media_type": content.content_type,
+                    "media_type": content.image_content_type,
                     "data": content.data or "",
                 },
             }
@@ -504,7 +504,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         contents = []
         for content in completion.content:
             if content.type == "text":
-                contents.append(ContentText(content.text))
+                contents.append(ContentText(text=content.text))
             elif content.type == "tool_use":
                 if has_data_model and content.name == "_structured_tool_call":
                     if not isinstance(content.input, dict):
@@ -515,11 +515,11 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                         raise ValueError(
                             "Expected data extraction tool to return a 'data' field."
                         )
-                    contents.append(ContentJson(content.input["data"]))
+                    contents.append(ContentJson(value=content.input["data"]))
                 else:
                     contents.append(
                         ContentToolRequest(
-                            content.id,
+                            id=content.id,
                             name=content.name,
                             arguments=content.input,
                         )

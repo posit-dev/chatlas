@@ -476,7 +476,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                             {
                                 "type": "image_url",
                                 "image_url": {
-                                    "url": f"data:{x.content_type};base64,{x.data}"
+                                    "url": f"data:{x.image_content_type};base64,{x.data}"
                                 },
                             }
                         )
@@ -514,9 +514,9 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         if message.content is not None:
             if has_data_model:
                 data = json.loads(message.content)
-                contents = [ContentJson(data)]
+                contents = [ContentJson(value=data)]
             else:
-                contents = [ContentText(message.content)]
+                contents = [ContentText(text=message.content)]
 
         tool_calls = message.tool_calls
 
@@ -540,7 +540,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
                 contents.append(
                     ContentToolRequest(
-                        call.id,
+                        id=call.id,
                         name=func.name,
                         arguments=args,
                     )
