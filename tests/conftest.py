@@ -3,9 +3,10 @@ from pathlib import Path
 from typing import Awaitable, Callable
 
 import pytest
-from chatlas import Chat, Turn, content_image_file, content_image_url
 from PIL import Image
 from pydantic import BaseModel
+
+from chatlas import Chat, Turn, content_image_file, content_image_url, content_pdf_file
 
 ChatFun = Callable[..., Chat]
 
@@ -223,3 +224,19 @@ def assert_images_remote_error(chat_fun: ChatFun):
         chat.chat("What's in this image?", image_remote)
 
     assert len(chat.get_turns()) == 0
+
+
+def assert_pdf_local(chat_fun: ChatFun):
+    chat = chat_fun()
+    apples = Path(__file__).parent / "apples.pdf"
+    response = chat.chat(
+        "What's the title of this document?",
+        content_pdf_file(apples),
+    )
+    assert "apples are tasty" in str(response).lower()
+
+    response = chat.chat(
+        "What apple is not tasty according to the document?",
+        "Two word answer only.",
+    )
+    assert "red delicious" in str(response).lower()

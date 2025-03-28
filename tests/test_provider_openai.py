@@ -6,6 +6,7 @@ from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote,
+    assert_pdf_local,
     assert_tools_async,
     assert_tools_parallel,
     assert_tools_sequential,
@@ -86,3 +87,8 @@ async def test_openai_logprobs():
     logprobs = turn.completion.choices[0].logprobs.content
     assert logprobs is not None
     assert len(logprobs) == len(pieces)
+
+
+def test_openai_pdf():
+    chat_fun = ChatOpenAI
+    assert_pdf_local(chat_fun)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
@@ -12,6 +13,7 @@ from ._content import (
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
+    ContentPDF,
     ContentText,
     ContentToolRequest,
     ContentToolResult,
@@ -461,6 +463,19 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                         contents.append({"type": "text", "text": x.text})
                     elif isinstance(x, ContentJson):
                         contents.append({"type": "text", "text": ""})
+                    elif isinstance(x, ContentPDF):
+                        contents.append(
+                            {
+                                "type": "file",
+                                "file": {
+                                    "filename": "",
+                                    "file_data": (
+                                        "data:application/pdf;base64,"
+                                        f"{base64.b64encode(x.data).decode('utf-8')}"
+                                    ),
+                                },
+                            }
+                        )
                     elif isinstance(x, ContentImageRemote):
                         contents.append(
                             {

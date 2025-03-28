@@ -98,6 +98,11 @@ quartodoc:
         - content_image_file
         - content_image_plot
         - content_image_url
+    - title: PDF input
+      desc: Submit pdf input to the chat
+      contents:
+        - content_pdf_file
+        - content_pdf_url
     - title: Prompt interpolation
       desc: Interpolate variables into prompt templates
       contents:
