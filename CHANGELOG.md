@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* New `content_pdf_file()` and `content_pdf_url()` allow you to upload PDFs to supported models.
+* New `content_pdf_file()` and `content_pdf_url()` allow you to upload PDFs to supported models. (#74)
 
 ### Improvements
 
