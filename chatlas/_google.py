@@ -402,7 +402,7 @@ class GoogleProvider(
         elif isinstance(content, ContentImageInline) and content.data:
             return Part.from_bytes(
                 data=base64.b64decode(content.data),
-                mime_type=content.content_type,
+                mime_type=content.image_content_type,
             )
         elif isinstance(content, ContentImageRemote):
             raise NotImplementedError(
@@ -460,9 +460,9 @@ class GoogleProvider(
             text = part.get("text")
             if text:
                 if has_data_model:
-                    contents.append(ContentJson(json.loads(text)))
+                    contents.append(ContentJson(value=json.loads(text)))
                 else:
-                    contents.append(ContentText(text))
+                    contents.append(ContentText(text=text))
             function_call = part.get("function_call")
             if function_call:
                 # Seems name is required but id is optional?
