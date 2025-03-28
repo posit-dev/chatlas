@@ -70,6 +70,10 @@ chatlas.content_image_plot py:function 1 reference/content_image_plot.html#chatl
 chatlas._content_image.content_image_plot py:function 1 reference/content_image_plot.html#chatlas.content_image_plot chatlas.content_image_plot
 chatlas.content_image_url py:function 1 reference/content_image_url.html#chatlas.content_image_url -
 chatlas._content_image.content_image_url py:function 1 reference/content_image_url.html#chatlas.content_image_url chatlas.content_image_url
+chatlas.content_pdf_file py:function 1 reference/content_pdf_file.html#chatlas.content_pdf_file -
+chatlas._content_pdf.content_pdf_file py:function 1 reference/content_pdf_file.html#chatlas.content_pdf_file chatlas.content_pdf_file
+chatlas.content_pdf_url py:function 1 reference/content_pdf_url.html#chatlas.content_pdf_url -
+chatlas._content_pdf.content_pdf_url py:function 1 reference/content_pdf_url.html#chatlas.content_pdf_url chatlas.content_pdf_url
 chatlas.interpolate py:function 1 reference/interpolate.html#chatlas.interpolate -
 chatlas._interpolate.interpolate py:function 1 reference/interpolate.html#chatlas.interpolate chatlas.interpolate
 chatlas.interpolate_file py:function 1 reference/interpolate_file.html#chatlas.interpolate_file -
