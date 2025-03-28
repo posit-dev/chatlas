@@ -91,5 +91,5 @@ def test_google_images():
 def test_google_pdfs():
     chat_fun = ChatGoogle
 
-    time.sleep(5)
+    time.sleep(10)
     assert_pdf_local(chat_fun)
