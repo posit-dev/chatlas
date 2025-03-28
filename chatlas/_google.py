@@ -12,6 +12,7 @@ from ._content import (
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
+    ContentPDF,
     ContentText,
     ContentToolRequest,
     ContentToolResult,
@@ -399,6 +400,15 @@ class GoogleProvider(
             return Part.from_text(text=content.text)
         elif isinstance(content, ContentJson):
             return Part.from_text(text="<structured data/>")
+        elif isinstance(content, ContentPDF):
+            from google.genai.types import Blob
+
+            return Part(
+                inline_data=Blob(
+                    data=content.data,
+                    mime_type="application/pdf",
+                )
+            )
         elif isinstance(content, ContentImageInline) and content.data:
             return Part.from_bytes(
                 data=base64.b64decode(content.data),

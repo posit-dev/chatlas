@@ -23,6 +23,7 @@ ContentTypeEnum = Literal[
     "tool_request",
     "tool_result",
     "json",
+    "pdf",
 ]
 """
 A discriminated union of all content types.
@@ -279,6 +280,32 @@ class ContentJson(Content):
         return " " * indent + f"<ContentJson value={self.value}>"
 
 
+class ContentPDF(Content):
+    """
+    PDF content
+
+    This content type primarily exists to signal PDF data extraction
+    (i.e., data extracted via [](`~chatlas.Chat`)'s `.extract_data()` method)
+
+    Parameters
+    ----------
+    value
+        The PDF data extracted
+    """
+
+    data: bytes
+    content_type: ContentTypeEnum = "pdf"
+
+    def __str__(self):
+        return "<PDF document>"
+
+    def _repr_markdown_(self):
+        return self.__str__()
+
+    def __repr__(self, indent: int = 0):
+        return " " * indent + f"<ContentPDF size={len(self.data)}>"
+
+
 ContentUnion = Union[
     ContentText,
     ContentImageRemote,
@@ -286,6 +313,7 @@ ContentUnion = Union[
     ContentToolRequest,
     ContentToolResult,
     ContentJson,
+    ContentPDF,
 ]
 
 
@@ -312,5 +340,7 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentToolResult.model_validate(data)
     elif ct == "json":
         return ContentJson.model_validate(data)
+    elif ct == "pdf":
+        return ContentPDF.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")

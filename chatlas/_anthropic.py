@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
@@ -12,6 +13,7 @@ from ._content import (
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
+    ContentPDF,
     ContentText,
     ContentToolRequest,
     ContentToolResult,
@@ -31,6 +33,7 @@ if TYPE_CHECKING:
         ToolParam,
         ToolUseBlock,
     )
+    from anthropic.types.document_block_param import DocumentBlockParam
     from anthropic.types.image_block_param import ImageBlockParam
     from anthropic.types.model_param import ModelParam
     from anthropic.types.text_block_param import TextBlockParam
@@ -45,6 +48,7 @@ if TYPE_CHECKING:
         ImageBlockParam,
         ToolUseBlockParam,
         ToolResultBlockParam,
+        DocumentBlockParam,
     ]
 else:
     Message = object
@@ -450,6 +454,15 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             return {"text": content.text, "type": "text"}
         elif isinstance(content, ContentJson):
             return {"text": "<structured data/>", "type": "text"}
+        elif isinstance(content, ContentPDF):
+            return {
+                "type": "document",
+                "source": {
+                    "type": "base64",
+                    "media_type": "application/pdf",
+                    "data": base64.b64encode(content.data).decode("utf-8"),
+                },
+            }
         elif isinstance(content, ContentImageInline):
             return {
                 "type": "image",

@@ -1,10 +1,12 @@
 import pytest
+
 from chatlas import ChatAnthropic
 
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote_error,
+    assert_pdf_local,
     assert_tools_async,
     assert_tools_parallel,
     assert_tools_sequential,
@@ -94,3 +96,8 @@ def test_anthropic_images():
 
     retryassert(run_inlineassert, retries=3)
     assert_images_remote_error(chat_fun)
+
+
+def test_anthropic_pdfs():
+    chat_fun = ChatAnthropic
+    assert_pdf_local(chat_fun)

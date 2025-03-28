@@ -8,6 +8,7 @@ import warnings
 from typing import Literal, Union, cast
 
 from ._content import ContentImageInline, ContentImageRemote, ImageContentTypes
+from ._content_pdf import parse_data_url
 from ._utils import MISSING, MISSING_TYPE
 
 __all__ = (
@@ -60,11 +61,7 @@ def content_image_url(
         raise ValueError("detail must be 'auto', 'low', or 'high'")
 
     if url.startswith("data:"):
-        parts = url[5:].split(";", 1)
-        if len(parts) != 2 or not parts[1].startswith("base64,"):
-            raise ValueError("url is not a valid data URL.")
-        content_type = parts[0]
-        base64_data = parts[1][7:]
+        content_type, base64_data = parse_data_url(url)
         if content_type not in ["image/png", "image/jpeg", "image/webp", "image/gif"]:
             raise ValueError(f"Unsupported image content type: {content_type}")
         content_type = cast(ImageContentTypes, content_type)

@@ -9,11 +9,11 @@ from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote_error,
+    assert_pdf_local,
     assert_tools_parallel,
     assert_tools_sequential,
     assert_tools_simple,
     assert_turns_existing,
-    assert_turns_system,
 )
 
 do_test = os.getenv("TEST_GOOGLE", "true")
@@ -85,3 +85,10 @@ def test_google_images():
     assert_images_inline(chat_fun)
     time.sleep(3)
     assert_images_remote_error(chat_fun)
+
+
+def test_google_pdfs():
+    chat_fun = ChatGoogle
+
+    time.sleep(3)
+    assert_pdf_local(chat_fun)
