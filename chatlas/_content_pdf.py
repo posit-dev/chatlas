@@ -1,5 +1,6 @@
 import os
 import tempfile
+from typing import Union
 
 import requests
 
@@ -11,7 +12,7 @@ __all__ = (
 )
 
 
-def content_pdf_file(path: str | os.PathLike) -> ContentPDF:
+def content_pdf_file(path: Union[str, os.PathLike]) -> ContentPDF:
     """
     Prepare a local PDF for input to a chat.
 
@@ -28,6 +29,9 @@ def content_pdf_file(path: str | os.PathLike) -> ContentPDF:
     [](`~chatlas.types.Content`)
         Content suitable for a [](`~chatlas.Turn`) object.
     """
+
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"PDF file not found: {path}")
 
     with open(path, "rb") as f:
         data = f.read()

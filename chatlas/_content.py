@@ -294,6 +294,7 @@ class ContentPDF(Content):
     """
 
     data: bytes
+
     content_type: ContentTypeEnum = "pdf"
 
     def __str__(self):
