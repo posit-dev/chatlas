@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
+import textwrap
 from pprint import pformat
-from typing import Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 from pydantic import BaseModel, ConfigDict
+
+if TYPE_CHECKING:
+    from htmltools import TagChild
 
 ImageContentTypes = Literal[
     "image/png",
@@ -192,6 +196,23 @@ class ContentToolRequest(Content):
             return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
         return str(self.arguments)
 
+    def tagify(self) -> "TagChild":
+        "Returns an HTML string suitable for passing to htmltools/shiny's `Chat()` component."
+        try:
+            from htmltools import HTML, TagList, head_content, tags
+        except ImportError:
+            raise ImportError(
+                ".tagify() is only intended to be called by htmltools/shiny, ",
+                "but htmltools is not installed. ",
+            )
+
+        html = f"<p class='chatlas-tool-request'>🔧 Running tool: <code>{self.name}</code></p>"
+
+        return TagList(
+            HTML(html),
+            head_content(tags.style(TOOL_CSS)),
+        )
+
 
 class ContentToolResult(Content):
     """
@@ -211,12 +232,15 @@ class ContentToolResult(Content):
         The name of the tool/function that was called.
     error
         An error message if the tool/function call failed.
+    arguments
+        The arguments passed to the tool/function.
     """
 
     id: str
     value: Any = None
     name: Optional[str] = None
     error: Optional[str] = None
+    arguments: Optional[object] = None
 
     content_type: ContentTypeEnum = "tool_result"
 
@@ -251,6 +275,43 @@ class ContentToolResult(Content):
     # The actual value to send to the model
     def get_final_value(self) -> str:
         return self._get_value()
+
+    def tagify(self) -> "TagChild":
+        """
+        A method for rendering this object via htmltools/shiny.
+        """
+        try:
+            from htmltools import HTML
+        except ImportError:
+            raise ImportError(
+                ".tagify() is only intended to be called by htmltools/shiny, ",
+                "but htmltools is not installed. ",
+            )
+
+        if not self.error:
+            header = f"✅ View <code>{self.name}</code> tool result"
+        else:
+            header = f"❌ Falled to call tool <code>{self.name}</code>"
+
+        args = self._arguments_str()
+        content = self._get_value(pretty=True)
+
+        return HTML(
+            textwrap.dedent(f"""
+              <details class="chatlas-tool-result">
+                  <summary>{header}</summary>
+                  <div class="chatlas-tool-result-content">
+                      <b>Result:</b> <p><code>{content}</code></p>
+                      <b>Arguments:</b> <p><code>{args}</code></p>
+                  </div>
+              </details>
+            """)
+        )
+
+    def _arguments_str(self) -> str:
+        if isinstance(self.arguments, dict):
+            return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
+        return str(self.arguments)
 
 
 class ContentJson(Content):
@@ -345,3 +406,40 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentPDF.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
+
+
+TOOL_CSS = """
+.chatlas-tool-request:has(+ .chatlas-tool-result) {
+  display: none;
+}
+
+.chatlas-tool-result {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.chatlas-tool-result summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.chatlas-tool-result summary::after {
+  content: "◄";
+  color: var(--bs-primary, #0066cc);
+}
+
+.chatlas-tool-result[open] summary::after {
+  content: "▼";
+  color: var(--bs-primary, #0066cc);
+}
+
+.chatlas-tool-result-content {
+  border: 1px solid var(--bs-border-color, #0066cc);
+  width: 100%;
+  padding: 1rem;
+  border-radius: var(--bs-border-radius, 0.2rem);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+"""

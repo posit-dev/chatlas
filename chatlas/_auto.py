@@ -55,7 +55,7 @@ def ChatAuto(
     """
     Use environment variables (env vars) to configure the Chat provider and model.
 
-    Creates a `:class:~chatlas.Chat` instance based on the specified provider.
+    Creates a :class:`~chatlas.Chat` instance based on the specified provider.
     The provider may be specified through the `provider` parameter and/or the
     `CHATLAS_CHAT_PROVIDER` env var. If both are set, the env var takes
     precedence. Similarly, the provider's model may be specified through the
