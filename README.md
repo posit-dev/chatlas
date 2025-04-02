@@ -206,6 +206,26 @@ chat.extract_data(
 
 Learn more in the [structured data article](https://posit-dev.github.io/chatlas/structured-data.html)
 
+### Multi-modal input
+
+Attach images and pdfs when submitting input to using any one of the `content_*` functions.
+
+```python
+from chatlas import content_image_url
+
+chat.chat(
+    content_image_url("https://www.python.org/static/img/python-logo.png"),
+    "What do you see in this image?"
+)
+```
+
+```
+This image displays the logo of the Python programming language. It features the word "python" alongside the distinctive two snake heads logo, which is colored in blue and yellow.  
+```
+
+Learn more in the [content reference pages](https://posit-dev.github.io/chatlas/reference/content_image_url.html) for more details on the available content types.
+
+
 ### Export chat
 
 Easily get a full markdown or HTML export of a conversation:
