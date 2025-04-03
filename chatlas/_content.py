@@ -289,7 +289,7 @@ class ContentToolResult(Content):
             )
 
         if not self.error:
-            header = f"✅ View <code>{self.name}</code> tool result"
+            header = f"View result from <code>{self.name}</code>"
         else:
             header = f"❌ Falled to call tool <code>{self.name}</code>"
 
@@ -301,8 +301,8 @@ class ContentToolResult(Content):
               <details class="chatlas-tool-result">
                   <summary>{header}</summary>
                   <div class="chatlas-tool-result-content">
-                      <b>Result:</b> <p><code>{content}</code></p>
-                      <b>Arguments:</b> <p><code>{args}</code></p>
+                      Result: <p><code>{content}</code></p>
+                      Arguments: <p><code>{args}</code></p>
                   </div>
               </details>
             """)
@@ -409,6 +409,11 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
 
 
 TOOL_CSS = """
+.chatlas-tool-request, .chatlas-tool-result {
+  font-weight: 300;
+  font-size: 0.9rem;
+}
+
 .chatlas-tool-request:has(~ .chatlas-tool-result) {
   display: none;
 }
@@ -425,13 +430,14 @@ TOOL_CSS = """
 }
 
 .chatlas-tool-result summary::after {
-  content: "◄";
-  color: var(--bs-primary, #0066cc);
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-caret-right-fill' viewBox='0 0 16 16'%3E%3Cpath d='m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z'/%3E%3C/svg%3E");
+  font-size: 1.15rem;
   margin-left: 0.25rem;
+  vertical-align: middle;
 }
 
 .chatlas-tool-result[open] summary::after {
-  content: "▼";
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-caret-down-fill' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
 }
 
 .chatlas-tool-result-content {
