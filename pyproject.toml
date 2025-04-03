@@ -5,6 +5,7 @@ dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
+  "requests",
   "pydantic>=2.0",
   "jinja2",
   "rich",
