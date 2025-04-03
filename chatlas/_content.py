@@ -224,25 +224,45 @@ class ContentToolResult(Content):
 
     Parameters
     ----------
-    id
-        The unique identifier of the tool request.
     value
-        The value returned by the tool/function.
-    name
-        The name of the tool/function that was called.
+        The value returned by the tool/function (to be sent to the model).
     error
-        An error message if the tool/function call failed.
-    arguments
-        The arguments passed to the tool/function.
+        An exception that occurred during the tool request. If this is set, the
+        error message sent to the model and the value is ignored.
+    extra
+       Additional data associated with the tool result that isn't sent to the
+       model.
+    request
+        Not intended to be used directly. It will be set when the
+        :class:`~chatlas.Chat` invokes the tool.
     """
 
-    id: str
-    value: Any = None
-    name: Optional[str] = None
-    error: Optional[str] = None
-    arguments: Optional[object] = None
+    # public
+    value: Any
+    error: Optional[Exception] = None
+    extra: Any = None
 
+    # "private"
+    request: Optional[ContentToolRequest] = None
     content_type: ContentTypeEnum = "tool_result"
+
+    @property
+    def id(self):
+        if self.request:
+            return self.request.id
+        return None
+
+    @property
+    def name(self):
+        if self.request:
+            return self.request.name
+        return None
+
+    @property
+    def arguments(self):
+        if self.request:
+            return self.request.arguments
+        return None
 
     def _get_value(self, pretty: bool = False) -> str:
         if self.error:
@@ -409,17 +429,19 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
 
 
 TOOL_CSS = """
+/* Get dot to appear inline, even when in a paragraph following the request */
 .chatlas-tool-request + p:has(.markdown-stream-dot) {
   display: inline;
+}
+
+/* Hide request when anything other than a dot follows it */
+.chatlas-tool-request:not(:has(+ p .markdown-stream-dot)) {
+  display: none;
 }
 
 .chatlas-tool-request, .chatlas-tool-result {
   font-weight: 300;
   font-size: 0.9rem;
-}
-
-.chatlas-tool-request:has(~ .chatlas-tool-result) {
-  display: none;
 }
 
 .chatlas-tool-result {

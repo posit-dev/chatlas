@@ -1138,7 +1138,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 if isinstance(x, ContentToolRequest):
                     if content == "all":
                         yield x
-                    res = self._invoke_tool_request(x)
+                    res = self._invoke_tool(x)
                     if content == "all":
                         yield res
                     results.append(res)
@@ -1197,7 +1197,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 if isinstance(x, ContentToolRequest):
                     if content == "all":
                         yield x
-                    res = await self._invoke_tool_request_async(x)
+                    res = await self._invoke_tool_async(x)
                     if content == "all":
                         yield res
                     results.append(res)
@@ -1334,14 +1334,32 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         self._turns.extend([user_turn, turn])
 
-    def _invoke_tool_request(self, x: ContentToolRequest) -> ContentToolResult:
+    def _invoke_tool(self, x: ContentToolRequest) -> ContentToolResult:
         tool_def = self._tools.get(x.name, None)
         func = tool_def.func if tool_def is not None else None
-        return self._invoke_tool(func, x.arguments, x.id)
 
-    async def _invoke_tool_request_async(
-        self, x: ContentToolRequest
-    ) -> ContentToolResult:
+        if func is None:
+            e = RuntimeError(f"Unknown tool: {x.name}")
+            return ContentToolResult(value=None, error=e, request=x)
+
+        args = x.arguments
+
+        try:
+            if isinstance(args, dict):
+                result = func(**args)
+            else:
+                result = func(args)
+
+            if not isinstance(result, ContentToolResult):
+                result = ContentToolResult(value=result)
+
+            result.request = x
+            return result
+        except Exception as e:
+            log_tool_error(x.name, str(args), e)
+            return ContentToolResult(value=None, error=e, request=x)
+
+    async def _invoke_tool_async(self, x: ContentToolRequest) -> ContentToolResult:
         tool_def = self._tools.get(x.name, None)
         func = None
         if tool_def:
@@ -1349,65 +1367,27 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 func = tool_def.func
             else:
                 func = wrap_async(tool_def.func)
-        return await self._invoke_tool_async(func, x.arguments, x.id)
 
-    @staticmethod
-    def _invoke_tool(
-        func: Callable[..., Any] | None,
-        arguments: object,
-        id_: str,
-    ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id=id_, value=None, error="Unknown tool")
+            e = RuntimeError(f"Unknown tool: {x.name}")
+            return ContentToolResult(value=None, error=e, request=x)
 
-        name = func.__name__
+        args = x.arguments
 
         try:
-            if isinstance(arguments, dict):
-                result = func(**arguments)
+            if isinstance(args, dict):
+                result = await func(**args)
             else:
-                result = func(arguments)
+                result = await func(args)
 
-            if isinstance(result, ContentToolResult):
-                result.arguments = arguments
-                return result
-            return ContentToolResult(
-                id=id_, value=result, error=None, name=name, arguments=arguments
-            )
+            if not isinstance(result, ContentToolResult):
+                result = ContentToolResult(value=result)
+
+            result.request = x
+            return result
         except Exception as e:
-            log_tool_error(name, str(arguments), e)
-            return ContentToolResult(
-                id=id_, value=None, error=str(e), name=name, arguments=arguments
-            )
-
-    @staticmethod
-    async def _invoke_tool_async(
-        func: Callable[..., Awaitable[Any]] | None,
-        arguments: object,
-        id_: str,
-    ) -> ContentToolResult:
-        if func is None:
-            return ContentToolResult(id=id_, value=None, error="Unknown tool")
-
-        name = func.__name__
-
-        try:
-            if isinstance(arguments, dict):
-                result = await func(**arguments)
-            else:
-                result = await func(arguments)
-
-            if isinstance(result, ContentToolResult):
-                result.arguments = arguments
-                return result
-            return ContentToolResult(
-                id=id_, value=result, error=None, name=name, arguments=arguments
-            )
-        except Exception as e:
-            log_tool_error(func.__name__, str(arguments), e)
-            return ContentToolResult(
-                id=id_, value=None, error=str(e), name=name, arguments=arguments
-            )
+            log_tool_error(x.name, str(args), e)
+            return ContentToolResult(value=None, error=e, request=x)
 
     def _markdown_display(
         self, echo: Literal["text", "all", "none"]
