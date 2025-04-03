@@ -1369,11 +1369,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 result = func(arguments)
 
             if isinstance(result, ContentToolResult):
+                result.arguments = arguments
                 return result
-            return ContentToolResult(id=id_, value=result, error=None, name=name)
+            return ContentToolResult(
+                id=id_, value=result, error=None, name=name, arguments=arguments
+            )
         except Exception as e:
             log_tool_error(name, str(arguments), e)
-            return ContentToolResult(id=id_, value=None, error=str(e), name=name)
+            return ContentToolResult(
+                id=id_, value=None, error=str(e), name=name, arguments=arguments
+            )
 
     @staticmethod
     async def _invoke_tool_async(
@@ -1393,11 +1398,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 result = await func(arguments)
 
             if isinstance(result, ContentToolResult):
+                result.arguments = arguments
                 return result
-            return ContentToolResult(id=id_, value=result, error=None, name=name)
+            return ContentToolResult(
+                id=id_, value=result, error=None, name=name, arguments=arguments
+            )
         except Exception as e:
             log_tool_error(func.__name__, str(arguments), e)
-            return ContentToolResult(id=id_, value=None, error=str(e), name=name)
+            return ContentToolResult(
+                id=id_, value=None, error=str(e), name=name, arguments=arguments
+            )
 
     def _markdown_display(
         self, echo: Literal["text", "all", "none"]

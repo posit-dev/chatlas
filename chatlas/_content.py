@@ -409,7 +409,7 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
 
 
 TOOL_CSS = """
-.chatlas-tool-request:has(+ .chatlas-tool-result) {
+.chatlas-tool-request:has(~ .chatlas-tool-result) {
   display: none;
 }
 
@@ -427,11 +427,11 @@ TOOL_CSS = """
 .chatlas-tool-result summary::after {
   content: "◄";
   color: var(--bs-primary, #0066cc);
+  margin-left: 0.25rem;
 }
 
 .chatlas-tool-result[open] summary::after {
   content: "▼";
-  color: var(--bs-primary, #0066cc);
 }
 
 .chatlas-tool-result-content {
