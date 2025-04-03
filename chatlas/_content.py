@@ -206,7 +206,7 @@ class ContentToolRequest(Content):
                 "but htmltools is not installed. ",
             )
 
-        html = f"<p class='chatlas-tool-request'>🔧 Running tool: <code>{self.name}</code></p>"
+        html = f"<p></p><span class='chatlas-tool-request'>🔧 Running tool: <code>{self.name}</code></span>"
 
         return TagList(
             HTML(html),
@@ -409,6 +409,10 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
 
 
 TOOL_CSS = """
+.chatlas-tool-request + p:has(.markdown-stream-dot) {
+  display: inline;
+}
+
 .chatlas-tool-request, .chatlas-tool-result {
   font-weight: 300;
   font-size: 0.9rem;
