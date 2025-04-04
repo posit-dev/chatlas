@@ -313,7 +313,7 @@ class ContentToolResult(Content):
         if not self.error:
             header = f"View result from <code>{self.name}</code>"
         else:
-            header = f"❌ Falled to call tool <code>{self.name}</code>"
+            header = f"❌ Failed to call tool <code>{self.name}</code>"
 
         args = self._arguments_str()
         content = self._get_value(pretty=True)
