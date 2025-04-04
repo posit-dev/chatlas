@@ -1,9 +1,9 @@
-from typing import Union
+from typing import Union, Any, Optional
 
 import pytest
 
 from chatlas import ChatOpenAI
-from chatlas.types import ContentToolResult
+from chatlas.types import ContentToolResult, ContentToolRequest
 
 
 def test_register_tool():
@@ -105,24 +105,39 @@ def test_invoke_tool_returns_tool_result():
 
     def tool():
         return 1
+    
+    chat.register_tool(tool)
 
-    res = chat._invoke_tool(tool, {}, id_="x")
+    def new_tool_request(
+        name: Optional[str] = "tool", 
+        args: Optional[dict[str, Any]] = None,
+    ):
+        return ContentToolRequest(
+            id="id",
+            name=name,
+            arguments=args or {},
+        )
+
+    res = chat._invoke_tool(new_tool_request())
     assert isinstance(res, ContentToolResult)
-    assert res.id == "x"
+    assert res.id == "id"
     assert res.error is None
     assert res.value == 1
 
-    res = chat._invoke_tool(tool, {"x": 1}, id_="x")
+    res = chat._invoke_tool(new_tool_request(args={"x": 1}))
     assert isinstance(res, ContentToolResult)
-    assert res.id == "x"
+    assert res.id == "id"
     assert res.error is not None
-    assert "got an unexpected keyword argument" in res.error
+    assert "got an unexpected keyword argument" in str(res.error)
     assert res.value is None
 
-    res = chat._invoke_tool(None, {"x": 1}, id_="x")
+    res = chat._invoke_tool(new_tool_request(
+        name="foo",
+        args={"x": 1},
+    ))
     assert isinstance(res, ContentToolResult)
-    assert res.id == "x"
-    assert res.error == "Unknown tool"
+    assert res.id == "id"
+    assert str(res.error) == "Unknown tool: foo"
     assert res.value is None
 
 
@@ -132,22 +147,38 @@ async def test_invoke_tool_returns_tool_result_async():
 
     async def tool():
         return 1
+    
+    chat.register_tool(tool)
 
-    res = await chat._invoke_tool_async(tool, {}, id_="x")
+    def new_tool_request(
+        name: Optional[str] = "tool",
+        args: Optional[dict[str, Any]] = None,
+    ):
+        return ContentToolRequest(
+            id="id",
+            name=name,
+            arguments=args or {},
+        )
+
+    res = await chat._invoke_tool_async(new_tool_request())
     assert isinstance(res, ContentToolResult)
-    assert res.id == "x"
+    assert res.id == "id"
     assert res.error is None
     assert res.value == 1
 
-    res = await chat._invoke_tool_async(tool, {"x": 1}, id_="x")
+    res = await chat._invoke_tool_async(
+        new_tool_request(args={"x": 1})
+    )
     assert isinstance(res, ContentToolResult)
-    assert res.id == "x"
+    assert res.id == "id"
     assert res.error is not None
-    assert "got an unexpected keyword argument" in res.error
+    assert "got an unexpected keyword argument" in str(res.error)
     assert res.value is None
 
-    res = await chat._invoke_tool_async(None, {"x": 1}, id_="x")
+    res = await chat._invoke_tool_async(
+        new_tool_request(name="foo", args={"x": 1})
+    )
     assert isinstance(res, ContentToolResult)
-    assert res.id == "x"
-    assert res.error == "Unknown tool"
+    assert res.id == "id"
+    assert str(res.error) == "Unknown tool: foo"
     assert res.value is None
