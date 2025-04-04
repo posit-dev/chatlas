@@ -1,5 +1,4 @@
 import pytest
-
 from chatlas import ChatAnthropic
 
 from .conftest import (
@@ -11,6 +10,7 @@ from .conftest import (
     assert_tools_parallel,
     assert_tools_sequential,
     assert_tools_simple,
+    assert_tools_simple_stream_content,
     assert_turns_existing,
     assert_turns_system,
     retryassert,
@@ -57,6 +57,8 @@ def test_anthropic_tool_variations():
         assert_tools_simple(chat_fun)
 
     retryassert(run_simpleassert, retries=5)
+
+    assert_tools_simple_stream_content(chat_fun)
 
     def run_parallelassert():
         # For some reason, at the time of writing, Claude 3.7 doesn't

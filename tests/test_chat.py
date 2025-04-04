@@ -2,9 +2,8 @@ import re
 import tempfile
 
 import pytest
-from pydantic import BaseModel
-
 from chatlas import ChatOpenAI, Turn
+from pydantic import BaseModel
 
 
 def test_simple_batch_chat():

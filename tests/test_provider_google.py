@@ -2,17 +2,16 @@ import os
 import time
 
 import pytest
-
 from chatlas import ChatGoogle
 
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote_error,
-    assert_pdf_local,
     assert_tools_parallel,
     assert_tools_sequential,
     assert_tools_simple,
+    assert_tools_simple_stream_content,
     assert_turns_existing,
     assert_turns_system,
 )
@@ -59,6 +58,8 @@ def test_google_tool_variations():
     time.sleep(3)
     assert_tools_simple(chat_fun)
     time.sleep(3)
+    assert_tools_simple_stream_content(chat_fun)
+    time.sleep(3)
     assert_tools_parallel(chat_fun)
     time.sleep(3)
     assert_tools_sequential(
@@ -88,8 +89,9 @@ def test_google_images():
     assert_images_remote_error(chat_fun)
 
 
-def test_google_pdfs():
-    chat_fun = ChatGoogle
-
-    time.sleep(20)
-    assert_pdf_local(chat_fun)
+# TODO: figure out a way to workaround the rate limits for this test
+# def test_google_pdfs():
+#    chat_fun = ChatGoogle
+#
+#    time.sleep(20)
+#    assert_pdf_local(chat_fun)
