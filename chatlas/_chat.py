@@ -648,7 +648,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         *args: Content | str,
         echo: Literal["text", "all", "none"] = "none",
-        content: Literal["text", "all"],
+        content: Literal["text", "all"] = "text",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
         """
@@ -717,7 +717,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         *args: Content | str,
         echo: Literal["text", "all", "none"] = "none",
-        content: Literal["text", "all"],
+        content: Literal["text", "all"] = "text",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
         """
