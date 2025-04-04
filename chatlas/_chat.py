@@ -412,7 +412,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Whether to echo text content, all content (i.e., tool calls), or no
             content. Defaults to `"none"` when `stream=True` and `"text"` when
             `stream=False`.
-        include
+        content
             Whether to display text content or all content (i.e., tool calls).
         kwargs
             Additional keyword arguments to pass to the method used for requesting
@@ -661,7 +661,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo
             Whether to echo text content, all content (i.e., tool calls), or no
             content.
-        include
+        content
             Whether to yield just text content, or all content (i.e., tool calls).
         kwargs
             Additional keyword arguments to pass to the method used for requesting
@@ -730,7 +730,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo
             Whether to echo text content, all content (i.e., tool calls), or no
             content.
-        include
+        content
             Whether to yield just text content, or all content (i.e., tool calls).
         kwargs
             Additional keyword arguments to pass to the method used for requesting
@@ -989,7 +989,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A title to place at the top of the exported file.
         overwrite
             Whether to overwrite the file if it already exists.
-        include
+        content
             Whether to include text content, all content (i.e., tool calls), or no
             content.
         include_system_prompt
@@ -1025,9 +1025,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         for turn in turns:
             turn_content = "\n\n".join(
                 [
-                    str(content).strip()
-                    for content in turn.contents
-                    if content == "all" or isinstance(content, ContentText)
+                    str(x).strip()
+                    for x in turn.contents
+                    if content == "all" or isinstance(x, ContentText)
                 ]
             )
             if is_html:
