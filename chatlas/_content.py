@@ -248,21 +248,23 @@ class ContentToolResult(Content):
 
     @property
     def id(self):
-        if self.request:
-            return self.request.id
-        return None
+        if not self.request:
+            raise ValueError("id is only available after the tool has been called")
+        return self.request.id
 
     @property
     def name(self):
-        if self.request:
-            return self.request.name
-        return None
+        if not self.request:
+            raise ValueError("name is only available after the tool has been called")
+        return self.request.name
 
     @property
     def arguments(self):
-        if self.request:
-            return self.request.arguments
-        return None
+        if not self.request:
+            raise ValueError(
+                "arguments is only available after the tool has been called"
+            )
+        return self.request.arguments
 
     def _get_value(self, pretty: bool = False) -> str:
         if self.error:
