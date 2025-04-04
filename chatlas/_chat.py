@@ -1200,6 +1200,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     res = await self._invoke_tool_async(x)
                     if content == "all":
                         yield res
+                    else:
+                        yield "\n\n"
                     results.append(res)
 
             if results:
