@@ -442,10 +442,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
             @chat.on_user_submit
-            async def _():
-                user_input = chat.user_input()
-                if user_input is None:
-                    return
+            async def _(user_input: str):
                 if stream:
                     await chat.append_message_stream(
                         await self.stream_async(
@@ -461,6 +458,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             self.chat(
                                 user_input,
                                 kwargs=kwargs,
+                                stream=False,
                                 echo=echo or "text",
                             )
                         )
