@@ -117,29 +117,42 @@ def test_invoke_tool_returns_tool_result():
             arguments=args or {},
         )
 
-    res = chat._invoke_tool(new_tool_request())
+    req1 = new_tool_request()
+    res = chat._invoke_tool(req1)
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
     assert res.error is None
     assert res.value == 1
+    assert res.request == req1
+    assert res.id == req1.id
+    assert res.name == req1.name
+    assert res.arguments == req1.arguments
 
-    res = chat._invoke_tool(new_tool_request(args={"x": 1}))
+    req2 = new_tool_request(args={"x": 1})
+    res = chat._invoke_tool(req2)
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
     assert res.error is not None
     assert "got an unexpected keyword argument" in str(res.error)
     assert res.value is None
+    assert res.request == req2
+    assert res.id == req2.id
+    assert res.name == req2.name
+    assert res.arguments == req2.arguments
 
-    res = chat._invoke_tool(
-        new_tool_request(
-            name="foo",
-            args={"x": 1},
-        )
+    req3 = new_tool_request(
+        name="foo",
+        args={"x": 1},
     )
+    res = chat._invoke_tool(req3)
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
     assert str(res.error) == "Unknown tool: foo"
     assert res.value is None
+    assert res.request == req3
+    assert res.id == req3.id
+    assert res.name == req3.name
+    assert res.arguments == req3.arguments
 
 
 @pytest.mark.asyncio
@@ -161,24 +174,42 @@ async def test_invoke_tool_returns_tool_result_async():
             arguments=args or {},
         )
 
-    res = await chat._invoke_tool_async(new_tool_request())
+    req1 = new_tool_request()
+    res = await chat._invoke_tool_async(req1)
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
     assert res.error is None
     assert res.value == 1
+    assert res.request == req1
+    assert res.id == req1.id
+    assert res.name == req1.name
+    assert res.arguments == req1.arguments
 
-    res = await chat._invoke_tool_async(new_tool_request(args={"x": 1}))
+    req2 = new_tool_request(args={"x": 1})
+    res = await chat._invoke_tool_async(req2)
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
     assert res.error is not None
     assert "got an unexpected keyword argument" in str(res.error)
     assert res.value is None
+    assert res.request == req2
+    assert res.id == req2.id
+    assert res.name == req2.name
+    assert res.arguments == req2.arguments
 
-    res = await chat._invoke_tool_async(new_tool_request(name="foo", args={"x": 1}))
+    req3 = new_tool_request(
+        name="foo",
+        args={"x": 1},
+    )
+    res = await chat._invoke_tool_async(req3)
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
     assert str(res.error) == "Unknown tool: foo"
     assert res.value is None
+    assert res.request == req3
+    assert res.id == req3.id
+    assert res.name == req3.name
+    assert res.arguments == req3.arguments
 
 
 def test_tool_custom_result():
@@ -218,6 +249,9 @@ def test_tool_custom_result():
     assert res.value == 1
     assert res.extra == {"foo": "bar"}
     assert res.request == req
+    assert res.id == req.id
+    assert res.name == req.name
+    assert res.arguments == req.arguments
 
     res_err = chat._invoke_tool(req_err)
     assert isinstance(res_err, CustomResult)
@@ -227,6 +261,9 @@ def test_tool_custom_result():
     assert res_err.value is None
     assert res_err.extra == {"foo": "bar"}
     assert res_err.request == req_err
+    assert res_err.id == req_err.id
+    assert res_err.name == req_err.name
+    assert res_err.arguments == req_err.arguments
 
 
 @pytest.mark.asyncio
@@ -268,6 +305,9 @@ async def test_tool_custom_result_async():
     assert res.value == 1
     assert res.extra == {"foo": "bar"}
     assert res.request == req
+    assert res.id == req.id
+    assert res.name == req.name
+    assert res.arguments == req.arguments
 
     res_err = await chat._invoke_tool_async(req_err)
     assert isinstance(res_err, CustomResult)
@@ -277,3 +317,6 @@ async def test_tool_custom_result_async():
     assert res_err.value is None
     assert res_err.extra == {"foo": "bar"}
     assert res_err.request == req_err
+    assert res_err.id == req_err.id
+    assert res_err.name == req_err.name
+    assert res_err.arguments == req_err.arguments
