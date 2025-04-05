@@ -1,13 +1,16 @@
 import os
-import time
 
 import pytest
+import requests
 from chatlas import ChatGoogle
+from google.genai.errors import APIError
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote_error,
+    assert_pdf_local,
     assert_tools_parallel,
     assert_tools_sequential,
     assert_tools_simple,
@@ -52,21 +55,47 @@ def test_google_respects_turns_interface():
     assert_turns_existing(chat_fun)
 
 
-def test_google_tool_variations():
-    chat_fun = ChatGoogle
-    # Avoid Google's rate limits
-    time.sleep(3)
-    assert_tools_simple(chat_fun)
-    time.sleep(3)
-    assert_tools_simple_stream_content(chat_fun)
-    time.sleep(3)
-    assert_tools_parallel(chat_fun)
-    time.sleep(3)
+# https://github.com/googleapis/python-genai/issues/336
+def _is_retryable_error(exception: BaseException) -> bool:
+    """
+    Checks if the exception is a retryable error based on the criteria.
+    """
+    if isinstance(exception, APIError):
+        return exception.code in [429, 502, 503, 504]
+    if isinstance(exception, requests.exceptions.ConnectionError):
+        return True
+    return False
+
+
+retry_gemini_call = retry(
+    retry=retry_if_exception(_is_retryable_error),
+    wait=wait_exponential(min=1, max=100),
+    stop=stop_after_attempt(10),
+    reraise=True,
+)
+
+
+@retry_gemini_call
+def test_tools_simple():
+    assert_tools_simple(ChatGoogle)
+
+
+@retry_gemini_call
+def test_tools_simple_stream_content():
+    assert_tools_simple_stream_content(ChatGoogle)
+
+
+@retry_gemini_call
+def test_tools_parallel():
+    assert_tools_parallel(ChatGoogle)
+
+
+@retry_gemini_call
+def test_tools_sequential():
     assert_tools_sequential(
-        chat_fun,
+        ChatGoogle,
         total_calls=6,
     )
-    time.sleep(3)
 
 
 # TODO: this test runs fine in isolation, but fails for some reason when run with the other tests
@@ -76,22 +105,21 @@ def test_google_tool_variations():
 #     await assert_tools_async(ChatGoogle, stream=False)
 
 
+@retry_gemini_call
 def test_data_extraction():
-    time.sleep(3)
     assert_data_extraction(ChatGoogle)
 
 
-def test_google_images():
-    chat_fun = ChatGoogle
-    time.sleep(3)
-    assert_images_inline(chat_fun)
-    time.sleep(3)
-    assert_images_remote_error(chat_fun)
+@retry_gemini_call
+def test_images_inline():
+    assert_images_inline(ChatGoogle)
 
 
-# TODO: figure out a way to workaround the rate limits for this test
-# def test_google_pdfs():
-#    chat_fun = ChatGoogle
-#
-#    time.sleep(20)
-#    assert_pdf_local(chat_fun)
+@retry_gemini_call
+def test_images_remote_error():
+    assert_images_remote_error(ChatGoogle)
+
+
+@retry_gemini_call
+def test_google_pdfs():
+    assert_pdf_local(ChatGoogle)

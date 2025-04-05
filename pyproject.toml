@@ -53,7 +53,8 @@ dev = [
     "snowflake-ml-python",
     # torch (a dependency of snowflake-ml-python) is not yet compatible with Python >3.11
     "torch;python_version<='3.11'",
-    "htmltools"
+    "htmltools",
+    "tenacity"
 ]
 docs = [
     "griffe>=1",
