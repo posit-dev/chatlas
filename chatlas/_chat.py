@@ -630,6 +630,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def stream(
         self,
         *args: Content | str,
+    ) -> Generator[str, None, None]: ...
+
+    @overload
+    def stream(
+        self,
+        *args: Content | str,
+        echo: Literal["text", "all", "none"],
+    ) -> Generator[str, None, None]: ...
+
+    @overload
+    def stream(
+        self,
+        *args: Content | str,
         echo: Literal["text", "all", "none"],
         content: Literal["text"],
         kwargs: Optional[SubmitInputArgsT],
@@ -694,6 +707,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     yield chunk
 
         return wrapper()
+
+    @overload
+    async def stream_async(
+        self,
+        *args: Content | str,
+    ) -> AsyncGenerator[str, None]: ...
+
+    @overload
+    async def stream_async(
+        self,
+        *args: Content | str,
+        echo: Literal["text", "all", "none"],
+    ) -> AsyncGenerator[str, None]: ...
 
     @overload
     async def stream_async(
