@@ -492,9 +492,13 @@ class GoogleProvider(
                 if name:
                     contents.append(
                         ContentToolResult(
-                            id=function_response.get("id") or name,
                             value=function_response.get("response"),
-                            name=name,
+                            request=ContentToolRequest(
+                                id=function_response.get("id") or name,
+                                name=name,
+                                # TODO: how to get the arguments?
+                                arguments={},
+                            ),
                         )
                     )
 

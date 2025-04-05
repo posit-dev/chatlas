@@ -1,5 +1,4 @@
 import pytest
-
 from chatlas import ChatOpenAI
 
 from .conftest import (
@@ -11,6 +10,7 @@ from .conftest import (
     assert_tools_parallel,
     assert_tools_sequential,
     assert_tools_simple,
+    assert_tools_simple_stream_content,
     assert_turns_existing,
     assert_turns_system,
 )
@@ -53,6 +53,7 @@ def test_openai_respects_turns_interface():
 def test_openai_tool_variations():
     chat_fun = ChatOpenAI
     assert_tools_simple(chat_fun)
+    assert_tools_simple_stream_content(chat_fun)
     assert_tools_parallel(chat_fun)
     assert_tools_sequential(chat_fun, total_calls=6)
 

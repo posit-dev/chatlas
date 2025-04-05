@@ -7,6 +7,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [UNRELEASED]
+
+### New features
+
+* `.stream()` and `.stream_async()` gain a `content` argument. Set this to `"all"` to include `ContentToolRequest` and `ContentToolResponse` instances in the stream. (#75)
+* `ContentToolRequest` and `ContentToolResponse` are now exported to `chatlas` namespace. (#75)
+* `ContentToolRequest` and `ContentToolResponse` now have `.tagify()` methods, making it so they can render automatically in a Shiny chatbot. (#75)
+* `ContentToolResult` instances can be returned from tools. This allows for custom rendering of the tool result. (#75)
+
+### Breaking changes
+
+* The `.export()` method's `include` argument has been renamed to `content` (to match `.stream()`). (#75)
+
 ## [0.6.1] - 2025-04-03
 
 ### Bug fixes

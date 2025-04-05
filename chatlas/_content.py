@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
+import textwrap
 from pprint import pformat
-from typing import Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 from pydantic import BaseModel, ConfigDict
+
+if TYPE_CHECKING:
+    from htmltools import TagChild
 
 ImageContentTypes = Literal[
     "image/png",
@@ -192,6 +196,23 @@ class ContentToolRequest(Content):
             return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
         return str(self.arguments)
 
+    def tagify(self) -> "TagChild":
+        "Returns an HTML string suitable for passing to htmltools/shiny's `Chat()` component."
+        try:
+            from htmltools import HTML, TagList, head_content, tags
+        except ImportError:
+            raise ImportError(
+                ".tagify() is only intended to be called by htmltools/shiny, ",
+                "but htmltools is not installed. ",
+            )
+
+        html = f"<p></p><span class='chatlas-tool-request'>🔧 Running tool: <code>{self.name}</code></span>"
+
+        return TagList(
+            HTML(html),
+            head_content(tags.style(TOOL_CSS)),
+        )
+
 
 class ContentToolResult(Content):
     """
@@ -203,22 +224,47 @@ class ContentToolResult(Content):
 
     Parameters
     ----------
-    id
-        The unique identifier of the tool request.
     value
-        The value returned by the tool/function.
-    name
-        The name of the tool/function that was called.
+        The value returned by the tool/function (to be sent to the model).
     error
-        An error message if the tool/function call failed.
+        An exception that occurred during the tool request. If this is set, the
+        error message sent to the model and the value is ignored.
+    extra
+       Additional data associated with the tool result that isn't sent to the
+       model.
+    request
+        Not intended to be used directly. It will be set when the
+        :class:`~chatlas.Chat` invokes the tool.
     """
 
-    id: str
-    value: Any = None
-    name: Optional[str] = None
-    error: Optional[str] = None
+    # public
+    value: Any
+    error: Optional[Exception] = None
+    extra: Any = None
 
+    # "private"
+    request: Optional[ContentToolRequest] = None
     content_type: ContentTypeEnum = "tool_result"
+
+    @property
+    def id(self):
+        if not self.request:
+            raise ValueError("id is only available after the tool has been called")
+        return self.request.id
+
+    @property
+    def name(self):
+        if not self.request:
+            raise ValueError("name is only available after the tool has been called")
+        return self.request.name
+
+    @property
+    def arguments(self):
+        if not self.request:
+            raise ValueError(
+                "arguments is only available after the tool has been called"
+            )
+        return self.request.arguments
 
     def _get_value(self, pretty: bool = False) -> str:
         if self.error:
@@ -251,6 +297,43 @@ class ContentToolResult(Content):
     # The actual value to send to the model
     def get_final_value(self) -> str:
         return self._get_value()
+
+    def tagify(self) -> "TagChild":
+        """
+        A method for rendering this object via htmltools/shiny.
+        """
+        try:
+            from htmltools import HTML
+        except ImportError:
+            raise ImportError(
+                ".tagify() is only intended to be called by htmltools/shiny, ",
+                "but htmltools is not installed. ",
+            )
+
+        if not self.error:
+            header = f"View result from <code>{self.name}</code>"
+        else:
+            header = f"❌ Failed to call tool <code>{self.name}</code>"
+
+        args = self._arguments_str()
+        content = self._get_value(pretty=True)
+
+        return HTML(
+            textwrap.dedent(f"""
+              <details class="chatlas-tool-result">
+                  <summary>{header}</summary>
+                  <div class="chatlas-tool-result-content">
+                      Result: <p><code>{content}</code></p>
+                      Arguments: <p><code>{args}</code></p>
+                  </div>
+              </details>
+            """)
+        )
+
+    def _arguments_str(self) -> str:
+        if isinstance(self.arguments, dict):
+            return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
+        return str(self.arguments)
 
 
 class ContentJson(Content):
@@ -345,3 +428,52 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentPDF.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
+
+
+TOOL_CSS = """
+/* Get dot to appear inline, even when in a paragraph following the request */
+.chatlas-tool-request + p:has(.markdown-stream-dot) {
+  display: inline;
+}
+
+/* Hide request when anything other than a dot follows it */
+.chatlas-tool-request:not(:has(+ p .markdown-stream-dot)) {
+  display: none;
+}
+
+.chatlas-tool-request, .chatlas-tool-result {
+  font-weight: 300;
+  font-size: 0.9rem;
+}
+
+.chatlas-tool-result {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.chatlas-tool-result summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.chatlas-tool-result summary::after {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-caret-right-fill' viewBox='0 0 16 16'%3E%3Cpath d='m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z'/%3E%3C/svg%3E");
+  font-size: 1.15rem;
+  margin-left: 0.25rem;
+  vertical-align: middle;
+}
+
+.chatlas-tool-result[open] summary::after {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-caret-down-fill' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+}
+
+.chatlas-tool-result-content {
+  border: 1px solid var(--bs-border-color, #0066cc);
+  width: 100%;
+  padding: 1rem;
+  border-radius: var(--bs-border-radius, 0.2rem);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+"""

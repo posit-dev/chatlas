@@ -3,10 +3,17 @@ from pathlib import Path
 from typing import Awaitable, Callable
 
 import pytest
+from chatlas import (
+    Chat,
+    ContentToolRequest,
+    ContentToolResult,
+    Turn,
+    content_image_file,
+    content_image_url,
+    content_pdf_file,
+)
 from PIL import Image
 from pydantic import BaseModel
-
-from chatlas import Chat, Turn, content_image_file, content_image_url, content_pdf_file
 
 ChatFun = Callable[..., Chat]
 
@@ -87,11 +94,31 @@ def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
 
     chat.register_tool(get_date)
 
-    response = chat.chat("What's the current date in YMD format?", stream=stream)
+    response = chat.chat("What's the current date in Y-M-D format?", stream=stream)
     assert "2024-01-01" in str(response)
 
     response = chat.chat("What month is it? Provide the full name.", stream=stream)
     assert "January" in str(response)
+
+
+def assert_tools_simple_stream_content(chat_fun: ChatFun):
+    chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
+
+    def get_date():
+        """Gets the current date"""
+        return "2024-01-01"
+
+    chat.register_tool(get_date)
+
+    response = chat.stream("What's the current date in Y-M-D format?", content="all")
+    chunks = [chunk for chunk in response]
+    request = [x for x in chunks if isinstance(x, ContentToolRequest)]
+    assert len(request) == 1
+    response = [x for x in chunks if isinstance(x, ContentToolResult)]
+    assert len(response) == 1
+    str_response = "".join([str(x) for x in chunks])
+    assert "2024-01-01" in str_response
+    assert "get_date" in str_response
 
 
 async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
@@ -107,7 +134,7 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
     chat.register_tool(get_current_date)
 
     response = await chat.chat_async(
-        "What's the current date in YMD format?", stream=stream
+        "What's the current date in Y-M-D format?", stream=stream
     )
     assert "2024-01-01" in await response.get_content()
 
@@ -124,7 +151,7 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
     chat.register_tool(get_current_date2)
 
     response = await chat.chat_async(
-        "What's the current date in YMD format?", stream=stream
+        "What's the current date in Y-M-D format?", stream=stream
     )
     assert "2024-01-01" in await response.get_content()
 
