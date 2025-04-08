@@ -1006,7 +1006,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         return self._current_display
 
-    def _update_display(self, x: str):
+    def _echo_content(self, x: str):
         if self.current_display is None:
             return
         self.current_display.append(x)
@@ -1180,12 +1180,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
                     if echo == "output":
-                        self._update_display(f"\n\n{x}\n\n")
+                        self._echo_content(f"\n\n{x}\n\n")
                     if content == "all":
                         yield x
                     res = self._invoke_tool(x)
                     if echo == "output":
-                        self._update_display(f"\n\n{res}\n\n")
+                        self._echo_content(f"\n\n{res}\n\n")
                     if content == "all":
                         yield res
                     results.append(res)
@@ -1239,12 +1239,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
                     if echo == "output":
-                        self._update_display(f"\n\n{x}\n\n")
+                        self._echo_content(f"\n\n{x}\n\n")
                     if content == "all":
                         yield x
                     res = await self._invoke_tool_async(x)
                     if echo == "output":
-                        self._update_display(f"\n\n{res}\n\n")
+                        self._echo_content(f"\n\n{res}\n\n")
                     if content == "all":
                         yield res
                     else:
@@ -1266,7 +1266,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
         def emit(text: str | Content):
-            self._update_display(str(text))
+            self._echo_content(str(text))
 
         emit("<br>\n\n")
 
@@ -1328,7 +1328,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
         def emit(text: str | Content):
-            self._update_display(str(text))
+            self._echo_content(str(text))
 
         emit("<br>\n\n")
 
@@ -1404,7 +1404,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             return result
         except Exception as e:
             log_tool_error(x.name, str(args), e)
-            self._update_display(f"\n\n{e}\n\n")
+            self._echo_content(f"\n\n{e}\n\n")
             return ContentToolResult(value=None, error=e, request=x)
 
     async def _invoke_tool_async(self, x: ContentToolRequest) -> ContentToolResult:
