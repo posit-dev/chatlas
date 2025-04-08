@@ -1008,7 +1008,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def _update_display(self, x: str):
         if self.current_display is None:
-            raise ValueError("No display context is active. Please report this issue.")
+            return
         self.current_display.append(x)
 
     def export(
