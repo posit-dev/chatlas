@@ -1009,7 +1009,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def _update_display(self, x: str):
         if self.current_display is None:
             raise ValueError("No display context is active. Please report this issue.")
-        self.current_display.update(x)
+        self.current_display.append(x)
 
     def export(
         self,
@@ -1671,5 +1671,5 @@ class ChatMarkdownDisplay:
         self._chat._current_display = None
         return result
 
-    def update(self, content):
-        return self._display.update(content)
+    def append(self, content):
+        return self._display.append(content)
