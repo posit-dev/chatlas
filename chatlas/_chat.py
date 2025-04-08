@@ -999,6 +999,33 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         display while the chat is running, but currently blocked by something
         like a tool call.
 
+        Example
+        -------
+        ```python
+        import requests
+        from chatlas import ChatOpenAI
+
+        chat = ChatOpenAI()
+
+
+        def get_current_weather(latitude: float, longitude: float):
+            "Get the current weather given a latitude and longitude."
+
+            lat_lng = f"latitude={latitude}&longitude={longitude}"
+            url = f"https://api.open-meteo.com/v1/forecast?{lat_lng}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+            response = requests.get(url)
+            json = response.json()
+            if chat.current_display:
+                chat.current_display.echo("My custom tool display!!!")
+            return json["current"]
+
+
+        chat.register_tool(get_current_weather)
+
+        chat.chat("What's the current temperature in Duluth, MN?", echo="text")
+        ```
+
+
         Returns
         -------
         Optional[MarkdownDisplay]
