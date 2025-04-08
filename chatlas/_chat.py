@@ -1034,9 +1034,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return self._current_display
 
     def _echo_content(self, x: str):
-        if self.current_display is None:
-            return
-        self.current_display.echo(x)
+        if self._current_display:
+            self._current_display.echo(x)
 
     def export(
         self,
