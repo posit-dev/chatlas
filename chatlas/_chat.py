@@ -31,7 +31,7 @@ from ._content import (
     ContentToolResult,
 )
 from ._display import (
-    EchoOptions,
+    EchoDisplayOptions,
     IPyMarkdownDisplay,
     LiveMarkdownDisplay,
     MarkdownDisplay,
@@ -56,6 +56,8 @@ method of a [](`~chatlas.Chat`) instance.
 """
 
 CompletionT = TypeVar("CompletionT")
+
+EchoOptions = Literal["output", "all", "none", "text"]
 
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
@@ -91,7 +93,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self.provider = provider
         self._turns: list[Turn] = list(turns or [])
         self._tools: dict[str, Tool] = {}
-        self._echo_options: EchoOptions = {
+        self._echo_options: EchoDisplayOptions = {
             "rich_markdown": {},
             "rich_console": {},
             "css_styles": {},
@@ -390,7 +392,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         port: int = 0,
         launch_browser: bool = True,
         bg_thread: Optional[bool] = None,
-        echo: Optional[Literal["text", "all", "none"]] = None,
+        echo: Optional[EchoOptions] = None,
         content: Literal["text", "all"] = "all",
         kwargs: Optional[SubmitInputArgsT] = None,
     ):
@@ -487,7 +489,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def console(
         self,
         *,
-        echo: Literal["text", "all", "none"] = "text",
+        echo: EchoOptions = "output",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ):
@@ -525,7 +527,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def chat(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"] = "text",
+        echo: EchoOptions = "output",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> ChatResponse:
@@ -576,7 +578,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def chat_async(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"] = "text",
+        echo: EchoOptions = "output",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> ChatResponseAsync:
@@ -634,14 +636,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def stream(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
     ) -> Generator[str, None, None]: ...
 
     @overload
     def stream(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         content: Literal["text"],
         kwargs: Optional[SubmitInputArgsT],
     ) -> Generator[str, None, None]: ...
@@ -650,7 +652,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def stream(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         content: Literal["all"],
         kwargs: Optional[SubmitInputArgsT],
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
@@ -658,7 +660,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def stream(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"] = "none",
+        echo: EchoOptions = "none",
         content: Literal["text", "all"] = "text",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
@@ -716,14 +718,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def stream_async(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
     async def stream_async(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         content: Literal["text"],
         kwargs: Optional[SubmitInputArgsT],
     ) -> AsyncGenerator[str, None]: ...
@@ -732,7 +734,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def stream_async(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         content: Literal["all"],
         kwargs: Optional[SubmitInputArgsT],
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
@@ -740,7 +742,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def stream_async(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"] = "none",
+        echo: EchoOptions = "none",
         content: Literal["text", "all"] = "text",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
@@ -790,7 +792,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         *args: Content | str,
         data_model: type[BaseModel],
-        echo: Literal["text", "all", "none"] = "none",
+        echo: EchoOptions = "none",
         stream: bool = False,
     ) -> dict[str, Any]:
         """
@@ -849,7 +851,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         *args: Content | str,
         data_model: type[BaseModel],
-        echo: Literal["text", "all", "none"] = "none",
+        echo: EchoOptions = "none",
         stream: bool = False,
     ) -> dict[str, Any]:
         """
@@ -1115,7 +1117,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def _chat_impl(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         content: Literal["text"],
         display: MarkdownDisplay,
         stream: bool,
@@ -1126,7 +1128,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def _chat_impl(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         content: Literal["all"],
         display: MarkdownDisplay,
         stream: bool,
@@ -1136,7 +1138,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def _chat_impl(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         content: Literal["text", "all"],
         display: MarkdownDisplay,
         stream: bool,
@@ -1160,9 +1162,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             results: list[ContentToolResult] = []
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
+                    if echo == "output":
+                        display.update(f"\n\n{x}\n\n")
                     if content == "all":
                         yield x
                     res = self._invoke_tool(x)
+                    if echo == "output":
+                        display.update(f"\n\n{res}\n\n")
                     if content == "all":
                         yield res
                     results.append(res)
@@ -1174,7 +1180,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def _chat_impl_async(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         content: Literal["text"],
         display: MarkdownDisplay,
         stream: bool,
@@ -1185,7 +1191,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def _chat_impl_async(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         content: Literal["all"],
         display: MarkdownDisplay,
         stream: bool,
@@ -1195,7 +1201,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def _chat_impl_async(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         content: Literal["text", "all"],
         display: MarkdownDisplay,
         stream: bool,
@@ -1219,9 +1225,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             results: list[ContentToolResult] = []
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
+                    if echo == "output":
+                        display.update(f"\n\n{x}\n\n")
                     if content == "all":
                         yield x
                     res = await self._invoke_tool_async(x)
+                    if echo == "output":
+                        display.update(f"\n\n{res}\n\n")
                     if content == "all":
                         yield res
                     else:
@@ -1234,7 +1244,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def _submit_turns(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         display: MarkdownDisplay,
         stream: bool,
         data_model: type[BaseModel] | None = None,
@@ -1300,7 +1310,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def _submit_turns_async(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
+        echo: EchoOptions,
         display: MarkdownDisplay,
         stream: bool,
         data_model: type[BaseModel] | None = None,
@@ -1415,9 +1425,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             log_tool_error(x.name, str(args), e)
             return ContentToolResult(value=None, error=e, request=x)
 
-    def _markdown_display(
-        self, echo: Literal["text", "all", "none"]
-    ) -> MarkdownDisplay:
+    def _markdown_display(self, echo: EchoOptions) -> MarkdownDisplay:
         """
         Get a markdown display object based on the echo option.
 
@@ -1461,7 +1469,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A dictionary of CSS styles to apply to `IPython.display.Markdown()`.
             This is only relevant when outputing to the browser.
         """
-        self._echo_options: EchoOptions = {
+        self._echo_options: EchoDisplayOptions = {
             "rich_markdown": rich_markdown or {},
             "rich_console": rich_console or {},
             "css_styles": css_styles or {},
