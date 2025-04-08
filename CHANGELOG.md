@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `ContentToolResult` instances can be returned from tools. This allows for custom rendering of the tool result. (#75)
 * `Chat` gains a new `.current_display` property. When a `.chat()` or `.stream()` is currently active, this property returns an object with a `.echo()` method (to echo new content to the display). This is primarily useful for displaying custom content during a tool call. (#79)
 
+### Improvements
+
+* When a tool call ends in failure, a warning is now raised and the stacktrace is printed. (#79)
+
 ### Changes
 
 * The `echo` argument of the `.chat()` method defaults to a new value of `"output"`. As a result, tool requests and results are now echoed by default. To revert to the previous behavior, set `echo="text"`. (#78)
