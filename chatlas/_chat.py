@@ -1009,7 +1009,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def _echo_content(self, x: str):
         if self.current_display is None:
             return
-        self.current_display.append(x)
+        self.current_display.echo(x)
 
     def export(
         self,
@@ -1672,4 +1672,4 @@ class ChatMarkdownDisplay:
         return result
 
     def append(self, content):
-        return self._display.append(content)
+        return self._display.echo(content)

@@ -12,8 +12,14 @@ from ._typing_extensions import TypedDict
 
 
 class MarkdownDisplay(ABC):
+    """Base class for displaying markdown content in different environments."""
+
     @abstractmethod
-    def append(self, content: str):
+    def echo(self, content: str):
+        """
+        Display the provided markdown string. This will append the content
+        to the current display.
+        """
         pass
 
     @abstractmethod
@@ -26,7 +32,7 @@ class MarkdownDisplay(ABC):
 
 
 class MockMarkdownDisplay(MarkdownDisplay):
-    def append(self, content: str):
+    def echo(self, content: str):
         pass
 
     def __enter__(self):
@@ -63,7 +69,7 @@ class LiveMarkdownDisplay(MarkdownDisplay):
 
         self._markdown_options = echo_options["rich_markdown"]
 
-    def append(self, content: str):
+    def echo(self, content: str):
         from rich.markdown import Markdown
 
         self.content += content
@@ -102,7 +108,7 @@ class IPyMarkdownDisplay(MarkdownDisplay):
         self.content: str = ""
         self._css_styles = echo_options["css_styles"]
 
-    def append(self, content: str):
+    def echo(self, content: str):
         from IPython.display import Markdown, update_display
 
         self.content += content
