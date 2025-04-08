@@ -3,6 +3,8 @@ from __future__ import annotations
 import inspect
 import os
 import sys
+import traceback
+import warnings
 from pathlib import Path
 from threading import Thread
 from typing import (
@@ -1429,8 +1431,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             result.request = x
             return result
         except Exception as e:
+            warnings.warn(
+                f"Calling tool '{x.name}' led to an error.",
+                ToolFailureWarning,
+                stacklevel=2,
+            )
+            traceback.print_exc()
             log_tool_error(x.name, str(args), e)
-            self._echo_content(f"\n\n{e}\n\n")
             return ContentToolResult(value=None, error=e, request=x)
 
     async def _invoke_tool_async(self, x: ContentToolRequest) -> ContentToolResult:
@@ -1460,6 +1467,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             result.request = x
             return result
         except Exception as e:
+            warnings.warn(
+                f"Calling tool '{x.name}' led to an error.",
+                ToolFailureWarning,
+                stacklevel=2,
+            )
+            traceback.print_exc()
             log_tool_error(x.name, str(args), e)
             return ContentToolResult(value=None, error=e, request=x)
 
@@ -1699,3 +1712,11 @@ class ChatMarkdownDisplay:
 
     def append(self, content):
         return self._display.echo(content)
+
+
+class ToolFailureWarning(RuntimeWarning):
+    pass
+
+
+# By default warnings are shown once; we want to always show them.
+warnings.simplefilter("always", ToolFailureWarning)
