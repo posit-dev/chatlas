@@ -1432,7 +1432,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             return result
         except Exception as e:
             warnings.warn(
-                f"Calling tool '{x.name}' lead to an error.",
+                f"Calling tool '{x.name}' led to an error.",
                 ToolFailureWarning,
                 stacklevel=2,
             )
@@ -1468,7 +1468,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             return result
         except Exception as e:
             warnings.warn(
-                f"Calling tool '{x.name}' lead to an error.",
+                f"Calling tool '{x.name}' led to an error.",
                 ToolFailureWarning,
                 stacklevel=2,
             )
