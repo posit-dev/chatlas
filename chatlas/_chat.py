@@ -93,6 +93,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self.provider = provider
         self._turns: list[Turn] = list(turns or [])
         self._tools: dict[str, Tool] = {}
+        self._current_display: Optional[MarkdownDisplay] = None
         self._echo_options: EchoDisplayOptions = {
             "rich_markdown": {},
             "rich_console": {},
@@ -563,7 +564,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn,
                 echo=echo,
                 content="text",
-                display=display,
                 stream=stream,
                 kwargs=kwargs,
             )
@@ -614,7 +614,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn,
                 echo=echo,
                 content="text",
-                display=display,
                 stream=stream,
                 kwargs=kwargs,
             ),
@@ -693,7 +692,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         generator = self._chat_impl(
             turn,
             stream=True,
-            display=display,
             echo=echo,
             content=content,
             kwargs=kwargs,
@@ -779,7 +777,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 async for chunk in self._chat_impl_async(
                     turn,
                     stream=True,
-                    display=display,
                     echo=echo,
                     content=content,
                     kwargs=kwargs,
@@ -822,7 +819,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 user_turn(*args),
                 data_model=data_model,
                 echo=echo,
-                display=display,
                 stream=stream,
             )
         )
@@ -882,7 +878,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 user_turn(*args),
                 data_model=data_model,
                 echo=echo,
-                display=display,
                 stream=stream,
             )
         )
@@ -989,6 +984,32 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         tool = Tool(func, model=model)
         self._tools[tool.name] = tool
+
+    @property
+    def current_display(self) -> Optional[MarkdownDisplay]:
+        """
+        Get the currently active markdown display, if any.
+
+        The display represents the place where `.chat(echo)` content is
+        being displayed. In a notebook/Quarto, this is a wrapper around
+        `IPython.display`. Otherwise, it is a wrapper around a
+        `rich.live.Live()` console.
+
+        This is primarily useful if you want to add custom content to the
+        display while the chat is running, but currently blocked by something
+        like a tool call.
+
+        Returns
+        -------
+        Optional[MarkdownDisplay]
+            The currently active markdown display, if any.
+        """
+        return self._current_display
+
+    def _update_display(self, x: str):
+        if self.current_display is None:
+            raise ValueError("No display context is active. Please report this issue.")
+        self.current_display.update(x)
 
     def export(
         self,
@@ -1119,7 +1140,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         user_turn: Turn,
         echo: EchoOptions,
         content: Literal["text"],
-        display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]: ...
@@ -1130,7 +1150,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         user_turn: Turn,
         echo: EchoOptions,
         content: Literal["all"],
-        display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
@@ -1140,7 +1159,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         user_turn: Turn,
         echo: EchoOptions,
         content: Literal["text", "all"],
-        display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
@@ -1149,7 +1167,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             for chunk in self._submit_turns(
                 user_turn_result,
                 echo=echo,
-                display=display,
                 stream=stream,
                 kwargs=kwargs,
             ):
@@ -1163,12 +1180,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
                     if echo == "output":
-                        display.update(f"\n\n{x}\n\n")
+                        self._update_display(f"\n\n{x}\n\n")
                     if content == "all":
                         yield x
                     res = self._invoke_tool(x)
                     if echo == "output":
-                        display.update(f"\n\n{res}\n\n")
+                        self._update_display(f"\n\n{res}\n\n")
                     if content == "all":
                         yield res
                     results.append(res)
@@ -1182,7 +1199,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         user_turn: Turn,
         echo: EchoOptions,
         content: Literal["text"],
-        display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]: ...
@@ -1193,7 +1209,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         user_turn: Turn,
         echo: EchoOptions,
         content: Literal["all"],
-        display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
@@ -1203,7 +1218,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         user_turn: Turn,
         echo: EchoOptions,
         content: Literal["text", "all"],
-        display: MarkdownDisplay,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
@@ -1212,7 +1226,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             async for chunk in self._submit_turns_async(
                 user_turn_result,
                 echo=echo,
-                display=display,
                 stream=stream,
                 kwargs=kwargs,
             ):
@@ -1226,12 +1239,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
                     if echo == "output":
-                        display.update(f"\n\n{x}\n\n")
+                        self._update_display(f"\n\n{x}\n\n")
                     if content == "all":
                         yield x
                     res = await self._invoke_tool_async(x)
                     if echo == "output":
-                        display.update(f"\n\n{res}\n\n")
+                        self._update_display(f"\n\n{res}\n\n")
                     if content == "all":
                         yield res
                     else:
@@ -1245,7 +1258,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         user_turn: Turn,
         echo: EchoOptions,
-        display: MarkdownDisplay,
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
@@ -1254,7 +1266,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
         def emit(text: str | Content):
-            display.update(str(text))
+            self._update_display(str(text))
 
         emit("<br>\n\n")
 
@@ -1311,13 +1323,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         user_turn: Turn,
         echo: EchoOptions,
-        display: MarkdownDisplay,
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
         def emit(text: str | Content):
-            display.update(str(text))
+            self._update_display(str(text))
 
         emit("<br>\n\n")
 
@@ -1393,6 +1404,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             return result
         except Exception as e:
             log_tool_error(x.name, str(args), e)
+            self._update_display(f"\n\n{e}\n\n")
             return ContentToolResult(value=None, error=e, request=x)
 
     async def _invoke_tool_async(self, x: ContentToolRequest) -> ContentToolResult:
@@ -1425,7 +1437,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             log_tool_error(x.name, str(args), e)
             return ContentToolResult(value=None, error=e, request=x)
 
-    def _markdown_display(self, echo: EchoOptions) -> MarkdownDisplay:
+    def _markdown_display(self, echo: EchoOptions) -> ChatMarkdownDisplay:
         """
         Get a markdown display object based on the echo option.
 
@@ -1434,7 +1446,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         screen sizes.
         """
         if echo == "none":
-            return MockMarkdownDisplay()
+            return ChatMarkdownDisplay(MockMarkdownDisplay(), self)
 
         # rich does a lot to detect a notebook environment, but it doesn't
         # detect Quarto (at least not yet).
@@ -1443,10 +1455,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         is_web = Console().is_jupyter or os.getenv("QUARTO_PYTHON", None) is not None
 
         opts = self._echo_options
+
         if is_web:
-            return IPyMarkdownDisplay(opts)
+            display = IPyMarkdownDisplay(opts)
         else:
-            return LiveMarkdownDisplay(opts)
+            display = LiveMarkdownDisplay(opts)
+
+        return ChatMarkdownDisplay(display, self)
 
     def set_echo_options(
         self,
@@ -1639,3 +1654,22 @@ def emit_other_contents(
     to_emit.reverse()
 
     emit("\n\n".join(to_emit))
+
+
+# Helper/wrapper class to let Chat know about the currently active display
+class ChatMarkdownDisplay:
+    def __init__(self, display: MarkdownDisplay, chat: Chat):
+        self._display = display
+        self._chat = chat
+
+    def __enter__(self):
+        self._chat._current_display = self._display
+        return self._display.__enter__()
+
+    def __exit__(self, *args, **kwargs):
+        result = self._display.__exit__(*args, **kwargs)
+        self._chat._current_display = None
+        return result
+
+    def update(self, content):
+        return self._display.update(content)
