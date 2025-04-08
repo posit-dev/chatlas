@@ -41,7 +41,7 @@ class LiveMarkdownDisplay(MarkdownDisplay):
     Stream chunks of markdown into a rich-based live updating console.
     """
 
-    def __init__(self, echo_options: "EchoOptions"):
+    def __init__(self, echo_options: "EchoDisplayOptions"):
         from rich.console import Console
 
         self.content: str = ""
@@ -98,7 +98,7 @@ class IPyMarkdownDisplay(MarkdownDisplay):
     Stream chunks of markdown into an IPython notebook.
     """
 
-    def __init__(self, echo_options: "EchoOptions"):
+    def __init__(self, echo_options: "EchoDisplayOptions"):
         self.content: str = ""
         self._css_styles = echo_options["css_styles"]
 
@@ -143,7 +143,7 @@ class IPyMarkdownDisplay(MarkdownDisplay):
         self._ipy_display_id = None
 
 
-class EchoOptions(TypedDict):
+class EchoDisplayOptions(TypedDict):
     rich_markdown: dict[str, Any]
     rich_console: dict[str, Any]
     css_styles: dict[str, str]

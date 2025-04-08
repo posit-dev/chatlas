@@ -178,7 +178,7 @@ class ContentToolRequest(Content):
     def __str__(self):
         args_str = self._arguments_str()
         func_call = f"{self.name}({args_str})"
-        comment = f"# tool request ({self.id})"
+        comment = f"# 🔧 tool request ({self.id})"
         return f"```python\n{comment}\n{func_call}\n```\n"
 
     def _repr_markdown_(self):
@@ -268,7 +268,7 @@ class ContentToolResult(Content):
 
     def _get_value(self, pretty: bool = False) -> str:
         if self.error:
-            return f"Tool calling failed with error: '{self.error}'"
+            return f"Tool call failed with error: '{self.error}'"
         if not pretty:
             return str(self.value)
         try:
@@ -279,7 +279,8 @@ class ContentToolResult(Content):
 
     # Primarily used for `echo="all"`...
     def __str__(self):
-        comment = f"# tool result ({self.id})"
+        prefix = "✅ tool result" if not self.error else "❌ tool error"
+        comment = f"# {prefix} ({self.id})"
         value = self._get_value(pretty=True)
         return f"""```python\n{comment}\n{value}\n```"""
 

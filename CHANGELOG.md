@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `ContentToolRequest` and `ContentToolResponse` now have `.tagify()` methods, making it so they can render automatically in a Shiny chatbot. (#75)
 * `ContentToolResult` instances can be returned from tools. This allows for custom rendering of the tool result. (#75)
 
+### Changes
+
+* The `echo` argument of the `.chat()` method defaults to a new value of `"output"`. As a result, tool requests and results are now echoed by default. To revert to the previous behavior, set `echo="text"`. (#78)
+
 ### Breaking changes
 
 * The `.export()` method's `include` argument has been renamed to `content` (to match `.stream()`). (#75)
