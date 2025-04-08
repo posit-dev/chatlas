@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `ContentToolRequest` and `ContentToolResponse` are now exported to `chatlas` namespace. (#75)
 * `ContentToolRequest` and `ContentToolResponse` now have `.tagify()` methods, making it so they can render automatically in a Shiny chatbot. (#75)
 * `ContentToolResult` instances can be returned from tools. This allows for custom rendering of the tool result. (#75)
+* `Chat` gains a new `.current_display` property. When a `.chat()` or `.stream()` is currently active, this property returns an object with a `.echo()` method (to echo new content to the display). This is primarily useful for displaying custom content during a tool call. (#79)
 
 ### Changes
 
