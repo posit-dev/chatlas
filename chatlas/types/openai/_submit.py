@@ -38,6 +38,8 @@ class SubmitInputArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "o3-mini",
+            "o3-mini-2025-01-31",
             "o1",
             "o1-2024-12-17",
             "o1-preview",
@@ -53,6 +55,10 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-4o-audio-preview-2024-12-17",
             "gpt-4o-mini-audio-preview",
             "gpt-4o-mini-audio-preview-2024-12-17",
+            "gpt-4o-search-preview",
+            "gpt-4o-mini-search-preview",
+            "gpt-4o-search-preview-2025-03-11",
+            "gpt-4o-mini-search-preview-2025-03-11",
             "chatgpt-4o-latest",
             "gpt-4o-mini",
             "gpt-4o-mini-2024-07-18",
@@ -105,11 +111,11 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.NotGiven,
     ]
     presence_penalty: Union[float, None, openai.NotGiven]
-    reasoning_effort: Union[Literal["low", "medium", "high"], openai.NotGiven]
+    reasoning_effort: Union[Literal["low", "medium", "high"], None, openai.NotGiven]
     response_format: Union[
         openai.types.shared_params.response_format_text.ResponseFormatText,
-        openai.types.shared_params.response_format_json_object.ResponseFormatJSONObject,
         openai.types.shared_params.response_format_json_schema.ResponseFormatJSONSchema,
+        openai.types.shared_params.response_format_json_object.ResponseFormatJSONObject,
         openai.NotGiven,
     ]
     seed: Union[int, None, openai.NotGiven]

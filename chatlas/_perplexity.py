@@ -43,7 +43,7 @@ def ChatPerplexity(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatPerplexity` requires the `openai` package (e.g., `pip install openai`).
+    `ChatPerplexity` requires the `openai` package: `pip install "chatlas[perplexity]"`.
     :::
 
 

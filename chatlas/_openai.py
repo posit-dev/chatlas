@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
@@ -12,6 +13,7 @@ from ._content import (
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
+    ContentPDF,
     ContentText,
     ContentToolRequest,
     ContentToolResult,
@@ -79,7 +81,7 @@ def ChatOpenAI(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatOpenAI` requires the `openai` package (e.g., `pip install openai`).
+    `ChatOpenAI` requires the `openai` package: `pip install "chatlas[openai]"`.
     :::
 
     Examples
@@ -338,16 +340,13 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             return chunkd
         return merge_dicts(completion, chunkd)
 
-    def stream_turn(self, completion, has_data_model, stream) -> Turn:
+    def stream_turn(self, completion, has_data_model) -> Turn:
         from openai.types.chat import ChatCompletion
 
         delta = completion["choices"][0].pop("delta")  # type: ignore
         completion["choices"][0]["message"] = delta  # type: ignore
         completion = ChatCompletion.construct(**completion)
         return self._as_turn(completion, has_data_model)
-
-    async def stream_turn_async(self, completion, has_data_model, stream):
-        return self.stream_turn(completion, has_data_model, stream)
 
     def value_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
@@ -464,6 +463,19 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                         contents.append({"type": "text", "text": x.text})
                     elif isinstance(x, ContentJson):
                         contents.append({"type": "text", "text": ""})
+                    elif isinstance(x, ContentPDF):
+                        contents.append(
+                            {
+                                "type": "file",
+                                "file": {
+                                    "filename": "",
+                                    "file_data": (
+                                        "data:application/pdf;base64,"
+                                        f"{base64.b64encode(x.data).decode('utf-8')}"
+                                    ),
+                                },
+                            }
+                        )
                     elif isinstance(x, ContentImageRemote):
                         contents.append(
                             {
@@ -479,7 +491,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                             {
                                 "type": "image_url",
                                 "image_url": {
-                                    "url": f"data:{x.content_type};base64,{x.data}"
+                                    "url": f"data:{x.image_content_type};base64,{x.data}"
                                 },
                             }
                         )
@@ -517,9 +529,9 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         if message.content is not None:
             if has_data_model:
                 data = json.loads(message.content)
-                contents = [ContentJson(data)]
+                contents = [ContentJson(value=data)]
             else:
-                contents = [ContentText(message.content)]
+                contents = [ContentText(text=message.content)]
 
         tool_calls = message.tool_calls
 
@@ -543,7 +555,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
                 contents.append(
                     ContentToolRequest(
-                        call.id,
+                        id=call.id,
                         name=func.name,
                         arguments=args,
                     )
@@ -595,7 +607,8 @@ def ChatAzureOpenAI(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatAzureOpenAI` requires the `openai` package (e.g., `pip install openai`).
+    `ChatAzureOpenAI` requires the `openai` package:
+    `pip install "chatlas[azure-openai]"`.
     :::
 
     Examples

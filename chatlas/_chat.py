@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import inspect
 import os
+import sys
+import traceback
+import warnings
 from contextlib import AsyncExitStack
 from pathlib import Path
 from threading import Thread
@@ -35,7 +39,7 @@ from ._content import (
     ContentToolResult,
 )
 from ._display import (
-    EchoOptions,
+    EchoDisplayOptions,
     IPyMarkdownDisplay,
     LiveMarkdownDisplay,
     MarkdownDisplay,
@@ -46,7 +50,7 @@ from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
-from ._utils import html_escape
+from ._utils import html_escape, wrap_async
 
 
 class AnyTypeDict(TypedDict, total=False):
@@ -60,6 +64,8 @@ method of a [](`~chatlas.Chat`) instance.
 """
 
 CompletionT = TypeVar("CompletionT")
+
+EchoOptions = Literal["output", "all", "none", "text"]
 
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
@@ -95,7 +101,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self.provider = provider
         self._turns: list[Turn] = list(turns or [])
         self._tools: dict[str, Tool] = {}
-        self._echo_options: EchoOptions = {
+        self._current_display: Optional[MarkdownDisplay] = None
+        self._echo_options: EchoDisplayOptions = {
             "rich_markdown": {},
             "rich_console": {},
             "css_styles": {},
@@ -397,7 +404,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         port: int = 0,
         launch_browser: bool = True,
         bg_thread: Optional[bool] = None,
-        echo: Optional[Literal["text", "all", "none"]] = None,
+        echo: Optional[EchoOptions] = None,
+        content: Literal["text", "all"] = "all",
         kwargs: Optional[SubmitInputArgsT] = None,
     ):
         """
@@ -415,7 +423,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Whether to run the app in a background thread. If `None`, the app will
             run in a background thread if the current environment is a notebook.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no content. Defaults to `"none"` when `stream=True` and `"text"` when `stream=False`.
+            Whether to echo text content, all content (i.e., tool calls), or no
+            content. Defaults to `"none"` when `stream=True` and `"text"` when
+            `stream=False`.
+        content
+            Whether to display text content or all content (i.e., tool calls).
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -444,16 +456,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
             @chat.on_user_submit
-            async def _():
-                user_input = chat.user_input()
-                if user_input is None:
-                    return
+            async def _(user_input: str):
                 if stream:
                     await chat.append_message_stream(
                         await self.stream_async(
                             user_input,
                             kwargs=kwargs,
                             echo=echo or "none",
+                            content=content,
                         )
                     )
                 else:
@@ -462,6 +472,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             self.chat(
                                 user_input,
                                 kwargs=kwargs,
+                                stream=False,
                                 echo=echo or "text",
                             )
                         )
@@ -490,7 +501,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def console(
         self,
         *,
-        echo: Literal["text", "all", "none"] = "text",
+        echo: EchoOptions = "output",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ):
@@ -528,7 +539,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def chat(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"] = "text",
+        echo: EchoOptions = "output",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> ChatResponse:
@@ -563,7 +574,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             self._chat_impl(
                 turn,
                 echo=echo,
-                display=display,
+                content="text",
                 stream=stream,
                 kwargs=kwargs,
             )
@@ -578,7 +589,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def chat_async(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"] = "text",
+        echo: EchoOptions = "output",
         stream: bool = True,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> ChatResponseAsync:
@@ -613,7 +624,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             self._chat_impl_async(
                 turn,
                 echo=echo,
-                display=display,
+                content="text",
                 stream=stream,
                 kwargs=kwargs,
             ),
@@ -625,12 +636,44 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return response
 
+    @overload
     def stream(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"] = "none",
+    ) -> Generator[str, None, None]: ...
+
+    @overload
+    def stream(
+        self,
+        *args: Content | str,
+        echo: EchoOptions,
+    ) -> Generator[str, None, None]: ...
+
+    @overload
+    def stream(
+        self,
+        *args: Content | str,
+        echo: EchoOptions,
+        content: Literal["text"],
+        kwargs: Optional[SubmitInputArgsT],
+    ) -> Generator[str, None, None]: ...
+
+    @overload
+    def stream(
+        self,
+        *args: Content | str,
+        echo: EchoOptions,
+        content: Literal["all"],
+        kwargs: Optional[SubmitInputArgsT],
+    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
+
+    def stream(
+        self,
+        *args: Content | str,
+        echo: EchoOptions = "none",
+        content: Literal["text", "all"] = "text",
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> ChatResponse:
+    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
         """
         Generate a response from the chat in a streaming fashion.
 
@@ -641,6 +684,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo
             Whether to echo text content, all content (i.e., tool calls), or no
             content.
+        content
+            Whether to yield just text content, or all content (i.e., tool calls).
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -658,24 +703,58 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         generator = self._chat_impl(
             turn,
             stream=True,
-            display=display,
             echo=echo,
+            content=content,
             kwargs=kwargs,
         )
 
-        def wrapper() -> Generator[str, None, None]:
+        def wrapper() -> Generator[
+            str | ContentToolRequest | ContentToolResult, None, None
+        ]:
             with display:
                 for chunk in generator:
                     yield chunk
 
-        return ChatResponse(wrapper())
+        return wrapper()
+
+    @overload
+    async def stream_async(
+        self,
+        *args: Content | str,
+    ) -> AsyncGenerator[str, None]: ...
+
+    @overload
+    async def stream_async(
+        self,
+        *args: Content | str,
+        echo: EchoOptions,
+    ) -> AsyncGenerator[str, None]: ...
+
+    @overload
+    async def stream_async(
+        self,
+        *args: Content | str,
+        echo: EchoOptions,
+        content: Literal["text"],
+        kwargs: Optional[SubmitInputArgsT],
+    ) -> AsyncGenerator[str, None]: ...
+
+    @overload
+    async def stream_async(
+        self,
+        *args: Content | str,
+        echo: EchoOptions,
+        content: Literal["all"],
+        kwargs: Optional[SubmitInputArgsT],
+    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
 
     async def stream_async(
         self,
         *args: Content | str,
-        echo: Literal["text", "all", "none"] = "none",
+        echo: EchoOptions = "none",
+        content: Literal["text", "all"] = "text",
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> ChatResponseAsync:
+    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
         """
         Generate a response from the chat in a streaming fashion asynchronously.
 
@@ -686,6 +765,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo
             Whether to echo text content, all content (i.e., tool calls), or no
             content.
+        content
+            Whether to yield just text content, or all content (i.e., tool calls).
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -700,24 +781,26 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
-        async def wrapper() -> AsyncGenerator[str, None]:
+        async def wrapper() -> AsyncGenerator[
+            str | ContentToolRequest | ContentToolResult, None
+        ]:
             with display:
                 async for chunk in self._chat_impl_async(
                     turn,
                     stream=True,
-                    display=display,
                     echo=echo,
+                    content=content,
                     kwargs=kwargs,
                 ):
                     yield chunk
 
-        return ChatResponseAsync(wrapper())
+        return wrapper()
 
     def extract_data(
         self,
         *args: Content | str,
         data_model: type[BaseModel],
-        echo: Literal["text", "all", "none"] = "none",
+        echo: EchoOptions = "none",
         stream: bool = False,
     ) -> dict[str, Any]:
         """
@@ -747,7 +830,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 user_turn(*args),
                 data_model=data_model,
                 echo=echo,
-                display=display,
                 stream=stream,
             )
         )
@@ -776,7 +858,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         *args: Content | str,
         data_model: type[BaseModel],
-        echo: Literal["text", "all", "none"] = "none",
+        echo: EchoOptions = "none",
         stream: bool = False,
     ) -> dict[str, Any]:
         """
@@ -807,7 +889,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 user_turn(*args),
                 data_model=data_model,
                 echo=echo,
-                display=display,
                 stream=stream,
             )
         )
@@ -1085,13 +1166,65 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tool = Tool.from_func(func, model=model)
         self._tools[tool.name] = tool
 
+    @property
+    def current_display(self) -> Optional[MarkdownDisplay]:
+        """
+        Get the currently active markdown display, if any.
+
+        The display represents the place where `.chat(echo)` content is
+        being displayed. In a notebook/Quarto, this is a wrapper around
+        `IPython.display`. Otherwise, it is a wrapper around a
+        `rich.live.Live()` console.
+
+        This is primarily useful if you want to add custom content to the
+        display while the chat is running, but currently blocked by something
+        like a tool call.
+
+        Example
+        -------
+        ```python
+        import requests
+        from chatlas import ChatOpenAI
+
+        chat = ChatOpenAI()
+
+
+        def get_current_weather(latitude: float, longitude: float):
+            "Get the current weather given a latitude and longitude."
+
+            lat_lng = f"latitude={latitude}&longitude={longitude}"
+            url = f"https://api.open-meteo.com/v1/forecast?{lat_lng}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+            response = requests.get(url)
+            json = response.json()
+            if chat.current_display:
+                chat.current_display.echo("My custom tool display!!!")
+            return json["current"]
+
+
+        chat.register_tool(get_current_weather)
+
+        chat.chat("What's the current temperature in Duluth, MN?", echo="text")
+        ```
+
+
+        Returns
+        -------
+        Optional[MarkdownDisplay]
+            The currently active markdown display, if any.
+        """
+        return self._current_display
+
+    def _echo_content(self, x: str):
+        if self._current_display:
+            self._current_display.echo(x)
+
     def export(
         self,
         filename: str | Path,
         *,
         turns: Optional[Sequence[Turn]] = None,
         title: Optional[str] = None,
-        include: Literal["text", "all"] = "text",
+        content: Literal["text", "all"] = "text",
         include_system_prompt: bool = True,
         overwrite: bool = False,
     ):
@@ -1110,7 +1243,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A title to place at the top of the exported file.
         overwrite
             Whether to overwrite the file if it already exists.
-        include
+        content
             Whether to include text content, all content (i.e., tool calls), or no
             content.
         include_system_prompt
@@ -1146,9 +1279,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         for turn in turns:
             turn_content = "\n\n".join(
                 [
-                    str(content).strip()
-                    for content in turn.contents
-                    if include == "all" or isinstance(content, ContentText)
+                    str(x).strip()
+                    for x in turn.contents
+                    if content == "all" or isinstance(x, ContentText)
                 ]
             )
             if is_html:
@@ -1208,51 +1341,130 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         </html>
         """
 
+    @overload
     def _chat_impl(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
-        display: MarkdownDisplay,
+        echo: EchoOptions,
+        content: Literal["text"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> Generator[str, None, None]:
+    ) -> Generator[str, None, None]: ...
+
+    @overload
+    def _chat_impl(
+        self,
+        user_turn: Turn,
+        echo: EchoOptions,
+        content: Literal["all"],
+        stream: bool,
+        kwargs: Optional[SubmitInputArgsT] = None,
+    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
+
+    def _chat_impl(
+        self,
+        user_turn: Turn,
+        echo: EchoOptions,
+        content: Literal["text", "all"],
+        stream: bool,
+        kwargs: Optional[SubmitInputArgsT] = None,
+    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
         user_turn_result: Turn | None = user_turn
         while user_turn_result is not None:
             for chunk in self._submit_turns(
                 user_turn_result,
                 echo=echo,
-                display=display,
                 stream=stream,
                 kwargs=kwargs,
             ):
                 yield chunk
-            user_turn_result = self._invoke_tools()
+
+            turn = self.get_last_turn(role="assistant")
+            assert turn is not None
+            user_turn_result = None
+
+            results: list[ContentToolResult] = []
+            for x in turn.contents:
+                if isinstance(x, ContentToolRequest):
+                    if echo == "output":
+                        self._echo_content(f"\n\n{x}\n\n")
+                    if content == "all":
+                        yield x
+                    res = self._invoke_tool(x)
+                    if echo == "output":
+                        self._echo_content(f"\n\n{res}\n\n")
+                    if content == "all":
+                        yield res
+                    results.append(res)
+
+            if results:
+                user_turn_result = Turn("user", results)
+
+    @overload
+    def _chat_impl_async(
+        self,
+        user_turn: Turn,
+        echo: EchoOptions,
+        content: Literal["text"],
+        stream: bool,
+        kwargs: Optional[SubmitInputArgsT] = None,
+    ) -> AsyncGenerator[str, None]: ...
+
+    @overload
+    def _chat_impl_async(
+        self,
+        user_turn: Turn,
+        echo: EchoOptions,
+        content: Literal["all"],
+        stream: bool,
+        kwargs: Optional[SubmitInputArgsT] = None,
+    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
 
     async def _chat_impl_async(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
-        display: MarkdownDisplay,
+        echo: EchoOptions,
+        content: Literal["text", "all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> AsyncGenerator[str, None]:
+    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
         user_turn_result: Turn | None = user_turn
         while user_turn_result is not None:
             async for chunk in self._submit_turns_async(
                 user_turn_result,
                 echo=echo,
-                display=display,
                 stream=stream,
                 kwargs=kwargs,
             ):
                 yield chunk
-            user_turn_result = await self._invoke_tools_async()
+
+            turn = self.get_last_turn(role="assistant")
+            assert turn is not None
+            user_turn_result = None
+
+            results: list[ContentToolResult] = []
+            for x in turn.contents:
+                if isinstance(x, ContentToolRequest):
+                    if echo == "output":
+                        self._echo_content(f"\n\n{x}\n\n")
+                    if content == "all":
+                        yield x
+                    res = await self._invoke_tool_async(x)
+                    if echo == "output":
+                        self._echo_content(f"\n\n{res}\n\n")
+                    if content == "all":
+                        yield res
+                    else:
+                        yield "\n\n"
+                    results.append(res)
+
+            if results:
+                user_turn_result = Turn("user", results)
 
     def _submit_turns(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
-        display: MarkdownDisplay,
+        echo: EchoOptions,
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
@@ -1261,7 +1473,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
         def emit(text: str | Content):
-            display.update(str(text))
+            self._echo_content(str(text))
 
         emit("<br>\n\n")
 
@@ -1288,7 +1500,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             turn = self.provider.stream_turn(
                 result,
                 has_data_model=data_model is not None,
-                stream=response,
             )
 
             if echo == "all":
@@ -1318,14 +1529,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def _submit_turns_async(
         self,
         user_turn: Turn,
-        echo: Literal["text", "all", "none"],
-        display: MarkdownDisplay,
+        echo: EchoOptions,
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]:
         def emit(text: str | Content):
-            display.update(str(text))
+            self._echo_content(str(text))
 
         emit("<br>\n\n")
 
@@ -1349,10 +1559,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
-            turn = await self.provider.stream_turn_async(
+            turn = self.provider.stream_turn(
                 result,
                 has_data_model=data_model is not None,
-                stream=response,
             )
 
             if echo == "all":
@@ -1379,83 +1588,74 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         self._turns.extend([user_turn, turn])
 
-    def _invoke_tools(self) -> Turn | None:
-        turn = self.get_last_turn()
-        if turn is None:
-            return None
+    def _invoke_tool(self, x: ContentToolRequest) -> ContentToolResult:
+        tool_def = self._tools.get(x.name, None)
+        func = tool_def.func if tool_def is not None else None
 
-        results: list[ContentToolResult] = []
-        for x in turn.contents:
-            if isinstance(x, ContentToolRequest):
-                tool_def = self._tools.get(x.name, None)
-                func = tool_def.func if tool_def is not None else None
-                results.append(self._invoke_tool(func, x.arguments, x.id))
-
-        if not results:
-            return None
-
-        return Turn("user", results)
-
-    async def _invoke_tools_async(self) -> Turn | None:
-        turn = self.get_last_turn()
-        if turn is None:
-            return None
-
-        results: list[ContentToolResult] = []
-        for x in turn.contents:
-            if isinstance(x, ContentToolRequest):
-                tool_def = self._tools.get(x.name, None)
-                func = tool_def.func if tool_def is not None else None
-                results.append(await self._invoke_tool_async(func, x.arguments, x.id))
-
-        if not results:
-            return None
-
-        return Turn("user", results)
-
-    @staticmethod
-    def _invoke_tool(
-        func: Callable[..., Any] | None,
-        arguments: object,
-        id_: str,
-    ) -> ContentToolResult:
         if func is None:
-            return ContentToolResult(id_, None, "Unknown tool")
+            e = RuntimeError(f"Unknown tool: {x.name}")
+            return ContentToolResult(value=None, error=e, request=x)
+
+        args = x.arguments
 
         try:
-            if isinstance(arguments, dict):
-                result = func(**arguments)
+            if isinstance(args, dict):
+                result = func(**args)
             else:
-                result = func(arguments)
+                result = func(args)
 
-            return ContentToolResult(id_, result, None)
+            if not isinstance(result, ContentToolResult):
+                result = ContentToolResult(value=result)
+
+            result.request = x
+            return result
         except Exception as e:
-            log_tool_error(func.__name__, str(arguments), e)
-            return ContentToolResult(id_, None, str(e))
+            warnings.warn(
+                f"Calling tool '{x.name}' led to an error.",
+                ToolFailureWarning,
+                stacklevel=2,
+            )
+            traceback.print_exc()
+            log_tool_error(x.name, str(args), e)
+            return ContentToolResult(value=None, error=e, request=x)
 
-    @staticmethod
-    async def _invoke_tool_async(
-        func: Callable[..., Awaitable[Any]] | None,
-        arguments: object,
-        id_: str,
-    ) -> ContentToolResult:
+    async def _invoke_tool_async(self, x: ContentToolRequest) -> ContentToolResult:
+        tool_def = self._tools.get(x.name, None)
+        func = None
+        if tool_def:
+            if tool_def._is_async:
+                func = tool_def.func
+            else:
+                func = wrap_async(tool_def.func)
+
         if func is None:
-            return ContentToolResult(id_, None, "Unknown tool")
+            e = RuntimeError(f"Unknown tool: {x.name}")
+            return ContentToolResult(value=None, error=e, request=x)
+
+        args = x.arguments
 
         try:
-            if isinstance(arguments, dict):
-                result = await func(**arguments)
+            if isinstance(args, dict):
+                result = await func(**args)
             else:
-                result = await func(arguments)
+                result = await func(args)
 
-            return ContentToolResult(id_, result, None)
+            if not isinstance(result, ContentToolResult):
+                result = ContentToolResult(value=result)
+
+            result.request = x
+            return result
         except Exception as e:
-            log_tool_error(func.__name__, str(arguments), e)
-            return ContentToolResult(id_, None, str(e))
+            warnings.warn(
+                f"Calling tool '{x.name}' led to an error.",
+                ToolFailureWarning,
+                stacklevel=2,
+            )
+            traceback.print_exc()
+            log_tool_error(x.name, str(args), e)
+            return ContentToolResult(value=None, error=e, request=x)
 
-    def _markdown_display(
-        self, echo: Literal["text", "all", "none"]
-    ) -> MarkdownDisplay:
+    def _markdown_display(self, echo: EchoOptions) -> ChatMarkdownDisplay:
         """
         Get a markdown display object based on the echo option.
 
@@ -1464,7 +1664,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         screen sizes.
         """
         if echo == "none":
-            return MockMarkdownDisplay()
+            return ChatMarkdownDisplay(MockMarkdownDisplay(), self)
 
         # rich does a lot to detect a notebook environment, but it doesn't
         # detect Quarto (at least not yet).
@@ -1473,10 +1673,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         is_web = Console().is_jupyter or os.getenv("QUARTO_PYTHON", None) is not None
 
         opts = self._echo_options
+
         if is_web:
-            return IPyMarkdownDisplay(opts)
+            display = IPyMarkdownDisplay(opts)
         else:
-            return LiveMarkdownDisplay(opts)
+            display = LiveMarkdownDisplay(opts)
+
+        return ChatMarkdownDisplay(display, self)
 
     def set_echo_options(
         self,
@@ -1499,7 +1702,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A dictionary of CSS styles to apply to `IPython.display.Markdown()`.
             This is only relevant when outputing to the browser.
         """
-        self._echo_options: EchoOptions = {
+        self._echo_options: EchoDisplayOptions = {
             "rich_markdown": rich_markdown or {},
             "rich_console": rich_console or {},
             "css_styles": css_styles or {},
@@ -1568,7 +1771,7 @@ class ChatResponse:
 
     @property
     def consumed(self) -> bool:
-        return self._generator.gi_frame is None
+        return inspect.getgeneratorstate(self._generator) == inspect.GEN_CLOSED
 
     def __str__(self) -> str:
         return self.get_content()
@@ -1618,7 +1821,11 @@ class ChatResponseAsync:
 
     @property
     def consumed(self) -> bool:
-        return self._generator.ag_frame is None
+        if sys.version_info < (3, 12):
+            raise NotImplementedError(
+                "Checking for consumed state is only supported in Python 3.12+"
+            )
+        return inspect.getasyncgenstate(self._generator) == inspect.AGEN_CLOSED
 
 
 # ----------------------------------------------------------------------------
@@ -1665,3 +1872,30 @@ def emit_other_contents(
     to_emit.reverse()
 
     emit("\n\n".join(to_emit))
+
+
+# Helper/wrapper class to let Chat know about the currently active display
+class ChatMarkdownDisplay:
+    def __init__(self, display: MarkdownDisplay, chat: Chat):
+        self._display = display
+        self._chat = chat
+
+    def __enter__(self):
+        self._chat._current_display = self._display
+        return self._display.__enter__()
+
+    def __exit__(self, *args, **kwargs):
+        result = self._display.__exit__(*args, **kwargs)
+        self._chat._current_display = None
+        return result
+
+    def append(self, content):
+        return self._display.echo(content)
+
+
+class ToolFailureWarning(RuntimeWarning):
+    pass
+
+
+# By default warnings are shown once; we want to always show them.
+warnings.simplefilter("always", ToolFailureWarning)

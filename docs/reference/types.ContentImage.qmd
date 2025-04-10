@@ -4,3 +4,8 @@
 types.ContentImage()
 ```
 
+Base class for image content.
+
+This class is not meant to be used directly. Instead, use
+[](`~chatlas.content_image_url`), [](`~chatlas.content_image_file`), or
+[](`~chatlas.content_image_plot`).

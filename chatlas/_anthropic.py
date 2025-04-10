@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
@@ -12,6 +13,7 @@ from ._content import (
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
+    ContentPDF,
     ContentText,
     ContentToolRequest,
     ContentToolResult,
@@ -31,6 +33,7 @@ if TYPE_CHECKING:
         ToolParam,
         ToolUseBlock,
     )
+    from anthropic.types.document_block_param import DocumentBlockParam
     from anthropic.types.image_block_param import ImageBlockParam
     from anthropic.types.model_param import ModelParam
     from anthropic.types.text_block_param import TextBlockParam
@@ -45,6 +48,7 @@ if TYPE_CHECKING:
         ImageBlockParam,
         ToolUseBlockParam,
         ToolResultBlockParam,
+        DocumentBlockParam,
     ]
 else:
     Message = object
@@ -72,7 +76,7 @@ def ChatAnthropic(
     ::: {.callout-note}
     ## API key
 
-    Note that a Claude Prop membership does not give you the ability to call
+    Note that a Claude Pro membership does not give you the ability to call
     models via the API. You will need to go to the [developer
     console](https://console.anthropic.com/account/keys) to sign up (and pay
     for) a developer account that will give you an API key that you can use with
@@ -82,7 +86,7 @@ def ChatAnthropic(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatAnthropic` requires the `anthropic` package (e.g., `pip install anthropic`).
+    `ChatAnthropic` requires the `anthropic` package: `pip install "chatlas[anthropic]"`.
     :::
 
     Examples
@@ -164,7 +168,7 @@ def ChatAnthropic(
     """
 
     if model is None:
-        model = log_model_default("claude-3-5-sonnet-latest")
+        model = log_model_default("claude-3-7-sonnet-latest")
 
     return Chat(
         provider=AnthropicProvider(
@@ -311,7 +315,8 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             if stream:
                 stream = False
                 warnings.warn(
-                    "Anthropic does not support structured data extraction in streaming mode."
+                    "Anthropic does not support structured data extraction in streaming mode.",
+                    stacklevel=2,
                 )
 
         kwargs_full: "SubmitInputArgs" = {
@@ -371,10 +376,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
 
         return completion
 
-    def stream_turn(self, completion, has_data_model, stream) -> Turn:
-        return self._as_turn(completion, has_data_model)
-
-    async def stream_turn_async(self, completion, has_data_model, stream) -> Turn:
+    def stream_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
 
     def value_turn(self, completion, has_data_model) -> Turn:
@@ -452,12 +454,21 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             return {"text": content.text, "type": "text"}
         elif isinstance(content, ContentJson):
             return {"text": "<structured data/>", "type": "text"}
+        elif isinstance(content, ContentPDF):
+            return {
+                "type": "document",
+                "source": {
+                    "type": "base64",
+                    "media_type": "application/pdf",
+                    "data": base64.b64encode(content.data).decode("utf-8"),
+                },
+            }
         elif isinstance(content, ContentImageInline):
             return {
                 "type": "image",
                 "source": {
                     "type": "base64",
-                    "media_type": content.content_type,
+                    "media_type": content.image_content_type,
                     "data": content.data or "",
                 },
             }
@@ -506,7 +517,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         contents = []
         for content in completion.content:
             if content.type == "text":
-                contents.append(ContentText(content.text))
+                contents.append(ContentText(text=content.text))
             elif content.type == "tool_use":
                 if has_data_model and content.name == "_structured_tool_call":
                     if not isinstance(content.input, dict):
@@ -517,11 +528,11 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                         raise ValueError(
                             "Expected data extraction tool to return a 'data' field."
                         )
-                    contents.append(ContentJson(content.input["data"]))
+                    contents.append(ContentJson(value=content.input["data"]))
                 else:
                     contents.append(
                         ContentToolRequest(
-                            content.id,
+                            id=content.id,
                             name=content.name,
                             arguments=content.input,
                         )
@@ -574,8 +585,8 @@ def ChatBedrockAnthropic(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras
-    (e.g., `pip install anthropic[bedrock]`).
+    `ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras:
+    `pip install "chatlas[bedrock-anthropic]"`
     :::
 
     Examples

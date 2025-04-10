@@ -4,3 +4,15 @@
 types.ContentImageInline(self, content_type, data=None)
 ```
 
+Inline image content.
+
+This is the return type for [](`~chatlas.content_image_file`) and
+[](`~chatlas.content_image_plot`).
+It's not meant to be used directly.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                                                      | Description                    | Default    |
+|--------------|-----------------------------------------------------------|--------------------------------|------------|
+| content_type | [ImageContentTypes](`chatlas._content.ImageContentTypes`) | The content type of the image. | _required_ |
+| data         | [Optional](`typing.Optional`)\[[str](`str`)\]             | The base64-encoded image data. | `None`     |

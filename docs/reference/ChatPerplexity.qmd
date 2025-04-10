@@ -2,13 +2,13 @@
 
 ```python
 ChatPerplexity(
-    system_prompt=None
-    turns=None
-    model=None
-    api_key=None
-    base_url='https://api.perplexity.ai/'
-    seed=MISSING
-    kwargs=None
+    system_prompt=None,
+    turns=None,
+    model=None,
+    api_key=None,
+    base_url='https://api.perplexity.ai/',
+    seed=MISSING,
+    kwargs=None,
 )
 ```
 

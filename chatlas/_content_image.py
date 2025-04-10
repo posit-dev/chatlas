@@ -8,6 +8,7 @@ import warnings
 from typing import Literal, Union, cast
 
 from ._content import ContentImageInline, ContentImageRemote, ImageContentTypes
+from ._content_pdf import parse_data_url
 from ._utils import MISSING, MISSING_TYPE
 
 __all__ = (
@@ -60,15 +61,11 @@ def content_image_url(
         raise ValueError("detail must be 'auto', 'low', or 'high'")
 
     if url.startswith("data:"):
-        parts = url[5:].split(";", 1)
-        if len(parts) != 2 or not parts[1].startswith("base64,"):
-            raise ValueError("url is not a valid data URL.")
-        content_type = parts[0]
-        base64_data = parts[1][7:]
+        content_type, base64_data = parse_data_url(url)
         if content_type not in ["image/png", "image/jpeg", "image/webp", "image/gif"]:
             raise ValueError(f"Unsupported image content type: {content_type}")
         content_type = cast(ImageContentTypes, content_type)
-        return ContentImageInline(content_type, base64_data)
+        return ContentImageInline(image_content_type=content_type, data=base64_data)
     else:
         return ContentImageRemote(url=url, detail=detail)
 
@@ -191,7 +188,7 @@ def content_image_file(
         img.save(buffer, format=img.format)
         base64_data = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
-    return ContentImageInline(content_type, base64_data)
+    return ContentImageInline(image_content_type=content_type, data=base64_data)
 
 
 def content_image_plot(
@@ -263,7 +260,7 @@ def content_image_plot(
         fig.savefig(buf, format="png", dpi=dpi, bbox_inches="tight")
         buf.seek(0)
         base64_data = base64.b64encode(buf.getvalue()).decode("utf-8")
-        return ContentImageInline("image/png", base64_data)
+        return ContentImageInline(image_content_type="image/png", data=base64_data)
     finally:
         fig.set_size_inches(*size)
 

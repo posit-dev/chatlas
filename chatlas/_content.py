@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+import textwrap
 from pprint import pformat
-from typing import Any, Literal, Optional
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
+
+from pydantic import BaseModel, ConfigDict
+
+if TYPE_CHECKING:
+    from htmltools import TagChild
 
 ImageContentTypes = Literal[
     "image/png",
@@ -15,11 +20,27 @@ ImageContentTypes = Literal[
 Allowable content types for images.
 """
 
+ContentTypeEnum = Literal[
+    "text",
+    "image_remote",
+    "image_inline",
+    "tool_request",
+    "tool_result",
+    "json",
+    "pdf",
+]
+"""
+A discriminated union of all content types.
+"""
 
-class Content:
+
+class Content(BaseModel):
     """
     Base class for all content types that can be appear in a [](`~chatlas.Turn`)
     """
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    content_type: ContentTypeEnum
 
     def __str__(self):
         raise NotImplementedError
@@ -31,13 +52,13 @@ class Content:
         raise NotImplementedError
 
 
-@dataclass
 class ContentText(Content):
     """
     Text content for a [](`~chatlas.Turn`)
     """
 
     text: str
+    content_type: ContentTypeEnum = "text"
 
     def __str__(self):
         return self.text
@@ -62,7 +83,6 @@ class ContentImage(Content):
     pass
 
 
-@dataclass
 class ContentImageRemote(ContentImage):
     """
     Image content from a URL.
@@ -81,6 +101,8 @@ class ContentImageRemote(ContentImage):
     url: str
     detail: Literal["auto", "low", "high"] = "auto"
 
+    content_type: ContentTypeEnum = "image_remote"
+
     def __str__(self):
         return f"![]({self.url})"
 
@@ -94,7 +116,6 @@ class ContentImageRemote(ContentImage):
         )
 
 
-@dataclass
 class ContentImageInline(ContentImage):
     """
     Inline image content.
@@ -105,17 +126,19 @@ class ContentImageInline(ContentImage):
 
     Parameters
     ----------
-    content_type
+    image_content_type
         The content type of the image.
     data
         The base64-encoded image data.
     """
 
-    content_type: ImageContentTypes
+    image_content_type: ImageContentTypes
     data: Optional[str] = None
 
+    content_type: ContentTypeEnum = "image_inline"
+
     def __str__(self):
-        return f"![](data:{self.content_type};base64,{self.data})"
+        return f"![](data:{self.image_content_type};base64,{self.data})"
 
     def _repr_markdown_(self):
         return self.__str__()
@@ -124,11 +147,10 @@ class ContentImageInline(ContentImage):
         n_bytes = len(self.data) if self.data else 0
         return (
             " " * indent
-            + f"<ContentImageInline content_type='{self.content_type}' size={n_bytes}>"
+            + f"<ContentImageInline content_type='{self.image_content_type}' size={n_bytes}>"
         )
 
 
-@dataclass
 class ContentToolRequest(Content):
     """
     A request to call a tool/function
@@ -151,10 +173,12 @@ class ContentToolRequest(Content):
     name: str
     arguments: object
 
+    content_type: ContentTypeEnum = "tool_request"
+
     def __str__(self):
         args_str = self._arguments_str()
         func_call = f"{self.name}({args_str})"
-        comment = f"# tool request ({self.id})"
+        comment = f"# 🔧 tool request ({self.id})"
         return f"```python\n{comment}\n{func_call}\n```\n"
 
     def _repr_markdown_(self):
@@ -172,8 +196,24 @@ class ContentToolRequest(Content):
             return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
         return str(self.arguments)
 
+    def tagify(self) -> "TagChild":
+        "Returns an HTML string suitable for passing to htmltools/shiny's `Chat()` component."
+        try:
+            from htmltools import HTML, TagList, head_content, tags
+        except ImportError:
+            raise ImportError(
+                ".tagify() is only intended to be called by htmltools/shiny, ",
+                "but htmltools is not installed. ",
+            )
 
-@dataclass
+        html = f"<p></p><span class='chatlas-tool-request'>🔧 Running tool: <code>{self.name}</code></span>"
+
+        return TagList(
+            HTML(html),
+            head_content(tags.style(TOOL_CSS)),
+        )
+
+
 class ContentToolResult(Content):
     """
     The result of calling a tool/function
@@ -184,33 +224,67 @@ class ContentToolResult(Content):
 
     Parameters
     ----------
-    id
-        The unique identifier of the tool request.
     value
-        The value returned by the tool/function.
+        The value returned by the tool/function (to be sent to the model).
     error
-        An error message if the tool/function call failed.
+        An exception that occurred during the tool request. If this is set, the
+        error message sent to the model and the value is ignored.
+    extra
+       Additional data associated with the tool result that isn't sent to the
+       model.
+    request
+        Not intended to be used directly. It will be set when the
+        :class:`~chatlas.Chat` invokes the tool.
     """
 
-    id: str
-    value: Any = None
-    error: Optional[str] = None
+    # public
+    value: Any
+    error: Optional[Exception] = None
+    extra: Any = None
 
-    def _get_value_and_language(self) -> tuple[str, str]:
+    # "private"
+    request: Optional[ContentToolRequest] = None
+    content_type: ContentTypeEnum = "tool_result"
+
+    @property
+    def id(self):
+        if not self.request:
+            raise ValueError("id is only available after the tool has been called")
+        return self.request.id
+
+    @property
+    def name(self):
+        if not self.request:
+            raise ValueError("name is only available after the tool has been called")
+        return self.request.name
+
+    @property
+    def arguments(self):
+        if not self.request:
+            raise ValueError(
+                "arguments is only available after the tool has been called"
+            )
+        return self.request.arguments
+
+    def _get_value(self, pretty: bool = False) -> str:
         if self.error:
-            return f"Tool calling failed with error: '{self.error}'", ""
+            return f"Tool call failed with error: '{self.error}'"
+        if not pretty:
+            return str(self.value)
         try:
-            json_val = json.loads(self.value)
-            return pformat(json_val, indent=2, sort_dicts=False), "python"
-        except:  # noqa: E722
-            return str(self.value), ""
+            json_val = json.loads(self.value)  # type: ignore
+            return pformat(json_val, indent=2, sort_dicts=False)
+        except:  # noqa
+            return str(self.value)
 
+    # Primarily used for `echo="all"`...
     def __str__(self):
-        comment = f"# tool result ({self.id})"
-        value, language = self._get_value_and_language()
+        prefix = "✅ tool result" if not self.error else "❌ tool error"
+        comment = f"# {prefix} ({self.id})"
+        value = self._get_value(pretty=True)
+        return f"""```python\n{comment}\n{value}\n```"""
 
-        return f"""```{language}\n{comment}\n{value}\n```"""
-
+    # ... and for displaying in the notebook
     def _repr_markdown_(self):
         return self.__str__()
 
@@ -221,12 +295,48 @@ class ContentToolResult(Content):
             res += f" error='{self.error}'"
         return res + ">"
 
+    # The actual value to send to the model
     def get_final_value(self) -> str:
-        value, _language = self._get_value_and_language()
-        return value
+        return self._get_value()
+
+    def tagify(self) -> "TagChild":
+        """
+        A method for rendering this object via htmltools/shiny.
+        """
+        try:
+            from htmltools import HTML
+        except ImportError:
+            raise ImportError(
+                ".tagify() is only intended to be called by htmltools/shiny, ",
+                "but htmltools is not installed. ",
+            )
+
+        if not self.error:
+            header = f"View result from <code>{self.name}</code>"
+        else:
+            header = f"❌ Failed to call tool <code>{self.name}</code>"
+
+        args = self._arguments_str()
+        content = self._get_value(pretty=True)
+
+        return HTML(
+            textwrap.dedent(f"""
+              <details class="chatlas-tool-result">
+                  <summary>{header}</summary>
+                  <div class="chatlas-tool-result-content">
+                      Result: <p><code>{content}</code></p>
+                      Arguments: <p><code>{args}</code></p>
+                  </div>
+              </details>
+            """)
+        )
+
+    def _arguments_str(self) -> str:
+        if isinstance(self.arguments, dict):
+            return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
+        return str(self.arguments)
 
 
-@dataclass
 class ContentJson(Content):
     """
     JSON content
@@ -242,6 +352,8 @@ class ContentJson(Content):
 
     value: dict[str, Any]
 
+    content_type: ContentTypeEnum = "json"
+
     def __str__(self):
         return json.dumps(self.value, indent=2)
 
@@ -250,3 +362,119 @@ class ContentJson(Content):
 
     def __repr__(self, indent: int = 0):
         return " " * indent + f"<ContentJson value={self.value}>"
+
+
+class ContentPDF(Content):
+    """
+    PDF content
+
+    This content type primarily exists to signal PDF data extraction
+    (i.e., data extracted via [](`~chatlas.Chat`)'s `.extract_data()` method)
+
+    Parameters
+    ----------
+    value
+        The PDF data extracted
+    """
+
+    data: bytes
+
+    content_type: ContentTypeEnum = "pdf"
+
+    def __str__(self):
+        return "<PDF document>"
+
+    def _repr_markdown_(self):
+        return self.__str__()
+
+    def __repr__(self, indent: int = 0):
+        return " " * indent + f"<ContentPDF size={len(self.data)}>"
+
+
+ContentUnion = Union[
+    ContentText,
+    ContentImageRemote,
+    ContentImageInline,
+    ContentToolRequest,
+    ContentToolResult,
+    ContentJson,
+    ContentPDF,
+]
+
+
+def create_content(data: dict[str, Any]) -> ContentUnion:
+    """
+    Factory function to create the appropriate Content subclass based on the data.
+
+    This is useful when deserializing content from JSON.
+    """
+    if not isinstance(data, dict):
+        raise ValueError("Content data must be a dictionary")
+
+    ct = data.get("content_type")
+
+    if ct == "text":
+        return ContentText.model_validate(data)
+    elif ct == "image_remote":
+        return ContentImageRemote.model_validate(data)
+    elif ct == "image_inline":
+        return ContentImageInline.model_validate(data)
+    elif ct == "tool_request":
+        return ContentToolRequest.model_validate(data)
+    elif ct == "tool_result":
+        return ContentToolResult.model_validate(data)
+    elif ct == "json":
+        return ContentJson.model_validate(data)
+    elif ct == "pdf":
+        return ContentPDF.model_validate(data)
+    else:
+        raise ValueError(f"Unknown content type: {ct}")
+
+
+TOOL_CSS = """
+/* Get dot to appear inline, even when in a paragraph following the request */
+.chatlas-tool-request + p:has(.markdown-stream-dot) {
+  display: inline;
+}
+
+/* Hide request when anything other than a dot follows it */
+.chatlas-tool-request:not(:has(+ p .markdown-stream-dot)) {
+  display: none;
+}
+
+.chatlas-tool-request, .chatlas-tool-result {
+  font-weight: 300;
+  font-size: 0.9rem;
+}
+
+.chatlas-tool-result {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.chatlas-tool-result summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.chatlas-tool-result summary::after {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-caret-right-fill' viewBox='0 0 16 16'%3E%3Cpath d='m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z'/%3E%3C/svg%3E");
+  font-size: 1.15rem;
+  margin-left: 0.25rem;
+  vertical-align: middle;
+}
+
+.chatlas-tool-result[open] summary::after {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-caret-down-fill' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+}
+
+.chatlas-tool-result-content {
+  border: 1px solid var(--bs-border-color, #0066cc);
+  width: 100%;
+  padding: 1rem;
+  border-radius: var(--bs-border-radius, 0.2rem);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+"""

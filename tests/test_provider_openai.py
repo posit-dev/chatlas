@@ -1,15 +1,16 @@
 import pytest
-
 from chatlas import ChatOpenAI
 
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote,
+    assert_pdf_local,
     assert_tools_async,
     assert_tools_parallel,
     assert_tools_sequential,
     assert_tools_simple,
+    assert_tools_simple_stream_content,
     assert_turns_existing,
     assert_turns_system,
 )
@@ -52,6 +53,7 @@ def test_openai_respects_turns_interface():
 def test_openai_tool_variations():
     chat_fun = ChatOpenAI
     assert_tools_simple(chat_fun)
+    assert_tools_simple_stream_content(chat_fun)
     assert_tools_parallel(chat_fun)
     assert_tools_sequential(chat_fun, total_calls=6)
 
@@ -86,3 +88,8 @@ async def test_openai_logprobs():
     logprobs = turn.completion.choices[0].logprobs.content
     assert logprobs is not None
     assert len(logprobs) == len(pieces)
+
+
+def test_openai_pdf():
+    chat_fun = ChatOpenAI
+    assert_pdf_local(chat_fun)

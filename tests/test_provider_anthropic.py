@@ -5,10 +5,12 @@ from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote_error,
+    assert_pdf_local,
     assert_tools_async,
     assert_tools_parallel,
     assert_tools_sequential,
     assert_tools_simple,
+    assert_tools_simple_stream_content,
     assert_turns_existing,
     assert_turns_system,
     retryassert,
@@ -56,8 +58,16 @@ def test_anthropic_tool_variations():
 
     retryassert(run_simpleassert, retries=5)
 
+    assert_tools_simple_stream_content(chat_fun)
+
     def run_parallelassert():
-        assert_tools_parallel(chat_fun)
+        # For some reason, at the time of writing, Claude 3.7 doesn't
+        # respond with multiple tools at once for this test (but it does)
+        # answer the question correctly with sequential tools.
+        def chat_fun2(**kwargs):
+            return ChatAnthropic(model="claude-3-5-sonnet-latest", **kwargs)
+
+        assert_tools_parallel(chat_fun2)
 
     retryassert(run_parallelassert, retries=5)
 
@@ -82,5 +92,14 @@ def test_data_extraction():
 
 def test_anthropic_images():
     chat_fun = ChatAnthropic
-    assert_images_inline(chat_fun)
+
+    def run_inlineassert():
+        assert_images_inline(chat_fun)
+
+    retryassert(run_inlineassert, retries=3)
     assert_images_remote_error(chat_fun)
+
+
+def test_anthropic_pdfs():
+    chat_fun = ChatAnthropic
+    assert_pdf_local(chat_fun)

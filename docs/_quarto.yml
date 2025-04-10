@@ -16,9 +16,23 @@ lightbox: auto
 
 website:
   title: "chatlas"
-  # bread-crumbs: true
-  repo-url: https://github.com/posit-dev/chatlas
-  repo-actions: [issue, source]
+  site-url: https://posit-dev.github.io/chatlas/
+  description: A streamlined Python interface to various LLMs.
+
+  bread-crumbs: true
+  open-graph: true
+  twitter-card: true
+  favicon: images/posit-logo.png
+  image: images/logo.png
+
+  repo-url: https://github.com/posit-dev/chatlas/
+  repo-actions: [issue, edit]
+  repo-subdir: docs
+
+  page-footer:
+    left: |
+      Proudly supported by
+      [![](https://posit.co/wp-content/uploads/2024/06/Posit-Logos-2024_horiz-full-color.svg){fig-alt="Posit" width=65px}](https://posit.co)
 
   navbar:
     background: primary
@@ -52,6 +66,7 @@ format:
   html:
     theme: styles.scss
     toc: true
+    toc-depth: 3
 
 quartodoc:
   package: chatlas
@@ -62,6 +77,7 @@ quartodoc:
       desc: Start a chat with a particular large language model (llm) provider.
       contents:
         - ChatAnthropic
+        - ChatAuto
         - ChatAzureOpenAI
         - ChatBedrockAnthropic
         - ChatGithub
@@ -70,6 +86,8 @@ quartodoc:
         - ChatOllama
         - ChatOpenAI
         - ChatPerplexity
+        - ChatSnowflake
+        - ChatVertex
     - title: The chat object
       desc: Methods and attributes available on a chat instance
       contents:
@@ -80,6 +98,11 @@ quartodoc:
         - content_image_file
         - content_image_plot
         - content_image_url
+    - title: PDF input
+      desc: Submit pdf input to the chat
+      contents:
+        - content_pdf_file
+        - content_pdf_url
     - title: Prompt interpolation
       desc: Interpolate variables into prompt templates
       contents:

@@ -6,13 +6,20 @@ from uuid import uuid4
 from rich.live import Live
 from rich.logging import RichHandler
 
+from ._live_render import LiveRender
 from ._logging import logger
 from ._typing_extensions import TypedDict
 
 
 class MarkdownDisplay(ABC):
+    """Base class for displaying markdown content in different environments."""
+
     @abstractmethod
-    def update(self, content: str):
+    def echo(self, content: str):
+        """
+        Display the provided markdown string. This will append the content
+        to the current display.
+        """
         pass
 
     @abstractmethod
@@ -25,7 +32,7 @@ class MarkdownDisplay(ABC):
 
 
 class MockMarkdownDisplay(MarkdownDisplay):
-    def update(self, content: str):
+    def echo(self, content: str):
         pass
 
     def __enter__(self):
@@ -40,20 +47,29 @@ class LiveMarkdownDisplay(MarkdownDisplay):
     Stream chunks of markdown into a rich-based live updating console.
     """
 
-    def __init__(self, echo_options: "EchoOptions"):
+    def __init__(self, echo_options: "EchoDisplayOptions"):
         from rich.console import Console
 
         self.content: str = ""
-        self.live = Live(
+        live = Live(
             auto_refresh=False,
-            vertical_overflow="visible",
             console=Console(
                 **echo_options["rich_console"],
             ),
         )
+
+        # Monkeypatch LiveRender() with our own version that add "crop_above"
+        # https://github.com/Textualize/rich/blob/43d3b047/rich/live.py#L87-L89
+        live.vertical_overflow = "crop_above"
+        live._live_render = LiveRender(  # pyright: ignore[reportAttributeAccessIssue]
+            live.get_renderable(), vertical_overflow="crop_above"
+        )
+
+        self.live = live
+
         self._markdown_options = echo_options["rich_markdown"]
 
-    def update(self, content: str):
+    def echo(self, content: str):
         from rich.markdown import Markdown
 
         self.content += content
@@ -88,11 +104,11 @@ class IPyMarkdownDisplay(MarkdownDisplay):
     Stream chunks of markdown into an IPython notebook.
     """
 
-    def __init__(self, echo_options: "EchoOptions"):
+    def __init__(self, echo_options: "EchoDisplayOptions"):
         self.content: str = ""
         self._css_styles = echo_options["css_styles"]
 
-    def update(self, content: str):
+    def echo(self, content: str):
         from IPython.display import Markdown, update_display
 
         self.content += content
@@ -133,7 +149,7 @@ class IPyMarkdownDisplay(MarkdownDisplay):
         self._ipy_display_id = None
 
 
-class EchoOptions(TypedDict):
+class EchoDisplayOptions(TypedDict):
     rich_markdown: dict[str, Any]
     rich_console: dict[str, Any]
     css_styles: dict[str, str]

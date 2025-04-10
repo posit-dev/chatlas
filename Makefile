@@ -9,7 +9,7 @@ build:   ## [py] Build python package
 	uv build
 
 .PHONY: check
-check:  check-tests check-format check-types ## [py] Run python checks
+check: check-format check-types check-tests ## [py] Run python checks
 
 .PHONY: check-tests
 check-tests:  ## [py] Run python tests
