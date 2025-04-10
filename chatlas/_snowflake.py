@@ -1,4 +1,5 @@
-from typing import TYPE_CHECKING, Literal, Optional, TypedDict, overload
+import asyncio
+from typing import TYPE_CHECKING, Iterable, Literal, Optional, TypedDict, cast, overload
 
 from pydantic import BaseModel
 
@@ -8,7 +9,7 @@ from ._logging import log_model_default
 from ._provider import Provider
 from ._tools import Tool
 from ._turn import Turn, normalize_turns
-from ._utils import drop_none
+from ._utils import drop_none, wrap_async_iterable
 
 if TYPE_CHECKING:
     from snowflake.snowpark import Column
@@ -237,9 +238,18 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
-        raise NotImplementedError(
-            "Snowflake does not currently support async completions."
-        )
+        from snowflake.cortex import complete
+
+        kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+
+        # Prevent the main thread from being blocked (Snowflake doesn't have native async support)
+        res = await asyncio.to_thread(complete, **kwargs)
+
+        # When streaming, res is an iterable of strings, but Chat() wants an async iterable
+        if stream:
+            res = wrap_async_iterable(cast(Iterable[str], res))
+
+        return res
 
     def _chat_perform_args(
         self,
