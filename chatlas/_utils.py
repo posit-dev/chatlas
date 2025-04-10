@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import asyncio
 import functools
 import inspect
 import os
 import re
-from typing import Awaitable, Callable, TypeVar, cast
+from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, TypeVar, cast
 
 from ._typing_extensions import ParamSpec, TypeGuard
 
@@ -59,6 +60,40 @@ def is_async_callable(
             return True
 
     return False
+
+
+def wrap_async_iterable(x: Iterable[Any] | AsyncIterable[Any]) -> AsyncIterable[Any]:
+    """
+    Given any iterable, return an async iterable. The async iterable will yield the
+    values of the original iterable, but will also yield control to the event loop
+    after each value. This is useful when you want to interleave processing with other
+    tasks, or when you want to simulate an async iterable from a regular iterable.
+    """
+
+    if isinstance(x, AsyncIterable):
+        return x
+
+    if not isinstance(x, Iterable):
+        raise TypeError("wrap_async_iterable requires an Iterable object.")
+
+    return MakeIterableAsync(x)
+
+
+class MakeIterableAsync:
+    def __init__(self, iterable: Iterable[Any]):
+        self.iterable = iterable
+
+    def __aiter__(self):
+        self.iterator = iter(self.iterable)
+        return self
+
+    async def __anext__(self):
+        try:
+            value = next(self.iterator)
+            await asyncio.sleep(0)  # Yield control to the event loop
+            return value
+        except StopIteration:
+            raise StopAsyncIteration
 
 
 T = TypeVar("T")
