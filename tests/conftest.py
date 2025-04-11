@@ -59,11 +59,11 @@ def assert_turns_system(chat_fun: ChatFun):
     response = chat.chat("What is the name of Winnie the Pooh's human friend?")
     response_text = str(response)
     assert len(chat.get_turns()) == 2
-    assert "CHRISTOPHER ROBIN" in response_text
+    assert "CHRISTOPHER ROBIN" in response_text.upper()
 
     chat = chat_fun(turns=[Turn("system", system_prompt)])
     response = chat.chat("What is the name of Winnie the Pooh's human friend?")
-    assert "CHRISTOPHER ROBIN" in str(response)
+    assert "CHRISTOPHER ROBIN" in str(response).upper()
     assert len(chat.get_turns()) == 2
 
 

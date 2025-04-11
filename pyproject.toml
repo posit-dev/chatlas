@@ -50,6 +50,7 @@ dev = [
     "google-genai>=1.2.0",
     "numpy>1.24.4",
     "tiktoken",
+    "databricks-sdk",
     "snowflake-ml-python",
     # torch (a dependency of snowflake-ml-python) is not yet compatible with Python >3.11
     "torch;python_version<='3.11'",
@@ -73,6 +74,7 @@ docs = [
 # Provider extras ----
 anthropic = ["anthropic"]
 bedrock-anthropic = ["anthropic[bedrock]"]
+databricks = ["databricks-sdk[openai]"]
 github = ["openai"]
 google = ["google-genai"]
 groq = ["openai"]

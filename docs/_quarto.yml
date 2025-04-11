@@ -80,6 +80,7 @@ quartodoc:
         - ChatAuto
         - ChatAzureOpenAI
         - ChatBedrockAnthropic
+        - ChatDatabricks
         - ChatGithub
         - ChatGoogle
         - ChatGroq

@@ -6,6 +6,7 @@ from typing import Callable, Literal, Optional
 
 from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._chat import Chat
+from ._databricks import ChatDatabricks
 from ._github import ChatGithub
 from ._google import ChatGoogle, ChatVertex
 from ._groq import ChatGroq
@@ -18,6 +19,7 @@ from ._turn import Turn
 AutoProviders = Literal[
     "anthropic",
     "bedrock-anthropic",
+    "databricks",
     "github",
     "google",
     "groq",
@@ -32,6 +34,7 @@ AutoProviders = Literal[
 _provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
     "anthropic": ChatAnthropic,
     "bedrock-anthropic": ChatBedrockAnthropic,
+    "databricks": ChatDatabricks,
     "github": ChatGithub,
     "google": ChatGoogle,
     "groq": ChatGroq,
