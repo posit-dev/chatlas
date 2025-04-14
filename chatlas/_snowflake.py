@@ -1,6 +1,15 @@
 import asyncio
 import json
-from typing import TYPE_CHECKING, Iterable, Literal, Optional, TypedDict, cast, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Iterable,
+    Literal,
+    Optional,
+    TypedDict,
+    cast,
+    overload,
+)
 
 from pydantic import BaseModel
 
@@ -19,6 +28,7 @@ if TYPE_CHECKING:
     Completion = str | Column
     CompletionChunk = str
 
+    from ._tools import ChatCompletionToolParam
     from .types.snowflake import SubmitInputArgs
 
 
@@ -267,10 +277,14 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
             "session": self._session,
             **(kwargs or {}),
         }
+        opts = kwargs_full.get("options") or {}
 
-        # TODO: get tools working
-        if tools:
-            raise ValueError("Snowflake does not currently support tools.")
+        tool_schemas = [
+            self._snowflake_tool_schema(tool.schema) for tool in tools.values()
+        ]
+
+        if tool_schemas:
+            opts["tools"] = tool_schemas
 
         if data_model is not None:
             params = basemodel_to_param_schema(data_model)
@@ -283,7 +297,8 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
                     "required": params["required"],
                 },
             }
-            kwargs_full["options"] = opts
+
+        kwargs_full["options"] = opts
 
         return kwargs_full
 
@@ -333,6 +348,8 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         return res
 
     def _as_turn(self, completion, has_data_model) -> Turn:
+        # TODO: for tools to actually work, seems snowflake-ml-python will have
+        # return a richer object than just a string?
         completion = cast(str, completion)
 
         if has_data_model:
@@ -342,3 +359,28 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
             contents = [ContentText(text=completion)]
 
         return Turn("assistant", contents)
+
+    # Tool schema approach is similar to Anthropic, and in fact, only currently
+    # works with Claude 3.5 Sonnet
+    # https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-llm-rest-api#tools-configuration
+    @staticmethod
+    def _snowflake_tool_schema(schema: "ChatCompletionToolParam") -> dict[str, Any]:
+        fn = schema["function"]
+        name = fn["name"]
+
+        res = {
+            "name": name,
+            "type": "generic",
+            "input_schema": {
+                "type": "object",
+            },
+        }
+
+        if "description" in fn:
+            res["description"] = fn["description"]
+
+        if "parameters" in fn:
+            res["input_schema"]["properties"] = fn["parameters"]["properties"]
+            res["input_schema"]["required"] = fn["parameters"].get("required", [])
+
+        return {"tool_spec": res}
