@@ -13,7 +13,6 @@ from ._turn import Turn, normalize_turns
 from ._utils import drop_none, wrap_async_iterable
 
 if TYPE_CHECKING:
-    from snowflake.cortex._complete import CompleteOptions
     from snowflake.snowpark import Column
 
     # Types inferred from the return type of the `snowflake.cortex.complete` function
@@ -275,7 +274,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
 
         if data_model is not None:
             params = basemodel_to_param_schema(data_model)
-            opts: CompleteOptions = kwargs_full.get("options") or {}
+            opts = kwargs_full.get("options") or {}
             opts["response_format"] = {
                 "type": "json",
                 "schema": {
