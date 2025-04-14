@@ -1,17 +1,20 @@
 import asyncio
-from typing import TYPE_CHECKING, Iterable, Literal, Optional, TypedDict, cast, overload
+import json
+from typing import (TYPE_CHECKING, Iterable, Literal, Optional, TypedDict,
+                    cast, overload)
 
 from pydantic import BaseModel
 
 from ._chat import Chat
-from ._content import Content
+from ._content import Content, ContentJson, ContentText
 from ._logging import log_model_default
 from ._provider import Provider
-from ._tools import Tool
+from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
 from ._utils import drop_none, wrap_async_iterable
 
 if TYPE_CHECKING:
+    from snowflake.cortex._complete import CompleteOptions
     from snowflake.snowpark import Column
 
     # Types inferred from the return type of the `snowflake.cortex.complete` function
@@ -259,20 +262,6 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
-        # Cortex doesn't seem to support tools
-        if tools:
-            raise ValueError("Snowflake does not currently support tools.")
-
-        # TODO: implement data_model when this PR makes it into snowflake-ml-python
-        # https://github.com/snowflakedb/snowflake-ml-python/pull/141
-        # https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-llm-rest-api#structured-output-example
-        if data_model:
-            raise NotImplementedError(
-                "The snowflake-ml-python package currently doesn't support structured output. "
-                "Upvote this PR to help prioritize it: "
-                "https://github.com/snowflakedb/snowflake-ml-python/pull/141"
-            )
-
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "prompt": self._as_prompt_input(turns),
@@ -280,6 +269,23 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
             "session": self._session,
             **(kwargs or {}),
         }
+
+        # TODO: get tools working
+        if tools:
+            raise ValueError("Snowflake does not currently support tools.")
+
+        if data_model is not None:
+            params = basemodel_to_param_schema(data_model)
+            opts: CompleteOptions = kwargs_full.get("options") or {}
+            opts["response_format"] = {
+                "type": "json",
+                "schema": {
+                    "type": "object",
+                    "properties": params["properties"],
+                    "required": params["required"],
+                },
+            }
+            kwargs_full["options"] = opts
 
         return kwargs_full
 
@@ -323,10 +329,18 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
             res.append(
                 {
                     "role": turn.role,
-                    "content": turn.text,
+                    "content": str(turn),
                 }
             )
         return res
 
     def _as_turn(self, completion, has_data_model) -> Turn:
-        return Turn("assistant", completion)
+        completion = cast(str, completion)
+
+        if has_data_model:
+            data = json.loads(completion)
+            contents = [ContentJson(value=data)]
+        else:
+            contents = [ContentText(text=completion)]
+
+        return Turn("assistant", contents)

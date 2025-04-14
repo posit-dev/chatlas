@@ -20,8 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Improvements
 
 * When a tool call ends in failure, a warning is now raised and the stacktrace is printed. (#79)
-* `ChatSnowflake()` now supports `async` calls. (#81)
-* `ChatSnowflake()` no longer errors due to more than one session being active. (#83)
+* Several improvements to `ChatSnowflake()`:
+  * `.extract_data()` is now supported.
+  *  `async` methods are now supported. (#81)
+  * Fixed an issue with more than one session being active at once. (#83)
 
 ### Changes
 
