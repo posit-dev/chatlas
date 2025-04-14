@@ -277,6 +277,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
             "stream": stream,
             "prompt": self._as_prompt_input(turns),
             "model": self._model,
+            "session": self._session,
             **(kwargs or {}),
         }
 
