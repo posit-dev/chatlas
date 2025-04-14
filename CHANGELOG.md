@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Improvements
 
 * When a tool call ends in failure, a warning is now raised and the stacktrace is printed. (#79)
+* `ChatSnowflake()` now supports `async` calls. (#81)
 
 ### Changes
 
