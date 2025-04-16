@@ -240,6 +240,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/ChatDatabricks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatDatabricks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/ChatGithub.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ChatGithub</span></a>
   </div>
@@ -562,6 +568,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#chatlas.types.ContentToolRequest" id="toc-chatlas.types.ContentToolRequest" class="nav-link active" data-scroll-target="#chatlas.types.ContentToolRequest">types.ContentToolRequest</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#chatlas.types.ContentToolRequest.tagify" id="toc-chatlas.types.ContentToolRequest.tagify" class="nav-link" data-scroll-target="#chatlas.types.ContentToolRequest.tagify">tagify</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ContentToolRequest.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
@@ -615,8 +625,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#chatlas.types.ContentToolRequest.tagify">tagify</a></td>
+<td>Returns an HTML string suitable for passing to htmltools/shiny’s <code>Chat()</code> component.</td>
+</tr>
+</tbody>
+</table>
+<section id="chatlas.types.ContentToolRequest.tagify" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.types.ContentToolRequest.tagify">tagify</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>types.ContentToolRequest.tagify()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Returns an HTML string suitable for passing to htmltools/shiny’s <code>Chat()</code> component.</p>
 
 
+</section>
 </section>
 </section>
 

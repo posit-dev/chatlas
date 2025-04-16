@@ -10,6 +10,8 @@ chatlas.ChatAzureOpenAI py:function 1 reference/ChatAzureOpenAI.html#chatlas.Cha
 chatlas._openai.ChatAzureOpenAI py:function 1 reference/ChatAzureOpenAI.html#chatlas.ChatAzureOpenAI chatlas.ChatAzureOpenAI
 chatlas.ChatBedrockAnthropic py:function 1 reference/ChatBedrockAnthropic.html#chatlas.ChatBedrockAnthropic -
 chatlas._anthropic.ChatBedrockAnthropic py:function 1 reference/ChatBedrockAnthropic.html#chatlas.ChatBedrockAnthropic chatlas.ChatBedrockAnthropic
+chatlas.ChatDatabricks py:function 1 reference/ChatDatabricks.html#chatlas.ChatDatabricks -
+chatlas._databricks.ChatDatabricks py:function 1 reference/ChatDatabricks.html#chatlas.ChatDatabricks chatlas.ChatDatabricks
 chatlas.ChatGithub py:function 1 reference/ChatGithub.html#chatlas.ChatGithub -
 chatlas._github.ChatGithub py:function 1 reference/ChatGithub.html#chatlas.ChatGithub chatlas.ChatGithub
 chatlas.ChatGoogle py:function 1 reference/ChatGoogle.html#chatlas.ChatGoogle -
@@ -34,6 +36,8 @@ chatlas.Chat.chat_async py:function 1 reference/Chat.html#chatlas.Chat.chat_asyn
 chatlas._chat.Chat.chat_async py:function 1 reference/Chat.html#chatlas.Chat.chat_async chatlas.Chat.chat_async
 chatlas.Chat.console py:function 1 reference/Chat.html#chatlas.Chat.console -
 chatlas._chat.Chat.console py:function 1 reference/Chat.html#chatlas.Chat.console chatlas.Chat.console
+chatlas.Chat.current_display py:attribute 1 reference/Chat.html#chatlas.Chat.current_display -
+chatlas._chat.Chat.current_display py:attribute 1 reference/Chat.html#chatlas.Chat.current_display chatlas.Chat.current_display
 chatlas.Chat.export py:function 1 reference/Chat.html#chatlas.Chat.export -
 chatlas._chat.Chat.export py:function 1 reference/Chat.html#chatlas.Chat.export chatlas.Chat.export
 chatlas.Chat.extract_data py:function 1 reference/Chat.html#chatlas.Chat.extract_data -
@@ -98,8 +102,12 @@ chatlas.types.ContentJson py:class 1 reference/types.ContentJson.html#chatlas.ty
 chatlas._content.ContentJson py:class 1 reference/types.ContentJson.html#chatlas.types.ContentJson chatlas.types.ContentJson
 chatlas.types.ContentText py:class 1 reference/types.ContentText.html#chatlas.types.ContentText -
 chatlas._content.ContentText py:class 1 reference/types.ContentText.html#chatlas.types.ContentText chatlas.types.ContentText
+chatlas.types.ContentToolRequest.tagify py:function 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest.tagify -
+chatlas._content.ContentToolRequest.tagify py:function 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest.tagify chatlas.types.ContentToolRequest.tagify
 chatlas.types.ContentToolRequest py:class 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest -
 chatlas._content.ContentToolRequest py:class 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest chatlas.types.ContentToolRequest
+chatlas.types.ContentToolResult.tagify py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.tagify -
+chatlas._content.ContentToolResult.tagify py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.tagify chatlas.types.ContentToolResult.tagify
 chatlas.types.ContentToolResult py:class 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult -
 chatlas._content.ContentToolResult py:class 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult chatlas.types.ContentToolResult
 chatlas.types.ChatResponse.get_content py:function 1 reference/types.ChatResponse.html#chatlas.types.ChatResponse.get_content -

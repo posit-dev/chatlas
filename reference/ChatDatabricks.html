@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>chatsnowflake – chatlas</title>
+<title>chatdatabricks – chatlas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -187,7 +187,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/ChatAnthropic.html">Chat model providers</a></li><li class="breadcrumb-item"><a href="../reference/ChatSnowflake.html">ChatSnowflake</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/ChatAnthropic.html">Chat model providers</a></li><li class="breadcrumb-item"><a href="../reference/ChatDatabricks.html">ChatDatabricks</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -240,7 +240,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/ChatDatabricks.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/ChatDatabricks.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">ChatDatabricks</span></a>
   </div>
 </li>
@@ -282,7 +282,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/ChatSnowflake.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/ChatSnowflake.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ChatSnowflake</span></a>
   </div>
 </li>
@@ -565,13 +565,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.ChatSnowflake" id="toc-chatlas.ChatSnowflake" class="nav-link active" data-scroll-target="#chatlas.ChatSnowflake">ChatSnowflake</a>
+  <li><a href="#chatlas.ChatDatabricks" id="toc-chatlas.ChatDatabricks" class="nav-link active" data-scroll-target="#chatlas.ChatDatabricks">ChatDatabricks</a>
   <ul class="collapse">
   <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatSnowflake.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatDatabricks.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -579,22 +580,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="chatlas.ChatSnowflake" class="level1">
-<h1>ChatSnowflake</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ChatSnowflake(</span>
+<section id="chatlas.ChatDatabricks" class="level1">
+<h1>ChatDatabricks</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ChatDatabricks(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    turns<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    connection_name<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    account<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    user<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    password<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    private_key_file<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    private_key_file_pwd<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Chat with a Snowflake Cortex LLM</p>
-<p>https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions</p>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    workspace_client<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Chat with a model hosted on Databricks.</p>
+<p>Databricks provides out-of-the-box access to a number of <a href="https://docs.databricks.com/en/machine-learning/model-serving/score-foundation-models.html">foundation models</a> and can also serve as a gateway for external models hosted by a third party.</p>
 <section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
 <h2 class="doc-section doc-section-prerequisites anchored" data-anchor-id="prerequisites">Prerequisites</h2>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -607,7 +602,7 @@ Python requirements
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><code>ChatSnowflake</code>, requires the <code>snowflake-ml-python</code> package: <code>pip install "chatlas[snowflake]"</code>.</p>
+<p><code>ChatDatabricks</code> requires the <code>databricks-sdk</code> package: <code>pip install "chatlas[databricks]"</code>.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -616,12 +611,19 @@ Python requirements
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Snowflake credentials
+Authentication
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Snowflake provides a handful of ways to authenticate, but it’s recommended to use <a href="https://docs.snowflake.com/en/developer-guide/python-connector/python-connector-connect#label-python-connection-toml">key-pair auth</a> to generate a <code>private_key_file</code>. It’s also recommended to place your credentials in a <a href="https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file"><code>connections.toml</code> file</a>.</p>
-<p>This way, once your credentials are in the <code>connections.toml</code> file, you can simply call <code>ChatSnowflake(connection_name="my_connection")</code> to authenticate. If you don’t want to use a <code>connections.toml</code> file, you can specify the connection parameters directly (with <code>account</code>, <code>user</code>, <code>password</code>, etc.).</p>
+<p><code>chatlas</code> delegates to the <code>databricks-sdk</code> package for authentication with Databricks. As such, you can use any of the authentication methods discussed here:</p>
+<p>https://docs.databricks.com/aws/en/dev-tools/sdk-python#authentication</p>
+<p>Note that Python-specific article points to this language-agnostic “unified” approach to authentication:</p>
+<p>https://docs.databricks.com/aws/en/dev-tools/auth/unified-auth</p>
+<p>There, you’ll find all the options listed, but a simple approach that generally works well is to set the following environment variables:</p>
+<ul>
+<li><code>DATABRICKS_HOST</code>: The Databricks host URL for either the Databricks workspace endpoint or the Databricks accounts endpoint.</li>
+<li><code>DATABRICKS_TOKEN</code>: The Databricks personal access token.</li>
+</ul>
 </div>
 </div>
 </section>
@@ -652,50 +654,33 @@ Snowflake credentials
 <tr class="odd">
 <td>turns</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="../reference/Turn.html#chatlas.Turn">Turn</a>]]</td>
-<td>A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-None values for both <code>turns</code> and <code>system_prompt</code>. Each message in the list should be a dictionary with at least <code>role</code> (usually <code>system</code>, <code>user</code>, or <code>assistant</code>, but <code>tool</code> is also possible). Normally there is also a <code>content</code> field, which is a string.</td>
+<td>A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-<code>None</code> values for both <code>turns</code> and <code>system_prompt</code>. Each message in the list should be a dictionary with at least <code>role</code> (usually <code>system</code>, <code>user</code>, or <code>assistant</code>, but <code>tool</code> is also possible). Normally there is also a <code>content</code> field, which is a string.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td>connection_name</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The name of the connection (i.e., section) within the connections.toml file. This is useful if you want to keep your credentials in a connections.toml file rather than specifying them directly in the arguments. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file</td>
+<td>workspace_client</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['WorkspaceClient']</td>
+<td>A <code>databricks.sdk.WorkspaceClient()</code> to use for the connection. If not provided, a new client will be created.</td>
 <td><code>None</code></td>
 </tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
 <tr class="odd">
-<td>account</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>Your Snowflake account identifier. Required if <code>connection_name</code> is not provided. https://docs.snowflake.com/en/user-guide/admin-account-identifier</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>user</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>Your Snowflake user name. Required if <code>connection_name</code> is not provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>password</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>Your Snowflake password. Required if doing password authentication and <code>connection_name</code> is not provided.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>private_key_file</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The path to your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>private_key_file_pwd</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The password for your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>kwargs</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | <a href="https://docs.python.org/3/library/functions.html#int">int</a>]]</td>
-<td>Additional keyword arguments passed along to the Snowflake connection builder. These can include any parameters supported by the <code>snowflake-ml-python</code> package. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-specifying-connection-parameters</td>
-<td><code>None</code></td>
+<td></td>
+<td><a href="../reference/Chat.html#chatlas.Chat">Chat</a></td>
+<td>A chat object that retains the state of the conversation.</td>
 </tr>
 </tbody>
 </table>
@@ -1133,7 +1118,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatSnowflake.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatDatabricks.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

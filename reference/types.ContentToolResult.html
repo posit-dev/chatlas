@@ -240,6 +240,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/ChatDatabricks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatDatabricks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/ChatGithub.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ChatGithub</span></a>
   </div>
@@ -562,6 +568,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#chatlas.types.ContentToolResult" id="toc-chatlas.types.ContentToolResult" class="nav-link active" data-scroll-target="#chatlas.types.ContentToolResult">types.ContentToolResult</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#chatlas.types.ContentToolResult.tagify" id="toc-chatlas.types.ContentToolResult.tagify" class="nav-link" data-scroll-target="#chatlas.types.ContentToolResult.tagify">tagify</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ContentToolResult.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
@@ -581,10 +591,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 10%">
-<col style="width: 10%">
-<col style="width: 65%">
-<col style="width: 15%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 81%">
+<col style="width: 7%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -596,33 +606,55 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td>id</td>
-<td></td>
-<td>The unique identifier of the tool request.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="even">
 <td>value</td>
 <td></td>
-<td>The value returned by the tool/function.</td>
-<td><em>required</em></td>
-</tr>
-<tr class="odd">
-<td>name</td>
-<td></td>
-<td>The name of the tool/function that was called.</td>
+<td>The value returned by the tool/function (to be sent to the model).</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
 <td>error</td>
 <td></td>
-<td>An error message if the tool/function call failed.</td>
+<td>An exception that occurred during the tool request. If this is set, the error message sent to the model and the value is ignored.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>extra</td>
+<td></td>
+<td>Additional data associated with the tool result that isn’t sent to the model.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>request</td>
+<td></td>
+<td>Not intended to be used directly. It will be set when the :class:<code>~chatlas.Chat</code> invokes the tool.</td>
 <td><em>required</em></td>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#chatlas.types.ContentToolResult.tagify">tagify</a></td>
+<td>A method for rendering this object via htmltools/shiny.</td>
+</tr>
+</tbody>
+</table>
+<section id="chatlas.types.ContentToolResult.tagify" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.types.ContentToolResult.tagify">tagify</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>types.ContentToolResult.tagify()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A method for rendering this object via htmltools/shiny.</p>
 
 
+</section>
 </section>
 </section>
 

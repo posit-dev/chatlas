@@ -240,6 +240,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/ChatDatabricks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatDatabricks</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/ChatGithub.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ChatGithub</span></a>
   </div>
@@ -580,7 +586,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>ChatAuto</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ChatAuto(system_prompt<span class="op">=</span><span class="va">None</span>, turns<span class="op">=</span><span class="va">None</span>, <span class="op">*</span>, provider<span class="op">=</span><span class="va">None</span>, model<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Use environment variables (env vars) to configure the Chat provider and model.</p>
-<p>Creates a <code>:class:~chatlas.Chat</code> instance based on the specified provider. The provider may be specified through the <code>provider</code> parameter and/or the <code>CHATLAS_CHAT_PROVIDER</code> env var. If both are set, the env var takes precedence. Similarly, the provider’s model may be specified through the <code>model</code> parameter and/or the <code>CHATLAS_CHAT_MODEL</code> env var. Also, additional configuration may be provided through the <code>kwargs</code> parameter and/or the <code>CHATLAS_CHAT_ARGS</code> env var (as a JSON string). In this case, when both are set, they are merged, with the env var arguments taking precedence.</p>
+<p>Creates a :class:<code>~chatlas.Chat</code> instance based on the specified provider. The provider may be specified through the <code>provider</code> parameter and/or the <code>CHATLAS_CHAT_PROVIDER</code> env var. If both are set, the env var takes precedence. Similarly, the provider’s model may be specified through the <code>model</code> parameter and/or the <code>CHATLAS_CHAT_MODEL</code> env var. Also, additional configuration may be provided through the <code>kwargs</code> parameter and/or the <code>CHATLAS_CHAT_ARGS</code> env var (as a JSON string). In this case, when both are set, they are merged, with the env var arguments taking precedence.</p>
 <p>As a result, <code>ChatAuto()</code> provides a convenient way to set a default provider and model in your Python code, while allowing you to override these settings through env vars (i.e., without modifying your code).</p>
 <section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
 <h2 class="doc-section doc-section-prerequisites anchored" data-anchor-id="prerequisites">Prerequisites</h2>
