@@ -52,8 +52,8 @@ def ChatDatabricks(
 
     https://docs.databricks.com/aws/en/dev-tools/auth/unified-auth
 
-    There, you'll find all the options listed, but for your convenience, a simple approach
-    that generally works is to set the following environment variables:
+    There, you'll find all the options listed, but a simple approach that
+    generally works well is to set the following environment variables:
 
     * `DATABRICKS_HOST`: The Databricks host URL for either the Databricks
       workspace endpoint or the Databricks accounts endpoint.
