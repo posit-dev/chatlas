@@ -1,6 +1,6 @@
 import tempfile
 from pathlib import Path
-from typing import Awaitable, Callable
+from typing import Callable
 
 import pytest
 from chatlas import (
@@ -14,6 +14,7 @@ from chatlas import (
 )
 from PIL import Image
 from pydantic import BaseModel
+from tenacity import retry, wait_exponential
 
 ChatFun = Callable[..., Chat]
 
@@ -34,24 +35,6 @@ Except for red delicious, that is. They are NOT delicious.
 """
 
 
-def retryassert(assert_func: Callable[..., None], retries=1):
-    for _ in range(retries):
-        try:
-            return assert_func()
-        except Exception:
-            pass
-    return assert_func()
-
-
-async def retryassert_async(assert_func: Callable[..., Awaitable[None]], retries=1):
-    for _ in range(retries):
-        try:
-            return await assert_func()
-        except Exception:
-            pass
-    return await assert_func()
-
-
 def assert_turns_system(chat_fun: ChatFun):
     system_prompt = "Return very minimal output, AND ONLY USE UPPERCASE."
 
@@ -59,11 +42,11 @@ def assert_turns_system(chat_fun: ChatFun):
     response = chat.chat("What is the name of Winnie the Pooh's human friend?")
     response_text = str(response)
     assert len(chat.get_turns()) == 2
-    assert "CHRISTOPHER ROBIN" in response_text
+    assert "CHRISTOPHER ROBIN" in response_text.upper()
 
     chat = chat_fun(turns=[Turn("system", system_prompt)])
     response = chat.chat("What is the name of Winnie the Pooh's human friend?")
-    assert "CHRISTOPHER ROBIN" in str(response)
+    assert "CHRISTOPHER ROBIN" in str(response).upper()
     assert len(chat.get_turns()) == 2
 
 
@@ -267,3 +250,9 @@ def assert_pdf_local(chat_fun: ChatFun):
         "Two word answer only.",
     )
     assert "red delicious" in str(response).lower()
+
+
+retry_api_call = retry(
+    wait=wait_exponential(min=1, max=60),
+    reraise=True,
+)

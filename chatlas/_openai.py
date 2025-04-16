@@ -325,7 +325,8 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                 del kwargs_full["tools"]
 
         if stream and "stream_options" not in kwargs_full:
-            kwargs_full["stream_options"] = {"include_usage": True}
+            if self.__class__.__name__ != "DatabricksProvider":
+                kwargs_full["stream_options"] = {"include_usage": True}
 
         return kwargs_full
 
