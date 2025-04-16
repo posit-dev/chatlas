@@ -5,6 +5,7 @@ import os
 import sys
 import traceback
 import warnings
+from contextlib import AsyncExitStack
 from pathlib import Path
 from threading import Thread
 from typing import (
@@ -23,6 +24,11 @@ from typing import (
     overload,
 )
 
+from mcp import (
+    ClientSession as MCPClientSession,
+)
+from mcp.client.sse import sse_client
+from mcp.client.stdio import StdioServerParameters, stdio_client
 from pydantic import BaseModel
 
 from ._content import (
@@ -101,6 +107,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "rich_console": {},
             "css_styles": {},
         }
+
+        self._mcp_sessions: dict[str, MCPClientSession] = {}
+        self._mcp_exit_stack: AsyncExitStack = AsyncExitStack()
 
     def get_turns(
         self,
@@ -904,6 +913,176 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         json = res[0]
         return json.value
 
+    async def _register_mcp_tools(
+        self,
+        session: MCPClientSession,
+        include_tools: Optional[list[str]] = None,
+        exclude_tools: Optional[list[str]] = None,
+    ):
+        assert not (include_tools and exclude_tools), (
+            "Cannot specify both include_tools and exclude_tools."
+        )
+
+        response = await session.list_tools()
+        for tool in response.tools:
+            if include_tools:
+                if tool.name not in include_tools:
+                    continue
+            if exclude_tools:
+                if tool.name in exclude_tools:
+                    continue
+            self._tools[tool.name] = Tool.from_mcp(
+                session=session,
+                mcp_tool=tool,
+            )
+
+    async def register_mcp_sse_server_async(
+        self,
+        name: str,
+        url: str,
+        include_tools: Optional[list[str]] = None,
+        exclude_tools: Optional[list[str]] = None,
+        transport_kwargs: dict[str, Any] = {},
+    ):
+        """
+        Register a SSE-based MCP server session asynchronously.
+
+        This method establishes a new SSE (Server-Sent Events) connection to an MCP server and registers
+        the available tools. The server is identified by a unique name and URL.
+
+        Parameters
+        ----------
+        name
+            Unique identifier for this MCP server session
+        url
+            URL endpoint of the MCP server
+        include_tools
+            List of tool names to include. If None, all available tools will be included. Defaults to None.
+        exclude_tools
+            List of tool names to exclude. This parameter and include_tools are mutually exclusive. Defaults to None.
+        transport_kwargs
+            Additional keyword arguments to pass to the SSE transport layer. Defaults to {}.
+
+        Raises
+        ------
+        AssertionError
+            If a session with the given name already exists
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        ```python
+        await chat.register_mcp_sse_server_async(
+            name="my_server",
+            url="http://localhost:8080/sse",
+            include_tools=["tool1", "tool2"],
+            transport_kwargs={"timeout": 30},
+        )
+        ```
+        """
+        assert name not in self._mcp_sessions, f"Session {name} already exists."
+
+        transport = await self._mcp_exit_stack.enter_async_context(
+            sse_client(url, **transport_kwargs)
+        )
+        self._mcp_sessions[name] = await self._mcp_exit_stack.enter_async_context(
+            MCPClientSession(*transport)
+        )
+        session = self._mcp_sessions[name]
+        await session.initialize()
+
+        await self._register_mcp_tools(
+            session,
+            include_tools=include_tools,
+            exclude_tools=exclude_tools,
+        )
+
+    async def register_mcp_stdio_server_async(
+        self,
+        name: str,
+        command: str,
+        args: list[str],
+        env: dict[str, str] | None = None,
+        include_tools: Optional[list[str]] = None,
+        exclude_tools: Optional[list[str]] = None,
+        transport_kwargs: dict[str, Any] = {},
+    ):
+        """
+        Register a stdio-based MCP server session asynchronously.
+
+        This method establishes a new stdio connection to an MCP server and registers
+        the available tools. The server is identified by a unique name and command.
+
+        Parameters
+        ----------
+        name
+            Unique identifier for this MCP server session
+        command
+            Command to execute to start the MCP server
+        args
+            Arguments to pass to the command
+        env
+            Environment variables to set for the command. Defaults to None.
+        include_tools
+            List of tool names to include. If None, all available tools will be included. Defaults to None.
+        exclude_tools
+            List of tool names to exclude. This parameter and include_tools are mutually exclusive. Defaults to None.
+        transport_kwargs
+            Additional keyword arguments to pass to the stdio transport layer. Defaults to {}.
+
+        Raises
+        ------
+        AssertionError
+            If a session with the given name already exists
+
+        Returns
+        -------
+        None
+
+        Examples
+        --------
+        ```python
+        await chat.register_mcp_sse_server_async(
+            name="my_server",
+            command="python",
+            args=["-m", "my_mcp_server"],
+            env={"DEBUG": "1"},
+            include_tools=["tool1", "tool2"],
+            transport_kwargs={"timeout": 30},
+        )
+        ```
+        """
+        assert name not in self._mcp_sessions, f"Session {name} already exists."
+
+        server_params = StdioServerParameters(
+            command=command,
+            args=args,
+            env=env,
+            **transport_kwargs,
+        )
+
+        transport = await self._mcp_exit_stack.enter_async_context(
+            stdio_client(server_params)
+        )
+        self._mcp_sessions[name] = await self._mcp_exit_stack.enter_async_context(
+            MCPClientSession(*transport)
+        )
+        session = self._mcp_sessions[name]
+        await session.initialize()
+
+        await self._register_mcp_tools(
+            session,
+            include_tools=include_tools,
+            exclude_tools=exclude_tools,
+        )
+
+    async def close_mcp_sessions(self):
+        """Clean up resources."""
+        await self._mcp_exit_stack.aclose()
+
     def register_tool(
         self,
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
@@ -984,7 +1163,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Note that the name and docstring of the model takes precedence over the
             name and docstring of the function.
         """
-        tool = Tool(func, model=model)
+        tool = Tool.from_func(func, model=model)
         self._tools[tool.name] = tool
 
     @property
