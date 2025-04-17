@@ -95,6 +95,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self.provider = provider
         self._turns: list[Turn] = list(turns or [])
         self._tools: dict[str, Tool] = {}
+        self._tool_approval_handler: (
+            Callable[[ContentToolRequest], bool]
+            | Callable[[ContentToolRequest], Awaitable[bool]]
+        ) = lambda x: True
         self._current_display: Optional[MarkdownDisplay] = None
         self._echo_options: EchoDisplayOptions = {
             "rich_markdown": {},
@@ -987,6 +991,62 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tool = Tool(func, model=model)
         self._tools[tool.name] = tool
 
+    def tool_approval_handler(
+        self,
+        func: Optional[
+            Callable[[ContentToolRequest], bool]
+            | Callable[[ContentToolRequest], Awaitable[bool]]
+        ] = None,
+    ):
+        """
+        Decorator to register a tool approval handler.
+
+        The decorated function should take a single argument (the tool request)
+        and return a boolean indicating whether the tool should be called.
+        The function can be synchronous or asynchronous.
+
+        Examples
+        --------
+        ```python
+        @chat.tool_approval_handler
+        def approve_tool(request):
+            print(f"Tool requested: {request.name}")
+            return input("Approve? (y/n): ").lower() == "y"
+        ```
+
+        Or with explicit invocation:
+        ```python
+        def approve_tool(request):
+            print(f"Tool requested: {request.name}")
+            return input("Approve? (y/n): ").lower() == "y"
+
+
+        chat.tool_approval_handler(approve_tool)
+        ```
+
+        Parameters
+        ----------
+        func
+            The function to be invoked when a tool is called. If None, this method
+            returns a decorator.
+
+        Returns
+        -------
+        callable
+            A decorator function if func is None, otherwise the original function.
+        """
+
+        def decorator(f):
+            self._tool_approval_handler = f
+            return f
+
+        if func is None:
+            return decorator
+
+        # TODO: maybe it makes sense to allow for multiple handlers?
+        self._tool_approval_handler = func
+        return func
+
     @property
     def current_display(self) -> Optional[MarkdownDisplay]:
         """
@@ -1417,6 +1477,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             e = RuntimeError(f"Unknown tool: {x.name}")
             return ContentToolResult(value=None, error=e, request=x)
 
+        if not self._tool_approval_handler(x):
+            return ContentToolResult(
+                value=None,
+                error=RuntimeError(
+                    f"Tool call '{x.name}' was not approved by the user."
+                ),
+                request=x,
+            )
+
         args = x.arguments
 
         try:
@@ -1452,6 +1521,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if func is None:
             e = RuntimeError(f"Unknown tool: {x.name}")
             return ContentToolResult(value=None, error=e, request=x)
+
+        if not self._tool_approval_handler(x):
+            return ContentToolResult(
+                value=None,
+                error=RuntimeError(
+                    f"Tool call '{x.name}' was not approved by the user."
+                ),
+                request=x,
+            )
 
         args = x.arguments
 
