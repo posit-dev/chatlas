@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * `.extract_data()` is now supported.
   *  `async` methods are now supported. (#81)
   * Fixed an issue with more than one session being active at once. (#83)
+* `ChatAnthropic()` no longer choke after receiving an output that consists only of whitespace. (#86)
 
 ### Changes
 

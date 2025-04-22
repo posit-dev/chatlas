@@ -89,3 +89,10 @@ def test_anthropic_images():
 def test_anthropic_pdfs():
     chat_fun = ChatAnthropic
     assert_pdf_local(chat_fun)
+
+
+def test_anthropic_empty_response():
+    chat = ChatAnthropic()
+    chat.chat("Respond with only two blank lines")
+    resp = chat.chat("What's 1+1? Just give me the number")
+    assert "2" == str(resp).strip()
