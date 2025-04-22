@@ -1,5 +1,7 @@
+import base64
+
 import pytest
-from chatlas import ChatAnthropic
+from chatlas import ChatAnthropic, ContentToolResult
 
 from .conftest import (
     assert_data_extraction,
@@ -96,3 +98,33 @@ def test_anthropic_empty_response():
     chat.chat("Respond with only two blank lines")
     resp = chat.chat("What's 1+1? Just give me the number")
     assert "2" == str(resp).strip()
+
+
+def test_anthropic_image_tool(test_images_dir):
+    def get_picture():
+        "Returns an image"
+        # Local copy of https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png
+        with open(test_images_dir / "dice.png", "rb") as image:
+            bytez = image.read()
+        res = [
+            {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": base64.b64encode(bytez).decode("utf-8"),
+                },
+            }
+        ]
+        return ContentToolResult(value=res, model_format="as_is")
+
+    chat = ChatAnthropic()
+    chat.register_tool(get_picture)
+
+    res = chat.chat(
+        "You have a tool called 'get_picture' available to you. "
+        "When called, it returns an image. "
+        "Tell me what you see in the image."
+    )
+
+    assert "dice" in res.get_content()

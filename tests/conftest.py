@@ -256,3 +256,8 @@ retry_api_call = retry(
     wait=wait_exponential(min=1, max=60),
     reraise=True,
 )
+
+
+@pytest.fixture
+def test_images_dir():
+    return Path(__file__).parent / "images"

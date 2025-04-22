@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 
 * Added `ChatDatabricks()`, for chatting with Databrick's [foundation models](https://docs.databricks.com/aws/en/machine-learning/model-serving/score-foundation-models). (#82)
-* `.stream()` and `.stream_async()` gain a `content` argument. Set this to `"all"` to include `ContentToolRequest` and `ContentToolResponse` instances in the stream. (#75)
-* `ContentToolRequest` and `ContentToolResponse` are now exported to `chatlas` namespace. (#75)
-* `ContentToolRequest` and `ContentToolResponse` now have `.tagify()` methods, making it so they can render automatically in a Shiny chatbot. (#75)
-* `ContentToolResult` instances can be returned from tools. This allows for custom rendering of the tool result. (#75)
+* `.stream()` and `.stream_async()` gain a `content` argument. Set this to `"all"` to include `ContentToolResult`/`ContentToolRequest` objects in the stream. (#75)
+* `ContentToolResult`/`ContentToolRequest` are now exported to `chatlas` namespace. (#75)
+* `ContentToolResult`/`ContentToolRequest` gain a `.tagify()` method so they render sensibly in a Shiny app. (#75)
+* A tool can now return a `ContentToolResult`. This is useful for: 
+    * Specifying the format used for sending the tool result to the chat model (`model_format`). (#87)
+    * Custom rendering of the tool result (by overriding relevant methods in a subclass). (#75)
 * `Chat` gains a new `.current_display` property. When a `.chat()` or `.stream()` is currently active, this property returns an object with a `.echo()` method (to echo new content to the display). This is primarily useful for displaying custom content during a tool call. (#79)
 
 ### Improvements
@@ -25,11 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * `.extract_data()` is now supported.
   *  `async` methods are now supported. (#81)
   * Fixed an issue with more than one session being active at once. (#83)
-* `ChatAnthropic()` no longer choke after receiving an output that consists only of whitespace. (#86)
+* `ChatAnthropic()` no longer chokes after receiving an output that consists only of whitespace. (#86)
+* `orjson` is now used for JSON loading and dumping. (#87)
 
 ### Changes
 
 * The `echo` argument of the `.chat()` method defaults to a new value of `"output"`. As a result, tool requests and results are now echoed by default. To revert to the previous behavior, set `echo="text"`. (#78)
+* Tool results are now dumped to JSON by default before being sent to the model. To revert to the previous behavior, have the tool return a `ContentToolResult` with `model_format="str"`. (#87)
 
 ### Breaking changes
 
