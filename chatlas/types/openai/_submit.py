@@ -44,6 +44,10 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-4.1-2025-04-14",
             "gpt-4.1-mini-2025-04-14",
             "gpt-4.1-nano-2025-04-14",
+            "o4-mini",
+            "o4-mini-2025-04-16",
+            "o3",
+            "o3-2025-04-16",
             "o3-mini",
             "o3-mini-2025-01-31",
             "o1",
@@ -125,7 +129,7 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.NotGiven,
     ]
     seed: Union[int, None, openai.NotGiven]
-    service_tier: Union[Literal["auto", "default"], None, openai.NotGiven]
+    service_tier: Union[Literal["auto", "default", "flex"], None, openai.NotGiven]
     stop: Union[str, None, list[str], openai.NotGiven]
     store: Union[bool, None, openai.NotGiven]
     stream: Union[Literal[False], None, Literal[True], openai.NotGiven]
