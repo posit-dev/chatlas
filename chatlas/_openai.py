@@ -499,8 +499,8 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                     elif isinstance(x, ContentToolResult):
                         tool_results.append(
                             ChatCompletionToolMessageParam(
-                                # TODO: a tool could return an image!?!
-                                content=x.get_final_value(),
+                                # Currently, OpenAI only allows for text content in tool results
+                                content=cast(str, x.get_model_value()),
                                 tool_call_id=x.id,
                                 role="tool",
                             )

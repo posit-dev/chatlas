@@ -226,6 +226,15 @@ class ContentToolResult(Content):
     ----------
     value
         The value returned by the tool/function (to be sent to the model).
+    model_format
+        The format used for sending the value to the model. The default,
+        `"auto"`, first attempts to format the value as a JSON string. If that
+        fails, it gets converted to a string via `str()`. To force
+        `json.dumps()` or `str()`, set to `"json"` or `"str"`. Finally,
+        `"as_is"` is useful for doing your own formatting and/or passing a
+        non-string value (e.g., a list or dict) straight to the model.
+        Non-string values are useful for tools that return images or other
+        'known' non-text content types.
     error
         An exception that occurred during the tool request. If this is set, the
         error message sent to the model and the value is ignored.
@@ -239,6 +248,7 @@ class ContentToolResult(Content):
 
     # public
     value: Any
+    model_format: Literal["auto", "json", "str", "as_is"] = "auto"
     error: Optional[Exception] = None
     extra: Any = None
 
@@ -266,22 +276,11 @@ class ContentToolResult(Content):
             )
         return self.request.arguments
 
-    def _get_value(self, pretty: bool = False) -> str:
-        if self.error:
-            return f"Tool call failed with error: '{self.error}'"
-        if not pretty:
-            return str(self.value)
-        try:
-            json_val = json.loads(self.value)  # type: ignore
-            return pformat(json_val, indent=2, sort_dicts=False)
-        except:  # noqa
-            return str(self.value)
-
     # Primarily used for `echo="all"`...
     def __str__(self):
         prefix = "✅ tool result" if not self.error else "❌ tool error"
         comment = f"# {prefix} ({self.id})"
-        value = self._get_value(pretty=True)
+        value = self._get_display_value()
         return f"""```python\n{comment}\n{value}\n```"""
 
     # ... and for displaying in the notebook
@@ -295,9 +294,52 @@ class ContentToolResult(Content):
             res += f" error='{self.error}'"
         return res + ">"
 
-    # The actual value to send to the model
-    def get_final_value(self) -> str:
-        return self._get_value()
+    # Format the value for display purposes
+    def _get_display_value(self) -> object:
+        if self.error:
+            return f"Tool call failed with error: '{self.error}'"
+
+        val = self.value
+
+        # If value is already a dict or list, format it directly
+        if isinstance(val, (dict, list)):
+            return pformat(val, indent=2, sort_dicts=False)
+
+        # For string values, try to parse as JSON
+        if isinstance(val, str):
+            try:
+                json_val = json.loads(val)
+                return pformat(json_val, indent=2, sort_dicts=False)
+            except json.JSONDecodeError:
+                # Not valid JSON, return as string
+                return val
+
+        return val
+
+    def get_model_value(self) -> object:
+        "Get the actual value sent to the model."
+
+        if self.error:
+            return f"Tool call failed with error: '{self.error}'"
+
+        val, mode = (self.value, self.model_format)
+
+        if isinstance(val, str):
+            return val
+
+        if mode == "auto":
+            try:
+                return json.dumps(val)
+            except Exception:
+                return str(val)
+        elif mode == "json":
+            return json.dumps(val)
+        elif mode == "str":
+            return str(val)
+        elif mode == "as_is":
+            return val
+        else:
+            raise ValueError(f"Unknown format mode: {mode}")
 
     def tagify(self) -> "TagChild":
         """
@@ -317,7 +359,7 @@ class ContentToolResult(Content):
             header = f"❌ Failed to call tool <code>{self.name}</code>"
 
         args = self._arguments_str()
-        content = self._get_value(pretty=True)
+        content = self._get_display_value()
 
         return HTML(
             textwrap.dedent(f"""

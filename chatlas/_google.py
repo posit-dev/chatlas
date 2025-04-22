@@ -432,7 +432,7 @@ class GoogleProvider(
             if content.error:
                 resp = {"error": content.error}
             else:
-                resp = {"result": str(content.value)}
+                resp = {"result": content.get_model_value()}
             return Part(
                 # TODO: seems function response parts might need role='tool'???
                 # https://github.com/googleapis/python-genai/blame/c8cfef85c/README.md#L344
