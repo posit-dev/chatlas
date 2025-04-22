@@ -451,7 +451,10 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
     @staticmethod
     def _as_content_block(content: Content) -> "ContentBlockParam":
         if isinstance(content, ContentText):
-            return {"text": content.text, "type": "text"}
+            text = content.text
+            if text == "" or text.isspace():
+                text = "[empty string]"
+            return {"type": "text", "text": text}
         elif isinstance(content, ContentJson):
             return {"text": "<structured data/>", "type": "text"}
         elif isinstance(content, ContentPDF):
