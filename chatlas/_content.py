@@ -362,7 +362,7 @@ class ContentToolResult(Content):
         if hasattr(value, "to_dict") and callable(value.to_dict):
             value = value.to_dict()
 
-        return orjson.dumps(value)
+        return orjson.dumps(value).decode("utf-8")
 
     def tagify(self) -> "TagChild":
         """
@@ -420,7 +420,7 @@ class ContentJson(Content):
     content_type: ContentTypeEnum = "json"
 
     def __str__(self):
-        return orjson.dumps(self.value, option=orjson.OPT_INDENT_2)
+        return orjson.dumps(self.value, option=orjson.OPT_INDENT_2).decode("utf-8")
 
     def _repr_markdown_(self):
         return f"""```json\n{self.__str__()}\n```"""

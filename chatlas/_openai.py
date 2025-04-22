@@ -433,9 +433,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                                 "id": x.id,
                                 "function": {
                                     "name": x.name,
-                                    "arguments": orjson.dumps(x.arguments).decode(
-                                        "utf-8"
-                                    ),
+                                    "arguments": orjson.dumps(x.arguments).decode("utf-8"),
                                 },
                                 "type": "function",
                             }
