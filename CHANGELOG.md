@@ -12,9 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 
 * Added `ChatDatabricks()`, for chatting with Databrick's [foundation models](https://docs.databricks.com/aws/en/machine-learning/model-serving/score-foundation-models). (#82)
-* `.stream()` and `.stream_async()` gain a `content` argument. Set this to `"all"` to include `ContentToolRequest` and `ContentToolResponse` instances in the stream. (#75)
-  * `ContentToolRequest`/`ContentToolResponse` also now have `.tagify()`/`._repr_markdown_()` methods, so they render sensibly in a Shiny app/Notebook. (#75)
-* `ContentToolRequest` and `ContentToolResponse` are now exported to `chatlas` namespace. (#75)
+* `.stream()` and `.stream_async()` gain a `content` argument. Set this to `"all"` to include `ContentToolResult`/`ContentToolRequest` objects in the stream. (#75)
+* `ContentToolResult`/`ContentToolRequest` are now exported to `chatlas` namespace. (#75)
+* `ContentToolResult`/`ContentToolRequest` gain a `.tagify()` method so they render sensibly in a Shiny app. (#75)
 * A tool can now return a `ContentToolResult`. This is useful for: 
     * Specifying the format used for sending the tool result to the chat model (`model_format`). (#87)
     * Custom rendering of the tool result (by overriding relevant methods in a subclass). (#75)
