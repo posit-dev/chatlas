@@ -1,6 +1,7 @@
 [project]
 name = "chatlas"
 description = "A simple and consistent interface for chatting with LLMs"
+license = "MIT"
 dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.9"
