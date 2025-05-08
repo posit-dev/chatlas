@@ -49,12 +49,6 @@ def ChatOllama(
     (e.g. `ollama pull llama3.2`).
     :::
 
-    ::: {.callout-note}
-    ## Python requirements
-
-    `ChatOllama` requires the `openai` package: `pip install "chatlas[ollama]"`.
-    :::
-
 
     Examples
     --------

@@ -40,12 +40,6 @@ def ChatGithub(
     You may need to apply for and be accepted into a beta access program.
     :::
 
-    ::: {.callout-note}
-    ## Python requirements
-
-    `ChatGithub` requires the `openai` package: `pip install "chatlas[github]"`.
-    :::
-
 
     Examples
     --------

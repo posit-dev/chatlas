@@ -111,17 +111,11 @@ class DatabricksProvider(OpenAIProvider):
         except ImportError:
             raise ImportError(
                 "`ChatDatabricks()` requires the `databricks-sdk` package. "
-                "Install it with `pip install databricks-sdk[openai]`."
+                "Install it with `pip install databricks-sdk`."
             )
 
-        try:
-            import httpx
-            from openai import AsyncOpenAI
-        except ImportError:
-            raise ImportError(
-                "`ChatDatabricks()` requires the `openai` package. "
-                "Install it with `pip install openai`."
-            )
+        import httpx
+        from openai import AsyncOpenAI
 
         self._model = model
         self._seed = None
