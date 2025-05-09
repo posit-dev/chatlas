@@ -1,0 +1,68 @@
+---
+title: Tool calling
+callout-appearance: simple
+---
+
+Tool calling helps extend the capabilities of an LLM by allowing it to call external functions or APIs.
+This is particularly useful for tasks that require precise calculations, information retrieval, or actions that are beyond the model's built-in capabilities.
+
+An obvious example of where tool calling is useful is when a response needs up-to-date information, such as the weather or stock prices:
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+chat.chat("How's the weather in San Francisco?")
+```
+
+::: chatlas-response-container
+I'm unable to provide real-time weather updates. To get the most current weather information for San Francisco, I recommend checking a reliable weather website or using a weather app. 
+:::
+
+Let's help the model out by providing a function that can fetch the weather for a given location.
+Importantly, the function includes a docstring explaining what it does, and type hints for the input arguments.
+The model takes this information in consideration when deciding if/how to use tool(s) to answer user prompts[^1].
+
+
+[^1]: Some models may need some additional (system) prompting to help it understand the appropriate situations to use the function.
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+
+def get_current_weather(lat: float, lng: float):
+    "Get the current weather for a given location."
+    return "sunny"
+
+chat.register_tool(get_current_weather)
+
+chat.chat("How's the weather in San Francisco?")
+```
+
+
+::: chatlas-response-container
+
+```python
+# 🛠️ tool request
+get_current_weather(37.7749, -122.4194)
+```
+
+```
+# ✅ tool result
+sunny
+```
+
+The current weather in San Francisco is sunny.
+:::
+
+
+
+`.chat()` automatically handles the [tool calling loop](../tool-calling/how-it-works.qmd) and also displays information about what tools the model is requesting and receiving.
+This is an especially nice default behavior when interactively chatting since it helps you (the developer) quickly verify that tools are working as expected.
+If you, for some reason, prefer not to see the tool call information displayed, you can set `echo="text"` in the `.chat()` method.
+
+Next, [we'll learn about the `.stream()` method](stream.qmd) -- a lower-level approach to streaming LLM responses.
+With `.stream()`, you'll have more control over where and how the model's output is displayed.
+`.stream()` doesn't automatically include tool calls information; however, you can set `content="all"` to receive all content, including tool calls.
+In later articles, you'll learn more about [customizing tool call displays](../tool-calling/displays.qmd) and also adding a [tool approval mechanism](../tool-calling/approval.qmd).
