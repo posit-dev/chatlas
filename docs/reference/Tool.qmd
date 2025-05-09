@@ -1,7 +1,7 @@
 # Tool { #chatlas.Tool }
 
 ```python
-Tool(self, func, *, model=None)
+Tool(func, *, model=None)
 ```
 
 Define a tool

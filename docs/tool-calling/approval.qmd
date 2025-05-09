@@ -1,0 +1,67 @@
+---
+title: Tool approval
+callout-appearance: simple
+---
+
+Tools are incredibly powerful, but are also potentially dangerous -- especially if you're running someone else's tool on your machine.
+For this reason, it's important that end users have the ability to deny tool calls before they are executed.
+The main mechanism for denying tool calls in chatlas is through a [ToolRejectError](../reference/ToolRejectError.qmd) exception.
+
+A `ToolRejectError` is usually raised from one of two places: 1. within a tool itself, or 2. in a tool request callback handler. 
+
+### Within a tool
+
+To demonstrate the first case, consider the following tool that deletes a file:
+
+```python
+import os
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+
+def list_files():
+    "List files in the user's current directory"
+    while True:
+        allow = input(
+            "Would you like to allow access to your current directory? (yes/no): "
+        )
+        if allow.lower() == "yes":
+            return os.listdir(".")
+        elif allow.lower() == "no":
+            raise ctl.ToolRejectError(
+                "The user has chosen to disallow the tool call."
+            )
+        else:
+            print("Please answer with 'yes' or 'no'.")
+
+chat.register_tool(list_files)
+chat.chat("What files are available in my current directory?")
+```
+
+::: chatlas-response-container
+
+```python
+# 🛠️ tool request
+list_files()
+```
+
+```
+# ❌ tool error
+Tool call failed with error: 'The user has chosen to disallow the tool call.'
+```
+
+It looks like I am unable to access the list of files in your current directory at the moment. If you have any
+other questions or need assistance, feel free to ask!     
+:::
+
+
+### On request callback
+
+If you're not the author of the tool, you can still reject tool calls by registering a request callback handler.
+This handler is called before the tool is executed, and can raise a `ToolRejectError` exception to prevent the tool from being called.
+
+```python
+from chatlas import ChatOpenAI, ToolRejectError
+
+chat = ChatOpenAI()
+```
