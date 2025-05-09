@@ -1,7 +1,7 @@
 # types.ContentImageInline { #chatlas.types.ContentImageInline }
 
 ```python
-types.ContentImageInline(self, content_type, data=None)
+types.ContentImageInline()
 ```
 
 Inline image content.
@@ -12,7 +12,7 @@ It's not meant to be used directly.
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name         | Type                                                      | Description                    | Default    |
-|--------------|-----------------------------------------------------------|--------------------------------|------------|
-| content_type | [ImageContentTypes](`chatlas._content.ImageContentTypes`) | The content type of the image. | _required_ |
-| data         | [Optional](`typing.Optional`)\[[str](`str`)\]             | The base64-encoded image data. | `None`     |
+| Name               | Type   | Description                    | Default    |
+|--------------------|--------|--------------------------------|------------|
+| image_content_type |        | The content type of the image. | _required_ |
+| data               |        | The base64-encoded image data. | _required_ |

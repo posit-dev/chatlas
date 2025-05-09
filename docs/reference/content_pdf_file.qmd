@@ -1,0 +1,22 @@
+# content_pdf_file { #chatlas.content_pdf_file }
+
+```python
+content_pdf_file(path)
+```
+
+Prepare a local PDF for input to a chat.
+
+Not all providers support PDF input, so check the documentation for the
+provider you are using.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                                                          | Description                 | Default    |
+|--------|-------------------------------------------------------------------------------|-----------------------------|------------|
+| path   | [Union](`typing.Union`)\[[str](`str`), [os](`os`).[PathLike](`os.PathLike`)\] | A path to a local PDF file. | _required_ |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                           | Description                                        |
+|--------|--------------------------------|----------------------------------------------------|
+|        | \[\](`~chatlas.types.Content`) | Content suitable for a [](`~chatlas.Turn`) object. |
