@@ -9,7 +9,7 @@ Interpolate variables into a prompt
 This is a light-weight wrapper around the Jinja2 templating engine, making
 it easier to interpolate dynamic data into a prompt template. Compared to
 f-strings, which expects you to wrap dynamic values in `{ }`, this function
-expects `{{ }}` instead, making it easier to include Python code and JSON in
+expects `{{{ }}}` instead, making it easier to include Python code and JSON in
 your prompt.
 
 ## Parameters {.doc-section .doc-section-parameters}

@@ -1,0 +1,62 @@
+# ChatSnowflake { #chatlas.ChatSnowflake }
+
+```python
+ChatSnowflake(
+    system_prompt=None,
+    model=None,
+    turns=None,
+    connection_name=None,
+    account=None,
+    user=None,
+    password=None,
+    private_key_file=None,
+    private_key_file_pwd=None,
+    kwargs=None,
+)
+```
+
+Chat with a Snowflake Cortex LLM
+
+https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions
+
+## Prerequisites {.doc-section .doc-section-prerequisites}
+
+
+::: {.callout-note}
+## Python requirements
+
+`ChatSnowflake`, requires the `snowflake-ml-python` package:
+`pip install "chatlas[snowflake]"`.
+:::
+
+::: {.callout-note}
+## Snowflake credentials
+
+Snowflake provides a handful of ways to authenticate, but it's recommended
+to use [key-pair
+auth](https://docs.snowflake.com/en/developer-guide/python-connector/python-connector-connect#label-python-connection-toml)
+to generate a `private_key_file`. It's also recommended to place your
+credentials in a [`connections.toml`
+file](https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file).
+
+This way, once your credentials are in the `connections.toml` file, you can
+simply call `ChatSnowflake(connection_name="my_connection")` to
+authenticate. If you don't want to use a `connections.toml` file, you can
+specify the connection parameters directly (with `account`, `user`,
+`password`, etc.).
+:::
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name                 | Type                                                                                          | Description                                                                                                                                                                                                                                                                                                                                                                                                               | Default   |
+|----------------------|-----------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| system_prompt        | [Optional](`typing.Optional`)\[[str](`str`)\]                                                 | A system prompt to set the behavior of the assistant.                                                                                                                                                                                                                                                                                                                                                                     | `None`    |
+| model                | [Optional](`typing.Optional`)\[[str](`str`)\]                                                 | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.                                                                                                                                                                                                                               | `None`    |
+| turns                | [Optional](`typing.Optional`)\[[list](`list`)\[[Turn](`chatlas._turn.Turn`)\]\]               | A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-None values for both `turns` and `system_prompt`. Each message in the list should be a dictionary with at least `role` (usually `system`, `user`, or `assistant`, but `tool` is also possible). Normally there is also a `content` field, which is a string. | `None`    |
+| connection_name      | [Optional](`typing.Optional`)\[[str](`str`)\]                                                 | The name of the connection (i.e., section) within the connections.toml file. This is useful if you want to keep your credentials in a connections.toml file rather than specifying them directly in the arguments. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file                                                                              | `None`    |
+| account              | [Optional](`typing.Optional`)\[[str](`str`)\]                                                 | Your Snowflake account identifier. Required if `connection_name` is not provided. https://docs.snowflake.com/en/user-guide/admin-account-identifier                                                                                                                                                                                                                                                                       | `None`    |
+| user                 | [Optional](`typing.Optional`)\[[str](`str`)\]                                                 | Your Snowflake user name. Required if `connection_name` is not provided.                                                                                                                                                                                                                                                                                                                                                  | `None`    |
+| password             | [Optional](`typing.Optional`)\[[str](`str`)\]                                                 | Your Snowflake password. Required if doing password authentication and `connection_name` is not provided.                                                                                                                                                                                                                                                                                                                 | `None`    |
+| private_key_file     | [Optional](`typing.Optional`)\[[str](`str`)\]                                                 | The path to your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth                                                                                                                                                                                                                                                                              | `None`    |
+| private_key_file_pwd | [Optional](`typing.Optional`)\[[str](`str`)\]                                                 | The password for your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth                                                                                                                                                                                                                                                                         | `None`    |
+| kwargs               | [Optional](`typing.Optional`)\[[dict](`dict`)\[[str](`str`), [str](`str`) \| [int](`int`)\]\] | Additional keyword arguments passed along to the Snowflake connection builder. These can include any parameters supported by the `snowflake-ml-python` package. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-specifying-connection-parameters                                                                                                                                | `None`    |

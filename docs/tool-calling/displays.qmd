@@ -1,0 +1,176 @@
+---
+title: Displays and results
+callout-appearance: simple
+---
+
+When delivering experiences such as in a [chatbot](../get-started/chatbots.qmd) app, it's strongly recommended to give your users:
+
+1. A visual indication when a tool is requested by the model
+2. A choice to [approve](approval.qmd) or deny that request
+3. A clear display of tool results
+
+In [tool calling](../get-started/chat.qmd), we saw how `.chat()` automatically handles 1 and 3 for you, providing a nice developer experience out of the box.
+However, when [streaming](../get-started/stream.qmd) in something like a [chatbot](../get-started/chatbots.qmd) app, you'll need to do a bit more work to provide these features.
+
+### Content objects
+
+To display tool calls when [streaming](../get-started/stream.qmd), first set the `content` parameter to `"all"`.
+This way, when a tool call occurs, the stream will include [`ContentToolRequest`](../reference/types.ContentToolRequest.qmd) and [`ContentToolResult`](../reference/types.ContentToolResult.qmd) objects, with information about the tool call.
+These classes have smart defaults for methods such as `_repr_markdown_()` and `_repr_html_()`. As a result, they will render sensibly in Jupyter notebooks and other environments that support rich content displays.
+They also have methods for specific web frameworks like [Shiny](https://shiny.posit.co/py), giving you output more tailored for the framework you're using.
+
+For a quick example, here's a [Shiny chatbot](../get-started/chatbots.qmd) that displays tool calls in a user-friendly way.
+
+<details>
+<summary> client.py </summary>
+
+```python
+import requests
+from chatlas import ChatAnthropic
+
+chat_client = ChatAnthropic()
+
+def get_current_weather(lat: float, lng: float):
+    """Get the current temperature given a latitude and longitude."""
+
+    lat_lng = f"latitude={lat}&longitude={lng}"
+    url = f"https://api.open-meteo.com/v1/forecast?{lat_lng}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+    res = requests.get(url)
+    return res.json()["current"]
+
+chat_client.register_tool(get_current_weather)
+```
+</details>
+
+
+<details>
+<summary> app.py </summary>
+
+```python
+from client import chat_client
+from shiny.express import ui
+
+chat = ui.Chat(id="chat")
+chat.ui(messages=["Hello! How can I help you today?"])
+
+@chat.on_user_submit
+async def _(user_input: str):
+    response = await chat_client.stream_async(
+      user_input,
+      content="all"
+    )
+    await chat.append_message_stream(response)
+```
+</details>
+
+
+![Screenshot of a tool result in Shiny.](/images/shiny-tool-call-display.png){class="rounded shadow lightbox "}
+
+### Custom displays
+
+To customize how a tool result is actually rendered, you can leverage the fact that the tool can return a [`ContentToolResult`](../reference/types.ContentToolResult.qmd) instance instead of a simple value.
+By subclassing this class and overriding it's default methods, you can create custom, rich, interactive displays for your tool results in various contexts.
+Here's an extension of the previous example to displays the weather result on an interactive map using [ipywidgets](https://ipywidgets.readthedocs.io/en/stable/) and [ipyleaflet](https://ipyleaflet.readthedocs.io/en/latest/).
+
+
+<details>
+<summary> Show code </summary>
+
+```python
+from chatlas import ContentToolResult
+import ipywidgets
+from ipyleaflet import Map, CircleMarker
+from shinywidgets import register_widget, output_widget
+
+class WeatherToolResult(ContentToolResult):
+    def tagify(self):
+        if self.error:
+            return super().tagify()
+
+        args = self.arguments
+        loc = (args["latitude"], args["longitude"])
+        info = (
+            f"<h6>Current weather</h6>"
+            f"Temperature: {self.value['temperature_2m']}°C<br>"
+            f"Wind: {self.value['wind_speed_10m']} m/s<br>"
+            f"Time: {self.value['time']}"
+        )
+
+        m = Map(center=loc, zoom=10)
+        m.add_layer(
+            CircleMarker(location=loc, popup=ipywidgets.HTML(info))
+        )
+
+        register_widget(self.id, m)
+        return output_widget(self.id)
+
+def get_current_weather(lat: float, lng: float):
+    """Get the current temperature given a latitude and longitude."""
+
+    lat_lng = f"latitude={lat}&longitude={lng}"
+    url = f"https://api.open-meteo.com/v1/forecast?{lat_lng}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+    response = requests.get(url)
+    json = response.json()
+    return WeatherToolResult(value=json["current"])
+```
+
+</details>
+
+
+![Screenshot of a tool result as an interactive map](/images/shiny-tool-call-map.png){class="rounded shadow lightbox"}
+
+
+### Custom model results
+
+By default, tool results are formatted as a JSON string, which is suitable for most use cases. 
+However, that might not be ideal for all scenarios, especially if your tool does something sophisticated like return an image for the model to consume.
+In such cases, you can use the [`ContentToolResult`](../reference/types.ContentToolResult.qmd) class to return the result in a different format.
+For example, if you want to pass the return value of the tool function directly to the model without any formatting, set the `model_format` parameter to `"as_is"`:
+
+```python
+import base64
+import requests
+
+import chatlas as ctl
+
+def get_picture():
+    "Returns an image"
+    url = "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png"
+    bytez = requests.get(url).content
+    res = [
+        {
+            "type": "image",
+            "source": {
+                "type": "base64",
+                "media_type": "image/png",
+                "data": base64.b64encode(bytez).decode("utf-8"),
+            },
+        }
+    ]
+    return ctl.ContentToolResult(value=res, model_format="as_is")
+
+chat = ctl.ChatAnthropic()
+chat.register_tool(get_picture)
+
+res = chat.chat(
+    "You have a tool called 'get_picture' available to you. "
+    "When called, it returns an image. Tell me what you see in the image.",
+    echo="text"
+)
+```
+
+::: chatlas-response-container
+
+The image shows four translucent colored dice arranged together. There's a red die in the foreground, a blue die in the upper  
+left, a green die in the upper right, and a yellow die at the bottom. All dice appear to be standard six-sided dice with white 
+dots (pips) representing the numbers 1 through 6. The dice have a glossy, semi-transparent appearance that gives them a        
+colorful, vibrant look against the white background. The image has a shallow depth of field, creating a slight blur effect on  
+the dice that aren't in the foreground, which emphasizes the red die in the center.  
+:::
+  
+
+<!--
+### Tool limitations
+
+Remember that tool arguments come from the chat model, and tool results are returned to the chat model. That means that only simple, JSON-compatible data types can be used as inputs and outputs. It's highly recommended that you stick to basic types for each function parameter (e.g. `str`, `float`/`int`, `bool`, `None`, `list`, `tuple`, `dict`). And you can forget about using functions, classes, external pointers, and other complex (i.e., non-serializable) Python objects as arguments or return values. Returning data frames seems to work OK (as long as you return the JSON representation -- `.to_json()`), although be careful not to return too much data, as it all counts as tokens (i.e., they count against your context window limit and also cost you money).
+-->

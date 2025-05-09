@@ -27,12 +27,6 @@ Sign up at <https://github.com/marketplace/models> to get an API key.
 You may need to apply for and be accepted into a beta access program.
 :::
 
-::: {.callout-note}
-## Python requirements
-
-`ChatGithub` requires the `openai` package (e.g., `pip install openai`).
-:::
-
 ## Examples {.doc-section .doc-section-examples}
 
 ```python

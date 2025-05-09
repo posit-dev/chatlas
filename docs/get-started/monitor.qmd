@@ -1,0 +1,112 @@
+---
+title: Monitor
+callout-appearance: simple
+---
+
+As mentioned in the [debugging](debug.qmd) section, chatlas has support for gaining more insight into the behavior of your application through things like [logging](debug.qmd#logging).
+
+However, in a production setting, you may want to go beyond simple logging and use more sophisticated observability tools [Datadog](https://www.datadoghq.com/), [Logfire](https://logfire.io/), etc., to monitor your application.
+These tools can give you a more structured way to view and monitor app performance, including things like latency, error rates, and other metrics.
+These tools tend to integrate well with open standards like [OpenTelemetry](https://opentelemetry.io/) (OTel), meaning if you "instrument" your app with OTel, you can view your app's telemetry data in any observability tool that supports OTel.
+There are at least a few different ways to do this, but we'll cover some of the more simpler approaches here.
+
+## OpenLLMetry
+
+The simplest (and most model agnostic) way to instrument your app with OTel is to leverage [openllmetry](https://github.com/traceloop/openllmetry), which can be as easy as adding the following code to your app:
+
+```bash
+pip install traceloop-sdk
+```
+
+```python
+from traceloop.sdk import Traceloop
+
+Traceloop.init(
+  app_name="my app name",
+  disable_batch=True,
+  telemetry_enabled=False
+)
+```
+
+This approach does have the downside of requiring a [Traceloop](https://traceloop.io/) account, but it does provide a free tier, and makes it quite easy to get started visualizing your app's telemetry data.
+
+If you want to avoid the Traceloop account, you can also use their OTel instrumentation libraries (e.g., [openai](https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-openai) and [anthropic](https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-anthropic)) more directly.
+If Traceloop is not for you, however, you may prefer to use the "official" OTel libraries directly, which are more truly vendor agnostic.
+
+
+## OpenTelemetry
+
+To use OpenTelemetry's "official" instrumentation libraries, you'll need to first install the relevant instrumentation packages for the model providers you are using.
+
+
+
+### OpenAI
+
+More than a handful of chatlas' [model providers](models.qmd) use the [openai](https://pypi.org/project/openai/) Python SDK under the hood (e.g., `ChatOpenAI`, `ChatOllama`, etc).
+
+::: {.callout-tip collapse="true"}
+### How to check if a provider uses the `openai` SDK
+
+To be sure a particular provider uses the `openai` SDK, make sure the class of the `.provider` attribute is `OpenAIProvider`:
+
+```python
+from chatlas import ChatOpenAI
+chat = ChatOpenAI()
+chat.provider
+# <chatlas._openai.OpenAIProvider object at 0x103d2fdd0>
+```
+:::
+
+As a result, you can use the [opentelemetry-instrumentation-openai-v2](https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/instrumentation-genai/opentelemetry-instrumentation-openai-v2) package to add OTel instrumentation your app.
+It even provides a way to add instrumentation without modifying your code (i.e., zero-code).
+To tweak [the zero-code example](https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/instrumentation-genai/opentelemetry-instrumentation-openai-v2/examples/zero-code) to work with chatlas, just change the `requirements.txt` and `main.py` files to use chatlas instead of openai directly:
+
+<details open>
+<summary><code>main.py</code></summary>
+
+```python
+from chatlas import ChatOpenAI
+chat = ChatOpenAI()
+chat.chat("Hello world!")
+```
+
+</details>
+
+You may also want to tweak the environment variables in `.env` to target the relevant OTel collector and service name.
+
+### Anthropic
+
+Both the `ChatAnthropic()` and `ChatBedrockAnthropic()` providers use the [anthropic](https://pypi.org/project/anthropic/) Python SDK under the hood.
+As a result, you can use the [opentelemetry-instrumentation-anthropic](https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-anthropic) package to add OTel instrumentation your app.
+
+To do this, you'll need to install the package:
+
+```bash
+pip install opentelemetry-instrumentation-anthropic
+```
+
+Then, add the following instrumentation code to your app:
+
+```python
+from opentelemetry.instrumentation.anthropic import AnthropicInstrumentor
+AnthropicInstrumentor().instrument()
+```
+
+
+### Google
+
+Both the `ChatGoogle()` and `ChatVertex()` providers use the [google-genai](https://pypi.org/project/google-genai/) Python SDK under the hood.
+As a result, you can use the [opentelemetry-instrumentation-google-genai](https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/instrumentation-genai/opentelemetry-instrumentation-google-genai) package to add OTel instrumentation your app.
+It even provides a way to add instrumentation without modifying your code (i.e., zero-code).
+To tweak [the zero-code example](https://github.com/open-telemetry/opentelemetry-python-contrib/tree/main/instrumentation-genai/opentelemetry-instrumentation-google-genai/examples/zero-code) to work with chatlas, just change the `requirements.txt` and `main.py` files to use chatlas instead of google-genai directly:
+
+<details open>
+<summary><code>main.py</code></summary>
+
+```python
+from chatlas import ChatGoogle
+chat = ChatGoogle()
+chat.chat("Hello world!")
+```
+
+</details>

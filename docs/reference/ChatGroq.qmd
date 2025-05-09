@@ -25,12 +25,6 @@ Groq provides a platform for highly efficient AI inference.
 Sign up at <https://groq.com> to get an API key.
 :::
 
-::: {.callout-note}
-## Python requirements
-
-`ChatGroq` requires the `openai` package (e.g., `pip install openai`).
-:::
-
 ## Examples {.doc-section .doc-section-examples}
 
 ```python

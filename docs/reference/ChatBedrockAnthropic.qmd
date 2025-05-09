@@ -35,8 +35,8 @@ Consider using the approach outlined in this guide to manage your AWS credential
 ::: {.callout-note}
 ## Python requirements
 
-`ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras
-(e.g., `pip install anthropic[bedrock]`).
+`ChatBedrockAnthropic`, requires the `anthropic` package with the `bedrock` extras:
+`pip install "chatlas[bedrock-anthropic]"`
 :::
 
 ## Examples {.doc-section .doc-section-examples}
