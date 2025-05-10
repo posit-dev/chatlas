@@ -1,0 +1,91 @@
+---
+title: Chatbot apps
+callout-appearance: simple
+---
+
+A great place to start with chatlas and LLMs is to build a chatbot with a custom prompt. Chatbots are familiar interface and are easy to create via web application framework like Shiny or Streamlit. And there's a surprising amount of value to creating a custom chatbot that has a prompt stuffed with useful knowledge. For example:
+
+* Help people find the answers to their questions. Even if you've written a bunch of documentation for something, you might find that you still get questions because folks can't easily find exactly what they're looking for. You can reduce the need to answer these questions by creating a chatbot with a prompt that contains your documentation. For example, if you're a teacher, you could create a chatbot that includes your syllabus in the prompt. This eliminates a common class of question where the data necessary to answer the question is available, but hard to find.
+
+* Help people use your new package. To do so, you need a custom prompt because LLMs were trained on data prior to your package's existence. You can create a surprisingly useful tool just by preloading the prompt with your README and other documentation. This is how the [chatlas assistant](https://github.com/cpsievert/chatlas-assistant) works.
+
+* Build language specific prompts for Python and/or R. [Shiny assistant](https://shiny.posit.co/blog/posts/shiny-assistant/) helps you build shiny apps (either in Python or R) by combining a [prompt](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt.md) that gives general advice on building apps with a prompt for [Python](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md) or [R](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_r.md). The Python prompt is very detailed because there's much less information about Shiny for Python in the existing LLM knowledgebases.
+
+Another direction is to give the chatbot additional context about your current environment. For example, [aidea](https://github.com/cpsievert/aidea) allows the user to interactively explore a dataset with the help of the LLM. It adds summary statistics about the dataset to the [prompt](https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md) so that the LLM knows something about your data. Along these lines, imagine writing a chatbot to help with data import that has a prompt which include all the files in the current directory along with their first few lines.
+
+## Web-based
+
+In this section, we'll show you how to build a simple chatbot using chatlas and two popular web application frameworks: [Shiny](https://shiny.posit.co/) and [Streamlit](https://streamlit.io/). We'll use the same example for both frameworks, so you can see how easy it is to switch between them.
+
+### Shiny
+
+Using Shiny's [`ui.Chat` component](https://shiny.posit.co/py/components/display-messages/chat/), you can simply pass user input from the component into the `chat.stream()` method. This generate a response stream that can then be passed to `.append_message_stream()`.
+
+```python
+from chatlas import ChatAnthropic
+from shiny.express import ui
+
+chat = ui.Chat(
+    id="ui_chat",
+    messages=["Hi! How can I help you today?"],
+)
+chat.ui()
+
+chat_model = ChatAnthropic()
+
+@chat.on_user_submit
+async def _(user_input: str):
+    response = await chat_model.stream_async(user_input)
+    await chat.append_message_stream(response)
+```
+
+## Streamlit
+
+
+Streamlit is a popular Python library for building web apps. You can use the `st.chat_input()` and `st.chat_message()` methods to create a chat interface. Here's an example of how you can use chatlas with streamlit:
+
+
+```python
+import streamlit as st
+from chatlas import ChatOpenAI, Turn
+
+with st.sidebar:
+    openai_api_key = st.text_input(
+        "OpenAI API Key", key="chatbot_api_key", type="password"
+    )
+    "[Get an OpenAI API key](https://platform.openai.com/account/api-keys)"
+    "[View the source code](https://github.com/streamlit/llm-examples/blob/main/Chatbot.py)"
+
+st.title("💬 Chatbot")
+
+if "turns" not in st.session_state:
+    st.session_state["turns"] = [
+        Turn(role="assistant", contents="How can I help you?"),
+    ]
+
+turns: list[Turn] = st.session_state.turns
+
+for turn in turns:
+    st.chat_message(turn.role).write(turn.text)
+
+
+if prompt := st.chat_input():
+    if not openai_api_key:
+        st.info("Please add your OpenAI API key to continue.")
+        st.stop()
+
+    st.chat_message("user").write(prompt)
+
+    chat = ChatOpenAI(api_key=openai_api_key, turns=turns)
+    response = chat.stream(prompt)
+
+    with st.chat_message("assistant"):
+        st.write_stream(response)
+
+    st.session_state["turns"] = chat.get_turns()
+```
+
+
+## Terminal-based
+
+TODO: an example using https://www.textualize.io/

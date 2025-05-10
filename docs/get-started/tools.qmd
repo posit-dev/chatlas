@@ -1,0 +1,68 @@
+---
+title: Tool calling
+callout-appearance: simple
+---
+
+Tool calling helps extend the capabilities of an LLM by allowing it to call external functions or APIs.
+This is particularly useful for tasks that require precise calculations, information retrieval, or actions that are beyond the model's built-in capabilities.
+
+An obvious example of where tool calling is useful is when a response needs up-to-date information, such as the weather or stock prices:
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+chat.chat("How's the weather in San Francisco?")
+```
+
+::: chatlas-response-container
+I'm unable to provide real-time weather updates. To get the most current weather information for San Francisco, I recommend checking a reliable weather website or using a weather app. 
+:::
+
+Let's help the model out by providing a function that can fetch the weather for a given location.
+Importantly, the function includes a docstring explaining what it does, and type hints for the input arguments.
+The model takes this information in consideration when deciding if/how it needs to use the tool to answer the user's question[^1].
+
+
+[^1]: Some models may need some additional (system) prompting to help it understand the appropriate situations to use the function.
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+
+def get_current_weather(lat: float, lng: float):
+    "Get the current weather for a given location."
+    return "sunny"
+
+chat.register_tool(get_current_weather)
+
+chat.chat("How's the weather in San Francisco?")
+```
+
+
+::: chatlas-response-container
+
+```python
+# 🛠️ tool request
+get_current_weather(37.7749, -122.4194)
+```
+
+```
+# ✅ tool result
+sunny
+```
+
+The current weather in San Francisco is sunny.
+:::
+
+
+Note that the `.chat()` method automatically handles the tool call and response for you.
+It will also (by default) display the tool call and result in the output, so you can see what the model is requesting and receiving for a result.
+This is useful for verifying 
+
+In later articles, we'll learn more about tools, like: 
+
+* [How the tool calling loop works](../tool-calling/how-it-works.qmd)
+* [Adding a tool approval mechanism](../tool-calling/approval.qmd)
+* [Customizing tool call displays](../tool-calling/displays.qmd)

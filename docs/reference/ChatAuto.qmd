@@ -1,0 +1,78 @@
+# ChatAuto { #chatlas.ChatAuto }
+
+```python
+ChatAuto(system_prompt=None, turns=None, *, provider=None, model=None, **kwargs)
+```
+
+Use environment variables (env vars) to configure the Chat provider and model.
+
+Creates a :class:`~chatlas.Chat` instance based on the specified provider.
+The provider may be specified through the `provider` parameter and/or the
+`CHATLAS_CHAT_PROVIDER` env var. If both are set, the env var takes
+precedence. Similarly, the provider's model may be specified through the
+`model` parameter and/or the `CHATLAS_CHAT_MODEL` env var. Also, additional
+configuration may be provided through the `kwargs` parameter and/or the
+`CHATLAS_CHAT_ARGS` env var (as a JSON string). In this case, when both are
+set, they are merged, with the env var arguments taking precedence.
+
+As a result, `ChatAuto()` provides a convenient way to set a default
+provider and model in your Python code, while allowing you to override
+these settings through env vars (i.e., without modifying your code).
+
+## Prerequisites {.doc-section .doc-section-prerequisites}
+
+
+::: {.callout-note}
+## API key
+
+Follow the instructions for the specific provider to obtain an API key.
+:::
+
+::: {.callout-note}
+## Python requirements
+
+Follow the instructions for the specific provider to install the required
+Python packages.
+:::
+
+## Examples {.doc-section .doc-section-examples}
+
+First, set the environment variables for the provider, arguments, and API key:
+
+```bash
+export CHATLAS_CHAT_PROVIDER=anthropic
+export CHATLAS_CHAT_MODEL=claude-3-haiku-20240229
+export CHATLAS_CHAT_ARGS='{"kwargs": {"max_retries": 3}}'
+export ANTHROPIC_API_KEY=your_api_key
+```
+
+Then, you can use the `ChatAuto` function to create a Chat instance:
+
+```python
+from chatlas import ChatAuto
+
+chat = ChatAuto()
+chat.chat("What is the capital of France?")
+```
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                                                                            | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Default   |
+|---------------|---------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| provider      | [Optional](`typing.Optional`)\[[AutoProviders](`chatlas._auto.AutoProviders`)\] | The name of the default chat provider to use. Providers are strings formatted in kebab-case, e.g. to use `ChatBedrockAnthropic` set `provider="bedrock-anthropic"`.  This value can also be provided via the `CHATLAS_CHAT_PROVIDER` environment variable, which takes precedence over `provider` when set.                                                                                                                                                           | `None`    |
+| model         | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The name of the default model to use. This value can also be provided via the `CHATLAS_CHAT_MODEL` environment variable, which takes precedence over `model` when set.                                                                                                                                                                                                                                                                                                | `None`    |
+| system_prompt | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | A system prompt to set the behavior of the assistant.                                                                                                                                                                                                                                                                                                                                                                                                                 | `None`    |
+| turns         | [Optional](`typing.Optional`)\[[list](`list`)\[[Turn](`chatlas._turn.Turn`)\]\] | A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-`None` values for both `turns` and `system_prompt`. Each message in the list should be a dictionary with at least `role` (usually `system`, `user`, or `assistant`, but `tool` is also possible). Normally there is also a `content` field, which is a string.                                           | `None`    |
+| **kwargs      |                                                                                 | Additional keyword arguments to pass to the Chat constructor. See the documentation for each provider for more details on the available options.  These arguments can also be provided via the `CHATLAS_CHAT_ARGS` environment variable as a JSON string. When provided, the options in the `CHATLAS_CHAT_ARGS` envvar take precedence over the options passed to `kwargs`.  Note that `system_prompt` and `turns` in `kwargs` or in `CHATLAS_CHAT_ARGS` are ignored. | `{}`      |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                         | Description                                   |
+|--------|------------------------------|-----------------------------------------------|
+|        | [Chat](`chatlas._chat.Chat`) | A chat instance using the specified provider. |
+
+## Raises {.doc-section .doc-section-raises}
+
+| Name   | Type                       | Description                                                                           |
+|--------|----------------------------|---------------------------------------------------------------------------------------|
+|        | [ValueError](`ValueError`) | If no valid provider is specified either through parameters or environment variables. |

@@ -1,0 +1,7 @@
+---
+title: Monitoring
+callout-appearance: simple
+---
+
+1. Enabling logs
+2. Integration with a monitoring system?

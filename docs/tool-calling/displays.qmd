@@ -1,0 +1,15 @@
+---
+title: Results & displays
+callout-appearance: simple
+---
+
+
+1. Tool result formatting
+  * JSON by default (show DF example)
+  * `ContentToolResult(model_format="as_is")`
+
+2. Tool result display
+  * `.current_display` for interactive displays
+  * `ContentToolResult()` subclass for streaming content
+
+  
