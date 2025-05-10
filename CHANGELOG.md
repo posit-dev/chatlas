@@ -7,6 +7,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [UNRELEASED]
+
+* Added `openai` as a hard dependency, making installation easier for a wide range of use cases. (#91) 
+
 ## [0.7.0] - 2025-04-22
 
 ### New features
