@@ -78,6 +78,8 @@ docs = [
 anthropic = ["anthropic"]
 bedrock-anthropic = ["anthropic[bedrock]"]
 databricks = ["databricks-sdk"]
+# Intentionally empty since these providers used to require 
+# an additional openai install, but that's now included 
 github = []
 google = ["google-genai"]
 groq = []
