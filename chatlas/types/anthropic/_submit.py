@@ -17,6 +17,7 @@ import anthropic.types.tool_choice_none_param
 import anthropic.types.tool_choice_tool_param
 import anthropic.types.tool_param
 import anthropic.types.tool_text_editor_20250124_param
+import anthropic.types.web_search_tool_20250305_param
 
 
 class SubmitInputArgs(TypedDict, total=False):
@@ -66,6 +67,7 @@ class SubmitInputArgs(TypedDict, total=False):
                 anthropic.types.tool_param.ToolParam,
                 anthropic.types.tool_bash_20250124_param.ToolBash20250124Param,
                 anthropic.types.tool_text_editor_20250124_param.ToolTextEditor20250124Param,
+                anthropic.types.web_search_tool_20250305_param.WebSearchTool20250305Param,
             ]
         ],
         anthropic.NotGiven,
