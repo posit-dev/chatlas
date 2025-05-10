@@ -291,7 +291,8 @@ class GoogleProvider(
                 GoogleTool(
                     function_declarations=[
                         FunctionDeclaration.from_callable(
-                            client=self._client, callable=tool.func
+                            client=self._client._api_client,
+                            callable=tool.func,
                         )
                         for tool in tools.values()
                     ]

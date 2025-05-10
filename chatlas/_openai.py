@@ -78,12 +78,6 @@ def ChatOpenAI(
     account that will give you an API key that you can use with this package.
     :::
 
-    ::: {.callout-note}
-    ## Python requirements
-
-    `ChatOpenAI` requires the `openai` package: `pip install "chatlas[openai]"`.
-    :::
-
     Examples
     --------
     ```python
@@ -194,13 +188,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         seed: Optional[int] = None,
         kwargs: Optional["ChatClientArgs"] = None,
     ):
-        try:
-            from openai import AsyncOpenAI, OpenAI
-        except ImportError:
-            raise ImportError(
-                "`ChatOpenAI()` requires the `openai` package. "
-                "Install it with `pip install openai`."
-            )
+        from openai import AsyncOpenAI, OpenAI
 
         self._model = model
         self._seed = seed
@@ -433,7 +421,9 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                                 "id": x.id,
                                 "function": {
                                     "name": x.name,
-                                    "arguments": orjson.dumps(x.arguments).decode("utf-8"),
+                                    "arguments": orjson.dumps(x.arguments).decode(
+                                        "utf-8"
+                                    ),
                                 },
                                 "type": "function",
                             }
@@ -602,16 +592,6 @@ def ChatAzureOpenAI(
     hosts a number of open source models as well as proprietary models
     from OpenAI.
 
-    Prerequisites
-    -------------
-
-    ::: {.callout-note}
-    ## Python requirements
-
-    `ChatAzureOpenAI` requires the `openai` package:
-    `pip install "chatlas[azure-openai]"`.
-    :::
-
     Examples
     --------
     ```python
@@ -693,13 +673,7 @@ class OpenAIAzureProvider(OpenAIProvider):
         seed: int | None = None,
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
-        try:
-            from openai import AsyncAzureOpenAI, AzureOpenAI
-        except ImportError:
-            raise ImportError(
-                "`ChatAzureOpenAI()` requires the `openai` package. "
-                "Install it with `pip install openai`."
-            )
+        from openai import AsyncAzureOpenAI, AzureOpenAI
 
         self._model = deployment_id
         self._seed = seed

@@ -3,6 +3,11 @@ from chatlas import ChatDatabricks
 
 from .conftest import assert_data_extraction, assert_turns_existing, assert_turns_system
 
+pytest.skip(
+    "(Temporarily) skipping Databricks tests (access has been revoked for some reason)",
+    allow_module_level=True,
+)
+
 
 def test_openai_simple_request():
     chat = ChatDatabricks(

@@ -11,6 +11,7 @@ dependencies = [
   "jinja2",
   "orjson",
   "rich",
+  "openai"
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -49,7 +50,7 @@ dev = [
     "shiny",
     "openai",
     "anthropic[bedrock]",
-    "google-genai>=1.2.0",
+    "google-genai>=1.14.0",
     "numpy>1.24.4",
     "tiktoken",
     "databricks-sdk",
@@ -76,16 +77,18 @@ docs = [
 # Provider extras ----
 anthropic = ["anthropic"]
 bedrock-anthropic = ["anthropic[bedrock]"]
-databricks = ["databricks-sdk[openai]"]
-github = ["openai"]
-google = ["google-genai"]
-groq = ["openai"]
-ollama = ["openai"]
-openai = ["openai"]
-azure-openai = ["openai"]
-perplexity = ["openai"]
+databricks = ["databricks-sdk"]
+# Intentionally empty since these providers used to require 
+# an additional openai install, but that's now included 
+github = []
+google = ["google-genai>=1.14.0"]
+groq = []
+ollama = []
+openai = []
+azure-openai = []
+perplexity = []
 snowflake = ["snowflake-ml-python"]
-vertex = ["google-genai"]
+vertex = ["google-genai>=1.14.0"]
 
 [tool.uv]
 dev-dependencies = [
