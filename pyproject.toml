@@ -50,7 +50,7 @@ dev = [
     "shiny",
     "openai",
     "anthropic[bedrock]",
-    "google-genai>=1.2.0",
+    "google-genai>=1.14.0",
     "numpy>1.24.4",
     "tiktoken",
     "databricks-sdk",
@@ -81,14 +81,14 @@ databricks = ["databricks-sdk"]
 # Intentionally empty since these providers used to require 
 # an additional openai install, but that's now included 
 github = []
-google = ["google-genai"]
+google = ["google-genai>=1.14.0"]
 groq = []
 ollama = []
 openai = []
 azure-openai = []
 perplexity = []
 snowflake = ["snowflake-ml-python"]
-vertex = ["google-genai"]
+vertex = ["google-genai>=1.14.0"]
 
 [tool.uv]
 dev-dependencies = [
