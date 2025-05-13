@@ -60,6 +60,12 @@ class ContentText(Content):
     text: str
     content_type: ContentTypeEnum = "text"
 
+    def __init__(self, **data: Any):
+        super().__init__(**data)
+
+        if self.text == "" or self.text.isspace():
+            self.text = "[empty string]"
+
     def __str__(self):
         return self.text
 
