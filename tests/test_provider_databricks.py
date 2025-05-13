@@ -3,11 +3,6 @@ from chatlas import ChatDatabricks
 
 from .conftest import assert_data_extraction, assert_turns_existing, assert_turns_system
 
-pytest.skip(
-    "(Temporarily) skipping Databricks tests (access has been revoked for some reason)",
-    allow_module_level=True,
-)
-
 
 def test_openai_simple_request():
     chat = ChatDatabricks(
@@ -41,6 +36,13 @@ def test_openai_respects_turns_interface():
     chat_fun = ChatDatabricks
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
+
+
+def test_anthropic_empty_response():
+    chat = ChatDatabricks()
+    chat.chat("Respond with only two blank lines")
+    resp = chat.chat("What's 1+1? Just give me the number")
+    assert "2" == str(resp).strip()
 
 
 # Note: Databricks models cannot yet handle "continuing past the first tool
