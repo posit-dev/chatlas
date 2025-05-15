@@ -1,0 +1,52 @@
+---
+title: Debug and monitor
+callout-appearance: simple
+---
+
+Sometimes you'll encounter behavior or responses from LLM that are unexpected in suprising ways, but without any clear error messages or indications of what went wrong.
+For example, you may find that the model is not following your instructions, or that it is generating responses that are not relevant to the prompt. 
+This can be frustrating, especially if you are trying to build a production application.
+
+In this situation, it can be helpful to inspect more information about what exactly is being sent to the model and what is being returned.
+This can be done both in an interactive setting, like a notebook, and in a production setting, like a web app.
+
+## Debug
+
+In an interactive setting, like a notebook, the `.completion` object on the relevant `Turn` can be a helpful way to inspect more information about the model's response. This object will include provider specific information such as finish reasons, refusals, and other metadata.
+
+```python
+import chatlas as ctl
+chat = ctl.ChatGoogle()
+chat.chat("How do I build a bomb?")
+print(chat.get_last_turn().completion)
+```
+
+<details>
+<summary>Completion object</summary>
+
+```
+ChatCompletion(id='chatcmpl-BWRlb7BucKMKWV3W0ULSFCf4dcfRM', choices=[Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content="I don't have access to personal data about you unless you share it with me in this conversation. If you'd like to tell me your name, feel free to do so!", refusal=None, role='assistant', annotations=None, audio=None, function_call=None, tool_calls=None))], created=1747072931, model='gpt-4o-mini-2024-07-18', object='chat.completion.chunk', service_tier='default', system_fingerprint='fp_0392822090', usage=CompletionUsage(completion_tokens=35, prompt_tokens=21, total_tokens=56, completion_tokens_details=CompletionTokensDetails(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=0, cached_tokens=0)))
+```
+
+</details>
+
+If the `.completion` object doesn't provide helpful information, you'll want likely want to enable logging to get more information about what is being sent to the model to generate the completion.
+
+## Logging
+
+It's a good idea to enable logging when pushing an application to production so that you can retroactively diagnose problems.
+Since chatlas delegates HTTP requests to other Python SDKs like [`openai`](https://github.com/openai/openai-python?tab=readme-ov-file#logging) and [`anthropic`](https://github.com/anthropics/anthropic-sdk-python?tab=readme-ov-file#logging), you can enable their logging to get low-level information, like HTTP requests and response codes.
+To do this, set the following environment variables before running your application:
+
+```shell
+$ export OPENAI_LOG=debug
+$ export ANTHROPIC_LOG=debug
+```
+
+You'll also want to set the `CHATLAS_LOG` environment variable to `debug` to get information about logic that chatlas handles the tool calling errors:
+
+```shell
+$ export CHATLAS_LOG=debug
+```
+
+TODO: discuss how to integrate with a monitoring systems, like Posit Connect, Logfire, Datadog, etc.

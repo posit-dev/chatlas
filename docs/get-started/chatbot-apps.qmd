@@ -1,0 +1,93 @@
+---
+title: Chatbot apps
+callout-appearance: simple
+---
+
+A chatbot is the most intuitive and compelling way to interface with an LLM.
+There's a surprising amount of value in creating a chatbot that simply has a custom [system prompt](system-prompt.qmd) stuffed with instructions and useful knowledge (e.g., proprietary documents, data schemas, etc).
+Adding [tools](tools.qmd) into the mix as well can make for some really compelling user experiences like [querychat](https://github.com/posit-dev/querychat) and [sidebot](https://github.com/jcheng5/py-sidebot).
+
+Chatbots are also a great use-case for chatlas since it makes multi-turn conversations trivial to implement.
+Various web frameworks like [Shiny](https://shiny.posit.co/), [Streamlit](https://streamlit.io/), Gradio, etc., provide a chat interface that you can combine with chatlas on the backend.
+You can even combine chatlas with something like [textualize](https://textualize.io) to create a fancy terminal-based chatbot.
+
+## Web-based
+
+### Shiny
+
+To get a basic [Shiny chatbot](https://shiny.posit.co/py/docs/genai-chatbots.html), just pass a [stream](stream.qmd) to the `ui.Chat` component's `.append_message_stream()` method. 
+Also, make sure to use the `async` approach to streaming to get a highly scalable app that can easily handle many concurrent users.
+
+```python
+from chatlas import ChatAnthropic
+from shiny.express import ui
+
+chat_client = ChatAnthropic()
+
+chat = ui.Chat(
+    id="chat",
+    messages=["Hello! How can I help you today?"],
+)
+chat.ui()
+
+@chat.on_user_submit
+async def _(user_input: str):
+    response = await chat_client.stream_async(user_input)
+    await chat.append_message_stream(response)
+```
+
+
+![Screenshot of a conversation with the Shiny `Chat` component.](/images/chat-quick-start.png){class="rounded shadow lightbox mt-3" width="75%"}
+
+### Streamlit
+
+Building a chatbot (that retains conversation history) with streamlit is bit more involved. Since streamlit re-executes the script from top to bottom on every change, you'll have to store chatlas' [chat history](chat.qmd#chat-history) in the session state.
+
+```python
+import streamlit as st
+from chatlas import ChatOpenAI, Turn
+
+with st.sidebar:
+    openai_api_key = st.text_input(
+        "OpenAI API Key", key="chatbot_api_key", type="password"
+    )
+    "[Get an OpenAI API key](https://platform.openai.com/account/api-keys)"
+    "[View the source code](https://github.com/streamlit/llm-examples/blob/main/Chatbot.py)"
+
+st.title("💬 Chatbot")
+
+if "turns" not in st.session_state:
+    st.session_state["turns"] = [
+        Turn(role="assistant", contents="How can I help you?"),
+    ]
+
+turns: list[Turn] = st.session_state.turns
+
+for turn in turns:
+    st.chat_message(turn.role).write(turn.text)
+
+
+if prompt := st.chat_input():
+    if not openai_api_key:
+        st.info("Please add your OpenAI API key to continue.")
+        st.stop()
+
+    st.chat_message("user").write(prompt)
+
+    chat = ChatOpenAI(api_key=openai_api_key, turns=turns)
+    response = chat.stream(prompt)
+
+    with st.chat_message("assistant"):
+        st.write_stream(response)
+
+    st.session_state["turns"] = chat.get_turns()
+```
+
+
+### Gradio
+
+TODO: a gradio example
+
+## Terminal-based
+
+TODO: an example using https://www.textualize.io/

@@ -25,8 +25,7 @@ and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?
 ::: {.callout-note}
 ## Python requirements
 
-`ChatGoogle` requires the `google-genai` package
-(e.g., `pip install google-genai`).
+`ChatGoogle` requires the `google-genai` package: `pip install "chatlas[google]"`.
 :::
 
 ## Examples {.doc-section .doc-section-examples}

@@ -1,0 +1,12 @@
+---
+title: "Scaling Up"
+callout-appearance: simple
+---
+
+
+To scale this basic example up to your use case, you'll not only want to consider an embedding model and similarity metric that better matches your use case, but also a more efficient way to store/retrieve your documents.
+
+Nowadays, there are many options for efficient storage/retrieval of documents (i.e., vector databases).
+That said, [`duckdb`'s vector extension](https://duckdb.org/docs/stable/extensions/vss.html) comes highly recommended, and here is a great [blog post](https://blog.brunk.io/posts/similarity-search-with-duckdb/) on building a database and retrieving from it with a custom embedding model.
+Many of these options will offer both a local and cloud-based solution, so you can choose the one that best fits your needs.
+For example, with `duckdb`, you can leverage [MotherDuck](https://motherduck.com/) for your hosting needs, as well as others like [Pinecone](https://www.pinecone.io/) and [Weaviate](https://weaviate.io/).

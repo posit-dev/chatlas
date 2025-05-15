@@ -1,0 +1,10 @@
+---
+title: Tool approval
+callout-appearance: simple
+---
+
+Tool approval is a mechanism to ensure that the model only calls tools when it is certain that it should.
+This is particularly important when the tool is potentially destructive (e.g., deleting files) or otherwise untrustworthy.
+
+
+TODO: tool approvals are not yet implemented, but are coming soon!

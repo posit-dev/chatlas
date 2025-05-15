@@ -1,0 +1,50 @@
+---
+title: Sentiment analysis
+callout-appearance: simple
+---
+
+Sentiment analysis is a common task in natural language processing (NLP) that involves determining the sentiment or emotional tone of a piece of text. This can be useful for various applications, such as social media monitoring, customer feedback analysis, and more.
+
+The following examples, which [closely inspired by the Claude documentation](https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb), hint at some of the ways you can use structured data extraction.
+
+
+```python
+#| warning: false
+import chatlas as ctl
+from pydantic import BaseModel, Field
+
+text = "The product was okay, but the customer service was terrible. I probably won't buy from them again."
+
+class Sentiment(BaseModel):
+    """Extract the sentiment scores of a given text. Sentiment scores should sum to 1."""
+
+    positive_score: float = Field(
+        description="Positive sentiment score, ranging from 0.0 to 1.0"
+    )
+
+    negative_score: float = Field(
+        description="Negative sentiment score, ranging from 0.0 to 1.0"
+    )
+
+    neutral_score: float = Field(
+        description="Neutral sentiment score, ranging from 0.0 to 1.0"
+    )
+
+
+chat = ctl.ChatOpenAI()
+chat.extract_data(text, data_model=Sentiment)
+```
+
+::: chatlas-response-container
+
+```
+{"positive_score": 0.1, "negative_score": 0.7, "neutral_score": 0.2}
+```
+
+:::
+
+
+::: callout-note
+
+The data model does specify that the scores should sum to 1, but this is not enforced by the model. The model will do its best to provide a reasonable output, but it may not always adhere to this constraint.
+:::
