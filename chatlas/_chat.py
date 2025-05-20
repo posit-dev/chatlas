@@ -1547,7 +1547,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return res + "\n"
 
     def __deepcopy__(self, memo):
-        result = Chat.__new__(Chat)
+        result = self.__class__.__new__(self.__class__)
 
         # Avoid recursive references
         memo[id(self)] = result
