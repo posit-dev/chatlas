@@ -1,32 +1,33 @@
-import asyncio
-import json
-from typing import TYPE_CHECKING, Iterable, Literal, Optional, TypedDict, cast, overload
+from typing import TYPE_CHECKING, Literal, Optional, overload
 
+import orjson
 from pydantic import BaseModel
 
 from ._chat import Chat
-from ._content import Content, ContentJson, ContentText
+from ._content import (
+    Content,
+    ContentJson,
+    ContentText,
+    ContentToolRequest,
+    ContentToolResult,
+)
 from ._logging import log_model_default
 from ._provider import Provider
+from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns
-from ._utils import drop_none, wrap_async_iterable
+from ._utils import drop_none
 
 if TYPE_CHECKING:
-    from snowflake.snowpark import Column
+    import snowflake.core.cortex.inference_service._generated.models as models
+    from snowflake.core.cortex.inference_service import CompleteRequest
+    from snowflake.core.rest import SSEClient
 
-    # Types inferred from the return type of the `snowflake.cortex.complete` function
-    Completion = str | Column
-    CompletionChunk = str
-
-    from .types.snowflake import SubmitInputArgs
+    Completion = models.NonStreamingCompleteResponse
+    CompletionChunk = models.StreamingCompleteResponseDataEvent
 
 
-# The main prompt input type for Snowflake
-# This was copy-pasted from `snowflake.cortex._complete.ConversationMessage`
-class ConversationMessage(TypedDict):
-    role: str
-    content: str
+# CompletionDict = dict[str, Any]
 
 
 def ChatSnowflake(
@@ -41,7 +42,7 @@ def ChatSnowflake(
     private_key_file: Optional[str] = None,
     private_key_file_pwd: Optional[str] = None,
     kwargs: Optional[dict[str, "str | int"]] = None,
-) -> Chat["SubmitInputArgs", "Completion"]:
+) -> Chat["CompleteRequest", "Completion"]:
     """
     Chat with a Snowflake Cortex LLM
 
@@ -150,6 +151,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         kwargs: Optional[dict[str, "str | int"]],
     ):
         try:
+            from snowflake.core import Root
             from snowflake.snowpark import Session
         except ImportError:
             raise ImportError(
@@ -170,7 +172,9 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         )
 
         self._model = model
-        self._session = Session.builder.configs(configs).create()
+
+        session = Session.builder.configs(configs).create()
+        self._cortex_service = Root(session).cortex_inference_service
 
     @overload
     def chat_perform(
@@ -180,7 +184,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
+        kwargs: Optional["CompleteRequest"] = None,
     ): ...
 
     @overload
@@ -191,7 +195,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
+        kwargs: Optional["CompleteRequest"] = None,
     ): ...
 
     def chat_perform(
@@ -201,12 +205,13 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
+        kwargs: Optional["CompleteRequest"] = None,
     ):
-        from snowflake.cortex import complete
-
-        kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        return complete(**kwargs)
+        req = self._complete_request(stream, turns, tools, data_model, kwargs)
+        res = self._cortex_service.complete(req)
+        gen = self._event_generator(res, stream)
+        # TODO: snowflake currently gives a content type error here???
+        return gen
 
     @overload
     async def chat_perform_async(
@@ -216,7 +221,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
+        kwargs: Optional["CompleteRequest"] = None,
     ): ...
 
     @overload
@@ -227,7 +232,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
+        kwargs: Optional["CompleteRequest"] = None,
     ): ...
 
     async def chat_perform_async(
@@ -237,68 +242,159 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
+        kwargs: Optional["CompleteRequest"] = None,
     ):
-        from snowflake.cortex import complete
+        # from snowflake.core import PollingOperation
+        req = self._complete_request(stream, turns, tools, data_model, kwargs)
+        res = self._cortex_service.complete_async(req)
+        # TODO: is there a way to get the SSEClient result without blocking?
+        client = res.result()
+        return self._event_generator_async(client, stream)
 
-        kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+    @staticmethod
+    def _event_generator(x: "SSEClient", stream: bool):
+        for evt in x.events():
+            if evt.data:
+                yield parse_event_data(evt.data, stream=stream)
 
-        # Prevent the main thread from being blocked (Snowflake doesn't have native async support)
-        res = await asyncio.to_thread(complete, **kwargs)
+    @staticmethod
+    async def _event_generator_async(x: "SSEClient", stream: bool):
+        for evt in x.events():
+            if evt.data:
+                yield parse_event_data(evt.data, stream=stream)
 
-        # When streaming, res is an iterable of strings, but Chat() wants an async iterable
-        if stream:
-            res = wrap_async_iterable(cast(Iterable[str], res))
-
-        return res
-
-    def _chat_perform_args(
+    def _complete_request(
         self,
         stream: bool,
         turns: list[Turn],
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
+        kwargs: Optional["CompleteRequest"] = None,
     ):
-        kwargs_full: "SubmitInputArgs" = {
-            "stream": stream,
-            "prompt": self._as_prompt_input(turns),
-            "model": self._model,
-            "session": self._session,
-            **(kwargs or {}),
-        }
+        from snowflake.core.cortex.inference_service import CompleteRequest
 
-        # TODO: get tools working
+        # TODO: how to merge with kwargs? Probably need a way to create the right TypedDict?
+        req = CompleteRequest(
+            model=self._model,
+            messages=self._as_request_messages(turns),
+            stream=stream,
+        )
+
         if tools:
-            raise ValueError("Snowflake does not currently support tools.")
+            req.tools = [self._as_snowflake_tool(tool) for tool in tools.values()]
 
         if data_model is not None:
+            import snowflake.core.cortex.inference_service._generated.models as models
+
             params = basemodel_to_param_schema(data_model)
-            opts = kwargs_full.get("options") or {}
-            opts["response_format"] = {
-                "type": "json",
-                "schema": {
+            req.response_format = models.CompleteRequestResponseFormat(
+                type="json",
+                schema={
                     "type": "object",
                     "properties": params["properties"],
                     "required": params["required"],
                 },
-            }
-            kwargs_full["options"] = opts
+            )
 
-        return kwargs_full
+        return req
 
     def stream_text(self, chunk):
-        return chunk
+        if not chunk.choices:
+            return None
+        delta = chunk.choices[0].delta
+        if delta is None or "content" not in delta:
+            return None
+        return delta["content"]
 
+    # Snowflake sort-of follows OpenAI/Anthropic streaming formats except they
+    # don't have the critical "index" field in the delta that the merge logic
+    # depends on (i.e., OpenAI), or official start/stop events (i.e.,
+    # Anthropic). So we have to do some janky merging here.
+    #
+    # This was done in a panic to get working asap, so don't judge :) I wouldn't
+    # be surprised if Snowflake realizes how bad this streaming format is and
+    # changes it in the future (thus probably breaking this code :( ).
     def stream_merge_chunks(self, completion, chunk):
         if completion is None:
             return chunk
-        return completion + chunk
+
+        if completion.choices is None or chunk.choices is None:
+            raise ValueError(
+                "Unexpected None for completion.choices. Please report this issue."
+            )
+
+        if completion.choices[0].delta is None or chunk.choices[0].delta is None:
+            raise ValueError(
+                "Unexpected None for completion.choices[0].delta. Please report this issue."
+            )
+
+        delta = completion.choices[0].delta
+        new_delta = chunk.choices[0].delta
+        if "content_list" not in delta or "content_list" not in new_delta:
+            raise ValueError(
+                "Expected content_list to be in completion.choices[0].delta. Please report this issue."
+            )
+
+        content_list = delta["content_list"]
+        new_content_list = new_delta["content_list"]
+        if not isinstance(content_list, list) or not isinstance(new_content_list, list):
+            raise ValueError(
+                f"Expected content_list to be a list, got {type(new_content_list)}"
+            )
+
+        if new_delta["type"] == "tool_use":
+            # Presence of "tool_use_id" indicates a new tool request; otherwise, we're
+            # expecting input parameters
+            if "tool_use_id" in new_delta:
+                del new_delta["text"]  # why is this here :eye-roll:?
+                content_list.append(new_delta)
+            elif "input" in new_delta:
+                # find most recent content with type: "tool_use" and append to that
+                for i in range(len(content_list) - 1, -1, -1):
+                    if "tool_use_id" in content_list[i]:
+                        content_list[i]["input"] = content_list[i].get("input", "")
+                        content_list[i]["input"] += new_delta["input"]
+                        break
+            else:
+                raise ValueError(
+                    f"Unexpected tool_use delta: {new_delta}. Please report this issue."
+                )
+        elif new_delta["type"] == "text":
+            text = new_delta["text"]
+            # find most recent content with type: "text" and append to that
+            for i in range(len(content_list) - 1, -1, -1):
+                if content_list[i].get("type") == "text":
+                    content_list[i]["text"] += text
+                    break
+            else:
+                # if we don't find it, just append to the end
+                # this shouldn't happen, but just in case
+                content_list.append({"type": "text", "text": text})
+        else:
+            raise ValueError(
+                f"Unexpected streaming delta type: {new_delta['type']}. Please report this issue."
+            )
+
+        completion.choices[0].delta["content_list"] = content_list
+
+        return completion
 
     def stream_turn(self, completion, has_data_model) -> Turn:
+        import snowflake.core.cortex.inference_service._generated.models as models
+
+        completion_dict = completion.model_dump()
+        delta = completion_dict["choices"][0].pop("delta")
+        completion_dict["choices"][0]["message"] = delta
+        completion = models.NonStreamingCompleteResponse.model_construct(
+            **completion_dict
+        )
         return self._as_turn(completion, has_data_model)
 
     def value_turn(self, completion, has_data_model) -> Turn:
+        import snowflake.core.cortex.inference_service._generated.models as models
+
+        # TODO: this doesn't work
+        completion = models.NonStreamingCompleteResponse.model_construct(**completion)
         return self._as_turn(completion, has_data_model)
 
     def token_count(
@@ -321,24 +417,151 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
             "Snowflake does not currently support token counting."
         )
 
-    def _as_prompt_input(self, turns: list[Turn]) -> list["ConversationMessage"]:
-        res: list["ConversationMessage"] = []
+    def _as_request_messages(self, turns: list[Turn]):
+        from snowflake.core.cortex.inference_service import CompleteRequestMessagesInner
+
+        res: list[CompleteRequestMessagesInner] = []
         for turn in turns:
-            res.append(
-                {
-                    "role": turn.role,
-                    "content": str(turn),
-                }
+            req = CompleteRequestMessagesInner(
+                role=turn.role,
+                content=turn.text,
             )
+            for x in turn.contents:
+                if isinstance(x, ContentToolRequest):
+                    req.content_list = req.content_list or []
+                    req.content_list.append(
+                        {
+                            "type": "tool_use",
+                            "tool_use": {
+                                "tool_use_id": x.id,
+                                "name": x.name,
+                                "input": x.arguments,
+                            },
+                        }
+                    )
+                elif isinstance(x, ContentToolResult):
+                    # Snowflake does like empty content
+                    req.content = req.content or "[tool_result]"
+                    req.content_list = req.content_list or []
+                    req.content_list.append(
+                        {
+                            "type": "tool_results",
+                            "tool_results": {
+                                "tool_use_id": x.id,
+                                "name": x.name,
+                                "content": [
+                                    {"type": "text", "text": x.get_model_value()}
+                                ],
+                            },
+                        }
+                    )
+
+            res.append(req)
         return res
 
-    def _as_turn(self, completion, has_data_model) -> Turn:
-        completion = cast(str, completion)
+    def _as_turn(self, completion: "Completion", has_data_model: bool) -> Turn:
+        import snowflake.core.cortex.inference_service._generated.models as models
 
-        if has_data_model:
-            data = json.loads(completion)
-            contents = [ContentJson(value=data)]
+        if not completion.choices:
+            return Turn("assistant", [])
+
+        choice = completion.choices[0]
+        if isinstance(choice, dict):
+            choice = models.NonStreamingCompleteResponseChoicesInner.from_dict(choice)
+
+        message = choice.message
+        if message is None:
+            return Turn("assistant", [])
+
+        contents: list[Content] = []
+        content_list = message.content_list or []
+        for content in content_list:
+            if "text" in content:
+                if has_data_model:
+                    data = orjson.loads(content["text"])
+                    contents.append(ContentJson(value=data))
+                else:
+                    contents.append(ContentText(text=content["text"]))
+            elif "tool_use_id" in content:
+                params = content.get("input", "{}")
+                try:
+                    params = orjson.loads(params)
+                except orjson.JSONDecodeError:
+                    raise ValueError(
+                        f"Failed to parse tool_use input: {params}. Please report this issue."
+                    )
+                contents.append(
+                    ContentToolRequest(
+                        name=content["name"],
+                        id=content["tool_use_id"],
+                        arguments=params,
+                    )
+                )
+
+        usage = completion.usage
+        if usage is None:
+            tokens = (0, 0)
         else:
-            contents = [ContentText(text=completion)]
+            tokens = (usage.prompt_tokens or 0, usage.completion_tokens or 0)
 
-        return Turn("assistant", contents)
+        tokens_log(self, tokens)
+
+        return Turn(
+            "assistant",
+            contents,
+            tokens=tokens,
+            # TODO: no finish_reason in Snowflake?
+            # finish_reason=completion.choices[0].finish_reason,
+            completion=completion,
+        )
+
+    # N.B. this is currently the best documentation I can find for how tool calling works
+    # https://quickstarts.snowflake.com/guide/getting-started-with-tool-use-on-cortex-and-anthropic-claude/index.html#5
+    def _as_snowflake_tool(self, tool: Tool):
+        import snowflake.core.cortex.inference_service._generated.models as models
+
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+
+        props = params.get("properties", {})
+        if not isinstance(props, dict):
+            raise ValueError(
+                f"Tool function parameters must be a dictionary, got {type(props)}"
+            )
+
+        required = params.get("required", [])
+        if not isinstance(required, list):
+            raise ValueError(
+                f"Tool function required parameters must be a list, got {type(required)}"
+            )
+
+        input_schema = models.ToolToolSpecInputSchema(
+            type="object",
+            properties=props or None,
+            required=required or None,
+        )
+
+        spec = models.ToolToolSpec(
+            type="generic",
+            name=func["name"],
+            description=func.get("description", ""),
+            input_schema=input_schema,
+        )
+
+        return models.Tool(tool_spec=spec)
+
+
+# Parse the (JSON) event data from Snowflake using the relevant pydantic model.
+def parse_event_data(data: str, stream: bool):
+    import snowflake.core.cortex.inference_service._generated.models as models
+
+    try:
+        if stream:
+            return models.StreamingCompleteResponseDataEvent.from_json(data)
+        else:
+            return models.NonStreamingCompleteResponse.from_json(data)
+    except Exception:
+        raise ValueError(
+            f"Failed to parse Snowflake event data: {data}. "
+            "Please report this error here: https://github.com/posit-dev/chatlas/issues/new"
+        )
