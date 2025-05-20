@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import inspect
 import os
 import sys
@@ -1544,6 +1545,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         for turn in turns:
             res += "\n" + turn.__repr__(indent=2)
         return res + "\n"
+
+    def __deepcopy__(self, memo):
+        result = self.__class__.__new__(self.__class__)
+
+        # Avoid recursive references
+        memo[id(self)] = result
+
+        # Copy all attributes except the problematic provider attribute
+        for key, value in self.__dict__.items():
+            if key != "provider":
+                setattr(result, key, copy.deepcopy(value, memo))
+            else:
+                setattr(result, key, value)
+
+        return result
 
 
 class ChatResponse:
