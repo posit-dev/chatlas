@@ -175,3 +175,20 @@ def test_json_serialize():
     # Completion objects, at least of right now, aren't included in the JSON
     turns[1].completion = None
     assert turns == turns_restored
+
+
+# Chat can be deepcopied/forked
+def test_deepcopy_chat():
+    import copy
+
+    chat = ChatOpenAI()
+    chat.chat("Hi", echo="none")
+    chat_fork = copy.deepcopy(chat)
+
+    assert len(chat.get_turns()) == 2
+    assert len(chat_fork.get_turns()) == 2
+
+    chat_fork.chat("Bye", echo="none")
+
+    assert len(chat.get_turns()) == 2
+    assert len(chat_fork.get_turns()) == 4

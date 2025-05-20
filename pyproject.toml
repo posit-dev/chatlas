@@ -103,6 +103,10 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "vcs"
 
+# Need this to have github refs in dependencies
+# [tool.hatch.metadata]
+# allow-direct-references = true
+
 [tool.hatch.build]
 skip-excluded-dirs = true
 
