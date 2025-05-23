@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Literal, Optional, overload
+from typing import TYPE_CHECKING, Generator, Literal, Optional, overload
 
 import orjson
 from pydantic import BaseModel
@@ -21,13 +21,10 @@ from ._utils import drop_none
 if TYPE_CHECKING:
     import snowflake.core.cortex.inference_service._generated.models as models
     from snowflake.core.cortex.inference_service import CompleteRequest
-    from snowflake.core.rest import SSEClient
+    from snowflake.core.rest import Event, SSEClient
 
     Completion = models.NonStreamingCompleteResponse
     CompletionChunk = models.StreamingCompleteResponseDataEvent
-
-
-# CompletionDict = dict[str, Any]
 
 
 def ChatSnowflake(
@@ -208,10 +205,22 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         kwargs: Optional["CompleteRequest"] = None,
     ):
         req = self._complete_request(stream, turns, tools, data_model, kwargs)
-        res = self._cortex_service.complete(req)
-        gen = self._event_generator(res, stream)
-        # TODO: snowflake currently gives a content type error here???
-        return gen
+        client = self._cortex_service.complete(req)
+
+        try:
+            events = client.events()
+        except Exception as e:
+            data = parse_request_object(client)
+            if data is None:
+                raise e
+            return data
+
+        if stream:
+            return generate_event_data(events)
+
+        for evt in events:
+            if evt.data:
+                return parse_event_data(evt.data, stream=False)
 
     @overload
     async def chat_perform_async(
@@ -244,24 +253,25 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CompleteRequest"] = None,
     ):
-        # from snowflake.core import PollingOperation
         req = self._complete_request(stream, turns, tools, data_model, kwargs)
         res = self._cortex_service.complete_async(req)
         # TODO: is there a way to get the SSEClient result without blocking?
         client = res.result()
-        return self._event_generator_async(client, stream)
 
-    @staticmethod
-    def _event_generator(x: "SSEClient", stream: bool):
-        for evt in x.events():
-            if evt.data:
-                yield parse_event_data(evt.data, stream=stream)
+        try:
+            events = client.events()
+        except Exception as e:
+            data = parse_request_object(client)
+            if data is None:
+                raise e
+            return data
 
-    @staticmethod
-    async def _event_generator_async(x: "SSEClient", stream: bool):
-        for evt in x.events():
+        if stream:
+            return generate_event_data_async(events)
+
+        for evt in events:
             if evt.data:
-                yield parse_event_data(evt.data, stream=stream)
+                return parse_event_data(evt.data, stream=False)
 
     def _complete_request(
         self,
@@ -391,10 +401,6 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         return self._as_turn(completion, has_data_model)
 
     def value_turn(self, completion, has_data_model) -> Turn:
-        import snowflake.core.cortex.inference_service._generated.models as models
-
-        # TODO: this doesn't work
-        completion = models.NonStreamingCompleteResponse.model_construct(**completion)
         return self._as_turn(completion, has_data_model)
 
     def token_count(
@@ -551,8 +557,37 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         return models.Tool(tool_spec=spec)
 
 
-# Parse the (JSON) event data from Snowflake using the relevant pydantic model.
-def parse_event_data(data: str, stream: bool):
+# Yield parsed event data from the Snowflake SSEClient
+# (this is only needed for the streaming case).
+def generate_event_data(events: Generator["Event", None, None]):
+    for x in events:
+        if x.data:
+            yield parse_event_data(x.data, stream=True)
+
+
+# Same thing for the async case.
+async def generate_event_data_async(events: Generator["Event", None, None]):
+    for x in events:
+        if x.data:
+            yield parse_event_data(x.data, stream=True)
+
+
+@overload
+def parse_event_data(
+    data: str, stream: Literal[True]
+) -> "models.StreamingCompleteResponseDataEvent": ...
+
+
+@overload
+def parse_event_data(
+    data: str, stream: Literal[False]
+) -> "models.NonStreamingCompleteResponse": ...
+
+
+def parse_event_data(
+    data: str, stream: bool
+) -> "models.NonStreamingCompleteResponse | models.StreamingCompleteResponseDataEvent":
+    "Parse the (JSON) event data from Snowflake using the relevant pydantic model."
     import snowflake.core.cortex.inference_service._generated.models as models
 
     try:
@@ -565,3 +600,28 @@ def parse_event_data(data: str, stream: bool):
             f"Failed to parse Snowflake event data: {data}. "
             "Please report this error here: https://github.com/posit-dev/chatlas/issues/new"
         )
+
+
+# At the time writing, .events() flat out errors in the stream=False case since
+# the Content-Type is set to application/json;charset=utf-8, and SSEClient
+# doesn't know how to handle that.
+# https://github.com/snowflakedb/snowflake-ml-python/blob/6910e96/snowflake/cortex/_sse_client.py#L69
+#
+# So, do some janky stuff here to get the data out of the response.
+#
+# If and when snowflake fixes this, we can remove the try/except block.
+def parse_request_object(
+    client: "SSEClient",
+) -> "Optional[models.NonStreamingCompleteResponse]":
+    try:
+        import urllib3
+
+        if isinstance(client._event_source, urllib3.response.HTTPResponse):
+            return parse_event_data(
+                client._event_source.data.decode("utf-8"),
+                stream=False,
+            )
+    except Exception:
+        pass
+
+    return None
