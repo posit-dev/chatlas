@@ -52,7 +52,7 @@ class AnyTypeDict(TypedDict, total=False):
     pass
 
 
-SubmitInputArgsT = TypeVar("SubmitInputArgsT")
+SubmitInputArgsT = TypeVar("SubmitInputArgsT", bound=AnyTypeDict)
 """
 A TypedDict representing the arguments that can be passed to the `.chat()`
 method of a [](`~chatlas.Chat`) instance.
