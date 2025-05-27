@@ -9,14 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### Improvements
+
+* The `CHATLAS_LOG` environment variable nows enable logs for the relevant model provider. It now also supports a lovel of `debug` in addition to `info`. (#97)
+* `ChatSnowflake()` now supports tool calling. (#98)
+* `Chat` instances can now be deep copied, which is useful for forking the chat session. (#96)
+
 ### Changes
 
 * `ChatDatabricks()`'s `model` now defaults to `databricks-claude-3-7-sonnet` instead of `databricks-dbrx-instruct`. (#95)
-
-### Improvements
-
-* The `CHATLAS_LOG` environment variable will now enable logs for the relevant model provider. It now also supports a lovel of `debug` in addition to `info`. (#97)
-* `Chat` instances can now be deep copied, which is useful for forking the chat session. (#96)
+* `ChatSnowflake()`'s `model` now defaults to `claude-3-7-sonnet` instead of `llama3.1-70b`. (#98)
 
 ### Bug fixes
 
