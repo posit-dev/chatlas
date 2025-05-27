@@ -63,6 +63,7 @@ jobs:
           account="duloftf-posit-software-pbc-dev"
           user="carson@posit.co"
           private_key_file="/home/runner/.ssh/snowflake_key.p8"
+          private_key_file_pwd="${{ secrets.SNOWFLAKE_SSH_PRIVATE_KEY_PASSWORD }}"
           EOF
 
       - name: 🧪 Check tests
