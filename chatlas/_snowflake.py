@@ -1,4 +1,12 @@
-from typing import TYPE_CHECKING, Generator, Literal, Optional, overload
+from typing import (
+    TYPE_CHECKING,
+    Generator,
+    Literal,
+    Optional,
+    TypedDict,
+    Union,
+    overload,
+)
 
 import orjson
 from pydantic import BaseModel
@@ -20,11 +28,33 @@ from ._utils import drop_none
 
 if TYPE_CHECKING:
     import snowflake.core.cortex.inference_service._generated.models as models
-    from snowflake.core.cortex.inference_service import CompleteRequest
     from snowflake.core.rest import Event, SSEClient
 
     Completion = models.NonStreamingCompleteResponse
     CompletionChunk = models.StreamingCompleteResponseDataEvent
+
+    # Manually constructed TypedDict equivalent of models.CompleteRequest
+    class CompleteRequest(TypedDict, total=False):
+        """
+        CompleteRequest parameters for Snowflake Cortex LLMs.
+
+        See `snowflake.core.cortex.inference_service.CompleteRequest` for more details.
+        """
+
+        temperature: Union[float, int]
+        """Temperature controls the amount of randomness used in response generation. A higher temperature corresponds to more randomness."""
+
+        top_p: Union[float, int]
+        """Threshold probability for nucleus sampling. A higher top-p value increases the diversity of tokens that the model considers, while a lower value results in more predictable output."""
+
+        max_tokens: int
+        """The maximum number of output tokens to produce. The default value is model-dependent."""
+
+        guardrails: models.GuardrailsConfig
+        """Controls whether guardrails are enabled."""
+
+        tool_choice: models.ToolChoice
+        """Determines how tools are selected."""
 
 
 def ChatSnowflake(
@@ -283,7 +313,6 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
     ):
         from snowflake.core.cortex.inference_service import CompleteRequest
 
-        # TODO: how to merge with kwargs? Probably need a way to create the right TypedDict?
         req = CompleteRequest(
             model=self._model,
             messages=self._as_request_messages(turns),
@@ -291,7 +320,9 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         )
 
         if tools:
-            req.tools = [self._as_snowflake_tool(tool) for tool in tools.values()]
+            req.tools = req.tools or []
+            snow_tools = [self._as_snowflake_tool(tool) for tool in tools.values()]
+            req.tools.extend(snow_tools)
 
         if data_model is not None:
             import snowflake.core.cortex.inference_service._generated.models as models
@@ -305,6 +336,16 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
                     "required": params["required"],
                 },
             )
+
+        if kwargs:
+            for k, v in kwargs.items():
+                if hasattr(req, k):
+                    setattr(req, k, v)
+                else:
+                    raise ValueError(
+                        f"Unknown parameter {k} for Snowflake CompleteRequest. "
+                        "Please check the Snowflake documentation for valid parameters."
+                    )
 
         return req
 
