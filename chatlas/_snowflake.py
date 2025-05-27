@@ -502,6 +502,8 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
                             },
                         }
                     )
+                elif isinstance(x, ContentJson):
+                    req.content = req.content or "<structured data/>"
 
             res.append(req)
         return res

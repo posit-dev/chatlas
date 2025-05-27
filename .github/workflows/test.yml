@@ -48,6 +48,23 @@ jobs:
       - name: 📦 Install the project
         run: uv sync --python ${{ matrix.config.python-version }} --all-extras
 
+      - name: Create Snowflake connections.toml file
+        run: |
+          mkdir -p /home/runner/.ssh
+          echo '${{ secrets.SNOWFLAKE_SSH_PUBLIC_KEY }}' > /home/runner/.ssh/snowflake_key.pub
+          echo '${{ secrets.SNOWFLAKE_SSH_PRIVATE_KEY }}' > /home/runner/.ssh/snowflake_key.p8
+          chmod 644 /home/runner/.ssh/snowflake_key.pub
+          chmod 600 /home/runner/.ssh/snowflake_key.p8
+          chmod 700 /home/runner/.ssh
+
+          mkdir -p /home/runner/.snowflake
+          cat > /home/runner/.snowflake/connections.toml << 'EOF'
+          [posit]
+          account="duloftf-posit-software-pbc-dev"
+          user="carson@posit.co"
+          private_key_file="/home/runner/.ssh/snowflake_key.p8"
+          EOF
+
       - name: 🧪 Check tests
         run: make check-tests
 
