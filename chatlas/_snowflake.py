@@ -144,7 +144,7 @@ def ChatSnowflake(
     """
 
     if model is None:
-        model = log_model_default("llama3.1-70b")
+        model = log_model_default("claude-3-7-sonnet")
 
     return Chat(
         provider=SnowflakeProvider(
