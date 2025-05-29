@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `ChatSnowflake()` now supports tool calling. (#98)
 * `Chat` instances can now be deep copied, which is useful for forking the chat session. (#96)
 
+### Breaking changes
+
+* The `.stream()`/`.stream_async()` method's `content` parameter was renamed to `stream`. Set `stream` to `"content"` to gain access to tool request/result content objects. ()
+
 ### Changes
 
 * `ChatDatabricks()`'s `model` now defaults to `databricks-claude-3-7-sonnet` instead of `databricks-dbrx-instruct`. (#95)

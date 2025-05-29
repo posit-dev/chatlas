@@ -458,7 +458,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             user_input,
                             kwargs=kwargs,
                             echo=echo or "none",
-                            content=content,
+                            stream="content" if content == "all" else "text",
                         )
                     )
                 else:
@@ -569,7 +569,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             self._chat_impl(
                 turn,
                 echo=echo,
-                content="text",
+                yield_content=False,
                 stream=stream,
                 kwargs=kwargs,
             )
@@ -619,7 +619,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             self._chat_impl_async(
                 turn,
                 echo=echo,
-                content="text",
+                yield_content=False,
                 stream=stream,
                 kwargs=kwargs,
             ),
@@ -635,7 +635,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def stream(
         self,
         *args: Content | str,
-        content: Literal["text"],
+        stream: Literal["text"],
         echo: EchoOptions = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]: ...
@@ -644,7 +644,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def stream(
         self,
         *args: Content | str,
-        content: Literal["all"],
+        stream: Literal["content"],
         echo: EchoOptions = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
@@ -653,7 +653,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         *args: Content | str,
         echo: EchoOptions = "none",
-        content: Literal["text", "all"] = "text",
+        stream: Literal["text", "content"] = "text",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
         """
@@ -667,7 +667,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Whether to echo text content, all content (i.e., tool calls), or no
             content.
         content
-            Whether to yield just text content, or all content (i.e., tool calls).
+            Whether to yield just text content, or rich content objects (e.g., tool
+            calls) when relevant.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -686,7 +687,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             turn,
             stream=True,
             echo=echo,
-            content=content,
+            yield_content=stream == "content",
             kwargs=kwargs,
         )
 
@@ -703,7 +704,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def stream_async(
         self,
         *args: Content | str,
-        content: Literal["text"],
+        stream: Literal["text"],
         echo: EchoOptions = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]: ...
@@ -712,7 +713,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def stream_async(
         self,
         *args: Content | str,
-        content: Literal["all"],
+        stream: Literal["content"],
         echo: EchoOptions = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
@@ -721,7 +722,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         *args: Content | str,
         echo: EchoOptions = "none",
-        content: Literal["text", "all"] = "text",
+        stream: Literal["text", "content"] = "text",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
         """
@@ -758,7 +759,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     turn,
                     stream=True,
                     echo=echo,
-                    content=content,
+                    yield_content=stream == "content",
                     kwargs=kwargs,
                 ):
                     yield chunk
@@ -1192,7 +1193,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         user_turn: Turn,
         echo: EchoOptions,
-        content: Literal["text"],
+        yield_content: Literal[False],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]: ...
@@ -1202,7 +1203,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         user_turn: Turn,
         echo: EchoOptions,
-        content: Literal["all"],
+        yield_content: Literal[True],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
@@ -1211,7 +1212,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         user_turn: Turn,
         echo: EchoOptions,
-        content: Literal["text", "all"],
+        yield_content: bool,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
@@ -1234,12 +1235,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 if isinstance(x, ContentToolRequest):
                     if echo == "output":
                         self._echo_content(f"\n\n{x}\n\n")
-                    if content == "all":
+                    if yield_content:
                         yield x
                     res = self._invoke_tool(x)
                     if echo == "output":
                         self._echo_content(f"\n\n{res}\n\n")
-                    if content == "all":
+                    if yield_content:
                         yield res
                     results.append(res)
 
@@ -1251,7 +1252,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         user_turn: Turn,
         echo: EchoOptions,
-        content: Literal["text"],
+        yield_content: Literal[False],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]: ...
@@ -1261,7 +1262,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         user_turn: Turn,
         echo: EchoOptions,
-        content: Literal["all"],
+        yield_content: Literal[True],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
@@ -1270,7 +1271,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         user_turn: Turn,
         echo: EchoOptions,
-        content: Literal["text", "all"],
+        yield_content: bool,
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
@@ -1293,12 +1294,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 if isinstance(x, ContentToolRequest):
                     if echo == "output":
                         self._echo_content(f"\n\n{x}\n\n")
-                    if content == "all":
+                    if yield_content:
                         yield x
                     res = await self._invoke_tool_async(x)
                     if echo == "output":
                         self._echo_content(f"\n\n{res}\n\n")
-                    if content == "all":
+                    if yield_content:
                         yield res
                     else:
                         yield "\n\n"
