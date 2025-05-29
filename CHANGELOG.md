@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking changes
 
-* The `.stream()`/`.stream_async()` method's `content` parameter was renamed to `stream`. Set `stream` to `"content"` to gain access to tool request/result content objects. ()
+* The `.stream()`/`.stream_async()` method's `content` parameter was renamed to `stream`. Set `stream` to `"content"` to gain access to tool request/result content objects. (#102)
 
 ### Changes
 
