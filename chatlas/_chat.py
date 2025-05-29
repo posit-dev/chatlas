@@ -418,9 +418,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Whether to run the app in a background thread. If `None`, the app will
             run in a background thread if the current environment is a notebook.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no
-            content. Defaults to `"none"` when `stream=True` and `"text"` when
-            `stream=False`.
+            One of the following (defaults to `"none"` when `stream=True` and `"text"` when
+            `stream=False`):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         content
             Whether to display text content or all content (i.e., tool calls).
         kwargs
@@ -508,8 +511,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no
-            content.
+            One of the following (default is "output"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
         kwargs
@@ -546,8 +552,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         args
             The user input(s) to generate a response from.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no
-            content.
+            One of the following (default is "output"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in
             chunks).
@@ -596,8 +605,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         args
             The user input(s) to generate a response from.
         echo
-            Whether to echo text content, all content (i.e., tool calls, images,
-            etc), or no content.
+            One of the following (default is "output"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in
             chunks).
@@ -664,11 +676,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         args
             The user input(s) to generate a response from.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no
-            content.
-        content
-            Whether to yield just text content, or rich content objects (e.g., tool
-            calls) when relevant.
+            One of the following (default is "none"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
+        stream
+            Whether to yield just text content or include rich content objects
+            (e.g., tool calls) when relevant.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -733,10 +748,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         args
             The user input(s) to generate a response from.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no
-            content.
-        content
-            Whether to yield just text content, or all content (i.e., tool calls).
+            One of the following (default is "none"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
+        stream
+            Whether to yield just text content or include rich content objects
+            (e.g., tool calls) when relevant.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -783,7 +802,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model
             A Pydantic model describing the structure of the data to extract.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no content.
+            One of the following (default is "none"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
 
@@ -841,7 +864,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model
             A Pydantic model describing the structure of the data to extract.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no content
+            One of the following (default is "none"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
             Defaults to `True` if `echo` is not "none".
