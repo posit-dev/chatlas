@@ -635,31 +635,18 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def stream(
         self,
         *args: Content | str,
-    ) -> Generator[str, None, None]: ...
-
-    @overload
-    def stream(
-        self,
-        *args: Content | str,
-        echo: EchoOptions,
-    ) -> Generator[str, None, None]: ...
-
-    @overload
-    def stream(
-        self,
-        *args: Content | str,
-        echo: EchoOptions,
         content: Literal["text"],
-        kwargs: Optional[SubmitInputArgsT],
+        echo: EchoOptions = "none",
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]: ...
 
     @overload
     def stream(
         self,
         *args: Content | str,
-        echo: EchoOptions,
         content: Literal["all"],
-        kwargs: Optional[SubmitInputArgsT],
+        echo: EchoOptions = "none",
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
 
     def stream(
@@ -716,31 +703,18 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def stream_async(
         self,
         *args: Content | str,
-    ) -> AsyncGenerator[str, None]: ...
-
-    @overload
-    async def stream_async(
-        self,
-        *args: Content | str,
-        echo: EchoOptions,
-    ) -> AsyncGenerator[str, None]: ...
-
-    @overload
-    async def stream_async(
-        self,
-        *args: Content | str,
-        echo: EchoOptions,
         content: Literal["text"],
-        kwargs: Optional[SubmitInputArgsT],
+        echo: EchoOptions = "none",
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
     async def stream_async(
         self,
         *args: Content | str,
-        echo: EchoOptions,
         content: Literal["all"],
-        kwargs: Optional[SubmitInputArgsT],
+        echo: EchoOptions = "none",
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
 
     async def stream_async(
