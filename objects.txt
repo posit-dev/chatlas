@@ -48,6 +48,10 @@ chatlas.Chat.get_last_turn py:function 1 reference/Chat.html#chatlas.Chat.get_la
 chatlas._chat.Chat.get_last_turn py:function 1 reference/Chat.html#chatlas.Chat.get_last_turn chatlas.Chat.get_last_turn
 chatlas.Chat.get_turns py:function 1 reference/Chat.html#chatlas.Chat.get_turns -
 chatlas._chat.Chat.get_turns py:function 1 reference/Chat.html#chatlas.Chat.get_turns chatlas.Chat.get_turns
+chatlas.Chat.on_tool_request py:function 1 reference/Chat.html#chatlas.Chat.on_tool_request -
+chatlas._chat.Chat.on_tool_request py:function 1 reference/Chat.html#chatlas.Chat.on_tool_request chatlas.Chat.on_tool_request
+chatlas.Chat.on_tool_result py:function 1 reference/Chat.html#chatlas.Chat.on_tool_result -
+chatlas._chat.Chat.on_tool_result py:function 1 reference/Chat.html#chatlas.Chat.on_tool_result chatlas.Chat.on_tool_result
 chatlas.Chat.register_tool py:function 1 reference/Chat.html#chatlas.Chat.register_tool -
 chatlas._chat.Chat.register_tool py:function 1 reference/Chat.html#chatlas.Chat.register_tool chatlas.Chat.register_tool
 chatlas.Chat.set_echo_options py:function 1 reference/Chat.html#chatlas.Chat.set_echo_options -
@@ -84,6 +88,8 @@ chatlas.interpolate_file py:function 1 reference/interpolate_file.html#chatlas.i
 chatlas._interpolate.interpolate_file py:function 1 reference/interpolate_file.html#chatlas.interpolate_file chatlas.interpolate_file
 chatlas.Tool py:class 1 reference/Tool.html#chatlas.Tool -
 chatlas._tools.Tool py:class 1 reference/Tool.html#chatlas.Tool chatlas.Tool
+chatlas.ToolRejectError py:class 1 reference/ToolRejectError.html#chatlas.ToolRejectError -
+chatlas._tools.ToolRejectError py:class 1 reference/ToolRejectError.html#chatlas.ToolRejectError chatlas.ToolRejectError
 chatlas.Turn py:class 1 reference/Turn.html#chatlas.Turn -
 chatlas._turn.Turn py:class 1 reference/Turn.html#chatlas.Turn chatlas.Turn
 chatlas.token_usage py:function 1 reference/token_usage.html#chatlas.token_usage -
@@ -106,6 +112,8 @@ chatlas.types.ContentToolRequest.tagify py:function 1 reference/types.ContentToo
 chatlas._content.ContentToolRequest.tagify py:function 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest.tagify chatlas.types.ContentToolRequest.tagify
 chatlas.types.ContentToolRequest py:class 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest -
 chatlas._content.ContentToolRequest py:class 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest chatlas.types.ContentToolRequest
+chatlas.types.ContentToolResult.get_model_value py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.get_model_value -
+chatlas._content.ContentToolResult.get_model_value py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.get_model_value chatlas.types.ContentToolResult.get_model_value
 chatlas.types.ContentToolResult.tagify py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.tagify -
 chatlas._content.ContentToolResult.tagify py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.tagify chatlas.types.ContentToolResult.tagify
 chatlas.types.ContentToolResult py:class 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult -
