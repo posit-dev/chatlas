@@ -55,6 +55,8 @@ dev = [
     "tiktoken",
     "databricks-sdk",
     "snowflake-ml-python>=1.8.4",
+    # torch (a dependency of snowflake-ml-python) is not yet compatible with Python >3.11
+    "torch;python_version<='3.11'",
     "htmltools",
     "tenacity"
 ]
