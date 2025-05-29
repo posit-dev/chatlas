@@ -113,6 +113,7 @@ quartodoc:
       desc: Add context to python function before registering it as a tool.
       contents:
         - Tool
+        - ToolRejectError
     - title: Turns
       desc: A provider-agnostic representation of content generated during an assistant/user turn.
       contents:

@@ -9,6 +9,7 @@ from chatlas import (
     ToolRejectError,
     Turn,
 )
+from chatlas._chat import ToolFailureWarning
 from pydantic import BaseModel
 
 
@@ -258,7 +259,8 @@ def test_chat_tool_request_reject():
     assert str(response).lower() == "joe unknown hadley red"
 
 
-def test_chat_tool_request_reject2():
+@pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
+def test_chat_tool_request_reject2(capsys):
     chat = ChatOpenAI()
 
     def test_tool(user: str) -> str:
@@ -276,3 +278,4 @@ def test_chat_tool_request_reject2():
     )
 
     assert str(response).lower() == "joe unknown hadley red"
+    assert "Joe denied the request." in capsys.readouterr().out
