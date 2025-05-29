@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### New features
+
+* New `.on_tool_request()` and `.on_tool_result()` methods register callbacks that fire when a tool is requested or produces a result. These callbacks can be used to implement custom logging or other actions when tools are called, without modifying the tool function (#101).
+* New `ToolRejectError` exception can be thrown from tool request/result callbacks or from within a tool function itself to prevent the tool from executing. Moreover, this exception will provide some context for the the LLM to know that the tool didn't produce a result because it was rejected. (#101)
+
 ### Improvements
 
-* The `CHATLAS_LOG` environment variable nows enable logs for the relevant model provider. It now also supports a lovel of `debug` in addition to `info`. (#97)
+* The `CHATLAS_LOG` environment variable now enables logs for the relevant model provider. It now also supports a level of `debug` in addition to `info`. (#97)
 * `ChatSnowflake()` now supports tool calling. (#98)
 * `Chat` instances can now be deep copied, which is useful for forking the chat session. (#96)
 

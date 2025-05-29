@@ -26,6 +26,7 @@ from typing import (
 
 from pydantic import BaseModel
 
+from ._callbacks import CallbackManager
 from ._content import (
     Content,
     ContentJson,
@@ -42,7 +43,7 @@ from ._display import (
 )
 from ._logging import log_tool_error
 from ._provider import Provider
-from ._tools import Tool
+from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
 from ._utils import html_escape, wrap_async
@@ -96,6 +97,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self.provider = provider
         self._turns: list[Turn] = list(turns or [])
         self._tools: dict[str, Tool] = {}
+        self._on_tool_request_callbacks = CallbackManager()
+        self._on_tool_result_callbacks = CallbackManager()
         self._current_display: Optional[MarkdownDisplay] = None
         self._echo_options: EchoDisplayOptions = {
             "rich_markdown": {},
@@ -988,6 +991,53 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tool = Tool(func, model=model)
         self._tools[tool.name] = tool
 
+    def on_tool_request(self, callback: Callable[[ContentToolRequest], None]):
+        """
+        Register a callback for a tool request event.
+
+        A tool request event occurs when the assistant requests a tool to be
+        called on its behalf. Before invoking the tool, `on_tool_request`
+        handlers are called with the relevant `ContentToolRequest` object. This
+        is useful if you want to handle tool requests in a custom way, such as
+        requiring logging them or requiring user approval before invoking the
+        tool
+
+        Parameters
+        ----------
+        callback
+            A function to be called when a tool request event occurs.
+            This function must have a single argument, which will be the
+            tool request (i.e., a `ContentToolRequest` object).
+
+        Returns
+        -------
+        A callable that can be used to remove the callback later.
+        """
+        return self._on_tool_request_callbacks.add(callback)
+
+    def on_tool_result(self, callback: Callable[[ContentToolResult], None]):
+        """
+        Register a callback for a tool result event.
+
+        A tool result event occurs when a tool has been invoked and the
+        result is ready to be provided to the assistant. After the tool
+        has been invoked, `on_tool_result` handlers are called with the
+        relevant `ContentToolResult` object. This is useful if you want to
+        handle tool results in a custom way such as logging them.
+
+        Parameters
+        ----------
+        callback
+            A function to be called when a tool result event occurs.
+            This function must have a single argument, which will be the
+            tool result (i.e., a `ContentToolResult` object).
+
+        Returns
+        -------
+        A callable that can be used to remove the callback later.
+        """
+        return self._on_tool_result_callbacks.add(callback)
+
     @property
     def current_display(self) -> Optional[MarkdownDisplay]:
         """
@@ -1418,28 +1468,43 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             e = RuntimeError(f"Unknown tool: {x.name}")
             return ContentToolResult(value=None, error=e, request=x)
 
-        args = x.arguments
-
+        # First, invoke the request callbacks. If a ToolRejectError is raised,
+        # treat it like a tool failure (i.e., gracefully handle it).
+        result: ContentToolResult | None = None
         try:
-            if isinstance(args, dict):
-                result = func(**args)
-            else:
-                result = func(args)
+            self._on_tool_request_callbacks.invoke(x)
+        except ToolRejectError as e:
+            result = ContentToolResult(value=None, error=e, request=x)
 
-            if not isinstance(result, ContentToolResult):
-                result = ContentToolResult(value=result)
+        # Invoke the tool (if it hasn't been rejected).
+        if result is None:
+            try:
+                if isinstance(x.arguments, dict):
+                    res = func(**x.arguments)
+                else:
+                    res = func(x.arguments)
 
-            result.request = x
-            return result
-        except Exception as e:
+                if isinstance(res, ContentToolResult):
+                    result = res
+                else:
+                    result = ContentToolResult(value=res)
+
+                result.request = x
+            except Exception as e:
+                result = ContentToolResult(value=None, error=e, request=x)
+
+        # If we've captured an error, notify and log it.
+        if result.error:
             warnings.warn(
                 f"Calling tool '{x.name}' led to an error.",
                 ToolFailureWarning,
                 stacklevel=2,
             )
             traceback.print_exc()
-            log_tool_error(x.name, str(args), e)
-            return ContentToolResult(value=None, error=e, request=x)
+            log_tool_error(x.name, str(x.arguments), result.error)
+
+        self._on_tool_result_callbacks.invoke(result)
+        return result
 
     async def _invoke_tool_async(self, x: ContentToolRequest) -> ContentToolResult:
         tool_def = self._tools.get(x.name, None)
@@ -1454,28 +1519,43 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             e = RuntimeError(f"Unknown tool: {x.name}")
             return ContentToolResult(value=None, error=e, request=x)
 
-        args = x.arguments
-
+        # First, invoke the request callbacks. If a ToolRejectError is raised,
+        # treat it like a tool failure (i.e., gracefully handle it).
+        result: ContentToolResult | None = None
         try:
-            if isinstance(args, dict):
-                result = await func(**args)
-            else:
-                result = await func(args)
+            await self._on_tool_request_callbacks.invoke_async(x)
+        except ToolRejectError as e:
+            result = ContentToolResult(value=None, error=e, request=x)
 
-            if not isinstance(result, ContentToolResult):
-                result = ContentToolResult(value=result)
+        # Invoke the tool (if it hasn't been rejected).
+        if result is None:
+            try:
+                if isinstance(x.arguments, dict):
+                    res = await func(**x.arguments)
+                else:
+                    res = await func(x.arguments)
 
-            result.request = x
-            return result
-        except Exception as e:
+                if isinstance(res, ContentToolResult):
+                    result = res
+                else:
+                    result = ContentToolResult(value=res)
+
+                result.request = x
+            except Exception as e:
+                result = ContentToolResult(value=None, error=e, request=x)
+
+        # If we've captured an error, notify and log it.
+        if result.error:
             warnings.warn(
                 f"Calling tool '{x.name}' led to an error.",
                 ToolFailureWarning,
                 stacklevel=2,
             )
             traceback.print_exc()
-            log_tool_error(x.name, str(args), e)
-            return ContentToolResult(value=None, error=e, request=x)
+            log_tool_error(x.name, str(x.arguments), result.error)
+
+        await self._on_tool_result_callbacks.invoke_async(result)
+        return result
 
     def _markdown_display(self, echo: EchoOptions) -> ChatMarkdownDisplay:
         """

@@ -2,7 +2,13 @@ import re
 import tempfile
 
 import pytest
-from chatlas import ChatOpenAI, Turn
+from chatlas import (
+    ChatOpenAI,
+    ContentToolRequest,
+    ContentToolResult,
+    ToolRejectError,
+    Turn,
+)
 from pydantic import BaseModel
 
 
@@ -192,3 +198,81 @@ def test_deepcopy_chat():
 
     assert len(chat.get_turns()) == 2
     assert len(chat_fork.get_turns()) == 4
+
+
+def test_chat_callbacks():
+    chat = ChatOpenAI()
+
+    def test_tool(user: str) -> str:
+        "Find out a user's favorite color"
+        return "red"
+
+    chat.register_tool(test_tool)
+
+    last_request = None
+    cb_count_request = 0
+    cb_count_result = 0
+
+    def on_tool_request(request: ContentToolRequest):
+        nonlocal cb_count_request, last_request
+        cb_count_request += 1
+        assert isinstance(request, ContentToolRequest)
+        assert request.name == "test_tool"
+        last_request = request
+
+    def on_tool_result(result: ContentToolResult):
+        nonlocal cb_count_result, last_request
+        cb_count_result += 1
+        assert isinstance(result, ContentToolResult)
+        assert result.request == last_request
+
+    chat.on_tool_request(on_tool_request)
+    chat.on_tool_result(on_tool_result)
+    chat.chat("What are Joe and Hadley's favorite colors?")
+
+    assert cb_count_request == 2
+    assert cb_count_result == 2
+
+
+def test_chat_tool_request_reject():
+    chat = ChatOpenAI()
+
+    def test_tool(user: str) -> str:
+        "Find out a user's favorite color"
+        return "red"
+
+    chat.register_tool(test_tool)
+
+    def on_tool_request(request: ContentToolRequest):
+        if request.arguments["user"] == "Joe":
+            raise ToolRejectError("Joe denied the request.")
+
+    chat.on_tool_request(on_tool_request)
+
+    response = chat.chat(
+        "What are Joe and Hadley's favorite colors? ",
+        "Write 'Joe ____ Hadley ____'. Use 'unknown' if you don't know. ",
+        "Don't ever include punctuation in your answers.",
+    )
+
+    assert str(response).lower() == "joe unknown hadley red"
+
+
+def test_chat_tool_request_reject2():
+    chat = ChatOpenAI()
+
+    def test_tool(user: str) -> str:
+        "Find out a user's favorite color"
+        if "joe" in user.lower():
+            raise ToolRejectError("Joe denied the request.")
+        return "red"
+
+    chat.register_tool(test_tool)
+
+    response = chat.chat(
+        "What are Joe and Hadley's favorite colors? ",
+        "Write 'Joe ____ Hadley ____'. Use 'unknown' if you don't know. ",
+        "Don't ever include punctuation in your answers.",
+    )
+
+    assert str(response).lower() == "joe unknown hadley red"

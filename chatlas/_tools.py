@@ -8,7 +8,10 @@ from pydantic import BaseModel, Field, create_model
 
 from . import _utils
 
-__all__ = ("Tool",)
+__all__ = (
+    "Tool",
+    "ToolRejectError",
+)
 
 if TYPE_CHECKING:
     from openai.types.chat import ChatCompletionToolParam
@@ -45,6 +48,61 @@ class Tool:
         self._is_async = _utils.is_async_callable(func)
         self.schema = func_to_schema(func, model)
         self.name = self.schema["function"]["name"]
+
+
+class ToolRejectError(Exception):
+    """
+    Error to represent a tool call being rejected.
+
+    This error is meant to be raised when an end user has chosen to deny a tool
+    call. It can be raised in a tool function or in a `.on_tool_request()`
+    callback registered via a :class:`~chatlas.Chat`. When used in the callback,
+    the tool call is rejected before the tool function is invoked.
+
+    Parameters
+    ----------
+    reason
+        A string describing the reason for rejecting the tool call. This will be
+        included in the error message passed to the LLM. In addition to the
+        reason, the error message will also include "Tool call rejected." to
+        indicate that the tool call was not processed.
+
+    Raises
+    -------
+    ToolRejectError
+        An error with a message informing the LLM that the tool call was
+        rejected (and the reason why).
+
+    Examples
+    --------
+    >>> import os
+    >>> import chatlas as ctl
+    >>>
+    >>> chat = ctl.ChatOpenAI()
+    >>>
+    >>> def list_files():
+    ...     "List files in the user's current directory"
+    ...     while True:
+    ...         allow = input(
+    ...             "Would you like to allow access to your current directory? (yes/no): "
+    ...         )
+    ...         if allow.lower() == "yes":
+    ...             return os.listdir(".")
+    ...         elif allow.lower() == "no":
+    ...             raise ctl.ToolRejectError(
+    ...                 "The user has chosen to disallow the tool call."
+    ...             )
+    ...         else:
+    ...             print("Please answer with 'yes' or 'no'.")
+    >>>
+    >>> chat.register_tool(list_files)
+    >>> chat.chat("What files are available in my current directory?")
+    """
+
+    def __init__(self, reason: str = "The user has chosen to disallow the tool call."):
+        message = f"Tool call rejected. {reason}"
+        super().__init__(message)
+        self.message = message
 
 
 def func_to_schema(
