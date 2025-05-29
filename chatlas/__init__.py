@@ -16,7 +16,7 @@ from ._perplexity import ChatPerplexity
 from ._provider import Provider
 from ._snowflake import ChatSnowflake
 from ._tokens import token_usage
-from ._tools import Tool
+from ._tools import Tool, ToolRejectError
 from ._turn import Turn
 
 try:
@@ -51,6 +51,7 @@ __all__ = (
     "Provider",
     "token_usage",
     "Tool",
+    "ToolRejectError",
     "Turn",
     "types",
 )
