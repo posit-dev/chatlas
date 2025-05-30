@@ -93,7 +93,7 @@ def assert_tools_simple_stream_content(chat_fun: ChatFun):
 
     chat.register_tool(get_date)
 
-    response = chat.stream("What's the current date in Y-M-D format?", content="all")
+    response = chat.stream("What's the current date in Y-M-D format?", stream="content")
     chunks = [chunk for chunk in response]
     request = [x for x in chunks if isinstance(x, ContentToolRequest)]
     assert len(request) == 1
