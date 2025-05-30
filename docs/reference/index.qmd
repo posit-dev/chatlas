@@ -7,14 +7,17 @@ Start a chat with a particular large language model (llm) provider.
 | | |
 | --- | --- |
 | [ChatAnthropic](ChatAnthropic.qmd#chatlas.ChatAnthropic) | Chat with an Anthropic Claude model. |
+| [ChatAuto](ChatAuto.qmd#chatlas.ChatAuto) | Use environment variables (env vars) to configure the Chat provider and model. |
 | [ChatAzureOpenAI](ChatAzureOpenAI.qmd#chatlas.ChatAzureOpenAI) | Chat with a model hosted on Azure OpenAI. |
 | [ChatBedrockAnthropic](ChatBedrockAnthropic.qmd#chatlas.ChatBedrockAnthropic) | Chat with an AWS bedrock model. |
+| [ChatDatabricks](ChatDatabricks.qmd#chatlas.ChatDatabricks) | Chat with a model hosted on Databricks. |
 | [ChatGithub](ChatGithub.qmd#chatlas.ChatGithub) | Chat with a model hosted on the GitHub model marketplace. |
 | [ChatGoogle](ChatGoogle.qmd#chatlas.ChatGoogle) | Chat with a Google Gemini model. |
 | [ChatGroq](ChatGroq.qmd#chatlas.ChatGroq) | Chat with a model hosted on Groq. |
 | [ChatOllama](ChatOllama.qmd#chatlas.ChatOllama) | Chat with a local Ollama model. |
 | [ChatOpenAI](ChatOpenAI.qmd#chatlas.ChatOpenAI) | Chat with an OpenAI model. |
 | [ChatPerplexity](ChatPerplexity.qmd#chatlas.ChatPerplexity) | Chat with a model hosted on perplexity.ai. |
+| [ChatSnowflake](ChatSnowflake.qmd#chatlas.ChatSnowflake) | Chat with a Snowflake Cortex LLM |
 | [ChatVertex](ChatVertex.qmd#chatlas.ChatVertex) | Chat with a Google Vertex AI model. |
 
 ## The chat object
@@ -35,6 +38,15 @@ Submit image input to the chat
 | [content_image_plot](content_image_plot.qmd#chatlas.content_image_plot) | Encode the current matplotlib plot as an image for chat input. |
 | [content_image_url](content_image_url.qmd#chatlas.content_image_url) | Encode image content from a URL for chat input. |
 
+## PDF input
+
+Submit pdf input to the chat
+
+| | |
+| --- | --- |
+| [content_pdf_file](content_pdf_file.qmd#chatlas.content_pdf_file) | Prepare a local PDF for input to a chat. |
+| [content_pdf_url](content_pdf_url.qmd#chatlas.content_pdf_url) | Use a remote PDF for input to a chat. |
+
 ## Prompt interpolation
 
 Interpolate variables into prompt templates
@@ -51,6 +63,7 @@ Add context to python function before registering it as a tool.
 | | |
 | --- | --- |
 | [Tool](Tool.qmd#chatlas.Tool) | Define a tool |
+| [ToolRejectError](ToolRejectError.qmd#chatlas.ToolRejectError) | Error to represent a tool call being rejected. |
 
 ## Turns
 

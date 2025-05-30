@@ -1,0 +1,231 @@
+---
+title: Structured data
+callout-appearance: simple
+---
+
+LLMs are quite good at finding structure in unstructured input like text, images, etc.
+Though not always perfect, this can be a very helpful way to reduce the amount of manual work needed to extract information from a large amount of text or documents.
+Here are just a few scenarios where this can be useful:
+
+1. [**Article summaries**](../structured-data/article-summary.qmd): Extract key points from lengthy reports or articles to create concise summaries for decision-makers.
+2. [**Entity recognition**](../structured-data/entity-recognition.qmd): Identify and extract entities such as names, dates, and locations from unstructured text to create structured datasets.
+3. [**Sentiment analysis**](../structured-data/sentiment-analysis.qmd): Extract sentiment scores and associated entities from customer reviews or social media posts to gain insights into public opinion.
+4. [**Classification**](../structured-data/classification.qmd): Classify text into predefined categories, such as spam detection or topic classification.
+5. [**Image/PDF input**](../structured-data/multi-modal.qmd): Extract data from images or PDFs, such as tables or forms, to automate data entry processes.
+
+
+## Basic usage
+
+To extract data, provide some input and a [pydantic model](https://docs.pydantic.dev/latest/concepts/models/) to [the `.extract_data()` method](../reference/Chat.qmd#extract_data).
+The pydantic `BaseModel` defines the data structure to extract from the input.
+It should include the field names and types that you want to extract, and the LLM will do its best to fill in the values for those fields.
+Here's a simple example text extraction:
+
+```python
+import chatlas as ctl
+from pydantic import BaseModel
+
+class Person(BaseModel):
+    name: str
+    age: int
+
+chat = ctl.ChatOpenAI()
+chat.extract_data(
+  "My name is Susan and I'm 13 years old", 
+  data_model=Person,
+)
+```
+
+::: chatlas-response-container
+
+```python
+{"name": "Susan", "age": 13}
+```
+
+:::
+
+Note that input can be any type of content, including text, images, and pdfs:
+
+```python
+from chatlas import content_image_url
+
+class Image(BaseModel):
+    primary_shape: str
+    primary_colour: str
+
+chat.extract_data(
+  content_image_url("https://www.r-project.org/Rlogo.png"),
+  data_model=Image,
+)
+```
+
+::: chatlas-response-container
+
+```python
+{"primary_shape": "rectangle", "primary_colour": "blue"}
+```
+:::
+
+
+
+## Add descriptions
+
+In addition to the model definition with field names and types, you may also want to provide the LLM with an additional context about what each field/model represents. In this case, include a `Field(description="...")` for each field, and a docstring for each model. This is a good place to ask nicely for other attributes you'll like the value to have (e.g. minimum or maximum values, date formats, ...). There's no guarantee that these requests will be honoured, but the LLM will usually make a best effort to do so.
+
+```python
+class Person(BaseModel):
+    """A person"""
+
+    name: str = Field(description="Name")
+
+    age: int = Field(description="Age, in years")
+
+    hobbies: list[str] = Field(
+        description="List of hobbies. Should be exclusive and brief."
+    )
+```
+
+
+## Advanced data types
+
+This section covers some of the more advanced data types you may encounter when using `.extract_data()`, like data frames, required vs optional fields, and unknown keys.
+
+::: callout-tip
+### Examples
+
+Before proceeding, consider exploring some of the examples in the structured data section, such as [article summaries](../structured-data/article-summary.qmd).
+:::
+
+### Data frames
+
+If you want to define a data frame like `data_model`, you might be tempted to create a model like this, where each field is a list of scalar values:
+
+```python
+class Persons(BaseModel):
+    name: list[str]
+    age: list[int]
+```
+
+This however, is not quite right because there's no way to specify that each field should have the same length. Instead you need to turn the data structure "inside out", and instead create an array of objects:
+
+```python
+class Person(BaseModel):
+    name: str
+    age: int
+
+class Persons(BaseModel):
+    persons: list[Person]
+```
+
+If you're familiar with the terms between row-oriented and column-oriented data frames, this is the same idea.
+
+
+### Required vs optional
+
+By default, model fields are in a sense "required", unless `None` is allowed in their type definition. Including `None` is a good idea if there's any possibility of the input not containing the required fields as LLMs may hallucinate data in order to fulfill your spec.
+
+For example, here the LLM hallucinates a date even though there isn't one in the text:
+
+```python
+class ArticleSpec(BaseModel):
+    """Information about an article written in markdown"""
+
+    title: str = Field(description="Article title")
+    author: str = Field(description="Name of the author")
+    date: str = Field(description="Date written in YYYY-MM-DD format.")
+
+prompt = """
+Extract data from the following text:
+
+<text>
+# Structured Data
+By Carson Sievert
+
+When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like.
+</text>
+"""
+
+chat = ChatOpenAI()
+chat.extract_data(prompt, data_model=ArticleSpec)
+```
+
+::: chatlas-response-container
+
+```python
+{"title": "Structured Data", "author": "Carson Sievert", "date": "2023-10-01"}
+```
+
+:::
+
+Note that I've used more of an explict prompt here. For this example, I found that this generated better results and that it's a useful place to put additional instructions.
+
+If I let the LLM know that the fields are all optional, it'll return `None` for the missing fields:
+
+```python
+class ArticleSpec(BaseModel):
+    """Information about an article written in markdown"""
+
+    title: str = Field(description="Article title")
+    author: str = Field(description="Name of the author")
+    date: str | None = Field(description="Date written in YYYY-MM-DD format.")
+
+chat.extract_data(prompt, data_model=ArticleSpec)
+```
+
+::: chatlas-response-container
+
+```python
+{"title": "Structured Data", "author": "Carson Sievert", "date": null}
+```
+
+:::
+
+
+### Unknown keys
+
+```python
+from chatlas import ChatAnthropic
+
+
+class Characteristics(BaseModel, extra="allow"):
+    """All characteristics"""
+
+    pass
+
+
+prompt = """
+Given a description of a character, your task is to extract all the characteristics of that character.
+
+<description>
+The man is tall, with a beard and a scar on his left cheek. He has a deep voice and wears a black leather jacket.
+</description>
+"""
+
+chat = ChatAnthropic()
+chat.extract_data(prompt, data_model=Characteristics)
+```
+
+::: chatlas-response-container
+```python
+{
+  "height": "tall",
+  "facial_features": [
+    "beard",
+    "scar on left cheek"
+  ],
+  "voice": "deep",
+  "clothing": [
+    "black leather jacket"
+  ]
+}
+```
+:::
+
+
+::: callout-warning
+### Unknown key support
+
+This example only works with Claude, not GPT or Gemini, because only Claude supports adding arbitrary additional properties.
+
+That said, you could prompt an LLM to suggest a `BaseModel` for you from the unstructured input, and then use that to extract the data. This is a bit more work, but it can be done.
+:::

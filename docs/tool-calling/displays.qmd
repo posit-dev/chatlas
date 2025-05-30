@@ -1,0 +1,37 @@
+---
+title: Custom results/displays
+callout-appearance: simple
+---
+
+When delivering experiences such as in a [chatbot](../get-started/chatbots.qmd) app, it's strongly recommended to give your users:
+
+1. A visual indication when a tool is requested by the model
+2. A choice to approve or deny that request
+3. A clear display of tool results
+
+In a later article, you'll learn how to add [tool approvals](approval.qmd), but for now we'll focus on tool displays and customizing results that the chat model receives.
+
+There are two key things to keep in mind when it comes to tool results and displays:
+
+1. When [streaming](../get-started/stream.qmd) a response, gain access to tool contents by setting the `content` parameter to `"all"`.
+2. With 1, the stream will include [`ContentToolRequest`](../reference/types.ContentToolResult.qmd) and [`ContentToolResult`](../reference/types.ContentToolResult.qmd) when tool calls occur, which will for control over how the tools are seen by both the model and the user.
+
+A key idea behind  
+The key insight is that a [`ContentToolResult`](../reference/types.ContentToolResult.qmd) can be returned from a tool call. 
+This class allows you to control how results are sent the model as well as how they are displayed in various contexts, such as a notebook or chatbot app.
+
+### Custom model result format 
+
+By default, tool results are formatted as a JSON string, which is suitable for most use cases. However, that might not be ideal for all scenarios, 
+
+
+
+1. Tool result formatting
+  * JSON by default (show DF example)
+  * `ContentToolResult(model_format="as_is")`
+
+2. Tool result display
+  * `.current_display` for interactive displays
+  * `ContentToolResult()` subclass for streaming content
+
+  

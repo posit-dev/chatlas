@@ -19,15 +19,6 @@ The [Azure OpenAI server](https://azure.microsoft.com/en-us/products/ai-services
 hosts a number of open source models as well as proprietary models
 from OpenAI.
 
-## Prerequisites {.doc-section .doc-section-prerequisites}
-
-
-::: {.callout-note}
-## Python requirements
-
-`ChatAzureOpenAI` requires the `openai` package (e.g., `pip install openai`).
-:::
-
 ## Examples {.doc-section .doc-section-examples}
 
 ```python

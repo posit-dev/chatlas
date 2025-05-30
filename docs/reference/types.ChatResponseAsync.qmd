@@ -1,7 +1,7 @@
 # types.ChatResponseAsync { #chatlas.types.ChatResponseAsync }
 
 ```python
-types.ChatResponseAsync(self, generator)
+types.ChatResponseAsync(generator)
 ```
 
 Chat response (async) object.
