@@ -635,7 +635,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def stream(
         self,
         *args: Content | str,
-        content: Literal["text"],
+        content: Literal["text"] = "text",
         echo: EchoOptions = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]: ...
@@ -652,8 +652,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def stream(
         self,
         *args: Content | str,
-        echo: EchoOptions = "none",
         content: Literal["text", "all"] = "text",
+        echo: EchoOptions = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
         """
@@ -663,11 +663,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         args
             The user input(s) to generate a response from.
+        content
+            Whether to yield just text content, or all content (i.e., tool calls).
         echo
             Whether to echo text content, all content (i.e., tool calls), or no
             content.
-        content
-            Whether to yield just text content, or all content (i.e., tool calls).
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -703,7 +703,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def stream_async(
         self,
         *args: Content | str,
-        content: Literal["text"],
+        content: Literal["text"] = "text",
         echo: EchoOptions = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]: ...
@@ -720,8 +720,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def stream_async(
         self,
         *args: Content | str,
-        echo: EchoOptions = "none",
         content: Literal["text", "all"] = "text",
+        echo: EchoOptions = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
         """
@@ -731,11 +731,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         args
             The user input(s) to generate a response from.
+        content
+            Whether to yield just text content, or all content (i.e., tool calls).
         echo
             Whether to echo text content, all content (i.e., tool calls), or no
             content.
-        content
-            Whether to yield just text content, or all content (i.e., tool calls).
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
