@@ -165,7 +165,7 @@ index = load_index_from_storage(storage_context)
 def retrieve_trusted_content(query):
     retriever = index.as_retriever(similarity_top_k=5)
     nodes = retriever.retrieve(query)
-    return [f"<excerpt>{x.text}</exercpt>" for x in nodes]
+    return [f"<excerpt>{x.text}</excerpt>" for x in nodes]
 ```
 
 This particular implementation retrieves the top 5 most relevant documents from the `index` based on the user query, but you can adjust the number of results by changing the `similarity_top_k` parameter.
@@ -205,7 +205,7 @@ def retrieve_trusted_content(query: str, top_k: int = 5):
     """
     retriever = index.as_retriever(similarity_top_k=top_k)
     nodes = retriever.retrieve(query)
-    return [f"<excerpt>{x.text}</exercpt>" for x in nodes]
+    return [f"<excerpt>{x.text}</excerpt>" for x in nodes]
 
 chat = ChatOpenAI(
     system_prompt="You are a helpful, but terse, assistant. "

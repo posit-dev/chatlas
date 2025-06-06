@@ -17,7 +17,7 @@ chat = ctl.ChatOpenAI(
 
 stream = chat.stream("My name is Chatlas.")
 for chunk in stream:
-    print(stream)
+    print(chunk)
 ```
 
 ```
