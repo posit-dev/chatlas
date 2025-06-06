@@ -9,7 +9,7 @@
 <!-- badges end -->
 </p>
 
-Explore the world of LLMs in Python and build delightful chat apps — effortlessly.
+Your friendly guide to building LLM chat apps in Python with less effort and more clarity.
 
 ## Install
 

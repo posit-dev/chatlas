@@ -13,7 +13,7 @@ chatlas
 </p>
 
 <p class="fs-2 lead mt-3 mb-3 text-center" style="max-width: 600px; margin: auto;">
-Explore the world of LLMs in Python and build agentic chat apps — effortlessly.
+Your friendly guide to building LLM chat apps in Python with less effort and more clarity.
 </p>
 
 <div class="d-flex justify-content-center mb-3">
