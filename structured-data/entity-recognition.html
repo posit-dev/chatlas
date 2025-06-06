@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Entity recognition – chatlas</title>
+<title>chatlas – &lt;img src="/logos/small/logo.png" height="40px" alt="chatlas website"/&gt;&lt;span class="ms-3 fs-3 lead header" style="vertical-align:middle;"&gt;chatlas&lt;/span&gt;</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -108,11 +108,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 
 
-<meta property="og:title" content="Entity recognition – chatlas">
+<meta property="og:title" content="chatlas">
 <meta property="og:description" content="Explore the world of LLMs in Python and build delightful chat apps — effortlessly.">
 <meta property="og:image" content="https://posit-dev.github.io/chatlas/structured-data/images/logo.png">
 <meta property="og:site_name" content="<img src=&quot;/logos/small/logo.png&quot; height=&quot;40px&quot; alt=&quot;chatlas website&quot;/><span class=&quot;ms-3 fs-3 lead header&quot; style=&quot;vertical-align:middle;&quot;>chatlas</span>">
-<meta name="twitter:title" content="Entity recognition – chatlas">
+<meta name="twitter:title" content="chatlas">
 <meta name="twitter:description" content="Explore the world of LLMs in Python and build delightful chat apps — effortlessly.">
 <meta name="twitter:image" content="https://posit-dev.github.io/chatlas/structured-data/images/logo.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -374,7 +374,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>The following example, which <a href="https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb">closely inspired by the Claude documentation</a>, shows how <code>.extract_data()</code> can be used to perform entity recognition.</p>
-<div id="df51f525" class="cell" data-execution_count="1">
+<div id="2b4aa17c" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel, Field</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -420,37 +420,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td data-quarto-table-cell-role="th">0</td>
 <td>John</td>
 <td>person</td>
-<td>Subject of the text, works at Google in New York</td>
+<td>John works at Google in New York.</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
 <td>Google</td>
 <td>organization</td>
-<td>Company where John works</td>
+<td>John works at Google in New York.</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
 <td>New York</td>
 <td>location</td>
-<td>City where John works for Google</td>
+<td>John works at Google in New York.</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
 <td>Sarah</td>
 <td>person</td>
-<td>CEO of Acme Inc., met with John last week</td>
+<td>He met with Sarah, the CEO of Acme Inc., last ...</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
 <td>Acme Inc.</td>
 <td>organization</td>
-<td>Company of which Sarah is the CEO</td>
+<td>He met with Sarah, the CEO of Acme Inc., last ...</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
 <td>San Francisco</td>
 <td>location</td>
-<td>City where John met Sarah last week</td>
+<td>He met with Sarah, the CEO of Acme Inc., last ...</td>
 </tr>
 </tbody>
 </table>
