@@ -23,13 +23,11 @@ interlinks:
 
 lightbox: auto
 
-pagetitle: "chatlas"
-
 website:
-  title: '<img src="/logos/small/logo.png" height="40px" alt="chatlas website"/><span class="ms-3 fs-3 lead header" style="vertical-align:middle;">chatlas</span>'
+  title: chatlas
   page-navigation: true
   site-url: https://posit-dev.github.io/chatlas/
-  description: Explore the world of LLMs in Python and build delightful chat apps — effortlessly.
+  description: Your friendly guide to building LLM chat apps in Python with less effort and more clarity.
 
   bread-crumbs: true
   open-graph: true
@@ -49,6 +47,7 @@ website:
   navbar:
     background: "#E3F2FD"
     search: true
+    title: '<img src="/logos/small/logo.png" height="40px" alt="chatlas website"/><span class="ms-3 fs-3 lead header" style="vertical-align:middle;">chatlas</span>'
       
     right:
       - text: Reference
