@@ -1,17 +1,20 @@
+/*-- scss:defaults --*/
+
+$font-family-sans-serif: 'Public Sans', sans-serif;
+$font-family-monospace: 'Fira Code', monospace;
+$headings-font-family: 'Hubot Sans', sans-serif;
+$display-font-family: 'Hubot Sans', sans-serif;
+$headings-color: #2B4B50;
+
+/*-- scss:rules --*/
+
 @import url('https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Fira Code');
 @import url('https://fonts.googleapis.com/css?family=Hubot Sans');
 
-
-:root {
-  --bs-font-sans-serif: 'Public Sans', sans-serif;
-  --bs-body-font-family: 'Public Sans', sans-serif;
-  --bs-font-monospace: 'Fira Code', monospace;
-}
-
-h1, h2, h3, h4, h5, h6, .header {
-  font-family: 'Hubot Sans', sans-serif;
-  color: #2B4B50;
+.header {
+  font-family: $headings-font-family;
+  color: $headings-color;
 }
 
 /* css styles */

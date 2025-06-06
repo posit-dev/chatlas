@@ -92,27 +92,27 @@ pip install -U chatlas
 
 ## Why chatlas?
 
-🚀 **Minimal design**: most problems just need the right [model](get-started/models.qmd), [system prompt](get-started/system-prompt.qmd), and [tool calls](get-started/tools.qmd). Spend more time getting these right and less time untangling needless complexity.
+🚀 **Minimal design**: most problems just need the right [model](get-started/models.qmd), [system prompt](get-started/system-prompt.qmd), and [tool calls](get-started/tools.qmd). Spend more time mastering the fundamentals and less time navigating needless complexity.
 
 🧩 [**Model agnostic**](get-started/models.qmd): try different models with minimal code changes.
 
-🌊 [**Stream output**](get-started/chat.qmd): with minimal effort in notebooks, at the console, and your favorite IDE. You can also [stream](get-started/stream.qmd) responses into any environment (e.g., [chatbots](get-started/chatbots.qmd)).
+🌊 [**Stream output**](get-started/chat.qmd): automatically in notebooks, at the console, and your favorite IDE. You can also [stream](get-started/stream.qmd) responses into bespoke applications (e.g., [chatbots](get-started/chatbots.qmd)).
+
+🛠️ [**Tool calling**](get-started/tools.qmd): give the LLM "agentic" capabilities by simply writing Python function(s).
 
 🔄 [**Multi-turn chat**](get-started/chat.qmd#chat-history): history is retained by default, making the common case easy.
 
 🖼️ [**Multi-modal input**](get-started/chat.qmd#multi-modal-input): submit input like images, pdfs, and more.
 
-🛠️ [**Tool calling**](get-started/tools.qmd): easily equip the LLM with the ability to gain the context they need and/or perform actions on behalf of the user.
-
 📂 [**Structured output**](get-started/structured-data.qmd): easily extract structure from unstructured input.
 
 ⏱️ [**Async**](get-started/async.qmd): supports async operations for efficiency and scale.
 
-✏️ [**Autocomplete**](get-started/parameters.qmd): powered by type hints, so you can easily discover and use provider-specific parameters like `temperature`, `max_tokens`, and more.
+✏️ [**Autocomplete**](get-started/models.qmd#auto-complete): easily discover and use provider-specific [parameters](get-started/parameters.qmd) like `temperature`, `max_tokens`, and more.
 
 🔍 **Inspectable**: tools for [debugging](get-started/debug.qmd) and [monitoring](get-started/monitor.qmd) in production.
 
-🔌 **Extensible**: add new [model providers](reference/Provider.qmd), [content types](), and more.
+🔌 **Extensible**: add new [model providers](reference/Provider.qmd), [content types](reference/types.Content.qmd), and more.
 
 
 ## Next steps

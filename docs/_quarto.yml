@@ -97,8 +97,7 @@ website:
 
 format:
   html:
-    #theme: cosmo
-    css: 
+    theme:
       - styles.scss
     toc: true
     toc-depth: 3

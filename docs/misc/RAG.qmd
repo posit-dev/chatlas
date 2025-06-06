@@ -14,7 +14,7 @@ In this article, you'll learn how to do exactly this to improve the quality of r
 The term RAG gets thrown around a lot, and for good reason -- it can be a very useful way to address the most serious limitations of LLMs.
 However, RAG is not always necessary -- sometimes something much simpler will do the trick, such as:
 
-  * Adding trusted/missing content directly to the [system prompt](../get-started/system-prompt.qmd) or [user query](../get-started/user-query.qmd), rather than retrieving it from a knowledge store.
+  * Adding trusted/missing content directly to the [system prompt](../get-started/system-prompt.qmd) (or chat input), rather than retrieving a portion of it from a knowledge store.
   * Register a [tool](../get-started/tools.qmd) enabling the LLM to "ask" for trusted content as needed, possibly without needing to manage a separate knowledge store.
 :::
 
