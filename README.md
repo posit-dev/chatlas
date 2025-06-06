@@ -4,7 +4,7 @@
 <!-- badges start -->
 <a href="https://pypi.org/project/chatlas/"><img alt="PyPI" src="https://img.shields.io/pypi/v/chatlas?logo=python&logoColor=white&color=orange"></a>
 <a href="https://choosealicense.com/licenses/mit/"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License"></a>
-<a href="https://github.com/posit-dev/chatlas"><img src="https://img.shields.io/pypi/pyversions/chatlas.svg" alt="versions"></a>
+<a href="https://pypi.org/project/chatlas"><img src="https://img.shields.io/pypi/pyversions/chatlas.svg" alt="versions"></a>
 <a href="https://github.com/posit-dev/chatlas"><img src="https://github.com/posit-dev/chatlas/actions/workflows/test.yml/badge.svg?branch=main" alt="Python Tests"></a>
 <!-- badges end -->
 </p>
