@@ -1,7 +1,15 @@
 # Turn { #chatlas.Turn }
 
 ```python
-Turn(self, role, contents, *, tokens=None, finish_reason=None, completion=None)
+Turn(
+    role,
+    contents,
+    *,
+    tokens=None,
+    finish_reason=None,
+    completion=None,
+    **kwargs,
+)
 ```
 
 A user or assistant turn

@@ -1,7 +1,7 @@
 # types.ContentToolRequest { #chatlas.types.ContentToolRequest }
 
 ```python
-types.ContentToolRequest(self, id, name, arguments)
+types.ContentToolRequest()
 ```
 
 A request to call a tool/function
@@ -12,8 +12,22 @@ requested by the model assistant.
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name      | Type               | Description                                 | Default    |
-|-----------|--------------------|---------------------------------------------|------------|
-| id        | [str](`str`)       | A unique identifier for this request.       | _required_ |
-| name      | [str](`str`)       | The name of the tool/function to call.      | _required_ |
-| arguments | [object](`object`) | The arguments to pass to the tool/function. | _required_ |
+| Name      | Type   | Description                                 | Default    |
+|-----------|--------|---------------------------------------------|------------|
+| id        |        | A unique identifier for this request.       | _required_ |
+| name      |        | The name of the tool/function to call.      | _required_ |
+| arguments |        | The arguments to pass to the tool/function. | _required_ |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [tagify](#chatlas.types.ContentToolRequest.tagify) | Returns an HTML string suitable for passing to htmltools/shiny's `Chat()` component. |
+
+### tagify { #chatlas.types.ContentToolRequest.tagify }
+
+```python
+types.ContentToolRequest.tagify()
+```
+
+Returns an HTML string suitable for passing to htmltools/shiny's `Chat()` component.

@@ -1,0 +1,108 @@
+---
+title: Approvals
+callout-appearance: simple
+---
+
+Tools are incredibly powerful, but also potentially dangerous -- especially if someone else's tool can run arbitrary code on your machine without your knowledge or consent.
+For this reason, it's often important for end users to have the ability to deny tool calls before they are executed.
+The main mechanism for denying tool calls in chatlas is to throw a [ToolRejectError](../reference/ToolRejectError.qmd) exception.
+
+`ToolRejectError` is usually raised from one of two places: 1. in a tool request callback handler or 2. within a tool function itself.
+Generally speaking it is recommended to use the first approach, as it guarantees that tool calls are never executed without user consent.
+To get a feel for how this works, let's consider requiring approval from the Python REPL. 
+
+### Python REPL
+
+In both of the examples below, we will use the `input()` function to prompt the user for approval before executing a tool call.
+This will pause execution and wait for the user to respond with either "yes" or "no".
+
+```python
+def input_approval(prompt: str) -> bool:
+    while True:
+        res = input(f"{prompt} (yes/no): ")
+        if res.lower() == "yes":
+            return True
+        elif res.lower() == "no":
+            return False
+        else:
+            print("Please answer with 'yes' or 'no'.")
+```
+
+
+::: {.panel-tabset}
+
+#### Request callback
+
+```python
+import os
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+
+def list_files():
+    "List files in the user's current directory"
+    return os.listdir(".")
+
+chat.register_tool(list_files)
+
+def on_request(req: ctl.ContentToolRequest):
+    "Request callback to approve or deny tool calls"
+    allow = input_approval(
+        f"Would you like to allow the tool call '{req.name}'? (yes/no): "
+    )
+    if allow:
+        return # proceed with the tool call
+    raise ctl.ToolRejectError(
+        f"The user has chosen to disallow the tool call '{req.name}'."
+    )
+
+chat.on_tool_request(on_request)
+
+chat.chat("What files are available in my current directory?")
+```
+
+#### Within tool
+
+```python
+import os
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+
+def list_files():
+    "List files in the user's current directory"
+    allow = input_approval(
+        "Would you like to allow access to your current directory? (yes/no): "
+    )
+    if allow:
+        return os.listdir(".")
+    raise ctl.ToolRejectError(
+        "The user has chosen to disallow the tool call."
+    )
+
+chat.register_tool(list_files)
+chat.chat("What files are available in my current directory?")
+```
+
+:::
+
+::: chatlas-response-container
+
+```python
+# 🛠️ tool request
+list_files()
+```
+
+```
+# ❌ tool error
+Tool call failed with error: 'The user has chosen to disallow the tool call.'
+```
+
+It looks like I am unable to access the list of files in your current directory at the moment. If you have any
+other questions or need assistance, feel free to ask!     
+:::
+
+
+### Chatbots
+
+Coming soon.

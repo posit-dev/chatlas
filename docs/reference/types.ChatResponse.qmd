@@ -1,7 +1,7 @@
 # types.ChatResponse { #chatlas.types.ChatResponse }
 
 ```python
-types.ChatResponse(self, generator)
+types.ChatResponse(generator)
 ```
 
 Chat response object.
