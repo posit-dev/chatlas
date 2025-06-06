@@ -374,7 +374,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>The following example, which <a href="https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb">closely inspired by the Claude documentation</a>, shows how <code>.extract_data()</code> can be used to perform entity recognition.</p>
-<div id="cbf97e57" class="cell" data-execution_count="1">
+<div id="f66c902e" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel, Field</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -420,37 +420,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td data-quarto-table-cell-role="th">0</td>
 <td>John</td>
 <td>person</td>
-<td>Works at Google in New York.</td>
+<td>John works at Google in New York.</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">1</td>
 <td>Google</td>
 <td>organization</td>
-<td>Place where John works.</td>
+<td>John works at Google in New York.</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
 <td>New York</td>
 <td>location</td>
-<td>Location of Google's office where John works.</td>
+<td>John works at Google in New York.</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
 <td>Sarah</td>
 <td>person</td>
-<td>CEO of Acme Inc., met with John.</td>
+<td>He met with Sarah, the CEO of Acme Inc., last ...</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
 <td>Acme Inc.</td>
 <td>organization</td>
-<td>Sarah is the CEO of this company.</td>
+<td>He met with Sarah, the CEO of Acme Inc., last ...</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">5</td>
 <td>San Francisco</td>
 <td>location</td>
-<td>Location where John met Sarah last week.</td>
+<td>He met with Sarah, the CEO of Acme Inc., last ...</td>
 </tr>
 </tbody>
 </table>
