@@ -6,7 +6,7 @@ title: Overview
 <style>h1.title { display:none; }</style>
 ```
 
-<img src="/logos/hero/hero.png" height="325" alt="chatlas website banner image" class="d-block mx-auto mb-3"/>
+<img src="/logos/hero/hero.png" alt="chatlas website banner image" class="d-block mx-auto mb-3" style="max-width:100%; max-height:325px"/>
 
 <p class="display-2 header text-center" style="font-weight:600;">
 chatlas
