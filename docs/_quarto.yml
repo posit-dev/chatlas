@@ -23,6 +23,8 @@ interlinks:
 
 lightbox: auto
 
+pagetitle: "chatlas"
+
 website:
   title: '<img src="/logos/small/logo.png" height="40px" alt="chatlas website"/><span class="ms-3 fs-3 lead header" style="vertical-align:middle;">chatlas</span>'
   page-navigation: true

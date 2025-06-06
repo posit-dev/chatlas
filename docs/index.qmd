@@ -92,7 +92,7 @@ pip install -U chatlas
 
 ## Why chatlas?
 
-🚀 **Minimal design**: most problems just need the right [model](get-started/models.qmd), [system prompt](get-started/system-prompt.qmd), and [tool calls](get-started/tools.qmd). Spend more time mastering the fundamentals and less time navigating needless complexity.
+🚀 **Opinionated design**: most problems just need the right [model](get-started/models.qmd), [system prompt](get-started/system-prompt.qmd), and [tool calls](get-started/tools.qmd). Spend more time mastering the fundamentals and less time navigating needless complexity.
 
 🧩 [**Model agnostic**](get-started/models.qmd): try different models with minimal code changes.
 
