@@ -7,6 +7,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [UNRELEASED]
+
+### New features
+
+* Added support for `Chat` to register tools from a provided by [MCP server](https://modelcontextprotocol.io/).
+
+
 ## [0.8.1] - 2025-05-30
 
 * Fixed `@overload` definitions for `.stream()` and `.stream_async()`.
@@ -50,7 +57,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * Specifying the format used for sending the tool result to the chat model (`model_format`). (#87)
     * Custom rendering of the tool result (by overriding relevant methods in a subclass). (#75)
 * `Chat` gains a new `.current_display` property. When a `.chat()` or `.stream()` is currently active, this property returns an object with a `.echo()` method (to echo new content to the display). This is primarily useful for displaying custom content during a tool call. (#79)
-* Added support for `Chat` providers to be [MCP clients](https://modelcontextprotocol.io/) and register with remote tools over SSE or stdio.
 
 ### Improvements
 
