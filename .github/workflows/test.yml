@@ -48,13 +48,7 @@ jobs:
         run: uv python install ${{matrix.config.python-version }}
 
       - name: 📦 Install the project
-        run: |
-          if [[ "${{ matrix.config.python-version }}" == "3.9" ]]; then
-            # MCP is only supported on 3.10 and above
-            uv sync --python ${{ matrix.config.python-version }} -e test -e dev -e docs
-          else
-            uv sync --python ${{ matrix.config.python-version }} --all-extras
-          fi
+        run: uv sync --python ${{ matrix.config.python-version }} --all-extras
 
       - name: Create Snowflake connections.toml file
         run: |
