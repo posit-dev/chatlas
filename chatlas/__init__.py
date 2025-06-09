@@ -5,6 +5,7 @@ from ._chat import Chat
 from ._content import ContentToolRequest, ContentToolResult
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._content_pdf import content_pdf_file, content_pdf_url
+from ._databricks import ChatDatabricks
 from ._github import ChatGithub
 from ._google import ChatGoogle, ChatVertex
 from ._groq import ChatGroq
@@ -15,7 +16,7 @@ from ._perplexity import ChatPerplexity
 from ._provider import Provider
 from ._snowflake import ChatSnowflake
 from ._tokens import token_usage
-from ._tools import Tool
+from ._tools import Tool, ToolRejectError
 from ._turn import Turn
 
 try:
@@ -27,6 +28,7 @@ __all__ = (
     "ChatAnthropic",
     "ChatAuto",
     "ChatBedrockAnthropic",
+    "ChatDatabricks",
     "ChatGithub",
     "ChatGoogle",
     "ChatGroq",
@@ -49,6 +51,7 @@ __all__ = (
     "Provider",
     "token_usage",
     "Tool",
+    "ToolRejectError",
     "Turn",
     "types",
 )

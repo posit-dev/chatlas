@@ -40,12 +40,6 @@ def ChatPerplexity(
     Sign up at <https://www.perplexity.ai> to get an API key.
     :::
 
-    ::: {.callout-note}
-    ## Python requirements
-
-    `ChatPerplexity` requires the `openai` package: `pip install "chatlas[perplexity]"`.
-    :::
-
 
     Examples
     --------

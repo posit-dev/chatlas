@@ -38,12 +38,6 @@ def ChatGroq(
     Sign up at <https://groq.com> to get an API key.
     :::
 
-    ::: {.callout-note}
-    ## Python requirements
-
-    `ChatGroq` requires the `openai` package: `pip install "chatlas[groq]"`.
-    :::
-
     Examples
     --------
 

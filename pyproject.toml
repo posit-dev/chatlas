@@ -1,6 +1,7 @@
 [project]
 name = "chatlas"
 description = "A simple and consistent interface for chatting with LLMs"
+license = "MIT"
 dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.9"
@@ -8,7 +9,9 @@ dependencies = [
   "requests",
   "pydantic>=2.0",
   "jinja2",
-  "rich"
+  "orjson",
+  "rich",
+  "openai"
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -47,10 +50,11 @@ dev = [
     "shiny",
     "openai",
     "anthropic[bedrock]",
-    "google-genai>=1.2.0",
+    "google-genai>=1.14.0",
     "numpy>1.24.4",
     "tiktoken",
-    "snowflake-ml-python",
+    "databricks-sdk",
+    "snowflake-ml-python>=1.8.4",
     # torch (a dependency of snowflake-ml-python) is not yet compatible with Python >3.11
     "torch;python_version<='3.11'",
     "htmltools",
@@ -76,15 +80,18 @@ mcp = [
 # Provider extras ----
 anthropic = ["anthropic"]
 bedrock-anthropic = ["anthropic[bedrock]"]
-github = ["openai"]
-google = ["google-genai"]
-groq = ["openai"]
-ollama = ["openai"]
-openai = ["openai"]
-azure-openai = ["openai"]
-perplexity = ["openai"]
+databricks = ["databricks-sdk"]
+# Intentionally empty since these providers used to require 
+# an additional openai install, but that's now included 
+github = []
+google = ["google-genai>=1.14.0"]
+groq = []
+ollama = []
+openai = []
+azure-openai = []
+perplexity = []
 snowflake = ["snowflake-ml-python"]
-vertex = ["google-genai"]
+vertex = ["google-genai>=1.14.0"]
 
 [tool.uv]
 dev-dependencies = [
@@ -98,6 +105,10 @@ build-backend = "hatchling.build"
 
 [tool.hatch.version]
 source = "vcs"
+
+# Need this to have github refs in dependencies
+# [tool.hatch.metadata]
+# allow-direct-references = true
 
 [tool.hatch.build]
 skip-excluded-dirs = true

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import base64
-import json
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
+import orjson
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -291,7 +291,8 @@ class GoogleProvider(
                 GoogleTool(
                     function_declarations=[
                         FunctionDeclaration.from_callable(
-                            client=self._client, callable=tool.func
+                            client=self._client._api_client,
+                            callable=tool.func,
                         )
                         for tool in tools.values()
                     ]
@@ -432,7 +433,7 @@ class GoogleProvider(
             if content.error:
                 resp = {"error": content.error}
             else:
-                resp = {"result": str(content.value)}
+                resp = {"result": content.get_model_value()}
             return Part(
                 # TODO: seems function response parts might need role='tool'???
                 # https://github.com/googleapis/python-genai/blame/c8cfef85c/README.md#L344
@@ -470,7 +471,7 @@ class GoogleProvider(
             text = part.get("text")
             if text:
                 if has_data_model:
-                    contents.append(ContentJson(value=json.loads(text)))
+                    contents.append(ContentJson(value=orjson.loads(text)))
                 else:
                     contents.append(ContentText(text=text))
             function_call = part.get("function_call")

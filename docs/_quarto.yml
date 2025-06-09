@@ -1,7 +1,5 @@
 project:
   type: website
-  pre-render: 
-    - python index.py
   resources:
     - objects.txt
     - images/logo.png
@@ -10,14 +8,26 @@ metadata-files:
   - _sidebar.yml
 
 filters:
-  - interlinks
+  - "interlinks"
+
+interlinks:
+  fast: true
+  sources:
+    python:
+      url: https://docs.python.org/3/
+    pydantic:
+      url: https://docs.pydantic.dev/latest/
+    chatlas:
+      url: https://posit-dev.github.io/chatlas/
+      inv: objects.txt
 
 lightbox: auto
 
 website:
-  title: "chatlas"
+  title: chatlas
+  page-navigation: true
   site-url: https://posit-dev.github.io/chatlas/
-  description: A streamlined Python interface to various LLMs.
+  description: Your friendly guide to building LLM chat apps in Python with less effort and more clarity.
 
   bread-crumbs: true
   open-graph: true
@@ -35,36 +45,61 @@ website:
       [![](https://posit.co/wp-content/uploads/2024/06/Posit-Logos-2024_horiz-full-color.svg){fig-alt="Posit" width=65px}](https://posit.co)
 
   navbar:
-    background: primary
+    background: "#E3F2FD"
     search: true
-    left:
-      - text: "Home"
-        href: index.qmd
-      - text: "Get Started"
-        href: get-started.qmd
+    title: '<img src="/logos/small/logo.png" height="40px" alt="chatlas website"/><span class="ms-3 fs-3 lead header" style="vertical-align:middle;">chatlas</span>'
+      
+    right:
       - text: Reference
         href: reference/index.qmd
-      - text: Articles
-        menu: 
-          - text: Prompt design
-            href: prompt-design.qmd
-          - text: Structured data
-            href: structured-data.qmd
-          - text: Tool (function) calling
-            href: tool-calling.qmd
-          - text: Build a chatbot
-            href: web-apps.qmd
-          - text: Retrieval-Augmented Generation (RAG)
-            href: rag.qmd
-    right:
       - icon: github
         href: https://github.com/posit-dev/chatlas
         aria-label: GitHub repository
+  sidebar:
+    - id: get-started
+      title: Get Started
+      style: floating
+      align: left
+      contents:
+        - index.qmd
+        - section: "Get started"
+          contents:
+            - get-started/models.qmd
+            - get-started/chat.qmd
+            - get-started/system-prompt.qmd
+            - get-started/tools.qmd
+            - get-started/stream.qmd
+            - get-started/structured-data.qmd
+            - get-started/async.qmd
+            - get-started/chatbots.qmd
+            - get-started/parameters.qmd
+            - get-started/debug.qmd
+            - get-started/monitor.qmd
+
+        - section: "Tool calling"
+          contents:
+            - tool-calling/how-it-works.qmd
+            - tool-calling/displays.qmd
+            - tool-calling/approval.qmd
+
+        - section: "Structured data"
+          contents:
+            - structured-data/article-summary.qmd
+            - structured-data/entity-recognition.qmd
+            - structured-data/sentiment-analysis.qmd
+            - structured-data/classification.qmd
+            - structured-data/multi-modal.qmd
+
+        - section: "Miscellaneous"
+          contents:
+            - misc/RAG.qmd
+            - misc/vocabulary.qmd
 
 
 format:
   html:
-    theme: styles.scss
+    theme:
+      - styles.scss
     toc: true
     toc-depth: 3
 
@@ -80,6 +115,7 @@ quartodoc:
         - ChatAuto
         - ChatAzureOpenAI
         - ChatBedrockAnthropic
+        - ChatDatabricks
         - ChatGithub
         - ChatGoogle
         - ChatGroq
@@ -112,6 +148,7 @@ quartodoc:
       desc: Add context to python function before registering it as a tool.
       contents:
         - Tool
+        - ToolRejectError
     - title: Turns
       desc: A provider-agnostic representation of content generated during an assistant/user turn.
       contents:
@@ -141,13 +178,8 @@ quartodoc:
         - types.TokenUsage
 
 
-interlinks:
-  fast: true
-  sources:
-    python:
-      url: https://docs.python.org/3/
-    pydantic:
-      url: https://docs.pydantic.dev/latest/
+
+    
 
 editor:
   render-on-save: true

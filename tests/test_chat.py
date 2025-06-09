@@ -2,7 +2,14 @@ import re
 import tempfile
 
 import pytest
-from chatlas import ChatOpenAI, Turn
+from chatlas import (
+    ChatOpenAI,
+    ContentToolRequest,
+    ContentToolResult,
+    ToolRejectError,
+    Turn,
+)
+from chatlas._chat import ToolFailureWarning
 from pydantic import BaseModel
 
 
@@ -30,11 +37,12 @@ def test_simple_streaming_chat():
     chunks = [chunk for chunk in res]
     assert len(chunks) > 2
     result = "".join(chunks)
-    rainbow_re = "^red *\norange *\nyellow *\ngreen *\nblue *\nindigo *\nviolet *\n?$"
-    assert re.match(rainbow_re, result.lower())
+    res = re.sub(r"\s+", "", result).lower()
+    assert res == "redorangeyellowgreenblueindigoviolet"
     turn = chat.get_last_turn()
     assert turn is not None
-    assert re.match(rainbow_re, turn.text.lower())
+    res = re.sub(r"\s+", "", turn.text).lower()
+    assert res == "redorangeyellowgreenblueindigoviolet"
 
 
 @pytest.mark.asyncio
@@ -174,3 +182,100 @@ def test_json_serialize():
     # Completion objects, at least of right now, aren't included in the JSON
     turns[1].completion = None
     assert turns == turns_restored
+
+
+# Chat can be deepcopied/forked
+def test_deepcopy_chat():
+    import copy
+
+    chat = ChatOpenAI()
+    chat.chat("Hi", echo="none")
+    chat_fork = copy.deepcopy(chat)
+
+    assert len(chat.get_turns()) == 2
+    assert len(chat_fork.get_turns()) == 2
+
+    chat_fork.chat("Bye", echo="none")
+
+    assert len(chat.get_turns()) == 2
+    assert len(chat_fork.get_turns()) == 4
+
+
+def test_chat_callbacks():
+    chat = ChatOpenAI()
+
+    def test_tool(user: str) -> str:
+        "Find out a user's favorite color"
+        return "red"
+
+    chat.register_tool(test_tool)
+
+    last_request = None
+    cb_count_request = 0
+    cb_count_result = 0
+
+    def on_tool_request(request: ContentToolRequest):
+        nonlocal cb_count_request, last_request
+        cb_count_request += 1
+        assert isinstance(request, ContentToolRequest)
+        assert request.name == "test_tool"
+        last_request = request
+
+    def on_tool_result(result: ContentToolResult):
+        nonlocal cb_count_result, last_request
+        cb_count_result += 1
+        assert isinstance(result, ContentToolResult)
+        assert result.request == last_request
+
+    chat.on_tool_request(on_tool_request)
+    chat.on_tool_result(on_tool_result)
+    chat.chat("What are Joe and Hadley's favorite colors?")
+
+    assert cb_count_request == 2
+    assert cb_count_result == 2
+
+
+def test_chat_tool_request_reject():
+    chat = ChatOpenAI()
+
+    def test_tool(user: str) -> str:
+        "Find out a user's favorite color"
+        return "red"
+
+    chat.register_tool(test_tool)
+
+    def on_tool_request(request: ContentToolRequest):
+        if request.arguments["user"] == "Joe":
+            raise ToolRejectError("Joe denied the request.")
+
+    chat.on_tool_request(on_tool_request)
+
+    response = chat.chat(
+        "What are Joe and Hadley's favorite colors? ",
+        "Write 'Joe ____ Hadley ____'. Use 'unknown' if you don't know. ",
+        "Don't ever include punctuation in your answers.",
+    )
+
+    assert str(response).lower() == "joe unknown hadley red"
+
+
+@pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
+def test_chat_tool_request_reject2(capsys):
+    chat = ChatOpenAI()
+
+    def test_tool(user: str) -> str:
+        "Find out a user's favorite color"
+        if "joe" in user.lower():
+            raise ToolRejectError("Joe denied the request.")
+        return "red"
+
+    chat.register_tool(test_tool)
+
+    response = chat.chat(
+        "What are Joe and Hadley's favorite colors? ",
+        "Write 'Joe ____ Hadley ____'. Use 'unknown' if you don't know. ",
+        "Don't ever include punctuation in your answers.",
+    )
+
+    assert str(response).lower() == "joe unknown hadley red"
+    assert "Joe denied the request." in capsys.readouterr().out

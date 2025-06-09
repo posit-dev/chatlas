@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import inspect
 import os
 import sys
@@ -31,6 +32,7 @@ from mcp.client.sse import sse_client
 from mcp.client.stdio import StdioServerParameters, stdio_client
 from pydantic import BaseModel
 
+from ._callbacks import CallbackManager
 from ._content import (
     Content,
     ContentJson,
@@ -47,7 +49,7 @@ from ._display import (
 )
 from ._logging import log_tool_error
 from ._provider import Provider
-from ._tools import Tool
+from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
 from ._utils import html_escape, wrap_async
@@ -101,6 +103,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self.provider = provider
         self._turns: list[Turn] = list(turns or [])
         self._tools: dict[str, Tool] = {}
+        self._on_tool_request_callbacks = CallbackManager()
+        self._on_tool_result_callbacks = CallbackManager()
         self._current_display: Optional[MarkdownDisplay] = None
         self._echo_options: EchoDisplayOptions = {
             "rich_markdown": {},
@@ -423,9 +427,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Whether to run the app in a background thread. If `None`, the app will
             run in a background thread if the current environment is a notebook.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no
-            content. Defaults to `"none"` when `stream=True` and `"text"` when
-            `stream=False`.
+            One of the following (defaults to `"none"` when `stream=True` and `"text"` when
+            `stream=False`):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         content
             Whether to display text content or all content (i.e., tool calls).
         kwargs
@@ -513,8 +520,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no
-            content.
+            One of the following (default is "output"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
         kwargs
@@ -551,8 +561,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         args
             The user input(s) to generate a response from.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no
-            content.
+            One of the following (default is "output"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in
             chunks).
@@ -601,8 +614,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         args
             The user input(s) to generate a response from.
         echo
-            Whether to echo text content, all content (i.e., tool calls, images,
-            etc), or no content.
+            One of the following (default is "output"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in
             chunks).
@@ -640,38 +656,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def stream(
         self,
         *args: Content | str,
+        content: Literal["text"] = "text",
+        echo: EchoOptions = "none",
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]: ...
 
     @overload
     def stream(
         self,
         *args: Content | str,
-        echo: EchoOptions,
-    ) -> Generator[str, None, None]: ...
-
-    @overload
-    def stream(
-        self,
-        *args: Content | str,
-        echo: EchoOptions,
-        content: Literal["text"],
-        kwargs: Optional[SubmitInputArgsT],
-    ) -> Generator[str, None, None]: ...
-
-    @overload
-    def stream(
-        self,
-        *args: Content | str,
-        echo: EchoOptions,
         content: Literal["all"],
-        kwargs: Optional[SubmitInputArgsT],
+        echo: EchoOptions = "none",
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
 
     def stream(
         self,
         *args: Content | str,
-        echo: EchoOptions = "none",
         content: Literal["text", "all"] = "text",
+        echo: EchoOptions = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
         """
@@ -681,11 +684,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         args
             The user input(s) to generate a response from.
-        echo
-            Whether to echo text content, all content (i.e., tool calls), or no
-            content.
         content
-            Whether to yield just text content, or all content (i.e., tool calls).
+            Whether to yield just text content or include rich content objects
+            (e.g., tool calls) when relevant.
+        echo
+            One of the following (default is "none"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -721,38 +728,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def stream_async(
         self,
         *args: Content | str,
+        content: Literal["text"] = "text",
+        echo: EchoOptions = "none",
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
     async def stream_async(
         self,
         *args: Content | str,
-        echo: EchoOptions,
-    ) -> AsyncGenerator[str, None]: ...
-
-    @overload
-    async def stream_async(
-        self,
-        *args: Content | str,
-        echo: EchoOptions,
-        content: Literal["text"],
-        kwargs: Optional[SubmitInputArgsT],
-    ) -> AsyncGenerator[str, None]: ...
-
-    @overload
-    async def stream_async(
-        self,
-        *args: Content | str,
-        echo: EchoOptions,
         content: Literal["all"],
-        kwargs: Optional[SubmitInputArgsT],
+        echo: EchoOptions = "none",
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
 
     async def stream_async(
         self,
         *args: Content | str,
-        echo: EchoOptions = "none",
         content: Literal["text", "all"] = "text",
+        echo: EchoOptions = "none",
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
         """
@@ -762,11 +756,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         args
             The user input(s) to generate a response from.
-        echo
-            Whether to echo text content, all content (i.e., tool calls), or no
-            content.
         content
-            Whether to yield just text content, or all content (i.e., tool calls).
+            Whether to yield just text content or include rich content objects
+            (e.g., tool calls) when relevant.
+        echo
+            One of the following (default is "none"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
@@ -813,7 +811,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model
             A Pydantic model describing the structure of the data to extract.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no content.
+            One of the following (default is "none"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
 
@@ -871,7 +873,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model
             A Pydantic model describing the structure of the data to extract.
         echo
-            Whether to echo text content, all content (i.e., tool calls), or no content
+            One of the following (default is "none"):
+              - `"text"`: Echo just the text content of the response.
+              - `"output"`: Echo text and tool call content.
+              - `"all"`: Echo both the assistant and user turn.
+              - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
             Defaults to `True` if `echo` is not "none".
@@ -1165,6 +1171,53 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         tool = Tool.from_func(func, model=model)
         self._tools[tool.name] = tool
+
+    def on_tool_request(self, callback: Callable[[ContentToolRequest], None]):
+        """
+        Register a callback for a tool request event.
+
+        A tool request event occurs when the assistant requests a tool to be
+        called on its behalf. Before invoking the tool, `on_tool_request`
+        handlers are called with the relevant `ContentToolRequest` object. This
+        is useful if you want to handle tool requests in a custom way, such as
+        requiring logging them or requiring user approval before invoking the
+        tool
+
+        Parameters
+        ----------
+        callback
+            A function to be called when a tool request event occurs.
+            This function must have a single argument, which will be the
+            tool request (i.e., a `ContentToolRequest` object).
+
+        Returns
+        -------
+        A callable that can be used to remove the callback later.
+        """
+        return self._on_tool_request_callbacks.add(callback)
+
+    def on_tool_result(self, callback: Callable[[ContentToolResult], None]):
+        """
+        Register a callback for a tool result event.
+
+        A tool result event occurs when a tool has been invoked and the
+        result is ready to be provided to the assistant. After the tool
+        has been invoked, `on_tool_result` handlers are called with the
+        relevant `ContentToolResult` object. This is useful if you want to
+        handle tool results in a custom way such as logging them.
+
+        Parameters
+        ----------
+        callback
+            A function to be called when a tool result event occurs.
+            This function must have a single argument, which will be the
+            tool result (i.e., a `ContentToolResult` object).
+
+        Returns
+        -------
+        A callable that can be used to remove the callback later.
+        """
+        return self._on_tool_result_callbacks.add(callback)
 
     @property
     def current_display(self) -> Optional[MarkdownDisplay]:
@@ -1596,28 +1649,43 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             e = RuntimeError(f"Unknown tool: {x.name}")
             return ContentToolResult(value=None, error=e, request=x)
 
-        args = x.arguments
-
+        # First, invoke the request callbacks. If a ToolRejectError is raised,
+        # treat it like a tool failure (i.e., gracefully handle it).
+        result: ContentToolResult | None = None
         try:
-            if isinstance(args, dict):
-                result = func(**args)
-            else:
-                result = func(args)
+            self._on_tool_request_callbacks.invoke(x)
+        except ToolRejectError as e:
+            result = ContentToolResult(value=None, error=e, request=x)
 
-            if not isinstance(result, ContentToolResult):
-                result = ContentToolResult(value=result)
+        # Invoke the tool (if it hasn't been rejected).
+        if result is None:
+            try:
+                if isinstance(x.arguments, dict):
+                    res = func(**x.arguments)
+                else:
+                    res = func(x.arguments)
 
-            result.request = x
-            return result
-        except Exception as e:
+                if isinstance(res, ContentToolResult):
+                    result = res
+                else:
+                    result = ContentToolResult(value=res)
+
+                result.request = x
+            except Exception as e:
+                result = ContentToolResult(value=None, error=e, request=x)
+
+        # If we've captured an error, notify and log it.
+        if result.error:
             warnings.warn(
                 f"Calling tool '{x.name}' led to an error.",
                 ToolFailureWarning,
                 stacklevel=2,
             )
             traceback.print_exc()
-            log_tool_error(x.name, str(args), e)
-            return ContentToolResult(value=None, error=e, request=x)
+            log_tool_error(x.name, str(x.arguments), result.error)
+
+        self._on_tool_result_callbacks.invoke(result)
+        return result
 
     async def _invoke_tool_async(self, x: ContentToolRequest) -> ContentToolResult:
         tool_def = self._tools.get(x.name, None)
@@ -1632,28 +1700,43 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             e = RuntimeError(f"Unknown tool: {x.name}")
             return ContentToolResult(value=None, error=e, request=x)
 
-        args = x.arguments
-
+        # First, invoke the request callbacks. If a ToolRejectError is raised,
+        # treat it like a tool failure (i.e., gracefully handle it).
+        result: ContentToolResult | None = None
         try:
-            if isinstance(args, dict):
-                result = await func(**args)
-            else:
-                result = await func(args)
+            await self._on_tool_request_callbacks.invoke_async(x)
+        except ToolRejectError as e:
+            result = ContentToolResult(value=None, error=e, request=x)
 
-            if not isinstance(result, ContentToolResult):
-                result = ContentToolResult(value=result)
+        # Invoke the tool (if it hasn't been rejected).
+        if result is None:
+            try:
+                if isinstance(x.arguments, dict):
+                    res = await func(**x.arguments)
+                else:
+                    res = await func(x.arguments)
 
-            result.request = x
-            return result
-        except Exception as e:
+                if isinstance(res, ContentToolResult):
+                    result = res
+                else:
+                    result = ContentToolResult(value=res)
+
+                result.request = x
+            except Exception as e:
+                result = ContentToolResult(value=None, error=e, request=x)
+
+        # If we've captured an error, notify and log it.
+        if result.error:
             warnings.warn(
                 f"Calling tool '{x.name}' led to an error.",
                 ToolFailureWarning,
                 stacklevel=2,
             )
             traceback.print_exc()
-            log_tool_error(x.name, str(args), e)
-            return ContentToolResult(value=None, error=e, request=x)
+            log_tool_error(x.name, str(x.arguments), result.error)
+
+        await self._on_tool_result_callbacks.invoke_async(result)
+        return result
 
     def _markdown_display(self, echo: EchoOptions) -> ChatMarkdownDisplay:
         """
@@ -1723,6 +1806,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         for turn in turns:
             res += "\n" + turn.__repr__(indent=2)
         return res + "\n"
+
+    def __deepcopy__(self, memo):
+        result = self.__class__.__new__(self.__class__)
+
+        # Avoid recursive references
+        memo[id(self)] = result
+
+        # Copy all attributes except the problematic provider attribute
+        for key, value in self.__dict__.items():
+            if key != "provider":
+                setattr(result, key, copy.deepcopy(value, memo))
+            else:
+                setattr(result, key, value)
+
+        return result
 
 
 class ChatResponse:

@@ -1,5 +1,7 @@
+import base64
+
 import pytest
-from chatlas import ChatAnthropic
+from chatlas import ChatAnthropic, ContentToolResult
 
 from .conftest import (
     assert_data_extraction,
@@ -13,8 +15,7 @@ from .conftest import (
     assert_tools_simple_stream_content,
     assert_turns_existing,
     assert_turns_system,
-    retryassert,
-    retryassert_async,
+    retry_api_call,
 )
 
 
@@ -50,56 +51,80 @@ def test_anthropic_respects_turns_interface():
     assert_turns_existing(chat_fun)
 
 
+@retry_api_call
 def test_anthropic_tool_variations():
     chat_fun = ChatAnthropic
-
-    def run_simpleassert():
-        assert_tools_simple(chat_fun)
-
-    retryassert(run_simpleassert, retries=5)
-
+    assert_tools_simple(chat_fun)
     assert_tools_simple_stream_content(chat_fun)
+    assert_tools_sequential(chat_fun, total_calls=6)
 
-    def run_parallelassert():
-        # For some reason, at the time of writing, Claude 3.7 doesn't
-        # respond with multiple tools at once for this test (but it does)
-        # answer the question correctly with sequential tools.
-        def chat_fun2(**kwargs):
-            return ChatAnthropic(model="claude-3-5-sonnet-latest", **kwargs)
 
-        assert_tools_parallel(chat_fun2)
+@retry_api_call
+def test_anthropic_tool_variations_parallel():
+    # For some reason, at the time of writing, Claude 3.7 doesn't
+    # respond with multiple tools at once for this test (but it does)
+    # answer the question correctly with sequential tools.
+    def chat_fun(**kwargs):
+        return ChatAnthropic(model="claude-3-5-sonnet-latest", **kwargs)
 
-    retryassert(run_parallelassert, retries=5)
-
-    # Fails occassionally returning "" instead of Susan
-    def run_sequentialassert():
-        assert_tools_sequential(chat_fun, total_calls=6)
-
-    retryassert(run_sequentialassert, retries=5)
+    assert_tools_parallel(chat_fun)
 
 
 @pytest.mark.asyncio
+@retry_api_call
 async def test_anthropic_tool_variations_async():
-    async def run_asyncassert():
-        await assert_tools_async(ChatAnthropic)
-
-    await retryassert_async(run_asyncassert, retries=5)
+    await assert_tools_async(ChatAnthropic)
 
 
 def test_data_extraction():
     assert_data_extraction(ChatAnthropic)
 
 
+@retry_api_call
 def test_anthropic_images():
     chat_fun = ChatAnthropic
 
-    def run_inlineassert():
-        assert_images_inline(chat_fun)
-
-    retryassert(run_inlineassert, retries=3)
+    assert_images_inline(chat_fun)
     assert_images_remote_error(chat_fun)
 
 
 def test_anthropic_pdfs():
     chat_fun = ChatAnthropic
     assert_pdf_local(chat_fun)
+
+
+def test_anthropic_empty_response():
+    chat = ChatAnthropic()
+    chat.chat("Respond with only two blank lines")
+    resp = chat.chat("What's 1+1? Just give me the number")
+    assert "2" == str(resp).strip()
+
+
+def test_anthropic_image_tool(test_images_dir):
+    def get_picture():
+        "Returns an image"
+        # Local copy of https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png
+        with open(test_images_dir / "dice.png", "rb") as image:
+            bytez = image.read()
+        res = [
+            {
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": base64.b64encode(bytez).decode("utf-8"),
+                },
+            }
+        ]
+        return ContentToolResult(value=res, model_format="as_is")
+
+    chat = ChatAnthropic()
+    chat.register_tool(get_picture)
+
+    res = chat.chat(
+        "You have a tool called 'get_picture' available to you. "
+        "When called, it returns an image. "
+        "Tell me what you see in the image."
+    )
+
+    assert "dice" in res.get_content()

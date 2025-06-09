@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-import json
 import os
 from typing import Callable, Literal, Optional
 
+import orjson
+
 from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._chat import Chat
+from ._databricks import ChatDatabricks
 from ._github import ChatGithub
 from ._google import ChatGoogle, ChatVertex
 from ._groq import ChatGroq
@@ -18,6 +20,7 @@ from ._turn import Turn
 AutoProviders = Literal[
     "anthropic",
     "bedrock-anthropic",
+    "databricks",
     "github",
     "google",
     "groq",
@@ -32,6 +35,7 @@ AutoProviders = Literal[
 _provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
     "anthropic": ChatAnthropic,
     "bedrock-anthropic": ChatBedrockAnthropic,
+    "databricks": ChatDatabricks,
     "github": ChatGithub,
     "google": ChatGoogle,
     "groq": ChatGroq,
@@ -175,7 +179,7 @@ def ChatAuto(
 
     env_kwargs = {}
     if env_kwargs_str := os.environ.get("CHATLAS_CHAT_ARGS"):
-        env_kwargs = json.loads(env_kwargs_str)
+        env_kwargs = orjson.loads(env_kwargs_str)
 
     kwargs = {**kwargs, **env_kwargs, **base_args}
     kwargs = {k: v for k, v in kwargs.items() if v is not None}

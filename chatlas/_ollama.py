@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import json
 import re
 import urllib.request
 from typing import TYPE_CHECKING, Optional
+
+import orjson
 
 from ._chat import Chat
 from ._openai import ChatOpenAI
@@ -46,12 +47,6 @@ def ChatOllama(
 
     Once ollama is running locally, download a model from the command line
     (e.g. `ollama pull llama3.2`).
-    :::
-
-    ::: {.callout-note}
-    ## Python requirements
-
-    `ChatOllama` requires the `openai` package: `pip install "chatlas[ollama]"`.
     :::
 
 
@@ -121,7 +116,7 @@ def ChatOllama(
 
 def ollama_models(base_url: str) -> list[str]:
     res = urllib.request.urlopen(url=f"{base_url}/api/tags")
-    data = json.loads(res.read())
+    data = orjson.loads(res.read())
     return [re.sub(":latest$", "", x["name"]) for x in data["models"]]
 
 

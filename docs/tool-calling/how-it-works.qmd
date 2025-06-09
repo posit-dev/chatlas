@@ -1,0 +1,28 @@
+---
+title: How it works
+callout-appearance: simple
+---
+
+[Tool calling](../get-started/tools.qmd) introduced us to the basic mechanics of how to define a tool function and supply it to the chat model, which can then use it to answer user prompts.
+In this article, we take a step back and outline how tool calling actually works under the hood, which is important to understand for getting the most out of it.
+
+::: callout-tip
+### Agentic models
+
+Models equipped with tools are [also known as "agentic" models](https://simonwillison.net/2025/May/22/tools-in-a-loop/), because they can make decisions about when and how to use tools to gain context or perform actions.
+Agentic models are becoming the standard way to address LLM's inherent limitations, such as performing verifiable computations or gaining important context[^1].
+:::
+
+[^1]: [Some go so far as to suggest tool calling is a superior approach](https://simonwillison.net/2025/May/15/building-on-llms/) to classic RAG (retrieval-augmented generation) for many use cases.
+
+When making a chat request to the chat model, the caller advertises one or more tools (defined by their function name, description, and a list of expected arguments), and the chat model can choose to respond with one or more "tool calls". These tool calls are requests *from the chat model to the caller* to execute the function with the given arguments; the caller is expected to execute the functions and "return" the results by submitting another chat request with the conversation so far, plus the results. The chat model can then use those results in formulating its response, or, it may decide to make additional tool calls.
+
+*Note that the chat model does not directly execute any external tools!* It only makes requests for the caller to execute them. It's easy to think that tool calling might work like this:
+
+![Diagram showing showing the wrong mental model of tool calls: a user initiates a request that flows to the assistant, which then runs the code, and returns the result back to the user."](/images/tool-calling-wrong.svg)
+
+But in fact it works like this:
+
+![Diagram showing the correct mental model for tool calls: a user sends a request that needs a tool call, the assistant request that the user's runs that tool, returns the result to the assistant, which uses it to generate the final answer.](/images/tool-calling-right.svg)
+
+The value that the chat model brings is not in helping with execution, but with knowing when it makes sense to call a tool, what values to pass as arguments, and how to use the results in formulating its response.

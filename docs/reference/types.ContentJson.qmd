@@ -1,7 +1,7 @@
 # types.ContentJson { #chatlas.types.ContentJson }
 
 ```python
-types.ContentJson(self, value)
+types.ContentJson()
 ```
 
 JSON content
@@ -11,6 +11,6 @@ This content type primarily exists to signal structured data extraction
 
 ## Parameters {.doc-section .doc-section-parameters}
 
-| Name   | Type                                                | Description             | Default    |
-|--------|-----------------------------------------------------|-------------------------|------------|
-| value  | [dict](`dict`)\[[str](`str`), [Any](`typing.Any`)\] | The JSON data extracted | _required_ |
+| Name   | Type   | Description             | Default    |
+|--------|--------|-------------------------|------------|
+| value  |        | The JSON data extracted | _required_ |

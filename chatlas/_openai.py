@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import base64
-import json
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
+import orjson
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -76,12 +76,6 @@ def ChatOpenAI(
     models via the API. You will need to go to the [developer
     platform](https://platform.openai.com) to sign up (and pay for) a developer
     account that will give you an API key that you can use with this package.
-    :::
-
-    ::: {.callout-note}
-    ## Python requirements
-
-    `ChatOpenAI` requires the `openai` package: `pip install "chatlas[openai]"`.
     :::
 
     Examples
@@ -194,13 +188,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         seed: Optional[int] = None,
         kwargs: Optional["ChatClientArgs"] = None,
     ):
-        try:
-            from openai import AsyncOpenAI, OpenAI
-        except ImportError:
-            raise ImportError(
-                "`ChatOpenAI()` requires the `openai` package. "
-                "Install it with `pip install openai`."
-            )
+        from openai import AsyncOpenAI, OpenAI
 
         self._model = model
         self._seed = seed
@@ -325,7 +313,8 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                 del kwargs_full["tools"]
 
         if stream and "stream_options" not in kwargs_full:
-            kwargs_full["stream_options"] = {"include_usage": True}
+            if self.__class__.__name__ != "DatabricksProvider":
+                kwargs_full["stream_options"] = {"include_usage": True}
 
         return kwargs_full
 
@@ -432,7 +421,9 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                                 "id": x.id,
                                 "function": {
                                     "name": x.name,
-                                    "arguments": json.dumps(x.arguments),
+                                    "arguments": orjson.dumps(x.arguments).decode(
+                                        "utf-8"
+                                    ),
                                 },
                                 "type": "function",
                             }
@@ -498,8 +489,8 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
                     elif isinstance(x, ContentToolResult):
                         tool_results.append(
                             ChatCompletionToolMessageParam(
-                                # TODO: a tool could return an image!?!
-                                content=x.get_final_value(),
+                                # Currently, OpenAI only allows for text content in tool results
+                                content=cast(str, x.get_model_value()),
                                 tool_call_id=x.id,
                                 role="tool",
                             )
@@ -528,7 +519,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         contents: list[Content] = []
         if message.content is not None:
             if has_data_model:
-                data = json.loads(message.content)
+                data = orjson.loads(message.content)
                 contents = [ContentJson(value=data)]
             else:
                 contents = [ContentText(text=message.content)]
@@ -543,8 +534,8 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
                 args = {}
                 try:
-                    args = json.loads(func.arguments) if func.arguments else {}
-                except json.JSONDecodeError:
+                    args = orjson.loads(func.arguments) if func.arguments else {}
+                except orjson.JSONDecodeError:
                     raise ValueError(
                         f"The model's completion included a tool request ({func.name}) "
                         "with invalid JSON for input arguments: '{func.arguments}'"
@@ -600,16 +591,6 @@ def ChatAzureOpenAI(
     The [Azure OpenAI server](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
     hosts a number of open source models as well as proprietary models
     from OpenAI.
-
-    Prerequisites
-    -------------
-
-    ::: {.callout-note}
-    ## Python requirements
-
-    `ChatAzureOpenAI` requires the `openai` package:
-    `pip install "chatlas[azure-openai]"`.
-    :::
 
     Examples
     --------
@@ -692,13 +673,7 @@ class OpenAIAzureProvider(OpenAIProvider):
         seed: int | None = None,
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
-        try:
-            from openai import AsyncAzureOpenAI, AzureOpenAI
-        except ImportError:
-            raise ImportError(
-                "`ChatAzureOpenAI()` requires the `openai` package. "
-                "Install it with `pip install openai`."
-            )
+        from openai import AsyncAzureOpenAI, AzureOpenAI
 
         self._model = deployment_id
         self._seed = seed

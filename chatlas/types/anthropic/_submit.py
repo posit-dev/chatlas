@@ -17,6 +17,7 @@ import anthropic.types.tool_choice_none_param
 import anthropic.types.tool_choice_tool_param
 import anthropic.types.tool_param
 import anthropic.types.tool_text_editor_20250124_param
+import anthropic.types.web_search_tool_20250305_param
 
 
 class SubmitInputArgs(TypedDict, total=False):
@@ -28,9 +29,15 @@ class SubmitInputArgs(TypedDict, total=False):
             "claude-3-7-sonnet-20250219",
             "claude-3-5-haiku-latest",
             "claude-3-5-haiku-20241022",
+            "claude-sonnet-4-20250514",
+            "claude-sonnet-4-0",
+            "claude-4-sonnet-20250514",
             "claude-3-5-sonnet-latest",
             "claude-3-5-sonnet-20241022",
             "claude-3-5-sonnet-20240620",
+            "claude-opus-4-0",
+            "claude-opus-4-20250514",
+            "claude-4-opus-20250514",
             "claude-3-opus-latest",
             "claude-3-opus-20240229",
             "claude-3-sonnet-20240229",
@@ -40,6 +47,7 @@ class SubmitInputArgs(TypedDict, total=False):
         ],
         str,
     ]
+    service_tier: Union[Literal["auto", "standard_only"], anthropic.NotGiven]
     stop_sequences: Union[list[str], anthropic.NotGiven]
     stream: Union[Literal[False], Literal[True], anthropic.NotGiven]
     system: Union[
@@ -66,6 +74,7 @@ class SubmitInputArgs(TypedDict, total=False):
                 anthropic.types.tool_param.ToolParam,
                 anthropic.types.tool_bash_20250124_param.ToolBash20250124Param,
                 anthropic.types.tool_text_editor_20250124_param.ToolTextEditor20250124Param,
+                anthropic.types.web_search_tool_20250305_param.WebSearchTool20250305Param,
             ]
         ],
         anthropic.NotGiven,
