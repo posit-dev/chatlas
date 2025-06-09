@@ -4,12 +4,6 @@ import inspect
 import warnings
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional
 
-from mcp import (
-    ClientSession as MCPClientSession,
-)
-from mcp import (
-    Tool as MCPTool,
-)
 from pydantic import BaseModel, Field, create_model
 
 from . import _utils
@@ -20,6 +14,8 @@ __all__ = (
 )
 
 if TYPE_CHECKING:
+    from mcp import ClientSession as MCPClientSession
+    from mcp import Tool as MCPTool
     from openai.types.chat import ChatCompletionToolParam
 
 

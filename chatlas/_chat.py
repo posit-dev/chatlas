@@ -10,6 +10,7 @@ from contextlib import AsyncExitStack
 from pathlib import Path
 from threading import Thread
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncGenerator,
     AsyncIterator,
@@ -25,11 +26,7 @@ from typing import (
     overload,
 )
 
-from mcp import (
-    ClientSession as MCPClientSession,
-)
-from mcp.client.sse import sse_client
-from mcp.client.stdio import StdioServerParameters, stdio_client
+import mcp.client
 from pydantic import BaseModel
 
 from ._callbacks import CallbackManager
@@ -68,6 +65,9 @@ method of a [](`~chatlas.Chat`) instance.
 CompletionT = TypeVar("CompletionT")
 
 EchoOptions = Literal["output", "all", "none", "text"]
+
+if TYPE_CHECKING:
+    import mcp
 
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
@@ -112,7 +112,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "css_styles": {},
         }
 
-        self._mcp_sessions: dict[str, MCPClientSession] = {}
+        self._mcp_sessions: dict[str, "mcp.ClientSession"] = {}
         self._mcp_exit_stack: AsyncExitStack = AsyncExitStack()
 
     def get_turns(
@@ -921,7 +921,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def _register_mcp_tools(
         self,
-        session: MCPClientSession,
+        session: "mcp.ClientSession",
         include_tools: Optional[list[str]] = None,
         exclude_tools: Optional[list[str]] = None,
     ):
@@ -956,6 +956,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         This method establishes a new SSE (Server-Sent Events) connection to an MCP server and registers
         the available tools. The server is identified by a unique name and URL.
 
+        Pre-requisites
+        --------------
+
+        ::: {.callout-note}
+        Requires the `mcp` package to be installed. Install it with:
+
+        ```bash
+        pip install mcp
+        ```
+        :::
+
         Parameters
         ----------
         name
@@ -989,13 +1000,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
         ```
         """
-        assert name not in self._mcp_sessions, f"Session {name} already exists."
+
+        try:
+            import mcp
+        except ImportError:
+            raise ImportError(
+                "The `mcp` package is required for MCP support. Install it with `pip install mcp`."
+            )
+
+        from mcp.client.sse import sse_client
+
+        # TODO: add force option?
+        if name in self._mcp_sessions:
+            raise ValueError(f"MCP Session {name} already exists.")
 
         transport = await self._mcp_exit_stack.enter_async_context(
             sse_client(url, **transport_kwargs)
         )
         self._mcp_sessions[name] = await self._mcp_exit_stack.enter_async_context(
-            MCPClientSession(*transport)
+            mcp.ClientSession(*transport)
         )
         session = self._mcp_sessions[name]
         await session.initialize()
@@ -1021,6 +1044,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         This method establishes a new stdio connection to an MCP server and registers
         the available tools. The server is identified by a unique name and command.
+
+         Pre-requisites
+        --------------
+
+        ::: {.callout-note}
+        Requires the `mcp` package to be installed. Install it with:
+
+        ```bash
+        pip install mcp
+        ```
+        :::
 
         Parameters
         ----------
@@ -1061,9 +1095,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
         ```
         """
-        assert name not in self._mcp_sessions, f"Session {name} already exists."
 
-        server_params = StdioServerParameters(
+        try:
+            import mcp
+        except ImportError:
+            raise ImportError(
+                "The `mcp` package is required for MCP support.Install it with `pip install mcp`."
+            )
+
+        from mcp.client.stdio import stdio_client
+
+        # TODO: add force option?
+        if name in self._mcp_sessions:
+            raise ValueError(f"MCP Session {name} already exists.")
+
+        server_params = mcp.StdioServerParameters(
             command=command,
             args=args,
             env=env,
@@ -1074,7 +1120,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             stdio_client(server_params)
         )
         self._mcp_sessions[name] = await self._mcp_exit_stack.enter_async_context(
-            MCPClientSession(*transport)
+            mcp.ClientSession(*transport)
         )
         session = self._mcp_sessions[name]
         await session.initialize()
