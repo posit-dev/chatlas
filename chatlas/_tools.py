@@ -51,7 +51,7 @@ class Tool:
         self.name = name
         self.func = func
         self._is_async = _utils.is_async_callable(func)
-        self.schema = {
+        self.schema: "ChatCompletionToolParam" = {
             "type": "function",
             "function": {
                 "name": name,
