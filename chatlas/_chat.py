@@ -1038,6 +1038,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             session,
             include_tools=include_tools,
             exclude_tools=exclude_tools,
+            namespace=namespace,
         )
 
     async def register_mcp_stdio_server_async(
