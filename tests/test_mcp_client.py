@@ -10,7 +10,7 @@ from chatlas import ChatOpenAI
 from chatlas._tools import Tool
 
 try:
-    import mcp
+    import mcp  # noqa: F401
 except ImportError:
     pytest.skip("Skipping MCP tests", allow_module_level=True)
 
@@ -47,18 +47,19 @@ async def test_register_sse_mcp_server():
     chat = ChatOpenAI()
 
     async with sse_mcp_server(get_resource("sse_mcp_server_add.py")):
-        await chat.register_sse_mcp_server_async(
-            "test",
-            "http://localhost:8000/sse",
+        await chat.register_mcp_sse_server_async(
+            name="test",
+            url="http://localhost:8000/sse",
         )
 
         assert "test" in chat._mcp_sessions
         assert len(chat._tools) == 1
         tool = chat._tools["add"]
         assert tool.name == "add"
-        assert tool.schema["function"]["name"] == "add"
-        assert tool.schema["function"]["description"] == "Add two numbers."
-        assert tool.schema["function"]["parameters"] == {
+        func = tool.schema["function"]
+        assert func["name"] == "add"
+        assert func.get("description") == "Add two numbers."
+        assert func.get("parameters") == {
             "type": "object",
             "additionalProperties": False,
             "properties": {
@@ -75,7 +76,7 @@ async def test_register_sse_mcp_server():
 async def test_register_stdio_mcp_server():
     chat = ChatOpenAI()
 
-    await chat.register_stdio_mcp_server_async(
+    await chat.register_mcp_stdio_server_async(
         name="test",
         command=sys.executable,
         args=[get_resource("stdio_mcp_server_subtract_multiply.py")],
@@ -86,9 +87,10 @@ async def test_register_stdio_mcp_server():
     assert len(chat._tools) == 1
     tool = chat._tools["multiply"]
     assert tool.name == "multiply"
-    assert tool.schema["function"]["name"] == "multiply"
-    assert tool.schema["function"]["description"] == "Multiply two numbers."
-    assert tool.schema["function"]["parameters"] == {
+    func = tool.schema["function"]
+    assert func["name"] == "multiply"
+    assert func.get("description") == "Multiply two numbers."
+    assert func.get("parameters") == {
         "type": "object",
         "additionalProperties": False,
         "properties": {
@@ -105,7 +107,7 @@ async def test_register_stdio_mcp_server():
 async def test_register_multiple_mcp_servers():
     chat = ChatOpenAI()
 
-    await chat.register_stdio_mcp_server_async(
+    await chat.register_mcp_stdio_server_async(
         name="stdio_test",
         command=sys.executable,
         args=[get_resource("stdio_mcp_server_subtract_multiply.py")],
@@ -113,8 +115,9 @@ async def test_register_multiple_mcp_servers():
     )
 
     async with sse_mcp_server(get_resource("sse_mcp_server_add.py")):
-        await chat.register_sse_mcp_server_async(
-            "sse_test", "http://localhost:8000/sse"
+        await chat.register_mcp_sse_server_async(
+            name="sse_test",
+            url="http://localhost:8000/sse",
         )
 
         expected_tools = {
@@ -152,17 +155,13 @@ async def test_register_multiple_mcp_servers():
         for tool_name, expected_tool in expected_tools.items():
             tool = chat._tools[tool_name]
             assert tool.name == expected_tool.name
-            assert (
-                tool.schema["function"]["name"]
-                == expected_tool.schema["function"]["name"]
+            func = tool.schema["function"]
+            assert func["name"] == expected_tool.schema["function"]["name"]
+            assert func.get("description") == expected_tool.schema["function"].get(
+                "description", "N/A"
             )
-            assert (
-                tool.schema["function"]["description"]
-                == expected_tool.schema["function"]["description"]
-            )
-            assert (
-                tool.schema["function"]["parameters"]
-                == expected_tool.schema["function"]["parameters"]
+            assert func.get("parameters") == expected_tool.schema["function"].get(
+                "parameters", "N/A"
             )
 
         await chat.close_mcp_sessions()
@@ -173,7 +172,10 @@ async def test_call_sse_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
     async with sse_mcp_server(get_resource("sse_mcp_server_current_date.py")):
-        await chat.register_sse_mcp_server_async("test", "http://localhost:8000/sse")
+        await chat.register_mcp_sse_server_async(
+            name="test",
+            url="http://localhost:8000/sse",
+        )
 
         response = await chat.chat_async(
             "What's the current date in YMD format?", stream=True
@@ -190,7 +192,7 @@ async def test_call_sse_mcp_tool():
 async def test_call_stdio_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
-    await chat.register_stdio_mcp_server_async(
+    await chat.register_mcp_stdio_server_async(
         name="stdio_test",
         command=sys.executable,
         args=[get_resource("stdio_mcp_server_current_date.py")],
