@@ -918,33 +918,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         json = res[0]
         return json.value
 
-    async def _register_mcp_tools(
-        self,
-        session: "mcp.ClientSession",
-        include_tools: list[str] | None = None,
-        exclude_tools: list[str] | None = None,
-        namespace: str | None = None,
-    ):
-        response = await session.list_tools()
-        for tool in response.tools:
-            if exclude_tools and tool.name in exclude_tools:
-                continue
-            if include_tools and tool.name not in include_tools:
-                continue
-            name = tool.name
-            if namespace:
-                name = f"{namespace}.{name}"
-            if name in self._tools:
-                raise ValueError(
-                    f"A tool named '{name}' is already registered. "
-                    f"Consider providing a {'different' if namespace else ''} namespace "
-                    "when registering the MCP server to avoid name collisions."
-                )
-            self._tools[name] = Tool.from_mcp(
-                session=session,
-                mcp_tool=tool,
-            )
-
     async def register_mcp_sse_server_async(
         self,
         *,
@@ -1151,6 +1124,33 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def close_mcp_sessions(self):
         """Clean up resources."""
         await self._mcp_exit_stack.aclose()
+
+    async def _register_mcp_tools(
+        self,
+        session: "mcp.ClientSession",
+        include_tools: list[str] | None = None,
+        exclude_tools: list[str] | None = None,
+        namespace: str | None = None,
+    ):
+        response = await session.list_tools()
+        for tool in response.tools:
+            if exclude_tools and tool.name in exclude_tools:
+                continue
+            if include_tools and tool.name not in include_tools:
+                continue
+            name = tool.name
+            if namespace:
+                name = f"{namespace}.{name}"
+            if name in self._tools:
+                raise ValueError(
+                    f"A tool named '{name}' is already registered. "
+                    f"Consider providing a {'different' if namespace else ''} namespace "
+                    "when registering the MCP server to avoid name collisions."
+                )
+            self._tools[name] = Tool.from_mcp(
+                session=session,
+                mcp_tool=tool,
+            )
 
     def register_tool(
         self,
