@@ -47,7 +47,7 @@ async def test_register_sse_mcp_server():
     chat = ChatOpenAI()
 
     async with sse_mcp_server(get_resource("sse_mcp_server_add.py")):
-        await chat.register_mcp_sse_server_async(
+        await chat.register_mcp_tools_sse(
             name="test",
             url="http://localhost:8000/sse",
         )
@@ -76,7 +76,7 @@ async def test_register_sse_mcp_server():
 async def test_register_stdio_mcp_server():
     chat = ChatOpenAI()
 
-    await chat.register_mcp_stdio_server_async(
+    await chat.register_mcp_tools_stdio(
         name="test",
         command=sys.executable,
         args=[get_resource("stdio_mcp_server_subtract_multiply.py")],
@@ -107,7 +107,7 @@ async def test_register_stdio_mcp_server():
 async def test_register_multiple_mcp_servers():
     chat = ChatOpenAI()
 
-    await chat.register_mcp_stdio_server_async(
+    await chat.register_mcp_tools_stdio(
         name="stdio_test",
         command=sys.executable,
         args=[get_resource("stdio_mcp_server_subtract_multiply.py")],
@@ -115,7 +115,7 @@ async def test_register_multiple_mcp_servers():
     )
 
     async with sse_mcp_server(get_resource("sse_mcp_server_add.py")):
-        await chat.register_mcp_sse_server_async(
+        await chat.register_mcp_tools_sse(
             name="sse_test",
             url="http://localhost:8000/sse",
         )
@@ -172,7 +172,7 @@ async def test_call_sse_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
     async with sse_mcp_server(get_resource("sse_mcp_server_current_date.py")):
-        await chat.register_mcp_sse_server_async(
+        await chat.register_mcp_tools_sse(
             name="test",
             url="http://localhost:8000/sse",
         )
@@ -192,7 +192,7 @@ async def test_call_sse_mcp_tool():
 async def test_call_stdio_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
-    await chat.register_mcp_stdio_server_async(
+    await chat.register_mcp_tools_stdio(
         name="stdio_test",
         command=sys.executable,
         args=[get_resource("stdio_mcp_server_current_date.py")],
