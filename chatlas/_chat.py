@@ -26,7 +26,6 @@ from typing import (
     overload,
 )
 
-import mcp.client
 from pydantic import BaseModel
 
 from ._callbacks import CallbackManager
