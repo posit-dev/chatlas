@@ -1,5 +1,4 @@
 import asyncio
-import os
 import subprocess
 import sys
 from contextlib import asynccontextmanager
@@ -10,8 +9,9 @@ import pytest
 from chatlas import ChatOpenAI
 from chatlas._tools import Tool
 
-do_test = os.getenv("TEST_MCP", "true")
-if do_test.lower() == "false":
+try:
+    import mcp
+except ImportError:
     pytest.skip("Skipping MCP tests", allow_module_level=True)
 
 
