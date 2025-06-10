@@ -110,9 +110,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "rich_console": {},
             "css_styles": {},
         }
-
-        self._mcp_sessions: dict[str, "mcp.ClientSession"] = {}
-        self._mcp_exit_stack: AsyncExitStack = AsyncExitStack()
+        self._mcp_exit_stacks: dict[str, AsyncExitStack] = {}
 
     def get_turns(
         self,
@@ -979,7 +977,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Returns
         -------
-        None
+        A callback that can be used to clean up the MCP session and tools.
 
         Examples
         --------
@@ -1006,24 +1004,28 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError("Cannot specify both include_tools and exclude_tools.")
 
         # TODO: add force option?
-        if name in self._mcp_sessions:
+        if name in self._mcp_exit_stacks:
             raise ValueError(f"MCP Session {name} already exists.")
 
-        transport = await self._mcp_exit_stack.enter_async_context(
+        exit_stack = AsyncExitStack()
+
+        transport = await exit_stack.enter_async_context(
             sse_client(url, **(transport_kwargs or {}))
         )
-        session = await self._mcp_exit_stack.enter_async_context(
-            mcp.ClientSession(*transport)
-        )
+        session = await exit_stack.enter_async_context(mcp.ClientSession(*transport))
         await session.initialize()
-        self._mcp_sessions[name] = session
+        self._mcp_exit_stacks[name] = exit_stack
 
-        await self._register_mcp_tools(
+        tools = await self._get_mcp_tools(
             session,
             include_tools=include_tools,
             exclude_tools=exclude_tools,
             namespace=namespace,
         )
+
+        self._update_mcp_tools(tools)
+
+        return self._cleanup_mcp_callback(name, tools=tools)
 
     async def register_mcp_tools_stdio(
         self,
@@ -1087,7 +1089,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Returns
         -------
-        None
+        A callback that can be used to clean up the MCP session and tools.
 
         Examples
         --------
@@ -1115,7 +1117,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError("Cannot specify both include_tools and exclude_tools.")
 
         # TODO: add force option?
-        if name in self._mcp_sessions:
+        if name in self._mcp_exit_stacks:
             raise ValueError(f"MCP Session {name} already exists.")
 
         server_params = mcp.StdioServerParameters(
@@ -1124,28 +1126,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             **(transport_kwargs or {}),
         )
 
-        transport = await self._mcp_exit_stack.enter_async_context(
-            stdio_client(server_params)
-        )
-        session = await self._mcp_exit_stack.enter_async_context(
-            mcp.ClientSession(*transport)
-        )
-        await session.initialize()
-        self._mcp_sessions[name] = session
+        exit_stack = AsyncExitStack()
 
-        await self._register_mcp_tools(
+        transport = await exit_stack.enter_async_context(stdio_client(server_params))
+        session = await exit_stack.enter_async_context(mcp.ClientSession(*transport))
+        await session.initialize()
+        self._mcp_exit_stacks[name] = exit_stack
+
+        tools = await self._get_mcp_tools(
             session,
             include_tools=include_tools,
             exclude_tools=exclude_tools,
             namespace=namespace,
         )
 
-    # TODO: should this happen automatically when the chat object is deleted?
-    async def close_mcp_sessions(self):
-        """Clean up resources."""
-        await self._mcp_exit_stack.aclose()
+        self._update_mcp_tools(tools)
 
-    async def _register_mcp_tools(
+        return self._cleanup_mcp_callback(name, tools=tools)
+
+    async def _get_mcp_tools(
         self,
         session: "mcp.ClientSession",
         include_tools: list[str] | None = None,
@@ -1153,24 +1152,41 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         namespace: str | None = None,
     ):
         response = await session.list_tools()
+        res: dict[str, Tool] = {}
         for tool in response.tools:
-            if exclude_tools and tool.name in exclude_tools:
-                continue
-            if include_tools and tool.name not in include_tools:
-                continue
             name = tool.name
+            if exclude_tools and name in exclude_tools:
+                continue
+            if include_tools and name not in include_tools:
+                continue
             if namespace:
                 name = f"{namespace}.{name}"
-            if name in self._tools:
-                raise ValueError(
-                    f"A tool named '{name}' is already registered. "
-                    f"Consider providing a {'different' if namespace else ''} namespace "
-                    "when registering the MCP server to avoid name collisions."
-                )
-            self._tools[name] = Tool.from_mcp(
-                session=session,
-                mcp_tool=tool,
+            res[name] = Tool.from_mcp(session=session, mcp_tool=tool)
+        return res
+
+    def _update_mcp_tools(self, tools: dict[str, Tool]):
+        overlapping_tools = set(self._tools.keys()) & set(tools.keys())
+        if overlapping_tools:
+            raise ValueError(
+                f"The following tools are already registered: {overlapping_tools}. "
+                "Consider providing a namespace when registering this MCP server "
+                "to avoid name collisions."
             )
+        self._tools.update(tools)
+
+    def _cleanup_mcp_callback(self, name: str, tools: dict[str, Tool]):
+        async def _cleanup():
+            # Clean up the MCP connection
+            if name in self._mcp_exit_stacks:
+                await self._mcp_exit_stacks[name].aclose()
+                del self._mcp_exit_stacks[name]
+
+            # Remove the tools registered from this MCP session
+            for tool_name in tools.keys():
+                if tool_name in self._tools:
+                    del self._tools[tool_name]
+
+        return _cleanup
 
     def register_tool(
         self,

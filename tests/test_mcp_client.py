@@ -47,12 +47,12 @@ async def test_register_sse_mcp_server():
     chat = ChatOpenAI()
 
     async with sse_mcp_server(get_resource("sse_mcp_server_add.py")):
-        await chat.register_mcp_tools_sse(
+        cleanup = await chat.register_mcp_tools_sse(
             name="test",
             url="http://localhost:8000/sse",
         )
 
-        assert "test" in chat._mcp_sessions
+        assert "test" in chat._mcp_exit_stacks
         assert len(chat._tools) == 1
         tool = chat._tools["add"]
         assert tool.name == "add"
@@ -69,21 +69,21 @@ async def test_register_sse_mcp_server():
             "required": ["x", "y"],
         }
 
-        await chat.close_mcp_sessions()
+        await cleanup()
 
 
 @pytest.mark.asyncio
 async def test_register_stdio_mcp_server():
     chat = ChatOpenAI()
 
-    await chat.register_mcp_tools_stdio(
+    cleanup = await chat.register_mcp_tools_stdio(
         name="test",
         command=sys.executable,
         args=[get_resource("stdio_mcp_server_subtract_multiply.py")],
         exclude_tools=["subtract"],
     )
 
-    assert "test" in chat._mcp_sessions
+    assert "test" in chat._mcp_exit_stacks
     assert len(chat._tools) == 1
     tool = chat._tools["multiply"]
     assert tool.name == "multiply"
@@ -100,7 +100,7 @@ async def test_register_stdio_mcp_server():
         "required": ["a", "b"],
     }
 
-    await chat.close_mcp_sessions()
+    await cleanup()
 
 
 @pytest.mark.asyncio
@@ -115,7 +115,7 @@ async def test_register_multiple_mcp_servers():
     )
 
     async with sse_mcp_server(get_resource("sse_mcp_server_add.py")):
-        await chat.register_mcp_tools_sse(
+        cleanup = await chat.register_mcp_tools_sse(
             name="sse_test",
             url="http://localhost:8000/sse",
         )
@@ -164,7 +164,7 @@ async def test_register_multiple_mcp_servers():
                 "parameters", "N/A"
             )
 
-        await chat.close_mcp_sessions()
+        await cleanup()
 
 
 @pytest.mark.asyncio
@@ -172,7 +172,7 @@ async def test_call_sse_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
     async with sse_mcp_server(get_resource("sse_mcp_server_current_date.py")):
-        await chat.register_mcp_tools_sse(
+        cleanup = await chat.register_mcp_tools_sse(
             name="test",
             url="http://localhost:8000/sse",
         )
@@ -185,14 +185,14 @@ async def test_call_sse_mcp_tool():
         with pytest.raises(Exception, match="async tools in a synchronous chat"):
             str(chat.chat("Great. Do it again.", stream=True))
 
-        await chat.close_mcp_sessions()
+        await cleanup()
 
 
 @pytest.mark.asyncio
 async def test_call_stdio_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
-    await chat.register_mcp_tools_stdio(
+    cleanup = await chat.register_mcp_tools_stdio(
         name="stdio_test",
         command=sys.executable,
         args=[get_resource("stdio_mcp_server_current_date.py")],
@@ -207,4 +207,4 @@ async def test_call_stdio_mcp_tool():
     with pytest.raises(Exception, match="async tools in a synchronous chat"):
         str(chat.chat("Great. Do it again.", stream=True))
 
-    await chat.close_mcp_sessions()
+    await cleanup()
