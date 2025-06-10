@@ -1192,7 +1192,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         recommended):
 
         ```python
-        from chatlas import ChatOpenAI, Tool
+        from chatlas import ChatOpenAI
 
 
         def add(a: int, b: int) -> int:
@@ -1220,7 +1220,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         and also more directly document the input parameters:
 
         ```python
-        from chatlas import ChatOpenAI, Tool
+        from chatlas import ChatOpenAI
         from pydantic import BaseModel, Field
 
 
@@ -1254,6 +1254,39 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         tool = Tool.from_func(func, model=model)
         self._tools[tool.name] = tool
+
+    def get_tools(self) -> list[Tool]:
+        """
+        Get the list of registered tools.
+
+        Returns
+        -------
+        list[Tool]
+            A list of `Tool` instances that are currently registered with the chat.
+        """
+        return list(self._tools.values())
+
+    def set_tools(
+        self, tools: list[Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool]
+    ):
+        """
+        Set the tools for the chat.
+
+        This replaces any previously registered tools with the provided list of
+        tools. This is for advanced usage -- typically, you would use
+        `.register_tool()` to register individual tools as needed.
+
+        Parameters
+        ----------
+        tools
+            A list of `Tool` instances to set as the chat's tools.
+        """
+        self._tools = {}
+        for tool in tools:
+            if isinstance(tool, Tool):
+                self._tools[tool.name] = tool
+            else:
+                self.register_tool(tool)
 
     def on_tool_request(self, callback: Callable[[ContentToolRequest], None]):
         """

@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* Added support for `Chat` to register tools from a provided by [MCP server](https://modelcontextprotocol.io/).
+* `Chat` gains new `.register_mcp_tools_sse()` and `.register_mcp_tools_stdio()` methods for easily registering tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
+* `Chat` gains new `.get_tools()`/`.set_tools()` methods -- making it possible to remove already registered tools. (#39)
 
 
 ## [0.8.1] - 2025-05-30
