@@ -922,32 +922,38 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def _register_mcp_tools(
         self,
         session: "mcp.ClientSession",
-        include_tools: Optional[list[str]] = None,
-        exclude_tools: Optional[list[str]] = None,
+        include_tools: list[str] | None = None,
+        exclude_tools: list[str] | None = None,
+        namespace: str | None = None,
     ):
-        assert not (include_tools and exclude_tools), (
-            "Cannot specify both include_tools and exclude_tools."
-        )
-
         response = await session.list_tools()
         for tool in response.tools:
-            if include_tools:
-                if tool.name not in include_tools:
-                    continue
-            if exclude_tools:
-                if tool.name in exclude_tools:
-                    continue
-            self._tools[tool.name] = Tool.from_mcp(
+            if exclude_tools and tool.name in exclude_tools:
+                continue
+            if include_tools and tool.name not in include_tools:
+                continue
+            name = tool.name
+            if namespace:
+                name = f"{namespace}.{name}"
+            if name in self._tools:
+                raise ValueError(
+                    f"A tool named '{name}' is already registered. "
+                    f"Consider providing a {'different' if namespace else ''} namespace "
+                    "when registering the MCP server to avoid name collisions."
+                )
+            self._tools[name] = Tool.from_mcp(
                 session=session,
                 mcp_tool=tool,
             )
 
     async def register_mcp_sse_server_async(
         self,
+        *,
         name: str,
         url: str,
         include_tools: Optional[list[str]] = None,
         exclude_tools: Optional[list[str]] = None,
+        namespace: Optional[str] = None,
         transport_kwargs: dict[str, Any] = {},
     ):
         """
@@ -977,6 +983,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             List of tool names to include. If None, all available tools will be included. Defaults to None.
         exclude_tools
             List of tool names to exclude. This parameter and include_tools are mutually exclusive. Defaults to None.
+        namespace
+            Optional namespace to apply the tool names. Use this to avoid name collisions
+            with other tools already registered with the chat. Defaults to None.
         transport_kwargs
             Additional keyword arguments to pass to the SSE transport layer. Defaults to {}.
 
@@ -1010,6 +1019,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         from mcp.client.sse import sse_client
 
+        if include_tools and exclude_tools:
+            raise ValueError("Cannot specify both include_tools and exclude_tools.")
+
         # TODO: add force option?
         if name in self._mcp_sessions:
             raise ValueError(f"MCP Session {name} already exists.")
@@ -1017,11 +1029,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         transport = await self._mcp_exit_stack.enter_async_context(
             sse_client(url, **transport_kwargs)
         )
-        self._mcp_sessions[name] = await self._mcp_exit_stack.enter_async_context(
+        session = await self._mcp_exit_stack.enter_async_context(
             mcp.ClientSession(*transport)
         )
-        session = self._mcp_sessions[name]
         await session.initialize()
+        self._mcp_sessions[name] = session
 
         await self._register_mcp_tools(
             session,
@@ -1031,12 +1043,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def register_mcp_stdio_server_async(
         self,
+        *,
         name: str,
         command: str,
         args: list[str],
-        env: dict[str, str] | None = None,
         include_tools: Optional[list[str]] = None,
         exclude_tools: Optional[list[str]] = None,
+        namespace: Optional[str] = None,
         transport_kwargs: dict[str, Any] = {},
     ):
         """
@@ -1064,12 +1077,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Command to execute to start the MCP server
         args
             Arguments to pass to the command
-        env
-            Environment variables to set for the command. Defaults to None.
         include_tools
             List of tool names to include. If None, all available tools will be included. Defaults to None.
         exclude_tools
             List of tool names to exclude. This parameter and include_tools are mutually exclusive. Defaults to None.
+        namespace
+            Optional namespace to apply the tool names. Use this to avoid name collisions
+            with other tools already registered with the chat. Defaults to None.
         transport_kwargs
             Additional keyword arguments to pass to the stdio transport layer. Defaults to {}.
 
@@ -1089,7 +1103,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             name="my_server",
             command="python",
             args=["-m", "my_mcp_server"],
-            env={"DEBUG": "1"},
             include_tools=["tool1", "tool2"],
             transport_kwargs={"timeout": 30},
         )
@@ -1105,6 +1118,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         from mcp.client.stdio import stdio_client
 
+        if include_tools and exclude_tools:
+            raise ValueError("Cannot specify both include_tools and exclude_tools.")
+
         # TODO: add force option?
         if name in self._mcp_sessions:
             raise ValueError(f"MCP Session {name} already exists.")
@@ -1112,25 +1128,26 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         server_params = mcp.StdioServerParameters(
             command=command,
             args=args,
-            env=env,
             **transport_kwargs,
         )
 
         transport = await self._mcp_exit_stack.enter_async_context(
             stdio_client(server_params)
         )
-        self._mcp_sessions[name] = await self._mcp_exit_stack.enter_async_context(
+        session = await self._mcp_exit_stack.enter_async_context(
             mcp.ClientSession(*transport)
         )
-        session = self._mcp_sessions[name]
         await session.initialize()
+        self._mcp_sessions[name] = session
 
         await self._register_mcp_tools(
             session,
             include_tools=include_tools,
             exclude_tools=exclude_tools,
+            namespace=namespace,
         )
 
+    # TODO: should this happen automatically when the chat object is deleted?
     async def close_mcp_sessions(self):
         """Clean up resources."""
         await self._mcp_exit_stack.aclose()
