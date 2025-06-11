@@ -24,11 +24,17 @@ async def sse_mcp_server(script_path: str):
     )
 
     async with httpx.AsyncClient() as client:
+        timeout = 10  # seconds
+        start_time = asyncio.get_event_loop().time()
         while True:
             try:
                 await client.get("http://localhost:8000")
                 break
             except httpx.ConnectError:
+                if asyncio.get_event_loop().time() - start_time > timeout:
+                    process.kill()
+                    process.wait()
+                    raise TimeoutError("MCP server failed to start within timeout")
                 await asyncio.sleep(0.1)
 
     try:
