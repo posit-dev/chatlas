@@ -138,6 +138,7 @@ class Tool:
 
         async def _call(**args: Any) -> Any:
             result = await session.call_tool(mcp_tool.name, args)
+            # TODO: Handle errors properly (result.isError)
             if result.content[0].type == "text":
                 return result.content[0].text
             else:

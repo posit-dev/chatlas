@@ -916,8 +916,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         json = res[0]
         return json.value
 
-    # TODO: should we also support Streamable HTTP Transport?
-    # https://github.com/modelcontextprotocol/python-sdk?tab=readme-ov-file#streamable-http-transport
+    # TODO: change this to use Streamable HTTP Transport
+    # https://modelcontextprotocol.io/docs/concepts/transports#server-sent-events-sse-deprecated
     async def register_mcp_tools_sse(
         self,
         *,
@@ -956,15 +956,18 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             URL endpoint where the MCP server is running. This should be a valid
             SSE endpoint (e.g., `http://localhost:8080/sse`).
         include_tools
-            List of tool names to include. By default, all available tools are included.
+            List of tool names to include. By default, all available tools are
+            included.
         exclude_tools
-            List of tool names to exclude. This parameter and `include_tools` are mutually exclusive.
+            List of tool names to exclude. This parameter and `include_tools`
+            are mutually exclusive.
         namespace
             Optional namespace to prefix to the tool names. Use this to avoid
             name collisions with other tools already registered with the chat.
             Defaults to None.
         transport_kwargs
-            Additional keyword arguments for the SSE transport layer (i.e., `mcp.client.sse.sse_client`).
+            Additional keyword arguments for the SSE transport layer (i.e.,
+            `mcp.client.sse.sse_client`).
 
         Raises
         ------
@@ -981,14 +984,42 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         -------
         A callback that can be used to clean up the MCP session and tools.
 
+        Note
+        ----
+        Unlike the `register_mcp_tools_stdio()` method, this method does not
+        launch an MCP server. Instead, it assumes an MCP server is already
+        running over HTTP using SSE.
+
         Examples
         --------
+
+        Assuming you have a Python script `my_mcp_server.py` that implements an
+        MCP server like so:
+
+        ```python
+        from mcp.server.fastmcp import FastMCP
+
+        app = FastMCP("my_server")
+
+        @app.tool(description="Add two numbers.")
+        def add(x: int, y: int) -> int:
+            return x + y
+
+        app.run(transport="sse")
+        ```
+
+        You can launch this server like so:
+
+        ```bash
+        python my_mcp_server.py
+        ```
+
+        Then, you can register this server with the chat as follows:
+
         ```python
         await chat.register_mcp_tools_sse(
             name="my_server",
-            url="http://localhost:8080/sse",
-            include_tools=["tool1", "tool2"],
-            transport_kwargs={"timeout": 30},
+            url="http://localhost:8080/sse"
         )
         ```
         """
@@ -1005,11 +1036,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         exit_stack = AsyncExitStack()
 
-        transport = await exit_stack.enter_async_context(
-            sse_client(url, **(transport_kwargs or {}))
-        )
-        session = await exit_stack.enter_async_context(mcp.ClientSession(*transport))
-        await session.initialize()
+        # Try to initialize the MCP session (and cleanup if it fails)
+        try:
+            transport = await exit_stack.enter_async_context(
+                sse_client(url, **(transport_kwargs or {}))
+            )
+            session = await exit_stack.enter_async_context(
+                mcp.ClientSession(*transport)
+            )
+            await session.initialize()
+        except Exception as e:
+            await exit_stack.aclose()
+            raise RuntimeError(
+                f"Failed to connect to MCP server '{name}' at URL '{url}': {e}"
+            ) from e
+
         self._mcp_exit_stacks[name] = exit_stack
 
         tools = await self._get_mcp_tools(
@@ -1035,13 +1076,18 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         transport_kwargs: Optional[dict[str, Any]] = None,
     ):
         """
-        Register tools from a MCP server session using stdio (standard
-        input/output).
+        Register tools from a MCP server using stdio (standard input/output) transport.
 
-        Connects to an MCP server that uses stdio for communication and
-        registers the available tools. The server is identified by a unique name
-        and command to execute. This is useful for running MCP servers that are
-        not web-based.
+        Useful for launching an MCP server and registering its tools with the chat -- all
+        from the same Python process.
+
+        In more detail, this method:
+
+        1. Executes the given `command` with the provided `args`.
+            * This should start an MCP server that communicates via stdio.
+        2. Establishes a client connection to the MCP server using the `mcp` package.
+        3. Registers the available tools from the MCP server with the chat.
+        4. Returns a cleanup callback to close the MCP session and remove the tools.
 
         Pre-requisites
         --------------
@@ -1070,7 +1116,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Optional namespace to apply the tool names. Use this to avoid name collisions
             with other tools already registered with the chat. Defaults to None.
         transport_kwargs
-            Additional keyword arguments for the stdio transport layer (i.e., `mcp.client.stdio.stdio_client`).
+            Additional keyword arguments for the stdio transport layer (i.e.,
+            `mcp.client.stdio.stdio_client`).
 
         Raises
         ------
@@ -1089,13 +1136,33 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Examples
         --------
+
+        Assuming you have a Python script `my_mcp_server.py` that implements an
+        MCP server like so
+
         ```python
+        from mcp.server.fastmcp import FastMCP
+
+        app = FastMCP("my_server")
+
+        @app.tool(description="Add two numbers.")
+        def add(y: int, z: int) -> int:
+            return y - z
+
+        app.run(transport="stdio")
+        ```
+
+        You can register this server with the chat as follows:
+
+        ```python
+        from chatlas import ChatOpenAI
+
+        chat = ChatOpenAI()
+
         await chat.register_mcp_tools_stdio(
             name="my_server",
             command="python",
             args=["-m", "my_mcp_server"],
-            include_tools=["tool1", "tool2"],
-            transport_kwargs={"timeout": 30},
         )
         ```
         """
@@ -1117,9 +1184,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         exit_stack = AsyncExitStack()
 
-        transport = await exit_stack.enter_async_context(stdio_client(server_params))
-        session = await exit_stack.enter_async_context(mcp.ClientSession(*transport))
-        await session.initialize()
+        # Try to initialize the MCP session (and cleanup if it fails)
+        try:
+            transport = await exit_stack.enter_async_context(
+                stdio_client(server_params)
+            )
+            session = await exit_stack.enter_async_context(
+                mcp.ClientSession(*transport)
+            )
+            await session.initialize()
+        except Exception as e:
+            await exit_stack.aclose()
+            raise RuntimeError(
+                f"Failed to connect to MCP server '{name}' with command '{command} {args}': {e}"
+            ) from e
+
         self._mcp_exit_stacks[name] = exit_stack
 
         tools = await self._get_mcp_tools(
@@ -1160,6 +1239,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 continue
             if include_tools and name not in include_tools:
                 continue
+            # TODO: should tool name be prefixed with namespace as well?
             if namespace:
                 name = f"{namespace}.{name}"
             res[name] = Tool.from_mcp(session=session, mcp_tool=tool)
