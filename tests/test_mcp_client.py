@@ -1,4 +1,5 @@
 import asyncio
+import os
 import subprocess
 import sys
 from contextlib import asynccontextmanager
@@ -14,27 +15,45 @@ try:
 except ImportError:
     pytest.skip("Skipping MCP tests", allow_module_level=True)
 
+# Directory where MCP server implementations are located
+MCP_SERVER_DIR = Path(__file__).parent / "mcp_servers"
+
+# Allow port to be set via environment variable
+# (MCP server implementations should listen to this environment variable)
+ENV_VARS = os.environ.copy()
+ENV_VARS["MCP_PORT"] = "8081"
+SSE_URL = f"http://localhost:{ENV_VARS['MCP_PORT']}/sse"
+
 
 @asynccontextmanager
-async def sse_mcp_server(script_path: str):
+async def sse_mcp_server(server_file: str):
+    full_path = str(MCP_SERVER_DIR / server_file)
+
     process = subprocess.Popen(
-        args=[sys.executable, script_path],
+        args=[sys.executable, full_path],
         stdout=subprocess.PIPE,
         stdin=subprocess.PIPE,
+        env=ENV_VARS,
     )
+
+    # Throw if the process fails to start
+    if process.returncode is not None:
+        raise RuntimeError(f"Failed to start MCP server: {process.returncode}")
+
+    # raise Exception(process)
 
     async with httpx.AsyncClient() as client:
         timeout = 10  # seconds
         start_time = asyncio.get_event_loop().time()
         while True:
             try:
-                await client.get("http://localhost:8000")
+                await client.get(f"http://localhost:{ENV_VARS['MCP_PORT']}")
                 break
             except httpx.ConnectError:
                 if asyncio.get_event_loop().time() - start_time > timeout:
                     process.kill()
                     process.wait()
-                    raise TimeoutError("MCP server failed to start within timeout")
+                    raise TimeoutError("Failed to connect to SSE server")
                 await asyncio.sleep(0.1)
 
     try:
@@ -44,18 +63,14 @@ async def sse_mcp_server(script_path: str):
         process.wait()
 
 
-def get_resource(resource_name: str) -> str:
-    return str(Path(__file__).parent / "resources" / resource_name)
-
-
 @pytest.mark.asyncio
 async def test_register_sse_mcp_server():
     chat = ChatOpenAI()
 
-    async with sse_mcp_server(get_resource("sse_mcp_server_add.py")):
+    async with sse_mcp_server("sse_add.py"):
         cleanup = await chat.register_mcp_tools_sse(
             name="test",
-            url="http://localhost:8000/sse",
+            url=SSE_URL,
         )
 
         assert "test" in chat._mcp_exit_stacks
@@ -85,7 +100,7 @@ async def test_register_stdio_mcp_server():
     cleanup = await chat.register_mcp_tools_stdio(
         name="test",
         command=sys.executable,
-        args=[get_resource("stdio_mcp_server_subtract_multiply.py")],
+        args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
         exclude_tools=["subtract"],
     )
 
@@ -116,14 +131,14 @@ async def test_register_multiple_mcp_servers():
     await chat.register_mcp_tools_stdio(
         name="stdio_test",
         command=sys.executable,
-        args=[get_resource("stdio_mcp_server_subtract_multiply.py")],
+        args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
         include_tools=["subtract"],
     )
 
-    async with sse_mcp_server(get_resource("sse_mcp_server_add.py")):
+    async with sse_mcp_server("sse_add.py"):
         cleanup = await chat.register_mcp_tools_sse(
             name="sse_test",
-            url="http://localhost:8000/sse",
+            url=SSE_URL,
         )
 
         expected_tools = {
@@ -177,10 +192,10 @@ async def test_register_multiple_mcp_servers():
 async def test_call_sse_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
-    async with sse_mcp_server(get_resource("sse_mcp_server_current_date.py")):
+    async with sse_mcp_server("sse_current_date.py"):
         cleanup = await chat.register_mcp_tools_sse(
             name="test",
-            url="http://localhost:8000/sse",
+            url=SSE_URL,
         )
 
         response = await chat.chat_async(
@@ -201,7 +216,7 @@ async def test_call_stdio_mcp_tool():
     cleanup = await chat.register_mcp_tools_stdio(
         name="stdio_test",
         command=sys.executable,
-        args=[get_resource("stdio_mcp_server_current_date.py")],
+        args=[str(MCP_SERVER_DIR / "stdio_current_date.py")],
     )
 
     response = await chat.chat_async(
