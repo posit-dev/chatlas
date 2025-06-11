@@ -22,7 +22,7 @@ MCP_SERVER_DIR = Path(__file__).parent / "mcp_servers"
 # (MCP server implementations should listen to this environment variable)
 ENV_VARS = os.environ.copy()
 ENV_VARS["MCP_PORT"] = "8081"
-SSE_URL = f"http://localhost:{ENV_VARS['MCP_PORT']}/sse"
+SERVER_URL = f"http://localhost:{ENV_VARS['MCP_PORT']}/mcp"
 
 
 @asynccontextmanager
@@ -40,8 +40,6 @@ async def sse_mcp_server(server_file: str):
     if process.returncode is not None:
         raise RuntimeError(f"Failed to start MCP server: {process.returncode}")
 
-    # raise Exception(process)
-
     async with httpx.AsyncClient() as client:
         timeout = 10  # seconds
         start_time = asyncio.get_event_loop().time()
@@ -53,7 +51,7 @@ async def sse_mcp_server(server_file: str):
                 if asyncio.get_event_loop().time() - start_time > timeout:
                     process.kill()
                     process.wait()
-                    raise TimeoutError("Failed to connect to SSE server")
+                    raise TimeoutError("Failed to connect to MCP server")
                 await asyncio.sleep(0.1)
 
     try:
@@ -68,9 +66,9 @@ async def test_register_sse_mcp_server():
     chat = ChatOpenAI()
 
     async with sse_mcp_server("sse_add.py"):
-        cleanup = await chat.register_mcp_tools_sse(
+        cleanup = await chat.register_mcp_tools_http_stream(
             name="test",
-            url=SSE_URL,
+            url=SERVER_URL,
         )
 
         assert "test" in chat._mcp_exit_stacks
@@ -136,9 +134,9 @@ async def test_register_multiple_mcp_servers():
     )
 
     async with sse_mcp_server("sse_add.py"):
-        cleanup = await chat.register_mcp_tools_sse(
+        cleanup = await chat.register_mcp_tools_http_stream(
             name="sse_test",
-            url=SSE_URL,
+            url=SERVER_URL,
         )
 
         expected_tools = {
@@ -193,9 +191,9 @@ async def test_call_sse_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
     async with sse_mcp_server("sse_current_date.py"):
-        cleanup = await chat.register_mcp_tools_sse(
+        cleanup = await chat.register_mcp_tools_http_stream(
             name="test",
-            url=SSE_URL,
+            url=SERVER_URL,
         )
 
         response = await chat.chat_async(

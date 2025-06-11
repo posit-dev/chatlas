@@ -916,9 +916,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         json = res[0]
         return json.value
 
-    # TODO: change this to use Streamable HTTP Transport
-    # https://modelcontextprotocol.io/docs/concepts/transports#server-sent-events-sse-deprecated
-    async def register_mcp_tools_sse(
+    async def register_mcp_tools_http_stream(
         self,
         *,
         name: str,
@@ -929,11 +927,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         transport_kwargs: Optional[dict[str, Any]] = None,
     ):
         """
-        Register tools from a MCP server session using a SSE (Server-Sent
-        Events) connection.
+        Register tools from an MCP server using streamable HTTP transport.
 
-        Connects to an MCP server that uses SSE (Server-Sent Events) for
-        communication and registers the available tools. This is useful for
+        Connects to an MCP server (that communicates over a streamable HTTP
+        transport) and registers the available tools. This is useful for
         utilizing tools provided by an MCP server running on a remote server (or
         locally) over HTTP.
 
@@ -953,8 +950,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         name
             A unique name for the MCP server session.
         url
-            URL endpoint where the MCP server is running. This should be a valid
-            SSE endpoint (e.g., `http://localhost:8080/sse`).
+            URL endpoint where the Streamable HTTP server is mounted (e.g.,
+            `http://localhost:8000/mcp`)
         include_tools
             List of tool names to include. By default, all available tools are
             included.
@@ -966,8 +963,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             name collisions with other tools already registered with the chat.
             Defaults to None.
         transport_kwargs
-            Additional keyword arguments for the SSE transport layer (i.e.,
-            `mcp.client.sse.sse_client`).
+            Additional keyword arguments for the transport layer (i.e.,
+            `mcp.client.streamable_http.streamablehttp_client`).
 
         Raises
         ------
@@ -987,8 +984,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Note
         ----
         Unlike the `register_mcp_tools_stdio()` method, this method does not
-        launch an MCP server. Instead, it assumes an MCP server is already
-        running over HTTP using SSE.
+        launch an MCP server. Instead, it assumes an HTTP server is already
+        running at the specified URL. This is useful for connecting to an
+        existing MCP server that is already running and serving tools.
 
         Examples
         --------
@@ -1005,7 +1003,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         def add(x: int, y: int) -> int:
             return x + y
 
-        app.run(transport="sse")
+        app.run(transport="streamable-http")
         ```
 
         You can launch this server like so:
@@ -1017,9 +1015,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Then, you can register this server with the chat as follows:
 
         ```python
-        await chat.register_mcp_tools_sse(
+        await chat.register_mcp_tools_http_stream(
             name="my_server",
-            url="http://localhost:8080/sse"
+            url="http://localhost:8080/mcp"
         )
         ```
         """
@@ -1032,17 +1030,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         mcp = self._try_import_mcp()
 
-        from mcp.client.sse import sse_client
+        from mcp.client.streamable_http import streamablehttp_client
 
         exit_stack = AsyncExitStack()
 
         # Try to initialize the MCP session (and cleanup if it fails)
         try:
-            transport = await exit_stack.enter_async_context(
-                sse_client(url, **(transport_kwargs or {}))
+            read_stream, write_stream, _ = await exit_stack.enter_async_context(
+                streamablehttp_client(url, **(transport_kwargs or {}))
             )
             session = await exit_stack.enter_async_context(
-                mcp.ClientSession(*transport)
+                mcp.ClientSession(read_stream, write_stream)
             )
             await session.initialize()
         except Exception as e:
@@ -1261,7 +1259,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if name in self._mcp_exit_stacks:
                 await self._mcp_exit_stacks[name].aclose()
                 del self._mcp_exit_stacks[name]
-
             # Remove the tools registered from this MCP session
             for tool_name in tools.keys():
                 if tool_name in self._tools:

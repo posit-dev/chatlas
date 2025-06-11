@@ -117,8 +117,8 @@ class Tool:
     @classmethod
     def from_mcp(
         cls: type["Tool"],
-        session: MCPClientSession,
-        mcp_tool: MCPTool,
+        session: "MCPClientSession",
+        mcp_tool: "MCPTool",
     ) -> "Tool":
         """
         Create a Tool from an MCP tool

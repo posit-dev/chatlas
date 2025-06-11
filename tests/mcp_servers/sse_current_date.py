@@ -13,4 +13,4 @@ async def get_current_date():
     return "2024-01-01"
 
 
-app.run(transport="sse")
+app.run(transport="streamable-http")
