@@ -10,13 +10,10 @@ import pytest
 from chatlas import ChatOpenAI
 from chatlas._tools import Tool
 
-# TODO: figure out why CI is hanging on these tests
-# try:
-#    import mcp  # noqa: F401
-# except ImportError:
-#    pytest.skip("Skipping MCP tests", allow_module_level=True)
-
-pytest.skip("Skipping MCP tests", allow_module_level=True)
+try:
+    import mcp  # noqa: F401
+except ImportError:
+    pytest.skip("Skipping MCP tests", allow_module_level=True)
 
 # Directory where MCP server implementations are located
 MCP_SERVER_DIR = Path(__file__).parent / "mcp_servers"
