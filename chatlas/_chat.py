@@ -916,6 +916,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         json = res[0]
         return json.value
 
+    # TODO: should we also support Streamable HTTP Transport?
+    # https://github.com/modelcontextprotocol/python-sdk?tab=readme-ov-file#streamable-http-transport
     async def register_mcp_tools_sse(
         self,
         *,
@@ -991,21 +993,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ```
         """
 
-        try:
-            import mcp
-        except ImportError:
-            raise ImportError(
-                "The `mcp` package is required for MCP support. Install it with `pip install mcp`."
-            )
-
-        from mcp.client.sse import sse_client
-
         if include_tools and exclude_tools:
             raise ValueError("Cannot specify both include_tools and exclude_tools.")
 
-        # TODO: add force option?
         if name in self._mcp_exit_stacks:
             raise ValueError(f"MCP Session {name} already exists.")
+
+        mcp = self._try_import_mcp()
+
+        from mcp.client.sse import sse_client
 
         exit_stack = AsyncExitStack()
 
@@ -1104,21 +1100,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ```
         """
 
-        try:
-            import mcp
-        except ImportError:
-            raise ImportError(
-                "The `mcp` package is required for MCP support. Install it with `pip install mcp`."
-            )
-
-        from mcp.client.stdio import stdio_client
-
         if include_tools and exclude_tools:
             raise ValueError("Cannot specify both include_tools and exclude_tools.")
 
-        # TODO: add force option?
         if name in self._mcp_exit_stacks:
             raise ValueError(f"MCP Session {name} already exists.")
+
+        mcp = self._try_import_mcp()
+        from mcp.client.stdio import stdio_client
 
         server_params = mcp.StdioServerParameters(
             command=command,
@@ -1143,6 +1132,18 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self._update_mcp_tools(tools)
 
         return self._cleanup_mcp_callback(name, tools=tools)
+
+    @staticmethod
+    def _try_import_mcp():
+        try:
+            import mcp  # noqa: F401
+
+            return mcp
+        except ImportError:
+            raise ImportError(
+                "The `mcp` package is required to connect to MCP servers. "
+                "Install it with `pip install mcp`."
+            )
 
     async def _get_mcp_tools(
         self,
