@@ -188,43 +188,18 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if value is not None:
             self._turns.insert(0, Turn("system", value))
 
-    @overload
-    def tokens(self) -> list[tuple[int, int] | None]: ...
-
-    @overload
-    def tokens(
-        self,
-        values: Literal["cumulative"],
-    ) -> list[tuple[int, int] | None]: ...
-
-    @overload
-    def tokens(
-        self,
-        values: Literal["discrete"],
-    ) -> list[int]: ...
-
-    def tokens(
-        self,
-        values: Literal["cumulative", "discrete"] = "discrete",
-    ) -> list[int] | list[tuple[int, int] | None]:
+    def get_tokens(self) -> list[dict[str, int | str]]:
         """
         Get the tokens for each turn in the chat.
 
-        Parameters
-        ----------
-        values
-            If "cumulative" (the default), the result can be summed to get the
-            chat's overall token usage (helpful for computing overall cost of
-            the chat). If "discrete", the result can be summed to get the number of
-            tokens the turns will cost to generate the next response (helpful
-            for estimating cost of the next response, or for determining if you
-            are about to exceed the token limit).
-
         Returns
         -------
-        list[int]
-            A list of token counts for each (non-system) turn in the chat. The
-            1st turn includes the tokens count for the system prompt (if any).
+        list[dict[str, str | int]]
+            A list of dictionaries with the token counts for each (non-system) turn
+            in the chat.
+            `tokens` represents the new tokens used in the turn.
+            `tokens_total` represents the total tokens used in the turn.
+            Ex. A new user input of 2 tokens is sent, plus 10 tokens of context from prior turns (input and output) would have a `tokens_total` of 12.
 
         Raises
         ------
@@ -237,9 +212,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         turns = self.get_turns(include_system_prompt=False)
-
-        if values == "cumulative":
-            return [turn.tokens for turn in turns]
 
         if len(turns) == 0:
             return []
@@ -276,12 +248,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Expected the 1st assistant turn to contain token counts. " + err_info
             )
 
-        res: list[int] = [
+        res: list[dict[str, int | str]] = [
             # Implied token count for the 1st user input
-            turns[1].tokens[0],
+            {
+                "role": "user",
+                "tokens": turns[1].tokens[0],
+                "tokens_total": turns[1].tokens[0],
+            },
             # The token count for the 1st assistant response
-            turns[1].tokens[1],
+            {
+                "role": "assistant",
+                "tokens": turns[1].tokens[1],
+                "tokens_total": turns[1].tokens[1],
+            },
         ]
+
         for i in range(1, len(turns) - 1, 2):
             ti = turns[i]
             tj = turns[i + 2]
@@ -296,10 +277,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 )
             res.extend(
                 [
-                    # Implied token count for the user input
-                    tj.tokens[0] - sum(ti.tokens),
-                    # The token count for the assistant response
-                    tj.tokens[1],
+                    {
+                        "role": "user",
+                        # Implied token count for the user input
+                        "tokens": tj.tokens[0] - sum(ti.tokens),
+                        # Total tokens = Total User Tokens for the Trn = Distinct new tokens + context sent
+                        "tokens_total": tj.tokens[0],
+                    },
+                    {
+                        "role": "assistant",
+                        # The token count for the assistant response
+                        "tokens": tj.tokens[1],
+                        # Total tokens = Total Assistant tokens used in the turn
+                        "tokens_total": tj.tokens[1],
+                    },
                 ]
             )
 
@@ -706,9 +697,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             kwargs=kwargs,
         )
 
-        def wrapper() -> Generator[
-            str | ContentToolRequest | ContentToolResult, None, None
-        ]:
+        def wrapper() -> (
+            Generator[str | ContentToolRequest | ContentToolResult, None, None]
+        ):
             with display:
                 for chunk in generator:
                     yield chunk
@@ -770,9 +761,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
-        async def wrapper() -> AsyncGenerator[
-            str | ContentToolRequest | ContentToolResult, None
-        ]:
+        async def wrapper() -> (
+            AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]
+        ):
             with display:
                 async for chunk in self._chat_impl_async(
                     turn,
