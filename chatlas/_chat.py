@@ -52,6 +52,15 @@ from ._utils import html_escape, wrap_async
 class AnyTypeDict(TypedDict, total=False):
     pass
 
+class TokensDict(TypedDict):
+    """
+    A TypedDict representing the token counts for a turn in the chat.
+    """
+
+    role: Literal["user", "assistant"]
+    tokens: int
+    tokens_total: int
+
 
 SubmitInputArgsT = TypeVar("SubmitInputArgsT", bound=AnyTypeDict)
 """
@@ -62,6 +71,8 @@ method of a [](`~chatlas.Chat`) instance.
 CompletionT = TypeVar("CompletionT")
 
 EchoOptions = Literal["output", "all", "none", "text"]
+
+CostOptions = Literal["all", "last"]
 
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
@@ -188,13 +199,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if value is not None:
             self._turns.insert(0, Turn("system", value))
 
-    def get_tokens(self) -> list[dict[str, int | str]]:
+    def get_tokens(self) -> list[TokensDict]:
         """
         Get the tokens for each turn in the chat.
 
         Returns
         -------
-        list[dict[str, str | int]]
+        list[TokensDict]
             A list of dictionaries with the token counts for each (non-system) turn
             in the chat.
             `tokens` represents the new tokens used in the turn.
@@ -248,7 +259,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Expected the 1st assistant turn to contain token counts. " + err_info
             )
 
-        res: list[dict[str, int | str]] = [
+        res: list[TokensDict] = [
             # Implied token count for the 1st user input
             {
                 "role": "user",
@@ -295,6 +306,44 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         return res
+
+    def get_cost(
+            self,
+            options: CostOptions = "all",
+    ) -> float:
+        """
+        Get the cost of the chat.
+
+        Parameters
+        ----------
+        options
+            One of the following (default is "all"):
+              - `"all"`: Return the total cost of all turns in the chat.
+              - `"last"`: Return the cost of the last turn in the chat.
+
+        Returns
+        -------
+        float
+            The cost of the chat, in USD.
+        """
+
+        # Look up token cost for user and input tokens based on the provider and model
+        
+        if options == "last":
+            # Multiply last user token count by user token cost
+            # Multiply last assistant token count by assistant token cost
+            # Add
+            # Return
+
+        if options == "all":
+            # Get all the user token counts
+            # Get all the assistant token counts
+            # Multiply all the user token counts by the user token cost
+            # Multiply all the assistant token counts by the assistant token cost
+            # Add them together and return
+ 
+
+
 
     def token_count(
         self,
