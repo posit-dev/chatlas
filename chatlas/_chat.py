@@ -6,9 +6,11 @@ import os
 import sys
 import traceback
 import warnings
+from contextlib import AsyncExitStack
 from pathlib import Path
 from threading import Thread
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncGenerator,
     AsyncIterator,
@@ -63,6 +65,9 @@ CompletionT = TypeVar("CompletionT")
 
 EchoOptions = Literal["output", "all", "none", "text"]
 
+if TYPE_CHECKING:
+    import mcp
+
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
     """
@@ -105,6 +110,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "rich_console": {},
             "css_styles": {},
         }
+        self._mcp_exit_stacks: dict[str, AsyncExitStack] = {}
 
     def get_turns(
         self,
@@ -910,6 +916,356 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         json = res[0]
         return json.value
 
+    async def register_mcp_tools_http_stream_async(
+        self,
+        *,
+        name: str,
+        url: str,
+        include_tools: Optional[list[str]] = None,
+        exclude_tools: Optional[list[str]] = None,
+        namespace: Optional[str] = None,
+        transport_kwargs: Optional[dict[str, Any]] = None,
+    ):
+        """
+        Register tools from an MCP server using streamable HTTP transport.
+
+        Connects to an MCP server (that communicates over a streamable HTTP
+        transport) and registers the available tools. This is useful for
+        utilizing tools provided by an MCP server running on a remote server (or
+        locally) over HTTP.
+
+        Pre-requisites
+        --------------
+
+        ::: {.callout-note}
+        Requires the `mcp` package to be installed. Install it with:
+
+        ```bash
+        pip install mcp
+        ```
+        :::
+
+        Parameters
+        ----------
+        name
+            A unique name for the MCP server session.
+        url
+            URL endpoint where the Streamable HTTP server is mounted (e.g.,
+            `http://localhost:8000/mcp`)
+        include_tools
+            List of tool names to include. By default, all available tools are
+            included.
+        exclude_tools
+            List of tool names to exclude. This parameter and `include_tools`
+            are mutually exclusive.
+        namespace
+            Optional namespace to prefix to the tool names. Use this to avoid
+            name collisions with other tools already registered with the chat.
+            Defaults to None.
+        transport_kwargs
+            Additional keyword arguments for the transport layer (i.e.,
+            `mcp.client.streamable_http.streamablehttp_client`).
+
+        Raises
+        ------
+        ImportError
+            If the `mcp` package is not installed
+        ValueError
+            If both include_tools and exclude_tools are specified
+        ValueError
+            If a session with the given name already exists
+        ValueError
+            If a tool with the same name already exists in the chat
+
+        Returns
+        -------
+        A callback that can be used to clean up the MCP session and tools.
+
+        Note
+        ----
+        Unlike the `register_mcp_tools_stdio_async()` method, this method does
+        not launch an MCP server. Instead, it assumes an HTTP server is already
+        running at the specified URL. This is useful for connecting to an
+        existing MCP server that is already running and serving tools.
+
+        Examples
+        --------
+
+        Assuming you have a Python script `my_mcp_server.py` that implements an
+        MCP server like so:
+
+        ```python
+        from mcp.server.fastmcp import FastMCP
+
+        app = FastMCP("my_server")
+
+        @app.tool(description="Add two numbers.")
+        def add(x: int, y: int) -> int:
+            return x + y
+
+        app.run(transport="streamable-http")
+        ```
+
+        You can launch this server like so:
+
+        ```bash
+        python my_mcp_server.py
+        ```
+
+        Then, you can register this server with the chat as follows:
+
+        ```python
+        await chat.register_mcp_tools_http_stream_async(
+            name="my_server",
+            url="http://localhost:8080/mcp"
+        )
+        ```
+        """
+
+        if include_tools and exclude_tools:
+            raise ValueError("Cannot specify both include_tools and exclude_tools.")
+
+        if name in self._mcp_exit_stacks:
+            raise ValueError(f"MCP Session {name} already exists.")
+
+        mcp = self._try_import_mcp()
+
+        from mcp.client.streamable_http import streamablehttp_client
+
+        exit_stack = AsyncExitStack()
+
+        # Try to initialize the MCP session (and cleanup if it fails)
+        try:
+            read_stream, write_stream, _ = await exit_stack.enter_async_context(
+                streamablehttp_client(url, **(transport_kwargs or {}))
+            )
+            session = await exit_stack.enter_async_context(
+                mcp.ClientSession(read_stream, write_stream)
+            )
+            await session.initialize()
+        except Exception as e:
+            await exit_stack.aclose()
+            raise RuntimeError(
+                f"Failed to connect to MCP server '{name}' at URL '{url}': {e}"
+            ) from e
+
+        self._mcp_exit_stacks[name] = exit_stack
+
+        tools = await self._get_mcp_tools(
+            session,
+            include_tools=include_tools,
+            exclude_tools=exclude_tools,
+            namespace=namespace,
+        )
+
+        self._update_mcp_tools(tools)
+
+        return self._cleanup_mcp_callback(name, tools=tools)
+
+    async def register_mcp_tools_stdio_async(
+        self,
+        *,
+        name: str,
+        command: str,
+        args: list[str],
+        include_tools: Optional[list[str]] = None,
+        exclude_tools: Optional[list[str]] = None,
+        namespace: Optional[str] = None,
+        transport_kwargs: Optional[dict[str, Any]] = None,
+    ):
+        """
+        Register tools from a MCP server using stdio (standard input/output) transport.
+
+        Useful for launching an MCP server and registering its tools with the chat -- all
+        from the same Python process.
+
+        In more detail, this method:
+
+        1. Executes the given `command` with the provided `args`.
+            * This should start an MCP server that communicates via stdio.
+        2. Establishes a client connection to the MCP server using the `mcp` package.
+        3. Registers the available tools from the MCP server with the chat.
+        4. Returns a cleanup callback to close the MCP session and remove the tools.
+
+        Pre-requisites
+        --------------
+
+        ::: {.callout-note}
+        Requires the `mcp` package to be installed. Install it with:
+
+        ```bash
+        pip install mcp
+        ```
+        :::
+
+        Parameters
+        ----------
+        name
+            A unique name for the MCP server session.
+        command
+            System command to execute to start the MCP server (e.g., `python`).
+        args
+            Arguments to pass to the system command (e.g., `["-m", "my_mcp_server"]`).
+        include_tools
+            List of tool names to include. By default, all available tools are included.
+        exclude_tools
+            List of tool names to exclude. This parameter and `include_tools` are mutually exclusive.
+        namespace
+            Optional namespace to apply the tool names. Use this to avoid name collisions
+            with other tools already registered with the chat. Defaults to None.
+        transport_kwargs
+            Additional keyword arguments for the stdio transport layer (i.e.,
+            `mcp.client.stdio.stdio_client`).
+
+        Raises
+        ------
+        ImportError
+            If the `mcp` package is not installed
+        ValueError
+            If both include_tools and exclude_tools are specified
+        ValueError
+            If a session with the given name already exists
+        ValueError
+            If a tool with the same name already exists in the chat
+
+        Returns
+        -------
+        A callback that can be used to clean up the MCP session and tools.
+
+        Examples
+        --------
+
+        Assuming you have a Python script `my_mcp_server.py` that implements an
+        MCP server like so
+
+        ```python
+        from mcp.server.fastmcp import FastMCP
+
+        app = FastMCP("my_server")
+
+        @app.tool(description="Add two numbers.")
+        def add(y: int, z: int) -> int:
+            return y - z
+
+        app.run(transport="stdio")
+        ```
+
+        You can register this server with the chat as follows:
+
+        ```python
+        from chatlas import ChatOpenAI
+
+        chat = ChatOpenAI()
+
+        await chat.register_mcp_tools_stdio_async(
+            name="my_server",
+            command="python",
+            args=["-m", "my_mcp_server"],
+        )
+        ```
+        """
+
+        if include_tools and exclude_tools:
+            raise ValueError("Cannot specify both include_tools and exclude_tools.")
+
+        if name in self._mcp_exit_stacks:
+            raise ValueError(f"MCP Session {name} already exists.")
+
+        mcp = self._try_import_mcp()
+        from mcp.client.stdio import stdio_client
+
+        server_params = mcp.StdioServerParameters(
+            command=command,
+            args=args,
+            **(transport_kwargs or {}),
+        )
+
+        exit_stack = AsyncExitStack()
+
+        # Try to initialize the MCP session (and cleanup if it fails)
+        try:
+            transport = await exit_stack.enter_async_context(
+                stdio_client(server_params)
+            )
+            session = await exit_stack.enter_async_context(
+                mcp.ClientSession(*transport)
+            )
+            await session.initialize()
+        except Exception as e:
+            await exit_stack.aclose()
+            raise RuntimeError(
+                f"Failed to connect to MCP server '{name}' with command '{command} {args}': {e}"
+            ) from e
+
+        self._mcp_exit_stacks[name] = exit_stack
+
+        tools = await self._get_mcp_tools(
+            session,
+            include_tools=include_tools,
+            exclude_tools=exclude_tools,
+            namespace=namespace,
+        )
+
+        self._update_mcp_tools(tools)
+
+        return self._cleanup_mcp_callback(name, tools=tools)
+
+    @staticmethod
+    def _try_import_mcp():
+        try:
+            import mcp  # noqa: F401
+
+            return mcp
+        except ImportError:
+            raise ImportError(
+                "The `mcp` package is required to connect to MCP servers. "
+                "Install it with `pip install mcp`."
+            )
+
+    async def _get_mcp_tools(
+        self,
+        session: "mcp.ClientSession",
+        include_tools: list[str] | None = None,
+        exclude_tools: list[str] | None = None,
+        namespace: str | None = None,
+    ):
+        response = await session.list_tools()
+        res: dict[str, Tool] = {}
+        for tool in response.tools:
+            name = tool.name
+            if exclude_tools and name in exclude_tools:
+                continue
+            if include_tools and name not in include_tools:
+                continue
+            # TODO: should tool name be prefixed with namespace as well?
+            if namespace:
+                name = f"{namespace}.{name}"
+            res[name] = Tool.from_mcp(session=session, mcp_tool=tool)
+        return res
+
+    def _update_mcp_tools(self, tools: dict[str, Tool]):
+        overlapping_tools = set(self._tools.keys()) & set(tools.keys())
+        if overlapping_tools:
+            raise ValueError(
+                f"The following tools are already registered: {overlapping_tools}. "
+                "Consider providing a namespace when registering this MCP server "
+                "to avoid name collisions."
+            )
+        self._tools.update(tools)
+
+    def _cleanup_mcp_callback(self, name: str, tools: dict[str, Tool]):
+        async def _cleanup():
+            # Clean up the MCP connection
+            if name in self._mcp_exit_stacks:
+                await self._mcp_exit_stacks[name].aclose()
+                del self._mcp_exit_stacks[name]
+            # Remove the tools registered from this MCP session
+            for tool_name in tools.keys():
+                if tool_name in self._tools:
+                    del self._tools[tool_name]
+
+        return _cleanup
+
     def register_tool(
         self,
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
@@ -930,7 +1286,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         recommended):
 
         ```python
-        from chatlas import ChatOpenAI, Tool
+        from chatlas import ChatOpenAI
 
 
         def add(a: int, b: int) -> int:
@@ -958,7 +1314,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         and also more directly document the input parameters:
 
         ```python
-        from chatlas import ChatOpenAI, Tool
+        from chatlas import ChatOpenAI
         from pydantic import BaseModel, Field
 
 
@@ -990,8 +1346,41 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Note that the name and docstring of the model takes precedence over the
             name and docstring of the function.
         """
-        tool = Tool(func, model=model)
+        tool = Tool.from_func(func, model=model)
         self._tools[tool.name] = tool
+
+    def get_tools(self) -> list[Tool]:
+        """
+        Get the list of registered tools.
+
+        Returns
+        -------
+        list[Tool]
+            A list of `Tool` instances that are currently registered with the chat.
+        """
+        return list(self._tools.values())
+
+    def set_tools(
+        self, tools: list[Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool]
+    ):
+        """
+        Set the tools for the chat.
+
+        This replaces any previously registered tools with the provided list of
+        tools. This is for advanced usage -- typically, you would use
+        `.register_tool()` to register individual tools as needed.
+
+        Parameters
+        ----------
+        tools
+            A list of `Tool` instances to set as the chat's tools.
+        """
+        self._tools = {}
+        for tool in tools:
+            if isinstance(tool, Tool):
+                self._tools[tool.name] = tool
+            else:
+                self.register_tool(tool)
 
     def on_tool_request(self, callback: Callable[[ContentToolRequest], None]):
         """

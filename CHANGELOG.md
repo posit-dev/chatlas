@@ -7,6 +7,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [UNRELEASED]
+
+### New features
+
+* `Chat` gains new `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()` methods for easily registering tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
+* `Chat` gains new `.get_tools()`/`.set_tools()` methods -- making it possible to remove already registered tools. (#39)
+
+
 ## [0.8.1] - 2025-05-30
 
 * Fixed `@overload` definitions for `.stream()` and `.stream_async()`.
