@@ -66,7 +66,7 @@ async def test_register_sse_mcp_server():
     chat = ChatOpenAI()
 
     async with sse_mcp_server("sse_add.py"):
-        cleanup = await chat.register_mcp_tools_http_stream(
+        cleanup = await chat.register_mcp_tools_http_stream_async(
             name="test",
             url=SERVER_URL,
         )
@@ -95,7 +95,7 @@ async def test_register_sse_mcp_server():
 async def test_register_stdio_mcp_server():
     chat = ChatOpenAI()
 
-    cleanup = await chat.register_mcp_tools_stdio(
+    cleanup = await chat.register_mcp_tools_stdio_async(
         name="test",
         command=sys.executable,
         args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
@@ -126,7 +126,7 @@ async def test_register_stdio_mcp_server():
 async def test_register_multiple_mcp_servers():
     chat = ChatOpenAI()
 
-    await chat.register_mcp_tools_stdio(
+    await chat.register_mcp_tools_stdio_async(
         name="stdio_test",
         command=sys.executable,
         args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
@@ -134,7 +134,7 @@ async def test_register_multiple_mcp_servers():
     )
 
     async with sse_mcp_server("sse_add.py"):
-        cleanup = await chat.register_mcp_tools_http_stream(
+        cleanup = await chat.register_mcp_tools_http_stream_async(
             name="sse_test",
             url=SERVER_URL,
         )
@@ -191,7 +191,7 @@ async def test_call_sse_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
     async with sse_mcp_server("sse_current_date.py"):
-        cleanup = await chat.register_mcp_tools_http_stream(
+        cleanup = await chat.register_mcp_tools_http_stream_async(
             name="test",
             url=SERVER_URL,
         )
@@ -211,7 +211,7 @@ async def test_call_sse_mcp_tool():
 async def test_call_stdio_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
-    cleanup = await chat.register_mcp_tools_stdio(
+    cleanup = await chat.register_mcp_tools_stdio_async(
         name="stdio_test",
         command=sys.executable,
         args=[str(MCP_SERVER_DIR / "stdio_current_date.py")],

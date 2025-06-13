@@ -916,7 +916,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         json = res[0]
         return json.value
 
-    async def register_mcp_tools_http_stream(
+    async def register_mcp_tools_http_stream_async(
         self,
         *,
         name: str,
@@ -983,8 +983,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Note
         ----
-        Unlike the `register_mcp_tools_stdio()` method, this method does not
-        launch an MCP server. Instead, it assumes an HTTP server is already
+        Unlike the `register_mcp_tools_stdio_async()` method, this method does
+        not launch an MCP server. Instead, it assumes an HTTP server is already
         running at the specified URL. This is useful for connecting to an
         existing MCP server that is already running and serving tools.
 
@@ -1015,7 +1015,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Then, you can register this server with the chat as follows:
 
         ```python
-        await chat.register_mcp_tools_http_stream(
+        await chat.register_mcp_tools_http_stream_async(
             name="my_server",
             url="http://localhost:8080/mcp"
         )
@@ -1062,7 +1062,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return self._cleanup_mcp_callback(name, tools=tools)
 
-    async def register_mcp_tools_stdio(
+    async def register_mcp_tools_stdio_async(
         self,
         *,
         name: str,
@@ -1157,7 +1157,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         chat = ChatOpenAI()
 
-        await chat.register_mcp_tools_stdio(
+        await chat.register_mcp_tools_stdio_async(
             name="my_server",
             command="python",
             args=["-m", "my_mcp_server"],
