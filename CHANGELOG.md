@@ -23,10 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `Tool`'s constructor no longer takes a function as input. Use the new `.from_func()` method instead to create a `Tool` from a function. (#39)
 * `.register_tool()` now throws an exception when the tool has the same name as an already registered tool. Set the new `force` parameter to `True` to force the registration. (#39)
 
-
 ### Improvements
 
 * HTML styling improvements for `ContentToolResult` and `ContentToolRequest`. (#39)
+
+### Bug fixes
+
+* Fixed an issue where `httpx` client customization (e.g., `ChatOpenAI(kwargs = {"http_client": httpx.Client()})`) wasn't working as expected (#108)
 
 ## [0.8.1] - 2025-05-30
 

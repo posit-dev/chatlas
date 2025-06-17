@@ -1,4 +1,6 @@
 import pytest
+import httpx
+
 from chatlas import ChatOpenAI
 
 from .conftest import (
@@ -93,3 +95,7 @@ async def test_openai_logprobs():
 def test_openai_pdf():
     chat_fun = ChatOpenAI
     assert_pdf_local(chat_fun)
+
+
+def test_openai_custom_http_client():
+    ChatOpenAI(kwargs={"http_client": httpx.AsyncClient()})
