@@ -1,6 +1,8 @@
 import base64
 
+import httpx
 import pytest
+
 from chatlas import ChatAnthropic, ContentToolResult
 
 from .conftest import (
@@ -128,3 +130,7 @@ def test_anthropic_image_tool(test_images_dir):
     )
 
     assert "dice" in res.get_content()
+
+
+def test_anthropic_custom_http_client():
+    ChatAnthropic(kwargs={"http_client": httpx.AsyncClient()})
