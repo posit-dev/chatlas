@@ -471,7 +471,7 @@ class ContentToolResultResource(ContentToolResult):
 
     value: bytes
     model_format: Literal["auto", "json", "str", "as_is"] = "as_is"
-    mime_type: str | None
+    mime_type: Optional[str]
 
     def __str__(self):
         return f"<ContentToolResultResource mime_type='{self.mime_type}'>"
