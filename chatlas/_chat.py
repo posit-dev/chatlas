@@ -66,7 +66,7 @@ CompletionT = TypeVar("CompletionT")
 EchoOptions = Literal["output", "all", "none", "text"]
 
 if TYPE_CHECKING:
-    import mcp
+    from mcp import ClientSession as MCPClientSession
 
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
@@ -1252,7 +1252,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @staticmethod
     def _try_import_mcp():
         try:
-            import mcp  # noqa: F401
+            import mcp
 
             return mcp
         except ImportError:
@@ -1263,7 +1263,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def _get_mcp_tools(
         self,
-        session: "mcp.ClientSession",
+        session: "MCPClientSession",
         include_tools: list[str] | None = None,
         exclude_tools: list[str] | None = None,
         namespace: str | None = None,
