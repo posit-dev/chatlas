@@ -182,5 +182,11 @@ def write_code_to_file(code: str, path: Path, setup_code: Optional[str] = None):
     with open(path, "w") as f:
         f.write(code_)
 
-    subprocess.run(["ruff", "format", str(path)], check=False)
-    subprocess.run(["ruff", "check", "--fix", str(path)], check=False)
+    subprocess.run(
+        ["ruff", "format", str(path), "--config", "pyproject.toml"],
+        check=False,
+    )
+    subprocess.run(
+        ["ruff", "check", "--fix", str(path), "--config", "pyproject.toml"],
+        check=False,
+    )
