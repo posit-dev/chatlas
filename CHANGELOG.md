@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [UNRELEASED]
+
+### Bug fixes
+
+* Fixed an issue where `httpx` client customization (e.g., `ChatOpenAI(kwargs = {"http_client": httpx.Client()})`) wasn't working as expected (#108)
+
 ## [0.8.1] - 2025-05-30
 
 * Fixed `@overload` definitions for `.stream()` and `.stream_async()`.

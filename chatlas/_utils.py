@@ -7,7 +7,33 @@ import os
 import re
 from typing import Any, AsyncIterable, Awaitable, Callable, Iterable, TypeVar, cast
 
-from ._typing_extensions import ParamSpec, TypeGuard
+import httpx
+
+from ._typing_extensions import ParamSpec, TypedDict, TypeGuard
+
+
+class AnyTypeDict(TypedDict, total=False):
+    pass
+
+
+HTTPClientKwargs = TypeVar("HTTPClientKwargs", bound=AnyTypeDict)
+
+
+def split_http_client_kwargs(
+    kwargs: HTTPClientKwargs,
+) -> tuple[HTTPClientKwargs, HTTPClientKwargs]:
+    """Split kwargs, removing incompatible http_client for sync/async."""
+    sync_kwargs = kwargs.copy()
+    async_kwargs = kwargs.copy()
+
+    http_client = kwargs.get("http_client")
+    if isinstance(http_client, httpx.AsyncClient):
+        sync_kwargs.pop("http_client")
+    elif isinstance(http_client, httpx.Client):
+        async_kwargs.pop("http_client")
+
+    return sync_kwargs, async_kwargs
+
 
 # --------------------------------------------------------------------
 # wrap_async() and is_async_callable() was copied from shiny/_utils.py
