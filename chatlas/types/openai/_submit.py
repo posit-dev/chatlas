@@ -131,7 +131,9 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.NotGiven,
     ]
     seed: Union[int, None, openai.NotGiven]
-    service_tier: Union[Literal["auto", "default", "flex"], None, openai.NotGiven]
+    service_tier: Union[
+        Literal["auto", "default", "flex", "scale"], None, openai.NotGiven
+    ]
     stop: Union[str, None, list[str], openai.NotGiven]
     store: Union[bool, None, openai.NotGiven]
     stream: Union[Literal[False], None, Literal[True], openai.NotGiven]
