@@ -4,6 +4,7 @@ import inspect
 import warnings
 from typing import TYPE_CHECKING, Any, AsyncGenerator, Awaitable, Callable, Optional
 
+import openai
 from pydantic import BaseModel, Field, create_model
 
 from . import _utils
@@ -308,14 +309,6 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
 
 
 def basemodel_to_param_schema(model: type[BaseModel]) -> dict[str, object]:
-    try:
-        import openai
-    except ImportError:
-        raise ImportError(
-            "The openai package is required for this functionality. "
-            "Please install it with `pip install openai`."
-        )
-
     # Lean on openai's ability to translate BaseModel.model_json_schema()
     # to a valid tool schema (this wouldn't be impossible to do ourselves,
     # but it's fair amount of logic to substitute `$refs`, etc.)
