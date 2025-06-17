@@ -20,7 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 
-* `Tool`'s constructor no longer automatically generates a tool schema from a function. Use the new `.from_func()` method to create a `Tool` from a in-memory function. (#39)
+* `Tool`'s constructor no longer takes a function as input. Use the new `.from_func()` method instead to create a `Tool` from a function. (#39)
+* `.register_tool()` now throws an exception when the tool has the same name as an already registered tool. Set the new `force` parameter to `True` to force the registration. (#39)
+
 
 ### Improvements
 

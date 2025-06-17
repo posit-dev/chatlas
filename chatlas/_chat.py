@@ -960,9 +960,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             List of tool names to exclude. This parameter and `include_tools`
             are mutually exclusive.
         namespace
-            Optional namespace to prefix to the tool names. Use this to avoid
-            name collisions with other tools already registered with the chat.
-            Defaults to None.
+            Optional namespace to apply the tool names. Use this to avoid name
+            collisions with other tools already registered with the chat. This
+            namespace does not apply to the MCP server name itself, but rather
+            the names of the tools registered with the chat session.
         transport_kwargs
             Additional keyword arguments for the transport layer (i.e.,
             `mcp.client.streamable_http.streamablehttp_client`).
@@ -1108,14 +1109,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         command
             System command to execute to start the MCP server (e.g., `python`).
         args
-            Arguments to pass to the system command (e.g., `["-m", "my_mcp_server"]`).
+            Arguments to pass to the system command (e.g., `["-m",
+            "my_mcp_server"]`).
         include_tools
-            List of tool names to include. By default, all available tools are included.
+            List of tool names to include. By default, all available tools are
+            included.
         exclude_tools
-            List of tool names to exclude. This parameter and `include_tools` are mutually exclusive.
+            List of tool names to exclude. This parameter and `include_tools`
+            are mutually exclusive.
         namespace
-            Optional namespace to apply the tool names. Use this to avoid name collisions
-            with other tools already registered with the chat. Defaults to None.
+            Optional namespace to apply the tool names. Use this to avoid name
+            collisions with other tools already registered with the chat. This
+            namespace does not apply to the MCP server name itself, but rather
+            the names of the tools registered with the chat session.
         transport_kwargs
             Additional keyword arguments for the stdio transport layer (i.e.,
             `mcp.client.stdio.stdio_client`).
@@ -1279,7 +1285,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 continue
             if include_tools and name not in include_tools:
                 continue
-            # TODO: should tool name be prefixed with namespace as well?
             if namespace:
                 name = f"{namespace}.{name}"
             res[name] = Tool.from_mcp(session=session, mcp_tool=tool)
@@ -1312,6 +1317,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
+        force: bool = False,
         model: Optional[type[BaseModel]] = None,
     ):
         """
@@ -1381,14 +1387,27 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         func
             The function to be invoked when the tool is called.
+        force
+            If `True`, overwrite any existing tool with the same name. If `False`
+            (the default), raise an error if a tool with the same name already exists.
         model
             A Pydantic model that describes the input parameters for the function.
             If not provided, the model will be inferred from the function's type hints.
             The primary reason why you might want to provide a model in
             Note that the name and docstring of the model takes precedence over the
             name and docstring of the function.
+
+        Raises
+        ------
+        ValueError
+            If a tool with the same name already exists and `force` is `False`.
         """
         tool = Tool.from_func(func, model=model)
+        if tool.name in self._tools and not force:
+            raise ValueError(
+                f"Tool with name '{tool.name}' is already registered. "
+                "Set `force=True` to overwrite it."
+            )
         self._tools[tool.name] = tool
 
     def get_tools(self) -> list[Tool]:
