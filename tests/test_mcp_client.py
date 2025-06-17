@@ -26,7 +26,7 @@ SERVER_URL = f"http://localhost:{ENV_VARS['MCP_PORT']}/mcp"
 
 
 @asynccontextmanager
-async def sse_mcp_server(server_file: str):
+async def http_mcp_server(server_file: str):
     full_path = str(MCP_SERVER_DIR / server_file)
 
     process = subprocess.Popen(
@@ -62,10 +62,10 @@ async def sse_mcp_server(server_file: str):
 
 
 @pytest.mark.asyncio
-async def test_register_sse_mcp_server():
+async def test_register_http_mcp_server():
     chat = ChatOpenAI()
 
-    async with sse_mcp_server("sse_add.py"):
+    async with http_mcp_server("http_add.py"):
         cleanup = await chat.register_mcp_tools_http_stream_async(
             name="test",
             url=SERVER_URL,
@@ -133,7 +133,7 @@ async def test_register_multiple_mcp_servers():
         include_tools=["subtract"],
     )
 
-    async with sse_mcp_server("sse_add.py"):
+    async with http_mcp_server("http_add.py"):
         cleanup = await chat.register_mcp_tools_http_stream_async(
             name="sse_test",
             url=SERVER_URL,
@@ -187,10 +187,10 @@ async def test_register_multiple_mcp_servers():
 
 
 @pytest.mark.asyncio
-async def test_call_sse_mcp_tool():
+async def test_call_http_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
-    async with sse_mcp_server("sse_current_date.py"):
+    async with http_mcp_server("http_current_date.py"):
         cleanup = await chat.register_mcp_tools_http_stream_async(
             name="test",
             url=SERVER_URL,
@@ -269,7 +269,9 @@ class TestMCPErrorHandling:
         """Test error when both include_tools and exclude_tools are specified."""
         chat = ChatOpenAI()
 
-        with pytest.raises(ValueError, match="Cannot specify both include_tools and exclude_tools"):
+        with pytest.raises(
+            ValueError, match="Cannot specify both include_tools and exclude_tools"
+        ):
             await chat.register_mcp_tools_stdio_async(
                 name="test",
                 command=sys.executable,
@@ -290,8 +292,10 @@ class TestMCPErrorHandling:
         chat.register_tool(add)
 
         # Try to register MCP server with overlapping tool name
-        with pytest.raises(ValueError, match="The following tools are already registered: {'add'}"):
-            async with sse_mcp_server("sse_add.py"):
+        with pytest.raises(
+            ValueError, match="The following tools are already registered: {'add'}"
+        ):
+            async with http_mcp_server("http_add.py"):
                 await chat.register_mcp_tools_http_stream_async(
                     name="test",
                     url=SERVER_URL,
@@ -309,11 +313,9 @@ class TestMCPErrorHandling:
         chat.register_tool(add)
 
         # Register MCP server with namespace - should work
-        async with sse_mcp_server("sse_add.py"):
+        async with http_mcp_server("http_add.py"):
             cleanup = await chat.register_mcp_tools_http_stream_async(
-                name="test",
-                url=SERVER_URL,
-                namespace="mcp"
+                name="test", url=SERVER_URL, namespace="mcp"
             )
 
             # Should have both tools with different names
@@ -344,7 +346,7 @@ class TestMCPCleanup:
         chat = ChatOpenAI()
 
         # Register two sessions
-        cleanup1 = await chat.register_mcp_tools_stdio_async(
+        await chat.register_mcp_tools_stdio_async(
             name="session1",
             command=sys.executable,
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
@@ -410,7 +412,9 @@ class TestMCPCleanup:
         """Test warning when cleaning up non-existent session."""
         chat = ChatOpenAI()
 
-        with pytest.warns(UserWarning, match="No MCP session found with name 'nonexistent'"):
+        with pytest.warns(
+            UserWarning, match="No MCP session found with name 'nonexistent'"
+        ):
             await chat.cleanup_mcp_tools("nonexistent")
 
     @pytest.mark.asyncio
@@ -537,7 +541,7 @@ class TestMCPTransportKwargs:
         """Test passing transport_kwargs to HTTP client."""
         chat = ChatOpenAI()
 
-        async with sse_mcp_server("sse_add.py"):
+        async with http_mcp_server("http_add.py"):
             cleanup = await chat.register_mcp_tools_http_stream_async(
                 name="test",
                 url=SERVER_URL,
@@ -549,15 +553,3 @@ class TestMCPTransportKwargs:
             assert len(tools) == 1
 
             await cleanup()
-
-
-class TestMCPImportError:
-    """Test behavior when MCP package is not available."""
-
-    def test_try_import_mcp_error(self):
-        """Test that proper error is raised when MCP is not available."""
-        # We can't easily test this since MCP is available in test environment
-        # But we can test the method exists and returns mcp module
-        chat = ChatOpenAI()
-        mcp_module = chat._try_import_mcp()
-        assert mcp_module.__name__ == "mcp"
