@@ -2,11 +2,16 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional
+from typing import TYPE_CHECKING, Any, AsyncGenerator, Awaitable, Callable, Optional
 
 from pydantic import BaseModel, Field, create_model
 
 from . import _utils
+from ._content import (
+    ContentToolResult,
+    ContentToolResultImage,
+    ContentToolResultResource,
+)
 
 __all__ = (
     "Tool",
@@ -16,6 +21,7 @@ __all__ = (
 if TYPE_CHECKING:
     from mcp import ClientSession as MCPClientSession
     from mcp import Tool as MCPTool
+    from mcp.types import TextResourceContents
     from openai.types.chat import ChatCompletionToolParam
 
 
@@ -136,13 +142,51 @@ class Tool:
             A new Tool instance wrapping the MCP tool.
         """
 
-        async def _call(**args: Any) -> Any:
+        async def _call(**args: Any) -> AsyncGenerator[ContentToolResult, None]:
             result = await session.call_tool(mcp_tool.name, args)
-            # TODO: Handle errors properly (result.isError)
-            if result.content[0].type == "text":
-                return result.content[0].text
-            else:
-                raise RuntimeError(f"Unexpected content type: {result.content[0].type}")
+
+            # Raise an error if the tool call resulted in an error. It doesn't seem to be
+            # very well defined how to get at the error message, but it appears that it gets
+            # stored in the `text` attribute of the content. Also, empirically, the error
+            # message seems to include `Error executing tool {tool_name}: ...`, so
+            if result.isError:
+                err_msg = getattr(
+                    result.content[0],
+                    "text",
+                    f"Error executing tool {mcp_tool.name}.",
+                )
+                raise RuntimeError(err_msg)
+
+            for content in result.content:
+                if content.type == "text":
+                    yield ContentToolResult(value=content.text)
+                elif content.type == "image":
+                    if content.mimeType not in (
+                        "image/png",
+                        "image/jpeg",
+                        "image/webp",
+                        "image/gif",
+                    ):
+                        raise ValueError(
+                            f"Unsupported image MIME type: {content.mimeType}"
+                        )
+
+                    yield ContentToolResultImage(
+                        value=content.data,
+                        mime_type=content.mimeType,
+                    )
+                elif content.type == "resource":
+                    resource = content.resource
+                    if isinstance(resource, TextResourceContents):
+                        blob = resource.text.encode("utf-8")
+                    else:
+                        blob = resource.blob.encode("utf-8")
+
+                    yield ContentToolResultResource(
+                        value=blob, mime_type=content.resource.mimeType
+                    )
+                else:
+                    raise RuntimeError(f"Unexpected content type: {content.type}")
 
         params = mcp_tool_input_schema_to_param_schema(mcp_tool.inputSchema)
 

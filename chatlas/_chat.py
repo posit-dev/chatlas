@@ -1687,22 +1687,23 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             assert turn is not None
             user_turn_result = None
 
-            results: list[ContentToolResult] = []
+            all_results: list[ContentToolResult] = []
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
                     if echo == "output":
                         self._echo_content(f"\n\n{x}\n\n")
                     if content == "all":
                         yield x
-                    res = self._invoke_tool(x)
-                    if echo == "output":
-                        self._echo_content(f"\n\n{res}\n\n")
-                    if content == "all":
-                        yield res
-                    results.append(res)
+                    results = self._invoke_tool(x)
+                    for res in results:
+                        if echo == "output":
+                            self._echo_content(f"\n\n{res}\n\n")
+                        if content == "all":
+                            yield res
+                        all_results.append(res)
 
-            if results:
-                user_turn_result = Turn("user", results)
+            if all_results:
+                user_turn_result = Turn("user", all_results)
 
     @overload
     def _chat_impl_async(
@@ -1746,24 +1747,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             assert turn is not None
             user_turn_result = None
 
-            results: list[ContentToolResult] = []
+            all_results: list[ContentToolResult] = []
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
                     if echo == "output":
                         self._echo_content(f"\n\n{x}\n\n")
                     if content == "all":
                         yield x
-                    res = await self._invoke_tool_async(x)
-                    if echo == "output":
-                        self._echo_content(f"\n\n{res}\n\n")
-                    if content == "all":
-                        yield res
-                    else:
-                        yield "\n\n"
-                    results.append(res)
+                    results = self._invoke_tool_async(x)
+                    async for res in results:
+                        if echo == "output":
+                            self._echo_content(f"\n\n{res}\n\n")
+                        if content == "all":
+                            yield res
+                        else:
+                            yield "\n\n"
+                        all_results.append(res)
 
-            if results:
-                user_turn_result = Turn("user", results)
+            if all_results:
+                user_turn_result = Turn("user", all_results)
 
     def _submit_turns(
         self,
@@ -1892,54 +1894,56 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         self._turns.extend([user_turn, turn])
 
-    def _invoke_tool(self, x: ContentToolRequest) -> ContentToolResult:
-        tool_def = self._tools.get(x.name, None)
+    def _invoke_tool(self, request: ContentToolRequest):
+        tool_def = self._tools.get(request.name, None)
         func = tool_def.func if tool_def is not None else None
 
         if func is None:
-            e = RuntimeError(f"Unknown tool: {x.name}")
-            return ContentToolResult(value=None, error=e, request=x)
+            yield self._handle_tool_error_result(
+                request,
+                error=RuntimeError("Unknown tool."),
+            )
+            return
 
         # First, invoke the request callbacks. If a ToolRejectError is raised,
         # treat it like a tool failure (i.e., gracefully handle it).
         result: ContentToolResult | None = None
         try:
-            self._on_tool_request_callbacks.invoke(x)
+            self._on_tool_request_callbacks.invoke(request)
         except ToolRejectError as e:
-            result = ContentToolResult(value=None, error=e, request=x)
+            yield self._handle_tool_error_result(request, e)
+            return
 
-        # Invoke the tool (if it hasn't been rejected).
-        if result is None:
-            try:
-                if isinstance(x.arguments, dict):
-                    res = func(**x.arguments)
+        try:
+            if isinstance(request.arguments, dict):
+                res = func(**request.arguments)
+            else:
+                res = func(request.arguments)
+
+            # Normalize res as a generator of results.
+            if not inspect.isgenerator(res):
+
+                def _as_generator(res):
+                    yield res
+
+                res = _as_generator(res)
+
+            for x in res:
+                if isinstance(x, ContentToolResult):
+                    result = x
                 else:
-                    res = func(x.arguments)
+                    result = ContentToolResult(value=x)
 
-                if isinstance(res, ContentToolResult):
-                    result = res
-                else:
-                    result = ContentToolResult(value=res)
+                result.request = request
 
-                result.request = x
-            except Exception as e:
-                result = ContentToolResult(value=None, error=e, request=x)
+                self._on_tool_result_callbacks.invoke(result)
+                yield result
 
-        # If we've captured an error, notify and log it.
-        if result.error:
-            warnings.warn(
-                f"Calling tool '{x.name}' led to an error.",
-                ToolFailureWarning,
-                stacklevel=2,
-            )
-            traceback.print_exc()
-            log_tool_error(x.name, str(x.arguments), result.error)
+        except Exception as e:
+            yield self._handle_tool_error_result(request, e)
 
-        self._on_tool_result_callbacks.invoke(result)
-        return result
-
-    async def _invoke_tool_async(self, x: ContentToolRequest) -> ContentToolResult:
-        tool_def = self._tools.get(x.name, None)
+    async def _invoke_tool_async(self, request: ContentToolRequest):
+        tool_def = self._tools.get(request.name, None)
         func = None
         if tool_def:
             if tool_def._is_async:
@@ -1948,45 +1952,59 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 func = wrap_async(tool_def.func)
 
         if func is None:
-            e = RuntimeError(f"Unknown tool: {x.name}")
-            return ContentToolResult(value=None, error=e, request=x)
+            yield self._handle_tool_error_result(
+                request,
+                error=RuntimeError("Unknown tool."),
+            )
+            return
 
         # First, invoke the request callbacks. If a ToolRejectError is raised,
         # treat it like a tool failure (i.e., gracefully handle it).
         result: ContentToolResult | None = None
         try:
-            await self._on_tool_request_callbacks.invoke_async(x)
+            await self._on_tool_request_callbacks.invoke_async(request)
         except ToolRejectError as e:
-            result = ContentToolResult(value=None, error=e, request=x)
+            yield self._handle_tool_error_result(request, e)
+            return
 
         # Invoke the tool (if it hasn't been rejected).
-        if result is None:
-            try:
-                if isinstance(x.arguments, dict):
-                    res = await func(**x.arguments)
+        try:
+            if isinstance(request.arguments, dict):
+                res = await func(**request.arguments)
+            else:
+                res = await func(request.arguments)
+
+            # Normalize res into a generator of results.
+            if not inspect.isasyncgen(res):
+
+                async def _as_async_generator(res):
+                    yield res
+
+                res = _as_async_generator(res)
+
+            async for x in res:
+                if isinstance(x, ContentToolResult):
+                    result = x
                 else:
-                    res = await func(x.arguments)
+                    result = ContentToolResult(value=x)
 
-                if isinstance(res, ContentToolResult):
-                    result = res
-                else:
-                    result = ContentToolResult(value=res)
+                result.request = request
+                await self._on_tool_result_callbacks.invoke_async(result)
+                yield result
 
-                result.request = x
-            except Exception as e:
-                result = ContentToolResult(value=None, error=e, request=x)
+        except Exception as e:
+            yield self._handle_tool_error_result(request, e)
 
-        # If we've captured an error, notify and log it.
-        if result.error:
-            warnings.warn(
-                f"Calling tool '{x.name}' led to an error.",
-                ToolFailureWarning,
-                stacklevel=2,
-            )
-            traceback.print_exc()
-            log_tool_error(x.name, str(x.arguments), result.error)
-
-        await self._on_tool_result_callbacks.invoke_async(result)
+    def _handle_tool_error_result(self, request: ContentToolRequest, error: Exception):
+        warnings.warn(
+            f"Calling tool '{request.name}' led to an error: {error}",
+            ToolFailureWarning,
+            stacklevel=2,
+        )
+        traceback.print_exc()
+        log_tool_error(request.name, str(request.arguments), error)
+        result = ContentToolResult(value=None, error=error, request=request)
+        self._on_tool_result_callbacks.invoke(result)
         return result
 
     def _markdown_display(self, echo: EchoOptions) -> ChatMarkdownDisplay:
