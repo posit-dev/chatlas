@@ -1212,9 +1212,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self._update_mcp_tools(tools)
 
         cleanup = self._cleanup_mcp_callback(name, tools=tools)
-
         self._mcp_cleanup_callbacks[name] = cleanup
-
         return cleanup
 
     async def cleanup_mcp_tools(self, name: Optional[str] = None):
