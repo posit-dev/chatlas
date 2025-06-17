@@ -3,8 +3,9 @@
 # ---------------------------------------------------------
 
 
-from typing import Optional, TypedDict, Union
-
+from typing import TypedDict
+from typing import Optional
+from typing import Union
 import google.auth.credentials
 import google.genai.client
 import google.genai.types
