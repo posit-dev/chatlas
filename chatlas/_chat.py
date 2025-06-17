@@ -1234,20 +1234,23 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         -------
         None
         """
-        if name is not None:
-            if name not in self._mcp_exit_stacks:
-                warnings.warn(
-                    f"No MCP session found with name '{name}'. Nothing to clean up."
-                )
-                return
+        callbacks = self._mcp_cleanup_callbacks
 
-            await self._mcp_cleanup_callbacks[name]()
-            del self._mcp_cleanup_callbacks[name]
+        if name is None:
+            for cleanup in callbacks.values():
+                await cleanup()
+            self._mcp_cleanup_callbacks.clear()
             return
-        # Clean up all registered MCP tools and sessions
-        for name, cleanup in self._mcp_cleanup_callbacks.items():
-            await cleanup()
-        self._mcp_cleanup_callbacks.clear()
+
+        if name not in callbacks:
+            warnings.warn(
+                f"No MCP session found with name '{name}'. Nothing to clean up.",
+                stacklevel=2,
+            )
+            return
+
+        await callbacks[name]()
+        del self._mcp_cleanup_callbacks[name]
 
     @staticmethod
     def _try_import_mcp():
