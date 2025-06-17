@@ -325,17 +325,7 @@ def basemodel_to_param_schema(model: type[BaseModel]) -> dict[str, object]:
     if "parameters" not in fn:
         raise ValueError("Expected `parameters` in function definition.")
 
-    params = fn["parameters"]
-
-    # For some reason, openai (or pydantic?) wants to include a title
-    # at the model and field level. I don't think we actually need or want this.
-    if "title" in params:
-        del params["title"]
-
-    if "properties" in params and isinstance(params["properties"], dict):
-        for prop in params["properties"].values():
-            if "title" in prop:
-                del prop["title"]
+    params = rm_param_titles(fn["parameters"])
 
     return params
 
@@ -343,10 +333,19 @@ def basemodel_to_param_schema(model: type[BaseModel]) -> dict[str, object]:
 def mcp_tool_input_schema_to_param_schema(
     input_schema: dict[str, Any],
 ) -> dict[str, object]:
-    params = input_schema
+    params = rm_param_titles(input_schema)
 
-    # For some reason, mcp (or pydantic?) wants to include a title
-    # at the model and field level. I don't think we actually need or want this.
+    if "additionalProperties" not in params:
+        params["additionalProperties"] = False
+
+    return params
+
+
+def rm_param_titles(
+    params: dict[str, object],
+) -> dict[str, object]:
+    # For some reason, pydantic wants to include a title at the model and field
+    # level. I don't think we actually need or want this.
     if "title" in params:
         del params["title"]
 
@@ -354,8 +353,5 @@ def mcp_tool_input_schema_to_param_schema(
         for prop in params["properties"].values():
             if "title" in prop:
                 del prop["title"]
-
-    if "additionalProperties" not in params:
-        params["additionalProperties"] = False
 
     return params
