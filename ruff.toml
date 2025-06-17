@@ -1,3 +1,0 @@
-lint.ignore = [
-    "PLC0415",  # Module level import not at top of file
-]

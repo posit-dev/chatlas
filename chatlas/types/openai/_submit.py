@@ -3,12 +3,8 @@
 # ---------------------------------------------------------
 
 
-from typing import TypedDict
-from typing import Iterable
-from typing import Literal
-from typing import Mapping
-from typing import Optional
-from typing import Union
+from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
+
 import openai
 import openai.types.chat.chat_completion_assistant_message_param
 import openai.types.chat.chat_completion_audio_param

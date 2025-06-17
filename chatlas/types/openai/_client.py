@@ -3,10 +3,8 @@
 # ---------------------------------------------------------
 
 
-from typing import TypedDict
-from typing import Mapping
-from typing import Optional
-from typing import Union
+from typing import Mapping, Optional, TypedDict, Union
+
 import httpx
 import openai
 

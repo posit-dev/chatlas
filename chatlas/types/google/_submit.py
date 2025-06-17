@@ -3,10 +3,10 @@
 # ---------------------------------------------------------
 
 
-from typing import TypedDict
-from typing import Union
-import PIL.Image
+from typing import TypedDict, Union
+
 import google.genai.types
+import PIL.Image
 
 
 class SubmitInputArgs(TypedDict, total=False):
