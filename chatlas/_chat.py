@@ -111,6 +111,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "css_styles": {},
         }
         self._mcp_exit_stacks: dict[str, AsyncExitStack] = {}
+        self._mcp_cleanup_callbacks: dict[str, Callable[[], Awaitable[None]]] = {}
 
     def get_turns(
         self,
@@ -1060,7 +1061,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         self._update_mcp_tools(tools)
 
-        return self._cleanup_mcp_callback(name, tools=tools)
+        cleanup = self._cleanup_mcp_callback(name, tools=tools)
+        self._mcp_cleanup_callbacks[name] = cleanup
+        return cleanup
 
     async def register_mcp_tools_stdio_async(
         self,
@@ -1208,7 +1211,45 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         self._update_mcp_tools(tools)
 
-        return self._cleanup_mcp_callback(name, tools=tools)
+        cleanup = self._cleanup_mcp_callback(name, tools=tools)
+
+        self._mcp_cleanup_callbacks[name] = cleanup
+
+        return cleanup
+
+    async def cleanup_mcp_tools(self, name: Optional[str] = None):
+        """
+        Clean up tools registered MCP and their corresponding sessions.
+
+        This method closes the MCP client sessions and removes the tools registered
+        from the MCP servers. If a specific `name` is provided, it will only clean
+        up the tools and session associated with that name. If no name is provided,
+        it will clean up all registered MCP tools and sessions.
+
+        Parameters
+        ----------
+        name
+            If provided, only clean up the tools and session associated
+            with this name. If not provided, clean up all registered MCP tools and sessions.
+
+        Returns
+        -------
+        None
+        """
+        if name is not None:
+            if name not in self._mcp_exit_stacks:
+                warnings.warn(
+                    f"No MCP session found with name '{name}'. Nothing to clean up."
+                )
+                return
+
+            await self._mcp_cleanup_callbacks[name]()
+            del self._mcp_cleanup_callbacks[name]
+            return
+        # Clean up all registered MCP tools and sessions
+        for name, cleanup in self._mcp_cleanup_callbacks.items():
+            await cleanup()
+        self._mcp_cleanup_callbacks.clear()
 
     @staticmethod
     def _try_import_mcp():
