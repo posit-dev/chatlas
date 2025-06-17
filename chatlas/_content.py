@@ -23,6 +23,8 @@ ContentTypeEnum = Literal[
     "image_inline",
     "tool_request",
     "tool_result",
+    "tool_result_image",
+    "tool_result_resource",
     "json",
     "pdf",
 ]
@@ -445,6 +447,8 @@ class ContentToolResultImage(ContentToolResult):
     model_format: Literal["auto", "json", "str", "as_is"] = "as_is"
     mime_type: ImageContentTypes
 
+    content_type: ContentTypeEnum = "tool_result_image"
+
     def __str__(self):
         return f"<ContentToolResultImage mime_type='{self.mime_type}'>"
 
@@ -472,6 +476,8 @@ class ContentToolResultResource(ContentToolResult):
     value: bytes
     model_format: Literal["auto", "json", "str", "as_is"] = "as_is"
     mime_type: Optional[str]
+
+    content_type: ContentTypeEnum = "tool_result_resource"
 
     def __str__(self):
         return f"<ContentToolResultResource mime_type='{self.mime_type}'>"
@@ -543,6 +549,8 @@ ContentUnion = Union[
     ContentImageInline,
     ContentToolRequest,
     ContentToolResult,
+    ContentToolResultImage,
+    ContentToolResultResource,
     ContentJson,
     ContentPDF,
 ]
@@ -569,6 +577,10 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentToolRequest.model_validate(data)
     elif ct == "tool_result":
         return ContentToolResult.model_validate(data)
+    elif ct == "tool_result_image":
+        return ContentToolResultImage.model_validate(data)
+    elif ct == "tool_result_resource":
+        return ContentToolResultResource.model_validate(data)
     elif ct == "json":
         return ContentJson.model_validate(data)
     elif ct == "pdf":

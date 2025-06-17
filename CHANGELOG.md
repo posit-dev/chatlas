@@ -11,9 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* `Chat` gains new `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()` methods for easily registering tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
-* `Chat` gains new `.get_tools()`/`.set_tools()` methods -- making it possible to remove already registered tools. (#39)
+* `Chat` gains new `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()` methods, making it easy to register tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
+* `Chat` gains new `.get_tools()`/`.set_tools()` methods -- making it possible to inspect and remove tools. (#39)
+* Tool functions passed to `.register_tool()` can now `yield` numerous results. (#39)
+* New content classes (`ContentToolResultImage` and `ContentToolResultResource`) were added, primarily to represent MCP tool results that include images/files. (#39)
+* `Tool` gains two class methods: `.from_func()` and `.from_mcp()`. These methods should rarely be needed to be used directly -- they are workhorses for the higher-level `.register_tool()`, `.register_mcp_tools_http_stream_async()`, and `.register_mcp_tools_stdio_async()`. (#39)
+* A `Tool` can now be constructed from a pre-existing tool schema (via a new `__init__` method). (#39)
 
+### Changes
+
+* `Tool`'s constructor no longer automatically generates a tool schema from a function. Use the new `.from_func()` method to create a `Tool` from a in-memory function. (#39)
+
+### Improvements
+
+* HTML styling improvements for `ContentToolResult` and `ContentToolRequest`. (#39)
 
 ## [0.8.1] - 2025-05-30
 
