@@ -482,12 +482,13 @@ class TestMCPToolFiltering:
         """Test including a tool that doesn't exist."""
         chat = ChatOpenAI()
 
-        cleanup = await chat.register_mcp_tools_stdio_async(
-            name="test",
-            command=sys.executable,
-            args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
-            include_tools=["nonexistent"],
-        )
+        with pytest.warns(UserWarning, match="did not match"):
+            cleanup = await chat.register_mcp_tools_stdio_async(
+                name="test",
+                command=sys.executable,
+                args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
+                include_tools=["nonexistent"],
+            )
 
         # Should result in no tools being registered
         tools = chat.get_tools()

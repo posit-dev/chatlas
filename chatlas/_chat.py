@@ -960,10 +960,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             List of tool names to exclude. This parameter and `include_tools`
             are mutually exclusive.
         namespace
-            Optional namespace to apply the tool names. Use this to avoid name
+            A namespace to prepend to tool names (i.e., `namespace.tool_name`)
+            from this MCP server. This is primarily useful to avoid name
             collisions with other tools already registered with the chat. This
-            namespace does not apply to the MCP server name itself, but rather
-            the names of the tools registered with the chat session.
+            namespace applies when tools are advertised to the LLM, so try
+            to use a meaningful name that describes the server and/or the tools
+            it provides. For example, if you have a server that provides tools
+            for mathematical operations, you might use `math` as the namespace.
         transport_kwargs
             Additional keyword arguments for the transport layer (i.e.,
             `mcp.client.streamable_http.streamablehttp_client`).
@@ -1023,9 +1026,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
         ```
         """
-
-        if include_tools and exclude_tools:
-            raise ValueError("Cannot specify both include_tools and exclude_tools.")
 
         if name in self._mcp_exit_stacks:
             raise ValueError(f"MCP Session {name} already exists.")
@@ -1118,10 +1118,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             List of tool names to exclude. This parameter and `include_tools`
             are mutually exclusive.
         namespace
-            Optional namespace to apply the tool names. Use this to avoid name
+            A namespace to prepend to tool names (i.e., `namespace.tool_name`)
+            from this MCP server. This is primarily useful to avoid name
             collisions with other tools already registered with the chat. This
-            namespace does not apply to the MCP server name itself, but rather
-            the names of the tools registered with the chat session.
+            namespace applies when tools are advertised to the LLM, so try
+            to use a meaningful name that describes the server and/or the tools
+            it provides. For example, if you have a server that provides tools
+            for mathematical operations, you might use `math` as the namespace.
         transport_kwargs
             Additional keyword arguments for the stdio transport layer (i.e.,
             `mcp.client.stdio.stdio_client`).
@@ -1173,9 +1176,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
         ```
         """
-
-        if include_tools and exclude_tools:
-            raise ValueError("Cannot specify both include_tools and exclude_tools.")
 
         if name in self._mcp_exit_stacks:
             raise ValueError(f"MCP Session {name} already exists.")
@@ -1277,17 +1277,47 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         exclude_tools: list[str] | None = None,
         namespace: str | None = None,
     ):
+        if include_tools and exclude_tools:
+            raise ValueError("Cannot specify both include_tools and exclude_tools.")
+
+        # Request the MCP tools available
         response = await session.list_tools()
+        mcp_tools = response.tools
+        tool_names = set(x.name for x in mcp_tools)
+
+        # Warn if tools are mis-specified
+        include = set(include_tools or [])
+        missing_include = include.difference(tool_names)
+        if missing_include:
+            warnings.warn(
+                f"Specified include_tools {missing_include} did not match any tools from the MCP server. "
+                f"The tools available are: {tool_names}",
+                stacklevel=2,
+            )
+        exclude = set(exclude_tools or [])
+        missing_exclude = exclude.difference(tool_names)
+        if missing_exclude:
+            warnings.warn(
+                f"Specified exclude_tools {missing_exclude} did not match any tools from the MCP server. "
+                f"The tools available are: {tool_names}",
+                stacklevel=2,
+            )
+
+        # Filter the tool names
+        if include:
+            tool_names = include.intersection(tool_names)
+        if exclude:
+            tool_names = tool_names.difference(exclude)
+
+        # Apply namespace and convert to chatlas.Tool instances
         res: dict[str, Tool] = {}
-        for tool in response.tools:
-            name = tool.name
-            if exclude_tools and name in exclude_tools:
-                continue
-            if include_tools and name not in include_tools:
+        for tool in mcp_tools:
+            if tool.name not in tool_names:
                 continue
             if namespace:
-                name = f"{namespace}.{name}"
-            res[name] = Tool.from_mcp(session=session, mcp_tool=tool)
+                tool.name = f"{namespace}.{tool.name}"
+            res[tool.name] = Tool.from_mcp(session=session, mcp_tool=tool)
+
         return res
 
     def _update_mcp_tools(self, tools: dict[str, Tool]):
