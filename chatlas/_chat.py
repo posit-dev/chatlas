@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import copy
 import inspect
 import os
@@ -1045,11 +1046,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 mcp.ClientSession(read_stream, write_stream)
             )
             await session.initialize()
-        except Exception as e:
-            await exit_stack.aclose()
-            raise RuntimeError(
-                f"Failed to connect to MCP server '{name}' at URL '{url}': {e}"
-            ) from e
+        except (asyncio.CancelledError, Exception) as e:
+            await self._handle_connection_error(
+                error_prefix=f"Failed to connect to MCP server '{name}' at URL '{url}'",
+                error=e,
+                exit_stack=exit_stack,
+            )
 
         self._mcp_exit_stacks[name] = exit_stack
 
@@ -1200,11 +1202,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 mcp.ClientSession(*transport)
             )
             await session.initialize()
-        except Exception as e:
-            await exit_stack.aclose()
-            raise RuntimeError(
-                f"Failed to connect to MCP server '{name}' with command '{command} {args}': {e}"
-            ) from e
+        except (asyncio.CancelledError, Exception) as e:
+            await self._handle_connection_error(
+                error_prefix=f"Failed to connect to MCP server '{name}' with command '{command} {args}'",
+                error=e,
+                exit_stack=exit_stack,
+            )
 
         self._mcp_exit_stacks[name] = exit_stack
 
@@ -1269,6 +1272,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "The `mcp` package is required to connect to MCP servers. "
                 "Install it with `pip install mcp`."
             )
+
+    async def _handle_connection_error(
+        self,
+        *,
+        error_prefix: str,
+        error: BaseException,
+        exit_stack: AsyncExitStack,
+    ):
+        try:
+            await exit_stack.aclose()
+        except Exception as close_error:
+            raise RuntimeError(f"{error_prefix}: {close_error}") from close_error
+        raise RuntimeError(f"{error_prefix}: {error}") from error
 
     async def _get_mcp_tools(
         self,
