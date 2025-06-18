@@ -192,7 +192,7 @@ class Tool:
         params = mcp_tool_input_schema_to_param_schema(mcp_tool.inputSchema)
 
         return cls(
-            func=_call,
+            func=_utils.wrap_async(_call),
             name=mcp_tool.name,
             description=mcp_tool.description or "",
             parameters=params,
