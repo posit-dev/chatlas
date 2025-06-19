@@ -22,7 +22,6 @@ __all__ = (
 if TYPE_CHECKING:
     from mcp import ClientSession as MCPClientSession
     from mcp import Tool as MCPTool
-    from mcp.types import TextResourceContents
     from openai.types.chat import ChatCompletionToolParam
 
 
@@ -177,6 +176,8 @@ class Tool:
                         mime_type=content.mimeType,
                     )
                 elif content.type == "resource":
+                    from mcp.types import TextResourceContents
+
                     resource = content.resource
                     if isinstance(resource, TextResourceContents):
                         blob = resource.text.encode("utf-8")
