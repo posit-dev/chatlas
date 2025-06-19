@@ -257,7 +257,7 @@ class TestMCPErrorHandling:
         """Test error handling for invalid MCP server command."""
         chat = ChatOpenAI()
 
-        with pytest.raises(RuntimeError, match="Failed to connect to MCP server"):
+        with pytest.raises(RuntimeError, match="Failed to register tools"):
             await chat.register_mcp_tools_stdio_async(
                 name="test",
                 command="nonexistent_command",
@@ -269,9 +269,7 @@ class TestMCPErrorHandling:
         """Test error when both include_tools and exclude_tools are specified."""
         chat = ChatOpenAI()
 
-        with pytest.raises(
-            ValueError, match="Cannot specify both include_tools and exclude_tools"
-        ):
+        with pytest.raises(RuntimeError, match="Failed to register tools"):
             await chat.register_mcp_tools_stdio_async(
                 name="test",
                 command=sys.executable,
@@ -293,9 +291,7 @@ class TestMCPErrorHandling:
 
         # Try to register MCP server with overlapping tool name
         async with http_mcp_server("http_add.py"):
-            with pytest.raises(
-                ValueError, match="The following tools are already registered: {'add'}"
-            ):
+            with pytest.raises(RuntimeError, match="Failed to register tools"):
                 await chat.register_mcp_tools_http_stream_async(
                     name="test",
                     url=SERVER_URL,
@@ -330,7 +326,7 @@ class TestMCPErrorHandling:
         """Test error handling for invalid MCP server URL."""
         chat = ChatOpenAI()
 
-        with pytest.raises(RuntimeError, match="Failed to connect to MCP server"):
+        with pytest.raises(RuntimeError, match="Failed to register tools"):
             await chat.register_mcp_tools_http_stream_async(
                 name="test",
                 url="http://localhost:99999/invalid",
