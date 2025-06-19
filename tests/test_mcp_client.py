@@ -71,7 +71,7 @@ async def test_register_http_mcp_server():
             url=SERVER_URL,
         )
 
-        assert "test" in chat._mcp_sessions
+        assert "test" in chat._mcp_manager._mcp_sessions
         assert len(chat._tools) == 1
         tool = chat._tools["add"]
         assert tool.name == "add"
@@ -102,7 +102,7 @@ async def test_register_stdio_mcp_server():
         exclude_tools=["subtract"],
     )
 
-    assert "test" in chat._mcp_sessions
+    assert "test" in chat._mcp_manager._mcp_sessions
     assert len(chat._tools) == 1
     tool = chat._tools["multiply"]
     assert tool.name == "multiply"
@@ -291,7 +291,9 @@ class TestMCPErrorHandling:
 
         # Try to register MCP server with overlapping tool name
         async with http_mcp_server("http_add.py"):
-            with pytest.raises(RuntimeError, match="Failed to register tools"):
+            with pytest.raises(
+                ValueError, match="following tools are already registered: {'add'}"
+            ):
                 await chat.register_mcp_tools_http_stream_async(
                     name="test",
                     url=SERVER_URL,
@@ -356,15 +358,15 @@ class TestMCPCleanup:
             include_tools=["multiply"],
         )
 
-        assert len(chat._mcp_sessions) == 2
+        assert len(chat._mcp_manager._mcp_sessions) == 2
         assert len(chat.get_tools()) == 2
 
         # Clean up only session1
         await chat.cleanup_mcp_tools("session1")
 
-        assert len(chat._mcp_sessions) == 1
-        assert "session1" not in chat._mcp_sessions
-        assert "session2" in chat._mcp_sessions
+        assert len(chat._mcp_manager._mcp_sessions) == 1
+        assert "session1" not in chat._mcp_manager._mcp_sessions
+        assert "session2" in chat._mcp_manager._mcp_sessions
 
         # Only multiply tool should remain
         tools = chat.get_tools()
@@ -393,15 +395,15 @@ class TestMCPCleanup:
             include_tools=["multiply"],
         )
 
-        assert len(chat._mcp_sessions) == 2
+        assert len(chat._mcp_manager._mcp_sessions) == 2
         assert len(chat.get_tools()) == 2
 
         # Clean up all sessions
         await chat.cleanup_mcp_tools()
 
-        assert len(chat._mcp_sessions) == 0
+        assert len(chat._mcp_manager._mcp_sessions) == 0
         assert len(chat.get_tools()) == 0
-        assert len(chat._mcp_sessions) == 0
+        assert len(chat._mcp_manager._mcp_sessions) == 0
 
     @pytest.mark.asyncio
     async def test_cleanup_nonexistent_session_warning(self):
