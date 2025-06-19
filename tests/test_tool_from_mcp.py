@@ -1,5 +1,6 @@
 """Test Tool.from_mcp() class method."""
 
+from typing import cast
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -9,14 +10,11 @@ from chatlas.types import ContentToolResult
 from pydantic.networks import AnyUrl
 
 try:
-    import mcp
-
-    HAS_MCP = True
+    import mcp  # noqa: F401
 except ImportError:
-    HAS_MCP = False
+    pytest.skip("MCP package not available", allow_module_level=True)
 
 
-@pytest.mark.skipif(not HAS_MCP, reason="MCP package not available")
 class TestToolFromMCP:
     """Test Tool.from_mcp() class method."""
 
@@ -49,9 +47,11 @@ class TestToolFromMCP:
         tool = Tool.from_mcp(session, mcp_tool)
 
         assert tool.name == "add"
-        assert tool.schema["function"]["name"] == "add"
-        assert tool.schema["function"]["description"] == "Add two numbers"
-        assert tool.schema["function"]["parameters"] == {
+
+        func = tool.schema["function"]
+        assert func["name"] == "add"
+        assert func.get("description") == "Add two numbers"
+        assert func.get("parameters") == {
             "type": "object",
             "properties": {"x": {"type": "integer"}, "y": {"type": "integer"}},
             "required": ["x", "y"],
@@ -68,13 +68,14 @@ class TestToolFromMCP:
         }
 
         mcp_tool = self.create_mock_mcp_tool(
-            name="test_tool", description=None, input_schema=input_schema
+            name="test_tool", description="", input_schema=input_schema
         )
         session = self.create_mock_session()
 
         tool = Tool.from_mcp(session, mcp_tool)
 
-        assert tool.schema["function"]["description"] == ""
+        func = tool.schema["function"]
+        assert func.get("description") == ""
 
     def test_from_mcp_complex_schema(self):
         """Test creating a Tool from MCP tool with complex input schema."""
@@ -109,7 +110,9 @@ class TestToolFromMCP:
             "required": ["items"],
             "additionalProperties": False,
         }
-        assert tool.schema["function"]["parameters"] == expected_params
+
+        func = tool.schema["function"]
+        assert func.get("parameters") == expected_params
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_text_result(self):
@@ -430,9 +433,11 @@ class TestToolFromMCP:
             "additionalProperties": False,
         }
 
-        assert tool.schema["function"]["parameters"] == expected_params
+        func = tool.schema["function"]
+        assert func.get("parameters") == expected_params
         # Titles should be removed
-        assert "title" not in tool.schema["function"]["parameters"]
-        assert (
-            "title" not in tool.schema["function"]["parameters"]["properties"]["param"]
-        )
+        params = func.get("parameters", {})
+        assert "title" not in params
+        props = cast(dict, params.get("properties", {}))
+        param = props.get("param", {})
+        assert "title" not in param

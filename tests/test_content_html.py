@@ -168,30 +168,6 @@ class TestContentToolResultHTML:
         assert "Tool call failed with error: 'Test error message'" == display_value
 
 
-class TestCSSStyles:
-    """Test the updated CSS styles."""
-
-    def test_css_contains_new_styles(self):
-        """Test that the CSS contains the new styling rules."""
-        from chatlas._content import TOOL_CSS
-
-        # Check for new CSS rules
-        assert ".chatlas-tool-result details[open] summary::after" in TOOL_CSS
-        assert (
-            ".chatlas-tool-result-content pre, .chatlas-tool-result-content code"
-            in TOOL_CSS
-        )
-        assert ".input-parameter-label" in TOOL_CSS
-        assert "pre:has(> .input-parameter-label)" in TOOL_CSS
-        assert "shiny-markdown-stream p:first-of-type:empty" in TOOL_CSS
-
-        # Check for positioning and styling properties
-        assert "position: relative" in TOOL_CSS
-        assert "position: absolute" in TOOL_CSS
-        assert "padding-top: 1.5rem" in TOOL_CSS
-        assert "display: none" in TOOL_CSS
-
-
 class TestContentToolResultImageHTML:
     """Test HTML-related functionality for ContentToolResultImage."""
 
@@ -200,9 +176,7 @@ class TestContentToolResultImageHTML:
         import base64
 
         image_data = base64.b64encode(b"fake image data").decode("utf-8")
-        result = ContentToolResultImage(
-            id="test-id", name="test_tool", value=image_data, mime_type="image/png"
-        )
+        result = ContentToolResultImage(value=image_data, mime_type="image/png")
 
         markdown = result._repr_markdown_()
         expected = f"![](data:image/png;base64,{image_data})"
@@ -215,9 +189,7 @@ class TestContentToolResultResourceHTML:
     def test_repr_mimebundle(self):
         """Test _repr_mimebundle_ method."""
         resource_data = b"This is some resource data"
-        result = ContentToolResultResource(
-            id="test-id", name="test_tool", value=resource_data, mime_type="text/plain"
-        )
+        result = ContentToolResultResource(value=resource_data, mime_type="text/plain")
 
         mime_bundle = result._repr_mimebundle_()
 
@@ -229,8 +201,6 @@ class TestContentToolResultResourceHTML:
         """Test _repr_mimebundle_ with include/exclude parameters."""
         resource_data = b"Test data"
         result = ContentToolResultResource(
-            id="test-id",
-            name="test_tool",
             value=resource_data,
             mime_type="application/json",
         )

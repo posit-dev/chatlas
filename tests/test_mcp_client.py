@@ -13,7 +13,7 @@ from chatlas._tools import Tool
 try:
     import mcp  # noqa: F401
 except ImportError:
-    pytest.skip("Skipping MCP tests", allow_module_level=True)
+    pytest.skip("MCP package not available", allow_module_level=True)
 
 # Directory where MCP server implementations are located
 MCP_SERVER_DIR = Path(__file__).parent / "mcp_servers"
