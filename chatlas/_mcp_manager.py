@@ -36,7 +36,7 @@ class STDIOSessionInfo(SessionInfo):
     transport_kwargs: dict[str, Any] = field(default_factory=dict)
 
 
-class MCPManager:
+class MCPSessionManager:
     """Manages MCP (Model Context Protocol) server connections and tools."""
 
     def __init__(self):

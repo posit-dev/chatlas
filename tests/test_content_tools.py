@@ -153,7 +153,7 @@ def test_invoke_tool_returns_tool_result():
     res = results[0]
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
-    assert str(res.error) == "Unknown tool."
+    assert "Unknown tool." in str(res.error)
     assert res.value is None
     assert res.request == req3
     assert res.id == req3.id

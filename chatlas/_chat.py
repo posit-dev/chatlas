@@ -42,7 +42,7 @@ from ._display import (
     MockMarkdownDisplay,
 )
 from ._logging import log_tool_error
-from ._mcp_manager import MCPManager
+from ._mcp_manager import MCPSessionManager
 from ._provider import Provider
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
@@ -106,7 +106,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "rich_console": {},
             "css_styles": {},
         }
-        self._mcp_manager = MCPManager()
+        self._mcp_manager = MCPSessionManager()
 
     def get_turns(
         self,
