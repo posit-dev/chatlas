@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Optional, Sequence
 from ._tools import Tool
 
 if TYPE_CHECKING:
-    from mcp import ClientSession as MCPClientSession
+    from mcp import ClientSession
 
 
 @dataclass
@@ -55,8 +55,6 @@ class MCPSessionManager:
         if name in self._mcp_sessions:
             raise ValueError(f"MCP Session {name} already exists.")
 
-        _ = try_import_mcp()
-
         session_info = HTTPSessionInfo(
             name=name,
             url=url,
@@ -97,8 +95,6 @@ class MCPSessionManager:
     ):
         if name in self._mcp_sessions:
             raise ValueError(f"MCP Session {name} already exists.")
-
-        _ = try_import_mcp()
 
         # Launch background task that runs until MCP session is *shutdown*
         session_info = STDIOSessionInfo(
@@ -182,7 +178,7 @@ class MCPSessionManager:
         await session_info.exit_stack.aclose()
 
     async def open_http_session(self, session_info: "HTTPSessionInfo"):
-        from mcp import ClientSession
+        mcp = try_import_mcp()
         from mcp.client.streamable_http import streamablehttp_client
 
         read, write, _ = await session_info.exit_stack.enter_async_context(
@@ -192,7 +188,7 @@ class MCPSessionManager:
             )
         )
         session = await session_info.exit_stack.enter_async_context(
-            ClientSession(read, write)
+            mcp.ClientSession(read, write)
         )
         await session.initialize()
         return session
@@ -247,7 +243,7 @@ class MCPSessionManager:
 
     async def request_tools(
         self,
-        session: "MCPClientSession",
+        session: "ClientSession",
         include_tools: Sequence[str],
         exclude_tools: Sequence[str],
         namespace: str | None,

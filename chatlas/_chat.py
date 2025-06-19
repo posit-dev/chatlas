@@ -1037,6 +1037,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Consider providing a namespace when registering this MCP server "
                 "to avoid name collisions."
             )
+
         self._tools.update(session_info.tools)
 
     async def register_mcp_tools_stdio_async(
@@ -1188,10 +1189,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         -------
         None
         """
-        # MCPManager will return the names of tools that were removed
         closed_sessions = await self._mcp_manager.close_sessions(names)
 
-        # Remove those tools from the main tools dict
+        # Remove relevant MCP tools from the main tools registry
         for session in closed_sessions:
             for tool_name in session.tools:
                 if tool_name in self._tools:
