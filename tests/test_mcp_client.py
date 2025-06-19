@@ -66,12 +66,12 @@ async def test_register_http_mcp_server():
     chat = ChatOpenAI()
 
     async with http_mcp_server("http_add.py"):
-        cleanup = await chat.register_mcp_tools_http_stream_async(
+        await chat.register_mcp_tools_http_stream_async(
             name="test",
             url=SERVER_URL,
         )
 
-        assert "test" in chat._mcp_exit_stacks
+        assert "test" in chat._mcp_sessions
         assert len(chat._tools) == 1
         tool = chat._tools["add"]
         assert tool.name == "add"
@@ -88,21 +88,21 @@ async def test_register_http_mcp_server():
             "required": ["x", "y"],
         }
 
-        await cleanup()
+        await chat.cleanup_mcp_tools()
 
 
 @pytest.mark.asyncio
 async def test_register_stdio_mcp_server():
     chat = ChatOpenAI()
 
-    cleanup = await chat.register_mcp_tools_stdio_async(
+    await chat.register_mcp_tools_stdio_async(
         name="test",
         command=sys.executable,
         args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
         exclude_tools=["subtract"],
     )
 
-    assert "test" in chat._mcp_exit_stacks
+    assert "test" in chat._mcp_sessions
     assert len(chat._tools) == 1
     tool = chat._tools["multiply"]
     assert tool.name == "multiply"
@@ -119,7 +119,7 @@ async def test_register_stdio_mcp_server():
         "required": ["a", "b"],
     }
 
-    await cleanup()
+    await chat.cleanup_mcp_tools()
 
 
 @pytest.mark.asyncio
@@ -134,7 +134,7 @@ async def test_register_multiple_mcp_servers():
     )
 
     async with http_mcp_server("http_add.py"):
-        cleanup = await chat.register_mcp_tools_http_stream_async(
+        await chat.register_mcp_tools_http_stream_async(
             name="sse_test",
             url=SERVER_URL,
         )
@@ -183,7 +183,7 @@ async def test_register_multiple_mcp_servers():
                 "parameters", "N/A"
             )
 
-        await cleanup()
+        await chat.cleanup_mcp_tools()
 
 
 @pytest.mark.asyncio
@@ -191,7 +191,7 @@ async def test_call_http_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
     async with http_mcp_server("http_current_date.py"):
-        cleanup = await chat.register_mcp_tools_http_stream_async(
+        await chat.register_mcp_tools_http_stream_async(
             name="test",
             url=SERVER_URL,
         )
@@ -204,14 +204,14 @@ async def test_call_http_mcp_tool():
         with pytest.raises(Exception, match="async tools in a synchronous chat"):
             str(chat.chat("Great. Do it again.", stream=True))
 
-        await cleanup()
+        await chat.cleanup_mcp_tools()
 
 
 @pytest.mark.asyncio
 async def test_call_stdio_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
 
-    cleanup = await chat.register_mcp_tools_stdio_async(
+    await chat.register_mcp_tools_stdio_async(
         name="stdio_test",
         command=sys.executable,
         args=[str(MCP_SERVER_DIR / "stdio_current_date.py")],
@@ -226,7 +226,7 @@ async def test_call_stdio_mcp_tool():
     with pytest.raises(Exception, match="async tools in a synchronous chat"):
         str(chat.chat("Great. Do it again.", stream=True))
 
-    await cleanup()
+    await chat.cleanup_mcp_tools()
 
 
 class TestMCPErrorHandling:
@@ -237,7 +237,7 @@ class TestMCPErrorHandling:
         """Test that registering with duplicate session name raises error."""
         chat = ChatOpenAI()
 
-        cleanup1 = await chat.register_mcp_tools_stdio_async(
+        await chat.register_mcp_tools_stdio_async(
             name="test",
             command=sys.executable,
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
@@ -250,7 +250,7 @@ class TestMCPErrorHandling:
                 args=[str(MCP_SERVER_DIR / "stdio_current_date.py")],
             )
 
-        await cleanup1()
+        await chat.cleanup_mcp_tools()
 
     @pytest.mark.asyncio
     async def test_register_invalid_command_error(self):
@@ -292,10 +292,10 @@ class TestMCPErrorHandling:
         chat.register_tool(add)
 
         # Try to register MCP server with overlapping tool name
-        with pytest.raises(
-            ValueError, match="The following tools are already registered: {'add'}"
-        ):
-            async with http_mcp_server("http_add.py"):
+        async with http_mcp_server("http_add.py"):
+            with pytest.raises(
+                ValueError, match="The following tools are already registered: {'add'}"
+            ):
                 await chat.register_mcp_tools_http_stream_async(
                     name="test",
                     url=SERVER_URL,
@@ -314,7 +314,7 @@ class TestMCPErrorHandling:
 
         # Register MCP server with namespace - should work
         async with http_mcp_server("http_add.py"):
-            cleanup = await chat.register_mcp_tools_http_stream_async(
+            await chat.register_mcp_tools_http_stream_async(
                 name="test", url=SERVER_URL, namespace="mcp"
             )
 
@@ -323,7 +323,7 @@ class TestMCPErrorHandling:
             tool_names = {tool.name for tool in tools}
             assert tool_names == {"add", "mcp.add"}
 
-            await cleanup()
+            await chat.cleanup_mcp_tools()
 
     @pytest.mark.asyncio
     async def test_invalid_url_error(self):
@@ -353,29 +353,29 @@ class TestMCPCleanup:
             include_tools=["subtract"],
         )
 
-        cleanup2 = await chat.register_mcp_tools_stdio_async(
+        await chat.register_mcp_tools_stdio_async(
             name="session2",
             command=sys.executable,
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
             include_tools=["multiply"],
         )
 
-        assert len(chat._mcp_exit_stacks) == 2
+        assert len(chat._mcp_sessions) == 2
         assert len(chat.get_tools()) == 2
 
         # Clean up only session1
         await chat.cleanup_mcp_tools("session1")
 
-        assert len(chat._mcp_exit_stacks) == 1
-        assert "session1" not in chat._mcp_exit_stacks
-        assert "session2" in chat._mcp_exit_stacks
+        assert len(chat._mcp_sessions) == 1
+        assert "session1" not in chat._mcp_sessions
+        assert "session2" in chat._mcp_sessions
 
         # Only multiply tool should remain
         tools = chat.get_tools()
         assert len(tools) == 1
         assert tools[0].name == "multiply"
 
-        await cleanup2()
+        await chat.cleanup_mcp_tools("session2")
 
     @pytest.mark.asyncio
     async def test_cleanup_all_sessions(self):
@@ -397,15 +397,15 @@ class TestMCPCleanup:
             include_tools=["multiply"],
         )
 
-        assert len(chat._mcp_exit_stacks) == 2
+        assert len(chat._mcp_sessions) == 2
         assert len(chat.get_tools()) == 2
 
         # Clean up all sessions
         await chat.cleanup_mcp_tools()
 
-        assert len(chat._mcp_exit_stacks) == 0
+        assert len(chat._mcp_sessions) == 0
         assert len(chat.get_tools()) == 0
-        assert len(chat._mcp_cleanup_callbacks) == 0
+        assert len(chat._mcp_sessions) == 0
 
     @pytest.mark.asyncio
     async def test_cleanup_nonexistent_session_warning(self):
@@ -417,25 +417,25 @@ class TestMCPCleanup:
         ):
             await chat.cleanup_mcp_tools("nonexistent")
 
-    @pytest.mark.asyncio
-    async def test_cleanup_callback_returned_by_register(self):
-        """Test that cleanup callback returned by register methods works."""
-        chat = ChatOpenAI()
-
-        cleanup = await chat.register_mcp_tools_stdio_async(
-            name="test",
-            command=sys.executable,
-            args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
-        )
-
-        assert len(chat._mcp_exit_stacks) == 1
-        assert len(chat.get_tools()) == 2
-
-        # Use the returned cleanup callback
-        await cleanup()
-
-        assert len(chat._mcp_exit_stacks) == 0
-        assert len(chat.get_tools()) == 0
+    # TODO: maybe support this?
+    # @pytest.mark.asyncio
+    # async def test_cleanup_callback_returned_by_register(self):
+    #    """Test that cleanup callback returned by register methods works."""
+    #    chat = ChatOpenAI()
+    #
+    #    cleanup = await chat.register_mcp_tools_stdio_async(
+    #        name="test",
+    #        command=sys.executable,
+    #        args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
+    #    )
+    #
+    #    assert len(chat._mcp_sessions) == 1
+    #    assert len(chat.get_tools()) == 2
+    #
+    #    await cleanup()
+    #
+    #    assert len(chat._mcp_sessions) == 0
+    #    assert len(chat.get_tools()) == 0
 
 
 class TestMCPToolFiltering:
@@ -446,7 +446,7 @@ class TestMCPToolFiltering:
         """Test including only specific tools."""
         chat = ChatOpenAI()
 
-        cleanup = await chat.register_mcp_tools_stdio_async(
+        await chat.register_mcp_tools_stdio_async(
             name="test",
             command=sys.executable,
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
@@ -457,14 +457,14 @@ class TestMCPToolFiltering:
         assert len(tools) == 1
         assert tools[0].name == "subtract"
 
-        await cleanup()
+        await chat.cleanup_mcp_tools()
 
     @pytest.mark.asyncio
     async def test_exclude_tools_filter(self):
         """Test excluding specific tools."""
         chat = ChatOpenAI()
 
-        cleanup = await chat.register_mcp_tools_stdio_async(
+        await chat.register_mcp_tools_stdio_async(
             name="test",
             command=sys.executable,
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
@@ -475,7 +475,7 @@ class TestMCPToolFiltering:
         assert len(tools) == 1
         assert tools[0].name == "multiply"
 
-        await cleanup()
+        await chat.cleanup_mcp_tools()
 
     @pytest.mark.asyncio
     async def test_include_nonexistent_tool(self):
@@ -483,7 +483,7 @@ class TestMCPToolFiltering:
         chat = ChatOpenAI()
 
         with pytest.warns(UserWarning, match="did not match"):
-            cleanup = await chat.register_mcp_tools_stdio_async(
+            await chat.register_mcp_tools_stdio_async(
                 name="test",
                 command=sys.executable,
                 args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
@@ -494,14 +494,14 @@ class TestMCPToolFiltering:
         tools = chat.get_tools()
         assert len(tools) == 0
 
-        await cleanup()
+        await chat.cleanup_mcp_tools()
 
     @pytest.mark.asyncio
     async def test_exclude_all_tools(self):
         """Test excluding all available tools."""
         chat = ChatOpenAI()
 
-        cleanup = await chat.register_mcp_tools_stdio_async(
+        await chat.register_mcp_tools_stdio_async(
             name="test",
             command=sys.executable,
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
@@ -512,7 +512,7 @@ class TestMCPToolFiltering:
         tools = chat.get_tools()
         assert len(tools) == 0
 
-        await cleanup()
+        await chat.cleanup_mcp_tools()
 
 
 class TestMCPTransportKwargs:
@@ -524,7 +524,7 @@ class TestMCPTransportKwargs:
         chat = ChatOpenAI()
 
         # Test with env override (should still work)
-        cleanup = await chat.register_mcp_tools_stdio_async(
+        await chat.register_mcp_tools_stdio_async(
             name="test",
             command=sys.executable,
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
@@ -535,7 +535,7 @@ class TestMCPTransportKwargs:
         tools = chat.get_tools()
         assert len(tools) == 2
 
-        await cleanup()
+        await chat.cleanup_mcp_tools()
 
     @pytest.mark.asyncio
     async def test_http_transport_kwargs(self):
@@ -543,7 +543,7 @@ class TestMCPTransportKwargs:
         chat = ChatOpenAI()
 
         async with http_mcp_server("http_add.py"):
-            cleanup = await chat.register_mcp_tools_http_stream_async(
+            await chat.register_mcp_tools_http_stream_async(
                 name="test",
                 url=SERVER_URL,
                 transport_kwargs={"timeout": 30.0},
@@ -553,4 +553,4 @@ class TestMCPTransportKwargs:
             tools = chat.get_tools()
             assert len(tools) == 1
 
-            await cleanup()
+            await chat.cleanup_mcp_tools()

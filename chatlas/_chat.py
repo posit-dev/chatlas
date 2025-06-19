@@ -8,6 +8,7 @@ import sys
 import traceback
 import warnings
 from contextlib import AsyncExitStack
+from dataclasses import dataclass, field
 from pathlib import Path
 from threading import Thread
 from typing import (
@@ -70,6 +71,40 @@ if TYPE_CHECKING:
     from mcp import ClientSession as MCPClientSession
 
 
+@dataclass
+class MCPSessionInfo:
+    name: str
+    task: asyncio.Task | None = None
+    ready_event: asyncio.Event = field(default_factory=asyncio.Event)
+    shutdown_event: asyncio.Event = field(default_factory=asyncio.Event)
+    exit_stack: AsyncExitStack = field(default_factory=AsyncExitStack)
+
+
+@dataclass
+class HTTPMCPSessionInfo(MCPSessionInfo):
+    url: str = ""
+    transport_kwargs: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class STDIOMCPSessionInfo(MCPSessionInfo):
+    command: str = ""
+    args: list[str] = field(default_factory=list)
+    transport_kwargs: dict[str, Any] = field(default_factory=dict)
+
+
+def try_import_mcp():
+    try:
+        import mcp
+
+        return mcp
+    except ImportError:
+        raise ImportError(
+            "The `mcp` package is required to connect to MCP servers. "
+            "Install it with `pip install mcp`."
+        )
+
+
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
     """
     A chat object that can be used to interact with a language model.
@@ -111,8 +146,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "rich_console": {},
             "css_styles": {},
         }
-        self._mcp_exit_stacks: dict[str, AsyncExitStack] = {}
-        self._mcp_cleanup_callbacks: dict[str, Callable[[], Awaitable[None]]] = {}
+        self._mcp_sessions: dict[str, MCPSessionInfo] = {}
 
     def get_turns(
         self,
@@ -985,7 +1019,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Returns
         -------
-        A callback that can be used to clean up the MCP session and tools.
+        None
 
         Note
         ----
@@ -1028,45 +1062,30 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ```
         """
 
-        if name in self._mcp_exit_stacks:
+        if name in self._mcp_sessions:
             raise ValueError(f"MCP Session {name} already exists.")
 
-        mcp = self._try_import_mcp()
+        _ = try_import_mcp()
 
-        from mcp.client.streamable_http import streamablehttp_client
-
-        exit_stack = AsyncExitStack()
-
-        # Try to initialize the MCP session (and cleanup if it fails)
-        try:
-            read_stream, write_stream, _ = await exit_stack.enter_async_context(
-                streamablehttp_client(url, **(transport_kwargs or {}))
-            )
-            session = await exit_stack.enter_async_context(
-                mcp.ClientSession(read_stream, write_stream)
-            )
-            await session.initialize()
-        except (asyncio.CancelledError, Exception) as e:
-            await self._handle_connection_error(
-                error_prefix=f"Failed to connect to MCP server '{name}' at URL '{url}'",
-                error=e,
-                exit_stack=exit_stack,
-            )
-
-        self._mcp_exit_stacks[name] = exit_stack
-
-        tools = await self._get_mcp_tools(
-            session,
-            include_tools=include_tools,
-            exclude_tools=exclude_tools,
-            namespace=namespace,
+        session_info = HTTPMCPSessionInfo(
+            name=name,
+            url=url,
+            transport_kwargs=transport_kwargs or {},
         )
 
-        self._update_mcp_tools(tools)
+        # Launch background task that runs until MCP session is *shutdown*
+        # N.B. this is needed since mcp session can't be opened in one task and closed in another
+        asyncio.create_task(
+            self._init_mcp_session(
+                session_info=session_info,
+                include_tools=include_tools,
+                exclude_tools=exclude_tools,
+                namespace=namespace,
+            )
+        )
 
-        cleanup = self._cleanup_mcp_callback(name, tools=tools)
-        self._mcp_cleanup_callbacks[name] = cleanup
-        return cleanup
+        # Wait for a ready event from the background task (signals that tools are registered)
+        await session_info.ready_event.wait()
 
     async def register_mcp_tools_stdio_async(
         self,
@@ -1144,7 +1163,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Returns
         -------
-        A callback that can be used to clean up the MCP session and tools.
+        None
 
         Examples
         --------
@@ -1179,50 +1198,32 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ```
         """
 
-        if name in self._mcp_exit_stacks:
+        if name in self._mcp_sessions:
             raise ValueError(f"MCP Session {name} already exists.")
 
-        mcp = self._try_import_mcp()
-        from mcp.client.stdio import stdio_client
+        _ = try_import_mcp()
 
-        server_params = mcp.StdioServerParameters(
+        # Launch background task that runs until MCP session is *shutdown*
+        session_info = STDIOMCPSessionInfo(
+            name=name,
             command=command,
             args=args,
-            **(transport_kwargs or {}),
+            transport_kwargs=transport_kwargs or {},
         )
 
-        exit_stack = AsyncExitStack()
-
-        # Try to initialize the MCP session (and cleanup if it fails)
-        try:
-            transport = await exit_stack.enter_async_context(
-                stdio_client(server_params)
+        # Launch a background task to initialize the MCP server
+        # N.B. this is needed since mcp session can't be opened in one task and closed in another
+        asyncio.create_task(
+            self._init_mcp_session(
+                session_info=session_info,
+                include_tools=include_tools,
+                exclude_tools=exclude_tools,
+                namespace=namespace,
             )
-            session = await exit_stack.enter_async_context(
-                mcp.ClientSession(*transport)
-            )
-            await session.initialize()
-        except (asyncio.CancelledError, Exception) as e:
-            await self._handle_connection_error(
-                error_prefix=f"Failed to connect to MCP server '{name}' with command '{command} {args}'",
-                error=e,
-                exit_stack=exit_stack,
-            )
-
-        self._mcp_exit_stacks[name] = exit_stack
-
-        tools = await self._get_mcp_tools(
-            session,
-            include_tools=include_tools,
-            exclude_tools=exclude_tools,
-            namespace=namespace,
         )
 
-        self._update_mcp_tools(tools)
-
-        cleanup = self._cleanup_mcp_callback(name, tools=tools)
-        self._mcp_cleanup_callbacks[name] = cleanup
-        return cleanup
+        # Wait for a ready event from the background task (signals that tools are registered)
+        await session_info.ready_event.wait()
 
     async def cleanup_mcp_tools(self, name: Optional[str] = None):
         """
@@ -1243,35 +1244,144 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         -------
         None
         """
-        callbacks = self._mcp_cleanup_callbacks
-
         if name is None:
-            for cleanup in callbacks.values():
-                await cleanup()
-            self._mcp_cleanup_callbacks.clear()
-            return
+            names = list(self._mcp_sessions.keys())
+        else:
+            names = [name]
+            if name not in self._mcp_sessions:
+                warnings.warn(
+                    f"No MCP session found with name '{name}'. Skipping cleanup.",
+                    stacklevel=2,
+                )
+                return
 
-        if name not in callbacks:
-            warnings.warn(
-                f"No MCP session found with name '{name}'. Nothing to clean up.",
-                stacklevel=2,
-            )
-            return
+        for x in names:
+            session = self._mcp_sessions[x]
+            session.shutdown_event.set()
+            if session.task is not None:
+                await session.task
 
-        await callbacks[name]()
-        del self._mcp_cleanup_callbacks[name]
+    async def _init_mcp_session(
+        self,
+        session_info: "MCPSessionInfo",
+        include_tools: Optional[list[str]] = None,
+        exclude_tools: Optional[list[str]] = None,
+        namespace: Optional[str] = None,
+    ):
+        session_info.task = asyncio.current_task()
+        self._mcp_sessions[session_info.name] = session_info
 
-    @staticmethod
-    def _try_import_mcp():
         try:
-            import mcp
+            # Establish the MCP session
+            if isinstance(session_info, HTTPMCPSessionInfo):
+                session = await self._init_mcp_http_session(session_info)
+            elif isinstance(session_info, STDIOMCPSessionInfo):
+                session = await self._init_mcp_stdio_session(session_info)
+            else:
+                raise TypeError(
+                    f"Unsupported session type: {type(session_info).__name__}. "
+                    "Expected HTTPMCPSessionInfo or STDIOMCPSessionInfo."
+                )
 
-            return mcp
-        except ImportError:
-            raise ImportError(
-                "The `mcp` package is required to connect to MCP servers. "
-                "Install it with `pip install mcp`."
+            # Request the available MCP tools, filter/namespace them,
+            # and convert into to our Tool class
+            tools = await self._request_mcp_tools(
+                session=session,
+                include_tools=include_tools,
+                exclude_tools=exclude_tools,
+                namespace=namespace,
             )
+
+            # Register tools with the chat (assuming no name collisions)
+            overlapping_tools = set(self._tools.keys()) & set(tools.keys())
+            if overlapping_tools:
+                raise ValueError(
+                    f"The following tools are already registered: {overlapping_tools}. "
+                    "Consider providing a namespace when registering this MCP server "
+                    "to avoid name collisions."
+                )
+            self._tools.update(tools)
+
+        except Exception as e:
+            # If an error occurs, clean up the connection
+            await self._handle_connection_error(
+                error_prefix=f"Failed to register MCP tools for session '{session_info.name}'",
+                error=e,
+                exit_stack=session_info.exit_stack,
+            )
+        finally:
+            # Whether successful or not, set ready state to prevents deadlock
+            session_info.ready_event.set()
+
+        # Wait for shutdown signal
+        await session_info.shutdown_event.wait()
+
+        # Delete the session and corresponding tools from the chat
+        del self._mcp_sessions[session_info.name]
+        for tool_name in tools.keys():
+            del self._tools[tool_name]
+
+        # Close connection to MCP server
+        # (Important: this must be done in the same task that opened it!)
+        await session_info.exit_stack.aclose()
+
+    async def _init_mcp_http_session(self, session_info: "HTTPMCPSessionInfo"):
+        from mcp import ClientSession
+        from mcp.client.streamable_http import streamablehttp_client
+
+        try:
+            read, write, _ = await session_info.exit_stack.enter_async_context(
+                streamablehttp_client(
+                    session_info.url,
+                    **session_info.transport_kwargs,
+                )
+            )
+            session = await session_info.exit_stack.enter_async_context(
+                ClientSession(read, write)
+            )
+            await session.initialize()
+        except (asyncio.CancelledError, Exception) as e:
+            await self._handle_connection_error(
+                error_prefix=f"Failed to connect to MCP server '{session_info.name}' at URL '{session_info.url}'",
+                error=e,
+                exit_stack=session_info.exit_stack,
+            )
+
+        return session
+
+    async def _init_mcp_stdio_session(self, session_info: "STDIOMCPSessionInfo"):
+        # Try to initialize the MCP session (and cleanup if it fails)
+        mcp = try_import_mcp()
+        from mcp.client.stdio import stdio_client
+
+        command = session_info.command
+        args = session_info.args
+
+        server_params = mcp.StdioServerParameters(
+            command=command,
+            args=args,
+            **session_info.transport_kwargs,
+        )
+
+        try:
+            transport = await session_info.exit_stack.enter_async_context(
+                stdio_client(server_params)
+            )
+            session = await session_info.exit_stack.enter_async_context(
+                mcp.ClientSession(*transport)
+            )
+            await session.initialize()
+        except (asyncio.CancelledError, Exception) as e:
+            await self._handle_connection_error(
+                error_prefix=(
+                    f"Failed to connect to MCP server '{session_info.name}' "
+                    f"with command '{command} {args}'"
+                ),
+                error=e,
+                exit_stack=session_info.exit_stack,
+            )
+
+        return session
 
     async def _handle_connection_error(
         self,
@@ -1286,7 +1396,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise RuntimeError(f"{error_prefix}: {close_error}") from close_error
         raise RuntimeError(f"{error_prefix}: {error}") from error
 
-    async def _get_mcp_tools(
+    async def _request_mcp_tools(
         self,
         session: "MCPClientSession",
         include_tools: list[str] | None = None,
@@ -1335,29 +1445,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             res[tool.name] = Tool.from_mcp(session=session, mcp_tool=tool)
 
         return res
-
-    def _update_mcp_tools(self, tools: dict[str, Tool]):
-        overlapping_tools = set(self._tools.keys()) & set(tools.keys())
-        if overlapping_tools:
-            raise ValueError(
-                f"The following tools are already registered: {overlapping_tools}. "
-                "Consider providing a namespace when registering this MCP server "
-                "to avoid name collisions."
-            )
-        self._tools.update(tools)
-
-    def _cleanup_mcp_callback(self, name: str, tools: dict[str, Tool]):
-        async def _cleanup():
-            # Clean up the MCP connection
-            if name in self._mcp_exit_stacks:
-                await self._mcp_exit_stacks[name].aclose()
-                del self._mcp_exit_stacks[name]
-            # Remove the tools registered from this MCP session
-            for tool_name in tools.keys():
-                if tool_name in self._tools:
-                    del self._tools[tool_name]
-
-        return _cleanup
 
     def register_tool(
         self,
