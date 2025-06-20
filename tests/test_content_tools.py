@@ -99,6 +99,7 @@ def test_register_tool_with_complex_parameters():
     }
 
 
+@pytest.mark.filterwarnings("ignore")
 def test_invoke_tool_returns_tool_result():
     chat = ChatOpenAI()
 
@@ -108,7 +109,7 @@ def test_invoke_tool_returns_tool_result():
     chat.register_tool(tool)
 
     def new_tool_request(
-        name: Optional[str] = "tool",
+        name: str = "tool",
         args: Optional[dict[str, Any]] = None,
     ):
         return ContentToolRequest(
@@ -162,6 +163,7 @@ def test_invoke_tool_returns_tool_result():
 
 
 @pytest.mark.asyncio
+@pytest.mark.filterwarnings("ignore")
 async def test_invoke_tool_returns_tool_result_async():
     chat = ChatOpenAI()
 
@@ -171,7 +173,7 @@ async def test_invoke_tool_returns_tool_result_async():
     chat.register_tool(tool)
 
     def new_tool_request(
-        name: Optional[str] = "tool",
+        name: str = "tool",
         args: Optional[dict[str, Any]] = None,
     ):
         return ContentToolRequest(
