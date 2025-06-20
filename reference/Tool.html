@@ -75,7 +75,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-441cf8784b515adac1424855ab078ac0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-b4d45e0190d17db026fd1644054acaf4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-51542af24d6bf233f273bd52631cd675.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -539,6 +539,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#chatlas.Tool" id="toc-chatlas.Tool" class="nav-link active" data-scroll-target="#chatlas.Tool">Tool</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#chatlas.Tool.from_func" id="toc-chatlas.Tool.from_func" class="nav-link" data-scroll-target="#chatlas.Tool.from_func">from_func</a></li>
+  <li><a href="#chatlas.Tool.from_mcp" id="toc-chatlas.Tool.from_mcp" class="nav-link" data-scroll-target="#chatlas.Tool.from_mcp">from_mcp</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/Tool.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
@@ -551,7 +556,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="chatlas.Tool" class="level1">
 <h1>Tool</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Tool(func, <span class="op">*</span>, model<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Tool(func, name, description, parameters)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Define a tool</p>
 <p>Define a Python function for use by a chatbot. The function will always be invoked in the current Python process.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
@@ -573,6 +578,69 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><em>required</em></td>
 </tr>
 <tr class="even">
+<td>name</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
+<td>The name of the tool.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>description</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
+<td>A description of what the tool does.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>parameters</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]</td>
+<td>A dictionary describing the input parameters and their types.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#chatlas.Tool.from_func">from_func</a></td>
+<td>Create a Tool from a Python function</td>
+</tr>
+<tr class="even">
+<td><a href="#chatlas.Tool.from_mcp">from_mcp</a></td>
+<td>Create a Tool from an MCP tool</td>
+</tr>
+</tbody>
+</table>
+<section id="chatlas.Tool.from_func" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Tool.from_func">from_func</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Tool.from_func(func, <span class="op">*</span>, model<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Create a Tool from a Python function</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>func</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[…, <a href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>] | <a href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[…, <a href="https://docs.python.org/3/library/typing.html#typing.Awaitable">Awaitable</a>[<a href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]]</td>
+<td>The function to wrap as a tool.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
 <td>model</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
 <td>A Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function.</td>
@@ -580,8 +648,105 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td><a href="https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool">Tool</a></td>
+<td>A new Tool instance wrapping the provided function.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises" class="level4 doc-section doc-section-raises">
+<h4 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></td>
+<td>If there is a mismatch between model fields and function parameters.</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="chatlas.Tool.from_mcp" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Tool.from_mcp">from_mcp</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>Tool.from_mcp(session, mcp_tool)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Create a Tool from an MCP tool</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 22%">
+<col style="width: 54%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>session</td>
+<td>'MCPClientSession'</td>
+<td>The MCP client session to use for calling the tool.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>mcp_tool</td>
+<td>'MCPTool'</td>
+<td>The MCP tool to wrap.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td><a href="https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool">Tool</a></td>
+<td>A new Tool instance wrapping the MCP tool.</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
+</section>
 </section>
 </section>
 
