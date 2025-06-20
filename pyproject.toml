@@ -74,6 +74,9 @@ docs = [
     "sentence-transformers",
     "numpy",
 ]
+mcp = [
+    "mcp>=1.4.0;python_version>='3.10'"
+]
 # Provider extras ----
 anthropic = ["anthropic"]
 bedrock-anthropic = ["anthropic[bedrock]"]

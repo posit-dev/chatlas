@@ -42,6 +42,7 @@ from ._display import (
     MockMarkdownDisplay,
 )
 from ._logging import log_tool_error
+from ._mcp_manager import MCPSessionManager
 from ._provider import Provider
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
@@ -105,6 +106,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "rich_console": {},
             "css_styles": {},
         }
+        self._mcp_manager = MCPSessionManager()
 
     def get_turns(
         self,
@@ -910,10 +912,296 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         json = res[0]
         return json.value
 
+    async def register_mcp_tools_http_stream_async(
+        self,
+        *,
+        name: str,
+        url: str,
+        include_tools: Sequence[str] = (),
+        exclude_tools: Sequence[str] = (),
+        namespace: Optional[str] = None,
+        transport_kwargs: Optional[dict[str, Any]] = None,
+    ):
+        """
+        Register tools from an MCP server using streamable HTTP transport.
+
+        Connects to an MCP server (that communicates over a streamable HTTP
+        transport) and registers the available tools. This is useful for
+        utilizing tools provided by an MCP server running on a remote server (or
+        locally) over HTTP.
+
+        Pre-requisites
+        --------------
+
+        ::: {.callout-note}
+        Requires the `mcp` package to be installed. Install it with:
+
+        ```bash
+        pip install mcp
+        ```
+        :::
+
+        Parameters
+        ----------
+        name
+            A unique name for the MCP server session.
+        url
+            URL endpoint where the Streamable HTTP server is mounted (e.g.,
+            `http://localhost:8000/mcp`)
+        include_tools
+            List of tool names to include. By default, all available tools are
+            included.
+        exclude_tools
+            List of tool names to exclude. This parameter and `include_tools`
+            are mutually exclusive.
+        namespace
+            A namespace to prepend to tool names (i.e., `namespace.tool_name`)
+            from this MCP server. This is primarily useful to avoid name
+            collisions with other tools already registered with the chat. This
+            namespace applies when tools are advertised to the LLM, so try
+            to use a meaningful name that describes the server and/or the tools
+            it provides. For example, if you have a server that provides tools
+            for mathematical operations, you might use `math` as the namespace.
+        transport_kwargs
+            Additional keyword arguments for the transport layer (i.e.,
+            `mcp.client.streamable_http.streamablehttp_client`).
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        * `.cleanup_mcp_tools_async()` : Cleanup registered MCP tools.
+        * `.register_mcp_tools_stdio_async()` : Register tools from an MCP server using stdio transport.
+
+        Note
+        ----
+        Unlike the `.register_mcp_tools_stdio_async()` method, this method does
+        not launch an MCP server. Instead, it assumes an HTTP server is already
+        running at the specified URL. This is useful for connecting to an
+        existing MCP server that is already running and serving tools.
+
+        Examples
+        --------
+
+        Assuming you have a Python script `my_mcp_server.py` that implements an
+        MCP server like so:
+
+        ```python
+        from mcp.server.fastmcp import FastMCP
+
+        app = FastMCP("my_server")
+
+        @app.tool(description="Add two numbers.")
+        def add(x: int, y: int) -> int:
+            return x + y
+
+        app.run(transport="streamable-http")
+        ```
+
+        You can launch this server like so:
+
+        ```bash
+        python my_mcp_server.py
+        ```
+
+        Then, you can register this server with the chat as follows:
+
+        ```python
+        await chat.register_mcp_tools_http_stream_async(
+            name="my_server",
+            url="http://localhost:8080/mcp"
+        )
+        ```
+        """
+        if isinstance(exclude_tools, str):
+            exclude_tools = [exclude_tools]
+        if isinstance(include_tools, str):
+            include_tools = [include_tools]
+
+        session_info = await self._mcp_manager.register_http_stream_tools(
+            name=name,
+            url=url,
+            include_tools=include_tools,
+            exclude_tools=exclude_tools,
+            namespace=namespace,
+            transport_kwargs=transport_kwargs or {},
+        )
+
+        overlapping_tools = set(self._tools.keys()) & set(session_info.tools)
+        if overlapping_tools:
+            await self._mcp_manager.close_sessions([name])
+            raise ValueError(
+                f"The following tools are already registered: {overlapping_tools}. "
+                "Consider providing a namespace when registering this MCP server "
+                "to avoid name collisions."
+            )
+
+        self._tools.update(session_info.tools)
+
+    async def register_mcp_tools_stdio_async(
+        self,
+        *,
+        name: str,
+        command: str,
+        args: list[str],
+        include_tools: Sequence[str] = (),
+        exclude_tools: Sequence[str] = (),
+        namespace: Optional[str] = None,
+        transport_kwargs: Optional[dict[str, Any]] = None,
+    ):
+        """
+        Register tools from a MCP server using stdio (standard input/output) transport.
+
+        Useful for launching an MCP server and registering its tools with the chat -- all
+        from the same Python process.
+
+        In more detail, this method:
+
+        1. Executes the given `command` with the provided `args`.
+            * This should start an MCP server that communicates via stdio.
+        2. Establishes a client connection to the MCP server using the `mcp` package.
+        3. Registers the available tools from the MCP server with the chat.
+        4. Returns a cleanup callback to close the MCP session and remove the tools.
+
+        Pre-requisites
+        --------------
+
+        ::: {.callout-note}
+        Requires the `mcp` package to be installed. Install it with:
+
+        ```bash
+        pip install mcp
+        ```
+        :::
+
+        Parameters
+        ----------
+        name
+            A unique name for the MCP server session.
+        command
+            System command to execute to start the MCP server (e.g., `python`).
+        args
+            Arguments to pass to the system command (e.g., `["-m",
+            "my_mcp_server"]`).
+        include_tools
+            List of tool names to include. By default, all available tools are
+            included.
+        exclude_tools
+            List of tool names to exclude. This parameter and `include_tools`
+            are mutually exclusive.
+        namespace
+            A namespace to prepend to tool names (i.e., `namespace.tool_name`)
+            from this MCP server. This is primarily useful to avoid name
+            collisions with other tools already registered with the chat. This
+            namespace applies when tools are advertised to the LLM, so try
+            to use a meaningful name that describes the server and/or the tools
+            it provides. For example, if you have a server that provides tools
+            for mathematical operations, you might use `math` as the namespace.
+        transport_kwargs
+            Additional keyword arguments for the stdio transport layer (i.e.,
+            `mcp.client.stdio.stdio_client`).
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        * `.cleanup_mcp_tools_async()` : Cleanup registered MCP tools.
+        * `.register_mcp_tools_http_stream_async()` : Register tools from an MCP server using streamable HTTP transport.
+
+        Examples
+        --------
+
+        Assuming you have a Python script `my_mcp_server.py` that implements an
+        MCP server like so
+
+        ```python
+        from mcp.server.fastmcp import FastMCP
+
+        app = FastMCP("my_server")
+
+        @app.tool(description="Add two numbers.")
+        def add(y: int, z: int) -> int:
+            return y - z
+
+        app.run(transport="stdio")
+        ```
+
+        You can register this server with the chat as follows:
+
+        ```python
+        from chatlas import ChatOpenAI
+
+        chat = ChatOpenAI()
+
+        await chat.register_mcp_tools_stdio_async(
+            name="my_server",
+            command="python",
+            args=["-m", "my_mcp_server"],
+        )
+        ```
+        """
+        if isinstance(exclude_tools, str):
+            exclude_tools = [exclude_tools]
+        if isinstance(include_tools, str):
+            include_tools = [include_tools]
+
+        session_info = await self._mcp_manager.register_stdio_tools(
+            name=name,
+            command=command,
+            args=args,
+            include_tools=include_tools,
+            exclude_tools=exclude_tools,
+            namespace=namespace,
+            transport_kwargs=transport_kwargs or {},
+        )
+
+        overlapping_tools = set(self._tools.keys()) & set(session_info.tools)
+        if overlapping_tools:
+            await self._mcp_manager.close_sessions([name])
+            raise ValueError(
+                f"The following tools are already registered: {overlapping_tools}. "
+                "Consider providing a namespace when registering this MCP server "
+                "to avoid name collisions."
+            )
+
+        self._tools.update(session_info.tools)
+
+    async def cleanup_mcp_tools(self, names: Optional[Sequence[str]] = None):
+        """
+        Close MCP server connections (and their corresponding tools).
+
+        This method closes the MCP client sessions and removes the tools registered
+        from the MCP servers. If a specific `name` is provided, it will only clean
+        up the tools and session associated with that name. If no name is provided,
+        it will clean up all registered MCP tools and sessions.
+
+        Parameters
+        ----------
+        names
+            If provided, only clean up the tools and session associated
+            with these names. If not provided, clean up all registered MCP tools and sessions.
+
+        Returns
+        -------
+        None
+        """
+        closed_sessions = await self._mcp_manager.close_sessions(names)
+
+        # Remove relevant MCP tools from the main tools registry
+        for session in closed_sessions:
+            for tool_name in session.tools:
+                if tool_name in self._tools:
+                    del self._tools[tool_name]
+
     def register_tool(
         self,
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
+        force: bool = False,
         model: Optional[type[BaseModel]] = None,
     ):
         """
@@ -930,7 +1218,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         recommended):
 
         ```python
-        from chatlas import ChatOpenAI, Tool
+        from chatlas import ChatOpenAI
 
 
         def add(a: int, b: int) -> int:
@@ -958,7 +1246,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         and also more directly document the input parameters:
 
         ```python
-        from chatlas import ChatOpenAI, Tool
+        from chatlas import ChatOpenAI
         from pydantic import BaseModel, Field
 
 
@@ -983,15 +1271,61 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         func
             The function to be invoked when the tool is called.
+        force
+            If `True`, overwrite any existing tool with the same name. If `False`
+            (the default), raise an error if a tool with the same name already exists.
         model
             A Pydantic model that describes the input parameters for the function.
             If not provided, the model will be inferred from the function's type hints.
             The primary reason why you might want to provide a model in
             Note that the name and docstring of the model takes precedence over the
             name and docstring of the function.
+
+        Raises
+        ------
+        ValueError
+            If a tool with the same name already exists and `force` is `False`.
         """
-        tool = Tool(func, model=model)
+        tool = Tool.from_func(func, model=model)
+        if tool.name in self._tools and not force:
+            raise ValueError(
+                f"Tool with name '{tool.name}' is already registered. "
+                "Set `force=True` to overwrite it."
+            )
         self._tools[tool.name] = tool
+
+    def get_tools(self) -> list[Tool]:
+        """
+        Get the list of registered tools.
+
+        Returns
+        -------
+        list[Tool]
+            A list of `Tool` instances that are currently registered with the chat.
+        """
+        return list(self._tools.values())
+
+    def set_tools(
+        self, tools: list[Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool]
+    ):
+        """
+        Set the tools for the chat.
+
+        This replaces any previously registered tools with the provided list of
+        tools. This is for advanced usage -- typically, you would use
+        `.register_tool()` to register individual tools as needed.
+
+        Parameters
+        ----------
+        tools
+            A list of `Tool` instances to set as the chat's tools.
+        """
+        self._tools = {}
+        for tool in tools:
+            if isinstance(tool, Tool):
+                self._tools[tool.name] = tool
+            else:
+                self.register_tool(tool)
 
     def on_tool_request(self, callback: Callable[[ContentToolRequest], None]):
         """
@@ -1257,22 +1591,23 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             assert turn is not None
             user_turn_result = None
 
-            results: list[ContentToolResult] = []
+            all_results: list[ContentToolResult] = []
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
                     if echo == "output":
                         self._echo_content(f"\n\n{x}\n\n")
                     if content == "all":
                         yield x
-                    res = self._invoke_tool(x)
-                    if echo == "output":
-                        self._echo_content(f"\n\n{res}\n\n")
-                    if content == "all":
-                        yield res
-                    results.append(res)
+                    results = self._invoke_tool(x)
+                    for res in results:
+                        if echo == "output":
+                            self._echo_content(f"\n\n{res}\n\n")
+                        if content == "all":
+                            yield res
+                        all_results.append(res)
 
-            if results:
-                user_turn_result = Turn("user", results)
+            if all_results:
+                user_turn_result = Turn("user", all_results)
 
     @overload
     def _chat_impl_async(
@@ -1316,24 +1651,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             assert turn is not None
             user_turn_result = None
 
-            results: list[ContentToolResult] = []
+            all_results: list[ContentToolResult] = []
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
                     if echo == "output":
                         self._echo_content(f"\n\n{x}\n\n")
                     if content == "all":
                         yield x
-                    res = await self._invoke_tool_async(x)
-                    if echo == "output":
-                        self._echo_content(f"\n\n{res}\n\n")
-                    if content == "all":
-                        yield res
-                    else:
-                        yield "\n\n"
-                    results.append(res)
+                    results = self._invoke_tool_async(x)
+                    async for res in results:
+                        if echo == "output":
+                            self._echo_content(f"\n\n{res}\n\n")
+                        if content == "all":
+                            yield res
+                        else:
+                            yield "\n\n"
+                        all_results.append(res)
 
-            if results:
-                user_turn_result = Turn("user", results)
+            if all_results:
+                user_turn_result = Turn("user", all_results)
 
     def _submit_turns(
         self,
@@ -1462,54 +1798,56 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         self._turns.extend([user_turn, turn])
 
-    def _invoke_tool(self, x: ContentToolRequest) -> ContentToolResult:
-        tool_def = self._tools.get(x.name, None)
+    def _invoke_tool(self, request: ContentToolRequest):
+        tool_def = self._tools.get(request.name, None)
         func = tool_def.func if tool_def is not None else None
 
         if func is None:
-            e = RuntimeError(f"Unknown tool: {x.name}")
-            return ContentToolResult(value=None, error=e, request=x)
+            yield self._handle_tool_error_result(
+                request,
+                error=RuntimeError("Unknown tool."),
+            )
+            return
 
         # First, invoke the request callbacks. If a ToolRejectError is raised,
         # treat it like a tool failure (i.e., gracefully handle it).
         result: ContentToolResult | None = None
         try:
-            self._on_tool_request_callbacks.invoke(x)
+            self._on_tool_request_callbacks.invoke(request)
         except ToolRejectError as e:
-            result = ContentToolResult(value=None, error=e, request=x)
+            yield self._handle_tool_error_result(request, e)
+            return
 
-        # Invoke the tool (if it hasn't been rejected).
-        if result is None:
-            try:
-                if isinstance(x.arguments, dict):
-                    res = func(**x.arguments)
+        try:
+            if isinstance(request.arguments, dict):
+                res = func(**request.arguments)
+            else:
+                res = func(request.arguments)
+
+            # Normalize res as a generator of results.
+            if not inspect.isgenerator(res):
+
+                def _as_generator(res):
+                    yield res
+
+                res = _as_generator(res)
+
+            for x in res:
+                if isinstance(x, ContentToolResult):
+                    result = x
                 else:
-                    res = func(x.arguments)
+                    result = ContentToolResult(value=x)
 
-                if isinstance(res, ContentToolResult):
-                    result = res
-                else:
-                    result = ContentToolResult(value=res)
+                result.request = request
 
-                result.request = x
-            except Exception as e:
-                result = ContentToolResult(value=None, error=e, request=x)
+                self._on_tool_result_callbacks.invoke(result)
+                yield result
 
-        # If we've captured an error, notify and log it.
-        if result.error:
-            warnings.warn(
-                f"Calling tool '{x.name}' led to an error.",
-                ToolFailureWarning,
-                stacklevel=2,
-            )
-            traceback.print_exc()
-            log_tool_error(x.name, str(x.arguments), result.error)
+        except Exception as e:
+            yield self._handle_tool_error_result(request, e)
 
-        self._on_tool_result_callbacks.invoke(result)
-        return result
-
-    async def _invoke_tool_async(self, x: ContentToolRequest) -> ContentToolResult:
-        tool_def = self._tools.get(x.name, None)
+    async def _invoke_tool_async(self, request: ContentToolRequest):
+        tool_def = self._tools.get(request.name, None)
         func = None
         if tool_def:
             if tool_def._is_async:
@@ -1518,45 +1856,59 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 func = wrap_async(tool_def.func)
 
         if func is None:
-            e = RuntimeError(f"Unknown tool: {x.name}")
-            return ContentToolResult(value=None, error=e, request=x)
+            yield self._handle_tool_error_result(
+                request,
+                error=RuntimeError("Unknown tool."),
+            )
+            return
 
         # First, invoke the request callbacks. If a ToolRejectError is raised,
         # treat it like a tool failure (i.e., gracefully handle it).
         result: ContentToolResult | None = None
         try:
-            await self._on_tool_request_callbacks.invoke_async(x)
+            await self._on_tool_request_callbacks.invoke_async(request)
         except ToolRejectError as e:
-            result = ContentToolResult(value=None, error=e, request=x)
+            yield self._handle_tool_error_result(request, e)
+            return
 
         # Invoke the tool (if it hasn't been rejected).
-        if result is None:
-            try:
-                if isinstance(x.arguments, dict):
-                    res = await func(**x.arguments)
+        try:
+            if isinstance(request.arguments, dict):
+                res = await func(**request.arguments)
+            else:
+                res = await func(request.arguments)
+
+            # Normalize res into a generator of results.
+            if not inspect.isasyncgen(res):
+
+                async def _as_async_generator(res):
+                    yield res
+
+                res = _as_async_generator(res)
+
+            async for x in res:
+                if isinstance(x, ContentToolResult):
+                    result = x
                 else:
-                    res = await func(x.arguments)
+                    result = ContentToolResult(value=x)
 
-                if isinstance(res, ContentToolResult):
-                    result = res
-                else:
-                    result = ContentToolResult(value=res)
+                result.request = request
+                await self._on_tool_result_callbacks.invoke_async(result)
+                yield result
 
-                result.request = x
-            except Exception as e:
-                result = ContentToolResult(value=None, error=e, request=x)
+        except Exception as e:
+            yield self._handle_tool_error_result(request, e)
 
-        # If we've captured an error, notify and log it.
-        if result.error:
-            warnings.warn(
-                f"Calling tool '{x.name}' led to an error.",
-                ToolFailureWarning,
-                stacklevel=2,
-            )
-            traceback.print_exc()
-            log_tool_error(x.name, str(x.arguments), result.error)
-
-        await self._on_tool_result_callbacks.invoke_async(result)
+    def _handle_tool_error_result(self, request: ContentToolRequest, error: Exception):
+        warnings.warn(
+            f"Calling tool '{request.name}' led to an error: {error}",
+            ToolFailureWarning,
+            stacklevel=2,
+        )
+        traceback.print_exc()
+        log_tool_error(request.name, str(request.arguments), error)
+        result = ContentToolResult(value=None, error=error, request=request)
+        self._on_tool_result_callbacks.invoke(result)
         return result
 
     def _markdown_display(self, echo: EchoOptions) -> ChatMarkdownDisplay:

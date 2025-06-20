@@ -304,7 +304,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 """Extract structured data"""
                 pass
 
-            data_model_tool = Tool(_structured_tool_call)
+            data_model_tool = Tool.from_func(_structured_tool_call)
 
             data_model_tool.schema["function"]["parameters"] = {
                 "type": "object",

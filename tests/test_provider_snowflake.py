@@ -15,6 +15,7 @@ CONNECTION = "posit"
 MODEL = "claude-3-7-sonnet"
 
 
+@pytest.mark.filterwarnings("ignore")
 def test_openai_simple_request():
     chat = ChatSnowflake(
         connection_name=CONNECTION,
@@ -34,6 +35,7 @@ def test_openai_simple_request():
 
 
 @pytest.mark.asyncio
+@pytest.mark.filterwarnings("ignore")
 async def test_openai_simple_streaming_request():
     chat = ChatSnowflake(
         connection_name=CONNECTION,
@@ -50,7 +52,7 @@ async def test_openai_simple_streaming_request():
     # No token / finish_reason info available
     # assert turn.finish_reason == "stop"
 
-
+@pytest.mark.filterwarnings("ignore")
 def test_respects_turns_interface():
     def chat_fun(**kwargs):
         return ChatSnowflake(connection_name=CONNECTION, model=MODEL, **kwargs)
@@ -58,7 +60,7 @@ def test_respects_turns_interface():
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
-
+@pytest.mark.filterwarnings("ignore")
 def test_tool_variations():
     def chat_fun(**kwargs):
         return ChatSnowflake(connection_name=CONNECTION, model=MODEL, **kwargs)
@@ -72,13 +74,14 @@ def test_tool_variations():
 
 
 @pytest.mark.asyncio
+@pytest.mark.filterwarnings("ignore")
 async def test_tool_variations_async():
     def chat_fun(**kwargs):
         return ChatSnowflake(connection_name=CONNECTION, model=MODEL, **kwargs)
 
     await assert_tools_async(chat_fun)
 
-
+@pytest.mark.filterwarnings("ignore")
 def test_data_extraction():
     def chat_fun():
         return ChatSnowflake(connection_name=CONNECTION, model=MODEL)

@@ -102,8 +102,7 @@ def interpolate_file(
 
     See Also
     --------
-    interpolate
-        Interpolating data into a system prompt
+    * :func:`~chatlas.interpolate` : Interpolating data into a prompt
     """
     if variables is None:
         frame = inspect.currentframe()

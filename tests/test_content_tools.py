@@ -99,6 +99,7 @@ def test_register_tool_with_complex_parameters():
     }
 
 
+@pytest.mark.filterwarnings("ignore")
 def test_invoke_tool_returns_tool_result():
     chat = ChatOpenAI()
 
@@ -108,7 +109,7 @@ def test_invoke_tool_returns_tool_result():
     chat.register_tool(tool)
 
     def new_tool_request(
-        name: Optional[str] = "tool",
+        name: str = "tool",
         args: Optional[dict[str, Any]] = None,
     ):
         return ContentToolRequest(
@@ -118,7 +119,9 @@ def test_invoke_tool_returns_tool_result():
         )
 
     req1 = new_tool_request()
-    res = chat._invoke_tool(req1)
+    results = list(chat._invoke_tool(req1))
+    assert len(results) == 1
+    res = results[0]
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
     assert res.error is None
@@ -129,7 +132,9 @@ def test_invoke_tool_returns_tool_result():
     assert res.arguments == req1.arguments
 
     req2 = new_tool_request(args={"x": 1})
-    res = chat._invoke_tool(req2)
+    results = list(chat._invoke_tool(req2))
+    assert len(results) == 1
+    res = results[0]
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
     assert res.error is not None
@@ -144,10 +149,12 @@ def test_invoke_tool_returns_tool_result():
         name="foo",
         args={"x": 1},
     )
-    res = chat._invoke_tool(req3)
+    results = list(chat._invoke_tool(req3))
+    assert len(results) == 1
+    res = results[0]
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
-    assert str(res.error) == "Unknown tool: foo"
+    assert "Unknown tool" in str(res.error)
     assert res.value is None
     assert res.request == req3
     assert res.id == req3.id
@@ -156,6 +163,7 @@ def test_invoke_tool_returns_tool_result():
 
 
 @pytest.mark.asyncio
+@pytest.mark.filterwarnings("ignore")
 async def test_invoke_tool_returns_tool_result_async():
     chat = ChatOpenAI()
 
@@ -165,7 +173,7 @@ async def test_invoke_tool_returns_tool_result_async():
     chat.register_tool(tool)
 
     def new_tool_request(
-        name: Optional[str] = "tool",
+        name: str = "tool",
         args: Optional[dict[str, Any]] = None,
     ):
         return ContentToolRequest(
@@ -175,7 +183,11 @@ async def test_invoke_tool_returns_tool_result_async():
         )
 
     req1 = new_tool_request()
-    res = await chat._invoke_tool_async(req1)
+    results = []
+    async for result in chat._invoke_tool_async(req1):
+        results.append(result)
+    assert len(results) == 1
+    res = results[0]
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
     assert res.error is None
@@ -186,7 +198,11 @@ async def test_invoke_tool_returns_tool_result_async():
     assert res.arguments == req1.arguments
 
     req2 = new_tool_request(args={"x": 1})
-    res = await chat._invoke_tool_async(req2)
+    results = []
+    async for result in chat._invoke_tool_async(req2):
+        results.append(result)
+    assert len(results) == 1
+    res = results[0]
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
     assert res.error is not None
@@ -201,10 +217,14 @@ async def test_invoke_tool_returns_tool_result_async():
         name="foo",
         args={"x": 1},
     )
-    res = await chat._invoke_tool_async(req3)
+    results = []
+    async for result in chat._invoke_tool_async(req3):
+        results.append(result)
+    assert len(results) == 1
+    res = results[0]
     assert isinstance(res, ContentToolResult)
     assert res.id == "id"
-    assert str(res.error) == "Unknown tool: foo"
+    assert "Unknown tool" in str(res.error)
     assert res.value is None
     assert res.request == req3
     assert res.id == req3.id
@@ -242,7 +262,9 @@ def test_tool_custom_result():
         arguments={},
     )
 
-    res = chat._invoke_tool(req)
+    results = list(chat._invoke_tool(req))
+    assert len(results) == 1
+    res = results[0]
     assert isinstance(res, CustomResult)
     assert res.id == "id"
     assert res.error is None
@@ -253,7 +275,9 @@ def test_tool_custom_result():
     assert res.name == req.name
     assert res.arguments == req.arguments
 
-    res_err = chat._invoke_tool(req_err)
+    results_err = list(chat._invoke_tool(req_err))
+    assert len(results_err) == 1
+    res_err = results_err[0]
     assert isinstance(res_err, CustomResult)
     assert res_err.id == "id"
     assert res_err.error is not None
@@ -298,7 +322,11 @@ async def test_tool_custom_result_async():
         arguments={},
     )
 
-    res = await chat._invoke_tool_async(req)
+    results = []
+    async for result in chat._invoke_tool_async(req):
+        results.append(result)
+    assert len(results) == 1
+    res = results[0]
     assert isinstance(res, CustomResult)
     assert res.id == "id"
     assert res.error is None
@@ -309,7 +337,11 @@ async def test_tool_custom_result_async():
     assert res.name == req.name
     assert res.arguments == req.arguments
 
-    res_err = await chat._invoke_tool_async(req_err)
+    results_err = []
+    async for result in chat._invoke_tool_async(req_err):
+        results_err.append(result)
+    assert len(results_err) == 1
+    res_err = results_err[0]
     assert isinstance(res_err, CustomResult)
     assert res_err.id == "id"
     assert res_err.error is not None
