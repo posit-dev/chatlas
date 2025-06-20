@@ -1172,7 +1172,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def cleanup_mcp_tools(self, names: Optional[Sequence[str]] = None):
         """
-        Clean MCP server connections (and their corresponding tools).
+        Close MCP server connections (and their corresponding tools).
 
         This method closes the MCP client sessions and removes the tools registered
         from the MCP servers. If a specific `name` is provided, it will only clean

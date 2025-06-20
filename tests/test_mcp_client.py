@@ -411,7 +411,7 @@ class TestMCPCleanup:
         chat = ChatOpenAI()
 
         with pytest.warns(
-            UserWarning, match="No MCP session found with name 'nonexistent'"
+            UserWarning, match="Cannot close MCP session named 'nonexistent'"
         ):
             await chat.cleanup_mcp_tools("nonexistent")
 

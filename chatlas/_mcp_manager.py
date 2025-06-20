@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import warnings
+from abc import ABC, abstractmethod
 from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Optional, Sequence
@@ -13,14 +14,79 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class SessionInfo:
+class SessionInfo(ABC):
+    # Input parameters
     name: str
+    include_tools: Sequence[str] = field(default_factory=list)
+    exclude_tools: Sequence[str] = field(default_factory=list)
+    namespace: str | None = None
+
+    # Primary derived attributes
+    session: ClientSession | None = None
     tools: dict[str, Tool] = field(default_factory=dict)
+
+    # Background task management
     ready_event: asyncio.Event = field(default_factory=asyncio.Event)
     shutdown_event: asyncio.Event = field(default_factory=asyncio.Event)
     exit_stack: AsyncExitStack = field(default_factory=AsyncExitStack)
     task: asyncio.Task | None = None
     error: asyncio.CancelledError | Exception | None = None
+
+    @abstractmethod
+    async def open_session(self) -> None: ...
+
+    async def close_session(self) -> None:
+        await self.exit_stack.aclose()
+
+    async def request_tools(self) -> None:
+        if self.session is None:
+            raise ValueError("Session must be opened before requesting tools.")
+
+        if self.include_tools and self.exclude_tools:
+            raise ValueError("Cannot specify both include_tools and exclude_tools.")
+
+        # Request the MCP tools available
+        response = await self.session.list_tools()
+        tool_names = set(x.name for x in response.tools)
+
+        # Warn if tools are mis-specified
+        include = set(self.include_tools or [])
+        missing_include = include.difference(tool_names)
+        if missing_include:
+            warnings.warn(
+                f"Specified include_tools {missing_include} did not match any tools from the MCP server. "
+                f"The tools available are: {tool_names}",
+                stacklevel=2,
+            )
+        exclude = set(self.exclude_tools or [])
+        missing_exclude = exclude.difference(tool_names)
+        if missing_exclude:
+            warnings.warn(
+                f"Specified exclude_tools {missing_exclude} did not match any tools from the MCP server. "
+                f"The tools available are: {tool_names}",
+                stacklevel=2,
+            )
+
+        # Filter the tool names
+        if include:
+            tool_names = include.intersection(tool_names)
+        if exclude:
+            tool_names = tool_names.difference(exclude)
+
+        # Apply namespace and convert to chatlas.Tool instances
+        self_tools: dict[str, Tool] = {}
+        for tool in response.tools:
+            if tool.name not in tool_names:
+                continue
+            if self.namespace:
+                tool.name = f"{self.namespace}.{tool.name}"
+            self_tools[tool.name] = Tool.from_mcp(
+                session=self.session,
+                mcp_tool=tool,
+            )
+
+        # Store the tools
+        self.tools = self_tools
 
 
 @dataclass
@@ -28,12 +94,47 @@ class HTTPSessionInfo(SessionInfo):
     url: str = ""
     transport_kwargs: dict[str, Any] = field(default_factory=dict)
 
+    async def open_session(self):
+        mcp = try_import_mcp()
+        from mcp.client.streamable_http import streamablehttp_client
+
+        read, write, _ = await self.exit_stack.enter_async_context(
+            streamablehttp_client(
+                self.url,
+                **self.transport_kwargs,
+            )
+        )
+        session = await self.exit_stack.enter_async_context(
+            mcp.ClientSession(read, write)
+        )
+        await session.initialize()
+        self.session = session
+
 
 @dataclass
 class STDIOSessionInfo(SessionInfo):
     command: str = ""
     args: list[str] = field(default_factory=list)
     transport_kwargs: dict[str, Any] = field(default_factory=dict)
+
+    async def open_session(self):
+        mcp = try_import_mcp()
+        from mcp.client.stdio import stdio_client
+
+        server_params = mcp.StdioServerParameters(
+            command=self.command,
+            args=self.args,
+            **self.transport_kwargs,
+        )
+
+        transport = await self.exit_stack.enter_async_context(
+            stdio_client(server_params)
+        )
+        session = await self.exit_stack.enter_async_context(
+            mcp.ClientSession(*transport)
+        )
+        await session.initialize()
+        self.session = session
 
 
 class MCPSessionManager:
@@ -52,29 +153,25 @@ class MCPSessionManager:
         namespace: str | None,
         transport_kwargs: dict[str, Any],
     ):
-        if name in self._mcp_sessions:
-            raise ValueError(f"MCP Session {name} already exists.")
-
         session_info = HTTPSessionInfo(
             name=name,
             url=url,
+            include_tools=include_tools,
+            exclude_tools=exclude_tools,
+            namespace=namespace,
             transport_kwargs=transport_kwargs or {},
         )
 
+        self.add_session(session_info)
+
         # Launch background task that runs until MCP session is *shutdown*
         # N.B. this is needed since mcp sessions must be opened and closed in the same task
-        asyncio.create_task(
-            self.open_mcp_session(
-                session_info=session_info,
-                include_tools=include_tools,
-                exclude_tools=exclude_tools,
-                namespace=namespace,
-            )
-        )
+        asyncio.create_task(self.open_session(session_info))
 
-        # Wait for a ready event from the background task (signals that tools are registered)
+        # Wait for a ready event from the task (signals that tools are registered)
         await session_info.ready_event.wait()
 
+        # An error might have been caught in the background task
         if session_info.error:
             raise RuntimeError(
                 f"Failed to register tools from MCP server '{name}' at URL '{url}'"
@@ -93,31 +190,26 @@ class MCPSessionManager:
         namespace: str | None,
         transport_kwargs: dict[str, Any],
     ):
-        if name in self._mcp_sessions:
-            raise ValueError(f"MCP Session {name} already exists.")
-
-        # Launch background task that runs until MCP session is *shutdown*
         session_info = STDIOSessionInfo(
             name=name,
             command=command,
             args=args,
+            include_tools=include_tools,
+            exclude_tools=exclude_tools,
+            namespace=namespace,
             transport_kwargs=transport_kwargs or {},
         )
 
+        self.add_session(session_info)
+
         # Launch a background task to initialize the MCP server
         # N.B. this is needed since mcp sessions must be opened and closed in the same task
-        asyncio.create_task(
-            self.open_mcp_session(
-                session_info=session_info,
-                include_tools=include_tools,
-                exclude_tools=exclude_tools,
-                namespace=namespace,
-            )
-        )
+        asyncio.create_task(self.open_session(session_info))
 
-        # Wait for a ready event from the background task (signals that tools are registered)
+        # Wait for a ready event from the task (signals that tools are registered)
         await session_info.ready_event.wait()
 
+        # An error might have been caught in the background task
         if session_info.error:
             raise RuntimeError(
                 f"Failed to register tools from MCP server '{name}' with command '{command} {args}'"
@@ -125,43 +217,27 @@ class MCPSessionManager:
 
         return session_info
 
-    async def open_mcp_session(
-        self,
-        session_info: "SessionInfo",
-        include_tools: Sequence[str],
-        exclude_tools: Sequence[str],
-        namespace: str | None,
-    ):
+    def add_session(self, session_info: SessionInfo) -> None:
+        name = session_info.name
+        if name in self._mcp_sessions:
+            raise ValueError(f"MCP Session {name} already exists.")
+        self._mcp_sessions[name] = session_info
+
+    async def open_session(self, session_info: "SessionInfo"):
         session_info.task = asyncio.current_task()
-        self._mcp_sessions[session_info.name] = session_info
 
         try:
-            # Establish the MCP session
-            if isinstance(session_info, HTTPSessionInfo):
-                session = await self.open_http_session(session_info)
-            elif isinstance(session_info, STDIOSessionInfo):
-                session = await self.open_stdio_session(session_info)
-            else:
-                raise TypeError(
-                    f"Unsupported session type: {type(session_info).__name__}. "
-                    "Expected HTTPMCPSessionInfo or STDIOMCPSessionInfo."
-                )
-
-            # Request the available MCP tools, filter/namespace them,
-            # and convert into to our Tool class
-            session_info.tools = await self.request_tools(
-                session=session,
-                include_tools=include_tools,
-                exclude_tools=exclude_tools,
-                namespace=namespace,
-            )
-
+            # Open the MCP session and request the tools
+            await session_info.open_session()
+            await session_info.request_tools()
         except (asyncio.CancelledError, Exception) as err:
-            # Remember error so we can handle in the main task
+            # Keep the error so we can handle in the main task
             session_info.error = err
-            # And also close the exit stack in case the connection was opened
+            # Remove the session from the manager
+            self.remove_session(session_info.name)
+            # Make sure the session is closed
             try:
-                await session_info.exit_stack.aclose()
+                await session_info.close_session()
             except Exception:
                 pass
             return
@@ -175,46 +251,7 @@ class MCPSessionManager:
         # On shutdown close connection to MCP server
         # This is why we're using a background task in the 1st place...
         # we must close in the same task that opened the session
-        await session_info.exit_stack.aclose()
-
-    async def open_http_session(self, session_info: "HTTPSessionInfo"):
-        mcp = try_import_mcp()
-        from mcp.client.streamable_http import streamablehttp_client
-
-        read, write, _ = await session_info.exit_stack.enter_async_context(
-            streamablehttp_client(
-                session_info.url,
-                **session_info.transport_kwargs,
-            )
-        )
-        session = await session_info.exit_stack.enter_async_context(
-            mcp.ClientSession(read, write)
-        )
-        await session.initialize()
-        return session
-
-    async def open_stdio_session(self, session_info: "STDIOSessionInfo"):
-        # Try to initialize the MCP session (and cleanup if it fails)
-        mcp = try_import_mcp()
-        from mcp.client.stdio import stdio_client
-
-        command = session_info.command
-        args = session_info.args
-
-        server_params = mcp.StdioServerParameters(
-            command=command,
-            args=args,
-            **session_info.transport_kwargs,
-        )
-
-        transport = await session_info.exit_stack.enter_async_context(
-            stdio_client(server_params)
-        )
-        session = await session_info.exit_stack.enter_async_context(
-            mcp.ClientSession(*transport)
-        )
-        await session.initialize()
-        return session
+        await session_info.close_session()
 
     async def close_sessions(self, names: Optional[Sequence[str]] = None):
         if names is None:
@@ -225,71 +262,35 @@ class MCPSessionManager:
 
         closed_sessions: list[SessionInfo] = []
         for x in names:
-            if x not in self._mcp_sessions:
-                warnings.warn(
-                    f"No MCP session found with name '{x}'. Skipping cleanup.",
-                    stacklevel=2,
-                )
+            session = await self.close_background_session(x)
+            if session is None:
                 continue
-            session = self._mcp_sessions[x]
             closed_sessions.append(session)
-            # Signal shutdown and wait for the task to finish (i.e., the session to close)
-            session.shutdown_event.set()
-            if session.task is not None:
-                await session.task
-            del self._mcp_sessions[x]
 
         return closed_sessions
 
-    async def request_tools(
-        self,
-        session: "ClientSession",
-        include_tools: Sequence[str],
-        exclude_tools: Sequence[str],
-        namespace: str | None,
-    ):
-        if include_tools and exclude_tools:
-            raise ValueError("Cannot specify both include_tools and exclude_tools.")
+    async def close_background_session(self, name: str) -> SessionInfo | None:
+        session = self.remove_session(name)
+        if session is None:
+            return None
 
-        # Request the MCP tools available
-        response = await session.list_tools()
-        mcp_tools = response.tools
-        tool_names = set(x.name for x in mcp_tools)
+        # Signal shutdown and wait for the task to finish
+        session.shutdown_event.set()
+        if session.task is not None:
+            await session.task
 
-        # Warn if tools are mis-specified
-        include = set(include_tools or [])
-        missing_include = include.difference(tool_names)
-        if missing_include:
+        return session
+
+    def remove_session(self, name: str) -> SessionInfo | None:
+        if name not in self._mcp_sessions:
             warnings.warn(
-                f"Specified include_tools {missing_include} did not match any tools from the MCP server. "
-                f"The tools available are: {tool_names}",
+                f"Cannot close MCP session named '{name}' since it was not found.",
                 stacklevel=2,
             )
-        exclude = set(exclude_tools or [])
-        missing_exclude = exclude.difference(tool_names)
-        if missing_exclude:
-            warnings.warn(
-                f"Specified exclude_tools {missing_exclude} did not match any tools from the MCP server. "
-                f"The tools available are: {tool_names}",
-                stacklevel=2,
-            )
-
-        # Filter the tool names
-        if include:
-            tool_names = include.intersection(tool_names)
-        if exclude:
-            tool_names = tool_names.difference(exclude)
-
-        # Apply namespace and convert to chatlas.Tool instances
-        res: dict[str, Tool] = {}
-        for tool in mcp_tools:
-            if tool.name not in tool_names:
-                continue
-            if namespace:
-                tool.name = f"{namespace}.{tool.name}"
-            res[tool.name] = Tool.from_mcp(session=session, mcp_tool=tool)
-
-        return res
+            return None
+        session = self._mcp_sessions[name]
+        del self._mcp_sessions[name]
+        return session
 
 
 def try_import_mcp():
