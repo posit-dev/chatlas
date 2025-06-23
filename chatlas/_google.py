@@ -176,7 +176,7 @@ class GoogleProvider(
             )
 
         self._model = model
-        if kwargs.get("vertexai"):
+        if kwargs and kwargs.get("vertexai"):
             self.name = "Google/Vertex"
         else:
             self.name = "Google/Gemini"
