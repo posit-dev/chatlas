@@ -55,11 +55,21 @@ class ThreadSafeTokenCounter:
 _token_counter = ThreadSafeTokenCounter()
 
 
-def tokens_log(provider: "Provider", tokens: tuple[int, int]) -> None:
+def tokens_log(provider: Provider, tokens: tuple[int, int]) -> None:
     """
     Log token usage for a provider in a thread-safe manner.
     """
-    name = provider.__class__.__name__.replace("Provider", "")
+
+    if hasattr(provider, "name"):
+        # Use the provider's name if it has one
+        name = provider.name
+    else:
+        # Fallback to class name if provider does not have a name attribute
+        logger.info(
+            f"Provider {provider.__class__.__name__} does not have a 'name' attribute. "
+            "Using class name instead."
+        )
+        name = provider.__class__.__name__.replace("Provider", "")
     _token_counter.log_tokens(name, tokens[0], tokens[1])
 
 
@@ -71,12 +81,38 @@ def tokens_reset() -> None:
     _token_counter = ThreadSafeTokenCounter()
 
 
+def get_token_cost(
+    name: str, model: str, input_tokens: int, output_tokens: int
+) -> float | None:
+    """
+    Get the cost of tokens for a given provider and model.
+
+    Parameters
+    ----------
+    name : Provider
+        The provider instance.
+    model : str
+        The model name.
+    input_tokens : int
+        The number of input tokens.
+    output_tokens : int
+        The number of output tokens.
+
+    Returns
+    -------
+    float
+        The cost of the tokens, or None if the cost is not known.
+    """
+
+    # return get_token_cost(provider.__name__, model, input_tokens, output_tokens)
+
+
 def token_usage() -> list[TokenUsage] | None:
     """
     Report on token usage in the current session
 
     Call this function to find out the cumulative number of tokens that you
-    have sent and received in the current session.
+    have sent and received in the current session. The price will be shown if known
 
     Returns
     -------
@@ -84,4 +120,6 @@ def token_usage() -> list[TokenUsage] | None:
         A list of dictionaries with the following keys: "name", "input", and "output".
         If no tokens have been logged, then None is returned.
     """
+    _token_counter.get_usage()
+
     return _token_counter.get_usage()

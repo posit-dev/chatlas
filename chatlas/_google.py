@@ -176,6 +176,10 @@ class GoogleProvider(
             )
 
         self._model = model
+        if kwargs.get("vertexai"):
+            self.name = "Google/Vertex"
+        else:
+            self.name = "Google/Gemini"
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,

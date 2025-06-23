@@ -52,6 +52,7 @@ from ._utils import html_escape, wrap_async
 class AnyTypeDict(TypedDict, total=False):
     pass
 
+
 class TokensDict(TypedDict):
     """
     A TypedDict representing the token counts for a turn in the chat.
@@ -93,6 +94,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def __init__(
         self,
         provider: Provider,
+        pricing_provider: str | None = None,
         turns: Optional[Sequence[Turn]] = None,
     ):
         """
@@ -116,6 +118,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "rich_console": {},
             "css_styles": {},
         }
+
+    def get_provider_name(self) -> str:
+        """
+        Get the name of the provider.
+
+        Returns
+        -------
+        str
+            The name of the provider.
+        """
+        # Use the class name of the provider, removing "Provider" suffix
+        # Ex. "OpenAIProvider" -> "ChatOpenAI"
+        # Ex. "AnthropicProvider" -> "ChatAnthropic"
+        name = self.provider.__class__.__name__.replace("Provider", "")
 
     def get_turns(
         self,
@@ -308,8 +324,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return res
 
     def get_cost(
-            self,
-            options: CostOptions = "all",
+        self,
+        options: CostOptions = "all",
     ) -> float:
         """
         Get the cost of the chat.
@@ -328,12 +344,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         # Look up token cost for user and input tokens based on the provider and model
-        
+
         if options == "last":
             # Multiply last user token count by user token cost
             # Multiply last assistant token count by assistant token cost
             # Add
             # Return
+            print("hi")
 
         if options == "all":
             # Get all the user token counts
@@ -341,9 +358,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             # Multiply all the user token counts by the user token cost
             # Multiply all the assistant token counts by the assistant token cost
             # Add them together and return
- 
-
-
+            print("hello")
 
     def token_count(
         self,

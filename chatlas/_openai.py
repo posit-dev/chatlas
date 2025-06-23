@@ -192,6 +192,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
         self._model = model
         self._seed = seed
+        self.name = "OpenAI"
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
@@ -677,6 +678,7 @@ class OpenAIAzureProvider(OpenAIProvider):
 
         self._model = deployment_id
         self._seed = seed
+        self.name = "OpenAIAzure"
 
         kwargs_full: "ChatAzureClientArgs" = {
             "azure_endpoint": endpoint,

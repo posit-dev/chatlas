@@ -200,7 +200,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 "`ChatAnthropic()` requires the `anthropic` package. "
                 "You can install it with 'pip install anthropic'."
             )
-
+        self.name = "Anthropic"
         self._model = model
         self._max_tokens = max_tokens
 
@@ -711,6 +711,7 @@ def ChatBedrockAnthropic(
             base_url=base_url,
             kwargs=kwargs,
         ),
+        pricing_provider="Anthropic Bedrock",
         turns=normalize_turns(
             turns or [],
             system_prompt,

@@ -1,6 +1,7 @@
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
 from chatlas._openai import OpenAIAzureProvider, OpenAIProvider
 from chatlas._tokens import token_usage, tokens_log, tokens_reset
+from pytest import MonkeyPatch
 
 
 def test_tokens_method():
@@ -57,7 +58,6 @@ def test_can_retrieve_and_log_tokens():
     tokens_reset()
 
     provider = OpenAIProvider(api_key="fake_key", model="foo")
-
     tokens_log(provider, (10, 50))
     tokens_log(provider, (0, 10))
     usage = token_usage()
@@ -71,11 +71,19 @@ def test_can_retrieve_and_log_tokens():
         api_key="fake_key", endpoint="foo", api_version="bar"
     )
 
+    # Check that the provider has a name attribute to start
+    assert provider2.name == "OpenAIAzure"
+
+    delattr(provider2, "name")  # Ensure no name attribute
+    assert hasattr(provider2, "name") is False
+
     tokens_log(provider2, (5, 25))
     usage = token_usage()
     assert usage is not None
     assert len(usage) == 2
-    assert usage[1]["name"] == "OpenAIAzure"
+    assert (
+        usage[1]["name"] == "OpenAIAzure"
+    )  # Check that the name is set correctly for Providers without a name pre-set
     assert usage[1]["input"] == 5
     assert usage[1]["output"] == 25
 
