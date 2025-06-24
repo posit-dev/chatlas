@@ -6,6 +6,7 @@ import os
 import sys
 import traceback
 import warnings
+
 from pathlib import Path
 from threading import Thread
 from typing import (
@@ -23,7 +24,8 @@ from typing import (
     TypeVar,
     overload,
 )
-
+import orjson
+import importlib
 from pydantic import BaseModel
 
 from ._callbacks import CallbackManager
@@ -47,6 +49,13 @@ from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
 from ._utils import html_escape, wrap_async
+
+f = (
+    importlib.resources.files("chatlas")
+    .joinpath("data/prices.json")
+    .read_text(encoding="utf-8")
+)
+prices_json = orjson.loads(f)
 
 
 class AnyTypeDict(TypedDict, total=False):
@@ -308,6 +317,37 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return res
 
+    def get_token_pricing(self) -> dict[str, str | float]:
+        """
+        Get the token pricing for the chat if available based on the prices.json file.
+
+        Returns
+        -------
+        dict[str, str | float]
+            A dictionary with the token pricing for the chat. The keys are:
+              - `"provider"`: The provider name (e.g., "OpenAI", "Anthropic", etc.).
+              - `model`: The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.).
+              - `"input"`: The cost per user token in USD.
+              - `"output"`: The cost per assistant token in USD.
+        """
+        if not self.provider.name or self.provider.name not in prices_json:
+            warnings.warn(
+                f"Token pricing for this provider is not available. "
+                "Please check the provider's documentation."
+            )
+            return {}
+        result = next(
+            (
+                item
+                for item in prices_json
+                if item["provider"] == self.provider.name
+                and item["model"] == self.provider.model
+            ),
+            None,
+        )
+        print(result)
+        return result
+
     def get_cost(
         self,
         options: CostOptions = "all",
@@ -329,6 +369,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         # Look up token cost for user and input tokens based on the provider and model
+        turns = self.get_turns(include_system_prompt=False)
+
+        if len(turns) == 0:
+            return 0.0
 
         if options == "last":
             # Multiply last user token count by user token cost

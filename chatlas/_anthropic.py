@@ -711,7 +711,6 @@ def ChatBedrockAnthropic(
             base_url=base_url,
             kwargs=kwargs,
         ),
-        pricing_provider="Anthropic Bedrock",
         turns=normalize_turns(
             turns or [],
             system_prompt,

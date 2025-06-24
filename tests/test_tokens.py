@@ -1,7 +1,6 @@
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
 from chatlas._openai import OpenAIAzureProvider, OpenAIProvider
 from chatlas._tokens import token_usage, tokens_log, tokens_reset
-from pytest import MonkeyPatch
 
 
 def test_tokens_method():
