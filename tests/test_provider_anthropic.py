@@ -8,7 +8,7 @@ from chatlas import ChatAnthropic, ContentToolResult
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
-    assert_images_remote_error,
+    assert_images_remote,
     assert_pdf_local,
     assert_tools_async,
     assert_tools_parallel,
@@ -87,7 +87,7 @@ def test_anthropic_images():
     chat_fun = ChatAnthropic
 
     assert_images_inline(chat_fun)
-    assert_images_remote_error(chat_fun)
+    assert_images_remote(chat_fun)
 
 
 def test_anthropic_pdfs():
