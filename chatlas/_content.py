@@ -404,17 +404,21 @@ class ContentToolResult(Content):
             args = pre_code(str(args))
 
         # Wrap the input parameters in an (open) details block.
-        params = ""
         if args:
             params = details_block("<strong>Input parameters:</strong>", args)
+        else:
+            params = ""
 
         # Also wrap the tool result in an (open) details block.
-        result = details_block("<strong>Result:</strong>", pre_code(self._get_display_value()))
+        result = details_block(
+            "<strong>Result:</strong>",
+            pre_code(self._get_display_value()),
+        )
 
         # Put both the result and parameters into a container
         result_div = f'<div class="chatlas-tool-result-content">{result}{params}</div>'
 
-        # The top-level tool result details block.
+        # Header for the top-level result details block.
         if not self.error:
             header = f"Result from tool call: <code>{self.name}</code>"
         else:
@@ -422,8 +426,6 @@ class ContentToolResult(Content):
 
         res = details_block(header, result_div, open_=False)
 
-        # Finally, create the full HTML representation
-        # with the header and the result content.
         return HTML(f'<div class="chatlas-tool-result">{res}</div>')
 
     def _arguments_str(self) -> str:
