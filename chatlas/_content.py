@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import textwrap
 from pprint import pformat
 from typing import Any, Literal, Optional, Union
 
@@ -385,41 +384,49 @@ class ContentToolResult(Content):
                 "but htmltools is not installed. ",
             )
 
+        # Helper function to format code blocks (optionally with labels for arguments).
+        def pre_code(code: str, label: str | None = None) -> str:
+            lbl = f"<span class='input-parameter-label'>{label}</span>" if label else ""
+            return f"<pre>{lbl}<code>{html_escape(code)}</code></pre>"
+
+        # Helper function to wrap content in a <details> block.
+        def details_block(summary: str, content: str, open_: bool = True) -> str:
+            open_attr = " open" if open_ else ""
+            return (
+                f"<details{open_attr}><summary>{summary}</summary>{content}</details>"
+            )
+
+        # First, format the input parameters.
+        args = self.arguments or {}
+        if isinstance(args, dict):
+            args = "".join(pre_code(str(v), label=k) for k, v in args.items())
+        else:
+            args = pre_code(str(args))
+
+        # Wrap the input parameters in an (open) details block.
+        if args:
+            params = details_block("<strong>Input parameters:</strong>", args)
+        else:
+            params = ""
+
+        # Also wrap the tool result in an (open) details block.
+        result = details_block(
+            "<strong>Result:</strong>",
+            pre_code(self._get_display_value()),
+        )
+
+        # Put both the result and parameters into a container
+        result_div = f'<div class="chatlas-tool-result-content">{result}{params}</div>'
+
+        # Header for the top-level result details block.
         if not self.error:
             header = f"Result from tool call: <code>{self.name}</code>"
         else:
             header = f"❌ Failed to call tool <code>{self.name}</code>"
 
-        def pre_code(code: str, label: str | None = None) -> str:
-            lbl = f"<span class='input-parameter-label'>{label}</span>" if label else ""
-            return f"<pre>{lbl}<code>{html_escape(code)}</code></pre>"
+        res = details_block(header, result_div, open_=False)
 
-        content = pre_code(self._get_display_value())
-
-        if isinstance(self.arguments, dict):
-            args = "".join(pre_code(str(v), label=k) for k, v in self.arguments.items())
-        else:
-            args = pre_code(str(self.arguments))
-
-        html = textwrap.dedent(f"""
-          <div class="chatlas-tool-result">
-            <details>
-              <summary>{header}</summary>
-              <div class="chatlas-tool-result-content">
-                  <details open>
-                    <summary><strong>Result:</strong></summary>
-                    {content}
-                  </details>
-                  <details open>
-                    <summary><strong>Input parameters:</strong></summary>
-                    {args}
-                  </details>
-              </div>
-            </details>
-          </div>
-        """)
-
-        return HTML(html)
+        return HTML(f'<div class="chatlas-tool-result">{res}</div>')
 
     def _arguments_str(self) -> str:
         if isinstance(self.arguments, dict):
