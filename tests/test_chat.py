@@ -47,11 +47,11 @@ def test_simple_streaming_chat():
     chunks = [chunk for chunk in res]
     assert len(chunks) > 2
     result = "".join(chunks)
-    res = re.sub(r"\s+", "", result).lower()
+    res = re.sub(r"[\s`]+", "", result).lower()
     assert res == "redorangeyellowgreenblueindigoviolet"
     turn = chat.get_last_turn()
     assert turn is not None
-    res = re.sub(r"\s+", "", turn.text).lower()
+    res = re.sub(r"[\s`]+", "", turn.text).lower()
     assert res == "redorangeyellowgreenblueindigoviolet"
 
 
