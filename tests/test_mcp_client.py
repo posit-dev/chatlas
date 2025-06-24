@@ -67,10 +67,10 @@ async def test_register_http_mcp_server():
 
     async with http_mcp_server("http_add.py"):
         await chat.register_mcp_tools_http_stream_async(
-            name="test",
             url=SERVER_URL,
         )
 
+        # Name derived from server info (the server name is "test")
         assert "test" in chat._mcp_manager._mcp_sessions
         assert len(chat._tools) == 1
         tool = chat._tools["add"]
@@ -96,12 +96,12 @@ async def test_register_stdio_mcp_server():
     chat = ChatOpenAI()
 
     await chat.register_mcp_tools_stdio_async(
-        name="test",
         command=sys.executable,
         args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
         exclude_tools=["subtract"],
     )
 
+    # Name derived from server info (the server name is "test")
     assert "test" in chat._mcp_manager._mcp_sessions
     assert len(chat._tools) == 1
     tool = chat._tools["multiply"]
@@ -243,7 +243,7 @@ class TestMCPErrorHandling:
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
         )
 
-        with pytest.raises(ValueError, match="MCP Session test already exists"):
+        with pytest.raises(RuntimeError, match="Failed to register tools"):
             await chat.register_mcp_tools_stdio_async(
                 name="test",  # Same name
                 command=sys.executable,
@@ -259,7 +259,6 @@ class TestMCPErrorHandling:
 
         with pytest.raises(RuntimeError, match="Failed to register tools"):
             await chat.register_mcp_tools_stdio_async(
-                name="test",
                 command="nonexistent_command",
                 args=["invalid", "args"],
             )
@@ -271,7 +270,6 @@ class TestMCPErrorHandling:
 
         with pytest.raises(RuntimeError, match="Failed to register tools"):
             await chat.register_mcp_tools_stdio_async(
-                name="test",
                 command=sys.executable,
                 args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
                 include_tools=["subtract"],
@@ -295,7 +293,6 @@ class TestMCPErrorHandling:
                 ValueError, match="following tools are already registered: {'add'}"
             ):
                 await chat.register_mcp_tools_http_stream_async(
-                    name="test",
                     url=SERVER_URL,
                 )
 
@@ -313,7 +310,7 @@ class TestMCPErrorHandling:
         # Register MCP server with namespace - should work
         async with http_mcp_server("http_add.py"):
             await chat.register_mcp_tools_http_stream_async(
-                name="test", url=SERVER_URL, namespace="mcp"
+                url=SERVER_URL, namespace="mcp"
             )
 
             # Should have both tools with different names
@@ -330,7 +327,6 @@ class TestMCPErrorHandling:
 
         with pytest.raises(RuntimeError, match="Failed to register tools"):
             await chat.register_mcp_tools_http_stream_async(
-                name="test",
                 url="http://localhost:99999/invalid",
             )
 
@@ -445,7 +441,6 @@ class TestMCPToolFiltering:
         chat = ChatOpenAI()
 
         await chat.register_mcp_tools_stdio_async(
-            name="test",
             command=sys.executable,
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
             include_tools=["subtract"],
@@ -463,7 +458,6 @@ class TestMCPToolFiltering:
         chat = ChatOpenAI()
 
         await chat.register_mcp_tools_stdio_async(
-            name="test",
             command=sys.executable,
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
             exclude_tools=["subtract"],
@@ -482,7 +476,6 @@ class TestMCPToolFiltering:
 
         with pytest.warns(UserWarning, match="did not match"):
             await chat.register_mcp_tools_stdio_async(
-                name="test",
                 command=sys.executable,
                 args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
                 include_tools=["nonexistent"],
@@ -500,7 +493,6 @@ class TestMCPToolFiltering:
         chat = ChatOpenAI()
 
         await chat.register_mcp_tools_stdio_async(
-            name="test",
             command=sys.executable,
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
             exclude_tools=["subtract", "multiply"],
@@ -523,7 +515,6 @@ class TestMCPTransportKwargs:
 
         # Test with env override (should still work)
         await chat.register_mcp_tools_stdio_async(
-            name="test",
             command=sys.executable,
             args=[str(MCP_SERVER_DIR / "stdio_subtract_multiply.py")],
             transport_kwargs={"env": {"TEST_VAR": "test_value"}},
@@ -542,7 +533,6 @@ class TestMCPTransportKwargs:
 
         async with http_mcp_server("http_add.py"):
             await chat.register_mcp_tools_http_stream_async(
-                name="test",
                 url=SERVER_URL,
                 transport_kwargs={"timeout": 30.0},
             )

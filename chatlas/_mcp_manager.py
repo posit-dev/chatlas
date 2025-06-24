@@ -107,8 +107,10 @@ class HTTPSessionInfo(SessionInfo):
         session = await self.exit_stack.enter_async_context(
             mcp.ClientSession(read, write)
         )
-        await session.initialize()
+        server = await session.initialize()
         self.session = session
+        if not self.name:
+            self.name = server.serverInfo.name or "mcp"
 
 
 @dataclass
@@ -133,8 +135,10 @@ class STDIOSessionInfo(SessionInfo):
         session = await self.exit_stack.enter_async_context(
             mcp.ClientSession(*transport)
         )
-        await session.initialize()
+        server = await session.initialize()
         self.session = session
+        if not self.name:
+            self.name = server.serverInfo.name or "mcp"
 
 
 class MCPSessionManager:
@@ -146,23 +150,21 @@ class MCPSessionManager:
     async def register_http_stream_tools(
         self,
         *,
-        name: str,
         url: str,
+        name: str | None,
         include_tools: Sequence[str],
         exclude_tools: Sequence[str],
         namespace: str | None,
         transport_kwargs: dict[str, Any],
     ):
         session_info = HTTPSessionInfo(
-            name=name,
+            name=name or "",
             url=url,
             include_tools=include_tools,
             exclude_tools=exclude_tools,
             namespace=namespace,
             transport_kwargs=transport_kwargs or {},
         )
-
-        self.add_session(session_info)
 
         # Launch background task that runs until MCP session is *shutdown*
         # N.B. this is needed since mcp sessions must be opened and closed in the same task
@@ -182,16 +184,16 @@ class MCPSessionManager:
     async def register_stdio_tools(
         self,
         *,
-        name: str,
         command: str,
         args: list[str],
+        name: str | None,
         include_tools: Sequence[str],
         exclude_tools: Sequence[str],
         namespace: str | None,
         transport_kwargs: dict[str, Any],
     ):
         session_info = STDIOSessionInfo(
-            name=name,
+            name=name or "",
             command=command,
             args=args,
             include_tools=include_tools,
@@ -199,8 +201,6 @@ class MCPSessionManager:
             namespace=namespace,
             transport_kwargs=transport_kwargs or {},
         )
-
-        self.add_session(session_info)
 
         # Launch a background task to initialize the MCP server
         # N.B. this is needed since mcp sessions must be opened and closed in the same task
@@ -217,24 +217,19 @@ class MCPSessionManager:
 
         return session_info
 
-    def add_session(self, session_info: SessionInfo) -> None:
-        name = session_info.name
-        if name in self._mcp_sessions:
-            raise ValueError(f"MCP Session {name} already exists.")
-        self._mcp_sessions[name] = session_info
-
     async def open_session(self, session_info: "SessionInfo"):
         session_info.task = asyncio.current_task()
 
         try:
-            # Open the MCP session and request the tools
+            # Open the MCP session
             await session_info.open_session()
+            # Request the tools
             await session_info.request_tools()
+            # Make sure session can be added to the manager
+            self.add_session(session_info)
         except (asyncio.CancelledError, Exception) as err:
             # Keep the error so we can handle in the main task
             session_info.error = err
-            # Remove the session from the manager
-            self.remove_session(session_info.name)
             # Make sure the session is closed
             try:
                 await session_info.close_session()
@@ -280,6 +275,12 @@ class MCPSessionManager:
             await session.task
 
         return session
+
+    def add_session(self, session_info: SessionInfo) -> None:
+        name = session_info.name
+        if name in self._mcp_sessions:
+            raise ValueError(f"Already connected to an MCP server named: '{name}'.")
+        self._mcp_sessions[name] = session_info
 
     def remove_session(self, name: str) -> SessionInfo | None:
         if name not in self._mcp_sessions:
