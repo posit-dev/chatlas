@@ -145,7 +145,7 @@ add(x=5, y=-3)
 Another way to run the MCP server is to use the Stdio protocol, which allows you to run the server as a local process.
 The command used to run the server must be specified in the `command` argument, and any additional arguments can be passed in the `args` list.
 In our case, since we are using the `mcp` library, we can run the server using the `mcp` command with the `run` subcommand and the path to our server script.
-So, as long as you have `mcp` installed, and the [basic server](#basic-server) saved as `my_mcp_server.py`, you can run the MCP server and connect it's tools to chatlas, as follows:
+So, as long as you have `mcp` installed, and the [basic server](#basic-server) saved as `my_mcp_server.py`, you can run the MCP server and connect its tools to chatlas, as follows:
 
 ```python
 import asyncio
