@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import copy
+import importlib.resources as resources
 import inspect
 import os
 import sys
 import traceback
 import warnings
-
 from pathlib import Path
 from threading import Thread
 from typing import (
@@ -24,7 +24,6 @@ from typing import (
     TypeVar,
     overload,
 )
-import importlib.resources as resources
 
 import orjson
 from pydantic import BaseModel
