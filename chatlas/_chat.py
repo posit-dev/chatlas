@@ -915,10 +915,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def register_mcp_tools_http_stream_async(
         self,
         *,
-        name: str,
         url: str,
         include_tools: Sequence[str] = (),
         exclude_tools: Sequence[str] = (),
+        name: Optional[str] = None,
         namespace: Optional[str] = None,
         transport_kwargs: Optional[dict[str, Any]] = None,
     ):
@@ -943,11 +943,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Parameters
         ----------
-        name
-            A unique name for the MCP server session.
         url
             URL endpoint where the Streamable HTTP server is mounted (e.g.,
             `http://localhost:8000/mcp`)
+        name
+            A unique name for the MCP server session. If not provided, the name
+            is derived from the MCP server information. This name is primarily
+            useful for cleanup purposes (i.e., to close a particular MCP
+            session).
         include_tools
             List of tool names to include. By default, all available tools are
             included.
@@ -1010,7 +1013,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         ```python
         await chat.register_mcp_tools_http_stream_async(
-            name="my_server",
             url="http://localhost:8080/mcp"
         )
         ```
@@ -1031,7 +1033,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         overlapping_tools = set(self._tools.keys()) & set(session_info.tools)
         if overlapping_tools:
-            await self._mcp_manager.close_sessions([name])
+            await self._mcp_manager.close_sessions([session_info.name])
             raise ValueError(
                 f"The following tools are already registered: {overlapping_tools}. "
                 "Consider providing a namespace when registering this MCP server "
@@ -1043,9 +1045,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def register_mcp_tools_stdio_async(
         self,
         *,
-        name: str,
         command: str,
         args: list[str],
+        name: Optional[str] = None,
         include_tools: Sequence[str] = (),
         exclude_tools: Sequence[str] = (),
         namespace: Optional[str] = None,
@@ -1078,13 +1080,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Parameters
         ----------
-        name
-            A unique name for the MCP server session.
         command
             System command to execute to start the MCP server (e.g., `python`).
         args
             Arguments to pass to the system command (e.g., `["-m",
             "my_mcp_server"]`).
+        name
+            A unique name for the MCP server session. If not provided, the name
+            is derived from the MCP server information. This name is primarily
+            useful for cleanup purposes (i.e., to close a particular MCP
+            session).
         include_tools
             List of tool names to include. By default, all available tools are
             included.
@@ -1138,7 +1143,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         chat = ChatOpenAI()
 
         await chat.register_mcp_tools_stdio_async(
-            name="my_server",
             command="python",
             args=["-m", "my_mcp_server"],
         )
@@ -1150,9 +1154,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             include_tools = [include_tools]
 
         session_info = await self._mcp_manager.register_stdio_tools(
-            name=name,
             command=command,
             args=args,
+            name=name,
             include_tools=include_tools,
             exclude_tools=exclude_tools,
             namespace=namespace,
@@ -1161,7 +1165,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         overlapping_tools = set(self._tools.keys()) & set(session_info.tools)
         if overlapping_tools:
-            await self._mcp_manager.close_sessions([name])
+            await self._mcp_manager.close_sessions([session_info.name])
             raise ValueError(
                 f"The following tools are already registered: {overlapping_tools}. "
                 "Consider providing a namespace when registering this MCP server "
