@@ -455,6 +455,12 @@ class ContentToolResultImage(ContentToolResult):
     def _repr_markdown_(self):
         return f"![](data:{self.mime_type};base64,{self.value})"
 
+    def get_model_value(self):
+        raise NotImplementedError(
+            "The value actually sent to the model depends on the model "
+            "provider used (e.g., OpenAI, Anthropic, etc.). "
+        )
+
 
 class ContentToolResultResource(ContentToolResult):
     """

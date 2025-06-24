@@ -17,6 +17,8 @@ from ._content import (
     ContentText,
     ContentToolRequest,
     ContentToolResult,
+    ContentToolResultImage,
+    ContentToolResultResource,
 )
 from ._logging import log_model_default
 from ._provider import Provider
@@ -496,8 +498,26 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 "tool_use_id": content.id,
                 "is_error": content.error is not None,
             }
-            # Anthropic supports non-text contents like ImageBlockParam
-            res["content"] = content.get_model_value()  # type: ignore
+
+            if isinstance(content, ContentToolResultImage):
+                res["content"] = [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": content.mime_type,
+                            "data": content.value,
+                        },
+                    }
+                ]
+            elif isinstance(content, ContentToolResultResource):
+                raise NotImplementedError(
+                    "ContentToolResultResource is not currently supported by Anthropic."
+                )
+            else:
+                # Anthropic supports non-text contents like ImageBlockParam
+                res["content"] = content.get_model_value()  # type: ignore
+
             return res
 
         raise ValueError(f"Unknown content type: {type(content)}")
