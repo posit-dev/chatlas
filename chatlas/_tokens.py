@@ -62,7 +62,7 @@ def tokens_log(provider: Provider, tokens: tuple[int, int]) -> None:
 
     if hasattr(provider, "name"):
         # Use the provider's name if it has one
-        name = provider.name
+        name = provider.name  # type: ignore
     else:
         # Fallback to class name if provider does not have a name attribute
         logger.info(

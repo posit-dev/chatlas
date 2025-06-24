@@ -326,7 +326,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
               - `"input"`: The cost per user token in USD.
               - `"output"`: The cost per assistant token in USD.
         """
-        if not self.provider.name:
+        if not self.provider.name:  # type: ignore
             warnings.warn(
                 "Please specify a provider name to access pricing information."
             )
@@ -335,8 +335,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             (
                 item
                 for item in prices_json
-                if item["provider"] == self.provider.name
-                and item["model"] == self.provider._model
+                if item["provider"] == self.provider.name  # type: ignore
+                and item["model"] == self.provider._model  # type: ignore
             ),
             {},
         )
@@ -389,6 +389,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             # Multiply all the assistant token counts by the assistant token cost
             # Add them together and return
             print("hello")
+        return 0.0
 
     def token_count(
         self,
