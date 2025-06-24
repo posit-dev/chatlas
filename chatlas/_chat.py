@@ -330,10 +330,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
               - `"input"`: The cost per user token in USD.
               - `"output"`: The cost per assistant token in USD.
         """
-        if not self.provider.name or self.provider.name not in prices_json:
+        if not self.provider.name:
             warnings.warn(
-                f"Token pricing for this provider is not available. "
-                "Please check the provider's documentation."
+                f"Please specify a provider name to access pricing information."
             )
             return {}
         result = next(
@@ -341,11 +340,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 item
                 for item in prices_json
                 if item["provider"] == self.provider.name
-                and item["model"] == self.provider.model
+                and item["model"] == self.provider._model
             ),
-            None,
+            {},
         )
-        print(result)
+
+        if not result:
+            warnings.warn(
+                f"Token pricing for the provider and model you selected is not available. "
+                "Please check the provider's documentation."
+            )
+
         return result
 
     def get_cost(
