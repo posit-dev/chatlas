@@ -161,7 +161,7 @@ def ChatOpenAI(
         seed = 1014 if is_testing() else None
 
     if model is None:
-        model = log_model_default("gpt-4o")
+        model = log_model_default("gpt-4.1")
 
     return Chat(
         provider=OpenAIProvider(

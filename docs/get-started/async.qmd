@@ -13,7 +13,7 @@ import asyncio
 import chatlas as ctl
 
 chat = ctl.ChatOpenAI(
-    model="gpt-4o-mini",
+    model="gpt-4.1-mini",
     system_prompt="You are a helpful assistant.",
 )
 

@@ -38,7 +38,7 @@ from chatlas import ChatOpenAI
 
 # Optional (but recommended) model and system_prompt
 chat = ChatOpenAI(
-    model="gpt-4o-mini",
+    model="gpt-4.1-mini",
     system_prompt="You are a helpful assistant.",
 )
 
