@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
+* `ChatAnthropic()` now supports `content_image_url()`. (#112)
 * HTML styling improvements for `ContentToolResult` and `ContentToolRequest`. (#39)
 
 ### Bug fixes
