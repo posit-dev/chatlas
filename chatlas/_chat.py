@@ -24,8 +24,9 @@ from typing import (
     TypeVar,
     overload,
 )
-import orjson
 import importlib.resources as resources
+
+import orjson
 from pydantic import BaseModel
 
 from ._callbacks import CallbackManager
@@ -328,7 +329,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         if not self.provider.name:
             warnings.warn(
-                f"Please specify a provider name to access pricing information."
+                "Please specify a provider name to access pricing information."
             )
             return {}
         result = next(
@@ -343,7 +344,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         if not result:
             warnings.warn(
-                f"Token pricing for the provider and model you selected is not available. "
+                "Token pricing for the provider and model you selected is not available. "
                 "Please check the provider's documentation."
             )
 
