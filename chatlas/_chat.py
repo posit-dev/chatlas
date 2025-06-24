@@ -25,7 +25,7 @@ from typing import (
     overload,
 )
 import orjson
-import importlib
+import importlib.resources as resources
 from pydantic import BaseModel
 
 from ._callbacks import CallbackManager
@@ -50,11 +50,7 @@ from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
 from ._utils import html_escape, wrap_async
 
-f = (
-    importlib.resources.files("chatlas")
-    .joinpath("data/prices.json")
-    .read_text(encoding="utf-8")
-)
+f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="utf-8")
 prices_json = orjson.loads(f)
 
 
