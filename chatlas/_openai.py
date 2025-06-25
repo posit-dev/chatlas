@@ -190,6 +190,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
     ):
         from openai import AsyncOpenAI, OpenAI
 
+        self._name = "OpenAI"
         self._model = model
         self._seed = seed
 
@@ -205,7 +206,11 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
     @property
     def name(self):
-        return "OpenAI"
+        return self._name
+
+    @property
+    def model(self):
+        return self._model
 
     @overload
     def chat_perform(
