@@ -28,6 +28,8 @@ def test_openai_simple_request():
     assert turn.tokens[0] == 27
     # Not testing turn.tokens[1] because it's not deterministic. Typically 1 or 2.
     assert turn.finish_reason == "stop"
+    assert chat.provider.name == "OpenAI"
+    assert chat.provider.model == "gpt-4o"
 
 
 @pytest.mark.asyncio

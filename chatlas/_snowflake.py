@@ -199,9 +199,18 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         )
 
         self._model = model
+        self._name = "Snowflake"
 
         session = Session.builder.configs(configs).create()
         self._cortex_service = Root(session).cortex_inference_service
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def model(self):
+        return self._model
 
     @overload
     def chat_perform(

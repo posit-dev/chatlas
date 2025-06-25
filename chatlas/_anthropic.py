@@ -749,6 +749,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
             )
 
         self._model = model
+        self._name = "AnthropicBedrock"
         self._max_tokens = max_tokens
 
         kwargs_full: "ChatBedrockClientArgs" = {
@@ -763,3 +764,11 @@ class AnthropicBedrockProvider(AnthropicProvider):
 
         self._client = AnthropicBedrock(**kwargs_full)  # type: ignore
         self._async_client = AsyncAnthropicBedrock(**kwargs_full)  # type: ignore
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def model(self):
+        return self._model

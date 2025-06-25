@@ -16,6 +16,8 @@ def test_openai_simple_request():
     assert turn.tokens[0] == 26
     # Not testing turn.tokens[1] because it's not deterministic. Typically 1 or 2.
     assert turn.finish_reason == "stop"
+    assert chat.provider.name == "Databricks"
+    assert chat.provider.model == "databricks-claude-3-7-sonnet"
 
 
 @pytest.mark.asyncio

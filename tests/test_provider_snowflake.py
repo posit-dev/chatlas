@@ -24,6 +24,8 @@ def test_openai_simple_request():
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
+    assert chat.provider.name == "Snowflake"
+    assert chat.provider.model == "claude-3-7-sonnet"
 
     # No token / finish_reason info available?
     # assert turn.tokens is not None

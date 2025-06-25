@@ -5,13 +5,13 @@ import warnings
 import importlib.resources as resources
 from threading import Lock
 from typing import TYPE_CHECKING
+import orjson
 
 from ._logging import logger
 from ._typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from ._provider import Provider
-import orjson
 
 
 class TokenUsage(TypedDict):
@@ -94,15 +94,14 @@ def get_token_pricing(provider: Provider) -> dict[str, str | float]:
         (
             item
             for item in prices_json
-            if item["provider"] == provider.name
-            and item["model"] == provider._model  # type: ignore
+            if item["provider"] == provider.name and item["model"] == provider.model
         ),
         {},
     )
 
     if not result:
         warnings.warn(
-            "Token pricing for the provider and model you selected is not available. "
+            f"Token pricing for the provider '{provider.name}' and model '{provider.model}' you selected is not available. "
             "Please check the provider's documentation."
         )
 
