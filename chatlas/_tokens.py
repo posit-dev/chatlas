@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import copy
+import warnings
+import importlib.resources as resources
 from threading import Lock
 from typing import TYPE_CHECKING
 
@@ -9,6 +11,7 @@ from ._typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from ._provider import Provider
+import orjson
 
 
 class TokenUsage(TypedDict):
@@ -59,18 +62,7 @@ def tokens_log(provider: Provider, tokens: tuple[int, int]) -> None:
     """
     Log token usage for a provider in a thread-safe manner.
     """
-
-    if hasattr(provider, "name"):
-        # Use the provider's name if it has one
-        name = provider.name  # type: ignore
-    else:
-        # Fallback to class name if provider does not have a name attribute
-        logger.info(
-            f"Provider {provider.__class__.__name__} does not have a 'name' attribute. "
-            "Using class name instead."
-        )
-        name = provider.__class__.__name__.replace("Provider", "")
-    _token_counter.log_tokens(name, tokens[0], tokens[1])
+    _token_counter.log_tokens(provider.name, tokens[0], tokens[1])
 
 
 def tokens_reset() -> None:
@@ -79,6 +71,42 @@ def tokens_reset() -> None:
     """
     global _token_counter  # noqa: PLW0603
     _token_counter = ThreadSafeTokenCounter()
+
+
+f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="utf-8")
+prices_json = orjson.loads(f)
+
+
+def get_token_pricing(provider: Provider) -> dict[str, str | float]:
+    """
+    Get the token pricing for the chat if available based on the prices.json file.
+
+    Returns
+    -------
+    dict[str, str | float]
+        A dictionary with the token pricing for the chat. The keys are:
+          - `"provider"`: The provider name (e.g., "OpenAI", "Anthropic", etc.).
+          - `model`: The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.).
+          - `"input"`: The cost per user token in USD.
+          - `"output"`: The cost per assistant token in USD.
+    """
+    result = next(
+        (
+            item
+            for item in prices_json
+            if item["provider"] == provider.name
+            and item["model"] == provider._model  # type: ignore
+        ),
+        {},
+    )
+
+    if not result:
+        warnings.warn(
+            "Token pricing for the provider and model you selected is not available. "
+            "Please check the provider's documentation."
+        )
+
+    return result
 
 
 def get_token_cost(

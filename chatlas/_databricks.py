@@ -118,6 +118,7 @@ class DatabricksProvider(OpenAIProvider):
         from openai import AsyncOpenAI
 
         self._model = model
+        self._name = "Databricks"
         self._seed = None
 
         if workspace_client is None:
@@ -137,3 +138,11 @@ class DatabricksProvider(OpenAIProvider):
             api_key="no-token",  # A placeholder to pass validations, this will not be used
             http_client=httpx.AsyncClient(auth=client._client.auth),
         )
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def model(self):
+        return self._model

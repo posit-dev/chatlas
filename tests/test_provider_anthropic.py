@@ -28,6 +28,8 @@ def test_anthropic_simple_request():
     assert turn is not None
     assert turn.tokens == (26, 5)
     assert turn.finish_reason == "end_turn"
+    assert chat.provider.name == "Anthropic"
+    assert chat.provider.model == "claude-3-7-sonnet-latest"
 
 
 @pytest.mark.asyncio

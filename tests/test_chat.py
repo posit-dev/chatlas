@@ -19,14 +19,6 @@ def test_simple_batch_chat():
     assert str(response) == "2"
 
 
-def test_import_prices():
-    print("Starting")
-    chat = ChatOpenAI()
-    print("Provider: ", chat.provider.name, chat.provider._model)
-    print("Pricing result: ", chat.get_token_pricing())
-    print("DONE")
-
-
 @pytest.mark.asyncio
 async def test_simple_async_batch_chat():
     chat = ChatOpenAI()

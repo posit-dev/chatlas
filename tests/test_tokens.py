@@ -1,6 +1,6 @@
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
 from chatlas._openai import OpenAIAzureProvider, OpenAIProvider
-from chatlas._tokens import token_usage, tokens_log, tokens_reset
+from chatlas._tokens import token_usage, tokens_log, tokens_reset, get_token_pricing
 
 
 def test_tokens_method():
@@ -46,6 +46,14 @@ def test_token_count_method():
 
     chat = ChatGoogle(model="gemini-1.5-flash")
     assert chat.token_count("What is 1 + 1?") == 9
+
+
+def test_import_prices():
+    chat = ChatOpenAI()
+
+    print("Provider: ", chat.provider.name, chat.provider._model)
+    print("Pricing result: ", get_token_pricing(chat.provider))
+    print("DONE")
 
 
 def test_usage_is_none():

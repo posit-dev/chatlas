@@ -40,6 +40,14 @@ class Provider(
     directly.
     """
 
+    @property
+    def name(self):
+        raise NotImplementedError("Name property must be implemented.")
+
+    @property
+    def model(self):
+        raise NotImplementedError("Model property must be implemented.")
+
     @overload
     @abstractmethod
     def chat_perform(

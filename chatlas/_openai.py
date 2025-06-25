@@ -192,7 +192,6 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
 
         self._model = model
         self._seed = seed
-        self.name = "OpenAI"
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
@@ -203,6 +202,10 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         # TODO: worth bringing in AsyncOpenAI types?
         self._client = OpenAI(**kwargs_full)  # type: ignore
         self._async_client = AsyncOpenAI(**kwargs_full)
+
+    @property
+    def name(self):
+        return "OpenAI"
 
     @overload
     def chat_perform(
@@ -678,7 +681,7 @@ class OpenAIAzureProvider(OpenAIProvider):
 
         self._model = deployment_id
         self._seed = seed
-        self.name = "OpenAIAzure"
+        self._name = "OpenAIAzure"
 
         kwargs_full: "ChatAzureClientArgs" = {
             "azure_endpoint": endpoint,
@@ -690,6 +693,14 @@ class OpenAIAzureProvider(OpenAIProvider):
 
         self._client = AzureOpenAI(**kwargs_full)  # type: ignore
         self._async_client = AsyncAzureOpenAI(**kwargs_full)  # type: ignore
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def model(self):
+        return self._model
 
 
 class InvalidJSONParameterWarning(RuntimeWarning):

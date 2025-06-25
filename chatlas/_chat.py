@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import copy
-import importlib.resources as resources
 import inspect
 import os
 import sys
@@ -25,7 +24,6 @@ from typing import (
     overload,
 )
 
-import orjson
 from pydantic import BaseModel
 
 from ._callbacks import CallbackManager
@@ -49,9 +47,6 @@ from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
 from ._utils import html_escape, wrap_async
-
-f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="utf-8")
-prices_json = orjson.loads(f)
 
 
 class AnyTypeDict(TypedDict, total=False):
@@ -313,42 +308,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return res
 
-    def get_token_pricing(self) -> dict[str, str | float]:
-        """
-        Get the token pricing for the chat if available based on the prices.json file.
-
-        Returns
-        -------
-        dict[str, str | float]
-            A dictionary with the token pricing for the chat. The keys are:
-              - `"provider"`: The provider name (e.g., "OpenAI", "Anthropic", etc.).
-              - `model`: The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.).
-              - `"input"`: The cost per user token in USD.
-              - `"output"`: The cost per assistant token in USD.
-        """
-        if not self.provider.name:  # type: ignore
-            warnings.warn(
-                "Please specify a provider name to access pricing information."
-            )
-            return {}
-        result = next(
-            (
-                item
-                for item in prices_json
-                if item["provider"] == self.provider.name  # type: ignore
-                and item["model"] == self.provider._model  # type: ignore
-            ),
-            {},
-        )
-
-        if not result:
-            warnings.warn(
-                "Token pricing for the provider and model you selected is not available. "
-                "Please check the provider's documentation."
-            )
-
-        return result
-
+    # TODO: Add another arg for if people want to by cost data
     def get_cost(
         self,
         options: CostOptions = "all",

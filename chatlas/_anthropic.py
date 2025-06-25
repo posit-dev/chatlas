@@ -200,7 +200,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 "`ChatAnthropic()` requires the `anthropic` package. "
                 "You can install it with 'pip install anthropic'."
             )
-        self.name = "Anthropic"
+        self._name = "Anthropic"
         self._model = model
         self._max_tokens = max_tokens
 
@@ -212,6 +212,14 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         # TODO: worth bringing in sync types?
         self._client = Anthropic(**kwargs_full)  # type: ignore
         self._async_client = AsyncAnthropic(**kwargs_full)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def model(self):
+        return self._model
 
     @overload
     def chat_perform(

@@ -176,10 +176,11 @@ class GoogleProvider(
             )
 
         self._model = model
+
         if kwargs and kwargs.get("vertexai"):
-            self.name = "Google/Vertex"
+            self._name = "Google/Vertex"
         else:
-            self.name = "Google/Gemini"
+            self._name = "Google/Gemini"
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
@@ -187,6 +188,14 @@ class GoogleProvider(
         }
 
         self._client = genai.Client(**kwargs_full)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def model(self):
+        return self._model
 
     @overload
     def chat_perform(
