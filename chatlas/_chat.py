@@ -43,8 +43,8 @@ from ._display import (
 )
 from ._logging import log_tool_error
 from ._provider import Provider
-from ._tools import Tool, ToolRejectError
 from ._tokens import TokenPrice, get_token_pricing
+from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
 from ._utils import html_escape, wrap_async
@@ -309,6 +309,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return res
 
+    # TODO: BYOP to tuple (input, output) + add big 'ol disclaimer that WE DON'T KNOW
     def get_cost(
         self,
         options: CostOptions = "all",
@@ -1689,6 +1690,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             res += f"## {icon} {turn.role.capitalize()} turn:\n\n{str(turn)}\n\n"
         return res
 
+    # TODO: Update this to get tokens and also provide cost add provider and model
     def __repr__(self):
         turns = self.get_turns(include_system_prompt=True)
         tokens = sum(sum(turn.tokens) for turn in turns if turn.tokens)

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import copy
-import warnings
 import importlib.resources as resources
+import warnings
 from threading import Lock
 from typing import TYPE_CHECKING
+
 import orjson
 
 from ._logging import logger
@@ -121,6 +122,7 @@ def get_token_pricing(provider: Provider) -> dict[str, str | float]:
     return result
 
 
+# TODO: Add price to this print
 def token_usage() -> list[TokenUsage] | None:
     """
     Report on token usage in the current session

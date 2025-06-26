@@ -4,9 +4,8 @@ import base64
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import orjson
+from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI
 from pydantic import BaseModel
-from openai import AsyncOpenAI, OpenAI, AsyncAzureOpenAI, AzureOpenAI
-
 
 from ._chat import Chat
 from ._content import (

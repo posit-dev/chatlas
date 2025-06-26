@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
-import httpx
-from openai import AsyncOpenAI
+
+from databricks.sdk import WorkspaceClient
+
 from ._chat import Chat
 from ._logging import log_model_default
 from ._openai import OpenAIProvider
 from ._turn import Turn, normalize_turns
-from databricks.sdk import WorkspaceClient
-
 
 if TYPE_CHECKING:
     from databricks.sdk import WorkspaceClient

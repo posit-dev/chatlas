@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
 
 import orjson
 from pydantic import BaseModel
-from anthropic import Anthropic, AsyncAnthropic, AnthropicBedrock, AsyncAnthropicBedrock
 
 from ._chat import Chat
 from ._content import (
