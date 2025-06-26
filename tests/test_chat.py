@@ -2,6 +2,8 @@ import re
 import tempfile
 
 import pytest
+from pydantic import BaseModel
+
 from chatlas import (
     ChatOpenAI,
     ContentToolRequest,
@@ -10,7 +12,7 @@ from chatlas import (
     Turn,
 )
 from chatlas._chat import ToolFailureWarning
-from pydantic import BaseModel
+from chatlas._tokens import TokenPrice
 
 
 def test_simple_batch_chat():
@@ -295,8 +297,29 @@ def test_get_cost():
             Turn(role="assistant", contents="Hello", tokens=(14, 10)),
         ],
     )
+    # Checking that these have the right form vs. the actual calculation because the price may change
     cost = chat.get_cost(options="all")
-    print("COST", cost)
+    assert isinstance(cost, float)
+    assert cost > 0
 
     last = chat.get_cost(options="last")
-    print("Last:", last)
+    assert isinstance(last, float)
+    assert last > 0
+
+    assert cost > last
+
+    byoc = TokenPrice(
+        {
+            "provider": "fake",
+            "model": "fake",
+            "cached_input": 1.0,
+            "input": 2.0,
+            "output": 3.0,
+        }
+    )
+
+    cost2 = chat.get_cost(options="all", tokenPrice=byoc)
+    assert cost2 == 0.000092
+
+    last2 = chat.get_cost(options="last", tokenPrice=byoc)
+    assert last2 == 0.00003

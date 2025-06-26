@@ -352,9 +352,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             return 0.0
 
         if options == "last":
-            # Get the last turn
             last_turn = turns_tokens[len(turns_tokens) - 1]
-            # Add
             acc = 0.0
             if last_turn["role"] == "assistant":
                 acc += last_turn["tokens"] * (price_token["output"] / 1000000)
