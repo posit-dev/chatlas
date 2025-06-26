@@ -73,8 +73,21 @@ def tokens_reset() -> None:
     _token_counter = ThreadSafeTokenCounter()
 
 
+class TokenPrice(TypedDict):
+    """
+    Defines the necessary information to look up pricing for a given turn.
+    """
+
+    provider: str
+    model: str
+    cached_input: float
+    input: float
+    output: float
+
+
+# Load in pricing pulled from ellmer
 f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="utf-8")
-prices_json = orjson.loads(f)
+PricingList: list[TokenPrice] = orjson.loads(f)
 
 
 def get_token_pricing(provider: Provider) -> dict[str, str | float]:
@@ -87,13 +100,13 @@ def get_token_pricing(provider: Provider) -> dict[str, str | float]:
         A dictionary with the token pricing for the chat. The keys are:
           - `"provider"`: The provider name (e.g., "OpenAI", "Anthropic", etc.).
           - `model`: The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.).
-          - `"input"`: The cost per user token in USD.
-          - `"output"`: The cost per assistant token in USD.
+          - `"input"`: The cost per user token in USD per million tokens.
+          - `"output"`: The cost per assistant token in USD per million tokens.
     """
     result = next(
         (
             item
-            for item in prices_json
+            for item in PricingList
             if item["provider"] == provider.name and item["model"] == provider.model
         ),
         {},
@@ -106,32 +119,6 @@ def get_token_pricing(provider: Provider) -> dict[str, str | float]:
         )
 
     return result
-
-
-def get_token_cost(
-    name: str, model: str, input_tokens: int, output_tokens: int
-) -> float | None:
-    """
-    Get the cost of tokens for a given provider and model.
-
-    Parameters
-    ----------
-    name : Provider
-        The provider instance.
-    model : str
-        The model name.
-    input_tokens : int
-        The number of input tokens.
-    output_tokens : int
-        The number of output tokens.
-
-    Returns
-    -------
-    float
-        The cost of the tokens, or None if the cost is not known.
-    """
-
-    # return get_token_cost(provider.__name__, model, input_tokens, output_tokens)
 
 
 def token_usage() -> list[TokenUsage] | None:

@@ -39,11 +39,11 @@ def test_simple_streaming_chat():
     chunks = [chunk for chunk in res]
     assert len(chunks) > 2
     result = "".join(chunks)
-    res = re.sub(r"[\s`]+", "", result).lower()
+    res = re.sub(r"\s+", "", result).lower()
     assert res == "redorangeyellowgreenblueindigoviolet"
     turn = chat.get_last_turn()
     assert turn is not None
-    res = re.sub(r"[\s`]+", "", turn.text).lower()
+    res = re.sub(r"\s+", "", turn.text).lower()
     assert res == "redorangeyellowgreenblueindigoviolet"
 
 
@@ -283,3 +283,18 @@ def test_chat_tool_request_reject2(capsys):
 
     assert str(response).lower() == "joe unknown hadley red"
     assert "Joe denied the request." in capsys.readouterr().out
+
+
+def test_get_cost():
+    chat = ChatOpenAI(
+        api_key="fake_key",
+        turns=[
+            Turn(role="user", contents="Hi"),
+            Turn(role="assistant", contents="Hello", tokens=(2, 10)),
+            Turn(role="user", contents="Hi"),
+            Turn(role="assistant", contents="Hello", tokens=(14, 10)),
+        ],
+    )
+
+    cost = chat.get_cost(options="all")
+    print("COST", cost)

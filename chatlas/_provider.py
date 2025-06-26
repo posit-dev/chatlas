@@ -40,13 +40,18 @@ class Provider(
     directly.
     """
 
+    # TODO: Add docstring for props
+    def __init__(self, *, name: str, model: str):
+        self._name = name
+        self._model = model
+
     @property
     def name(self):
-        raise NotImplementedError("Name property must be implemented.")
+        return self._name
 
     @property
     def model(self):
-        raise NotImplementedError("Model property must be implemented.")
+        return self._model
 
     @overload
     @abstractmethod

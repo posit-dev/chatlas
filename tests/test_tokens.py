@@ -1,6 +1,11 @@
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
 from chatlas._openai import OpenAIAzureProvider, OpenAIProvider
-from chatlas._tokens import token_usage, tokens_log, tokens_reset, get_token_pricing
+from chatlas._tokens import (
+    token_usage,
+    tokens_log,
+    tokens_reset,
+    get_token_pricing,
+)
 
 
 def test_tokens_method():
@@ -49,11 +54,13 @@ def test_token_count_method():
 
 
 def test_import_prices():
-    chat = ChatOpenAI()
-
-    print("Provider: ", chat.provider.name, chat.provider._model)
-    print("Pricing result: ", get_token_pricing(chat.provider))
-    print("DONE")
+    chat = ChatOpenAI(model="o1-mini")
+    pricing = get_token_pricing(chat.provider)
+    assert pricing["provider"] == "OpenAI"
+    assert pricing["model"] == "o1-mini"
+    assert isinstance(pricing["cached_input"], float)
+    assert isinstance(pricing["input"], float)
+    assert isinstance(pricing["output"], float)
 
 
 def test_usage_is_none():

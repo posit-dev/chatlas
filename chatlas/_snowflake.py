@@ -175,6 +175,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         password: Optional[str],
         private_key_file: Optional[str],
         private_key_file_pwd: Optional[str],
+        name: Optional[str] = "Snowflake",
         kwargs: Optional[dict[str, "str | int"]],
     ):
         try:
@@ -185,6 +186,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
                 "`ChatSnowflake()` requires the `snowflake-ml-python` package. "
                 "Please install it via `pip install snowflake-ml-python`."
             )
+        super().__init__(name=name, model=model)
 
         configs: dict[str, str | int] = drop_none(
             {
@@ -198,19 +200,8 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
             }
         )
 
-        self._model = model
-        self._name = "Snowflake"
-
         session = Session.builder.configs(configs).create()
         self._cortex_service = Root(session).cortex_inference_service
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def model(self):
-        return self._model
 
     @overload
     def chat_perform(
@@ -323,7 +314,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         from snowflake.core.cortex.inference_service import CompleteRequest
 
         req = CompleteRequest(
-            model=self._model,
+            model=self.model,
             messages=self._as_request_messages(turns),
             stream=stream,
         )

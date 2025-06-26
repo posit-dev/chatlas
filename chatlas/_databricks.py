@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
-
+import httpx
+from openai import AsyncOpenAI
 from ._chat import Chat
 from ._logging import log_model_default
 from ._openai import OpenAIProvider
 from ._turn import Turn, normalize_turns
+from databricks.sdk import WorkspaceClient
+
 
 if TYPE_CHECKING:
     from databricks.sdk import WorkspaceClient
@@ -104,6 +107,7 @@ class DatabricksProvider(OpenAIProvider):
         self,
         *,
         model: str,
+        name: str = "Databricks",
         workspace_client: Optional["WorkspaceClient"] = None,
     ):
         try:
@@ -117,8 +121,8 @@ class DatabricksProvider(OpenAIProvider):
         import httpx
         from openai import AsyncOpenAI
 
-        self._model = model
-        self._name = "Databricks"
+        super().__init__(name=name, model=model)
+
         self._seed = None
 
         if workspace_client is None:
@@ -138,11 +142,3 @@ class DatabricksProvider(OpenAIProvider):
             api_key="no-token",  # A placeholder to pass validations, this will not be used
             http_client=httpx.AsyncClient(auth=client._client.auth),
         )
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def model(self):
-        return self._model

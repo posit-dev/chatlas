@@ -137,5 +137,6 @@ def ChatGithub(
         api_key=api_key,
         base_url=base_url,
         seed=seed,
+        name="GitHub",
         kwargs=kwargs,
     )

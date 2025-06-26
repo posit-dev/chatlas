@@ -133,5 +133,6 @@ def ChatGroq(
         api_key=api_key,
         base_url=base_url,
         seed=seed,
+        name="Groq",
         kwargs=kwargs,
     )

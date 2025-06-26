@@ -110,6 +110,7 @@ def ChatOllama(
         base_url=f"{base_url}/v1",
         model=model,
         seed=seed,
+        name="Ollama",
         kwargs=kwargs,
     )
 

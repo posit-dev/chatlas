@@ -138,5 +138,6 @@ def ChatPerplexity(
         api_key=api_key,
         base_url=base_url,
         seed=seed,
+        name="Perplexity",
         kwargs=kwargs,
     )

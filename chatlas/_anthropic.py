@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
 
 import orjson
 from pydantic import BaseModel
+from anthropic import Anthropic, AsyncAnthropic, AnthropicBedrock, AsyncAnthropicBedrock
 
 from ._chat import Chat
 from ._content import (
@@ -62,6 +63,7 @@ def ChatAnthropic(
     model: "Optional[ModelParam]" = None,
     api_key: Optional[str] = None,
     max_tokens: int = 4096,
+    name: Literal["Anthropic"] = "Anthropic",
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
     """
@@ -191,17 +193,11 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         max_tokens: int,
         model: str,
         api_key: str | None,
+        name: str = "Anthropic",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
-        try:
-            from anthropic import Anthropic, AsyncAnthropic
-        except ImportError:
-            raise ImportError(
-                "`ChatAnthropic()` requires the `anthropic` package. "
-                "You can install it with 'pip install anthropic'."
-            )
-        self._name = "Anthropic"
-        self._model = model
+        super().__init__(name=name, model=model)
+
         self._max_tokens = max_tokens
 
         kwargs_full: "ChatClientArgs" = {
@@ -212,14 +208,6 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         # TODO: worth bringing in sync types?
         self._client = Anthropic(**kwargs_full)  # type: ignore
         self._async_client = AsyncAnthropic(**kwargs_full)
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def model(self):
-        return self._model
 
     @overload
     def chat_perform(
@@ -330,7 +318,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_params(turns),
-            "model": self._model,
+            "model": self.model,
             "max_tokens": self._max_tokens,
             "tools": tool_schemas,
             **(kwargs or {}),
@@ -738,18 +726,12 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_session_token: str | None,
         max_tokens: int,
         base_url: str | None,
+        name: str = "AnthropicBedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
-        try:
-            from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
-        except ImportError:
-            raise ImportError(
-                "`ChatBedrockAnthropic()` requires the `anthropic` package. "
-                "Install it with `pip install anthropic[bedrock]`."
-            )
 
-        self._model = model
-        self._name = "AnthropicBedrock"
+        super().__init__(name=name, model=model)
+
         self._max_tokens = max_tokens
 
         kwargs_full: "ChatBedrockClientArgs" = {
@@ -764,11 +746,3 @@ class AnthropicBedrockProvider(AnthropicProvider):
 
         self._client = AnthropicBedrock(**kwargs_full)  # type: ignore
         self._async_client = AsyncAnthropicBedrock(**kwargs_full)  # type: ignore
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def model(self):
-        return self._model

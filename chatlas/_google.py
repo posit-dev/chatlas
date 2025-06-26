@@ -146,6 +146,7 @@ def ChatGoogle(
         provider=GoogleProvider(
             model=model,
             api_key=api_key,
+            name="Google/Gemini",
             kwargs=kwargs,
         ),
         turns=normalize_turns(
@@ -165,6 +166,7 @@ class GoogleProvider(
         *,
         model: str,
         api_key: str | None,
+        name: Optional[str] = "Google/Gemini",
         kwargs: Optional["ChatClientArgs"],
     ):
         try:
@@ -174,13 +176,7 @@ class GoogleProvider(
                 f"The {self.__class__.__name__} class requires the `google-genai` package. "
                 "Install it with `pip install google-genai`."
             )
-
-        self._model = model
-
-        if kwargs and kwargs.get("vertexai"):
-            self._name = "Google/Vertex"
-        else:
-            self._name = "Google/Gemini"
+        super().__init__(name=name, model=model)
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
@@ -188,14 +184,6 @@ class GoogleProvider(
         }
 
         self._client = genai.Client(**kwargs_full)
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def model(self):
-        return self._model
 
     @overload
     def chat_perform(
@@ -280,7 +268,7 @@ class GoogleProvider(
         from google.genai.types import Tool as GoogleTool
 
         kwargs_full: "SubmitInputArgs" = {
-            "model": self._model,
+            "model": self.model,
             "contents": cast("GoogleContent", self._google_contents(turns)),
             **(kwargs or {}),
         }
@@ -624,6 +612,7 @@ def ChatVertex(
         provider=GoogleProvider(
             model=model,
             api_key=api_key,
+            name="Google/Vertex",
             kwargs=kwargs,
         ),
         turns=normalize_turns(
