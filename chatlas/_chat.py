@@ -43,7 +43,7 @@ from ._display import (
 )
 from ._logging import log_tool_error
 from ._provider import Provider
-from ._tokens import TokenPrice, get_token_pricing
+from ._tokens import get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
@@ -313,7 +313,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def get_cost(
         self,
         options: CostOptions = "all",
-        tokenPrice: Optional[type[TokenPrice]] = None,
+        token_price: Optional[tuple[float, float]] = None,
     ) -> float:
         """
         Get the cost of the chat.
@@ -324,12 +324,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             One of the following (default is "all"):
               - `"all"`: Return the total cost of all turns in the chat.
               - `"last"`: Return the cost of the last turn in the chat.
-        tokenPrice | None
-            A dictionary with the token pricing for the chat. This can be specified if your provider and/or model does not currently have pricing in our `data/prices.json`.
-                - `"provider"`: The provider name (e.g., "OpenAI", "Anthropic", etc.).
-                 - `model`: The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.).
-                 - `"input"`: The cost per user token in USD per million tokens.
-                 - `"output"`: The cost per assistant token in USD per million tokens.
+        token_price
+            An optional tuple in the format of (input_token_cost, output_token_cost) for bringing your own cost information.
+                 - `"input_token_cost"`: The cost per user token in USD per million tokens.
+                 - `"output_token_cost"`: The cost per assistant token in USD per million tokens.
 
         Returns
         -------
@@ -339,12 +337,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         # Look up token cost for user and input tokens based on the provider and model
         turns_tokens = self.get_tokens()
-        if tokenPrice:
-            price_token = tokenPrice
+        if token_price:
+            input_token_price = token_price[0] / 1000000
+            output_token_price = token_price[1] / 1000000
         else:
             price_token = get_token_pricing(self.provider)
+            input_token_price = price_token["input"] / 1000000
+            output_token_price = price_token["output"] / 1000000
 
-        if not price_token:
+        if not input_token_price and not output_token_price:
             raise KeyError(
                 f"We could not locate provider ' { self.provider.name } ' and model '{ self.provider.model } ' in our pricing information. Please supply your own if you wish to use the cost function."
             )
@@ -356,9 +357,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             last_turn = turns_tokens[len(turns_tokens) - 1]
             acc = 0.0
             if last_turn["role"] == "assistant":
-                acc += last_turn["tokens"] * (price_token["output"] / 1000000)
+                acc += last_turn["tokens"] * output_token_price
             elif last_turn["role"] == "user":
-                acc += last_turn["tokens_total"] * (price_token["input"] / 1000000)
+                acc += last_turn["tokens_total"] * input_token_price
             else:
                 raise ValueError(f"Unrecognized role type { last_turn['role'] }")
             return acc
@@ -370,8 +371,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             user_tokens = sum(
                 u["tokens_total"] for u in turns_tokens if u["role"] == "user"
             )
-            cost = (asst_tokens * (price_token["output"] / 1000000)) + (
-                user_tokens * (price_token["input"] / 1000000)
+            cost = (asst_tokens * output_token_price) + (
+                user_tokens * input_token_price
             )
             return cost
 

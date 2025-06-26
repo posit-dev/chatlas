@@ -308,18 +308,10 @@ def test_get_cost():
 
     assert cost > last
 
-    byoc = TokenPrice(
-        {
-            "provider": "fake",
-            "model": "fake",
-            "cached_input": 1.0,
-            "input": 2.0,
-            "output": 3.0,
-        }
-    )
+    byoc = (2.0, 3.0)
 
-    cost2 = chat.get_cost(options="all", tokenPrice=byoc)
+    cost2 = chat.get_cost(options="all", token_price=byoc)
     assert cost2 == 0.000092
 
-    last2 = chat.get_cost(options="last", tokenPrice=byoc)
+    last2 = chat.get_cost(options="last", token_price=byoc)
     assert last2 == 0.00003
