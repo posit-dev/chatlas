@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import orjson
 from pydantic import BaseModel
-from openai import AsyncOpenAI, OpenAI
+from openai import AsyncOpenAI, OpenAI, AsyncAzureOpenAI, AzureOpenAI
 
 
 from ._chat import Chat
@@ -194,8 +194,6 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         name: str = "OpenAI",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
-        from openai import AsyncOpenAI, OpenAI
-
         super().__init__(name=name, model=model)
 
         self._seed = seed
@@ -679,11 +677,10 @@ class OpenAIAzureProvider(OpenAIProvider):
         api_version: Optional[str] = None,
         api_key: Optional[str] = None,
         seed: int | None = None,
-        name: str = "OpenAIAzure",
-        model: str = "UnusedValue",
+        name: Optional[str] = "OpenAIAzure",
+        model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
-        from openai import AsyncAzureOpenAI, AzureOpenAI
 
         super().__init__(name=name, model=deployment_id)
 

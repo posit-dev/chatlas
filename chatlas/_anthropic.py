@@ -187,17 +187,24 @@ def ChatAnthropic(
 
 
 class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
+
     def __init__(
         self,
         *,
-        max_tokens: int,
+        max_tokens: int = 4096,
         model: str,
-        api_key: str | None,
+        api_key: Optional[str] = None,
         name: str = "Anthropic",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)
-
+        try:
+            from anthropic import Anthropic, AsyncAnthropic
+        except ImportError:
+            raise ImportError(
+                "`ChatAnthropic()` requires the `anthropic` package. "
+                "You can install it with 'pip install anthropic'."
+            )
         self._max_tokens = max_tokens
 
         kwargs_full: "ChatClientArgs" = {
@@ -715,6 +722,7 @@ def ChatBedrockAnthropic(
 
 
 class AnthropicBedrockProvider(AnthropicProvider):
+
     def __init__(
         self,
         *,
@@ -724,15 +732,21 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_region: str | None,
         aws_profile: str | None,
         aws_session_token: str | None,
-        max_tokens: int,
+        max_tokens: int = 4096,
         base_url: str | None,
-        name: str = "AnthropicBedrock",
+        name: Optional[str] = "AnthropicBedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
 
-        super().__init__(name=name, model=model)
+        super().__init__(name=name, model=model, max_tokens=max_tokens)
 
-        self._max_tokens = max_tokens
+        try:
+            from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
+        except ImportError:
+            raise ImportError(
+                "`ChatBedrockAnthropic()` requires the `anthropic` package. "
+                "Install it with `pip install anthropic[bedrock]`."
+            )
 
         kwargs_full: "ChatBedrockClientArgs" = {
             "aws_secret_key": aws_secret_key,
