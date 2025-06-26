@@ -6,6 +6,8 @@ from chatlas._tokens import (
     tokens_reset,
     get_token_pricing,
 )
+import warnings
+import pytest
 
 
 def test_tokens_method():
@@ -53,7 +55,7 @@ def test_token_count_method():
     assert chat.token_count("What is 1 + 1?") == 9
 
 
-def test_import_prices():
+def test_get_token_prices():
     chat = ChatOpenAI(model="o1-mini")
     pricing = get_token_pricing(chat.provider)
     assert pricing["provider"] == "OpenAI"
@@ -61,6 +63,14 @@ def test_import_prices():
     assert isinstance(pricing["cached_input"], float)
     assert isinstance(pricing["input"], float)
     assert isinstance(pricing["output"], float)
+
+    with pytest.warns(
+        match="Token pricing for the provider 'NOPE' and model 'ABCD' you selected is not available. "
+        "Please check the provider's documentation."
+    ):
+        chat = ChatOpenAI(model="ABCD", name="NOPE")
+        pricing = get_token_pricing(chat.provider)
+        assert pricing == {}
 
 
 def test_usage_is_none():

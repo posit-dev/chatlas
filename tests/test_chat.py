@@ -295,6 +295,8 @@ def test_get_cost():
             Turn(role="assistant", contents="Hello", tokens=(14, 10)),
         ],
     )
-
     cost = chat.get_cost(options="all")
     print("COST", cost)
+
+    last = chat.get_cost(options="last")
+    print("Last:", last)

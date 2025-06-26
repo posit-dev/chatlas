@@ -309,7 +309,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return res
 
-    # TODO: Add another arg for if people want to by cost data
     def get_cost(
         self,
         options: CostOptions = "all",
