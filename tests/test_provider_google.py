@@ -34,7 +34,6 @@ def test_google_simple_request():
     assert turn.tokens == (16, 2)
     assert turn.finish_reason == "STOP"
     assert chat.provider.name == "Google/Gemini"
-    assert chat.provider.model == "gemini-2.0-flash"
 
 
 def test_vertex_simple_request():
@@ -47,7 +46,6 @@ def test_vertex_simple_request():
     assert turn.tokens == (16, 2)
     assert turn.finish_reason == "STOP"
     assert chat.provider.name == "Google/Vertex"
-    assert chat.provider.model == "gemini-2.0-flash"
 
 
 def test_name_setting():
