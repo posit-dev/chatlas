@@ -65,10 +65,10 @@ def test_get_token_prices():
     assert isinstance(pricing["output"], float)
 
     with pytest.warns(
-        match="Token pricing for the provider 'NOPE' and model 'ABCD' you selected is not available. "
+        match="Token pricing for the provider 'OpenAI' and model 'ABCD' you selected is not available. "
         "Please check the provider's documentation."
     ):
-        chat = ChatOpenAI(model="ABCD", name="NOPE")
+        chat = ChatOpenAI(model="ABCD")
         pricing = get_token_pricing(chat.provider)
         assert pricing == {}
 
