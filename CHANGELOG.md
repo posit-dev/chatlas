@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * New content classes (`ContentToolResultImage` and `ContentToolResultResource`) were added, primarily to represent MCP tool results that include images/files. (#39)
 * `Tool` gains two class methods: `.from_func()` and `.from_mcp()`. These methods should rarely be needed to be used directly -- they are workhorses for the higher-level `.register_tool()`, `.register_mcp_tools_http_stream_async()`, and `.register_mcp_tools_stdio_async()`. (#39)
 * A `Tool` can now be constructed from a pre-existing tool schema (via a new `__init__` method). (#39)
+* The `Chat.app()` method gains a `host` parameter. (#122) 
 
 ### Changes
 

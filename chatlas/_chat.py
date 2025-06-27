@@ -399,6 +399,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         stream: bool = True,
         port: int = 0,
+        host: str = "127.0.0.1",
         launch_browser: bool = True,
         bg_thread: Optional[bool] = None,
         echo: Optional[EchoOptions] = None,
@@ -414,6 +415,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Whether to stream the response (i.e., have the response appear in chunks).
         port
             The port to run the app on (the default is 0, which will choose a random port).
+        host
+            The host to run the app on (the default is "127.0.0.1").
         launch_browser
             Whether to launch a browser window.
         bg_thread
@@ -481,7 +484,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         app = App(app_ui, server)
 
         def _run_app():
-            run_app(app, launch_browser=launch_browser, port=port)
+            run_app(app, launch_browser=launch_browser, port=port, host=host)
 
         # Use bg_thread by default in Jupyter and Positron
         if bg_thread is None:
