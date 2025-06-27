@@ -74,6 +74,9 @@ docs = [
     "sentence-transformers",
     "numpy",
 ]
+mcp = [
+    "mcp>=1.4.0;python_version>='3.10'"
+]
 # Provider extras ----
 anthropic = ["anthropic"]
 bedrock-anthropic = ["anthropic[bedrock]"]
@@ -178,7 +181,7 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I']
-ignore = ["E501"]
+ignore = ["E501", "PLC0415"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]

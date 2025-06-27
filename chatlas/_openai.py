@@ -25,7 +25,7 @@ from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns, user_turn
-from ._utils import MISSING, MISSING_TYPE, is_testing
+from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
 
 if TYPE_CHECKING:
     from openai.types.chat import (
@@ -162,7 +162,7 @@ def ChatOpenAI(
         seed = 1014 if is_testing() else None
 
     if model is None:
-        model = log_model_default("gpt-4o")
+        model = log_model_default("gpt-4.1")
 
     return Chat(
         provider=OpenAIProvider(
@@ -201,9 +201,12 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             **(kwargs or {}),
         }
 
+        # Avoid passing the wrong sync/async client to the OpenAI constructor.
+        sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
+
         # TODO: worth bringing in AsyncOpenAI types?
-        self._client = OpenAI(**kwargs_full)  # type: ignore
-        self._async_client = AsyncOpenAI(**kwargs_full)
+        self._client = OpenAI(**sync_kwargs)  # type: ignore
+        self._async_client = AsyncOpenAI(**async_kwargs)
 
     @overload
     def chat_perform(
@@ -691,8 +694,10 @@ class OpenAIAzureProvider(OpenAIProvider):
             **(kwargs or {}),
         }
 
-        self._client = AzureOpenAI(**kwargs_full)  # type: ignore
-        self._async_client = AsyncAzureOpenAI(**kwargs_full)  # type: ignore
+        sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
+
+        self._client = AzureOpenAI(**sync_kwargs)  # type: ignore
+        self._async_client = AsyncAzureOpenAI(**async_kwargs)  # type: ignore
 
 
 class InvalidJSONParameterWarning(RuntimeWarning):

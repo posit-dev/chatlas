@@ -1,0 +1,43 @@
+---
+title: Motivating examples
+callout-appearance: simple
+---
+
+chatlas makes it easy to access the wealth of large language models (LLMs) from Python. But what can you do with those models once you have access to them? This vignette will give you the basic vocabulary you need to use an LLM effectively and will show you some examples to ignite your creativity.
+
+In this article we'll mostly ignore how LLMs work, using them as convenient black boxes. If you want to get a sense of how they actually work, we recommend watching Jeremy Howard's posit::conf(2023) keynote: [A hacker's guide to open source LLMs](https://www.youtube.com/watch?v=sYliwvml9Es).
+
+## Example uses
+
+Now that you've got the basic vocab under your belt, I'm going to fire a bunch of interesting potential use cases at you. While there are special purpose tools that might solve these cases faster and/or cheaper, an LLM allows you to rapidly prototype a solution. This can be extremely valuable even if you end up using those more specialised tools in your final product.
+
+In general, we recommend avoiding LLMs where accuracy is critical. That said, there are still many cases for their use. For example, even though they always require some manual fiddling, you might save a bunch of time even with an 80% correct solution. In fact, even a not-so-good solution can still be useful because it makes it easier to get started: it's easier to react to something rather than to have to start from scratch with a blank page.
+
+### Programming
+
+LLMs can also be useful to solve general programming problems. For example:
+
+* You can use LLMs to explain code, or even ask them to [generate a diagram](https://bsky.app/profile/daviddiviny.com/post/3lb6kjaen4c2u).
+
+* You can ask an LLM to analyse your code for potential code smells or security issues. You can do this a function at a time, or explore including the entire source code for your package or script in the prompt.
+
+* You could automatically look up the documentation for an Python class/function, and include it in the prompt to make it easier to figure out how to use that class/function.
+
+* I find it useful to have an LLM document a function for me, even knowing that it's likely to be mostly incorrect. Having something to react to make it much easier for me to get started.
+
+* If you're working with code or data from another programming language, you ask an LLM to convert it to Python code for you. Even if it's not perfect, it's still typically much faster than doing everything yourself.
+
+* You could use [GitHub's REST API](https://docs.github.com/en/rest/issues?apiVersion=2022-11-28) to find unlabelled issues, extract the text, and ask the LLM to figure out what labels might be most appropriate. Or maybe an LLM might be able to help people create better reprexes, or simplify reprexes that are too complicated?
+
+* Write a detailed prompt that teaches the LLM about something it wouldn't otherwise know about. For example, you might write a guide to updating code to use a new version of a package. If you have a programmable IDE, you could imagine being able to select code, transform it, and then replace the existing text. A real example of this is the R package [chores](https://simonpcouch.github.io/chores/), which includes prompts for updating source code to use the latest conventions in R for documentation, testing, error handling, and more.
+
+
+## Miscellaneous
+
+To finish up here are a few other ideas that seem cool but didn't seem to fit the above categories:
+
+* Automatically generate alt text for plots, using `content_image_plot()`.
+
+* Analyse the text of your statistical report to look for flaws in your statistical reasoning (e.g. misinterpreting p-values or assuming causation where only correlation exists).
+
+* Use your existing company style guide to generate a [brand.yaml](https://posit-dev.github.io/brand-yml/articles/llm-brand-yml-prompt/) specification to automatically style your reports, apps, dashboards and plots to match your corporate style guide.

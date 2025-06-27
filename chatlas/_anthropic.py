@@ -23,6 +23,7 @@ from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, normalize_turns, user_turn
+from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
     from anthropic.types import (
@@ -210,9 +211,11 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             **(kwargs or {}),
         }
 
+        sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
+
         # TODO: worth bringing in sync types?
-        self._client = Anthropic(**kwargs_full)  # type: ignore
-        self._async_client = AsyncAnthropic(**kwargs_full)
+        self._client = Anthropic(**sync_kwargs)  # type: ignore
+        self._async_client = AsyncAnthropic(**async_kwargs)
 
     @overload
     def chat_perform(
@@ -302,7 +305,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 """Extract structured data"""
                 pass
 
-            data_model_tool = Tool(_structured_tool_call)
+            data_model_tool = Tool.from_func(_structured_tool_call)
 
             data_model_tool.schema["function"]["parameters"] = {
                 "type": "object",
@@ -474,10 +477,13 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 },
             }
         elif isinstance(content, ContentImageRemote):
-            raise NotImplementedError(
-                "Remote images aren't supported by Anthropic (Claude). "
-                "Consider downloading the image and using content_image_file() instead."
-            )
+            return {
+                "type": "image",
+                "source": {
+                    "type": "url",
+                    "url": content.url,
+                },
+            }
         elif isinstance(content, ContentToolRequest):
             return {
                 "type": "tool_use",

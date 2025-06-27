@@ -1,0 +1,218 @@
+---
+title: "RAG"
+callout-appearance: simple
+---
+
+Retrieval-Augmented Generation (RAG) is a technique that can improve LLM output by grounding it with external, trusted content.
+RAG workflows can have varying degrees of sophistication, but at their core, they all share a retrieval step that fetches relevant information from a knowledge store.
+The retrieved information (along with the user query) is then provided as additional context to the LLM for response generation.
+In this article, you'll learn how to do exactly this to improve the quality of responses in your chatlas applications.
+
+::: callout-warning
+### Do you need RAG?
+
+The term RAG gets thrown around a lot, and for good reason -- it can be a very useful way to address the most serious limitations of LLMs.
+However, RAG is not always necessary -- sometimes something much simpler will do the trick, such as:
+
+  * Adding trusted/missing content directly to the [system prompt](../get-started/system-prompt.qmd) (or chat input), rather than retrieving a portion of it from a knowledge store.
+  * Register a [tool](../get-started/tools.qmd) enabling the LLM to "ask" for trusted content as needed, possibly without needing to manage a separate knowledge store.
+:::
+
+In theory, grounding the LLM's response in trusted content helps to reduce [hallucination](https://en.wikipedia.org/wiki/Hallucination_(artificial_intelligence)).
+But in practice, RAG can be fickle -- it's hard to always retrieve the right information for every user query, and it's not always predictable how the LLM will actually use the retrieved content. 
+For this reason, it's helpful for your RAG workflow to be transparent (so it's easy to debug, understand, and modify) because some trial and error will be necessary. 
+It can also be very helpful to combine RAG with additional techniques, such as:
+
+1. Setting guidelines for how the LLM should use the retrieved content in the [system prompt](../get-started/system-prompt.qmd).
+2. If needed, provide a [tool](../get-started/tools.qmd) to retrieve additional information from a knowledge store, effectively enabling the LLM to decide when it needs more information.
+
+In any RAG workflow, you'll always want to apply the 1st technique (i.e., set guidelines).
+However, before diving into the 2nd technique (i.e., [dynamic retrieval](#dynamic-retrieval)), let's first learn the basics.
+
+## Basic retrieval {#basic-retrieval}
+
+Basic retrieval is the simplest form of RAG, where you retrieve (a fixed amount of) relevant content from a knowledge store based on the user's query and provide it to the chat model.
+It looks something roughly like this:
+
+
+```python
+from chatlas import ChatOpenAI
+
+chat = ChatOpenAI(
+    system_prompt="You are a helpful, but terse, assistant. "
+    "If you can't answer the question based on the trusted content, say so.",
+)
+
+user_query = "Who created the unicorn programming language?"
+
+# A placeholder for your retrieval logic
+trusted_content = retrieve_trusted_content(user_query)  
+
+chat.chat(trusted_content, user_query)
+```
+
+In the sections that follow, we'll implement the `retrieve_trusted_content()` step of this workflow.
+And, as we'll see, there are several moving parts to consider when implementing this step.
+
+Obviously, in order to retrieve trusted content, we first need some content to retrieve.
+Typically content is retrieved from a **knowledge store** -- essentially a database that stores documents in a way that allows for efficient retrieval based on semantic similarity.
+A knowledge store also often takes the form of a **vector store** or **embedding index** because of it's efficiency in storing and retrieving content based on semantic similarity.
+This approach requires embedding the content into numerical vectors, which can be done using various machine learning models.
+
+### Create store {#create-store}
+
+Python has a plethora of options for working with knowledge stores ([llama-index](https://docs.llamaindex.ai/en/stable/), [pinecone](https://docs.pinecone.io/reference/python-sdk), etc.).
+It doesn't really matter which one you choose, but due to its popularity, maturity, and simplicity, lets demonstrate with the [`llama-index`](https://docs.llamaindex.ai/en/stable/) library:
+
+```bash
+pip install llama-index
+```
+
+With `llama-index`, it's easy to create a knowledge store from a wide variety of input formats, such as text files, [web pages](https://docs.llamaindex.ai/en/stable/examples/data_connectors/WebPageDemo/), and [much more](https://pypi.org/project/llama-index-readers-markitdown/).
+That said, for this example, I'll assume you have a directory (`data`) with some text files that you want to use as trusted content.
+This snippet will ingest the files, embed them, and create a vector store `index` that is ready for [retrieval](#retrieve-content).
+
+
+```python
+from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
+
+docs = SimpleDirectoryReader("data").load_data()
+index = VectorStoreIndex.from_documents(docs)
+```
+
+
+::: callout-caution
+### Embed pre-requisites
+
+By default, `VectorStoreIndex` tries to use an OpenAI model to embed the `docs`, which will fail if you don't have an OpenAI API key set up.
+Either set the `OPENAI_API_KEY` environment variable to your OpenAI API key, or see the next tip if you'd rather use a free embedding model.
+:::
+
+::: {.callout-tip collapse="true"}
+
+### Custom embed model
+
+The embedding model used by `VectorStoreIndex` can be customized via in the `Settings`  object.
+For example, to use a (free) [Hugging Face](https://huggingface.co/) embedding model, first install:
+
+```bash
+pip install llama-index-embeddings-huggingface
+```
+
+Then set the `embed_model` in the `Settings` object to reference the Hugging Face model you want to use.
+This way, you can use a free and open source embedding model without needing an API key.
+
+
+```python
+from llama_index.core import Settings
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+
+Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+```
+
+:::
+
+
+
+::: callout-tip
+
+### Custom vector stores
+
+The code provided here just uses `llama-index`'s default vector store, but it supports a wide variety of vector stores, such as [DuckDB](https://docs.llamaindex.ai/en/stable/examples/vector_stores/DuckDBDemo/), [Pinecone](https://docs.llamaindex.ai/en/stable/examples/vector_stores/PineconeIndexDemo/), and much more.
+:::
+
+::: callout-tip
+
+### Chunking defaults
+
+If your documents are large (e.g., long articles or books), it's a good idea to split them into smaller chunks to improve retrieval performance.
+This is important since, if the content relevant to a user query is only a small part of a larger document, retrieving the entire document probably won't be efficient or effective.
+When creating the `index`, `llama-index` will automatically chunk the documents into smaller pieces, which can be configured via the `Settings` object:
+
+```python
+from llama_index.core import Settings
+
+Settings.chunk_size = 512
+Settings.chunk_overlap = 50
+```
+
+:::
+
+### Save store 
+
+If you have a large number of documents, creating a vector store `index` can be time-consuming, so you don't want to recreate it every time you run your application.
+Thankfully, you can save the `index` to a directory on disk so you don't have to recreate it every time you run your application.
+This can be done with:
+
+```python
+index.storage_context.persist(persist_dir="./storage")
+``` 
+
+Now, when we go to retrieve content in our app, we can load the `index` from disk instead of recreating it every time.
+
+
+### Retrieve content {#retrieve-content}
+
+With our `index` now available on disk, we're ready to implement `retrieve_trusted_content()` -- the step that retrieves relevant content from the knowledge store based on the user query.
+
+```python
+from llama_index.core import StorageContext, load_index_from_storage
+
+# Load the knowledge store (index) from disk
+storage_context = StorageContext.from_defaults(persist_dir="./storage")
+index = load_index_from_storage(storage_context)
+
+def retrieve_trusted_content(query):
+    retriever = index.as_retriever(similarity_top_k=5)
+    nodes = retriever.retrieve(query)
+    return [f"<excerpt>{x.text}</excerpt>" for x in nodes]
+```
+
+This particular implementation retrieves the top 5 most relevant documents from the `index` based on the user query, but you can adjust the number of results by changing the `similarity_top_k` parameter.
+There's no magic number for this parameter, but `llama-index` defaults to 2, so you may want to increase it if you find that the retrieved content is too sparse or not relevant enough.
+That said, you can also leverage 
+
+
+## Dynamic retrieval
+
+Dynamic retrieval is similar to [basic retrieval](#basic-retrieval), except that instead of the retrieval being a single fixed step before response generation, it is provided as a [tool](../get-started/tools.qmd) to the LLM.
+This results in a much more robust and flexible RAG workflow, as the LLM can decide if, when, and how much contents to retrieve from the knowledge store before generating a response.
+It can also decide what to provide as input to the retrieval step(s), rather than just using the user query directly, which can be useful if the user query is ambiguous or incomplete.
+
+To implement dynamic retrieval, we can just take the `retrieve_trusted_content()` function we just implemented as a tool with the chat model.
+When doing this, make sure you provide a clear description of the tool's purpose and how it should be used, as this will help the LLM understand how to use it effectively.
+You could even add a parameter to the tool that allows the LLM to specify how many results it wants to retrieve, which can be useful for more complex queries.
+
+
+```python
+from chatlas import ChatOpenAI
+from llama_index.core import StorageContext, load_index_from_storage
+
+# Load the knowledge store (index) from disk
+storage_context = StorageContext.from_defaults(persist_dir="./storage")
+index = load_index_from_storage(storage_context)
+
+def retrieve_trusted_content(query: str, top_k: int = 5):
+    """
+    Retrieve relevant content from the knowledge store.
+
+    Parameters
+    ----------
+    query
+        The query used to semantically search the knowledge store.
+    top_k
+        The number of results to retrieve from the knowledge store.
+    """
+    retriever = index.as_retriever(similarity_top_k=top_k)
+    nodes = retriever.retrieve(query)
+    return [f"<excerpt>{x.text}</excerpt>" for x in nodes]
+
+chat = ChatOpenAI(
+    system_prompt="You are a helpful, but terse, assistant. "
+    "If you can't answer the question based on the trusted content, say so."
+)
+
+chat.register_tool(retrieve_trusted_content)
+
+chat.chat("Who created the unicorn programming language?")
+```

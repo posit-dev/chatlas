@@ -63,6 +63,7 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-4o-audio-preview",
             "gpt-4o-audio-preview-2024-10-01",
             "gpt-4o-audio-preview-2024-12-17",
+            "gpt-4o-audio-preview-2025-06-03",
             "gpt-4o-mini-audio-preview",
             "gpt-4o-mini-audio-preview-2024-12-17",
             "gpt-4o-search-preview",
@@ -130,7 +131,9 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.NotGiven,
     ]
     seed: Union[int, None, openai.NotGiven]
-    service_tier: Union[Literal["auto", "default", "flex"], None, openai.NotGiven]
+    service_tier: Union[
+        Literal["auto", "default", "flex", "scale"], None, openai.NotGiven
+    ]
     stop: Union[str, None, list[str], openai.NotGiven]
     store: Union[bool, None, openai.NotGiven]
     stream: Union[Literal[False], None, Literal[True], openai.NotGiven]

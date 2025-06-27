@@ -27,12 +27,6 @@ information that may not have been available when the model was trained.
 Sign up at <https://www.perplexity.ai> to get an API key.
 :::
 
-::: {.callout-note}
-## Python requirements
-
-`ChatPerplexity` requires the `openai` package (e.g., `pip install openai`).
-:::
-
 ## Examples {.doc-section .doc-section-examples}
 
 ```python

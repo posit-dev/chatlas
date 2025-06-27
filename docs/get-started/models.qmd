@@ -1,0 +1,66 @@
+---
+title: Model choice
+callout-appearance: simple
+---
+
+Below is a table of model providers that come pre-packaged with chatlas. 
+
+::: callout-note
+### Usage pre-requisites
+
+Each model provider has its own set of pre-requisites. 
+For example, OpenAI requires an API key, while Ollama requires you to install the Ollama CLI and download models.
+To see the pre-requisites for a given provider, visit the relevant usage page in the table below.
+:::
+
+
+| Name                     | Usage                                                    | Enterprise? |
+|--------------------------|----------------------------------------------------------|------------|
+| Anthropic (Claude)       | [`ChatAnthropic()`](../reference/ChatAnthropic.qmd)     |    |
+| GitHub model marketplace | [`ChatGithub()`](../reference/ChatGithub.qmd)           |    |
+| Google (Gemini)          | [`ChatGoogle()`](../reference/ChatGoogle.qmd)           |    |
+| Groq                     | [`ChatGroq()`](../reference/ChatGroq.qmd)               |    |
+| Ollama local models      | [`ChatOllama()`](../reference/ChatOllama.qmd)           |    |
+| OpenAI                   | [`ChatOpenAI()`](../reference/ChatOpenAI.qmd)           |    |
+| perplexity.ai            | [`ChatPerplexity()`](../reference/ChatPerplexity.qmd)   |    |
+| AWS Bedrock              | [`ChatBedrockAnthropic()`](../reference/ChatBedrockAnthropic.qmd) | ✅ |
+| Azure OpenAI             | [`ChatAzureOpenAI()`](../reference/ChatAzureOpenAI.qmd) | ✅ |
+| Databricks               | [`ChatDatabricks()`](../reference/ChatDatabricks.qmd)   | ✅ |
+| Snowflake Cortex         | [`ChatSnowflake()`](../reference/ChatSnowflake.qmd)     | ✅ |
+| Vertex AI                | [`ChatVertex()`](../reference/ChatVertex.qmd)           | ✅ |
+
+
+::: callout-note
+
+### Other providers
+
+If you want to use a model provider that isn't listed in the table above, you have two options:
+
+1. If the model provider is OpenAI compatible (i.e., it can be used with the [`openai` Python SDK](https://github.com/openai/openai-python?tab=readme-ov-file#configuring-the-http-client)), use `ChatOpenAI()` with the appropriate `base_url` and `api_key`.
+2. If you're motivated, implement a new provider by subclassing [`Provider`](https://github.com/posit-dev/chatlas/blob/main/chatlas/_provider.py) and implementing the required methods.
+
+:::
+
+### Model choice
+
+In addition to choosing a model provider, you also need to choose a specific model from that provider. This is important because different models have different capabilities and performance characteristics. For example, some models are faster and cheaper, while others are more accurate and capable of handling more complex tasks.
+
+If you're using `chatlas` inside your organisation, you'll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g. `ChatAzureOpenAI()` and `ChatBedrockAnthropic()`). If you're using `chatlas` for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:
+
+- `ChatOpenAI()` or `ChatAnthropic()` are both good places to start. `ChatOpenAI()` defaults to **GPT-4.1**, but you can use `model = "gpt-4.1-mini"` for a cheaper lower-quality model, or `model = "o1-mini"` for more complex reasoning.  `ChatAnthropic()` is similarly good; it defaults to **Claude 3.7 Sonnet** which we have found to be particularly good at writing code.
+
+- `ChatGoogle()` is great for large prompts, because it has a much larger context window than other models. It allows up to 1 million tokens, compared to Claude 3.7 Sonnet's 200k and GPT-4.1's 128k.
+
+- `ChatOllama()`, which uses [Ollama](https://ollama.com), allows you to run models on your own computer. The biggest models you can run locally aren't as good as the state of the art hosted models, but they also don't share your data and and are effectively free.
+
+
+### Auto complete
+
+If you're using an IDE that supports type hints, you can get autocompletion for the `model` parameter. This is particularly useful for getting the right model name, or simply to see what models are available.
+
+![Screenshot of model autocompletion](/images/model-type-hints.png){class="shadow rounded mb-3" width="67%" }
+
+
+### Auto provider
+
+[`ChatAuto()`](../reference/ChatAuto.qmd) is a special model provider that allows one to configure the model provider through environment variables. This is useful for having a single, simple, script that can run on any model provider, without having to change the code.

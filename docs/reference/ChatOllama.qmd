@@ -35,12 +35,6 @@ Once ollama is running locally, download a model from the command line
 (e.g. `ollama pull llama3.2`).
 :::
 
-::: {.callout-note}
-## Python requirements
-
-`ChatOllama` requires the `openai` package (e.g., `pip install openai`).
-:::
-
 ## Examples {.doc-section .doc-section-examples}
 
 ```python

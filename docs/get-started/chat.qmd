@@ -1,0 +1,230 @@
+---
+title: Hello chat
+callout-appearance: simple
+---
+
+
+Once you've choosen a [model](models.qmd), initialize the relevant [`Chat`](../reference/Chat.qmd) client instance. 
+Here you access to handful of parameters, most importantly the `model` and `system_prompt`:
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI(
+    model="gpt-4.1-mini",
+    system_prompt="You are a helpful assistant.",
+)
+```
+
+Soon we'll learn more about the [system prompt](system-prompt.qmd), but for now, just know that it is the primary place for you (the developer) to influence the model's behavior.
+
+## Submit input
+
+Use the [`.chat()` method](../reference/Chat.qmd#chat) the submit input and get a streaming response echoed back to an interactive display, like a notebook or console.
+This echoing behavior is great for interactive prototyping, but not for other settings, such as web apps or GUIs.
+In the latter case, use the [`.stream()` method](stream.qmd) instead to get a response generator that you can consume and display however you like.
+
+::: {.panel-tabset .panel-pills .rounded}
+### Notebook
+
+{{< video /images/chat-notebook.mp4 
+    title='Streaming chat in a notebook cell'
+>}}
+
+<div class="text-muted">Video of streaming chat in a <i>notebook</i></div>
+
+### Console
+
+
+{{< video /images/chat-console.mp4 
+    title='Streaming output in the console' 
+>}}
+
+<div class="text-muted">Video of streaming chat in a <i>console</i></div>
+
+:::
+
+:::: {.callout-tip collapse="true"}
+### Return value
+
+Apply `str()` to the return value of `.chat()` to get the model's response as a string.
+If you find yourself doing this, however, consider using `.stream()` instead.
+This is because `.chat()` will wait/block until the model has finished generating its response, which can take a while for large models. 
+
+
+```python
+response = chat.chat("What's my name?")
+str(response)
+```
+:::
+
+
+::: {.callout-tip collapse="true"}
+### Echo options
+
+Control what content gets echoed through the `echo` parameter.
+By default, the model's text response, as well as tool calls and their results, are echoed.
+This is convenient for verifying what information was passed to the model, but can be a bit verbose.
+Instead, you may want to restrict what is echoed to just the model's text response.
+
+```python
+# Echo only the model's text response
+chat.chat("What's my name?", echo="text")
+```
+:::
+
+## Multi-modal input
+
+The `.chat()` method also accepts input other than text, such as images, pdfs, and more.
+These content objects can be created using a function such as [`content_image_url()`](../reference/content_image_url.qmd), [`content_pdf_file()`](../reference/content_pdf_file.qmd), etc.
+
+```python
+import chatlas as ctl
+chat = ctl.ChatOpenAI()
+chat.chat(
+  ctl.content_image_url("https://www.python.org/static/img/python-logo.png"),
+  "Can you explain this logo?"
+)
+```
+
+```
+The Python logo features two intertwined snakes in yellow and blue,
+representing the Python programming language. The design symbolizes...
+```
+
+::: callout-warning
+### Supported content types
+
+Not every model supports every content type. Please refer to the documentation for the specific model you're using to see which content types are supported.
+:::
+
+## Chat history
+
+Note that `chat` is a stateful object, and accumulates conversation history by default.
+This is the behavior you typically want to multi-turn conversations since it allows the model to remember previous interactions.
+
+```python
+import chatlas as ctl
+chat = ctl.ChatOpenAI()
+chat.chat("My name is Chatlas.")
+chat.chat("What's my name?")
+```
+
+```
+Your name is Chatlas.
+```
+
+This means that the model is provided the entire conversation history on each new submission.
+This again is typically the desirable behavior, but sometimes you may want to fork, reset, condense, or otherwise [manage history](#manage-history).
+
+
+## Dedicated chat
+
+When you're first starting out testing the capabilities of a model, repeatedly calling `.chat()` is a bit tedious.
+Instead, consider using the [`.console()`](../reference/Chat.qmd#console) or [`.app()`](../reference/Chat.qmd#app) methods to launch a dedicated chat interface.
+They will save you a bit of typing and, in the case of `.app()`, enables a more interactive, browser-based, experience.
+
+::: callout-note
+
+Remember that `chat` is a stateful object, so the history is retained across calls to `.console()` and `.app()`.
+:::
+
+::: {.panel-tabset .panel-pills}
+
+### Web app
+
+![
+  Screenshot of a dedicated chat web app
+](/images/chat-app.png){class="shadow rounded mb-3" width="85%"}
+
+### Console
+
+![
+  Screenshot of a dedicated chat console
+](/images/chat-console.png){class="shadow rounded mb-3" width="90%"}
+
+:::
+
+
+
+## Save history
+
+Printing `chat` at the console shows the conversation history, but you can also `.export()` it to a more readable markdown or HTML file.
+When exporting to HTML, you'll get a display similar to the [dedicated chat app](#dedicated-chat).
+
+```python
+chat.export("chat.html")
+```
+
+::: {.callout-tip collapse="true"}
+
+### Serializing history
+
+Since [`Turn`](../reference/Turn.qmd)s inherit from pydantic's [`BaseModel`](https://docs.pydantic.dev/latest/usage/models/#model), you can also serialize/unserialize them to JSON, which is useful for saving/loading the history to/from a database or file.
+
+```python
+turns = chat.get_turns()
+turns_json = [x.model_dump_json() for x in turns]
+turns_restored = [Turn.model_validate_json(x) for x in turns_json]
+```
+
+:::
+
+
+## Manage history
+
+The `chat` history is stored as a list of [`Turn`](../reference/Turn.qmd) objects. To get/set them, use `.get_turns()` / `.set_turns()`.
+
+### Reset
+
+Here's an example of how to reset the history:
+
+```python
+chat.set_turns([])
+chat.chat("What's my name?")
+```
+
+```
+I don’t know your name unless you choose to share it with me. 
+```
+
+### Fork
+
+You can also fork the history by copying the `chat` object.
+This is useful if you want to create a new conversation with a different context, but still want to keep the original conversation history intact.
+
+```python
+import copy
+
+chat_fork = copy.deepcopy(chat)
+chat_fork.chat("My name is Chatlas.")
+chat_fork.chat("What's my name?")
+```
+
+```
+Your name is Chatlas.
+```
+
+```python
+chat.chat("What's my name?")
+```
+
+```
+I don’t know your name unless you choose to share it with me.
+```
+
+### Condense
+
+You can also condense the history asking the LLM to summarize it.
+This is useful if you want to keep the context of the conversation, but don't want to provide the entire history to the model on each new submission.
+
+```python
+chat.chat("My name is Chatlas.")
+chat.chat("Can you summarize our conversation so far?")
+chat.set_turns([chat.get_last_turn()])
+```
+
+
+<!-- 
+TODO: implement .get_cost() and provide example of condensing once the cost reaches a certain threshold
+-->

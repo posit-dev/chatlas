@@ -7,6 +7,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [UNRELEASED]
+
+### New features
+
+* `Chat` gains new `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()` methods, making it easy to register tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
+* `Chat` gains new `.get_tools()`/`.set_tools()` methods -- making it possible to inspect and remove tools. (#39)
+* Tool functions passed to `.register_tool()` can now `yield` numerous results. (#39)
+* New content classes (`ContentToolResultImage` and `ContentToolResultResource`) were added, primarily to represent MCP tool results that include images/files. (#39)
+* `Tool` gains two class methods: `.from_func()` and `.from_mcp()`. These methods should rarely be needed to be used directly -- they are workhorses for the higher-level `.register_tool()`, `.register_mcp_tools_http_stream_async()`, and `.register_mcp_tools_stdio_async()`. (#39)
+* A `Tool` can now be constructed from a pre-existing tool schema (via a new `__init__` method). (#39)
+
+### Changes
+
+* `Tool`'s constructor no longer takes a function as input. Use the new `.from_func()` method instead to create a `Tool` from a function. (#39)
+* `.register_tool()` now throws an exception when the tool has the same name as an already registered tool. Set the new `force` parameter to `True` to force the registration. (#39)
+
+### Improvements
+
+* `ChatOpenAI()` and `ChatGithub()` now default to GPT 4.1 (instead of 4o). (#115)
+* `ChatAnthropic()` now supports `content_image_url()`. (#112)
+* HTML styling improvements for `ContentToolResult` and `ContentToolRequest`. (#39)
+
+### Bug fixes
+
+* Fixed an issue where `httpx` client customization (e.g., `ChatOpenAI(kwargs = {"http_client": httpx.Client()})`) wasn't working as expected (#108)
+
 ## [0.8.1] - 2025-05-30
 
 * Fixed `@overload` definitions for `.stream()` and `.stream_async()`.

@@ -1,0 +1,125 @@
+---
+title: Tool calling
+callout-appearance: simple
+---
+
+### Motivation
+
+Tool calling helps extend the capabilities of an LLM by allowing it to call external functions or APIs.
+This is particularly useful for tasks that require precise calculations, information retrieval, or actions that are beyond the model's built-in capabilities.
+
+An obvious example of where tool calling is useful is when a response needs up-to-date information, such as the weather or stock prices:
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+chat.chat("How's the weather in San Francisco?")
+```
+
+::: chatlas-response-container
+I'm unable to provide real-time weather updates. To get the most current weather information for San Francisco, I recommend checking a reliable weather website or using a weather app. 
+:::
+
+### Registering tools
+
+We can help the model out by registering a tool function that can fetch the weather for a given location.
+Importantly, the function includes a **docstring explaining what it does as well as type hints for each parameter.**
+The model takes this information in consideration when deciding if/how to use tool(s) to answer user prompts[^1].
+
+
+[^1]: Some models may need some additional (system) prompting to help it understand the appropriate situations to use the function.
+
+```python
+import requests
+
+def get_current_weather(lat: float, lng: float):
+    """
+    Get the current weather given a latitude and longitude.
+
+    Parameters
+    ----------
+    lat: The latitude of the location.
+    lng: The longitude of the location.
+    """
+    lat_lng = f"latitude={lat}&longitude={lng}"
+    url = f"https://api.open-meteo.com/v1/forecast?{lat_lng}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+    response = requests.get(url)
+    return response.json()["current"]
+
+chat.register_tool(get_current_weather)
+
+chat.chat("How's the weather in San Francisco?")
+```
+
+
+::: chatlas-response-container
+
+```python
+# 🛠️ tool request
+get_current_weather(37.7749, -122.4194)
+```
+
+```python
+# ✅ tool result
+{ 
+  'time': '2025-05-30T22:00',
+  'interval': 900,
+  'temperature_2m': 23.3,
+  'wind_speed_10m': 23.6
+}
+```
+
+The current weather in San Francisco is 23.3°C with a wind speed of 23.6 km/h. 
+:::
+
+
+
+chatlas automatically handles the [tool calling loop](../tool-calling/how-it-works.qmd) for you and `.chat()` also displays information about what tools the model is requesting and receiving.
+This is an especially nice experience when interactively chatting since it helps you (the developer) quickly verify that tools are working as expected.
+If you, for some reason, prefer not to see the tool call information displayed, you can set `echo="text"` in the `.chat()` method.
+
+::: callout-tip
+### Tool call displays with `.stream()`
+
+Soon you'll learn about the `.stream()` method, which is a lower-level approach to streaming LLM responses, providing more control over where and how the model's output is displayed.
+As a result, you'll be able to create any experience you want, but you'll also need to do a bit of work to provide user-friendly tool calling experiences.
+You'll learn more about this in [custom displays](../tool-calling/displays.qmd) and [tool call approvals](../tool-calling/approval.qmd).
+:::
+
+
+### Tool errors
+
+When a tool function is called, it may fail for various reasons, such as network issues, invalid input, or unexpected exceptions.
+When this happens, chatlas captures the exception and sends it back to the chat model as part of the conversation.
+It also [logs](debug.qmd) and displays the stacktrace in the Python console to help you debug the issue.
+
+```python
+def get_current_weather(lat: float, lng: float):
+    "Get the current weather "
+    raise ValueError("Failed to get current temperature")
+
+chat.register_tool(get_current_weather)
+
+chat.chat("How's the weather in San Francisco?")
+```
+
+::: chatlas-response-container
+
+```python
+# 🛠️ tool request
+get_current_weather(37.7749, -122.4194)
+```
+
+```python
+# ❌ tool error
+ValueError: Failed to get current temperature
+```
+
+I encountered an issue while trying to retrieve the current weather for San Francisco. Please check a reliable weather website or use a weather app for the latest updates. 
+:::
+
+
+### More examples
+
+The weather tool presented here is extremely simple, but you can imagine doing much more interesting things from tool functions: calling other APIs, reading from a database, kicking off a complex simulation, or even calling a complementary GenAI model (like an image generator). Or if you are using chatlas in a [Shiny](https://shiny.posit.co/py/) app, you could use tools to set reactive values, setting off a chain of reactive updates. This is precisely what [querychat](https://github.com/posit-dev/querychat) does to enable users to query databases using natural language.

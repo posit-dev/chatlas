@@ -1,14 +1,10 @@
 from __future__ import annotations
 
-import textwrap
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 import orjson
 from pydantic import BaseModel, ConfigDict
-
-if TYPE_CHECKING:
-    from htmltools import TagChild
 
 ImageContentTypes = Literal[
     "image/png",
@@ -26,6 +22,8 @@ ContentTypeEnum = Literal[
     "image_inline",
     "tool_request",
     "tool_result",
+    "tool_result_image",
+    "tool_result_resource",
     "json",
     "pdf",
 ]
@@ -202,7 +200,10 @@ class ContentToolRequest(Content):
             return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
         return str(self.arguments)
 
-    def tagify(self) -> "TagChild":
+    def __repr_html__(self) -> str:
+        return str(self.tagify())
+
+    def tagify(self):
         "Returns an HTML string suitable for passing to htmltools/shiny's `Chat()` component."
         try:
             from htmltools import HTML, TagList, head_content, tags
@@ -314,7 +315,7 @@ class ContentToolResult(Content):
         return res + ">"
 
     # Format the value for display purposes
-    def _get_display_value(self) -> object:
+    def _get_display_value(self):
         if self.error:
             return f"Tool call failed with error: '{self.error}'"
 
@@ -333,7 +334,7 @@ class ContentToolResult(Content):
                 # Not valid JSON, return as string
                 return val
 
-        return val
+        return str(val)
 
     def get_model_value(self) -> object:
         "Get the actual value sent to the model."
@@ -370,42 +371,129 @@ class ContentToolResult(Content):
 
         return orjson.dumps(value).decode("utf-8")
 
-    def tagify(self) -> "TagChild":
-        """
-        A method for rendering this object via htmltools/shiny.
-        """
+    def __repr_html__(self):
+        return str(self.tagify())
+
+    def tagify(self):
+        "A method for rendering this object via htmltools/shiny."
         try:
-            from htmltools import HTML
+            from htmltools import HTML, html_escape
         except ImportError:
             raise ImportError(
                 ".tagify() is only intended to be called by htmltools/shiny, ",
                 "but htmltools is not installed. ",
             )
 
+        # Helper function to format code blocks (optionally with labels for arguments).
+        def pre_code(code: str, label: str | None = None) -> str:
+            lbl = f"<span class='input-parameter-label'>{label}</span>" if label else ""
+            return f"<pre>{lbl}<code>{html_escape(code)}</code></pre>"
+
+        # Helper function to wrap content in a <details> block.
+        def details_block(summary: str, content: str, open_: bool = True) -> str:
+            open_attr = " open" if open_ else ""
+            return (
+                f"<details{open_attr}><summary>{summary}</summary>{content}</details>"
+            )
+
+        # First, format the input parameters.
+        args = self.arguments or {}
+        if isinstance(args, dict):
+            args = "".join(pre_code(str(v), label=k) for k, v in args.items())
+        else:
+            args = pre_code(str(args))
+
+        # Wrap the input parameters in an (open) details block.
+        if args:
+            params = details_block("<strong>Input parameters:</strong>", args)
+        else:
+            params = ""
+
+        # Also wrap the tool result in an (open) details block.
+        result = details_block(
+            "<strong>Result:</strong>",
+            pre_code(self._get_display_value()),
+        )
+
+        # Put both the result and parameters into a container
+        result_div = f'<div class="chatlas-tool-result-content">{result}{params}</div>'
+
+        # Header for the top-level result details block.
         if not self.error:
-            header = f"View result from <code>{self.name}</code>"
+            header = f"Result from tool call: <code>{self.name}</code>"
         else:
             header = f"❌ Failed to call tool <code>{self.name}</code>"
 
-        args = self._arguments_str()
-        content = self._get_display_value()
+        res = details_block(header, result_div, open_=False)
 
-        return HTML(
-            textwrap.dedent(f"""
-              <details class="chatlas-tool-result">
-                  <summary>{header}</summary>
-                  <div class="chatlas-tool-result-content">
-                      Result: <p><code>{content}</code></p>
-                      Arguments: <p><code>{args}</code></p>
-                  </div>
-              </details>
-            """)
-        )
+        return HTML(f'<div class="chatlas-tool-result">{res}</div>')
 
     def _arguments_str(self) -> str:
         if isinstance(self.arguments, dict):
             return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
         return str(self.arguments)
+
+
+class ContentToolResultImage(ContentToolResult):
+    """
+    A tool result that contains an image.
+
+    This is a specialized version of ContentToolResult for returning images.
+    It requires the image data to be base64-encoded (as `value`) and
+    the MIME type of the image (as `mime_type`).
+
+    Parameters
+    ----------
+    value
+        The image data as a base64-encoded string.
+    mime_type
+        The MIME type of the image (e.g., "image/png").
+    """
+
+    value: str
+    model_format: Literal["auto", "json", "str", "as_is"] = "as_is"
+    mime_type: ImageContentTypes
+
+    content_type: ContentTypeEnum = "tool_result_image"
+
+    def __str__(self):
+        return f"<ContentToolResultImage mime_type='{self.mime_type}'>"
+
+    def _repr_markdown_(self):
+        return f"![](data:{self.mime_type};base64,{self.value})"
+
+
+class ContentToolResultResource(ContentToolResult):
+    """
+    A tool result that contains a resource.
+
+    This is a specialized version of ContentToolResult for returning resources
+    (e.g., images, files) as raw bytes. It requires the resource data to be
+    provided as bytes (as `value`) and the MIME type of the resource (as
+    `mime_type`).
+
+    Parameters
+    ----------
+    value
+        The resource data, in bytes.
+    mime_type
+        The MIME type of the image (e.g., "image/png").
+    """
+
+    value: bytes
+    model_format: Literal["auto", "json", "str", "as_is"] = "as_is"
+    mime_type: Optional[str]
+
+    content_type: ContentTypeEnum = "tool_result_resource"
+
+    def __str__(self):
+        return f"<ContentToolResultResource mime_type='{self.mime_type}'>"
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        return {
+            self.mime_type: self.value,
+            "text/plain": f"<{self.mime_type} object>",
+        }
 
 
 class ContentJson(Content):
@@ -468,6 +556,8 @@ ContentUnion = Union[
     ContentImageInline,
     ContentToolRequest,
     ContentToolResult,
+    ContentToolResultImage,
+    ContentToolResultResource,
     ContentJson,
     ContentPDF,
 ]
@@ -494,6 +584,10 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentToolRequest.model_validate(data)
     elif ct == "tool_result":
         return ContentToolResult.model_validate(data)
+    elif ct == "tool_result_image":
+        return ContentToolResultImage.model_validate(data)
+    elif ct == "tool_result_resource":
+        return ContentToolResultResource.model_validate(data)
     elif ct == "json":
         return ContentJson.model_validate(data)
     elif ct == "pdf":
@@ -536,16 +630,42 @@ TOOL_CSS = """
   vertical-align: middle;
 }
 
-.chatlas-tool-result[open] summary::after {
+.chatlas-tool-result details[open] summary::after {
   content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-caret-down-fill' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
 }
 
 .chatlas-tool-result-content {
+  position: relative;
   border: 1px solid var(--bs-border-color, #0066cc);
   width: 100%;
   padding: 1rem;
   border-radius: var(--bs-border-radius, 0.2rem);
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+
+.chatlas-tool-result-content pre, .chatlas-tool-result-content code {
+  background-color: var(--bs-body-bg, white) !important;
+}
+
+.chatlas-tool-result-content .input-parameter-label {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  text-align: center;
+  font-weight: 300;
+  font-size: 0.8rem;
+  color: var(--bs-gray-600);
+  background-color: var(--bs-body-bg);
+  padding: 0.5rem;
+  font-family: var(--bs-font-monospace, monospace);
+}
+
+pre:has(> .input-parameter-label) {
+  padding-top: 1.5rem;
+}
+
+shiny-markdown-stream p:first-of-type:empty {
+  display: none;
 }
 """
