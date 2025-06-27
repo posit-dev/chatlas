@@ -59,7 +59,6 @@ def ChatOpenAI(
     api_key: Optional[str] = None,
     base_url: str = "https://api.openai.com/v1",
     seed: int | None | MISSING_TYPE = MISSING,
-    name: Optional[str] = "OpenAI",
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
@@ -171,7 +170,6 @@ def ChatOpenAI(
             model=model,
             base_url=base_url,
             seed=seed,
-            name=name,
             kwargs=kwargs,
         ),
         turns=normalize_turns(
@@ -190,7 +188,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         model: str,
         base_url: str = "https://api.openai.com/v1",
         seed: Optional[int] = None,
-        name: str = "OpenAI",
+        name: Optional[str] = "OpenAI",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)

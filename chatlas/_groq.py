@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._openai import ChatOpenAI
+from ._openai import OpenAIProvider, normalize_turns
 from ._turn import Turn
-from ._utils import MISSING, MISSING_TYPE
+from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
     from ._openai import ChatCompletion
@@ -125,14 +125,23 @@ def ChatGroq(
         model = log_model_default("llama3-8b-8192")
     if api_key is None:
         api_key = os.getenv("GROQ_API_KEY")
+    if isinstance(seed, MISSING_TYPE):
+        seed = 1014 if is_testing() else None
 
-    return ChatOpenAI(
-        system_prompt=system_prompt,
-        turns=turns,
-        model=model,
-        api_key=api_key,
-        base_url=base_url,
-        seed=seed,
-        name="Groq",
-        kwargs=kwargs,
+    if model is None:
+        model = log_model_default("gpt-4o")
+
+    return Chat(
+        provider=OpenAIProvider(
+            api_key=api_key,
+            model=model,
+            base_url=base_url,
+            seed=seed,
+            name="Groq",
+            kwargs=kwargs,
+        ),
+        turns=normalize_turns(
+            turns or [],
+            system_prompt,
+        ),
     )

@@ -106,7 +106,7 @@ class DatabricksProvider(OpenAIProvider):
         self,
         *,
         model: str,
-        name: str = "Databricks",
+        name: Optional[str] = "Databricks",
         workspace_client: Optional["WorkspaceClient"] = None,
     ):
         try:

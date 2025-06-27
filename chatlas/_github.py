@@ -5,9 +5,9 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._openai import ChatOpenAI
+from ._openai import OpenAIProvider, normalize_turns
 from ._turn import Turn
-from ._utils import MISSING, MISSING_TYPE
+from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
     from ._openai import ChatCompletion
@@ -130,13 +130,23 @@ def ChatGithub(
     if api_key is None:
         api_key = os.getenv("GITHUB_PAT")
 
-    return ChatOpenAI(
-        system_prompt=system_prompt,
-        turns=turns,
-        model=model,
-        api_key=api_key,
-        base_url=base_url,
-        seed=seed,
-        name="GitHub",
-        kwargs=kwargs,
+    if isinstance(seed, MISSING_TYPE):
+        seed = 1014 if is_testing() else None
+
+    if model is None:
+        model = log_model_default("gpt-4o")
+
+    return Chat(
+        provider=OpenAIProvider(
+            api_key=api_key,
+            model=model,
+            base_url=base_url,
+            seed=seed,
+            name="GitHub",
+            kwargs=kwargs,
+        ),
+        turns=normalize_turns(
+            turns or [],
+            system_prompt,
+        ),
     )

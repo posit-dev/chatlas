@@ -62,7 +62,6 @@ def ChatAnthropic(
     model: "Optional[ModelParam]" = None,
     api_key: Optional[str] = None,
     max_tokens: int = 4096,
-    name: Literal["Anthropic"] = "Anthropic",
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
     """
@@ -193,7 +192,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         max_tokens: int = 4096,
         model: str,
         api_key: Optional[str] = None,
-        name: str = "Anthropic",
+        name: Optional[str] = "Anthropic",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)

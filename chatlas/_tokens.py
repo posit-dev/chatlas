@@ -91,7 +91,7 @@ f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="
 PricingList: list[TokenPrice] = orjson.loads(f)
 
 
-def get_token_pricing(provider: Provider) -> dict[str, str | float]:
+def get_token_pricing(provider: Provider) -> TokenPrice | dict:
     """
     Get the token pricing for the chat if available based on the prices.json file.
 

@@ -309,14 +309,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return res
 
-    # TODO: BYOP to tuple (input, output) + add big 'ol disclaimer that WE DON'T KNOW
     def get_cost(
         self,
         options: CostOptions = "all",
         token_price: Optional[tuple[float, float]] = None,
     ) -> float:
         """
-        Get the cost of the chat.
+        Get the cost of the chat. Note that this is a rough estimate. Providers may change their pricing frequently and without notice.
 
         Parameters
         ----------
