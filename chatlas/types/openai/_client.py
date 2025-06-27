@@ -13,6 +13,7 @@ class ChatClientArgs(TypedDict, total=False):
     api_key: str | None
     organization: str | None
     project: str | None
+    webhook_secret: str | None
     base_url: str | httpx.URL | None
     websocket_base_url: str | httpx.URL | None
     timeout: Union[float, openai.Timeout, None, openai.NotGiven]
