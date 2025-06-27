@@ -2051,14 +2051,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         turns = self.get_turns(include_system_prompt=True)
         tokens = self.get_tokens()
         cost = self.get_cost()
-        # Sum tokens assistant
-        print("TURNS:", turns)
-        print("TOKENS:", tokens)
-        tokens_asst = 0
-        tokens_user = 0
-        # Sum tokens user
-        tokens = sum(sum(turn.tokens) for turn in turns if turn.tokens)
-        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)} tokens={tokens_user}/{tokens_asst} ${round(cost, ndigits=2)} >"
+        tokens_asst = sum(u["tokens_total"] for u in tokens if u["role"] == "assistant")
+        tokens_user = sum(u["tokens_total"] for u in tokens if u["role"] == "user")
+
+        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)} tokens={tokens_user}/{tokens_asst} ${round(cost, ndigits=2)}>"
         for turn in turns:
             res += "\n" + turn.__repr__(indent=2)
         return res + "\n"

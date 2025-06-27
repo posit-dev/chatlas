@@ -2,8 +2,6 @@ import re
 import tempfile
 
 import pytest
-from pydantic import BaseModel
-
 from chatlas import (
     ChatOpenAI,
     ContentToolRequest,
@@ -12,7 +10,7 @@ from chatlas import (
     Turn,
 )
 from chatlas._chat import ToolFailureWarning
-from chatlas._tokens import TokenPrice
+from pydantic import BaseModel
 
 
 def test_simple_batch_chat():
@@ -76,6 +74,7 @@ def test_basic_repr(snapshot):
             Turn("assistant", "2  3", tokens=(15, 5)),
         ],
     )
+    print(repr(chat))
     assert snapshot == repr(chat)
 
 
