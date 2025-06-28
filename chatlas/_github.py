@@ -48,7 +48,7 @@ def ChatGithub(
     import os
     from chatlas import ChatGithub
 
-    chat = ChatGithub(api_key=os.getenv("GITHUB_PAT"))
+    chat = ChatGithub(api_key=os.getenv("GITHUB_TOKEN"))
     chat.chat("What is the capital of France?")
     ```
 
@@ -69,7 +69,7 @@ def ChatGithub(
         choosing a model for all but the most casual use.
     api_key
         The API key to use for authentication. You generally should not supply
-        this directly, but instead set the `GITHUB_PAT` environment variable.
+        this directly, but instead set the `GITHUB_TOKEN` environment variable.
     base_url
         The base URL to the endpoint; the default uses Github's API.
     seed
@@ -106,7 +106,7 @@ def ChatGithub(
 
     ```shell
     # .env
-    GITHUB_PAT=...
+    GITHUB_TOKEN=...
     ```
 
     ```python
@@ -122,13 +122,13 @@ def ChatGithub(
     before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
 
     ```shell
-    export GITHUB_PAT=...
+    export GITHUB_TOKEN=...
     ```
     """
     if model is None:
         model = log_model_default("gpt-4.1")
     if api_key is None:
-        api_key = os.getenv("GITHUB_PAT")
+        api_key = os.getenv("GITHUB_TOKEN", os.getenv("GITHUB_PAT"))
 
     return ChatOpenAI(
         system_prompt=system_prompt,
