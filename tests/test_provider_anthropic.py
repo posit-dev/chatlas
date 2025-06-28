@@ -2,8 +2,7 @@ import base64
 
 import httpx
 import pytest
-
-from chatlas import ChatAnthropic, ContentToolResult
+from chatlas import ChatAnthropic, ContentToolResultImage
 
 from .conftest import (
     assert_data_extraction,
@@ -108,17 +107,10 @@ def test_anthropic_image_tool(test_images_dir):
         # Local copy of https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png
         with open(test_images_dir / "dice.png", "rb") as image:
             bytez = image.read()
-        res = [
-            {
-                "type": "image",
-                "source": {
-                    "type": "base64",
-                    "media_type": "image/png",
-                    "data": base64.b64encode(bytez).decode("utf-8"),
-                },
-            }
-        ]
-        return ContentToolResult(value=res, model_format="as_is")
+        return ContentToolResultImage(
+            value=base64.b64encode(bytez).decode("utf-8"),
+            mime_type="image/png",
+        )
 
     chat = ChatAnthropic()
     chat.register_tool(get_picture)
