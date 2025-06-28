@@ -129,7 +129,7 @@ It can also help to explain how the tool behavior influences with the larger use
 LLMs are trained on a wide variety of data, but they don't necessarily have access to real-time or proprietary information.
 When the amount of "missing" information can reasonably fit in a context window, it's often best to just include that information in the system prompt.
 For example, if you're building a chatbot that needs to know about a specific table schema (like [querychat](https://github.com/posit-dev/querychat) does) to offer accurate SQL queries, include that information in the system prompt.
-However, if the amount of missing information takes up a significant portion of a context window, it may be better to use a different approach like [RAG](../RAG/how-it-works.qmd) or [tool calling](../tool-calling/how-it-works.qmd).
+However, if the amount of missing information takes up a significant portion of a context window, it may be better to use a different approach like [RAG](../misc/RAG.qmd) or [tool calling](../tool-calling/how-it-works.qmd).
 
 ### Follow-up suggestions
 

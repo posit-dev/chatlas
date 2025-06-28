@@ -93,6 +93,7 @@ website:
         - section: "Miscellaneous"
           contents:
             - misc/RAG.qmd
+            - misc/mcp-tools.qmd
             - misc/vocabulary.qmd
 
 
