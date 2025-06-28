@@ -22,6 +22,7 @@ def test_azure_simple_request():
     turn = chat.get_last_turn()
     assert turn is not None
     assert turn.tokens == (27, 2)
+    assert chat.provider.name == "OpenAIAzure"
 
 
 @pytest.mark.asyncio

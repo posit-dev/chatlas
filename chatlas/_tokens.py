@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import copy
+import importlib.resources as resources
+import warnings
 from threading import Lock
 from typing import TYPE_CHECKING
+
+import orjson
 
 from ._logging import logger
 from ._typing_extensions import TypedDict
@@ -55,12 +59,11 @@ class ThreadSafeTokenCounter:
 _token_counter = ThreadSafeTokenCounter()
 
 
-def tokens_log(provider: "Provider", tokens: tuple[int, int]) -> None:
+def tokens_log(provider: Provider, tokens: tuple[int, int]) -> None:
     """
     Log token usage for a provider in a thread-safe manner.
     """
-    name = provider.__class__.__name__.replace("Provider", "")
-    _token_counter.log_tokens(name, tokens[0], tokens[1])
+    _token_counter.log_tokens(provider.name, tokens[0], tokens[1])
 
 
 def tokens_reset() -> None:
@@ -71,12 +74,61 @@ def tokens_reset() -> None:
     _token_counter = ThreadSafeTokenCounter()
 
 
+class TokenPrice(TypedDict):
+    """
+    Defines the necessary information to look up pricing for a given turn.
+    """
+
+    provider: str
+    model: str
+    cached_input: float
+    input: float
+    output: float
+
+
+# Load in pricing pulled from ellmer
+f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="utf-8")
+PricingList: list[TokenPrice] = orjson.loads(f)
+
+
+def get_token_pricing(provider: Provider) -> TokenPrice | dict:
+    """
+    Get the token pricing for the chat if available based on the prices.json file.
+
+    Returns
+    -------
+    dict[str, str | float]
+        A dictionary with the token pricing for the chat. The keys are:
+          - `"provider"`: The provider name (e.g., "OpenAI", "Anthropic", etc.).
+          - `model`: The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.).
+          - `"input"`: The cost per user token in USD per million tokens.
+          - `"output"`: The cost per assistant token in USD per million tokens.
+    """
+    result = next(
+        (
+            item
+            for item in PricingList
+            if item["provider"] == provider.name and item["model"] == provider.model
+        ),
+        {},
+    )
+
+    if not result:
+        warnings.warn(
+            f"Token pricing for the provider '{provider.name}' and model '{provider.model}' you selected is not available. "
+            "Please check the provider's documentation."
+        )
+
+    return result
+
+
+# TODO: Add price to this print
 def token_usage() -> list[TokenUsage] | None:
     """
     Report on token usage in the current session
 
     Call this function to find out the cumulative number of tokens that you
-    have sent and received in the current session.
+    have sent and received in the current session. The price will be shown if known
 
     Returns
     -------
@@ -84,4 +136,6 @@ def token_usage() -> list[TokenUsage] | None:
         A list of dictionaries with the following keys: "name", "input", and "output".
         If no tokens have been logged, then None is returned.
     """
+    _token_counter.get_usage()
+
     return _token_counter.get_usage()

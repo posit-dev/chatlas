@@ -1,11 +1,18 @@
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
 from chatlas._openai import OpenAIAzureProvider, OpenAIProvider
-from chatlas._tokens import token_usage, tokens_log, tokens_reset
+from chatlas._tokens import (
+    token_usage,
+    tokens_log,
+    tokens_reset,
+    get_token_pricing,
+)
+import warnings
+import pytest
 
 
 def test_tokens_method():
-    chat = ChatOpenAI()
-    assert chat.tokens(values="discrete") == []
+    chat = ChatOpenAI(api_key="fake_key")
+    assert len(chat.get_tokens()) == 0
 
     chat = ChatOpenAI(
         turns=[
@@ -14,19 +21,27 @@ def test_tokens_method():
         ]
     )
 
-    assert chat.tokens(values="discrete") == [2, 10]
+    assert chat.get_tokens() == [
+        {"role": "user", "tokens": 2, "tokens_total": 2},
+        {"role": "assistant", "tokens": 10, "tokens_total": 10},
+    ]
 
     chat = ChatOpenAI(
+        api_key="fake_key",
         turns=[
             Turn(role="user", contents="Hi"),
             Turn(role="assistant", contents="Hello", tokens=(2, 10)),
             Turn(role="user", contents="Hi"),
             Turn(role="assistant", contents="Hello", tokens=(14, 10)),
-        ]
+        ],
     )
 
-    assert chat.tokens(values="discrete") == [2, 10, 2, 10]
-    assert chat.tokens(values="cumulative") == [None, (2, 10), None, (14, 10)]
+    assert chat.get_tokens() == [
+        {"role": "user", "tokens": 2, "tokens_total": 2},
+        {"role": "assistant", "tokens": 10, "tokens_total": 10},
+        {"role": "user", "tokens": 2, "tokens_total": 14},
+        {"role": "assistant", "tokens": 10, "tokens_total": 10},
+    ]
 
 
 def test_token_count_method():
@@ -40,6 +55,24 @@ def test_token_count_method():
     assert chat.token_count("What is 1 + 1?") == 9
 
 
+def test_get_token_prices():
+    chat = ChatOpenAI(model="o1-mini")
+    pricing = get_token_pricing(chat.provider)
+    assert pricing["provider"] == "OpenAI"
+    assert pricing["model"] == "o1-mini"
+    assert isinstance(pricing["cached_input"], float)
+    assert isinstance(pricing["input"], float)
+    assert isinstance(pricing["output"], float)
+
+    with pytest.warns(
+        match="Token pricing for the provider 'OpenAI' and model 'ABCD' you selected is not available. "
+        "Please check the provider's documentation."
+    ):
+        chat = ChatOpenAI(model="ABCD")
+        pricing = get_token_pricing(chat.provider)
+        assert pricing == {}
+
+
 def test_usage_is_none():
     tokens_reset()
     assert token_usage() is None
@@ -48,8 +81,7 @@ def test_usage_is_none():
 def test_can_retrieve_and_log_tokens():
     tokens_reset()
 
-    provider = OpenAIProvider(model="foo")
-
+    provider = OpenAIProvider(api_key="fake_key", model="foo")
     tokens_log(provider, (10, 50))
     tokens_log(provider, (0, 10))
     usage = token_usage()
@@ -59,7 +91,9 @@ def test_can_retrieve_and_log_tokens():
     assert usage[0]["input"] == 10
     assert usage[0]["output"] == 60
 
-    provider2 = OpenAIAzureProvider(endpoint="foo", api_version="bar")
+    provider2 = OpenAIAzureProvider(
+        api_key="fake_key", endpoint="foo", api_version="bar"
+    )
 
     tokens_log(provider2, (5, 25))
     usage = token_usage()

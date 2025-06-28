@@ -2,7 +2,7 @@ import os
 
 import pytest
 import requests
-from chatlas import ChatGoogle
+from chatlas import ChatGoogle, ChatVertex
 from google.genai.errors import APIError
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
@@ -33,6 +33,31 @@ def test_google_simple_request():
     assert turn is not None
     assert turn.tokens == (16, 2)
     assert turn.finish_reason == "STOP"
+    assert chat.provider.name == "Google/Gemini"
+
+
+def test_vertex_simple_request():
+    chat = ChatVertex(
+        system_prompt="Be as terse as possible; no punctuation",
+    )
+    chat.chat("What is 1 + 1?")
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert turn.tokens == (16, 2)
+    assert turn.finish_reason == "STOP"
+    assert chat.provider.name == "Google/Vertex"
+
+
+def test_name_setting():
+    chat = ChatGoogle(
+        system_prompt="Be as terse as possible; no punctuation",
+    )
+    assert chat.provider.name == "Google/Gemini"
+
+    chat = ChatVertex(
+        system_prompt="Be as terse as possible; no punctuation",
+    )
+    assert chat.provider.name == "Google/Vertex"
 
 
 @pytest.mark.asyncio

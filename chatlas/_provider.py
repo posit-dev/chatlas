@@ -40,6 +40,19 @@ class Provider(
     directly.
     """
 
+    # TODO: Add docstring for props
+    def __init__(self, *, name: str, model: str):
+        self._name = name
+        self._model = model
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def model(self):
+        return self._model
+
     @overload
     @abstractmethod
     def chat_perform(

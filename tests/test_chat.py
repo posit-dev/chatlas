@@ -30,10 +30,12 @@ async def test_simple_async_batch_chat():
 
 def test_simple_streaming_chat():
     chat = ChatOpenAI()
-    res = chat.stream("""
+    res = chat.stream(
+        """
         What are the canonical colors of the ROYGBIV rainbow?
         Put each colour on its own line. Don't use punctuation.
-    """)
+    """
+    )
     chunks = [chunk for chunk in res]
     assert len(chunks) > 2
     result = "".join(chunks)
@@ -48,10 +50,12 @@ def test_simple_streaming_chat():
 @pytest.mark.asyncio
 async def test_simple_streaming_chat_async():
     chat = ChatOpenAI()
-    res = await chat.stream_async("""
+    res = await chat.stream_async(
+        """
         What are the canonical colors of the ROYGBIV rainbow?
         Put each colour on its own line. Don't use punctuation.
-    """)
+    """
+    )
     chunks = [chunk async for chunk in res]
     assert len(chunks) > 2
     result = "".join(chunks)
@@ -279,3 +283,33 @@ def test_chat_tool_request_reject2(capsys):
 
     assert str(response).lower() == "joe unknown hadley red"
     assert "Joe denied the request." in capsys.readouterr().out
+
+
+def test_get_cost():
+    chat = ChatOpenAI(
+        api_key="fake_key",
+        turns=[
+            Turn(role="user", contents="Hi"),
+            Turn(role="assistant", contents="Hello", tokens=(2, 10)),
+            Turn(role="user", contents="Hi"),
+            Turn(role="assistant", contents="Hello", tokens=(14, 10)),
+        ],
+    )
+    # Checking that these have the right form vs. the actual calculation because the price may change
+    cost = chat.get_cost(options="all")
+    assert isinstance(cost, float)
+    assert cost > 0
+
+    last = chat.get_cost(options="last")
+    assert isinstance(last, float)
+    assert last > 0
+
+    assert cost > last
+
+    byoc = (2.0, 3.0)
+
+    cost2 = chat.get_cost(options="all", token_price=byoc)
+    assert cost2 == 0.000092
+
+    last2 = chat.get_cost(options="last", token_price=byoc)
+    assert last2 == 0.00003

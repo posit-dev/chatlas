@@ -4,6 +4,7 @@ import base64
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import orjson
+from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -179,6 +180,7 @@ def ChatOpenAI(
 
 
 class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict]):
+
     def __init__(
         self,
         *,
@@ -186,11 +188,11 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         model: str,
         base_url: str = "https://api.openai.com/v1",
         seed: Optional[int] = None,
+        name: Optional[str] = "OpenAI",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
-        from openai import AsyncOpenAI, OpenAI
+        super().__init__(name=name, model=model)
 
-        self._model = model
         self._seed = seed
 
         kwargs_full: "ChatClientArgs" = {
@@ -287,7 +289,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_param(turns),
-            "model": self._model,
+            "model": self.model,
             **(kwargs or {}),
         }
 
@@ -666,6 +668,7 @@ def ChatAzureOpenAI(
 
 
 class OpenAIAzureProvider(OpenAIProvider):
+
     def __init__(
         self,
         *,
@@ -674,11 +677,13 @@ class OpenAIAzureProvider(OpenAIProvider):
         api_version: Optional[str] = None,
         api_key: Optional[str] = None,
         seed: int | None = None,
+        name: Optional[str] = "OpenAIAzure",
+        model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
-        from openai import AsyncAzureOpenAI, AzureOpenAI
 
-        self._model = deployment_id
+        super().__init__(name=name, model=deployment_id)
+
         self._seed = seed
 
         kwargs_full: "ChatAzureClientArgs" = {

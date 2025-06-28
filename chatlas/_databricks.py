@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
+from databricks.sdk import WorkspaceClient
+
 from ._chat import Chat
 from ._logging import log_model_default
 from ._openai import OpenAIProvider
@@ -104,6 +106,7 @@ class DatabricksProvider(OpenAIProvider):
         self,
         *,
         model: str,
+        name: Optional[str] = "Databricks",
         workspace_client: Optional["WorkspaceClient"] = None,
     ):
         try:
@@ -117,7 +120,8 @@ class DatabricksProvider(OpenAIProvider):
         import httpx
         from openai import AsyncOpenAI
 
-        self._model = model
+        super().__init__(name=name, model=model)
+
         self._seed = None
 
         if workspace_client is None:
