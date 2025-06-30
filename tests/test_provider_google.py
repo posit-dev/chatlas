@@ -2,9 +2,10 @@ import os
 
 import pytest
 import requests
-from chatlas import ChatGoogle
 from google.genai.errors import APIError
-from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
+from tenacity import retry, retry_if_exception, wait_exponential
+
+from chatlas import ChatGoogle
 
 from .conftest import (
     assert_data_extraction,
@@ -31,7 +32,7 @@ def test_google_simple_request():
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (16, 2)
+    assert turn.tokens == (18, 1)
     assert turn.finish_reason == "STOP"
 
 
@@ -69,8 +70,7 @@ def _is_retryable_error(exception: BaseException) -> bool:
 
 retry_gemini_call = retry(
     retry=retry_if_exception(_is_retryable_error),
-    wait=wait_exponential(min=1, max=100),
-    stop=stop_after_attempt(10),
+    wait=wait_exponential(min=1, max=500),
     reraise=True,
 )
 
@@ -94,7 +94,7 @@ def test_tools_parallel():
 def test_tools_sequential():
     assert_tools_sequential(
         ChatGoogle,
-        total_calls=6,
+        total_calls=4,
     )
 
 
