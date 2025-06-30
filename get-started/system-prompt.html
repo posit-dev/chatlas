@@ -334,6 +334,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../misc/mcp-tools.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">MCP tools</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../misc/vocabulary.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Vocabulary</span></a>
   </div>
@@ -458,7 +464,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="provide-missing-info" class="level3">
 <h3 class="anchored" data-anchor-id="provide-missing-info">Provide missing info</h3>
-<p>LLMs are trained on a wide variety of data, but they don’t necessarily have access to real-time or proprietary information. When the amount of “missing” information can reasonably fit in a context window, it’s often best to just include that information in the system prompt. For example, if you’re building a chatbot that needs to know about a specific table schema (like <a href="https://github.com/posit-dev/querychat">querychat</a> does) to offer accurate SQL queries, include that information in the system prompt. However, if the amount of missing information takes up a significant portion of a context window, it may be better to use a different approach like <a href="../RAG/how-it-works.qmd">RAG</a> or <a href="../tool-calling/how-it-works.html">tool calling</a>.</p>
+<p>LLMs are trained on a wide variety of data, but they don’t necessarily have access to real-time or proprietary information. When the amount of “missing” information can reasonably fit in a context window, it’s often best to just include that information in the system prompt. For example, if you’re building a chatbot that needs to know about a specific table schema (like <a href="https://github.com/posit-dev/querychat">querychat</a> does) to offer accurate SQL queries, include that information in the system prompt. However, if the amount of missing information takes up a significant portion of a context window, it may be better to use a different approach like <a href="../misc/RAG.html">RAG</a> or <a href="../tool-calling/how-it-works.html">tool calling</a>.</p>
 </section>
 <section id="follow-up-suggestions" class="level3">
 <h3 class="anchored" data-anchor-id="follow-up-suggestions">Follow-up suggestions</h3>

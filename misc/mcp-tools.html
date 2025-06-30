@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>RAG – chatlas</title>
+<title>MCP tools – chatlas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,8 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../misc/mcp-tools.html" rel="next">
-<link href="../structured-data/multi-modal.html" rel="prev">
+<link href="../misc/vocabulary.html" rel="next">
+<link href="../misc/RAG.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -76,6 +76,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-51542af24d6bf233f273bd52631cd675.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,11 +108,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
 
-<meta property="og:title" content="RAG – chatlas">
+<meta property="og:title" content="MCP tools – chatlas">
 <meta property="og:description" content="Your friendly guide to building LLM chat apps in Python with less effort and more clarity.">
 <meta property="og:image" content="https://posit-dev.github.io/chatlas/misc/images/logo.png">
 <meta property="og:site_name" content="chatlas">
-<meta name="twitter:title" content="RAG – chatlas">
+<meta name="twitter:title" content="MCP tools – chatlas">
 <meta name="twitter:description" content="Your friendly guide to building LLM chat apps in Python with less effort and more clarity.">
 <meta name="twitter:image" content="https://posit-dev.github.io/chatlas/misc/images/logo.png">
 <meta name="twitter:card" content="summary_large_image">
@@ -152,7 +155,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../misc/RAG.html">Miscellaneous</a></li><li class="breadcrumb-item"><a href="../misc/RAG.html">RAG</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../misc/RAG.html">Miscellaneous</a></li><li class="breadcrumb-item"><a href="../misc/mcp-tools.html">MCP tools</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -328,13 +331,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../misc/RAG.html" class="sidebar-item-text sidebar-link active">
+  <a href="../misc/RAG.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">RAG</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../misc/mcp-tools.html" class="sidebar-item-text sidebar-link">
+  <a href="../misc/mcp-tools.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">MCP tools</span></a>
   </div>
 </li>
@@ -356,22 +359,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#basic-retrieval" id="toc-basic-retrieval" class="nav-link active" data-scroll-target="#basic-retrieval">Basic retrieval</a>
+  <li><a href="#basic-usage" id="toc-basic-usage" class="nav-link active" data-scroll-target="#basic-usage">Basic usage</a></li>
+  <li><a href="#basic-example" id="toc-basic-example" class="nav-link" data-scroll-target="#basic-example">Basic example</a>
   <ul class="collapse">
-  <li><a href="#create-store" id="toc-create-store" class="nav-link" data-scroll-target="#create-store">Create store</a></li>
-  <li><a href="#save-store" id="toc-save-store" class="nav-link" data-scroll-target="#save-store">Save store</a></li>
-  <li><a href="#retrieve-content" id="toc-retrieve-content" class="nav-link" data-scroll-target="#retrieve-content">Retrieve content</a></li>
+  <li><a href="#basic-server" id="toc-basic-server" class="nav-link" data-scroll-target="#basic-server">Basic server</a></li>
+  <li><a href="#http-stream" id="toc-http-stream" class="nav-link" data-scroll-target="#http-stream">HTTP Stream</a></li>
+  <li><a href="#stdio" id="toc-stdio" class="nav-link" data-scroll-target="#stdio">Stdio</a></li>
   </ul></li>
-  <li><a href="#dynamic-retrieval" id="toc-dynamic-retrieval" class="nav-link" data-scroll-target="#dynamic-retrieval">Dynamic retrieval</a></li>
+  <li><a href="#motivating-example" id="toc-motivating-example" class="nav-link" data-scroll-target="#motivating-example">Motivating example</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/misc/RAG.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/misc/mcp-tools.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../misc/RAG.html">Miscellaneous</a></li><li class="breadcrumb-item"><a href="../misc/RAG.html">RAG</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../misc/RAG.html">Miscellaneous</a></li><li class="breadcrumb-item"><a href="../misc/mcp-tools.html">MCP tools</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">RAG</h1>
+<h1 class="title">MCP tools</h1>
 </div>
 
 
@@ -388,179 +392,171 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Retrieval-Augmented Generation (RAG) is a technique that can improve LLM output by grounding it with external, trusted content. RAG workflows can have varying degrees of sophistication, but at their core, they all share a retrieval step that fetches relevant information from a knowledge store. The retrieved information (along with the user query) is then provided as additional context to the LLM for response generation. In this article, you’ll learn how to do exactly this to improve the quality of responses in your chatlas applications.</p>
-<div class="callout callout-style-simple callout-warning callout-titled">
+<p><a href="https://modelcontextprotocol.io">Model Context Protocol (MCP)</a> provides a standard way to build services that LLMs can use to gain context. Most significantly, MCP provides a standard way to serve <a href="../get-started/tools.html">tools</a> (i.e., functions) for an LLM to call from another program or machine. As a result, there are now <a href="https://github.com/punkpeye/awesome-mcp-servers?tab=readme-ov-file#server-implementations">many useful MCP server implementations available</a> to help extend the capabilities of your chat application. In this article, you’ll learn the basics of implementing and using MCP tools in chatlas.</p>
+<div class="callout callout-style-simple callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Do you need RAG?
+Prerequisites
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The term RAG gets thrown around a lot, and for good reason – it can be a very useful way to address the most serious limitations of LLMs. However, RAG is not always necessary – sometimes something much simpler will do the trick, such as:</p>
-<ul>
-<li>Adding trusted/missing content directly to the <a href="../get-started/system-prompt.html">system prompt</a> (or chat input), rather than retrieving a portion of it from a knowledge store.</li>
-<li>Register a <a href="../get-started/tools.html">tool</a> enabling the LLM to “ask” for trusted content as needed, possibly without needing to manage a separate knowledge store.</li>
-</ul>
+<p>To leverage MCP tools from chatlas, you’ll need to install the <code>mcp</code> library.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="st">'chatlas[mcp]'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
-<p>In theory, grounding the LLM’s response in trusted content helps to reduce <a href="https://en.wikipedia.org/wiki/Hallucination_(artificial_intelligence)">hallucination</a>. But in practice, RAG can be fickle – it’s hard to always retrieve the right information for every user query, and it’s not always predictable how the LLM will actually use the retrieved content. For this reason, it’s helpful for your RAG workflow to be transparent (so it’s easy to debug, understand, and modify) because some trial and error will be necessary. It can also be very helpful to combine RAG with additional techniques, such as:</p>
-<ol type="1">
-<li>Setting guidelines for how the LLM should use the retrieved content in the <a href="../get-started/system-prompt.html">system prompt</a>.</li>
-<li>If needed, provide a <a href="../get-started/tools.html">tool</a> to retrieve additional information from a knowledge store, effectively enabling the LLM to decide when it needs more information.</li>
-</ol>
-<p>In any RAG workflow, you’ll always want to apply the 1st technique (i.e., set guidelines). However, before diving into the 2nd technique (i.e., <a href="#dynamic-retrieval">dynamic retrieval</a>), let’s first learn the basics.</p>
-<section id="basic-retrieval" class="level2">
-<h2 class="anchored" data-anchor-id="basic-retrieval">Basic retrieval</h2>
-<p>Basic retrieval is the simplest form of RAG, where you retrieve (a fixed amount of) relevant content from a knowledge store based on the user’s query and provide it to the chat model. It looks something roughly like this:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="st">"You are a helpful, but terse, assistant. "</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"If you can't answer the question based on the trusted content, say so."</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>user_query <span class="op">=</span> <span class="st">"Who created the unicorn programming language?"</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># A placeholder for your retrieval logic</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>trusted_content <span class="op">=</span> retrieve_trusted_content(user_query)  </span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>chat.chat(trusted_content, user_query)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>In the sections that follow, we’ll implement the <code>retrieve_trusted_content()</code> step of this workflow. And, as we’ll see, there are several moving parts to consider when implementing this step.</p>
-<p>Obviously, in order to retrieve trusted content, we first need some content to retrieve. Typically content is retrieved from a <strong>knowledge store</strong> – essentially a database that stores documents in a way that allows for efficient retrieval based on semantic similarity. A knowledge store also often takes the form of a <strong>vector store</strong> or <strong>embedding index</strong> because of it’s efficiency in storing and retrieving content based on semantic similarity. This approach requires embedding the content into numerical vectors, which can be done using various machine learning models.</p>
-<section id="create-store" class="level3">
-<h3 class="anchored" data-anchor-id="create-store">Create store</h3>
-<p>Python has a plethora of options for working with knowledge stores (<a href="https://docs.llamaindex.ai/en/stable/">llama-index</a>, <a href="https://docs.pinecone.io/reference/python-sdk">pinecone</a>, etc.). It doesn’t really matter which one you choose, but due to its popularity, maturity, and simplicity, lets demonstrate with the <a href="https://docs.llamaindex.ai/en/stable/"><code>llama-index</code></a> library:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install llama-index</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>With <code>llama-index</code>, it’s easy to create a knowledge store from a wide variety of input formats, such as text files, <a href="https://docs.llamaindex.ai/en/stable/examples/data_connectors/WebPageDemo/">web pages</a>, and <a href="https://pypi.org/project/llama-index-readers-markitdown/">much more</a>. That said, for this example, I’ll assume you have a directory (<code>data</code>) with some text files that you want to use as trusted content. This snippet will ingest the files, embed them, and create a vector store <code>index</code> that is ready for <a href="#retrieve-content">retrieval</a>.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> SimpleDirectoryReader, VectorStoreIndex</span>
+<section id="basic-usage" class="level2">
+<h2 class="anchored" data-anchor-id="basic-usage">Basic usage</h2>
+<p>Chatlas provides two ways to register MCP tools: <a href="../reference/Chat.html#register_mcp_tools_http_stream_async"><code>.register_mcp_tools_http_stream_async()</code></a> and <a href="../reference/Chat.html#register_mcp_tools_stdio_async"><code>.register_mcp_tools_stdio_async()</code></a>.</p>
+<p>The main difference is how they interact with the MCP server: the former connects to an already running HTTP server, while the latter executes a system command to run the server locally. Roughly speaking, usage looks something like this:</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">Streaming HTTP</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Stdio (Standard Input/Output)</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming you have an MCP server running at the specified URL</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> chat.register_mcp_tools_http_stream_async(</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    url<span class="op">=</span><span class="st">"http://localhost:8000/mcp"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>docs <span class="op">=</span> SimpleDirectoryReader(<span class="st">"data"</span>).load_data()</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>index <span class="op">=</span> VectorStoreIndex.from_documents(docs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="callout callout-style-simple callout-caution callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Embed pre-requisites
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>By default, <code>VectorStoreIndex</code> tries to use an OpenAI model to embed the <code>docs</code>, which will fail if you don’t have an OpenAI API key set up. Either set the <code>OPENAI_API_KEY</code> environment variable to your OpenAI API key, or see the next tip if you’d rather use a free embedding model.</p>
-</div>
-</div>
-<div class="callout callout-style-simple callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Custom embed model
-</div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
-</div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
-<div class="callout-body-container callout-body">
-<p>The embedding model used by <code>VectorStoreIndex</code> can be customized via in the <code>Settings</code> object. For example, to use a (free) <a href="https://huggingface.co/">Hugging Face</a> embedding model, first install:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install llama-index-embeddings-huggingface</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Then set the <code>embed_model</code> in the <code>Settings</code> object to reference the Hugging Face model you want to use. This way, you can use a free and open source embedding model without needing an API key.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> Settings</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.embeddings.huggingface <span class="im">import</span> HuggingFaceEmbedding</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>Settings.embed_model <span class="op">=</span> HuggingFaceEmbedding(model_name<span class="op">=</span><span class="st">"BAAI/bge-small-en-v1.5"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming my_mcp_server.py is a valid MCP server script</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> chat.register_mcp_tools_stdio_async(</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    command<span class="op">=</span><span class="st">"mcp"</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>[<span class="st">"run"</span>, <span class="st">"my_mcp_server.py"</span>],</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
-<div class="callout callout-style-simple callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Custom vector stores
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>The code provided here just uses <code>llama-index</code>’s default vector store, but it supports a wide variety of vector stores, such as <a href="https://docs.llamaindex.ai/en/stable/examples/vector_stores/DuckDBDemo/">DuckDB</a>, <a href="https://docs.llamaindex.ai/en/stable/examples/vector_stores/PineconeIndexDemo/">Pinecone</a>, and much more.</p>
-</div>
-</div>
-<div class="callout callout-style-simple callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Chunking defaults
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>If your documents are large (e.g., long articles or books), it’s a good idea to split them into smaller chunks to improve retrieval performance. This is important since, if the content relevant to a user query is only a small part of a larger document, retrieving the entire document probably won’t be efficient or effective. When creating the <code>index</code>, <code>llama-index</code> will automatically chunk the documents into smaller pieces, which can be configured via the <code>Settings</code> object:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> Settings</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>Settings.chunk_size <span class="op">=</span> <span class="dv">512</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>Settings.chunk_overlap <span class="op">=</span> <span class="dv">50</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p>Note that these methods work by:</p>
+<ol type="1">
+<li>Opening a connection to the MCP server</li>
+<li>Requesting the available tools and making them available to the chat instance</li>
+<li>Keeping the connection open for tool calls during the chat session</li>
+</ol>
+<p>As you’ll see in the full example below, it’s also good practice to call <a href="../reference/Chat.html#cleanup_mcp_tools"><code>.cleanup_mcp_tools()</code></a> at the end of your chat session to close the connection and clean up resources.</p>
+</section>
+<section id="basic-example" class="level2">
+<h2 class="anchored" data-anchor-id="basic-example">Basic example</h2>
+<p>Let’s walk through a full-fledged example of using MCP tools in chatlas, including implementing our own MCP server.</p>
+<section id="basic-server" class="level3">
+<h3 class="anchored" data-anchor-id="basic-server">Basic server</h3>
+<p>Below is a basic MCP server with a simple <code>add</code> tool to add two numbers together. This particular server is implemented in Python (via <a href="https://pypi.org/project/mcp/">mcp</a>), but remember that MCP servers can be implemented in any programming language.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mcp.server.fastmcp <span class="im">import</span> FastMCP</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> FastMCP(<span class="st">"my_server"</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">@app.tool</span>(description<span class="op">=</span><span class="st">"Add two numbers."</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(x: <span class="bu">int</span>, y: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">+</span> y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="http-stream" class="level3">
+<h3 class="anchored" data-anchor-id="http-stream">HTTP Stream</h3>
+<p>The <code>mcp</code> library provides a CLI tool to run the MCP server over HTTP transport. As long as you have <code>mcp</code> installed, and the <a href="#basic-server">server above</a> saved as <code>my_mcp_server.py</code>, this can be done as follows:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mcp run <span class="at">-t</span> sse my_mcp_server.py </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Started server process <span class="pp">[</span><span class="ss">19144</span><span class="pp">]</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Waiting for application startup.</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Application startup complete.</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Uvicorn running on http://127.0.0.1:8000 <span class="er">(</span><span class="ex">Press</span> CTRL+C to quit<span class="kw">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>With the server now running at <code>http://localhost:8000/mcp</code>, let’s connect to it from chatlas and prompt it to use the <code>add</code> tool to demonstrate it’s working.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> do_chat(prompt: <span class="bu">str</span>):</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    chat <span class="op">=</span> ChatOpenAI(</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        system_prompt<span class="op">=</span><span class="st">"Always use tools available to you, even if the answer is simple."</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.register_mcp_tools_http_stream_async(</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        url<span class="op">=</span><span class="st">"http://localhost:8000/mcp"</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.chat_async(prompt)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.cleanup_mcp_tools()</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>asyncio.run(do_chat(<span class="st">"What is 5 - 3?"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="chatlas-response-container">
+<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 🔧 tool request                        </span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>add(x<span class="op">=</span><span class="dv">5</span>, y<span class="op">=-</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ tool result                  </span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>5 - 3 equals 2.</p>
 </div>
 </section>
-<section id="save-store" class="level3">
-<h3 class="anchored" data-anchor-id="save-store">Save store</h3>
-<p>If you have a large number of documents, creating a vector store <code>index</code> can be time-consuming, so you don’t want to recreate it every time you run your application. Thankfully, you can save the <code>index</code> to a directory on disk so you don’t have to recreate it every time you run your application. This can be done with:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>index.storage_context.persist(persist_dir<span class="op">=</span><span class="st">"./storage"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Now, when we go to retrieve content in our app, we can load the <code>index</code> from disk instead of recreating it every time.</p>
-</section>
-<section id="retrieve-content" class="level3">
-<h3 class="anchored" data-anchor-id="retrieve-content">Retrieve content</h3>
-<p>With our <code>index</code> now available on disk, we’re ready to implement <code>retrieve_trusted_content()</code> – the step that retrieves relevant content from the knowledge store based on the user query.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> StorageContext, load_index_from_storage</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the knowledge store (index) from disk</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>storage_context <span class="op">=</span> StorageContext.from_defaults(persist_dir<span class="op">=</span><span class="st">"./storage"</span>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>index <span class="op">=</span> load_index_from_storage(storage_context)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> retrieve_trusted_content(query):</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    retriever <span class="op">=</span> index.as_retriever(similarity_top_k<span class="op">=</span><span class="dv">5</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> retriever.retrieve(query)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="ss">f"&lt;excerpt&gt;</span><span class="sc">{</span>x<span class="sc">.</span>text<span class="sc">}</span><span class="ss">&lt;/excerpt&gt;"</span> <span class="cf">for</span> x <span class="kw">in</span> nodes]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This particular implementation retrieves the top 5 most relevant documents from the <code>index</code> based on the user query, but you can adjust the number of results by changing the <code>similarity_top_k</code> parameter. There’s no magic number for this parameter, but <code>llama-index</code> defaults to 2, so you may want to increase it if you find that the retrieved content is too sparse or not relevant enough. That said, you can also leverage</p>
-</section>
-</section>
-<section id="dynamic-retrieval" class="level2">
-<h2 class="anchored" data-anchor-id="dynamic-retrieval">Dynamic retrieval</h2>
-<p>Dynamic retrieval is similar to <a href="#basic-retrieval">basic retrieval</a>, except that instead of the retrieval being a single fixed step before response generation, it is provided as a <a href="../get-started/tools.html">tool</a> to the LLM. This results in a much more robust and flexible RAG workflow, as the LLM can decide if, when, and how much contents to retrieve from the knowledge store before generating a response. It can also decide what to provide as input to the retrieval step(s), rather than just using the user query directly, which can be useful if the user query is ambiguous or incomplete.</p>
-<p>To implement dynamic retrieval, we can just take the <code>retrieve_trusted_content()</code> function we just implemented as a tool with the chat model. When doing this, make sure you provide a clear description of the tool’s purpose and how it should be used, as this will help the LLM understand how to use it effectively. You could even add a parameter to the tool that allows the LLM to specify how many results it wants to retrieve, which can be useful for more complex queries.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> llama_index.core <span class="im">import</span> StorageContext, load_index_from_storage</span>
+<section id="stdio" class="level3">
+<h3 class="anchored" data-anchor-id="stdio">Stdio</h3>
+<p>Another way to run the MCP server is to use the Stdio protocol, which allows you to run the server as a local process. The command used to run the server must be specified in the <code>command</code> argument, and any additional arguments can be passed in the <code>args</code> list. In our case, since we are using the <code>mcp</code> library, we can run the server using the <code>mcp</code> command with the <code>run</code> subcommand and the path to our server script. So, as long as you have <code>mcp</code> installed, and the <a href="#basic-server">basic server</a> saved as <code>my_mcp_server.py</code>, you can run the MCP server and connect its tools to chatlas, as follows:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the knowledge store (index) from disk</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>storage_context <span class="op">=</span> StorageContext.from_defaults(persist_dir<span class="op">=</span><span class="st">"./storage"</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>index <span class="op">=</span> load_index_from_storage(storage_context)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="st">"Always use tools available to you, even if the answer is simple."</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> retrieve_trusted_content(query: <span class="bu">str</span>, top_k: <span class="bu">int</span> <span class="op">=</span> <span class="dv">5</span>):</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">    Retrieve relevant content from the knowledge store.</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="co">    query</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="co">        The query used to semantically search the knowledge store.</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">    top_k</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">        The number of results to retrieve from the knowledge store.</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    retriever <span class="op">=</span> index.as_retriever(similarity_top_k<span class="op">=</span>top_k)</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>    nodes <span class="op">=</span> retriever.retrieve(query)</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="ss">f"&lt;excerpt&gt;</span><span class="sc">{</span>x<span class="sc">.</span>text<span class="sc">}</span><span class="ss">&lt;/excerpt&gt;"</span> <span class="cf">for</span> x <span class="kw">in</span> nodes]</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="st">"You are a helpful, but terse, assistant. "</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"If you can't answer the question based on the trusted content, say so."</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>chat.register_tool(retrieve_trusted_content)</span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Who created the unicorn programming language?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> do_chat(prompt: <span class="bu">str</span>):</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.register_mcp_tools_stdio_async(</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        command<span class="op">=</span><span class="st">"mcp"</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        args<span class="op">=</span>[<span class="st">"run"</span>, <span class="st">"my_mcp_server.py"</span>],</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.chat_async(prompt)</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.cleanup_mcp_tools()</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>asyncio.run(do_chat(<span class="st">"What is 5 - 3?"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="chatlas-response-container">
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 🔧 tool request                        </span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>add(x<span class="op">=</span><span class="dv">5</span>, y<span class="op">=-</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ tool result                  </span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>5 - 3 equals 2.</p>
+</div>
+</section>
+</section>
+<section id="motivating-example" class="level2">
+<h2 class="anchored" data-anchor-id="motivating-example">Motivating example</h2>
+<p>Let’s look at a more compelling use case for MCP tools: code execution. A tool that can execute code and return the results is a powerful way to extend the capabilities of an LLM. This way, LLMs can generate code based on natural language prompts (which they are quite good at!) and then execute that code to get precise and reliable results from data (which LLMs are not so good at!). However, allowing an LLM to execute arbitrary code is risky, as the generated code could potentially be destructive, harmful, or even malicious.</p>
+<p>To mitigate these risks, it’s important to implement safeguards around code execution. This can include running code in isolated environments, restricting access to sensitive resources, and carefully validating and sanitizing inputs to the code execution tool. One such implementation is Pydantic’s <a href="https://github.com/pydantic/pydantic-ai/tree/main/mcp-run-python">Run Python MCP server</a>, which provides a sandboxed environment for executing Python code safely via <a href="https://pyodide.org/en/stable/">Pyodide</a> and <a href="https://deno.com/">Deno</a>.</p>
+<p>Below is a Shiny <a href="../get-started/chatbots.html">chatbot</a> example that uses the Pydantic Run Python MCP server to execute Python code safely. Notice how, when tool calls are made, both the tool request (i.e., the code to be executed) and result (i.e., the output of the code execution) are displayed in the chat, making it much easier to understand what the LLM is doing and how it arrived at its answer. This is a great way to build trust in the LLM’s responses, as users can see exactly what code was executed and what the results were.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> shiny <span class="im">import</span> reactive</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> shiny.express <span class="im">import</span> ui</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>chat_client <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="at">@reactive.effect</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> _():</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat_client.register_mcp_tools_stdio_async(</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        command<span class="op">=</span><span class="st">"deno"</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        args<span class="op">=</span>[<span class="st">"run"</span>, <span class="st">"-N"</span>, <span class="st">"-R=node_modules"</span>, <span class="st">"-W=node_modules"</span>, <span class="st">"--node-modules-dir=auto"</span>, <span class="st">"jsr:@pydantic/mcp-run-python"</span>, <span class="st">"stdio"</span>],</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ui.Chat(<span class="st">"chat"</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>chat.ui(</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[<span class="st">"Hi! Try asking me a question that can be answered by executing Python code."</span>],</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>chat.update_user_input(value<span class="op">=</span><span class="st">"What's the 47th number in the Fibonacci sequence?"</span>)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="at">@chat.on_user_submit</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> _(user_input: <span class="bu">str</span>):</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    stream <span class="op">=</span> <span class="cf">await</span> chat_client.stream_async(user_input, content<span class="op">=</span><span class="st">"all"</span>)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.append_message_stream(stream)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="../images/shiny-mcp-run-python.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Screenshot of a LLM executing Python code via a tool call in a Shiny chatbot"><img src="../images/shiny-mcp-run-python.png" class="shadow rounded img-fluid figure-img" alt="Screenshot of a LLM executing Python code via a tool call in a Shiny chatbot"></a></p>
+<figcaption>Screenshot of a LLM executing Python code via a tool call in a Shiny chatbot</figcaption>
+</figure>
+</div>
 
 
 </section>
@@ -988,13 +984,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../structured-data/multi-modal.html" class="pagination-link" aria-label="Multi-modal input">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Multi-modal input</span>
+      <a href="../misc/RAG.html" class="pagination-link" aria-label="RAG">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">RAG</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../misc/mcp-tools.html" class="pagination-link" aria-label="MCP tools">
-        <span class="nav-page-text">MCP tools</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../misc/vocabulary.html" class="pagination-link" aria-label="Vocabulary">
+        <span class="nav-page-text">Vocabulary</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1006,12 +1002,44 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/misc/RAG.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/misc/mcp-tools.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
   </div>
 </footer>
+<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","openEffect":"zoom","loop":false,"selector":".lightbox","closeEffect":"zoom"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 

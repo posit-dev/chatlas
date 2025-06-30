@@ -588,7 +588,7 @@ API key
 <div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatGithub</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatGithub(api_key<span class="op">=</span>os.getenv(<span class="st">"GITHUB_PAT"</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatGithub(api_key<span class="op">=</span>os.getenv(<span class="st">"GITHUB_TOKEN"</span>))</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is the capital of France?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
@@ -624,7 +624,7 @@ API key
 <tr class="even">
 <td>api_key</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The API key to use for authentication. You generally should not supply this directly, but instead set the <code>GITHUB_PAT</code> environment variable.</td>
+<td>The API key to use for authentication. You generally should not supply this directly, but instead set the <code>GITHUB_TOKEN</code> environment variable.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
@@ -677,7 +677,7 @@ API key
 <p>Instead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a <code>.env</code> file to store your credentials, and then use the <code>python-dotenv</code> package to load them into your environment.</p>
 <pre class="shell"><code>pip install python-dotenv</code></pre>
 <pre class="shell"><code># .env
-GITHUB_PAT=...</code></pre>
+GITHUB_TOKEN=...</code></pre>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatGithub</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -685,7 +685,7 @@ GITHUB_PAT=...</code></pre>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatGithub()</span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>chat.console()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Another, more general, solution is to load your environment variables into the shell before starting Python (maybe in a <code>.bashrc</code>, <code>.zshrc</code>, etc. file):</p>
-<pre class="shell"><code>export GITHUB_PAT=...</code></pre>
+<pre class="shell"><code>export GITHUB_TOKEN=...</code></pre>
 
 
 </section>
