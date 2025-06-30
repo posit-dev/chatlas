@@ -60,13 +60,28 @@ await chat.register_mcp_tools_stdio_async(
 
 :::
 
+::: callout-warning
+### Async methods
+
+For performance reasons, the methods for registering MCP tools are asynchronous, so you'll need to use `await` when calling them. 
+In some environments, such as Jupyter notebooks and the [Positron IDE](https://positron.posit.co/) console, you can simply use `await` directly (as is done above).
+However, in other environments, you may need to wrap your code in an `async` function and use `asyncio.run()` to execute it.
+The examples below use `asyncio.run()` to run the asynchronous code, but you can adapt them to your environment as needed.
+:::
+
 Note that these methods work by:
 
 1. Opening a connection to the MCP server
 2. Requesting the available tools and making them available to the chat instance
 3. Keeping the connection open for tool calls during the chat session
 
-As you'll see in the full example below, it's also good practice to call [`.cleanup_mcp_tools()`](../reference/Chat.qmd#cleanup_mcp_tools) at the end of your chat session to close the connection and clean up resources.
+
+::: callout-warning
+### Cleanup
+
+When you no longer need the MCP tools, it's important to clean up the connection to the MCP server, as well `Chat`'s tool state.
+This is done by calling [`.cleanup_mcp_tools()`](../reference/Chat.qmd#cleanup_mcp_tools) at the end of your chat session (the examples demonstrate how to do this). 
+:::
 
 
 ## Basic example
