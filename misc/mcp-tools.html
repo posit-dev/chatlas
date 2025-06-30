@@ -437,13 +437,38 @@ Prerequisites
 </div>
 </div>
 </div>
+<div class="callout callout-style-simple callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Async methods
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For performance reasons, the methods for registering MCP tools are asynchronous, so you’ll need to use <code>await</code> when calling them. In some environments, such as Jupyter notebooks and the <a href="https://positron.posit.co/">Positron IDE</a> console, you can simply use <code>await</code> directly (as is done above). However, in other environments, you may need to wrap your code in an <code>async</code> function and use <code>asyncio.run()</code> to execute it. The examples below use <code>asyncio.run()</code> to run the asynchronous code, but you can adapt them to your environment as needed.</p>
+</div>
+</div>
 <p>Note that these methods work by:</p>
 <ol type="1">
 <li>Opening a connection to the MCP server</li>
 <li>Requesting the available tools and making them available to the chat instance</li>
 <li>Keeping the connection open for tool calls during the chat session</li>
 </ol>
-<p>As you’ll see in the full example below, it’s also good practice to call <a href="../reference/Chat.html#cleanup_mcp_tools"><code>.cleanup_mcp_tools()</code></a> at the end of your chat session to close the connection and clean up resources.</p>
+<div class="callout callout-style-simple callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Cleanup
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>When you no longer need the MCP tools, it’s important to clean up the connection to the MCP server, as well <code>Chat</code>’s tool state. This is done by calling <a href="../reference/Chat.html#cleanup_mcp_tools"><code>.cleanup_mcp_tools()</code></a> at the end of your chat session (the examples demonstrate how to do this).</p>
+</div>
+</div>
 </section>
 <section id="basic-example" class="level2">
 <h2 class="anchored" data-anchor-id="basic-example">Basic example</h2>
@@ -1008,7 +1033,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>
   </div>
 </footer>
-<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","openEffect":"zoom","loop":false,"selector":".lightbox","closeEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"loop":false,"closeEffect":"zoom","selector":".lightbox","openEffect":"zoom","descPosition":"bottom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
