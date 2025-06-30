@@ -166,7 +166,7 @@ class GoogleProvider(
         *,
         model: str,
         api_key: str | None,
-        name: Optional[str] = "Google/Gemini",
+        name: str = "Google/Gemini",
         kwargs: Optional["ChatClientArgs"],
     ):
         try:

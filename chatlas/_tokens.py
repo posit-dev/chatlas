@@ -24,6 +24,7 @@ class TokenUsage(TypedDict):
     model: str
     input: int
     output: int
+    cost: float | None
 
 
 class ThreadSafeTokenCounter:
@@ -46,6 +47,7 @@ class ThreadSafeTokenCounter:
                     "model": model,
                     "input": input_tokens,
                     "output": output_tokens,
+                    "cost": None,
                 }
             else:
                 self._tokens[name]["input"] += input_tokens

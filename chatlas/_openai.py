@@ -188,7 +188,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         model: str,
         base_url: str = "https://api.openai.com/v1",
         seed: Optional[int] = None,
-        name: Optional[str] = "OpenAI",
+        name: str = "OpenAI",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)
@@ -673,11 +673,11 @@ class OpenAIAzureProvider(OpenAIProvider):
         self,
         *,
         endpoint: Optional[str] = None,
-        deployment_id: Optional[str] = None,
+        deployment_id: str,
         api_version: Optional[str] = None,
         api_key: Optional[str] = None,
         seed: int | None = None,
-        name: Optional[str] = "OpenAIAzure",
+        name: str = "OpenAIAzure",
         model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):

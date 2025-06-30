@@ -92,7 +92,7 @@ def test_can_retrieve_and_log_tokens():
     assert usage[0]["cost"] is not None
 
     provider2 = OpenAIAzureProvider(
-        api_key="fake_key", endpoint="foo", api_version="bar"
+        api_key="fake_key", endpoint="foo", deployment_id="test", api_version="bar"
     )
 
     tokens_log(provider2, (5, 25))

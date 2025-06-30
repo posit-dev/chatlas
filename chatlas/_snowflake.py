@@ -175,7 +175,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         password: Optional[str],
         private_key_file: Optional[str],
         private_key_file_pwd: Optional[str],
-        name: Optional[str] = "Snowflake",
+        name: str = "Snowflake",
         kwargs: Optional[dict[str, "str | int"]],
     ):
         try:

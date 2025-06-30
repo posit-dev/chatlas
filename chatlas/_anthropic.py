@@ -193,7 +193,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         max_tokens: int = 4096,
         model: str,
         api_key: Optional[str] = None,
-        name: Optional[str] = "Anthropic",
+        name: str = "Anthropic",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)
@@ -738,7 +738,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_session_token: str | None,
         max_tokens: int = 4096,
         base_url: str | None,
-        name: Optional[str] = "AnthropicBedrock",
+        name: str = "AnthropicBedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
 
