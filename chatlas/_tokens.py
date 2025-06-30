@@ -21,6 +21,7 @@ class TokenUsage(TypedDict):
     """
 
     name: str
+    model: str
     input: int
     output: int
 
@@ -30,7 +31,9 @@ class ThreadSafeTokenCounter:
         self._lock = Lock()
         self._tokens: dict[str, TokenUsage] = {}
 
-    def log_tokens(self, name: str, input_tokens: int, output_tokens: int) -> None:
+    def log_tokens(
+        self, name: str, model: str, input_tokens: int, output_tokens: int
+    ) -> None:
         logger.info(
             f"Provider '{name}' generated a response of {output_tokens} tokens "
             f"from an input of {input_tokens} tokens."
@@ -40,6 +43,7 @@ class ThreadSafeTokenCounter:
             if name not in self._tokens:
                 self._tokens[name] = {
                     "name": name,
+                    "model": model,
                     "input": input_tokens,
                     "output": output_tokens,
                 }
@@ -63,7 +67,7 @@ def tokens_log(provider: Provider, tokens: tuple[int, int]) -> None:
     """
     Log token usage for a provider in a thread-safe manner.
     """
-    _token_counter.log_tokens(provider.name, tokens[0], tokens[1])
+    _token_counter.log_tokens(provider.name, provider.model, tokens[0], tokens[1])
 
 
 def tokens_reset() -> None:
@@ -91,7 +95,7 @@ f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="
 PricingList: list[TokenPrice] = orjson.loads(f)
 
 
-def get_token_pricing(provider: Provider) -> TokenPrice | dict:
+def get_token_pricing(name: str, model: str) -> TokenPrice | dict:
     """
     Get the token pricing for the chat if available based on the prices.json file.
 
@@ -108,21 +112,19 @@ def get_token_pricing(provider: Provider) -> TokenPrice | dict:
         (
             item
             for item in PricingList
-            if item["provider"] == provider.name and item["model"] == provider.model
+            if item["provider"] == name and item["model"] == model
         ),
         {},
     )
-
     if not result:
         warnings.warn(
-            f"Token pricing for the provider '{provider.name}' and model '{provider.model}' you selected is not available. "
+            f"Token pricing for the provider '{name}' and model '{model}' you selected is not available. "
             "Please check the provider's documentation."
         )
 
     return result
 
 
-# TODO: Add price to this print
 def token_usage() -> list[TokenUsage] | None:
     """
     Report on token usage in the current session
@@ -136,6 +138,15 @@ def token_usage() -> list[TokenUsage] | None:
         A list of dictionaries with the following keys: "name", "input", and "output".
         If no tokens have been logged, then None is returned.
     """
-    _token_counter.get_usage()
+    tokens = _token_counter.get_usage()
+    if tokens:
+        for item in tokens:
+            price = get_token_pricing(item["name"], item["model"])
+            if price:
+                item["cost"] = item["input"] * (price["input"] / 1e6) + item[
+                    "output"
+                ] * (price["output"] / 1e6)
+            else:
+                item["cost"] = None
 
-    return _token_counter.get_usage()
+    return tokens

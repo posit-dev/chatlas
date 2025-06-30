@@ -10,6 +10,7 @@ from chatlas import (
     Turn,
 )
 from chatlas._chat import ToolFailureWarning
+from chatlas._tokens import token_usage
 from pydantic import BaseModel
 
 
@@ -74,6 +75,7 @@ def test_basic_repr(snapshot):
             Turn("assistant", "2  3", tokens=(15, 5)),
         ],
     )
+    print(token_usage())
     assert snapshot == repr(chat)
 
 

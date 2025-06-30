@@ -339,12 +339,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         # Look up token cost for user and input tokens based on the provider and model
         turns_tokens = self.get_tokens()
         if token_price:
-            input_token_price = token_price[0] / 1000000
-            output_token_price = token_price[1] / 1000000
+            input_token_price = token_price[0] / 1e6
+            output_token_price = token_price[1] / 1e6
         else:
-            price_token = get_token_pricing(self.provider)
-            input_token_price = price_token["input"] / 1000000
-            output_token_price = price_token["output"] / 1000000
+            price_token = get_token_pricing(self.provider.name, self.provider.model)
+            input_token_price = price_token["input"] / 1e6
+            output_token_price = price_token["output"] / 1e6
 
         if not input_token_price and not output_token_price:
             raise KeyError(
@@ -2046,7 +2046,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             res += f"## {icon} {turn.role.capitalize()} turn:\n\n{str(turn)}\n\n"
         return res
 
-    # TODO: Update this to get tokens and also provide cost add provider and model
     def __repr__(self):
         turns = self.get_turns(include_system_prompt=True)
         tokens = self.get_tokens()
