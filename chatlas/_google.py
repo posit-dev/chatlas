@@ -140,7 +140,7 @@ def ChatGoogle(
     """
 
     if model is None:
-        model = log_model_default("gemini-2.0-flash")
+        model = log_model_default("gemini-2.5-flash")
 
     return Chat(
         provider=GoogleProvider(
@@ -605,7 +605,7 @@ def ChatVertex(
     kwargs["location"] = location
 
     if model is None:
-        model = log_model_default("gemini-2.0-flash")
+        model = log_model_default("gemini-2.5-flash")
 
     return Chat(
         provider=GoogleProvider(
