@@ -235,6 +235,7 @@ def test_chat_callbacks():
     assert cb_count_result == 2
 
 
+@pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject():
     chat = ChatOpenAI()
 

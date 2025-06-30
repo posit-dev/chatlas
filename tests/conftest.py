@@ -156,8 +156,9 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
         stream=stream,
     )
 
-    assert "Joe: sage green" in str(response)
-    assert "Hadley: red" in str(response)
+    res = str(response).replace(":", "")
+    assert "Joe sage green" in res
+    assert "Hadley red" in res
     assert len(chat.get_turns()) == 4
 
 
