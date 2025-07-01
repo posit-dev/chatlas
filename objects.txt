@@ -28,6 +28,8 @@ chatlas.ChatSnowflake py:function 1 reference/ChatSnowflake.html#chatlas.ChatSno
 chatlas._snowflake.ChatSnowflake py:function 1 reference/ChatSnowflake.html#chatlas.ChatSnowflake chatlas.ChatSnowflake
 chatlas.ChatVertex py:function 1 reference/ChatVertex.html#chatlas.ChatVertex -
 chatlas._google.ChatVertex py:function 1 reference/ChatVertex.html#chatlas.ChatVertex chatlas.ChatVertex
+chatlas.Chat.add_turn py:function 1 reference/Chat.html#chatlas.Chat.add_turn -
+chatlas._chat.Chat.add_turn py:function 1 reference/Chat.html#chatlas.Chat.add_turn chatlas.Chat.add_turn
 chatlas.Chat.app py:function 1 reference/Chat.html#chatlas.Chat.app -
 chatlas._chat.Chat.app py:function 1 reference/Chat.html#chatlas.Chat.app chatlas.Chat.app
 chatlas.Chat.chat py:function 1 reference/Chat.html#chatlas.Chat.chat -

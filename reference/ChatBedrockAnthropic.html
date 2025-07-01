@@ -565,9 +565,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    aws_session_token<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    turns<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Chat with an AWS bedrock model.</p>
 <p><a href="https://aws.amazon.com/bedrock/">AWS Bedrock</a> provides a number of chat based models, including those Anthropic’s <a href="https://aws.amazon.com/bedrock/claude/">Claude</a>.</p>
 <section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
@@ -679,12 +678,6 @@ Python requirements
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td>turns</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn">Turn</a>]]</td>
-<td>A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-None values for both <code>turns</code> and <code>system_prompt</code>. Each message in the list should be a dictionary with at least <code>role</code> (usually <code>system</code>, <code>user</code>, or <code>assistant</code>, but <code>tool</code> is also possible). Normally there is also a <code>content</code> field, which is a string.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
 <td>kwargs</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['ChatBedrockClientArgs']</td>
 <td>Additional arguments to pass to the <code>anthropic.AnthropicBedrock()</code> client constructor.</td>
