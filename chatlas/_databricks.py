@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Optional
 from ._chat import Chat
 from ._logging import log_model_default
 from ._openai import OpenAIProvider
-from ._turn import Turn, normalize_turns
 
 if TYPE_CHECKING:
     from databricks.sdk import WorkspaceClient
@@ -18,7 +17,6 @@ def ChatDatabricks(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     workspace_client: Optional["WorkspaceClient"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
@@ -92,10 +90,7 @@ def ChatDatabricks(
             model=model,
             workspace_client=workspace_client,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 

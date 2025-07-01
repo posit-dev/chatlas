@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Optional
 from ._chat import Chat
 from ._logging import log_model_default
 from ._openai import ChatOpenAI
-from ._turn import Turn
 from ._utils import MISSING, MISSING_TYPE
 
 if TYPE_CHECKING:
@@ -17,7 +16,6 @@ if TYPE_CHECKING:
 def ChatGithub(
     *,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     model: Optional[str] = None,
     api_key: Optional[str] = None,
     base_url: str = "https://models.inference.ai.azure.com/",
@@ -56,13 +54,6 @@ def ChatGithub(
     ----------
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-`None` values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
@@ -132,7 +123,6 @@ def ChatGithub(
 
     return ChatOpenAI(
         system_prompt=system_prompt,
-        turns=turns,
         model=model,
         api_key=api_key,
         base_url=base_url,

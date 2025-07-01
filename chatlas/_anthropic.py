@@ -22,7 +22,7 @@ from ._logging import log_model_default
 from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns, user_turn
+from ._turn import Turn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -59,7 +59,6 @@ else:
 def ChatAnthropic(
     *,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     model: "Optional[ModelParam]" = None,
     api_key: Optional[str] = None,
     max_tokens: int = 4096,
@@ -105,13 +104,6 @@ def ChatAnthropic(
     ----------
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-None values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
@@ -178,10 +170,7 @@ def ChatAnthropic(
             max_tokens=max_tokens,
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 
@@ -571,7 +560,6 @@ def ChatBedrockAnthropic(
     aws_session_token: Optional[str] = None,
     base_url: Optional[str] = None,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     kwargs: Optional["ChatBedrockClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
     """
@@ -637,13 +625,6 @@ def ChatBedrockAnthropic(
         `f"https://bedrock-runtime.{aws_region}.amazonaws.com"`.
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-None values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     kwargs
         Additional arguments to pass to the `anthropic.AnthropicBedrock()`
         client constructor.
@@ -717,10 +698,7 @@ def ChatBedrockAnthropic(
             base_url=base_url,
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 

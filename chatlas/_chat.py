@@ -80,11 +80,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     [](`~chatlas.ChatOpenAI`) or friends instead.
     """
 
-    def __init__(
-        self,
-        provider: Provider,
-        turns: Optional[Sequence[Turn]] = None,
-    ):
+    def __init__(self, provider: Provider, system_prompt: Optional[str] = None):
         """
         Create a new chat object.
 
@@ -92,11 +88,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         provider
             A [](`~chatlas.Provider`) object.
-        turns
-            A list of [](`~chatlas.Turn`) objects to initialize the chat with.
+        system_prompt
+            A system prompt to set the behavior of the assistant. This is
+            prepended to the chat history, and is not considered a turn in the
+            chat. If you want to set the system prompt after the chat has been
+            created, use the `.system_prompt` property.
         """
         self.provider = provider
-        self._turns: list[Turn] = list(turns or [])
+        self._turns: list[Turn] = []
+        self.system_prompt = system_prompt
+
         self._tools: dict[str, Tool] = {}
         self._on_tool_request_callbacks = CallbackManager()
         self._on_tool_result_callbacks = CallbackManager()
@@ -168,6 +169,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "if you want to change the system prompt."
             )
         self._turns = list(turns)
+
+    def add_turn(self, turn: Turn):
+        """
+        Add a turn to the chat.
+
+        Parameters
+        ----------
+        turn
+            The turn to add. Turns with the role "system" are not allowed.
+        """
+        if turn.role == "system":
+            raise ValueError(
+                "Turns with the role 'system' are not allowed. "
+                "The system prompt must be set separately using the `.system_prompt` property."
+            )
+        self._turns.append(turn)
 
     @property
     def system_prompt(self) -> str | None:

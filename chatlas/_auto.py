@@ -15,7 +15,6 @@ from ._ollama import ChatOllama
 from ._openai import ChatAzureOpenAI, ChatOpenAI
 from ._perplexity import ChatPerplexity
 from ._snowflake import ChatSnowflake
-from ._turn import Turn
 
 AutoProviders = Literal[
     "anthropic",
@@ -50,7 +49,6 @@ _provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
 
 def ChatAuto(
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     *,
     provider: Optional[AutoProviders] = None,
     model: Optional[str] = None,
@@ -111,6 +109,8 @@ def ChatAuto(
 
     Parameters
     ----------
+    system_prompt
+        A system prompt to set the behavior of the assistant.
     provider
         The name of the default chat provider to use. Providers are strings
         formatted in kebab-case, e.g. to use `ChatBedrockAnthropic` set
@@ -123,15 +123,6 @@ def ChatAuto(
         The name of the default model to use. This value can also be provided
         via the `CHATLAS_CHAT_MODEL` environment variable, which takes
         precedence over `model` when set.
-    system_prompt
-        A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-`None` values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     **kwargs
         Additional keyword arguments to pass to the Chat constructor. See the
         documentation for each provider for more details on the available
@@ -169,7 +160,7 @@ def ChatAuto(
         )
 
     # `system_prompt` and `turns` always come from `ChatAuto()`
-    base_args = {"system_prompt": system_prompt, "turns": turns}
+    base_args = {"system_prompt": system_prompt}
 
     if env_model := os.environ.get("CHATLAS_CHAT_MODEL"):
         model = env_model
