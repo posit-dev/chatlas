@@ -131,16 +131,8 @@ def ChatPerplexity(
     if api_key is None:
         api_key = os.getenv("PERPLEXITY_API_KEY")
 
-    if model is None:
-        model = log_model_default("gpt-4o")
-    if api_key is None:
-        api_key = os.getenv("GITHUB_PAT")
-
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
-
-    if model is None:
-        model = log_model_default("gpt-4o")
 
     return Chat(
         provider=OpenAIProvider(

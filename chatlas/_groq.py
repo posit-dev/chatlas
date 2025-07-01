@@ -128,9 +128,6 @@ def ChatGroq(
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
 
-    if model is None:
-        model = log_model_default("gpt-4o")
-
     return Chat(
         provider=OpenAIProvider(
             api_key=api_key,
