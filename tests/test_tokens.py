@@ -7,8 +7,9 @@ def test_tokens_method():
     chat = ChatOpenAI()
     assert chat.tokens(values="discrete") == []
 
-    chat = ChatOpenAI(
-        turns=[
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
             Turn(role="user", contents="Hi"),
             Turn(role="assistant", contents="Hello", tokens=(2, 10)),
         ]
@@ -16,8 +17,9 @@ def test_tokens_method():
 
     assert chat.tokens(values="discrete") == [2, 10]
 
-    chat = ChatOpenAI(
-        turns=[
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
             Turn(role="user", contents="Hi"),
             Turn(role="assistant", contents="Hello", tokens=(2, 10)),
             Turn(role="user", contents="Hi"),
