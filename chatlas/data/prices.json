@@ -1,5 +1,12 @@
 [
   {
+    "provider": "TEST CHANGE",
+    "model": "gpt-4.5-preview",
+    "cached_input": 37.5,
+    "input": 75,
+    "output": 150
+  },
+  {
     "provider": "OpenAI",
     "model": "gpt-4.5-preview",
     "cached_input": 37.5,
