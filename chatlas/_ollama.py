@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional
 import orjson
 
 from ._chat import Chat
-from ._openai import OpenAIProvider, log_model_default, normalize_turns
+from ._openai import OpenAIProvider, normalize_turns
 from ._turn import Turn
 from ._utils import MISSING_TYPE, is_testing
 
