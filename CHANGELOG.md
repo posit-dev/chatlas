@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+
+* Token pricing can now be looked up from our `prices.json` price list using `get_token_pricing()`. (#106)
+* `Chat`'s representation will now include cost information if it can be calculated. (#106)
+* `Chat` gains new `.get_cost()` method, making it easier to get the estimated cost of your chat. Use our pricing list or bring your own token prices. (#106)
 * `Chat` gains new `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()` methods, making it easy to register tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
 * `Chat` gains new `.get_tools()`/`.set_tools()` methods -- making it possible to inspect and remove tools. (#39)
 * Tool functions passed to `.register_tool()` can now `yield` numerous results. (#39)
@@ -20,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 
+* `token_usage()` will include cost if it can be calculated. (#106)
+* `log_tokens()` now requires a model and will provide cost information if it can be calculated. (#106)
+* `Chat`'s `.tokens()` methods have been removed in favor of `.get_tokens()` which returns both cumulative tokens in the turn and discrete tokens. (#106)
+* `Provider`s now require a name and model. Sensible defaults are supplied for our implemented providers. They are set during initialization as properties. (#106)
 * `Tool`'s constructor no longer takes a function as input. Use the new `.from_func()` method instead to create a `Tool` from a function. (#39)
 * `.register_tool()` now throws an exception when the tool has the same name as an already registered tool. Set the new `force` parameter to `True` to force the registration. (#39)
 
