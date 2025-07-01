@@ -153,7 +153,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         Set the turns of the chat.
 
-        Effectively replaces the chat history (i.e., turns) with the provided turns.
+        Replaces the current chat history state (i.e., turns) with the provided turns.
         This can be useful for:
             * Clearing (or trimming) the chat history (i.e., `.set_turns([])`).
             * Restoring context from a previous chat.

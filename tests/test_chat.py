@@ -2,6 +2,8 @@ import re
 import tempfile
 
 import pytest
+from pydantic import BaseModel
+
 from chatlas import (
     ChatOpenAI,
     ContentToolRequest,
@@ -10,7 +12,6 @@ from chatlas import (
     Turn,
 )
 from chatlas._chat import ToolFailureWarning
-from pydantic import BaseModel
 
 
 def test_simple_batch_chat():
@@ -64,33 +65,39 @@ async def test_simple_streaming_chat_async():
 
 def test_basic_repr(snapshot):
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output",
-        turns=[
+        system_prompt="You're a helpful assistant that returns very minimal output"
+    )
+    chat.set_turns(
+        [
             Turn("user", "What's 1 + 1? What's 1 + 2?"),
             Turn("assistant", "2  3", tokens=(15, 5)),
-        ],
+        ]
     )
     assert snapshot == repr(chat)
 
 
 def test_basic_str(snapshot):
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output",
-        turns=[
+        system_prompt="You're a helpful assistant that returns very minimal output"
+    )
+    chat.set_turns(
+        [
             Turn("user", "What's 1 + 1? What's 1 + 2?"),
             Turn("assistant", "2  3", tokens=(15, 5)),
-        ],
+        ]
     )
     assert snapshot == str(chat)
 
 
 def test_basic_export(snapshot):
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output",
-        turns=[
+        system_prompt="You're a helpful assistant that returns very minimal output"
+    )
+    chat.set_turns(
+        [
             Turn("user", "What's 1 + 1? What's 1 + 2?"),
             Turn("assistant", "2  3", tokens=(15, 5)),
-        ],
+        ]
     )
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpfile = tmpdir + "/chat.html"
@@ -148,8 +155,9 @@ def test_system_prompt_retrieval():
 
 
 def test_modify_system_prompt():
-    chat = ChatOpenAI(
-        turns=[
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
             Turn("user", "Hi"),
             Turn("assistant", "Hello"),
         ]
