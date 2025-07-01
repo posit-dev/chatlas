@@ -11,8 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* `Chat` gains new `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()` methods, making it easy to register tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
-* `Chat` gains new `.get_tools()`/`.set_tools()` methods -- making it possible to inspect and remove tools. (#39)
+* `Chat` gains a handful of new methods: 
+    * `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()`: for registering tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
+    * `.get_tools()`/`.set_tools()`: for inspecting and remove tools. (#39)
+    * `.add_turn()`: to add `Turn`(s) to the current chat history. (#126)
 * Tool functions passed to `.register_tool()` can now `yield` numerous results. (#39)
 * New content classes (`ContentToolResultImage` and `ContentToolResultResource`) were added, primarily to represent MCP tool results that include images/files. (#39)
 * `Tool` gains two class methods: `.from_func()` and `.from_mcp()`. These methods should rarely be needed to be used directly -- they are workhorses for the higher-level `.register_tool()`, `.register_mcp_tools_http_stream_async()`, and `.register_mcp_tools_stdio_async()`. (#39)
@@ -22,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 
+* `Chat` constructors (`ChatOpenAI()`, `ChatAnthropic()`, etc) no longer have a `turns` keyword parameter. Use the `.set_turns()` method instead to set the (initial) chat history. (#126)
 * `Tool`'s constructor no longer takes a function as input. Use the new `.from_func()` method instead to create a `Tool` from a function. (#39)
 * `.register_tool()` now throws an exception when the tool has the same name as an already registered tool. Set the new `force` parameter to `True` to force the registration. (#39)
 
