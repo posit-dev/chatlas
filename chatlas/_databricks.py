@@ -66,13 +66,6 @@ def ChatDatabricks(
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
         choosing a model for all but the most casual use.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-`None` values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     workspace_client
         A `databricks.sdk.WorkspaceClient()` to use for the connection. If not
         provided, a new client will be created.

@@ -153,8 +153,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         Set the turns of the chat.
 
-        This method is primarily useful for clearing or setting the turns of the
-        chat (i.e., limiting the context window).
+        Effectively replaces the chat history (i.e., turns) with the provided turns.
+        This can be useful for:
+            * Clearing (or trimming) the chat history (i.e., `.set_turns([])`).
+            * Restoring context from a previous chat.
 
         Parameters
         ----------
