@@ -171,7 +171,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Consider removing this turn and setting the `.system_prompt` separately "
                 "if you want to change the system prompt."
             )
-        self._turns = list(turns)
+
+        turns_list = list(turns)
+        # Preserve the system prompt if it exists
+        if self._turns and self._turns[0].role == "system":
+            turns_list.insert(0, self._turns[0])
+        self._turns = turns_list
 
     def add_turn(self, turn: Turn):
         """
