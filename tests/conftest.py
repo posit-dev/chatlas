@@ -3,6 +3,10 @@ from pathlib import Path
 from typing import Callable
 
 import pytest
+from PIL import Image
+from pydantic import BaseModel
+from tenacity import retry, wait_exponential
+
 from chatlas import (
     Chat,
     ContentToolRequest,
@@ -12,9 +16,6 @@ from chatlas import (
     content_image_url,
     content_pdf_file,
 )
-from PIL import Image
-from pydantic import BaseModel
-from tenacity import retry, wait_exponential
 
 ChatFun = Callable[..., Chat]
 
@@ -69,7 +70,9 @@ def assert_turns_existing(chat_fun: ChatFun):
 
 
 def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
-    chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
+    chat = chat_fun(
+        system_prompt="Always use a tool to help you answer. Reply with 'It is ____.'."
+    )
 
     def get_date():
         """Gets the current date"""
@@ -139,7 +142,9 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
     assert "2024-01-01" in await response.get_content()
 
 
-def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
+def assert_tools_parallel(
+    chat_fun: ChatFun, *, total_calls: int = 4, stream: bool = True
+):
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
 
     def favorite_color(person: str):
@@ -159,7 +164,7 @@ def assert_tools_parallel(chat_fun: ChatFun, stream: bool = True):
     res = str(response).replace(":", "")
     assert "Joe sage green" in res
     assert "Hadley red" in res
-    assert len(chat.get_turns()) == 4
+    assert len(chat.get_turns()) == total_calls
 
 
 def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = True):

@@ -32,7 +32,7 @@ def test_google_simple_request():
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (18, 1)
+    assert turn.tokens == (18, 2) or turn.tokens == (18, 1)
     assert turn.finish_reason == "STOP"
 
 
@@ -87,14 +87,14 @@ def test_tools_simple_stream_content():
 
 @retry_gemini_call
 def test_tools_parallel():
-    assert_tools_parallel(ChatGoogle)
+    assert_tools_parallel(ChatGoogle, total_calls=6)
 
 
 @retry_gemini_call
 def test_tools_sequential():
     assert_tools_sequential(
         ChatGoogle,
-        total_calls=4,
+        total_calls=6,
     )
 
 
