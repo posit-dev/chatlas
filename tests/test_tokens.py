@@ -69,7 +69,7 @@ def test_get_token_prices():
     ):
         chat = ChatOpenAI(model="ABCD")
         pricing = get_token_pricing(chat.provider.name, chat.provider.model)
-        assert pricing == {}
+        assert pricing is None
 
 
 def test_usage_is_none():

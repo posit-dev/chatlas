@@ -97,13 +97,13 @@ f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="
 PricingList: list[TokenPrice] = orjson.loads(f)
 
 
-def get_token_pricing(name: str, model: str) -> TokenPrice | dict:
+def get_token_pricing(name: str, model: str) -> TokenPrice | None:
     """
     Get the token pricing for the chat if available based on the prices.json file.
 
     Returns
     -------
-    dict[str, str | float]
+    TokenPrice | None
         A dictionary with the token pricing for the chat. The keys are:
           - `"provider"`: The provider name (e.g., "OpenAI", "Anthropic", etc.).
           - `model`: The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.).
@@ -116,9 +116,9 @@ def get_token_pricing(name: str, model: str) -> TokenPrice | dict:
             for item in PricingList
             if item["provider"] == name and item["model"] == model
         ),
-        {},
+        None,
     )
-    if not result:
+    if result is None:
         warnings.warn(
             f"Token pricing for the provider '{name}' and model '{model}' you selected is not available. "
             "Please check the provider's documentation."
