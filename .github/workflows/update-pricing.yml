@@ -30,8 +30,9 @@ jobs:
             - name: Check for differences
               run: |
                 echo "Checking diff between prices.json"
-                git diff --no-index ellmer/data-raw/prices.json main/chatlas/data/prices.json
-
+                git diff --no-index --stat ellmer/data-raw/prices.json main/chatlas/data/prices.json
+                if [[ -n $(git diff chatlas/types) ]]; then
+                    echo "Changes detected:"
 
 
 

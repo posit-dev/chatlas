@@ -186,7 +186,6 @@ def ChatAnthropic(
 
 
 class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
-
     def __init__(
         self,
         *,
