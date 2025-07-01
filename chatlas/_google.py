@@ -22,7 +22,7 @@ from ._merge import merge_dicts
 from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool
-from ._turn import Turn, normalize_turns, user_turn
+from ._turn import Turn, user_turn
 
 if TYPE_CHECKING:
     from google.genai.types import Content as GoogleContent
@@ -41,7 +41,6 @@ else:
 def ChatGoogle(
     *,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     model: Optional[str] = None,
     api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
@@ -80,13 +79,6 @@ def ChatGoogle(
     ----------
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch.
-        Do not provide non-`None` values for both `turns` and `system_prompt`.
-        Each message in the list should be a dictionary with at least `role`
-        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-        Normally there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly choosing
@@ -148,10 +140,7 @@ def ChatGoogle(
             api_key=api_key,
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt=system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 
@@ -532,7 +521,6 @@ def ChatVertex(
     location: Optional[str] = None,
     api_key: Optional[str] = None,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", GenerateContentResponse]:
     """
@@ -569,13 +557,6 @@ def ChatVertex(
         GOOGLE_CLOUD_LOCATION environment variable will be used.
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch.
-        Do not provide non-`None` values for both `turns` and `system_prompt`.
-        Each message in the list should be a dictionary with at least `role`
-        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-        Normally there is also a `content` field, which is a string.
 
     Returns
     -------
@@ -613,8 +594,5 @@ def ChatVertex(
             api_key=api_key,
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt=system_prompt,
-        ),
+        system_prompt=system_prompt,
     )

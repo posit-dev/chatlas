@@ -83,7 +83,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def __init__(
         self,
         provider: Provider,
-        turns: Optional[Sequence[Turn]] = None,
+        system_prompt: Optional[str] = None,
     ):
         """
         Create a new chat object.
@@ -92,11 +92,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         provider
             A [](`~chatlas.Provider`) object.
-        turns
-            A list of [](`~chatlas.Turn`) objects to initialize the chat with.
+        system_prompt
+            A system prompt to set the behavior of the assistant.
         """
         self.provider = provider
-        self._turns: list[Turn] = list(turns or [])
+        self._turns: list[Turn] = []
+        self.system_prompt = system_prompt
+
         self._tools: dict[str, Tool] = {}
         self._on_tool_request_callbacks = CallbackManager()
         self._on_tool_result_callbacks = CallbackManager()
@@ -151,8 +153,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         Set the turns of the chat.
 
-        This method is primarily useful for clearing or setting the turns of the
-        chat (i.e., limiting the context window).
+        Replaces the current chat history state (i.e., turns) with the provided turns.
+        This can be useful for:
+            * Clearing (or trimming) the chat history (i.e., `.set_turns([])`).
+            * Restoring context from a previous chat.
 
         Parameters
         ----------
@@ -167,7 +171,28 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Consider removing this turn and setting the `.system_prompt` separately "
                 "if you want to change the system prompt."
             )
-        self._turns = list(turns)
+
+        turns_list = list(turns)
+        # Preserve the system prompt if it exists
+        if self._turns and self._turns[0].role == "system":
+            turns_list.insert(0, self._turns[0])
+        self._turns = turns_list
+
+    def add_turn(self, turn: Turn):
+        """
+        Add a turn to the chat.
+
+        Parameters
+        ----------
+        turn
+            The turn to add. Turns with the role "system" are not allowed.
+        """
+        if turn.role == "system":
+            raise ValueError(
+                "Turns with the role 'system' are not allowed. "
+                "The system prompt must be set separately using the `.system_prompt` property."
+            )
+        self._turns.append(turn)
 
     @property
     def system_prompt(self) -> str | None:

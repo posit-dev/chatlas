@@ -42,7 +42,8 @@ class Turn(BaseModel, Generic[CompletionT]):
     assert turns[1].role == "assistant"
 
     # Load context into a new chat instance
-    chat2 = ChatAnthropic(turns=turns)
+    chat2 = ChatAnthropic()
+    chat2.set_turns(turns)
     turns2 = chat2.get_turns()
     assert turns == turns2
     ```
@@ -134,20 +135,3 @@ def user_turn(*args: Content | str) -> Turn:
 
     return Turn("user", args)
 
-
-def normalize_turns(turns: list[Turn], system_prompt: str | None = None) -> list[Turn]:
-    if system_prompt is not None:
-        system_turn = Turn("system", system_prompt)
-
-        if not turns:
-            turns = [system_turn]
-        elif turns[0].role != "system":
-            turns = [system_turn] + turns
-        elif turns[0] == system_turn:
-            pass  # Duplicate system prompt; don't need to do anything
-        else:
-            raise ValueError(
-                "system_prompt and turns[0] can't contain conflicting system prompts."
-            )
-
-    return turns
