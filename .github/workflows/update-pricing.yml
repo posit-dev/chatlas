@@ -1,0 +1,39 @@
+name: Update Pricing
+
+on:
+    workflow_dispatch:
+
+jobs:
+    check-pricing:
+        name: Check for pricing updates in Ellmer
+        runs-on: ubuntu-latest
+
+        steps:
+
+            - name: Checkout current prices.json in chatlas
+              uses: actions/checkout@v4
+              with:
+                sparse-checkout: /chatlas/data/prices.json
+                sparse-checkout-cone-mode: false
+                path: main
+
+            - name: Get Ellmer prices.json
+              uses: actions/checkout@v4
+              with:
+                sparse-checkout: /data-raw/prices.json
+                sparse-checkout-cone-mode: false
+                repository: https://github.com/tidyverse/ellmer.git
+                path: ellmer
+            
+            - name: Check for differences
+              run: |
+                echo "Checking diff between prices.json"
+                git diff --no-index https://github.com/posit-dev/chatlas/blob/feature/get_cost/chatlas/data/prices.json https://github.com/tidyverse/ellmer/blob/main/data-raw/prices.json
+
+
+
+
+                
+            
+        
+            
