@@ -40,17 +40,22 @@ class Provider(
     directly.
     """
 
-    # TODO: Add docstring for props
     def __init__(self, *, name: str, model: str):
         self._name = name
         self._model = model
 
     @property
     def name(self):
+        """
+        Get the name of the provider
+        """
         return self._name
 
     @property
     def model(self):
+        """
+        Get the model used by the provider
+        """
         return self._model
 
     @overload
