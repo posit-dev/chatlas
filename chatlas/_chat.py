@@ -80,7 +80,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     [](`~chatlas.ChatOpenAI`) or friends instead.
     """
 
-    def __init__(self, provider: Provider, system_prompt: Optional[str] = None):
+    def __init__(
+        self,
+        provider: Provider,
+        system_prompt: Optional[str] = None,
+    ):
         """
         Create a new chat object.
 
@@ -89,10 +93,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         provider
             A [](`~chatlas.Provider`) object.
         system_prompt
-            A system prompt to set the behavior of the assistant. This is
-            prepended to the chat history, and is not considered a turn in the
-            chat. If you want to set the system prompt after the chat has been
-            created, use the `.system_prompt` property.
+            A system prompt to set the behavior of the assistant.
         """
         self.provider = provider
         self._turns: list[Turn] = []
