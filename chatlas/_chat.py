@@ -354,17 +354,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if len(turns_tokens) == 0:
             return 0.0
 
-        if options == "last":
-            last_turn = turns_tokens[len(turns_tokens) - 1]
-            acc = 0.0
-            if last_turn["role"] == "assistant":
-                acc += last_turn["tokens"] * output_token_price
-            elif last_turn["role"] == "user":
-                acc += last_turn["tokens_total"] * input_token_price
-            else:
-                raise ValueError(f"Unrecognized role type { last_turn['role'] }")
-            return acc
-
         if options == "all":
             asst_tokens = sum(
                 u["tokens_total"] for u in turns_tokens if u["role"] == "assistant"
@@ -376,6 +365,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 user_tokens * input_token_price
             )
             return cost
+
+        last_turn = turns_tokens[-1]
+        if last_turn["role"] == "assistant":
+            return last_turn["tokens"] * output_token_price
+        if last_turn["role"] == "user":
+            return last_turn["tokens_total"] * input_token_price
+        raise ValueError(
+            f"Expected last turn to have a role of 'user' or `'assistant'`, not '{ last_turn['role'] }'"
+        )
 
     def token_count(
         self,

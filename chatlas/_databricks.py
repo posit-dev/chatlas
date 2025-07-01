@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Optional
 
-from databricks.sdk import WorkspaceClient
-
 from ._chat import Chat
 from ._logging import log_model_default
 from ._openai import OpenAIProvider

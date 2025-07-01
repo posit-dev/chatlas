@@ -75,7 +75,6 @@ def test_basic_repr(snapshot):
             Turn("assistant", "2  3", tokens=(15, 5)),
         ],
     )
-    print(token_usage())
     assert snapshot == repr(chat)
 
 

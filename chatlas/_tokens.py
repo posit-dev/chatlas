@@ -65,7 +65,7 @@ class ThreadSafeTokenCounter:
 _token_counter = ThreadSafeTokenCounter()
 
 
-def tokens_log(provider: Provider, tokens: tuple[int, int]) -> None:
+def tokens_log(provider: "Provider", tokens: tuple[int, int]) -> None:
     """
     Log token usage for a provider in a thread-safe manner.
     """
