@@ -1,0 +1,38 @@
+name: Update Pricing
+
+on:
+    workflow_dispatch:
+    pull_request:
+        types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+    check-pricing:
+        name: Check for pricing updates in Ellmer
+        runs-on: ubuntu-latest
+
+        steps:
+
+            - name: Checkout current prices.json in chatlas
+              uses: actions/checkout@v4
+              with:
+                sparse-checkout: /chatlas/data/prices.json
+                sparse-checkout-cone-mode: false
+                path: main
+
+            - name: Get Ellmer prices.json
+              uses: actions/checkout@v4
+              with:
+                sparse-checkout: /data-raw/prices.json
+                sparse-checkout-cone-mode: false
+                repository: tidyverse/ellmer
+                path: ellmer
+            
+            - name: Check for differences
+              run: |
+                echo "Checking diff between prices.json"
+                git diff --no-index --stat ellmer/data-raw/prices.json main/chatlas/data/prices.json
+                if [[ -n $(git diff --no-index --stat ellmer/data-raw/prices.json main/chatlas/data/prices.json) ]]; then
+                    echo "Changes detected:"
+                    echo "::error::Ellmer's prices.json does not match the current Chatlas prices.json"
+                    exit 1
+                fi

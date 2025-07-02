@@ -44,6 +44,7 @@ from ._display import (
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
 from ._provider import Provider
+from ._tokens import get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict
@@ -52,6 +53,22 @@ from ._utils import html_escape, wrap_async
 
 class AnyTypeDict(TypedDict, total=False):
     pass
+
+
+class TokensDict(TypedDict):
+    """
+    A TypedDict representing the token counts for a turn in the chat.
+    This is used to represent the token counts for each turn in the chat.
+        `role` represents the role of the turn (i.e., "user" or "assistant").
+        `tokens` represents the new tokens used in the turn.
+        `tokens_total` represents the total tokens used in the turn.
+        Ex. A new user input of 2 tokens is sent, plus 10 tokens of context from prior turns (input and output).
+         This would have a `tokens_total` of 12.
+    """
+
+    role: Literal["user", "assistant"]
+    tokens: int
+    tokens_total: int
 
 
 SubmitInputArgsT = TypeVar("SubmitInputArgsT", bound=AnyTypeDict)
@@ -63,6 +80,8 @@ method of a [](`~chatlas.Chat`) instance.
 CompletionT = TypeVar("CompletionT")
 
 EchoOptions = Literal["output", "all", "none", "text"]
+
+CostOptions = Literal["all", "last"]
 
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
@@ -215,43 +234,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if value is not None:
             self._turns.insert(0, Turn("system", value))
 
-    @overload
-    def tokens(self) -> list[tuple[int, int] | None]: ...
-
-    @overload
-    def tokens(
-        self,
-        values: Literal["cumulative"],
-    ) -> list[tuple[int, int] | None]: ...
-
-    @overload
-    def tokens(
-        self,
-        values: Literal["discrete"],
-    ) -> list[int]: ...
-
-    def tokens(
-        self,
-        values: Literal["cumulative", "discrete"] = "discrete",
-    ) -> list[int] | list[tuple[int, int] | None]:
+    def get_tokens(self) -> list[TokensDict]:
         """
         Get the tokens for each turn in the chat.
 
-        Parameters
-        ----------
-        values
-            If "cumulative" (the default), the result can be summed to get the
-            chat's overall token usage (helpful for computing overall cost of
-            the chat). If "discrete", the result can be summed to get the number of
-            tokens the turns will cost to generate the next response (helpful
-            for estimating cost of the next response, or for determining if you
-            are about to exceed the token limit).
-
         Returns
         -------
-        list[int]
-            A list of token counts for each (non-system) turn in the chat. The
-            1st turn includes the tokens count for the system prompt (if any).
+        list[TokensDict]
+             A list of dictionaries with the token counts for each (non-system) turn
 
         Raises
         ------
@@ -264,9 +254,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         turns = self.get_turns(include_system_prompt=False)
-
-        if values == "cumulative":
-            return [turn.tokens for turn in turns]
 
         if len(turns) == 0:
             return []
@@ -303,12 +290,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Expected the 1st assistant turn to contain token counts. " + err_info
             )
 
-        res: list[int] = [
+        res: list[TokensDict] = [
             # Implied token count for the 1st user input
-            turns[1].tokens[0],
+            {
+                "role": "user",
+                "tokens": turns[1].tokens[0],
+                "tokens_total": turns[1].tokens[0],
+            },
             # The token count for the 1st assistant response
-            turns[1].tokens[1],
+            {
+                "role": "assistant",
+                "tokens": turns[1].tokens[1],
+                "tokens_total": turns[1].tokens[1],
+            },
         ]
+
         for i in range(1, len(turns) - 1, 2):
             ti = turns[i]
             tj = turns[i + 2]
@@ -323,14 +319,93 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 )
             res.extend(
                 [
-                    # Implied token count for the user input
-                    tj.tokens[0] - sum(ti.tokens),
-                    # The token count for the assistant response
-                    tj.tokens[1],
+                    {
+                        "role": "user",
+                        # Implied token count for the user input
+                        "tokens": tj.tokens[0] - sum(ti.tokens),
+                        # Total tokens = Total User Tokens for the Turn = Distinct new tokens + context sent
+                        "tokens_total": tj.tokens[0],
+                    },
+                    {
+                        "role": "assistant",
+                        # The token count for the assistant response
+                        "tokens": tj.tokens[1],
+                        # Total tokens = Total Assistant tokens used in the turn
+                        "tokens_total": tj.tokens[1],
+                    },
                 ]
             )
 
         return res
+
+    def get_cost(
+        self,
+        options: CostOptions = "all",
+        token_price: Optional[tuple[float, float]] = None,
+    ) -> float:
+        """
+        Get the cost of the chat. Note that this is a rough estimate. Providers may change their pricing frequently and without notice.
+
+        Parameters
+        ----------
+        options
+            One of the following (default is "all"):
+              - `"all"`: Return the total cost of all turns in the chat.
+              - `"last"`: Return the cost of the last turn in the chat.
+        token_price
+            An optional tuple in the format of (input_token_cost, output_token_cost) for bringing your own cost information.
+                 - `"input_token_cost"`: The cost per user token in USD per million tokens.
+                 - `"output_token_cost"`: The cost per assistant token in USD per million tokens.
+
+        Returns
+        -------
+        float
+            The cost of the chat, in USD.
+        """
+
+        # Look up token cost for user and input tokens based on the provider and model
+        turns_tokens = self.get_tokens()
+        if token_price:
+            input_token_price = token_price[0] / 1e6
+            output_token_price = token_price[1] / 1e6
+        else:
+            price_token = get_token_pricing(self.provider.name, self.provider.model)
+            if not price_token:
+                raise KeyError(
+                    f"We could not locate pricing information for model '{ self.provider.model }' from provider '{ self.provider.name }'. "
+                    "If you know the pricing for this model, specify it in `token_price`."
+                )
+            input_token_price = price_token["input"] / 1e6
+            output_token_price = price_token["output"] / 1e6
+
+        if len(turns_tokens) == 0:
+            return 0.0
+
+        if options not in ("all", "last"):
+            raise ValueError(
+                f"Expected `options` to be one of 'all' or 'last', not '{ options }'"
+            )
+
+        if options == "all":
+            asst_tokens = sum(
+                u["tokens_total"] for u in turns_tokens if u["role"] == "assistant"
+            )
+            user_tokens = sum(
+                u["tokens_total"] for u in turns_tokens if u["role"] == "user"
+            )
+            cost = (asst_tokens * output_token_price) + (
+                user_tokens * input_token_price
+            )
+            return cost
+
+        last_turn = turns_tokens[-1]
+        if last_turn["role"] == "assistant":
+            return last_turn["tokens"] * output_token_price
+        if last_turn["role"] == "user":
+            return last_turn["tokens_total"] * input_token_price
+        raise ValueError(
+            f"Expected last turn to have a role of 'user' or `'assistant'`, not '{ last_turn['role'] }'"
+        )
 
     def token_count(
         self,
@@ -736,9 +811,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             kwargs=kwargs,
         )
 
-        def wrapper() -> Generator[
-            str | ContentToolRequest | ContentToolResult, None, None
-        ]:
+        def wrapper() -> (
+            Generator[str | ContentToolRequest | ContentToolResult, None, None]
+        ):
             with display:
                 for chunk in generator:
                     yield chunk
@@ -800,9 +875,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
-        async def wrapper() -> AsyncGenerator[
-            str | ContentToolRequest | ContentToolResult, None
-        ]:
+        async def wrapper() -> (
+            AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]
+        ):
             with display:
                 async for chunk in self._chat_impl_async(
                     turn,
@@ -2006,8 +2081,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def __repr__(self):
         turns = self.get_turns(include_system_prompt=True)
-        tokens = sum(sum(turn.tokens) for turn in turns if turn.tokens)
-        res = f"<Chat turns={len(turns)} tokens={tokens}>"
+        tokens = self.get_tokens()
+        cost = self.get_cost()
+        tokens_asst = sum(u["tokens_total"] for u in tokens if u["role"] == "assistant")
+        tokens_user = sum(u["tokens_total"] for u in tokens if u["role"] == "user")
+
+        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)} tokens={tokens_user}/{tokens_asst} ${round(cost, ndigits=2)}>"
         for turn in turns:
             res += "\n" + turn.__repr__(indent=2)
         return res + "\n"

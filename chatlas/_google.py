@@ -138,6 +138,7 @@ def ChatGoogle(
         provider=GoogleProvider(
             model=model,
             api_key=api_key,
+            name="Google/Gemini",
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -154,6 +155,7 @@ class GoogleProvider(
         *,
         model: str,
         api_key: str | None,
+        name: str = "Google/Gemini",
         kwargs: Optional["ChatClientArgs"],
     ):
         try:
@@ -163,8 +165,7 @@ class GoogleProvider(
                 f"The {self.__class__.__name__} class requires the `google-genai` package. "
                 "Install it with `pip install google-genai`."
             )
-
-        self._model = model
+        super().__init__(name=name, model=model)
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
@@ -256,7 +257,7 @@ class GoogleProvider(
         from google.genai.types import Tool as GoogleTool
 
         kwargs_full: "SubmitInputArgs" = {
-            "model": self._model,
+            "model": self.model,
             "contents": cast("GoogleContent", self._google_contents(turns)),
             **(kwargs or {}),
         }
@@ -592,6 +593,7 @@ def ChatVertex(
         provider=GoogleProvider(
             model=model,
             api_key=api_key,
+            name="Google/Vertex",
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,

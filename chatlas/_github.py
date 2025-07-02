@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._openai import ChatOpenAI
-from ._utils import MISSING, MISSING_TYPE
+from ._openai import OpenAIProvider
+from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
     from ._openai import ChatCompletion
@@ -121,11 +121,17 @@ def ChatGithub(
     if api_key is None:
         api_key = os.getenv("GITHUB_TOKEN", os.getenv("GITHUB_PAT"))
 
-    return ChatOpenAI(
+    if isinstance(seed, MISSING_TYPE):
+        seed = 1014 if is_testing() else None
+
+    return Chat(
+        provider=OpenAIProvider(
+            api_key=api_key,
+            model=model,
+            base_url=base_url,
+            seed=seed,
+            name="GitHub",
+            kwargs=kwargs,
+        ),
         system_prompt=system_prompt,
-        model=model,
-        api_key=api_key,
-        base_url=base_url,
-        seed=seed,
-        kwargs=kwargs,
     )

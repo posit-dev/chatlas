@@ -178,11 +178,13 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
     def __init__(
         self,
         *,
-        max_tokens: int,
+        max_tokens: int = 4096,
         model: str,
-        api_key: str | None,
+        api_key: Optional[str] = None,
+        name: str = "Anthropic",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
+        super().__init__(name=name, model=model)
         try:
             from anthropic import Anthropic, AsyncAnthropic
         except ImportError:
@@ -190,8 +192,6 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 "`ChatAnthropic()` requires the `anthropic` package. "
                 "You can install it with 'pip install anthropic'."
             )
-
-        self._model = model
         self._max_tokens = max_tokens
 
         kwargs_full: "ChatClientArgs" = {
@@ -314,7 +314,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_params(turns),
-            "model": self._model,
+            "model": self.model,
             "max_tokens": self._max_tokens,
             "tools": tool_schemas,
             **(kwargs or {}),
@@ -712,10 +712,14 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_region: str | None,
         aws_profile: str | None,
         aws_session_token: str | None,
-        max_tokens: int,
+        max_tokens: int = 4096,
         base_url: str | None,
+        name: str = "AnthropicBedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
+
+        super().__init__(name=name, model=model, max_tokens=max_tokens)
+
         try:
             from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
         except ImportError:
@@ -723,9 +727,6 @@ class AnthropicBedrockProvider(AnthropicProvider):
                 "`ChatBedrockAnthropic()` requires the `anthropic` package. "
                 "Install it with `pip install anthropic[bedrock]`."
             )
-
-        self._model = model
-        self._max_tokens = max_tokens
 
         kwargs_full: "ChatBedrockClientArgs" = {
             "aws_secret_key": aws_secret_key,
