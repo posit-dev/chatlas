@@ -940,6 +940,65 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         json = res[0]
         return json.value
 
+    def set_model_params(
+        self,
+        *,
+        temperature: Optional[float] = None,
+        top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
+        frequency_penalty: Optional[float] = None,
+        presence_penalty: Optional[float] = None,
+        seed: Optional[int] = None,
+        max_tokens: Optional[int] = None,
+        log_probs: Optional[bool] = None,
+        stop_sequences: Optional[list[str]] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
+    ):
+        """
+        Set common model parameters for the chat.
+
+        Provides a singular interface to set common model parameters
+        across different providers. This method is useful for setting
+        parameters that are commonly supported by most providers, such as
+        temperature, top_p, etc.
+
+        Parameters
+        ----------
+        temperature
+            Temperature of the sampling distribution.
+        top_p
+            The cumulative probability for token selection.
+        top_k
+            The number of highest probability vocabulary tokens to keep.
+        frequency_penalty
+            Frequency penalty for generated tokens.
+        presence_penalty
+            Presence penalty for generated tokens.
+        seed
+            Seed for random number generator.
+        max_tokens
+            Maximum number of tokens to generate.
+        log_probs
+            Include the log probabilities in the output?
+        stop_sequences
+            A character vector of tokens to stop generation on.
+        kwargs
+            Additional keyword arguments to use when submitting input to the
+            model.
+        """
+        self.provider.set_model_params(
+            temperature=temperature,
+            top_p=top_p,
+            top_k=top_k,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            seed=seed,
+            max_tokens=max_tokens,
+            log_probs=log_probs,
+            stop_sequences=stop_sequences,
+            kwargs=kwargs,
+        )
+
     async def register_mcp_tools_http_stream_async(
         self,
         *,

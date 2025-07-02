@@ -27,6 +27,7 @@ from ._turn import Turn, user_turn
 if TYPE_CHECKING:
     from google.genai.types import Content as GoogleContent
     from google.genai.types import (
+        GenerateContentConfigDict,
         GenerateContentResponse,
         GenerateContentResponseDict,
         Part,
@@ -173,6 +174,9 @@ class GoogleProvider(
 
         self._client = genai.Client(**kwargs_full)
 
+        # Additional kwargs to pass along from `.set_model_params()`
+        self._submit_input_kwargs: "SubmitInputArgs" = {}
+
     @overload
     def chat_perform(
         self,
@@ -258,6 +262,7 @@ class GoogleProvider(
         kwargs_full: "SubmitInputArgs" = {
             "model": self._model,
             "contents": cast("GoogleContent", self._google_contents(turns)),
+            **self._submit_input_kwargs,
             **(kwargs or {}),
         }
 
@@ -512,6 +517,46 @@ class GoogleProvider(
             finish_reason=finish_reason,
             completion=message,
         )
+
+    def set_model_params(
+        self,
+        *,
+        temperature: Optional[float] = None,
+        top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
+        frequency_penalty: Optional[float] = None,
+        presence_penalty: Optional[float] = None,
+        seed: Optional[int] = None,
+        max_tokens: Optional[int] = None,
+        log_probs: Optional[bool] = None,
+        stop_sequences: Optional[list[str]] = None,
+        kwargs: Optional["GenerateContentConfigDict"] = None,
+    ):
+        config: "GenerateContentConfigDict" = {}
+        if temperature is not None:
+            config["temperature"] = temperature
+        if top_p is not None:
+            config["top_p"] = top_p
+        if top_k is not None:
+            config["top_k"] = top_k
+        if frequency_penalty is not None:
+            config["frequency_penalty"] = frequency_penalty
+        if presence_penalty is not None:
+            config["presence_penalty"] = presence_penalty
+        if max_tokens is not None:
+            config["max_output_tokens"] = max_tokens
+        if log_probs is not None:
+            config["logprobs"] = log_probs
+        if stop_sequences is not None:
+            config["stop_sequences"] = stop_sequences
+        if seed is not None:
+            config["seed"] = seed
+
+        if kwargs:
+            config.update(kwargs)
+
+        if config:
+            self._submit_input_kwargs["config"] = config
 
 
 def ChatVertex(

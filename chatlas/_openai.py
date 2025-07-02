@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import orjson
@@ -195,6 +196,9 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         self._client = OpenAI(**sync_kwargs)  # type: ignore
         self._async_client = AsyncOpenAI(**async_kwargs)
 
+        # Additional kwargs to pass along from `.set_model_params()`
+        self._submit_input_kwargs: "SubmitInputArgs" = {}
+
     @overload
     def chat_perform(
         self,
@@ -277,6 +281,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             "stream": stream,
             "messages": self._as_message_param(turns),
             "model": self._model,
+            **self._submit_input_kwargs,
             **(kwargs or {}),
         }
 
@@ -565,6 +570,50 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             completion=completion,
         )
 
+    def set_model_params(
+        self,
+        *,
+        temperature: Optional[float] = None,
+        top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
+        frequency_penalty: Optional[float] = None,
+        presence_penalty: Optional[float] = None,
+        seed: Optional[int] = None,
+        max_tokens: Optional[int] = None,
+        log_probs: Optional[bool] = None,
+        stop_sequences: Optional[list[str]] = None,
+        kwargs: Optional["SubmitInputArgs"] = None,
+    ):
+        kwargs2: "SubmitInputArgs" = {}
+        if temperature is not None:
+            kwargs2["temperature"] = temperature
+        if top_p is not None:
+            kwargs2["top_p"] = top_p
+        if frequency_penalty is not None:
+            kwargs2["frequency_penalty"] = frequency_penalty
+        if presence_penalty is not None:
+            kwargs2["presence_penalty"] = presence_penalty
+        if seed is not None:
+            kwargs2["seed"] = seed
+        if max_tokens is not None:
+            kwargs2["max_tokens"] = max_tokens
+        if log_probs is not None:
+            kwargs2["logprobs"] = log_probs
+        if stop_sequences is not None:
+            kwargs2["stop"] = stop_sequences
+
+        if kwargs:
+            kwargs2.update(kwargs)
+
+        # OpenAI doesn't support top_k, warn user
+        if top_k is not None:
+            warnings.warn(
+                "top_k is not supported by OpenAI models. Ignoring top_k.",
+                stacklevel=2,
+            )
+
+        self._submit_input_kwargs = kwargs2
+
 
 def ChatAzureOpenAI(
     *,
@@ -671,6 +720,9 @@ class OpenAIAzureProvider(OpenAIProvider):
 
         self._client = AzureOpenAI(**sync_kwargs)  # type: ignore
         self._async_client = AsyncAzureOpenAI(**async_kwargs)  # type: ignore
+
+        # Additional kwargs to pass along from `.set_model_params()`
+        self._submit_input_kwargs: "SubmitInputArgs" = {}
 
 
 class InvalidJSONParameterWarning(RuntimeWarning):

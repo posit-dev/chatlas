@@ -1,3 +1,4 @@
+import warnings
 from typing import (
     TYPE_CHECKING,
     Generator,
@@ -192,6 +193,9 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         session = Session.builder.configs(configs).create()
         self._cortex_service = Root(session).cortex_inference_service
 
+        # Additional kwargs to pass along from `.set_model_params()`
+        self._submit_input_kwargs: "CompleteRequest" = {}
+
     @overload
     def chat_perform(
         self,
@@ -326,15 +330,16 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
                 },
             )
 
-        if kwargs:
-            for k, v in kwargs.items():
-                if hasattr(req, k):
-                    setattr(req, k, v)
-                else:
-                    raise ValueError(
-                        f"Unknown parameter {k} for Snowflake CompleteRequest. "
-                        "Please check the Snowflake documentation for valid parameters."
-                    )
+        # Apply params from set_model_params first, then any additional kwargs (which can override set_model_params)
+        all_params = {**self._submit_input_kwargs, **(kwargs or {})}
+        for k, v in all_params.items():
+            if hasattr(req, k):
+                setattr(req, k, v)
+            else:
+                raise ValueError(
+                    f"Unknown parameter {k} for Snowflake CompleteRequest. "
+                    "Please check the Snowflake documentation for valid parameters."
+                )
 
         return req
 
@@ -587,6 +592,66 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         )
 
         return models.Tool(tool_spec=spec)
+
+    def set_model_params(
+        self,
+        *,
+        temperature: Optional[float] = None,
+        top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
+        frequency_penalty: Optional[float] = None,
+        presence_penalty: Optional[float] = None,
+        seed: Optional[int] = None,
+        max_tokens: Optional[int] = None,
+        log_probs: Optional[bool] = None,
+        stop_sequences: Optional[list[str]] = None,
+        kwargs: Optional["CompleteRequest"] = None,
+    ):
+        kwargs2: "CompleteRequest" = {}
+        if temperature is not None:
+            kwargs2["temperature"] = temperature
+        if top_p is not None:
+            kwargs2["top_p"] = top_p
+        if max_tokens is not None:
+            kwargs2["max_tokens"] = max_tokens
+
+        # Snowflake Cortex models don't support these parameters, warn user
+        msg_template = "{} is not supported by Snowflake Cortex models. Ignoring {}."
+        if top_k is not None:
+            warnings.warn(
+                msg_template.format("top_k", "top_k"),
+                stacklevel=2,
+            )
+        if frequency_penalty is not None:
+            warnings.warn(
+                msg_template.format("frequency_penalty", "frequency_penalty"),
+                stacklevel=2,
+            )
+        if presence_penalty is not None:
+            warnings.warn(
+                msg_template.format("presence_penalty", "presence_penalty"),
+                stacklevel=2,
+            )
+        if seed is not None:
+            warnings.warn(
+                msg_template.format("seed", "seed"),
+                stacklevel=2,
+            )
+        if log_probs is not None:
+            warnings.warn(
+                msg_template.format("log_probs", "log_probs"),
+                stacklevel=2,
+            )
+        if stop_sequences is not None:
+            warnings.warn(
+                msg_template.format("stop_sequences", "stop_sequences"),
+                stacklevel=2,
+            )
+
+        if kwargs:
+            kwargs2.update(kwargs)
+
+        self._submit_input_kwargs = kwargs2
 
 
 # Yield parsed event data from the Snowflake SSEClient

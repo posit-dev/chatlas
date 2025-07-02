@@ -149,3 +149,19 @@ class Provider(
         tools: dict[str, Tool],
         data_model: Optional[type[BaseModel]],
     ) -> int: ...
+
+    @abstractmethod
+    def set_model_params(
+        self,
+        *,
+        temperature: Optional[float] = None,
+        top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
+        frequency_penalty: Optional[float] = None,
+        presence_penalty: Optional[float] = None,
+        seed: Optional[int] = None,
+        max_tokens: Optional[int] = None,
+        log_probs: Optional[bool] = None,
+        stop_sequences: Optional[list[str]] = None,
+        kwargs: Optional[Any] = None,
+    ) -> None: ...

@@ -125,3 +125,6 @@ class DatabricksProvider(OpenAIProvider):
             api_key="no-token",  # A placeholder to pass validations, this will not be used
             http_client=httpx.AsyncClient(auth=client._client.auth),
         )
+
+        # Additional kwargs to pass along from `.set_model_params()`
+        self._submit_input_kwargs: "SubmitInputArgs" = {}
