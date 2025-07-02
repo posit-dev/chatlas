@@ -4,6 +4,7 @@ import base64
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import orjson
+from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -177,11 +178,11 @@ class OpenAIProvider(
         model: str,
         base_url: str = "https://api.openai.com/v1",
         seed: Optional[int] = None,
+        name: str = "OpenAI",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
-        from openai import AsyncOpenAI, OpenAI
+        super().__init__(name=name, model=model)
 
-        self._model = model
         self._seed = seed
 
         kwargs_full: "ChatClientArgs" = {
@@ -278,7 +279,7 @@ class OpenAIProvider(
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_param(turns),
-            "model": self._model,
+            "model": self.model,
             **(kwargs or {}),
         }
 
@@ -692,15 +693,17 @@ class OpenAIAzureProvider(OpenAIProvider):
         self,
         *,
         endpoint: Optional[str] = None,
-        deployment_id: Optional[str] = None,
+        deployment_id: str,
         api_version: Optional[str] = None,
         api_key: Optional[str] = None,
         seed: int | None = None,
+        name: str = "OpenAIAzure",
+        model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
-        from openai import AsyncAzureOpenAI, AzureOpenAI
 
-        self._model = deployment_id
+        super().__init__(name=name, model=deployment_id)
+
         self._seed = seed
 
         kwargs_full: "ChatAzureClientArgs" = {

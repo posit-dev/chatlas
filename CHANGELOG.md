@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()`: for registering tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
     * `.get_tools()` and `.set_tools()`: for fine-grained control over registered tools. (#39)
     * `.add_turn()`: to add `Turn`(s) to the current chat history. (#126)
+    * `.get_cost()`: to get the estimated cost of the chat. Only popular models are supported, but you can also supply your own token prices. (#106)
 * Tool functions passed to `.register_tool()` can now `yield` numerous results. (#39)
 * New content classes (`ContentToolResultImage` and `ContentToolResultResource`) were added, primarily to represent MCP tool results that include images/files. (#39)
 * A `Tool` can now be constructed from a pre-existing tool schema (via a new `__init__` method). (#39)
@@ -27,11 +28,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 
+#### Breaking Changes
+
+* `Chat`'s `.tokens()` methods have been removed in favor of `.get_tokens()` which returns both cumulative tokens in the turn and discrete tokens. (#106)
+* The base `Provider` class now includes a `name` and `model` property. In order for them to work properly, implementations should pass a `name` and `model` along to the `__init__()` method. (#106)
+
+#### Other Changes
+
 * `Tool`'s constructor no longer takes a function as input. Use the new `.from_func()` method instead to create a `Tool` from a function. (#39)
 * `.register_tool()` now throws an exception when the tool has the same name as an already registered tool. Set the new `force` parameter to `True` to force the registration. (#39)
 
 ### Improvements
 
+* `Chat`'s representation now includes cost information if it can be calculated. (#106)
+* `token_usage()` includes cost if it can be calculated. (#106)
 * `ChatOpenAI()` and `ChatGithub()` now default to GPT 4.1 (instead of 4o). (#115)
 * `ChatAnthropic()` now supports `content_image_url()`. (#112)
 * HTML styling improvements for `ContentToolResult` and `ContentToolRequest`. (#39)
