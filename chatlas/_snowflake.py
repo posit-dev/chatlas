@@ -20,10 +20,10 @@ from ._content import (
     ContentToolResult,
 )
 from ._logging import log_model_default
-from ._provider import Provider
+from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
+from ._turn import Turn
 from ._utils import drop_none
 
 if TYPE_CHECKING:
@@ -61,7 +61,6 @@ def ChatSnowflake(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     connection_name: Optional[str] = None,
     account: Optional[str] = None,
     user: Optional[str] = None,
@@ -111,13 +110,6 @@ def ChatSnowflake(
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
         choosing a model for all but the most casual use.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-None values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     connection_name
         The name of the connection (i.e., section) within the connections.toml file.
         This is useful if you want to keep your credentials in a connections.toml file
@@ -157,14 +149,13 @@ def ChatSnowflake(
             private_key_file_pwd=private_key_file_pwd,
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 
-class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChunk"]):
+class SnowflakeProvider(
+    Provider["Completion", "CompletionChunk", "CompletionChunk", "CompleteRequest"]
+):
     def __init__(
         self,
         *,
@@ -175,6 +166,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         password: Optional[str],
         private_key_file: Optional[str],
         private_key_file_pwd: Optional[str],
+        name: str = "Snowflake",
         kwargs: Optional[dict[str, "str | int"]],
     ):
         try:
@@ -185,6 +177,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
                 "`ChatSnowflake()` requires the `snowflake-ml-python` package. "
                 "Please install it via `pip install snowflake-ml-python`."
             )
+        super().__init__(name=name, model=model)
 
         configs: dict[str, str | int] = drop_none(
             {
@@ -197,8 +190,6 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
                 **(kwargs or {}),
             }
         )
-
-        self._model = model
 
         session = Session.builder.configs(configs).create()
         self._cortex_service = Root(session).cortex_inference_service
@@ -314,7 +305,7 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         from snowflake.core.cortex.inference_service import CompleteRequest
 
         req = CompleteRequest(
-            model=self._model,
+            model=self.model,
             messages=self._as_request_messages(turns),
             stream=stream,
         )
@@ -598,6 +589,26 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         )
 
         return models.Tool(tool_spec=spec)
+
+    def translate_model_params(self, params: StandardModelParams) -> "CompleteRequest":
+        res: "CompleteRequest" = {}
+        if "temperature" in params:
+            res["temperature"] = params["temperature"]
+
+        if "top_p" in params:
+            res["top_p"] = params["top_p"]
+
+        if "max_tokens" in params:
+            res["max_tokens"] = params["max_tokens"]
+
+        return res
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {
+            "temperature",
+            "top_p",
+            "max_tokens",
+        }
 
 
 # Yield parsed event data from the Snowflake SSEClient

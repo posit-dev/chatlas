@@ -45,16 +45,17 @@ def assert_turns_system(chat_fun: ChatFun):
     assert len(chat.get_turns()) == 2
     assert "CHRISTOPHER ROBIN" in response_text.upper()
 
-    chat = chat_fun(turns=[Turn("system", system_prompt)])
+    chat = chat_fun()
+    chat.system_prompt = system_prompt
     response = chat.chat("What is the name of Winnie the Pooh's human friend?")
     assert "CHRISTOPHER ROBIN" in str(response).upper()
     assert len(chat.get_turns()) == 2
 
 
 def assert_turns_existing(chat_fun: ChatFun):
-    chat = chat_fun(
-        turns=[
-            Turn("system", "Return very minimal output; no punctuation."),
+    chat = chat_fun(system_prompt="Return very minimal output; no punctuation.")
+    chat.set_turns(
+        [
             Turn("user", "List the names of any 8 of Santa's 9 reindeer."),
             Turn(
                 "assistant",
@@ -62,6 +63,7 @@ def assert_turns_existing(chat_fun: ChatFun):
             ),
         ]
     )
+
     assert len(chat.get_turns()) == 2
 
     response = chat.chat("Who is the remaining one? Just give the name")
