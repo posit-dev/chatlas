@@ -518,9 +518,7 @@ class GoogleProvider(
             completion=message,
         )
 
-    def model_parameter_arguments(
-        self, params: StandardModelParams
-    ) -> "SubmitInputArgs":
+    def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
         config: "GenerateContentConfigDict" = {}
         if "temperature" in params:
             config["temperature"] = params["temperature"]

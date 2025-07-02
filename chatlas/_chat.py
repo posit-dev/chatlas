@@ -1926,7 +1926,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             emit_user_contents(user_turn, emit)
 
         # Start collecting additional keyword args (from model parameters)
-        all_kwargs = self.provider.model_parameter_arguments(
+        all_kwargs = self.provider.translate_model_params(
             params=self._standard_model_params,
         )
 

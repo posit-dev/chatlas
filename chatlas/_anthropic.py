@@ -429,9 +429,7 @@ class AnthropicProvider(
 
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
-    def model_parameter_arguments(
-        self, params: StandardModelParams
-    ) -> "SubmitInputArgs":
+    def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
         res: "SubmitInputArgs" = {}
         if "temperature" in params:
             res["temperature"] = params["temperature"]

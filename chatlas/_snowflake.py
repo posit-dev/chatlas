@@ -590,9 +590,7 @@ class SnowflakeProvider(
 
         return models.Tool(tool_spec=spec)
 
-    def model_parameter_arguments(
-        self, params: StandardModelParams
-    ) -> "CompleteRequest":
+    def translate_model_params(self, params: StandardModelParams) -> "CompleteRequest":
         res: "CompleteRequest" = {}
         if "temperature" in params:
             res["temperature"] = params["temperature"]

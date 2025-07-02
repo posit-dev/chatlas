@@ -213,7 +213,7 @@ class Provider(
     ) -> int: ...
 
     @abstractmethod
-    def model_parameter_arguments(
+    def translate_model_params(
         self, params: StandardModelParams
     ) -> SubmitInputArgsT: ...
 

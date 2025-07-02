@@ -568,9 +568,7 @@ class OpenAIProvider(
             completion=completion,
         )
 
-    def model_parameter_arguments(
-        self, params: StandardModelParams
-    ) -> "SubmitInputArgs":
+    def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
         res: "SubmitInputArgs" = {}
         if "temperature" in params:
             res["temperature"] = params["temperature"]
