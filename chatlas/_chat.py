@@ -1100,9 +1100,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         supported = self.provider.supported_model_params()
         unsupported = set(params.keys()) - set(supported)
         if unsupported:
-            raise ValueError(
+            warnings.warn(
                 f"The following parameters are not supported by the provider: {unsupported}. "
-                "Please check the provider's documentation for supported parameters."
+                "Please check the provider's documentation for supported parameters.",
+                UserWarning,
             )
 
         # Drop parameters that are set to None

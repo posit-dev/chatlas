@@ -169,7 +169,7 @@ def ChatOpenAI(
 
 
 class OpenAIProvider(
-    Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict, SubmitInputArgs]
+    Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict, "SubmitInputArgs"]
 ):
     def __init__(
         self,
@@ -701,7 +701,6 @@ class OpenAIAzureProvider(OpenAIProvider):
         model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
-
         super().__init__(name=name, model=deployment_id)
 
         self._seed = seed

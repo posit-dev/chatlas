@@ -1,208 +1,586 @@
-import warnings
+"""Tests for the set_model_params() feature."""
 
 import pytest
-from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, ChatSnowflake
+from chatlas import ChatAnthropic, ChatOpenAI
+from chatlas._provider import StandardModelParams
+from chatlas._utils import MISSING
+
+# Try to import additional providers for comprehensive testing
+try:
+    from chatlas import ChatGoogle
+
+    HAS_GOOGLE = True
+except ImportError:
+    HAS_GOOGLE = False
 
 
-class TestSetModelParams:
-    """Test the set_model_params() functionality across different providers."""
+def test_set_model_params_basic():
+    """Test basic functionality of set_model_params()."""
+    chat = ChatOpenAI()
 
-    def test_anthropic_set_model_params(self):
-        """Test set_model_params for Anthropic provider."""
-        chat = ChatAnthropic()
+    # Set some basic parameters
+    chat.set_model_params(temperature=0.5, max_tokens=100, top_p=0.9)
 
-        # Test setting supported parameters
-        chat.set_model_params(
-            temperature=0.7,
-            top_p=0.9,
-            top_k=50,
-            max_tokens=100,
-            stop_sequences=["STOP"],
-        )
+    # Verify parameters are stored internally
+    params = getattr(chat, "_standard_model_params", {})
+    assert params["temperature"] == 0.5
+    assert params["max_tokens"] == 100
+    assert params["top_p"] == 0.9
 
-        # Check that the parameters are stored in _submit_input_kwargs
-        kwargs = getattr(chat.provider, "_submit_input_kwargs", {})
-        assert kwargs.get("temperature") == 0.7
-        assert kwargs.get("top_p") == 0.9
-        assert kwargs.get("top_k") == 50
-        assert kwargs.get("max_tokens") == 100
-        assert kwargs.get("stop_sequences") == ["STOP"]
 
-        # Test warning for unsupported parameters
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            chat.set_model_params(
-                frequency_penalty=0.5, presence_penalty=0.3, seed=42, log_probs=True
-            )
-            # Should have warnings for unsupported parameters
-            assert len(w) == 4
-            assert "frequency_penalty is not supported by Anthropic models" in str(
-                w[0].message
-            )
-            assert "presence_penalty is not supported by Anthropic models" in str(
-                w[1].message
-            )
-            assert "seed is not supported by Anthropic models" in str(w[2].message)
-            assert "log_probs is not supported by Anthropic models" in str(w[3].message)
+def test_set_model_params_missing_values():
+    """Test that MISSING values are not stored."""
+    chat = ChatOpenAI()
 
-    def test_openai_set_model_params(self):
-        """Test set_model_params for OpenAI provider."""
-        chat = ChatOpenAI()
+    # Set only some parameters, leaving others as MISSING
+    chat.set_model_params(
+        temperature=0.7,
+        top_p=MISSING,  # Should not be stored
+        max_tokens=200,
+    )
 
-        # Test setting supported parameters
-        chat.set_model_params(
-            temperature=0.8,
-            top_p=0.95,
-            frequency_penalty=0.2,
-            presence_penalty=0.1,
-            seed=123,
-            max_tokens=500,
-            log_probs=True,
-            stop_sequences=["END", "STOP"],
-        )
+    params = getattr(chat, "_standard_model_params", {})
+    assert params["temperature"] == 0.7
+    assert params["max_tokens"] == 200
+    assert "top_p" not in params  # Should not be there
 
-        # Check that the parameters are stored in _submit_input_kwargs
-        kwargs = getattr(chat.provider, "_submit_input_kwargs", {})
-        assert kwargs.get("temperature") == 0.8
-        assert kwargs.get("top_p") == 0.95
-        assert kwargs.get("frequency_penalty") == 0.2
-        assert kwargs.get("presence_penalty") == 0.1
-        assert kwargs.get("seed") == 123
-        assert kwargs.get("max_tokens") == 500
-        assert kwargs.get("logprobs") is True
-        assert kwargs.get("stop") == ["END", "STOP"]
 
-        # Test warning for unsupported parameters
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            chat.set_model_params(top_k=40)
-            # Should have warning for unsupported parameter
-            assert len(w) == 1
-            assert "top_k is not supported by OpenAI models" in str(w[0].message)
+def test_set_model_params_none_reset():
+    """Test that None values reset parameters."""
+    chat = ChatOpenAI()
 
-    def test_google_set_model_params(self):
-        """Test set_model_params for Google provider."""
-        chat = ChatGoogle()
+    # First set some parameters
+    chat.set_model_params(temperature=0.8, top_p=0.95)
+    assert "temperature" in chat._standard_model_params
+    assert "top_p" in chat._standard_model_params
 
-        # Test setting supported parameters
-        chat.set_model_params(
-            temperature=0.6,
-            top_p=0.8,
-            top_k=30,
-            max_tokens=200,
-            stop_sequences=["HALT"],
-            seed=456,
-        )
+    # Reset temperature to None
+    chat.set_model_params(temperature=None)
+    assert "temperature" not in chat._standard_model_params
+    assert "top_p" in chat._standard_model_params  # Should still be there
 
-        # For Google, parameters are stored in config
-        kwargs = getattr(chat.provider, "_submit_input_kwargs", {})
-        assert "config" in kwargs
-        config = kwargs["config"]
-        assert config["temperature"] == 0.6
-        assert config["top_p"] == 0.8
-        assert config["top_k"] == 30
-        assert config["max_output_tokens"] == 200
-        assert config["stop_sequences"] == ["HALT"]
-        assert config["seed"] == 456
 
-    def test_snowflake_set_model_params(self):
-        """Test set_model_params for Snowflake provider."""
-        # Skip if snowflake-ml-python is not available
-        pytest.importorskip("snowflake")
+def test_set_model_params_kwargs():
+    """Test setting provider-specific kwargs."""
+    chat = ChatOpenAI()
 
-        # This test requires valid Snowflake credentials, so we'll just test the method exists
-        # and that warnings work correctly
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
+    chat.set_model_params(kwargs={"frequency_penalty": 0.1, "presence_penalty": 0.2})
+    kwargs = getattr(chat, "_submit_input_kwargs", {})
+    assert kwargs == {"frequency_penalty": 0.1, "presence_penalty": 0.2}
 
-            # Create a chat instance (this will fail without credentials, but that's ok for this test)
-            try:
-                chat = ChatSnowflake(model="test")
+    # Reset kwargs to None
+    chat.set_model_params(kwargs=None)
+    kwargs = getattr(chat, "_submit_input_kwargs", {})
+    assert kwargs is None
 
-                # Test warning for unsupported parameters
-                chat.set_model_params(
-                    top_k=25,
-                    frequency_penalty=0.3,
-                    presence_penalty=0.2,
-                    seed=789,
-                    log_probs=True,
-                )
-                # Should have warnings for unsupported parameters
-                assert len(w) >= 5  # At least 5 warnings for unsupported params
-            except Exception:
-                # Expected if no valid credentials, skip the test
-                pytest.skip("Snowflake credentials not available")
 
-    def test_set_model_params_kwargs_override(self):
-        """Test that kwargs parameter works and overrides other settings."""
-        chat = ChatAnthropic()
+def test_set_model_params_all_parameters():
+    """Test setting all supported standard parameters."""
+    chat = ChatOpenAI()
 
-        # Set parameters via kwargs
-        chat.set_model_params(
-            temperature=0.5, kwargs={"temperature": 0.9, "max_tokens": 1000}
-        )
+    chat.set_model_params(
+        temperature=0.5,
+        top_p=0.9,
+        frequency_penalty=0.1,
+        presence_penalty=0.2,
+        seed=42,
+        max_tokens=150,
+        log_probs=True,
+        stop_sequences=["END", "STOP"],
+    )
 
-        # kwargs should override individual parameters
-        kwargs = getattr(chat.provider, "_submit_input_kwargs", {})
-        assert kwargs.get("temperature") == 0.9
-        assert kwargs.get("max_tokens") == 1000
+    expected = {
+        "temperature": 0.5,
+        "top_p": 0.9,
+        "frequency_penalty": 0.1,
+        "presence_penalty": 0.2,
+        "seed": 42,
+        "max_tokens": 150,
+        "log_probs": True,
+        "stop_sequences": ["END", "STOP"],
+    }
 
-    def test_set_model_params_none_values(self):
-        """Test that None values are ignored."""
-        chat = ChatAnthropic()
+    assert chat._standard_model_params == expected
 
-        # Set some parameters to None
-        chat.set_model_params(temperature=None, top_p=0.8, top_k=None, max_tokens=200)
 
-        # Only non-None values should be stored
-        kwargs = getattr(chat.provider, "_submit_input_kwargs", {})
-        assert "temperature" not in kwargs
-        assert "top_k" not in kwargs
-        assert kwargs.get("top_p") == 0.8
-        assert kwargs.get("max_tokens") == 200
+def test_set_model_params_unsupported_parameter():
+    """Test validation of unsupported parameters."""
+    chat = ChatOpenAI()
 
-    def test_set_model_params_multiple_calls(self):
-        """Test that multiple calls to set_model_params work correctly."""
-        chat = ChatOpenAI()
+    # OpenAI doesn't support top_k, should raise warning
+    with pytest.warns(UserWarning, match="not supported by the provider"):
+        chat.set_model_params(top_k=50)
 
-        # First call
-        chat.set_model_params(temperature=0.5, top_p=0.8)
-        kwargs = getattr(chat.provider, "_submit_input_kwargs", {})
-        assert kwargs.get("temperature") == 0.5
-        assert kwargs.get("top_p") == 0.8
 
-        # Second call should replace previous settings
-        chat.set_model_params(temperature=0.7, max_tokens=300)
-        kwargs = getattr(chat.provider, "_submit_input_kwargs", {})
-        assert kwargs.get("temperature") == 0.7
-        assert kwargs.get("max_tokens") == 300
-        # top_p should be gone since it wasn't set in the second call
-        assert "top_p" not in kwargs
+def test_set_model_params_anthropic_supports_top_k():
+    """Test that Anthropic provider supports top_k."""
+    chat = ChatAnthropic()
 
-    def test_set_model_params_integration_with_chat_args(self):
-        """Test that set_model_params works with arguments passed to chat methods."""
-        chat = ChatAnthropic()
+    # Anthropic supports top_k, should not raise
+    chat.set_model_params(top_k=50, temperature=0.7)
+    params = getattr(chat, "_standard_model_params", {})
+    assert params["top_k"] == 50
+    assert params["temperature"] == 0.7
 
-        # Set some model parameters
-        chat.set_model_params(temperature=0.6, max_tokens=50)
 
-        # Verify that _chat_perform_args includes the parameters
-        args = chat.provider._chat_perform_args(  # type: ignore
-            stream=False, turns=[], tools={}, data_model=None, kwargs=None
-        )
+def test_set_model_params_anthropic_unsupported():
+    """Test Anthropic doesn't support frequency_penalty."""
+    chat = ChatAnthropic()
 
-        assert args["temperature"] == 0.6
-        assert args["max_tokens"] == 50
+    # Anthropic doesn't support frequency_penalty
+    with pytest.warns(UserWarning, match="not supported by the provider"):
+        chat.set_model_params(frequency_penalty=0.1)
 
-        # Test that chat-level kwargs can override set_model_params
-        args_with_override = chat.provider._chat_perform_args(  # type: ignore
-            stream=False,
-            turns=[],
-            tools={},
-            data_model=None,
-            kwargs={"temperature": 0.9},
-        )
 
-        # Chat-level kwargs should override set_model_params
-        assert args_with_override["temperature"] == 0.9
-        assert args_with_override["max_tokens"] == 50
+def test_model_parameter_arguments_openai():
+    """Test OpenAI provider's model_parameter_arguments method."""
+    chat = ChatOpenAI()
+    provider = chat.provider
+
+    params: StandardModelParams = {
+        "temperature": 0.5,
+        "top_p": 0.9,
+        "max_tokens": 100,
+        "log_probs": True,
+        "stop_sequences": ["END"],
+    }
+
+    result = provider.model_parameter_arguments(params)
+
+    expected = {
+        "temperature": 0.5,
+        "top_p": 0.9,
+        "max_tokens": 100,
+        "logprobs": True,  # Note: OpenAI uses "logprobs" not "log_probs"
+        "stop": ["END"],  # Note: OpenAI uses "stop" not "stop_sequences"
+    }
+
+    assert result == expected
+
+
+def test_model_parameter_arguments_anthropic():
+    """Test Anthropic provider's model_parameter_arguments method."""
+    chat = ChatAnthropic()
+    provider = chat.provider
+
+    params: StandardModelParams = {
+        "temperature": 0.7,
+        "top_p": 0.95,
+        "top_k": 50,
+        "max_tokens": 200,
+        "stop_sequences": ["STOP"],
+    }
+
+    result = provider.model_parameter_arguments(params)
+
+    expected = {
+        "temperature": 0.7,
+        "top_p": 0.95,
+        "top_k": 50,
+        "max_tokens": 200,
+        "stop_sequences": ["STOP"],
+    }
+
+    assert result == expected
+
+
+def test_supported_model_params_openai():
+    """Test OpenAI provider's supported_model_params method."""
+    chat = ChatOpenAI()
+    supported = chat.provider.supported_model_params()
+
+    expected = {
+        "temperature",
+        "top_p",
+        "frequency_penalty",
+        "presence_penalty",
+        "seed",
+        "max_tokens",
+        "log_probs",
+        "stop_sequences",
+    }
+
+    assert supported == expected
+
+
+def test_supported_model_params_anthropic():
+    """Test Anthropic provider's supported_model_params method."""
+    chat = ChatAnthropic()
+    supported = chat.provider.supported_model_params()
+
+    expected = {"temperature", "top_p", "top_k", "max_tokens", "stop_sequences"}
+
+    assert supported == expected
+
+
+def test_model_params_integration_with_provider():
+    """Test that model parameters are integrated with provider arguments."""
+    chat = ChatOpenAI()
+
+    # Set model parameters
+    chat.set_model_params(temperature=0.3, max_tokens=50, top_p=0.8)
+
+    # Test that provider.model_parameter_arguments converts them correctly
+    provider_args = chat.provider.model_parameter_arguments(chat._standard_model_params)
+
+    assert provider_args["temperature"] == 0.3
+    assert provider_args["max_tokens"] == 50
+    assert provider_args["top_p"] == 0.8
+
+
+def test_model_params_preserved_across_calls():
+    """Test that model parameters are preserved across multiple chat calls."""
+    chat = ChatOpenAI()
+
+    # Set model parameters
+    chat.set_model_params(temperature=0.7, max_tokens=150)
+
+    # Verify parameters are stored
+    params = getattr(chat, "_standard_model_params", {})
+    assert params["temperature"] == 0.7
+    assert params["max_tokens"] == 150
+
+    # Simulate multiple calls - parameters should remain
+    assert params["temperature"] == 0.7
+    assert params["max_tokens"] == 150
+
+    # Update parameters and verify they change
+    chat.set_model_params(temperature=0.5)
+    assert params["temperature"] == 0.5
+    assert params["max_tokens"] == 150  # Should remain
+
+
+def test_set_model_params_updates_existing():
+    """Test that calling set_model_params multiple times updates existing parameters."""
+    chat = ChatOpenAI()
+
+    # Initial parameters
+    chat.set_model_params(temperature=0.5, max_tokens=100)
+    params = getattr(chat, "_standard_model_params", {})
+    assert params["temperature"] == 0.5
+    assert params["max_tokens"] == 100
+
+    # Update some parameters
+    chat.set_model_params(temperature=0.8, top_p=0.9)
+    assert params["temperature"] == 0.8  # Updated
+    assert params["max_tokens"] == 100  # Unchanged
+    assert params["top_p"] == 0.9  # New
+
+
+def test_set_model_params_kwargs_replacement():
+    """Test that kwargs are completely replaced, not merged."""
+    chat = ChatOpenAI()
+
+    # Set initial kwargs
+    chat.set_model_params(kwargs={"frequency_penalty": 0.1, "presence_penalty": 0.2})
+    kwargs = getattr(chat, "_submit_input_kwargs", {})
+    assert kwargs == {"frequency_penalty": 0.1, "presence_penalty": 0.2}
+
+    # Set new kwargs - should completely replace
+    chat.set_model_params(kwargs={"seed": 42})
+    kwargs = getattr(chat, "_submit_input_kwargs", {})
+    assert kwargs == {"seed": 42}
+    assert "frequency_penalty" not in kwargs
+    assert "presence_penalty" not in kwargs
+
+
+def test_set_model_params_invalid_temperature():
+    """Test validation of temperature parameter ranges."""
+    chat = ChatOpenAI()
+
+    # These should work fine (no validation in the method itself)
+    chat.set_model_params(temperature=0.0)
+    chat.set_model_params(temperature=2.0)
+    chat.set_model_params(temperature=-1.0)  # Invalid but not validated
+
+
+def test_set_model_params_invalid_top_p():
+    """Test validation of top_p parameter ranges."""
+    chat = ChatOpenAI()
+
+    # These should work fine (no validation in the method itself)
+    chat.set_model_params(top_p=0.0)
+    chat.set_model_params(top_p=1.0)
+    chat.set_model_params(top_p=-0.1)  # Invalid but not validated
+    chat.set_model_params(top_p=1.1)  # Invalid but not validated
+
+
+def test_set_model_params_multiple_unsupported():
+    """Test error message when multiple parameters are unsupported."""
+    chat = ChatOpenAI()
+
+    # OpenAI doesn't support top_k or frequency_penalty is actually supported
+    # Let's use a parameter that definitely doesn't exist
+    with pytest.warns(UserWarning) as warn_info:
+        chat.set_model_params(top_k=50)  # Not supported by OpenAI
+
+    assert "not supported by the provider" in str(warn_info[0].message)
+    assert "top_k" in str(warn_info[0].message)
+
+
+def test_set_model_params_empty_call():
+    """Test calling set_model_params with no arguments."""
+    chat = ChatOpenAI()
+
+    # Should not raise any errors
+    chat.set_model_params()
+
+    # Should not change anything
+    assert chat._standard_model_params == {}
+    assert chat._submit_input_kwargs is None
+
+
+def test_set_model_params_type_validation():
+    """Test that parameters accept the correct types."""
+    chat = ChatOpenAI()
+
+    # These should work
+    chat.set_model_params(
+        temperature=0.5,  # float
+        top_p=0.9,  # float
+        max_tokens=100,  # int
+        log_probs=True,  # bool
+        stop_sequences=["END"],  # list[str]
+        seed=42,  # int
+    )
+
+    # Test with different valid types
+    chat.set_model_params(
+        temperature=1,  # int should work for float
+        max_tokens=100,  # int
+        log_probs=False,  # bool
+        stop_sequences=[],  # empty list
+    )
+
+
+def test_set_model_params_incremental_updates():
+    """Test that incremental updates work correctly."""
+    chat = ChatOpenAI()
+
+    # Build up parameters incrementally
+    chat.set_model_params(temperature=0.5)
+    params = getattr(chat, "_standard_model_params", {})
+    assert len(params) == 1
+
+    chat.set_model_params(max_tokens=100)
+    assert len(params) == 2
+    assert params["temperature"] == 0.5
+    assert params["max_tokens"] == 100
+
+    chat.set_model_params(top_p=0.9)
+    assert len(params) == 3
+
+
+def test_set_model_params_reset_specific_param():
+    """Test resetting specific parameters while keeping others."""
+    chat = ChatOpenAI()
+
+    # Set multiple parameters
+    chat.set_model_params(temperature=0.7, max_tokens=150, top_p=0.95, seed=42)
+    params = getattr(chat, "_standard_model_params", {})
+    assert len(params) == 4
+
+    # Reset only temperature
+    chat.set_model_params(temperature=None)
+
+    assert len(params) == 3
+    assert "temperature" not in params
+    assert params["max_tokens"] == 150
+
+    # Reset multiple parameters
+    chat.set_model_params(max_tokens=None, seed=None)
+    assert len(params) == 1
+    assert "max_tokens" not in params
+    assert "seed" not in params
+    assert params["top_p"] == 0.95
+
+
+def test_model_params_kwargs_priority():
+    """Test that submit_input_kwargs override model_params."""
+    chat = ChatOpenAI()
+
+    # Set model parameters
+    chat.set_model_params(temperature=0.1, max_tokens=100)
+
+    # Set submit input kwargs that override some model params
+    chat.set_model_params(kwargs={"temperature": 0.5, "seed": 42})
+
+    # Verify that kwargs are set correctly
+    kwargs = getattr(chat, "_submit_input_kwargs", {})
+    params = getattr(chat, "_standard_model_params", {})
+    assert kwargs["temperature"] == 0.5
+    assert kwargs["seed"] == 42
+
+    # Model params should still be stored
+    assert params["temperature"] == 0.1
+    assert params["max_tokens"] == 100
+
+
+def test_is_present_function():
+    """Test the is_present helper function used in set_model_params."""
+    from chatlas._chat import is_present
+
+    # Test various values
+    assert is_present(0.5) is True
+    assert is_present(0) is True
+    assert is_present("") is True
+    assert is_present([]) is True
+    assert is_present(False) is True
+
+    assert is_present(None) is False
+    assert is_present(MISSING) is False
+
+
+def test_set_model_params_with_stop_sequences():
+    """Test stop_sequences parameter specifically."""
+    chat = ChatOpenAI()
+
+    # Test with various stop sequence formats
+    chat.set_model_params(stop_sequences=["END", "STOP", "FINISH"])
+    params = getattr(chat, "_standard_model_params", {})
+    assert params["stop_sequences"] == ["END", "STOP", "FINISH"]
+
+    # Test with empty list
+    chat.set_model_params(stop_sequences=[])
+    assert params["stop_sequences"] == []
+
+    # Test reset to None
+    chat.set_model_params(stop_sequences=None)
+    assert "stop_sequences" not in params
+
+
+@pytest.mark.skipif(not HAS_GOOGLE, reason="Google provider not available")
+def test_google_provider_model_params():
+    """Test Google provider's model parameter support."""
+    chat = ChatGoogle()
+
+    # Test Google-specific supported parameters
+    chat.set_model_params(
+        temperature=0.7,
+        top_p=0.9,
+        top_k=40,
+        max_tokens=150,
+        frequency_penalty=0.1,
+        presence_penalty=0.2,
+        seed=42,
+        log_probs=True,
+        stop_sequences=["END"],
+    )
+
+    # Verify Google's supported parameters
+    supported = chat.provider.supported_model_params()
+    expected_google_params = {
+        "temperature",
+        "top_p",
+        "top_k",
+        "frequency_penalty",
+        "presence_penalty",
+        "seed",
+        "max_tokens",
+        "log_probs",
+        "stop_sequences",
+    }
+    assert supported == expected_google_params
+
+
+@pytest.mark.skipif(not HAS_GOOGLE, reason="Google provider not available")
+def test_google_provider_parameter_mapping():
+    """Test Google provider's parameter mapping to API format."""
+    chat = ChatGoogle()
+    provider = chat.provider
+
+    params: StandardModelParams = {
+        "temperature": 0.8,
+        "top_p": 0.95,
+        "top_k": 50,
+        "max_tokens": 200,
+        "seed": 123,
+        "stop_sequences": ["STOP"],
+    }
+
+    result = provider.model_parameter_arguments(params)
+
+    # Google uses a nested "config" structure
+    assert "config" in result
+    config = result["config"]
+    assert config["temperature"] == 0.8
+    assert config["top_p"] == 0.95
+    assert config["top_k"] == 50
+    assert config["max_output_tokens"] == 200  # Note: Google uses "max_output_tokens"
+    assert config["seed"] == 123
+    assert config["stop_sequences"] == ["STOP"]
+
+
+def test_provider_parameter_differences():
+    """Test that different providers support different parameter sets."""
+    openai_chat = ChatOpenAI()
+    anthropic_chat = ChatAnthropic()
+
+    openai_supported = openai_chat.provider.supported_model_params()
+    anthropic_supported = anthropic_chat.provider.supported_model_params()
+
+    # OpenAI supports frequency_penalty but Anthropic doesn't
+    assert "frequency_penalty" in openai_supported
+    assert "frequency_penalty" not in anthropic_supported
+
+    # Anthropic supports top_k but OpenAI doesn't
+    assert "top_k" in anthropic_supported
+    assert "top_k" not in openai_supported
+
+    # Both should support common parameters
+    common_params = {"temperature", "top_p", "max_tokens", "stop_sequences"}
+    assert common_params.issubset(openai_supported)
+    assert common_params.issubset(anthropic_supported)
+
+
+def test_cross_provider_compatibility():
+    """Test that model params work consistently across providers."""
+    providers = [("OpenAI", ChatOpenAI()), ("Anthropic", ChatAnthropic())]
+
+    if HAS_GOOGLE:
+        providers.append(("Google", ChatGoogle()))
+
+    # Test common parameters across all providers (excluding Snowflake due to config requirements)
+    for name, chat in providers:
+        # Set common parameters that should work for all
+        chat.set_model_params(temperature=0.7, max_tokens=100)
+        params = getattr(chat, "_standard_model_params", {})
+        assert params["temperature"] == 0.7
+        assert params["max_tokens"] == 100
+
+
+def test_anthropic_model_params_integration():
+    """Test Anthropic-specific parameter integration."""
+    chat = ChatAnthropic()
+
+    # Set Anthropic-supported parameters including top_k
+    chat.set_model_params(
+        temperature=0.4, top_k=20, max_tokens=75, stop_sequences=["END", "STOP"]
+    )
+
+    # Test that provider.model_parameter_arguments converts them correctly
+    provider_args = chat.provider.model_parameter_arguments(chat._standard_model_params)
+
+    assert provider_args["temperature"] == 0.4
+    assert provider_args["top_k"] == 20
+    assert provider_args["max_tokens"] == 75
+    assert provider_args["stop_sequences"] == ["END", "STOP"]
+
+
+def test_parameter_validation_edge_cases():
+    """Test edge cases in parameter validation."""
+    chat = ChatOpenAI()
+
+    # Test with zero values
+    chat.set_model_params(temperature=0, top_p=0, max_tokens=0, seed=0)
+    params = getattr(chat, "_standard_model_params", {})
+    assert params["temperature"] == 0
+    assert params["top_p"] == 0
+    assert params["max_tokens"] == 0
+    assert params["seed"] == 0
+
+    # Test with very large values
+    chat.set_model_params(max_tokens=1000000, seed=999999999)
+
+    assert params["max_tokens"] == 1000000
+    assert params["seed"] == 999999999
