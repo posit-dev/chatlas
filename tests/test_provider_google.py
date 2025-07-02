@@ -26,7 +26,7 @@ if do_test.lower() == "false":
 
 def chat_func(vertex: bool = False, **kwargs):
     chat = ChatGoogle(**kwargs) if not vertex else ChatVertex(**kwargs)
-    chat.set_model_params(temperature=0, seed=42)
+    chat.set_model_params(temperature=0)
     return chat
 
 
@@ -57,7 +57,7 @@ def test_google_simple_request():
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (18, 2) or turn.tokens == (18, 1)
+    assert turn.tokens == (18, 1)
     assert turn.finish_reason == "STOP"
     assert chat.provider.name == "Google/Gemini"
 
@@ -83,12 +83,18 @@ def test_name_setting():
     )
     assert chat.provider.name == "Google/Gemini"
 
+    chat = chat_func(
+        vertex=True,
+        system_prompt="Be as terse as possible; no punctuation",
+    )
+    assert chat.provider.name == "Google/Vertex"
+
 
 @pytest.mark.asyncio
 @retry_gemini_call
 async def test_google_simple_streaming_request():
     chat = chat_func(
-        system_prompt="Be as terse as possible; no punctuation",
+        system_prompt="Be as terse as possible; no punctuation. Do not spell out numbers.",
     )
     res = []
     async for x in await chat.stream_async("What is 1 + 1?"):

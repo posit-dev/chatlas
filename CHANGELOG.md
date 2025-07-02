@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
-* `ChatGoogle()` and `ChatVertext()` now default to Gemini 2.5 (instead of 2.0). (#125)
+* `ChatGoogle()` and `ChatVertex()` now default to Gemini 2.5 (instead of 2.0). (#125)
 * `ChatOpenAI()` and `ChatGithub()` now default to GPT 4.1 (instead of 4o). (#115)
 * `ChatAnthropic()` now supports `content_image_url()`. (#112)
 * HTML styling improvements for `ContentToolResult` and `ContentToolRequest`. (#39)
