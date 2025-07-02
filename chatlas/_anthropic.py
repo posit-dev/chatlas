@@ -703,7 +703,6 @@ def ChatBedrockAnthropic(
 
 
 class AnthropicBedrockProvider(AnthropicProvider):
-
     def __init__(
         self,
         *,
