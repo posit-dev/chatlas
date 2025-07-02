@@ -304,6 +304,14 @@ def test_get_cost():
         ]
     )
 
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Expected `options` to be one of 'all' or 'last', not 'bad_option'"
+        ),
+    ):
+        chat.get_cost(options="bad_option")
+
     # Checking that these have the right form vs. the actual calculation because the price may change
     cost = chat.get_cost(options="all")
     assert isinstance(cost, float)
@@ -322,3 +330,18 @@ def test_get_cost():
 
     last2 = chat.get_cost(options="last", token_price=byoc)
     assert last2 == 0.00003
+
+    chat2 = ChatOpenAI(api_key="fake_key", model="BADBAD")
+    chat2.set_turns(
+        [
+            Turn(role="user", contents="Hi"),
+            Turn(role="assistant", contents="Hello", tokens=(2, 10)),
+            Turn(role="user", contents="Hi"),
+            Turn(role="assistant", contents="Hello", tokens=(14, 10)),
+        ]
+    )
+    with pytest.raises(
+        KeyError,
+        match="We could not locate pricing information for model 'BADBAD' from provider 'OpenAI'. If you know the pricing for this model, specify it in `token_price`.",
+    ):
+        chat2.get_cost(options="all")

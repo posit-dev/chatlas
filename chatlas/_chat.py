@@ -368,16 +368,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             output_token_price = token_price[1] / 1e6
         else:
             price_token = get_token_pricing(self.provider.name, self.provider.model)
+            if not price_token:
+                raise KeyError(
+                    f"We could not locate pricing information for model '{ self.provider.model }' from provider '{ self.provider.name }'. "
+                    "If you know the pricing for this model, specify it in `token_price`."
+                )
             input_token_price = price_token["input"] / 1e6
             output_token_price = price_token["output"] / 1e6
 
-        if not input_token_price and not output_token_price:
-            raise KeyError(
-                f"We could not locate provider ' { self.provider.name } ' and model '{ self.provider.model } ' in our pricing information. Please supply your own if you wish to use the cost function."
-            )
-
         if len(turns_tokens) == 0:
             return 0.0
+
+        if options not in ("all", "last"):
+            raise ValueError(
+                f"Expected `options` to be one of 'all' or 'last', not '{ options }'"
+            )
 
         if options == "all":
             asst_tokens = sum(
