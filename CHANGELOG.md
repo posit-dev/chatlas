@@ -40,8 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
-* `Chat`'s representation will now include cost information if it can be calculated. (#106)
-* `token_usage()` will include cost if it can be calculated. (#106)
+* `Chat`'s representation now includes cost information if it can be calculated. (#106)
+* `token_usage()` includes cost if it can be calculated. (#106)
 * `ChatOpenAI()` and `ChatGithub()` now default to GPT 4.1 (instead of 4o). (#115)
 * `ChatAnthropic()` now supports `content_image_url()`. (#112)
 * HTML styling improvements for `ContentToolResult` and `ContentToolRequest`. (#39)
