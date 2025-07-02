@@ -427,7 +427,7 @@ class GoogleProvider(
             )
         elif isinstance(content, ContentToolResult):
             if isinstance(
-                content.value, (ContentToolResultImage, ContentToolResultResource)
+                content, (ContentToolResultImage, ContentToolResultResource)
             ):
                 raise NotImplementedError(
                     "Tool results with images or resources aren't supported by Google (Gemini). "
