@@ -36,9 +36,3 @@ jobs:
                     echo "::error::Ellmer's prices.json does not match the current Chatlas prices.json"
                     exit 1
                 fi
-
-
-                
-            
-        
-            

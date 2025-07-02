@@ -21,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * A `Tool` can now be constructed from a pre-existing tool schema (via a new `__init__` method). (#39)
 * The `Chat.app()` method gains a `host` parameter. (#122) 
 * `ChatGithub()` now supports the more standard `GITHUB_TOKEN` environment variable for storing the API key. (#123)
-* Token pricing can now be looked up from our internally maintained price list using `get_token_pricing()`. (#106)
 
 ### Breaking changes
 
@@ -32,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Breaking Changes
 
 * `Chat`'s `.tokens()` methods have been removed in favor of `.get_tokens()` which returns both cumulative tokens in the turn and discrete tokens. (#106)
-* `Provider`s now require a name and model. Sensible defaults are supplied for our implemented providers. They are set during initialization as properties. (#106)
+* The base `Provider` class now includes a `name` and `model` property. In order for them to work properly, implementations should pass a `name` and `model` along to the `__init__()` method. (#106)
 
 #### Other Changes
 
@@ -41,8 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
-* `Chat`'s representation will now include cost information if it can be calculated. (#106)
-* `token_usage()` will include cost if it can be calculated. (#106)
+* `Chat`'s representation now includes cost information if it can be calculated. (#106)
+* `token_usage()` includes cost if it can be calculated. (#106)
 * `ChatOpenAI()` and `ChatGithub()` now default to GPT 4.1 (instead of 4o). (#115)
 * `ChatAnthropic()` now supports `content_image_url()`. (#112)
 * HTML styling improvements for `ContentToolResult` and `ContentToolRequest`. (#39)
