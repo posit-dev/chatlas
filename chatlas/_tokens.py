@@ -106,7 +106,7 @@ class TokenPrice(TypedDict):
 
 # Load in pricing pulled from ellmer
 f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="utf-8")
-PricingList: list[TokenPrice] = orjson.loads(f)
+pricing_list: list[TokenPrice] = orjson.loads(f)
 
 
 def get_token_pricing(name: str, model: str) -> TokenPrice | None:
@@ -125,7 +125,7 @@ def get_token_pricing(name: str, model: str) -> TokenPrice | None:
     result = next(
         (
             item
-            for item in PricingList
+            for item in pricing_list
             if item["provider"] == name and item["model"] == model
         ),
         None,

@@ -58,6 +58,12 @@ class AnyTypeDict(TypedDict, total=False):
 class TokensDict(TypedDict):
     """
     A TypedDict representing the token counts for a turn in the chat.
+    This is used to represent the token counts for each turn in the chat.
+        `role` represents the role of the turn (i.e., "user" or "assistant").
+        `tokens` represents the new tokens used in the turn.
+        `tokens_total` represents the total tokens used in the turn.
+        Ex. A new user input of 2 tokens is sent, plus 10 tokens of context from prior turns (input and output).
+         This would have a `tokens_total` of 12.
     """
 
     role: Literal["user", "assistant"]
@@ -235,11 +241,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Returns
         -------
         list[TokensDict]
-            A list of dictionaries with the token counts for each (non-system) turn
-            in the chat.
-            `tokens` represents the new tokens used in the turn.
-            `tokens_total` represents the total tokens used in the turn.
-            Ex. A new user input of 2 tokens is sent, plus 10 tokens of context from prior turns (input and output) would have a `tokens_total` of 12.
+             A list of dictionaries with the token counts for each (non-system) turn
 
         Raises
         ------
