@@ -43,26 +43,39 @@ from ._display import (
 )
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
-from ._provider import Provider
+from ._provider import Provider, StandardModelParams, SubmitInputArgsT
+from ._tokens import get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
-from ._typing_extensions import TypedDict
-from ._utils import html_escape, wrap_async
+from ._typing_extensions import TypedDict, TypeGuard
+from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 
-class AnyTypeDict(TypedDict, total=False):
-    pass
+class TokensDict(TypedDict):
+    """
+    A TypedDict representing the token counts for a turn in the chat.
+    This is used to represent the token counts for each turn in the chat.
+        `role` represents the role of the turn (i.e., "user" or "assistant").
+        `tokens` represents the new tokens used in the turn.
+        `tokens_total` represents the total tokens used in the turn.
+        Ex. A new user input of 2 tokens is sent, plus 10 tokens of context from prior turns (input and output).
+         This would have a `tokens_total` of 12.
+    """
 
+    role: Literal["user", "assistant"]
+    tokens: int
+    tokens_total: int
 
-SubmitInputArgsT = TypeVar("SubmitInputArgsT", bound=AnyTypeDict)
-"""
-A TypedDict representing the arguments that can be passed to the `.chat()`
-method of a [](`~chatlas.Chat`) instance.
-"""
 
 CompletionT = TypeVar("CompletionT")
 
 EchoOptions = Literal["output", "all", "none", "text"]
+
+T = TypeVar("T")
+
+
+def is_present(value: T | None | MISSING_TYPE) -> TypeGuard[T]:
+    return value is not None and not isinstance(value, MISSING_TYPE)
 
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
@@ -83,7 +96,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def __init__(
         self,
         provider: Provider,
-        turns: Optional[Sequence[Turn]] = None,
+        system_prompt: Optional[str] = None,
     ):
         """
         Create a new chat object.
@@ -92,11 +105,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         provider
             A [](`~chatlas.Provider`) object.
-        turns
-            A list of [](`~chatlas.Turn`) objects to initialize the chat with.
+        system_prompt
+            A system prompt to set the behavior of the assistant.
         """
         self.provider = provider
-        self._turns: list[Turn] = list(turns or [])
+        self._turns: list[Turn] = []
+        self.system_prompt = system_prompt
+
         self._tools: dict[str, Tool] = {}
         self._on_tool_request_callbacks = CallbackManager()
         self._on_tool_result_callbacks = CallbackManager()
@@ -107,6 +122,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "css_styles": {},
         }
         self._mcp_manager = MCPSessionManager()
+
+        # Chat input parameters from `set_model_params()`
+        self._standard_model_params: StandardModelParams = {}
+        self._submit_input_kwargs: Optional[SubmitInputArgsT] = None
 
     def get_turns(
         self,
@@ -151,8 +170,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         Set the turns of the chat.
 
-        This method is primarily useful for clearing or setting the turns of the
-        chat (i.e., limiting the context window).
+        Replaces the current chat history state (i.e., turns) with the provided turns.
+        This can be useful for:
+            * Clearing (or trimming) the chat history (i.e., `.set_turns([])`).
+            * Restoring context from a previous chat.
 
         Parameters
         ----------
@@ -167,7 +188,28 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Consider removing this turn and setting the `.system_prompt` separately "
                 "if you want to change the system prompt."
             )
-        self._turns = list(turns)
+
+        turns_list = list(turns)
+        # Preserve the system prompt if it exists
+        if self._turns and self._turns[0].role == "system":
+            turns_list.insert(0, self._turns[0])
+        self._turns = turns_list
+
+    def add_turn(self, turn: Turn):
+        """
+        Add a turn to the chat.
+
+        Parameters
+        ----------
+        turn
+            The turn to add. Turns with the role "system" are not allowed.
+        """
+        if turn.role == "system":
+            raise ValueError(
+                "Turns with the role 'system' are not allowed. "
+                "The system prompt must be set separately using the `.system_prompt` property."
+            )
+        self._turns.append(turn)
 
     @property
     def system_prompt(self) -> str | None:
@@ -190,43 +232,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if value is not None:
             self._turns.insert(0, Turn("system", value))
 
-    @overload
-    def tokens(self) -> list[tuple[int, int] | None]: ...
-
-    @overload
-    def tokens(
-        self,
-        values: Literal["cumulative"],
-    ) -> list[tuple[int, int] | None]: ...
-
-    @overload
-    def tokens(
-        self,
-        values: Literal["discrete"],
-    ) -> list[int]: ...
-
-    def tokens(
-        self,
-        values: Literal["cumulative", "discrete"] = "discrete",
-    ) -> list[int] | list[tuple[int, int] | None]:
+    def get_tokens(self) -> list[TokensDict]:
         """
         Get the tokens for each turn in the chat.
 
-        Parameters
-        ----------
-        values
-            If "cumulative" (the default), the result can be summed to get the
-            chat's overall token usage (helpful for computing overall cost of
-            the chat). If "discrete", the result can be summed to get the number of
-            tokens the turns will cost to generate the next response (helpful
-            for estimating cost of the next response, or for determining if you
-            are about to exceed the token limit).
-
         Returns
         -------
-        list[int]
-            A list of token counts for each (non-system) turn in the chat. The
-            1st turn includes the tokens count for the system prompt (if any).
+        list[TokensDict]
+             A list of dictionaries with the token counts for each (non-system) turn
 
         Raises
         ------
@@ -239,9 +252,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         turns = self.get_turns(include_system_prompt=False)
-
-        if values == "cumulative":
-            return [turn.tokens for turn in turns]
 
         if len(turns) == 0:
             return []
@@ -278,12 +288,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Expected the 1st assistant turn to contain token counts. " + err_info
             )
 
-        res: list[int] = [
+        res: list[TokensDict] = [
             # Implied token count for the 1st user input
-            turns[1].tokens[0],
+            {
+                "role": "user",
+                "tokens": turns[1].tokens[0],
+                "tokens_total": turns[1].tokens[0],
+            },
             # The token count for the 1st assistant response
-            turns[1].tokens[1],
+            {
+                "role": "assistant",
+                "tokens": turns[1].tokens[1],
+                "tokens_total": turns[1].tokens[1],
+            },
         ]
+
         for i in range(1, len(turns) - 1, 2):
             ti = turns[i]
             tj = turns[i + 2]
@@ -298,14 +317,101 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 )
             res.extend(
                 [
-                    # Implied token count for the user input
-                    tj.tokens[0] - sum(ti.tokens),
-                    # The token count for the assistant response
-                    tj.tokens[1],
+                    {
+                        "role": "user",
+                        # Implied token count for the user input
+                        "tokens": tj.tokens[0] - sum(ti.tokens),
+                        # Total tokens = Total User Tokens for the Turn = Distinct new tokens + context sent
+                        "tokens_total": tj.tokens[0],
+                    },
+                    {
+                        "role": "assistant",
+                        # The token count for the assistant response
+                        "tokens": tj.tokens[1],
+                        # Total tokens = Total Assistant tokens used in the turn
+                        "tokens_total": tj.tokens[1],
+                    },
                 ]
             )
 
         return res
+
+    def get_cost(
+        self,
+        options: Literal["all", "last"] = "all",
+        token_price: Optional[tuple[float, float]] = None,
+    ) -> float:
+        """
+        Estimate the cost of the chat.
+
+        Note
+        ----
+        This is a rough estimate, treat it as such. Providers may change their
+        pricing frequently and without notice.
+
+        Parameters
+        ----------
+        options
+            One of the following (default is "all"):
+              - `"all"`: Return the total cost of all turns in the chat.
+              - `"last"`: Return the cost of the last turn in the chat.
+        token_price
+            An optional tuple in the format of (input_token_cost,
+            output_token_cost) for bringing your own cost information.
+                 - `"input_token_cost"`: The cost per user token in USD per
+                   million tokens.
+                 - `"output_token_cost"`: The cost per assistant token in USD
+                   per million tokens.
+
+        Returns
+        -------
+        float
+            The cost of the chat, in USD.
+        """
+
+        # Look up token cost for user and input tokens based on the provider and model
+        turns_tokens = self.get_tokens()
+        if token_price:
+            input_token_price = token_price[0] / 1e6
+            output_token_price = token_price[1] / 1e6
+        else:
+            price_token = get_token_pricing(self.provider.name, self.provider.model)
+            if not price_token:
+                raise KeyError(
+                    f"We could not locate pricing information for model '{self.provider.model}' from provider '{self.provider.name}'. "
+                    "If you know the pricing for this model, specify it in `token_price`."
+                )
+            input_token_price = price_token["input"] / 1e6
+            output_token_price = price_token["output"] / 1e6
+
+        if len(turns_tokens) == 0:
+            return 0.0
+
+        if options not in ("all", "last"):
+            raise ValueError(
+                f"Expected `options` to be one of 'all' or 'last', not '{options}'"
+            )
+
+        if options == "all":
+            asst_tokens = sum(
+                u["tokens_total"] for u in turns_tokens if u["role"] == "assistant"
+            )
+            user_tokens = sum(
+                u["tokens_total"] for u in turns_tokens if u["role"] == "user"
+            )
+            cost = (asst_tokens * output_token_price) + (
+                user_tokens * input_token_price
+            )
+            return cost
+
+        last_turn = turns_tokens[-1]
+        if last_turn["role"] == "assistant":
+            return last_turn["tokens"] * output_token_price
+        if last_turn["role"] == "user":
+            return last_turn["tokens_total"] * input_token_price
+        raise ValueError(
+            f"Expected last turn to have a role of 'user' or `'assistant'`, not '{last_turn['role']}'"
+        )
 
     def token_count(
         self,
@@ -399,6 +505,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         stream: bool = True,
         port: int = 0,
+        host: str = "127.0.0.1",
         launch_browser: bool = True,
         bg_thread: Optional[bool] = None,
         echo: Optional[EchoOptions] = None,
@@ -414,6 +521,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Whether to stream the response (i.e., have the response appear in chunks).
         port
             The port to run the app on (the default is 0, which will choose a random port).
+        host
+            The host to run the app on (the default is "127.0.0.1").
         launch_browser
             Whether to launch a browser window.
         bg_thread
@@ -481,7 +590,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         app = App(app_ui, server)
 
         def _run_app():
-            run_app(app, launch_browser=launch_browser, port=port)
+            run_app(app, launch_browser=launch_browser, port=port, host=host)
 
         # Use bg_thread by default in Jupyter and Positron
         if bg_thread is None:
@@ -911,6 +1020,128 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         json = res[0]
         return json.value
+
+    def set_model_params(
+        self,
+        *,
+        temperature: float | None | MISSING_TYPE = MISSING,
+        top_p: float | None | MISSING_TYPE = MISSING,
+        top_k: int | None | MISSING_TYPE = MISSING,
+        frequency_penalty: float | None | MISSING_TYPE = MISSING,
+        presence_penalty: float | None | MISSING_TYPE = MISSING,
+        seed: int | None | MISSING_TYPE = MISSING,
+        max_tokens: int | None | MISSING_TYPE = MISSING,
+        log_probs: bool | None | MISSING_TYPE = MISSING,
+        stop_sequences: list[str] | None | MISSING_TYPE = MISSING,
+        kwargs: SubmitInputArgsT | None | MISSING_TYPE = MISSING,
+    ):
+        """
+        Set common model parameters for the chat.
+
+        A unified interface for setting common model parameters
+        across different providers. This method is useful for setting
+        parameters that are commonly supported by most providers, such as
+        temperature, top_p, etc.
+
+        By default, if the parameter is not set (i.e., set to `MISSING`),
+        the provider's default value is used. If you want to reset a
+        parameter to its default value, set it to `None`.
+
+        Parameters
+        ----------
+        temperature
+            Temperature of the sampling distribution.
+        top_p
+            The cumulative probability for token selection.
+        top_k
+            The number of highest probability vocabulary tokens to keep.
+        frequency_penalty
+            Frequency penalty for generated tokens.
+        presence_penalty
+            Presence penalty for generated tokens.
+        seed
+            Seed for random number generator.
+        max_tokens
+            Maximum number of tokens to generate.
+        log_probs
+            Include the log probabilities in the output?
+        stop_sequences
+            A character vector of tokens to stop generation on.
+        kwargs
+            Additional keyword arguments to use when submitting input to the
+            model. When calling this method repeatedly with different parameters,
+            only the parameters from the last call will be used.
+        """
+
+        params: StandardModelParams = {}
+
+        # Collect specified parameters
+        if is_present(temperature):
+            params["temperature"] = temperature
+        if is_present(top_p):
+            params["top_p"] = top_p
+        if is_present(top_k):
+            params["top_k"] = top_k
+        if is_present(frequency_penalty):
+            params["frequency_penalty"] = frequency_penalty
+        if is_present(presence_penalty):
+            params["presence_penalty"] = presence_penalty
+        if is_present(seed):
+            params["seed"] = seed
+        if is_present(max_tokens):
+            params["max_tokens"] = max_tokens
+        if is_present(log_probs):
+            params["log_probs"] = log_probs
+        if is_present(stop_sequences):
+            params["stop_sequences"] = stop_sequences
+
+        # Warn about un-supported parameters
+        supported = self.provider.supported_model_params()
+        unsupported = set(params.keys()) - set(supported)
+        if unsupported:
+            warnings.warn(
+                f"The following parameters are not supported by the provider: {unsupported}. "
+                "Please check the provider's documentation for supported parameters.",
+                UserWarning,
+            )
+            # Drop the unsupported parameters
+            for key in unsupported:
+                del params[key]
+
+        # Drop parameters that are set to None
+        discard = []
+        if temperature is None:
+            discard.append("temperature")
+        if top_p is None:
+            discard.append("top_p")
+        if top_k is None:
+            discard.append("top_k")
+        if frequency_penalty is None:
+            discard.append("frequency_penalty")
+        if presence_penalty is None:
+            discard.append("presence_penalty")
+        if seed is None:
+            discard.append("seed")
+        if max_tokens is None:
+            discard.append("max_tokens")
+        if log_probs is None:
+            discard.append("log_probs")
+        if stop_sequences is None:
+            discard.append("stop_sequences")
+
+        for key in discard:
+            if key in self._standard_model_params:
+                del self._standard_model_params[key]
+
+        # Update the standard model parameters
+        self._standard_model_params.update(params)
+
+        # Update the submit input kwargs
+        if kwargs is None:
+            self._submit_input_kwargs = None
+
+        if is_present(kwargs):
+            self._submit_input_kwargs = kwargs
 
     async def register_mcp_tools_http_stream_async(
         self,
@@ -1694,13 +1925,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if echo == "all":
             emit_user_contents(user_turn, emit)
 
+        # Start collecting additional keyword args (from model parameters)
+        all_kwargs = self.provider.translate_model_params(
+            params=self._standard_model_params,
+        )
+
+        # Add any additional kwargs provided by the user
+        if self._submit_input_kwargs:
+            all_kwargs.update(self._submit_input_kwargs)
+
+        if kwargs:
+            all_kwargs.update(kwargs)
+
         if stream:
             response = self.provider.chat_perform(
                 stream=True,
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
                 data_model=data_model,
-                kwargs=kwargs,
+                kwargs=all_kwargs,
             )
 
             result = None
@@ -1725,7 +1968,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
                 data_model=data_model,
-                kwargs=kwargs,
+                kwargs=all_kwargs,
             )
 
             turn = self.provider.value_turn(
@@ -1978,8 +2221,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def __repr__(self):
         turns = self.get_turns(include_system_prompt=True)
-        tokens = sum(sum(turn.tokens) for turn in turns if turn.tokens)
-        res = f"<Chat turns={len(turns)} tokens={tokens}>"
+        tokens = self.get_tokens()
+        cost = self.get_cost()
+        tokens_asst = sum(u["tokens_total"] for u in tokens if u["role"] == "assistant")
+        tokens_user = sum(u["tokens_total"] for u in tokens if u["role"] == "user")
+
+        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)} tokens={tokens_user}/{tokens_asst} ${round(cost, ndigits=2)}>"
         for turn in turns:
             res += "\n" + turn.__repr__(indent=2)
         return res + "\n"

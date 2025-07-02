@@ -21,14 +21,15 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import Provider
+from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import tokens_log
 from ._tools import Tool
-from ._turn import Turn, normalize_turns, user_turn
+from ._turn import Turn, user_turn
 
 if TYPE_CHECKING:
     from google.genai.types import Content as GoogleContent
     from google.genai.types import (
+        GenerateContentConfigDict,
         GenerateContentResponse,
         GenerateContentResponseDict,
         Part,
@@ -43,7 +44,6 @@ else:
 def ChatGoogle(
     *,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     model: Optional[str] = None,
     api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
@@ -82,13 +82,6 @@ def ChatGoogle(
     ----------
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch.
-        Do not provide non-`None` values for both `turns` and `system_prompt`.
-        Each message in the list should be a dictionary with at least `role`
-        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-        Normally there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly choosing
@@ -142,24 +135,25 @@ def ChatGoogle(
     """
 
     if model is None:
-        model = log_model_default("gemini-2.0-flash")
+        model = log_model_default("gemini-2.5-flash")
 
     return Chat(
         provider=GoogleProvider(
             model=model,
             api_key=api_key,
+            name="Google/Gemini",
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt=system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 
 class GoogleProvider(
     Provider[
-        GenerateContentResponse, GenerateContentResponse, "GenerateContentResponseDict"
+        GenerateContentResponse,
+        GenerateContentResponse,
+        "GenerateContentResponseDict",
+        "SubmitInputArgs",
     ]
 ):
     def __init__(
@@ -167,6 +161,7 @@ class GoogleProvider(
         *,
         model: str,
         api_key: str | None,
+        name: str = "Google/Gemini",
         kwargs: Optional["ChatClientArgs"],
     ):
         try:
@@ -176,8 +171,7 @@ class GoogleProvider(
                 f"The {self.__class__.__name__} class requires the `google-genai` package. "
                 "Install it with `pip install google-genai`."
             )
-
-        self._model = model
+        super().__init__(name=name, model=model)
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
@@ -269,7 +263,7 @@ class GoogleProvider(
         from google.genai.types import Tool as GoogleTool
 
         kwargs_full: "SubmitInputArgs" = {
-            "model": self._model,
+            "model": self.model,
             "contents": cast("GoogleContent", self._google_contents(turns)),
             **(kwargs or {}),
         }
@@ -533,6 +527,52 @@ class GoogleProvider(
             completion=message,
         )
 
+    def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
+        config: "GenerateContentConfigDict" = {}
+        if "temperature" in params:
+            config["temperature"] = params["temperature"]
+
+        if "top_p" in params:
+            config["top_p"] = params["top_p"]
+
+        if "top_k" in params:
+            config["top_k"] = params["top_k"]
+
+        if "frequency_penalty" in params:
+            config["frequency_penalty"] = params["frequency_penalty"]
+
+        if "presence_penalty" in params:
+            config["presence_penalty"] = params["presence_penalty"]
+
+        if "seed" in params:
+            config["seed"] = params["seed"]
+
+        if "max_tokens" in params:
+            config["max_output_tokens"] = params["max_tokens"]
+
+        if "log_probs" in params:
+            config["logprobs"] = params["log_probs"]
+
+        if "stop_sequences" in params:
+            config["stop_sequences"] = params["stop_sequences"]
+
+        res: "SubmitInputArgs" = {"config": config}
+
+        return res
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {
+            "temperature",
+            "top_p",
+            "top_k",
+            "frequency_penalty",
+            "presence_penalty",
+            "seed",
+            "max_tokens",
+            "log_probs",
+            "stop_sequences",
+        }
+
 
 def ChatVertex(
     *,
@@ -541,7 +581,6 @@ def ChatVertex(
     location: Optional[str] = None,
     api_key: Optional[str] = None,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", GenerateContentResponse]:
     """
@@ -578,13 +617,6 @@ def ChatVertex(
         GOOGLE_CLOUD_LOCATION environment variable will be used.
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch.
-        Do not provide non-`None` values for both `turns` and `system_prompt`.
-        Each message in the list should be a dictionary with at least `role`
-        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-        Normally there is also a `content` field, which is a string.
 
     Returns
     -------
@@ -614,16 +646,14 @@ def ChatVertex(
     kwargs["location"] = location
 
     if model is None:
-        model = log_model_default("gemini-2.0-flash")
+        model = log_model_default("gemini-2.5-flash")
 
     return Chat(
         provider=GoogleProvider(
             model=model,
             api_key=api_key,
+            name="Google/Vertex",
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt=system_prompt,
-        ),
+        system_prompt=system_prompt,
     )

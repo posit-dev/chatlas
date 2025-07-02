@@ -4,6 +4,7 @@ import base64
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import orjson
+from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -22,10 +23,10 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import Provider
+from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns, user_turn
+from ._turn import Turn, user_turn
 from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -55,7 +56,6 @@ ChatCompletionDict = dict[str, Any]
 def ChatOpenAI(
     *,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     model: "Optional[ChatModel | str]" = None,
     api_key: Optional[str] = None,
     base_url: str = "https://api.openai.com/v1",
@@ -94,13 +94,6 @@ def ChatOpenAI(
     ----------
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-`None` values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
@@ -173,14 +166,13 @@ def ChatOpenAI(
             seed=seed,
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 
-class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict]):
+class OpenAIProvider(
+    Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict, "SubmitInputArgs"]
+):
     def __init__(
         self,
         *,
@@ -188,11 +180,11 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         model: str,
         base_url: str = "https://api.openai.com/v1",
         seed: Optional[int] = None,
+        name: str = "OpenAI",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
-        from openai import AsyncOpenAI, OpenAI
+        super().__init__(name=name, model=model)
 
-        self._model = model
         self._seed = seed
 
         kwargs_full: "ChatClientArgs" = {
@@ -289,7 +281,7 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_param(turns),
-            "model": self._model,
+            "model": self.model,
             **(kwargs or {}),
         }
 
@@ -584,6 +576,46 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             completion=completion,
         )
 
+    def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
+        res: "SubmitInputArgs" = {}
+        if "temperature" in params:
+            res["temperature"] = params["temperature"]
+
+        if "top_p" in params:
+            res["top_p"] = params["top_p"]
+
+        if "frequency_penalty" in params:
+            res["frequency_penalty"] = params["frequency_penalty"]
+
+        if "presence_penalty" in params:
+            res["presence_penalty"] = params["presence_penalty"]
+
+        if "seed" in params:
+            res["seed"] = params["seed"]
+
+        if "max_tokens" in params:
+            res["max_tokens"] = params["max_tokens"]
+
+        if "log_probs" in params:
+            res["logprobs"] = params["log_probs"]
+
+        if "stop_sequences" in params:
+            res["stop"] = params["stop_sequences"]
+
+        return res
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {
+            "temperature",
+            "top_p",
+            "frequency_penalty",
+            "presence_penalty",
+            "seed",
+            "max_tokens",
+            "log_probs",
+            "stop_sequences",
+        }
+
 
 def ChatAzureOpenAI(
     *,
@@ -592,7 +624,6 @@ def ChatAzureOpenAI(
     api_version: str,
     api_key: Optional[str] = None,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatAzureClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
@@ -635,13 +666,6 @@ def ChatAzureOpenAI(
         variable.
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch.
-        Do not provide non-None values for both `turns` and `system_prompt`.
-        Each message in the list should be a dictionary with at least `role`
-        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-        Normally there is also a `content` field, which is a string.
     seed
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
@@ -666,10 +690,7 @@ def ChatAzureOpenAI(
             seed=seed,
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 
@@ -678,15 +699,16 @@ class OpenAIAzureProvider(OpenAIProvider):
         self,
         *,
         endpoint: Optional[str] = None,
-        deployment_id: Optional[str] = None,
+        deployment_id: str,
         api_version: Optional[str] = None,
         api_key: Optional[str] = None,
         seed: int | None = None,
+        name: str = "OpenAIAzure",
+        model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
-        from openai import AsyncAzureOpenAI, AzureOpenAI
+        super().__init__(name=name, model=deployment_id)
 
-        self._model = deployment_id
         self._seed = seed
 
         kwargs_full: "ChatAzureClientArgs" = {

@@ -21,10 +21,10 @@ from ._content import (
     ContentToolResultResource,
 )
 from ._logging import log_model_default
-from ._provider import Provider
+from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns, user_turn
+from ._turn import Turn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -61,7 +61,6 @@ else:
 def ChatAnthropic(
     *,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     model: "Optional[ModelParam]" = None,
     api_key: Optional[str] = None,
     max_tokens: int = 4096,
@@ -107,13 +106,6 @@ def ChatAnthropic(
     ----------
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-None values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
@@ -180,22 +172,23 @@ def ChatAnthropic(
             max_tokens=max_tokens,
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 
-class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
+class AnthropicProvider(
+    Provider[Message, RawMessageStreamEvent, Message, "SubmitInputArgs"]
+):
     def __init__(
         self,
         *,
-        max_tokens: int,
+        max_tokens: int = 4096,
         model: str,
-        api_key: str | None,
+        api_key: Optional[str] = None,
+        name: str = "Anthropic",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
+        super().__init__(name=name, model=model)
         try:
             from anthropic import Anthropic, AsyncAnthropic
         except ImportError:
@@ -203,8 +196,6 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
                 "`ChatAnthropic()` requires the `anthropic` package. "
                 "You can install it with 'pip install anthropic'."
             )
-
-        self._model = model
         self._max_tokens = max_tokens
 
         kwargs_full: "ChatClientArgs" = {
@@ -327,7 +318,7 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_params(turns),
-            "model": self._model,
+            "model": self.model,
             "max_tokens": self._max_tokens,
             "tools": tool_schemas,
             **(kwargs or {}),
@@ -439,6 +430,34 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         ]
 
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
+
+    def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
+        res: "SubmitInputArgs" = {}
+        if "temperature" in params:
+            res["temperature"] = params["temperature"]
+
+        if "top_p" in params:
+            res["top_p"] = params["top_p"]
+
+        if "top_k" in params:
+            res["top_k"] = params["top_k"]
+
+        if "max_tokens" in params:
+            res["max_tokens"] = params["max_tokens"]
+
+        if "stop_sequences" in params:
+            res["stop_sequences"] = params["stop_sequences"]
+
+        return res
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {
+            "temperature",
+            "top_p",
+            "top_k",
+            "max_tokens",
+            "stop_sequences",
+        }
 
     def _as_message_params(self, turns: list[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
@@ -591,7 +610,6 @@ def ChatBedrockAnthropic(
     aws_session_token: Optional[str] = None,
     base_url: Optional[str] = None,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     kwargs: Optional["ChatBedrockClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
     """
@@ -657,13 +675,6 @@ def ChatBedrockAnthropic(
         `f"https://bedrock-runtime.{aws_region}.amazonaws.com"`.
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-None values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     kwargs
         Additional arguments to pass to the `anthropic.AnthropicBedrock()`
         client constructor.
@@ -737,10 +748,7 @@ def ChatBedrockAnthropic(
             base_url=base_url,
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 
@@ -754,10 +762,13 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_region: str | None,
         aws_profile: str | None,
         aws_session_token: str | None,
-        max_tokens: int,
+        max_tokens: int = 4096,
         base_url: str | None,
+        name: str = "AnthropicBedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
+        super().__init__(name=name, model=model, max_tokens=max_tokens)
+
         try:
             from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
         except ImportError:
@@ -765,9 +776,6 @@ class AnthropicBedrockProvider(AnthropicProvider):
                 "`ChatBedrockAnthropic()` requires the `anthropic` package. "
                 "Install it with `pip install anthropic[bedrock]`."
             )
-
-        self._model = model
-        self._max_tokens = max_tokens
 
         kwargs_full: "ChatBedrockClientArgs" = {
             "aws_secret_key": aws_secret_key,

@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING, Optional
 import orjson
 
 from ._chat import Chat
-from ._openai import ChatOpenAI
-from ._turn import Turn
+from ._openai import OpenAIProvider
+from ._utils import MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
     from ._openai import ChatCompletion
@@ -19,7 +19,6 @@ def ChatOllama(
     model: Optional[str] = None,
     *,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     base_url: str = "http://localhost:11434",
     seed: Optional[int] = None,
     kwargs: Optional["ChatClientArgs"] = None,
@@ -67,13 +66,6 @@ def ChatOllama(
         models will be printed.
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-`None` values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     base_url
         The base URL to the endpoint; the default uses ollama's API.
     seed
@@ -102,15 +94,19 @@ def ChatOllama(
         raise ValueError(
             f"Must specify model. Locally installed models: {', '.join(models)}"
         )
+    if isinstance(seed, MISSING_TYPE):
+        seed = 1014 if is_testing() else None
 
-    return ChatOpenAI(
+    return Chat(
+        provider=OpenAIProvider(
+            api_key="ollama",  # ignored
+            model=model,
+            base_url=f"{base_url}/v1",
+            seed=seed,
+            name="Ollama",
+            kwargs=kwargs,
+        ),
         system_prompt=system_prompt,
-        api_key="ollama",  # ignored
-        turns=turns,
-        base_url=f"{base_url}/v1",
-        model=model,
-        seed=seed,
-        kwargs=kwargs,
     )
 
 
