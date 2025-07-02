@@ -90,20 +90,18 @@ def tokens_reset() -> None:
 class TokenPrice(TypedDict):
     """
     Defines the necessary information to look up pricing for a given turn.
-
-    The keys are:
-        - `"provider"`: The provider name (e.g., "OpenAI", "Anthropic", etc.).
-        - `"model"`: The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.).
-        - `"cached_input"`: The cost per user token in USD per million tokens for cached input.
-        - `"input"`: The cost per user token in USD per million tokens.
-        - `"output"`: The cost per assistant token in USD per million tokens.
     """
 
     provider: str
+    """The provider name (e.g., "OpenAI", "Anthropic", etc.)"""
     model: str
+    """The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.)"""
     cached_input: float
+    """The cost per user token in USD per million tokens for cached input"""
     input: float
+    """The cost per user token in USD per million tokens"""
     output: float
+    """The cost per assistant token in USD per million tokens"""
 
 
 # Load in pricing pulled from ellmer
@@ -113,7 +111,12 @@ PricingList: list[TokenPrice] = orjson.loads(f)
 
 def get_token_pricing(name: str, model: str) -> TokenPrice | None:
     """
-    Get the token pricing for the chat if available based on the prices.json file.
+    Get token pricing information given a provider name and model
+
+    Note
+    ----
+    Only a subset of providers and models and currently supported.
+    The pricing information derives from ellmer.
 
     Returns
     -------
