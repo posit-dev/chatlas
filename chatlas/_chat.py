@@ -43,16 +43,12 @@ from ._display import (
 )
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
-from ._provider import Provider
+from ._provider import Provider, StandardModelParams, SubmitInputArgsT
 from ._tokens import get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
-from ._typing_extensions import TypedDict
-from ._utils import html_escape, wrap_async
-
-
-class AnyTypeDict(TypedDict, total=False):
-    pass
+from ._typing_extensions import TypedDict, TypeGuard
+from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 
 class TokensDict(TypedDict):
@@ -71,17 +67,15 @@ class TokensDict(TypedDict):
     tokens_total: int
 
 
-SubmitInputArgsT = TypeVar("SubmitInputArgsT", bound=AnyTypeDict)
-"""
-A TypedDict representing the arguments that can be passed to the `.chat()`
-method of a [](`~chatlas.Chat`) instance.
-"""
-
 CompletionT = TypeVar("CompletionT")
 
 EchoOptions = Literal["output", "all", "none", "text"]
 
-CostOptions = Literal["all", "last"]
+T = TypeVar("T")
+
+
+def is_present(value: T | None | MISSING_TYPE) -> TypeGuard[T]:
+    return value is not None and not isinstance(value, MISSING_TYPE)
 
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
@@ -128,6 +122,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "css_styles": {},
         }
         self._mcp_manager = MCPSessionManager()
+
+        # Chat input parameters from `set_model_params()`
+        self._standard_model_params: StandardModelParams = {}
+        self._submit_input_kwargs: Optional[SubmitInputArgsT] = None
 
     def get_turns(
         self,
@@ -340,11 +338,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def get_cost(
         self,
-        options: CostOptions = "all",
+        options: Literal["all", "last"] = "all",
         token_price: Optional[tuple[float, float]] = None,
     ) -> float:
         """
-        Get the cost of the chat. Note that this is a rough estimate. Providers may change their pricing frequently and without notice.
+        Estimate the cost of the chat.
+
+        Note
+        ----
+        This is a rough estimate, treat it as such. Providers may change their
+        pricing frequently and without notice.
 
         Parameters
         ----------
@@ -353,9 +356,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
               - `"all"`: Return the total cost of all turns in the chat.
               - `"last"`: Return the cost of the last turn in the chat.
         token_price
-            An optional tuple in the format of (input_token_cost, output_token_cost) for bringing your own cost information.
-                 - `"input_token_cost"`: The cost per user token in USD per million tokens.
-                 - `"output_token_cost"`: The cost per assistant token in USD per million tokens.
+            An optional tuple in the format of (input_token_cost,
+            output_token_cost) for bringing your own cost information.
+                 - `"input_token_cost"`: The cost per user token in USD per
+                   million tokens.
+                 - `"output_token_cost"`: The cost per assistant token in USD
+                   per million tokens.
 
         Returns
         -------
@@ -372,7 +378,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             price_token = get_token_pricing(self.provider.name, self.provider.model)
             if not price_token:
                 raise KeyError(
-                    f"We could not locate pricing information for model '{ self.provider.model }' from provider '{ self.provider.name }'. "
+                    f"We could not locate pricing information for model '{self.provider.model}' from provider '{self.provider.name}'. "
                     "If you know the pricing for this model, specify it in `token_price`."
                 )
             input_token_price = price_token["input"] / 1e6
@@ -383,7 +389,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         if options not in ("all", "last"):
             raise ValueError(
-                f"Expected `options` to be one of 'all' or 'last', not '{ options }'"
+                f"Expected `options` to be one of 'all' or 'last', not '{options}'"
             )
 
         if options == "all":
@@ -404,7 +410,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if last_turn["role"] == "user":
             return last_turn["tokens_total"] * input_token_price
         raise ValueError(
-            f"Expected last turn to have a role of 'user' or `'assistant'`, not '{ last_turn['role'] }'"
+            f"Expected last turn to have a role of 'user' or `'assistant'`, not '{last_turn['role']}'"
         )
 
     def token_count(
@@ -811,9 +817,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             kwargs=kwargs,
         )
 
-        def wrapper() -> (
-            Generator[str | ContentToolRequest | ContentToolResult, None, None]
-        ):
+        def wrapper() -> Generator[
+            str | ContentToolRequest | ContentToolResult, None, None
+        ]:
             with display:
                 for chunk in generator:
                     yield chunk
@@ -875,9 +881,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
-        async def wrapper() -> (
-            AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]
-        ):
+        async def wrapper() -> AsyncGenerator[
+            str | ContentToolRequest | ContentToolResult, None
+        ]:
             with display:
                 async for chunk in self._chat_impl_async(
                     turn,
@@ -1014,6 +1020,128 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         json = res[0]
         return json.value
+
+    def set_model_params(
+        self,
+        *,
+        temperature: float | None | MISSING_TYPE = MISSING,
+        top_p: float | None | MISSING_TYPE = MISSING,
+        top_k: int | None | MISSING_TYPE = MISSING,
+        frequency_penalty: float | None | MISSING_TYPE = MISSING,
+        presence_penalty: float | None | MISSING_TYPE = MISSING,
+        seed: int | None | MISSING_TYPE = MISSING,
+        max_tokens: int | None | MISSING_TYPE = MISSING,
+        log_probs: bool | None | MISSING_TYPE = MISSING,
+        stop_sequences: list[str] | None | MISSING_TYPE = MISSING,
+        kwargs: SubmitInputArgsT | None | MISSING_TYPE = MISSING,
+    ):
+        """
+        Set common model parameters for the chat.
+
+        A unified interface for setting common model parameters
+        across different providers. This method is useful for setting
+        parameters that are commonly supported by most providers, such as
+        temperature, top_p, etc.
+
+        By default, if the parameter is not set (i.e., set to `MISSING`),
+        the provider's default value is used. If you want to reset a
+        parameter to its default value, set it to `None`.
+
+        Parameters
+        ----------
+        temperature
+            Temperature of the sampling distribution.
+        top_p
+            The cumulative probability for token selection.
+        top_k
+            The number of highest probability vocabulary tokens to keep.
+        frequency_penalty
+            Frequency penalty for generated tokens.
+        presence_penalty
+            Presence penalty for generated tokens.
+        seed
+            Seed for random number generator.
+        max_tokens
+            Maximum number of tokens to generate.
+        log_probs
+            Include the log probabilities in the output?
+        stop_sequences
+            A character vector of tokens to stop generation on.
+        kwargs
+            Additional keyword arguments to use when submitting input to the
+            model. When calling this method repeatedly with different parameters,
+            only the parameters from the last call will be used.
+        """
+
+        params: StandardModelParams = {}
+
+        # Collect specified parameters
+        if is_present(temperature):
+            params["temperature"] = temperature
+        if is_present(top_p):
+            params["top_p"] = top_p
+        if is_present(top_k):
+            params["top_k"] = top_k
+        if is_present(frequency_penalty):
+            params["frequency_penalty"] = frequency_penalty
+        if is_present(presence_penalty):
+            params["presence_penalty"] = presence_penalty
+        if is_present(seed):
+            params["seed"] = seed
+        if is_present(max_tokens):
+            params["max_tokens"] = max_tokens
+        if is_present(log_probs):
+            params["log_probs"] = log_probs
+        if is_present(stop_sequences):
+            params["stop_sequences"] = stop_sequences
+
+        # Warn about un-supported parameters
+        supported = self.provider.supported_model_params()
+        unsupported = set(params.keys()) - set(supported)
+        if unsupported:
+            warnings.warn(
+                f"The following parameters are not supported by the provider: {unsupported}. "
+                "Please check the provider's documentation for supported parameters.",
+                UserWarning,
+            )
+            # Drop the unsupported parameters
+            for key in unsupported:
+                del params[key]
+
+        # Drop parameters that are set to None
+        discard = []
+        if temperature is None:
+            discard.append("temperature")
+        if top_p is None:
+            discard.append("top_p")
+        if top_k is None:
+            discard.append("top_k")
+        if frequency_penalty is None:
+            discard.append("frequency_penalty")
+        if presence_penalty is None:
+            discard.append("presence_penalty")
+        if seed is None:
+            discard.append("seed")
+        if max_tokens is None:
+            discard.append("max_tokens")
+        if log_probs is None:
+            discard.append("log_probs")
+        if stop_sequences is None:
+            discard.append("stop_sequences")
+
+        for key in discard:
+            if key in self._standard_model_params:
+                del self._standard_model_params[key]
+
+        # Update the standard model parameters
+        self._standard_model_params.update(params)
+
+        # Update the submit input kwargs
+        if kwargs is None:
+            self._submit_input_kwargs = None
+
+        if is_present(kwargs):
+            self._submit_input_kwargs = kwargs
 
     async def register_mcp_tools_http_stream_async(
         self,
@@ -1797,13 +1925,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if echo == "all":
             emit_user_contents(user_turn, emit)
 
+        # Start collecting additional keyword args (from model parameters)
+        all_kwargs = self.provider.translate_model_params(
+            params=self._standard_model_params,
+        )
+
+        # Add any additional kwargs provided by the user
+        if self._submit_input_kwargs:
+            all_kwargs.update(self._submit_input_kwargs)
+
+        if kwargs:
+            all_kwargs.update(kwargs)
+
         if stream:
             response = self.provider.chat_perform(
                 stream=True,
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
                 data_model=data_model,
-                kwargs=kwargs,
+                kwargs=all_kwargs,
             )
 
             result = None
@@ -1828,7 +1968,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
                 data_model=data_model,
-                kwargs=kwargs,
+                kwargs=all_kwargs,
             )
 
             turn = self.provider.value_turn(

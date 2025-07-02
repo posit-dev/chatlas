@@ -19,7 +19,7 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import Provider
+from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import tokens_log
 from ._tools import Tool
 from ._turn import Turn, user_turn
@@ -27,6 +27,7 @@ from ._turn import Turn, user_turn
 if TYPE_CHECKING:
     from google.genai.types import Content as GoogleContent
     from google.genai.types import (
+        GenerateContentConfigDict,
         GenerateContentResponse,
         GenerateContentResponseDict,
         Part,
@@ -147,7 +148,10 @@ def ChatGoogle(
 
 class GoogleProvider(
     Provider[
-        GenerateContentResponse, GenerateContentResponse, "GenerateContentResponseDict"
+        GenerateContentResponse,
+        GenerateContentResponse,
+        "GenerateContentResponseDict",
+        "SubmitInputArgs",
     ]
 ):
     def __init__(
@@ -513,6 +517,52 @@ class GoogleProvider(
             finish_reason=finish_reason,
             completion=message,
         )
+
+    def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
+        config: "GenerateContentConfigDict" = {}
+        if "temperature" in params:
+            config["temperature"] = params["temperature"]
+
+        if "top_p" in params:
+            config["top_p"] = params["top_p"]
+
+        if "top_k" in params:
+            config["top_k"] = params["top_k"]
+
+        if "frequency_penalty" in params:
+            config["frequency_penalty"] = params["frequency_penalty"]
+
+        if "presence_penalty" in params:
+            config["presence_penalty"] = params["presence_penalty"]
+
+        if "seed" in params:
+            config["seed"] = params["seed"]
+
+        if "max_tokens" in params:
+            config["max_output_tokens"] = params["max_tokens"]
+
+        if "log_probs" in params:
+            config["logprobs"] = params["log_probs"]
+
+        if "stop_sequences" in params:
+            config["stop_sequences"] = params["stop_sequences"]
+
+        res: "SubmitInputArgs" = {"config": config}
+
+        return res
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {
+            "temperature",
+            "top_p",
+            "top_k",
+            "frequency_penalty",
+            "presence_penalty",
+            "seed",
+            "max_tokens",
+            "log_probs",
+            "stop_sequences",
+        }
 
 
 def ChatVertex(

@@ -19,7 +19,7 @@ from ._content import (
     ContentToolResult,
 )
 from ._logging import log_model_default
-from ._provider import Provider
+from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, user_turn
@@ -174,7 +174,9 @@ def ChatAnthropic(
     )
 
 
-class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
+class AnthropicProvider(
+    Provider[Message, RawMessageStreamEvent, Message, "SubmitInputArgs"]
+):
     def __init__(
         self,
         *,
@@ -426,6 +428,34 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         ]
 
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
+
+    def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
+        res: "SubmitInputArgs" = {}
+        if "temperature" in params:
+            res["temperature"] = params["temperature"]
+
+        if "top_p" in params:
+            res["top_p"] = params["top_p"]
+
+        if "top_k" in params:
+            res["top_k"] = params["top_k"]
+
+        if "max_tokens" in params:
+            res["max_tokens"] = params["max_tokens"]
+
+        if "stop_sequences" in params:
+            res["stop_sequences"] = params["stop_sequences"]
+
+        return res
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {
+            "temperature",
+            "top_p",
+            "top_k",
+            "max_tokens",
+            "stop_sequences",
+        }
 
     def _as_message_params(self, turns: list[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
@@ -717,7 +747,6 @@ class AnthropicBedrockProvider(AnthropicProvider):
         name: str = "AnthropicBedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
-
         super().__init__(name=name, model=model, max_tokens=max_tokens)
 
         try:

@@ -20,7 +20,7 @@ from ._content import (
     ContentToolResult,
 )
 from ._logging import log_model_default
-from ._provider import Provider
+from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn
@@ -153,7 +153,9 @@ def ChatSnowflake(
     )
 
 
-class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChunk"]):
+class SnowflakeProvider(
+    Provider["Completion", "CompletionChunk", "CompletionChunk", "CompleteRequest"]
+):
     def __init__(
         self,
         *,
@@ -587,6 +589,26 @@ class SnowflakeProvider(Provider["Completion", "CompletionChunk", "CompletionChu
         )
 
         return models.Tool(tool_spec=spec)
+
+    def translate_model_params(self, params: StandardModelParams) -> "CompleteRequest":
+        res: "CompleteRequest" = {}
+        if "temperature" in params:
+            res["temperature"] = params["temperature"]
+
+        if "top_p" in params:
+            res["top_p"] = params["top_p"]
+
+        if "max_tokens" in params:
+            res["max_tokens"] = params["max_tokens"]
+
+        return res
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {
+            "temperature",
+            "top_p",
+            "max_tokens",
+        }
 
 
 # Yield parsed event data from the Snowflake SSEClient

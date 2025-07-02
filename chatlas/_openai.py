@@ -21,7 +21,7 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import Provider
+from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, user_turn
@@ -168,7 +168,9 @@ def ChatOpenAI(
     )
 
 
-class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict]):
+class OpenAIProvider(
+    Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict, "SubmitInputArgs"]
+):
     def __init__(
         self,
         *,
@@ -566,6 +568,46 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             completion=completion,
         )
 
+    def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
+        res: "SubmitInputArgs" = {}
+        if "temperature" in params:
+            res["temperature"] = params["temperature"]
+
+        if "top_p" in params:
+            res["top_p"] = params["top_p"]
+
+        if "frequency_penalty" in params:
+            res["frequency_penalty"] = params["frequency_penalty"]
+
+        if "presence_penalty" in params:
+            res["presence_penalty"] = params["presence_penalty"]
+
+        if "seed" in params:
+            res["seed"] = params["seed"]
+
+        if "max_tokens" in params:
+            res["max_tokens"] = params["max_tokens"]
+
+        if "log_probs" in params:
+            res["logprobs"] = params["log_probs"]
+
+        if "stop_sequences" in params:
+            res["stop"] = params["stop_sequences"]
+
+        return res
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {
+            "temperature",
+            "top_p",
+            "frequency_penalty",
+            "presence_penalty",
+            "seed",
+            "max_tokens",
+            "log_probs",
+            "stop_sequences",
+        }
+
 
 def ChatAzureOpenAI(
     *,
@@ -657,7 +699,6 @@ class OpenAIAzureProvider(OpenAIProvider):
         model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
-
         super().__init__(name=name, model=deployment_id)
 
         self._seed = seed
