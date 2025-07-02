@@ -2,6 +2,7 @@ import pytest
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
 from chatlas._openai import OpenAIAzureProvider, OpenAIProvider
 from chatlas._tokens import (
+    compute_price,
     get_token_pricing,
     token_usage,
     tokens_log,
@@ -70,6 +71,17 @@ def test_get_token_prices():
         chat = ChatOpenAI(model="ABCD")
         pricing = get_token_pricing(chat.provider.name, chat.provider.model)
         assert pricing is None
+
+
+def test_compute_price():
+    chat = ChatOpenAI(model="o1-mini")
+    price = compute_price(chat.provider.name, chat.provider.model, 10, 50)
+    assert isinstance(price, float)
+    assert price > 0
+
+    chat = ChatOpenAI(model="ABCD")
+    price = compute_price(chat.provider.name, chat.provider.model, 10, 50)
+    assert price is None
 
 
 def test_usage_is_none():
