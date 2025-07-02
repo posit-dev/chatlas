@@ -749,7 +749,6 @@ class AnthropicBedrockProvider(AnthropicProvider):
         name: str = "AnthropicBedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
-
         super().__init__(name=name, model=model, max_tokens=max_tokens)
 
         try:
