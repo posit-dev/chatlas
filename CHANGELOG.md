@@ -14,8 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `Chat` gains a handful of new methods: 
     * `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()`: for registering tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
     * `.get_tools()` and `.set_tools()`: for fine-grained control over registered tools. (#39)
-    * `.add_turn()`: to add `Turn`(s) to the current chat history. (#126)
+    * `.set_model_params()`: for setting common LLM parameters in a model-agnostic fashion. (#127)
     * `.get_cost()`: to get the estimated cost of the chat. Only popular models are supported, but you can also supply your own token prices. (#106)
+    * `.add_turn()`: to add `Turn`(s) to the current chat history. (#126)
 * Tool functions passed to `.register_tool()` can now `yield` numerous results. (#39)
 * New content classes (`ContentToolResultImage` and `ContentToolResultResource`) were added, primarily to represent MCP tool results that include images/files. (#39)
 * A `Tool` can now be constructed from a pre-existing tool schema (via a new `__init__` method). (#39)
