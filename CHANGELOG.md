@@ -21,7 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * A `Tool` can now be constructed from a pre-existing tool schema (via a new `__init__` method). (#39)
 * The `Chat.app()` method gains a `host` parameter. (#122) 
 * `ChatGithub()` now supports the more standard `GITHUB_TOKEN` environment variable for storing the API key. (#123)
-* Token pricing can now be looked up from our internally maintained price list using `get_token_pricing()`. (#106)
 
 ### Breaking changes
 
