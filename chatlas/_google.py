@@ -16,6 +16,8 @@ from ._content import (
     ContentText,
     ContentToolRequest,
     ContentToolResult,
+    ContentToolResultImage,
+    ContentToolResultResource,
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
@@ -424,6 +426,13 @@ class GoogleProvider(
                 )
             )
         elif isinstance(content, ContentToolResult):
+            if isinstance(
+                content, (ContentToolResultImage, ContentToolResultResource)
+            ):
+                raise NotImplementedError(
+                    "Tool results with images or resources aren't supported by Google (Gemini). "
+                )
+
             if content.error:
                 resp = {"error": content.error}
             else:
