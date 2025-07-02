@@ -23,16 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The `Chat.app()` method gains a `host` parameter. (#122) 
 * `ChatGithub()` now supports the more standard `GITHUB_TOKEN` environment variable for storing the API key. (#123)
 
-### Breaking changes
-
-* `Chat` constructors (`ChatOpenAI()`, `ChatAnthropic()`, etc) no longer have a `turns` keyword parameter. Use the `.set_turns()` method instead to set the (initial) chat history. (#126)
-
-### Changes
-
 #### Breaking Changes
 
+* `Chat` constructors (`ChatOpenAI()`, `ChatAnthropic()`, etc) no longer have a `turns` keyword parameter. Use the `.set_turns()` method instead to set the (initial) chat history. (#126)
 * `Chat`'s `.tokens()` methods have been removed in favor of `.get_tokens()` which returns both cumulative tokens in the turn and discrete tokens. (#106)
-* The base `Provider` class now includes a `name` and `model` property. In order for them to work properly, implementations should pass a `name` and `model` along to the `__init__()` method. (#106)
 
 #### Other Changes
 
@@ -41,15 +35,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
-* `Chat`'s representation now includes cost information if it can be calculated. (#106)
-* `token_usage()` includes cost if it can be calculated. (#106)
 * `ChatOpenAI()` and `ChatGithub()` now default to GPT 4.1 (instead of 4o). (#115)
 * `ChatAnthropic()` now supports `content_image_url()`. (#112)
 * HTML styling improvements for `ContentToolResult` and `ContentToolRequest`. (#39)
+* `Chat`'s representation now includes cost information if it can be calculated. (#106)
+* `token_usage()` includes cost if it can be calculated. (#106)
 
 ### Bug fixes
 
 * Fixed an issue where `httpx` client customization (e.g., `ChatOpenAI(kwargs = {"http_client": httpx.Client()})`) wasn't working as expected (#108)
+
+### Developer APIs
+
+* The base `Provider` class now includes a `name` and `model` property. In order for them to work properly, provider implementations should pass a `name` and `model` along to the `__init__()` method. (#106)
+* `Provider` implementations must implement two new abstract methods: `translate_model_params()` and `supported_model_params()`.
 
 ## [0.8.1] - 2025-05-30
 
