@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import base64
-import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import orjson
@@ -21,7 +20,7 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import Provider
+from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, user_turn
@@ -168,7 +167,9 @@ def ChatOpenAI(
     )
 
 
-class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict]):
+class OpenAIProvider(
+    Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict, SubmitInputArgs]
+):
     def __init__(
         self,
         *,
@@ -195,9 +196,6 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
         # TODO: worth bringing in AsyncOpenAI types?
         self._client = OpenAI(**sync_kwargs)  # type: ignore
         self._async_client = AsyncOpenAI(**async_kwargs)
-
-        # Additional kwargs to pass along from `.set_model_params()`
-        self._submit_input_kwargs: "SubmitInputArgs" = {}
 
     @overload
     def chat_perform(
@@ -281,7 +279,6 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             "stream": stream,
             "messages": self._as_message_param(turns),
             "model": self._model,
-            **self._submit_input_kwargs,
             **(kwargs or {}),
         }
 
@@ -570,49 +567,47 @@ class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletio
             completion=completion,
         )
 
-    def set_model_params(
-        self,
-        *,
-        temperature: Optional[float] = None,
-        top_p: Optional[float] = None,
-        top_k: Optional[int] = None,
-        frequency_penalty: Optional[float] = None,
-        presence_penalty: Optional[float] = None,
-        seed: Optional[int] = None,
-        max_tokens: Optional[int] = None,
-        log_probs: Optional[bool] = None,
-        stop_sequences: Optional[list[str]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
-    ):
-        kwargs2: "SubmitInputArgs" = {}
-        if temperature is not None:
-            kwargs2["temperature"] = temperature
-        if top_p is not None:
-            kwargs2["top_p"] = top_p
-        if frequency_penalty is not None:
-            kwargs2["frequency_penalty"] = frequency_penalty
-        if presence_penalty is not None:
-            kwargs2["presence_penalty"] = presence_penalty
-        if seed is not None:
-            kwargs2["seed"] = seed
-        if max_tokens is not None:
-            kwargs2["max_tokens"] = max_tokens
-        if log_probs is not None:
-            kwargs2["logprobs"] = log_probs
-        if stop_sequences is not None:
-            kwargs2["stop"] = stop_sequences
+    def model_parameter_arguments(
+        self, params: StandardModelParams
+    ) -> "SubmitInputArgs":
+        res: "SubmitInputArgs" = {}
+        if "temperature" in params:
+            res["temperature"] = params["temperature"]
 
-        if kwargs:
-            kwargs2.update(kwargs)
+        if "top_p" in params:
+            res["top_p"] = params["top_p"]
 
-        # OpenAI doesn't support top_k, warn user
-        if top_k is not None:
-            warnings.warn(
-                "top_k is not supported by OpenAI models. Ignoring top_k.",
-                stacklevel=2,
-            )
+        if "frequency_penalty" in params:
+            res["frequency_penalty"] = params["frequency_penalty"]
 
-        self._submit_input_kwargs = kwargs2
+        if "presence_penalty" in params:
+            res["presence_penalty"] = params["presence_penalty"]
+
+        if "seed" in params:
+            res["seed"] = params["seed"]
+
+        if "max_tokens" in params:
+            res["max_tokens"] = params["max_tokens"]
+
+        if "log_probs" in params:
+            res["logprobs"] = params["log_probs"]
+
+        if "stop_sequences" in params:
+            res["stop"] = params["stop_sequences"]
+
+        return res
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {
+            "temperature",
+            "top_p",
+            "frequency_penalty",
+            "presence_penalty",
+            "seed",
+            "max_tokens",
+            "log_probs",
+            "stop_sequences",
+        }
 
 
 def ChatAzureOpenAI(
@@ -720,9 +715,6 @@ class OpenAIAzureProvider(OpenAIProvider):
 
         self._client = AzureOpenAI(**sync_kwargs)  # type: ignore
         self._async_client = AsyncAzureOpenAI(**async_kwargs)  # type: ignore
-
-        # Additional kwargs to pass along from `.set_model_params()`
-        self._submit_input_kwargs: "SubmitInputArgs" = {}
 
 
 class InvalidJSONParameterWarning(RuntimeWarning):

@@ -19,7 +19,7 @@ from ._content import (
     ContentToolResult,
 )
 from ._logging import log_model_default
-from ._provider import Provider
+from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, user_turn
@@ -174,7 +174,9 @@ def ChatAnthropic(
     )
 
 
-class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
+class AnthropicProvider(
+    Provider[Message, RawMessageStreamEvent, Message, "SubmitInputArgs"]
+):
     def __init__(
         self,
         *,
@@ -204,9 +206,6 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
         # TODO: worth bringing in sync types?
         self._client = Anthropic(**sync_kwargs)  # type: ignore
         self._async_client = AsyncAnthropic(**async_kwargs)
-
-        # Additional kwargs to pass along from `.set_model_params()`
-        self._submit_input_kwargs: "SubmitInputArgs" = {}
 
     @overload
     def chat_perform(
@@ -320,7 +319,6 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
             "model": self._model,
             "max_tokens": self._max_tokens,
             "tools": tool_schemas,
-            **self._submit_input_kwargs,
             **(kwargs or {}),
         }
 
@@ -431,58 +429,35 @@ class AnthropicProvider(Provider[Message, RawMessageStreamEvent, Message]):
 
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
-    def set_model_params(
-        self,
-        *,
-        temperature: Optional[float] = None,
-        top_p: Optional[float] = None,
-        top_k: Optional[int] = None,
-        frequency_penalty: Optional[float] = None,
-        presence_penalty: Optional[float] = None,
-        seed: Optional[int] = None,
-        max_tokens: Optional[int] = None,
-        log_probs: Optional[bool] = None,
-        stop_sequences: Optional[list[str]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
-    ):
-        kwargs2: "SubmitInputArgs" = {}
-        if temperature is not None:
-            kwargs2["temperature"] = temperature
-        if top_p is not None:
-            kwargs2["top_p"] = top_p
-        if top_k is not None:
-            kwargs2["top_k"] = top_k
-        if max_tokens is not None:
-            kwargs2["max_tokens"] = max_tokens
-        if stop_sequences is not None:
-            kwargs2["stop_sequences"] = stop_sequences
+    def model_parameter_arguments(
+        self, params: StandardModelParams
+    ) -> "SubmitInputArgs":
+        res: "SubmitInputArgs" = {}
+        if "temperature" in params:
+            res["temperature"] = params["temperature"]
 
-        if kwargs:
-            kwargs2.update(kwargs)
+        if "top_p" in params:
+            res["top_p"] = params["top_p"]
 
-        msg_template = "{} is not supported by Anthropic models. Ignoring {}."
-        if frequency_penalty is not None:
-            warnings.warn(
-                msg_template.format("frequency_penalty", "frequency_penalty"),
-                stacklevel=2,
-            )
-        if presence_penalty is not None:
-            warnings.warn(
-                msg_template.format("presence_penalty", "presence_penalty"),
-                stacklevel=2,
-            )
-        if seed is not None:
-            warnings.warn(
-                msg_template.format("seed", "seed"),
-                stacklevel=2,
-            )
-        if log_probs is not None:
-            warnings.warn(
-                msg_template.format("log_probs", "log_probs"),
-                stacklevel=2,
-            )
+        if "top_k" in params:
+            res["top_k"] = params["top_k"]
 
-        self._submit_input_kwargs = kwargs2
+        if "max_tokens" in params:
+            res["max_tokens"] = params["max_tokens"]
+
+        if "stop_sequences" in params:
+            res["stop_sequences"] = params["stop_sequences"]
+
+        return res
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {
+            "temperature",
+            "top_p",
+            "top_k",
+            "max_tokens",
+            "stop_sequences",
+        }
 
     def _as_message_params(self, turns: list[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
@@ -796,6 +771,3 @@ class AnthropicBedrockProvider(AnthropicProvider):
 
         self._client = AnthropicBedrock(**kwargs_full)  # type: ignore
         self._async_client = AsyncAnthropicBedrock(**kwargs_full)  # type: ignore
-
-        # Additional kwargs to pass along from `.set_model_params()`
-        self._submit_input_kwargs: "SubmitInputArgs" = {}

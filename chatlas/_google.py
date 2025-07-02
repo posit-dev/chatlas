@@ -19,7 +19,7 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import Provider
+from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import tokens_log
 from ._tools import Tool
 from ._turn import Turn, user_turn
@@ -147,7 +147,10 @@ def ChatGoogle(
 
 class GoogleProvider(
     Provider[
-        GenerateContentResponse, GenerateContentResponse, "GenerateContentResponseDict"
+        GenerateContentResponse,
+        GenerateContentResponse,
+        "GenerateContentResponseDict",
+        "SubmitInputArgs",
     ]
 ):
     def __init__(
@@ -173,9 +176,6 @@ class GoogleProvider(
         }
 
         self._client = genai.Client(**kwargs_full)
-
-        # Additional kwargs to pass along from `.set_model_params()`
-        self._submit_input_kwargs: "SubmitInputArgs" = {}
 
     @overload
     def chat_perform(
@@ -262,7 +262,6 @@ class GoogleProvider(
         kwargs_full: "SubmitInputArgs" = {
             "model": self._model,
             "contents": cast("GoogleContent", self._google_contents(turns)),
-            **self._submit_input_kwargs,
             **(kwargs or {}),
         }
 
@@ -518,45 +517,50 @@ class GoogleProvider(
             completion=message,
         )
 
-    def set_model_params(
-        self,
-        *,
-        temperature: Optional[float] = None,
-        top_p: Optional[float] = None,
-        top_k: Optional[int] = None,
-        frequency_penalty: Optional[float] = None,
-        presence_penalty: Optional[float] = None,
-        seed: Optional[int] = None,
-        max_tokens: Optional[int] = None,
-        log_probs: Optional[bool] = None,
-        stop_sequences: Optional[list[str]] = None,
-        kwargs: Optional["GenerateContentConfigDict"] = None,
-    ):
+    def model_parameter_arguments(
+        self, params: StandardModelParams
+    ) -> "SubmitInputArgs":
         config: "GenerateContentConfigDict" = {}
-        if temperature is not None:
-            config["temperature"] = temperature
-        if top_p is not None:
-            config["top_p"] = top_p
-        if top_k is not None:
-            config["top_k"] = top_k
-        if frequency_penalty is not None:
-            config["frequency_penalty"] = frequency_penalty
-        if presence_penalty is not None:
-            config["presence_penalty"] = presence_penalty
-        if max_tokens is not None:
-            config["max_output_tokens"] = max_tokens
-        if log_probs is not None:
-            config["logprobs"] = log_probs
-        if stop_sequences is not None:
-            config["stop_sequences"] = stop_sequences
-        if seed is not None:
-            config["seed"] = seed
+        if "temperature" in params:
+            config["temperature"] = params["temperature"]
 
-        if kwargs:
-            config.update(kwargs)
+        if "top_p" in params:
+            config["top_p"] = params["top_p"]
 
-        if config:
-            self._submit_input_kwargs["config"] = config
+        if "top_k" in params:
+            config["top_k"] = params["top_k"]
+
+        if "frequency_penalty" in params:
+            config["frequency_penalty"] = params["frequency_penalty"]
+
+        if "presence_penalty" in params:
+            config["presence_penalty"] = params["presence_penalty"]
+
+        if "seed" in params:
+            config["seed"] = params["seed"]
+
+        if "max_tokens" in params:
+            config["max_output_tokens"] = params["max_tokens"]
+
+        if "stop_sequences" in params:
+            config["stop_sequences"] = params["stop_sequences"]
+
+        res: "SubmitInputArgs" = {"config": config}
+
+        return res
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {
+            "temperature",
+            "top_p",
+            "top_k",
+            "frequency_penalty",
+            "presence_penalty",
+            "seed",
+            "max_tokens",
+            "log_probs",
+            "stop_sequences",
+        }
 
 
 def ChatVertex(

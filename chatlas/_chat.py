@@ -20,6 +20,7 @@ from typing import (
     Literal,
     Optional,
     Sequence,
+    TypeGuard,
     TypeVar,
     overload,
 )
@@ -43,26 +44,20 @@ from ._display import (
 )
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
-from ._provider import Provider
+from ._provider import Provider, StandardModelParams, SubmitInputArgsT
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
-from ._typing_extensions import TypedDict
-from ._utils import html_escape, wrap_async
-
-
-class AnyTypeDict(TypedDict, total=False):
-    pass
-
-
-SubmitInputArgsT = TypeVar("SubmitInputArgsT", bound=AnyTypeDict)
-"""
-A TypedDict representing the arguments that can be passed to the `.chat()`
-method of a [](`~chatlas.Chat`) instance.
-"""
+from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 CompletionT = TypeVar("CompletionT")
 
 EchoOptions = Literal["output", "all", "none", "text"]
+
+T = TypeVar("T")
+
+
+def is_present(value: T | None | MISSING_TYPE) -> TypeGuard[T]:
+    return value is not None and not isinstance(value, MISSING_TYPE)
 
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
@@ -109,6 +104,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "css_styles": {},
         }
         self._mcp_manager = MCPSessionManager()
+
+        # Chat input parameters from `set_model_params()`
+        self._standard_model_params: StandardModelParams = {}
+        self._submit_input_kwargs: Optional[SubmitInputArgsT] = None
 
     def get_turns(
         self,
@@ -943,24 +942,28 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def set_model_params(
         self,
         *,
-        temperature: Optional[float] = None,
-        top_p: Optional[float] = None,
-        top_k: Optional[int] = None,
-        frequency_penalty: Optional[float] = None,
-        presence_penalty: Optional[float] = None,
-        seed: Optional[int] = None,
-        max_tokens: Optional[int] = None,
-        log_probs: Optional[bool] = None,
-        stop_sequences: Optional[list[str]] = None,
-        kwargs: Optional[SubmitInputArgsT] = None,
+        temperature: float | None | MISSING_TYPE = MISSING,
+        top_p: float | None | MISSING_TYPE = MISSING,
+        top_k: int | None | MISSING_TYPE = MISSING,
+        frequency_penalty: float | None | MISSING_TYPE = MISSING,
+        presence_penalty: float | None | MISSING_TYPE = MISSING,
+        seed: int | None | MISSING_TYPE = MISSING,
+        max_tokens: int | None | MISSING_TYPE = MISSING,
+        log_probs: bool | None | MISSING_TYPE = MISSING,
+        stop_sequences: list[str] | None | MISSING_TYPE = MISSING,
+        kwargs: SubmitInputArgsT | None | MISSING_TYPE = MISSING,
     ):
         """
         Set common model parameters for the chat.
 
-        Provides a singular interface to set common model parameters
+        A unified interface for setting common model parameters
         across different providers. This method is useful for setting
         parameters that are commonly supported by most providers, such as
         temperature, top_p, etc.
+
+        By default, if the parameter is not set (i.e., set to `MISSING`),
+        the provider's default value is used. If you want to reset a
+        parameter to its default value, set it to `None`.
 
         Parameters
         ----------
@@ -984,20 +987,75 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A character vector of tokens to stop generation on.
         kwargs
             Additional keyword arguments to use when submitting input to the
-            model.
+            model. When calling this method repeatedly with different parameters,
+            only the parameters from the last call will be used.
         """
-        self.provider.set_model_params(
-            temperature=temperature,
-            top_p=top_p,
-            top_k=top_k,
-            frequency_penalty=frequency_penalty,
-            presence_penalty=presence_penalty,
-            seed=seed,
-            max_tokens=max_tokens,
-            log_probs=log_probs,
-            stop_sequences=stop_sequences,
-            kwargs=kwargs,
-        )
+
+        params: StandardModelParams = {}
+
+        # Collect specified parameters
+        if is_present(temperature):
+            params["temperature"] = temperature
+        if is_present(top_p):
+            params["top_p"] = top_p
+        if is_present(top_k):
+            params["top_k"] = top_k
+        if is_present(frequency_penalty):
+            params["frequency_penalty"] = frequency_penalty
+        if is_present(presence_penalty):
+            params["presence_penalty"] = presence_penalty
+        if is_present(seed):
+            params["seed"] = seed
+        if is_present(max_tokens):
+            params["max_tokens"] = max_tokens
+        if is_present(log_probs):
+            params["log_probs"] = log_probs
+        if is_present(stop_sequences):
+            params["stop_sequences"] = stop_sequences
+
+        # Warn about un-supported parameters
+        supported = self.provider.supported_model_params()
+        unsupported = set(params.keys()) - set(supported)
+        if unsupported:
+            raise ValueError(
+                f"The following parameters are not supported by the provider: {unsupported}. "
+                "Please check the provider's documentation for supported parameters."
+            )
+
+        # Drop parameters that are set to None
+        discard = []
+        if temperature is None:
+            discard.append("temperature")
+        if top_p is None:
+            discard.append("top_p")
+        if top_k is None:
+            discard.append("top_k")
+        if frequency_penalty is None:
+            discard.append("frequency_penalty")
+        if presence_penalty is None:
+            discard.append("presence_penalty")
+        if seed is None:
+            discard.append("seed")
+        if max_tokens is None:
+            discard.append("max_tokens")
+        if log_probs is None:
+            discard.append("log_probs")
+        if stop_sequences is None:
+            discard.append("stop_sequences")
+
+        for key in discard:
+            if key in self._standard_model_params:
+                del self._standard_model_params[key]
+
+        # Update the standard model parameters
+        self._standard_model_params.update(params)
+
+        # Update the submit input kwargs
+        if kwargs is None:
+            self._submit_input_kwargs = None
+
+        if is_present(kwargs):
+            self._submit_input_kwargs = kwargs
 
     async def register_mcp_tools_http_stream_async(
         self,
@@ -1781,13 +1839,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if echo == "all":
             emit_user_contents(user_turn, emit)
 
+        # Start collecting additional keyword args (from model parameters)
+        all_kwargs = self.provider.model_parameter_arguments(
+            params=self._standard_model_params,
+        )
+
+        # Add any additional kwargs provided by the user
+        if self._submit_input_kwargs:
+            all_kwargs.update(self._submit_input_kwargs)
+
+        if kwargs:
+            all_kwargs.update(kwargs)
+
         if stream:
             response = self.provider.chat_perform(
                 stream=True,
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
                 data_model=data_model,
-                kwargs=kwargs,
+                kwargs=all_kwargs,
             )
 
             result = None
@@ -1812,7 +1882,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
                 data_model=data_model,
-                kwargs=kwargs,
+                kwargs=all_kwargs,
             )
 
             turn = self.provider.value_turn(
