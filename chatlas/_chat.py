@@ -1104,6 +1104,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Please check the provider's documentation for supported parameters.",
                 UserWarning,
             )
+            # Drop the unsupported parameters
+            for key in unsupported:
+                del params[key]
 
         # Drop parameters that are set to None
         discard = []

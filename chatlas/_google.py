@@ -543,6 +543,9 @@ class GoogleProvider(
         if "max_tokens" in params:
             config["max_output_tokens"] = params["max_tokens"]
 
+        if "log_probs" in params:
+            config["logprobs"] = params["log_probs"]
+
         if "stop_sequences" in params:
             config["stop_sequences"] = params["stop_sequences"]
 
