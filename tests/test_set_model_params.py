@@ -1,17 +1,9 @@
 """Tests for the set_model_params() feature."""
 
 import pytest
-from chatlas import ChatAnthropic, ChatOpenAI
+from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI
 from chatlas._provider import StandardModelParams
 from chatlas._utils import MISSING
-
-# Try to import additional providers for comprehensive testing
-try:
-    from chatlas import ChatGoogle
-
-    HAS_GOOGLE = True
-except ImportError:
-    HAS_GOOGLE = False
 
 
 def test_set_model_params_basic():
@@ -132,8 +124,8 @@ def test_set_model_params_anthropic_unsupported():
         chat.set_model_params(frequency_penalty=0.1)
 
 
-def test_model_parameter_arguments_openai():
-    """Test OpenAI provider's model_parameter_arguments method."""
+def test_translate_model_params_openai():
+    """Test OpenAI provider's translate_model_params method."""
     chat = ChatOpenAI()
     provider = chat.provider
 
@@ -145,7 +137,7 @@ def test_model_parameter_arguments_openai():
         "stop_sequences": ["END"],
     }
 
-    result = provider.model_parameter_arguments(params)
+    result = provider.translate_model_params(params)
 
     expected = {
         "temperature": 0.5,
@@ -158,8 +150,8 @@ def test_model_parameter_arguments_openai():
     assert result == expected
 
 
-def test_model_parameter_arguments_anthropic():
-    """Test Anthropic provider's model_parameter_arguments method."""
+def test_translate_model_params_anthropic():
+    """Test Anthropic provider's translate_model_params method."""
     chat = ChatAnthropic()
     provider = chat.provider
 
@@ -171,7 +163,7 @@ def test_model_parameter_arguments_anthropic():
         "stop_sequences": ["STOP"],
     }
 
-    result = provider.model_parameter_arguments(params)
+    result = provider.translate_model_params(params)
 
     expected = {
         "temperature": 0.7,
@@ -220,8 +212,8 @@ def test_model_params_integration_with_provider():
     # Set model parameters
     chat.set_model_params(temperature=0.3, max_tokens=50, top_p=0.8)
 
-    # Test that provider.model_parameter_arguments converts them correctly
-    provider_args = chat.provider.model_parameter_arguments(chat._standard_model_params)
+    # Test that provider.translate_model_params converts them correctly
+    provider_args = chat.provider.translate_model_params(chat._standard_model_params)
 
     assert provider_args["temperature"] == 0.3
     assert provider_args["max_tokens"] == 50
@@ -449,7 +441,6 @@ def test_set_model_params_with_stop_sequences():
     assert "stop_sequences" not in params
 
 
-@pytest.mark.skipif(not HAS_GOOGLE, reason="Google provider not available")
 def test_google_provider_model_params():
     """Test Google provider's model parameter support."""
     chat = ChatGoogle()
@@ -483,7 +474,6 @@ def test_google_provider_model_params():
     assert supported == expected_google_params
 
 
-@pytest.mark.skipif(not HAS_GOOGLE, reason="Google provider not available")
 def test_google_provider_parameter_mapping():
     """Test Google provider's parameter mapping to API format."""
     chat = ChatGoogle()
@@ -498,7 +488,7 @@ def test_google_provider_parameter_mapping():
         "stop_sequences": ["STOP"],
     }
 
-    result = provider.model_parameter_arguments(params)
+    result = provider.translate_model_params(params)
 
     # Google uses a nested "config" structure
     assert "config" in result
@@ -535,10 +525,11 @@ def test_provider_parameter_differences():
 
 def test_cross_provider_compatibility():
     """Test that model params work consistently across providers."""
-    providers = [("OpenAI", ChatOpenAI()), ("Anthropic", ChatAnthropic())]
-
-    if HAS_GOOGLE:
-        providers.append(("Google", ChatGoogle()))
+    providers = [
+        ("OpenAI", ChatOpenAI()),
+        ("Anthropic", ChatAnthropic()),
+        ("Google", ChatGoogle()),
+    ]
 
     # Test common parameters across all providers (excluding Snowflake due to config requirements)
     for name, chat in providers:
@@ -558,8 +549,8 @@ def test_anthropic_model_params_integration():
         temperature=0.4, top_k=20, max_tokens=75, stop_sequences=["END", "STOP"]
     )
 
-    # Test that provider.model_parameter_arguments converts them correctly
-    provider_args = chat.provider.model_parameter_arguments(chat._standard_model_params)
+    # Test that provider.translate_model_params converts them correctly
+    provider_args = chat.provider.translate_model_params(chat._standard_model_params)
 
     assert provider_args["temperature"] == 0.4
     assert provider_args["top_k"] == 20
