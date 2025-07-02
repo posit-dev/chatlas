@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
-## [UNRELEASED]
+## [0.9.0] - 2025-07-02
 
 ### New features
 
@@ -18,10 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `.get_cost()`: to get the estimated cost of the chat. Only popular models are supported, but you can also supply your own token prices. (#106)
     * `.add_turn()`: to add `Turn`(s) to the current chat history. (#126)
 * Tool functions passed to `.register_tool()` can now `yield` numerous results. (#39)
-* New content classes (`ContentToolResultImage` and `ContentToolResultResource`) were added, primarily to represent MCP tool results that include images/files. (#39)
+* A `ContentToolResultImage` content class was added for returning images from tools. It is currently only works with `ChatAnthropic`. (#39)
 * A `Tool` can now be constructed from a pre-existing tool schema (via a new `__init__` method). (#39)
 * The `Chat.app()` method gains a `host` parameter. (#122) 
 * `ChatGithub()` now supports the more standard `GITHUB_TOKEN` environment variable for storing the API key. (#123)
+
+### Changes
 
 #### Breaking Changes
 
