@@ -326,7 +326,8 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#model-parameters" id="toc-model-parameters" class="nav-link active" data-scroll-target="#model-parameters">Model parameters</a></li>
-  <li><a href="#client-parameters" id="toc-client-parameters" class="nav-link" data-scroll-target="#client-parameters">Client parameters</a></li>
+  <li><a href="#chat-parameters" id="toc-chat-parameters" class="nav-link" data-scroll-target="#chat-parameters">Chat parameters</a></li>
+  <li><a href="#http-parameters" id="toc-http-parameters" class="nav-link" data-scroll-target="#http-parameters">HTTP parameters</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/get-started/parameters.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
@@ -352,27 +353,38 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>chatlas leverages typing and IDE autocomplete to help you discover and set parameters for your model provider. This includes both model parameters and client parameters. The former is primarily for customizing the behavior of the model, while the latter is for customizing the behavior of the HTTP client used to communicate with the model provider. The goal is to make it easy to discover and set these parameters in a type safe way, regardless of the model provider you’re using.</p>
+<p>There are a few different classes of custom parameters that you can set when using chatlas.</p>
+<p>The first, and most important, are <a href="#model-parameters">model parameters</a> that are commonly used across providers. This includes parameters like <code>temperature</code>, <code>top_p</code>, and <code>max_tokens</code>. The second is <a href="#chat-parameters">chat parameters</a>, which are specific to the model provider you’re using. This might include non-standard parameters like <code>thinking</code> or provider-specific built-in <code>tools</code>. Finally, there are <a href="#http-parameters">HTTP parameters</a>, which are used to customize the behavior of the HTTP client make requests for the duration of the chat session.</p>
+<p>In any case, chatlas leverages typing and IDE autocomplete to help you discover and set these parameters in a type safe way.</p>
 <section id="model-parameters" class="level2">
 <h2 class="anchored" data-anchor-id="model-parameters">Model parameters</h2>
-<p>Both the <a href="../get-started/chat.html"><code>.chat()</code></a> and <a href="../get-started/stream.html"><code>.stream()</code></a> methods accept a dictionary of model parameters via the <code>kwargs</code> parameter. Some of these parameters are common across providers (e.g., <code>temperature</code>, <code>top_p</code>), while others are specific to the provider (e.g., <code>max_tokens</code>, <code>stop</code>). Assuming your IDE has autocomplete / typing support, provider-specific parameters are shown as you type in keys and values can be type checked.</p>
+<p>The <a href="../reference/Chat.html#set_model_params.qmd"><code>.set_model_params()</code></a> method allows you to set standard model parameters that most providers support. This is nice for quickly setting parameters that are commonly used (e.g., <code>temperature</code>, <code>max_tokens</code>, etc.) in a provider-agnostic way. Also note that these parameters persist across future calls to the model, so you don’t have to set them every time you make a request. To revert to the default parameter value, pass <code>None</code> to the relevant parameter.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="../images/chat-parameters.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Screenshot of IDE with typing support showing available parameters for model provider"><img src="../images/chat-parameters.png" class="rounded shadow mt-3 img-fluid figure-img" style="width:60.0%" alt="Screenshot of IDE with typing support showing available parameters for model provider"></a></p>
+<p><a href="../images/model-parameters.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Screenshot of setting common model parameters"><img src="../images/model-parameters.png" class="rounded shadow mt-3 img-fluid figure-img" style="width:60.0%" alt="Screenshot of setting common model parameters"></a></p>
+<figcaption>Screenshot of setting common model parameters</figcaption>
+</figure>
+</div>
+</section>
+<section id="chat-parameters" class="level2">
+<h2 class="anchored" data-anchor-id="chat-parameters">Chat parameters</h2>
+<p>If you’re using a method like <a href="../get-started/chat.html"><code>.chat()</code></a> or <a href="../get-started/stream.html"><code>.stream()</code></a> to submit input to a model, you can include a dictionary of provider-specific chat parameters via the <code>kwargs</code> parameter. Some of these may overlap with the model parameters, but you’ll also find other provider-specific parameters that are unique to the model provider you’re using. Assuming your IDE has autocomplete / typing support, provider-specific parameters are shown as you type in keys and values can be type checked.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="../images/chat-parameters.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Screenshot of IDE with typing support showing available parameters for model provider"><img src="../images/chat-parameters.png" class="rounded shadow mt-3 img-fluid figure-img" style="width:60.0%" alt="Screenshot of IDE with typing support showing available parameters for model provider"></a></p>
 <figcaption>Screenshot of IDE with typing support showing available parameters for model provider</figcaption>
 </figure>
 </div>
 </section>
-<section id="client-parameters" class="level2">
-<h2 class="anchored" data-anchor-id="client-parameters">Client parameters</h2>
-<p>When you initialize a <code>Chat</code> client, you can pass in a dictionary of client parameters via the <code>kwargs</code> parameter. These parameters are used to customize the behavior of the HTTP client used to communicate with the model provider. This can be useful for things like setting the timeout, number of retries, and other HTTP client-specific settings.</p>
+<section id="http-parameters" class="level2">
+<h2 class="anchored" data-anchor-id="http-parameters">HTTP parameters</h2>
+<p>When you initialize a <code>Chat</code> client, you can pass in a dictionary of HTTP parameters via the <code>kwargs</code> parameter. These parameters are used to customize the behavior of the HTTP client used to communicate with the model provider. This can be useful for things like setting the timeout, number of retries, and other HTTP client-specific settings.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="../images/client-parameters.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Screenshot of IDE with typing support showing available parameters for HTTP client"><img src="../images/client-parameters.png" class="rounded shadow mt-3 img-fluid figure-img" style="width:60.0%" alt="Screenshot of IDE with typing support showing available parameters for HTTP client"></a></p>
+<p><a href="../images/client-parameters.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Screenshot of IDE with typing support showing available parameters for HTTP client"><img src="../images/client-parameters.png" class="rounded shadow mt-3 img-fluid figure-img" style="width:60.0%" alt="Screenshot of IDE with typing support showing available parameters for HTTP client"></a></p>
 <figcaption>Screenshot of IDE with typing support showing available parameters for HTTP client</figcaption>
 </figure>
 </div>
-<p>LLMs have <a href="#model-parameters">model parameters</a> that can be tweaked to change their behavior. Some of these parameters are unique to the model provider, while others (e.g., <code>temperature</code>, <code>top_p</code>) are quite common across providers. In addition, HTTP <a href="#client-parameters">client parameters</a> can be helpful for customizing the behavior of the HTTP client used to communicate with the model provider.</p>
 
 
 </section>
@@ -824,7 +836,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>
   </div>
 </footer>
-<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","closeEffect":"zoom","selector":".lightbox","loop":false,"openEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"loop":false,"descPosition":"bottom","selector":".lightbox","closeEffect":"zoom","openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

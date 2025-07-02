@@ -553,7 +553,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>token_usage</h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>token_usage()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Report on token usage in the current session</p>
-<p>Call this function to find out the cumulative number of tokens that you have sent and received in the current session.</p>
+<p>Call this function to find out the cumulative number of tokens that you have sent and received in the current session. The price will be shown if known</p>
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
 <table class="caption-top table">
@@ -568,7 +568,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td></td>
 <td><a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://posit-dev.github.io/chatlas/reference/types.TokenUsage.html#chatlas.types.TokenUsage">TokenUsage</a>] | None</td>
-<td>A list of dictionaries with the following keys: “name”, “input”, and “output”. If no tokens have been logged, then None is returned.</td>
+<td>A list of dictionaries with the following keys: “name”, “input”, “output”, and “cost”. If no cost data is available for the name/model combination chosen, then “cost” will be None. If no tokens have been logged, then None is returned.</td>
 </tr>
 </tbody>
 </table>

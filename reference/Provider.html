@@ -536,7 +536,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.Provider" id="toc-chatlas.Provider" class="nav-link active" data-scroll-target="#chatlas.Provider">Provider</a></li>
+  <li><a href="#chatlas.Provider" id="toc-chatlas.Provider" class="nav-link active" data-scroll-target="#chatlas.Provider">Provider</a>
+  <ul class="collapse">
+  <li><a href="#attributes" id="toc-attributes" class="nav-link" data-scroll-target="#attributes">Attributes</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/Provider.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
@@ -548,12 +551,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="chatlas.Provider" class="level1">
 <h1>Provider</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Provider()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Provider(name, model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>A model provider interface for a <a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat"><code>Chat</code></a>.</p>
 <p>This abstract class defines the interface a model provider must implement in order to be used with a <a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat"><code>Chat</code></a> instance. The provider is responsible for performing the actual chat completion, and for handling the streaming of the completion results.</p>
 <p>Note that this class is exposed for developers who wish to implement their own provider. In general, you should not need to interact with this class directly.</p>
+<section id="attributes" class="level2">
+<h2 class="anchored" data-anchor-id="attributes">Attributes</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#chatlas.Provider.model">model</a></td>
+<td>Get the model used by the provider</td>
+</tr>
+<tr class="even">
+<td><a href="#chatlas.Provider.name">name</a></td>
+<td>Get the name of the provider</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->

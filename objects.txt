@@ -48,8 +48,12 @@ chatlas.Chat.extract_data py:function 1 reference/Chat.html#chatlas.Chat.extract
 chatlas._chat.Chat.extract_data py:function 1 reference/Chat.html#chatlas.Chat.extract_data chatlas.Chat.extract_data
 chatlas.Chat.extract_data_async py:function 1 reference/Chat.html#chatlas.Chat.extract_data_async -
 chatlas._chat.Chat.extract_data_async py:function 1 reference/Chat.html#chatlas.Chat.extract_data_async chatlas.Chat.extract_data_async
+chatlas.Chat.get_cost py:function 1 reference/Chat.html#chatlas.Chat.get_cost -
+chatlas._chat.Chat.get_cost py:function 1 reference/Chat.html#chatlas.Chat.get_cost chatlas.Chat.get_cost
 chatlas.Chat.get_last_turn py:function 1 reference/Chat.html#chatlas.Chat.get_last_turn -
 chatlas._chat.Chat.get_last_turn py:function 1 reference/Chat.html#chatlas.Chat.get_last_turn chatlas.Chat.get_last_turn
+chatlas.Chat.get_tokens py:function 1 reference/Chat.html#chatlas.Chat.get_tokens -
+chatlas._chat.Chat.get_tokens py:function 1 reference/Chat.html#chatlas.Chat.get_tokens chatlas.Chat.get_tokens
 chatlas.Chat.get_tools py:function 1 reference/Chat.html#chatlas.Chat.get_tools -
 chatlas._chat.Chat.get_tools py:function 1 reference/Chat.html#chatlas.Chat.get_tools chatlas.Chat.get_tools
 chatlas.Chat.get_turns py:function 1 reference/Chat.html#chatlas.Chat.get_turns -
@@ -66,6 +70,8 @@ chatlas.Chat.register_tool py:function 1 reference/Chat.html#chatlas.Chat.regist
 chatlas._chat.Chat.register_tool py:function 1 reference/Chat.html#chatlas.Chat.register_tool chatlas.Chat.register_tool
 chatlas.Chat.set_echo_options py:function 1 reference/Chat.html#chatlas.Chat.set_echo_options -
 chatlas._chat.Chat.set_echo_options py:function 1 reference/Chat.html#chatlas.Chat.set_echo_options chatlas.Chat.set_echo_options
+chatlas.Chat.set_model_params py:function 1 reference/Chat.html#chatlas.Chat.set_model_params -
+chatlas._chat.Chat.set_model_params py:function 1 reference/Chat.html#chatlas.Chat.set_model_params chatlas.Chat.set_model_params
 chatlas.Chat.set_tools py:function 1 reference/Chat.html#chatlas.Chat.set_tools -
 chatlas._chat.Chat.set_tools py:function 1 reference/Chat.html#chatlas.Chat.set_tools chatlas.Chat.set_tools
 chatlas.Chat.set_turns py:function 1 reference/Chat.html#chatlas.Chat.set_turns -
@@ -80,8 +86,6 @@ chatlas.Chat.token_count py:function 1 reference/Chat.html#chatlas.Chat.token_co
 chatlas._chat.Chat.token_count py:function 1 reference/Chat.html#chatlas.Chat.token_count chatlas.Chat.token_count
 chatlas.Chat.token_count_async py:function 1 reference/Chat.html#chatlas.Chat.token_count_async -
 chatlas._chat.Chat.token_count_async py:function 1 reference/Chat.html#chatlas.Chat.token_count_async chatlas.Chat.token_count_async
-chatlas.Chat.tokens py:function 1 reference/Chat.html#chatlas.Chat.tokens -
-chatlas._chat.Chat.tokens py:function 1 reference/Chat.html#chatlas.Chat.tokens chatlas.Chat.tokens
 chatlas.Chat py:class 1 reference/Chat.html#chatlas.Chat -
 chatlas._chat.Chat py:class 1 reference/Chat.html#chatlas.Chat chatlas.Chat
 chatlas.content_image_file py:function 1 reference/content_image_file.html#chatlas.content_image_file -
@@ -110,6 +114,10 @@ chatlas.Turn py:class 1 reference/Turn.html#chatlas.Turn -
 chatlas._turn.Turn py:class 1 reference/Turn.html#chatlas.Turn chatlas.Turn
 chatlas.token_usage py:function 1 reference/token_usage.html#chatlas.token_usage -
 chatlas._tokens.token_usage py:function 1 reference/token_usage.html#chatlas.token_usage chatlas.token_usage
+chatlas.Provider.model py:attribute 1 reference/Provider.html#chatlas.Provider.model -
+chatlas._provider.Provider.model py:attribute 1 reference/Provider.html#chatlas.Provider.model chatlas.Provider.model
+chatlas.Provider.name py:attribute 1 reference/Provider.html#chatlas.Provider.name -
+chatlas._provider.Provider.name py:attribute 1 reference/Provider.html#chatlas.Provider.name chatlas.Provider.name
 chatlas.Provider py:class 1 reference/Provider.html#chatlas.Provider -
 chatlas._provider.Provider py:class 1 reference/Provider.html#chatlas.Provider chatlas.Provider
 chatlas.types.Content py:class 1 reference/types.Content.html#chatlas.types.Content -
@@ -149,6 +157,6 @@ chatlas._utils.MISSING_TYPE py:class 1 reference/types.MISSING_TYPE.html#chatlas
 chatlas.types.MISSING py:attribute 1 reference/types.MISSING.html#chatlas.types.MISSING -
 chatlas._utils.MISSING py:attribute 1 reference/types.MISSING.html#chatlas.types.MISSING chatlas.types.MISSING
 chatlas.types.SubmitInputArgsT py:attribute 1 reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT -
-chatlas._chat.SubmitInputArgsT py:attribute 1 reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT chatlas.types.SubmitInputArgsT
+chatlas._provider.SubmitInputArgsT py:attribute 1 reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT chatlas.types.SubmitInputArgsT
 chatlas.types.TokenUsage py:class 1 reference/types.TokenUsage.html#chatlas.types.TokenUsage -
 chatlas._tokens.TokenUsage py:class 1 reference/types.TokenUsage.html#chatlas.types.TokenUsage chatlas.types.TokenUsage
