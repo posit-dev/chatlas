@@ -169,7 +169,6 @@ def ChatOpenAI(
 
 
 class OpenAIProvider(Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict]):
-
     def __init__(
         self,
         *,
