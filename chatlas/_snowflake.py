@@ -23,7 +23,7 @@ from ._logging import log_model_default
 from ._provider import Provider
 from ._tokens import tokens_log
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, normalize_turns
+from ._turn import Turn
 from ._utils import drop_none
 
 if TYPE_CHECKING:
@@ -61,7 +61,6 @@ def ChatSnowflake(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     connection_name: Optional[str] = None,
     account: Optional[str] = None,
     user: Optional[str] = None,
@@ -111,13 +110,6 @@ def ChatSnowflake(
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
         choosing a model for all but the most casual use.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-None values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     connection_name
         The name of the connection (i.e., section) within the connections.toml file.
         This is useful if you want to keep your credentials in a connections.toml file
@@ -157,10 +149,7 @@ def ChatSnowflake(
             private_key_file_pwd=private_key_file_pwd,
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 

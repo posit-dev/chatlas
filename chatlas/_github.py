@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._openai import OpenAIProvider, normalize_turns
-from ._turn import Turn
+from ._openai import OpenAIProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -17,7 +16,6 @@ if TYPE_CHECKING:
 def ChatGithub(
     *,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     model: Optional[str] = None,
     api_key: Optional[str] = None,
     base_url: str = "https://models.inference.ai.azure.com/",
@@ -48,7 +46,7 @@ def ChatGithub(
     import os
     from chatlas import ChatGithub
 
-    chat = ChatGithub(api_key=os.getenv("GITHUB_PAT"))
+    chat = ChatGithub(api_key=os.getenv("GITHUB_TOKEN"))
     chat.chat("What is the capital of France?")
     ```
 
@@ -56,20 +54,13 @@ def ChatGithub(
     ----------
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-`None` values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
         choosing a model for all but the most casual use.
     api_key
         The API key to use for authentication. You generally should not supply
-        this directly, but instead set the `GITHUB_PAT` environment variable.
+        this directly, but instead set the `GITHUB_TOKEN` environment variable.
     base_url
         The base URL to the endpoint; the default uses Github's API.
     seed
@@ -106,7 +97,7 @@ def ChatGithub(
 
     ```shell
     # .env
-    GITHUB_PAT=...
+    GITHUB_TOKEN=...
     ```
 
     ```python
@@ -122,13 +113,13 @@ def ChatGithub(
     before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
 
     ```shell
-    export GITHUB_PAT=...
+    export GITHUB_TOKEN=...
     ```
     """
     if model is None:
         model = log_model_default("gpt-4.1")
     if api_key is None:
-        api_key = os.getenv("GITHUB_PAT")
+        api_key = os.getenv("GITHUB_TOKEN", os.getenv("GITHUB_PAT"))
 
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
@@ -142,8 +133,5 @@ def ChatGithub(
             name="GitHub",
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )

@@ -1,6 +1,5 @@
-import pytest
 import httpx
-
+import pytest
 from chatlas import ChatOpenAI
 
 from .conftest import (

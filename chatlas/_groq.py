@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._openai import OpenAIProvider, normalize_turns
-from ._turn import Turn
+from ._openai import OpenAIProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -17,7 +16,6 @@ if TYPE_CHECKING:
 def ChatGroq(
     *,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     model: Optional[str] = None,
     api_key: Optional[str] = None,
     base_url: str = "https://api.groq.com/openai/v1",
@@ -53,13 +51,6 @@ def ChatGroq(
     ----------
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch.
-        Do not provide non-`None` values for both `turns` and `system_prompt`.
-        Each message in the list should be a dictionary with at least `role`
-        (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-        Normally there is also a `content` field, which is a string.
     model
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly choosing
@@ -123,8 +114,10 @@ def ChatGroq(
     """
     if model is None:
         model = log_model_default("llama3-8b-8192")
+
     if api_key is None:
         api_key = os.getenv("GROQ_API_KEY")
+
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
 
@@ -137,8 +130,5 @@ def ChatGroq(
             name="Groq",
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )

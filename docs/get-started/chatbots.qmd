@@ -119,7 +119,8 @@ if prompt := st.chat_input():
 
     st.chat_message("user").write(prompt)
 
-    chat = ChatOpenAI(api_key=openai_api_key, turns=turns)
+    chat = ChatOpenAI(api_key=openai_api_key)
+    chat.set_turns(turns)
     response = chat.stream(prompt)
 
     with st.chat_message("assistant"):

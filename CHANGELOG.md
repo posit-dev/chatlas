@@ -11,14 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* Token pricing can now be looked up from our internally maintained price list using `get_token_pricing()`. (#106)
-* `Chat` gains new `.get_cost()` method, making it easier to get the estimated cost of your chat. Use our pricing list or bring your own token prices. (#106)
-* `Chat` gains new `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()` methods, making it easy to register tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
-* `Chat` gains new `.get_tools()`/`.set_tools()` methods -- making it possible to inspect and remove tools. (#39)
+* `Chat` gains a handful of new methods: 
+    * `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()`: for registering tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
+    * `.get_tools()` and `.set_tools()`: for fine-grained control over registered tools. (#39)
+    * `.add_turn()`: to add `Turn`(s) to the current chat history. (#126)
+    * `Chat` gains new `.get_cost()` method, making it easier to get the estimated cost of your chat. Use our pricing list or bring your own token prices. (#106)
 * Tool functions passed to `.register_tool()` can now `yield` numerous results. (#39)
 * New content classes (`ContentToolResultImage` and `ContentToolResultResource`) were added, primarily to represent MCP tool results that include images/files. (#39)
-* `Tool` gains two class methods: `.from_func()` and `.from_mcp()`. These methods should rarely be needed to be used directly -- they are workhorses for the higher-level `.register_tool()`, `.register_mcp_tools_http_stream_async()`, and `.register_mcp_tools_stdio_async()`. (#39)
 * A `Tool` can now be constructed from a pre-existing tool schema (via a new `__init__` method). (#39)
+* The `Chat.app()` method gains a `host` parameter. (#122) 
+* `ChatGithub()` now supports the more standard `GITHUB_TOKEN` environment variable for storing the API key. (#123)
+* Token pricing can now be looked up from our internally maintained price list using `get_token_pricing()`. (#106)
+
+### Breaking changes
+
+* `Chat` constructors (`ChatOpenAI()`, `ChatAnthropic()`, etc) no longer have a `turns` keyword parameter. Use the `.set_turns()` method instead to set the (initial) chat history. (#126)
 
 ### Changes
 

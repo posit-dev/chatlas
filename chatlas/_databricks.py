@@ -5,7 +5,6 @@ from typing import TYPE_CHECKING, Optional
 from ._chat import Chat
 from ._logging import log_model_default
 from ._openai import OpenAIProvider
-from ._turn import Turn, normalize_turns
 
 if TYPE_CHECKING:
     from databricks.sdk import WorkspaceClient
@@ -18,7 +17,6 @@ def ChatDatabricks(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     workspace_client: Optional["WorkspaceClient"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
@@ -68,13 +66,6 @@ def ChatDatabricks(
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
         choosing a model for all but the most casual use.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-`None` values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     workspace_client
         A `databricks.sdk.WorkspaceClient()` to use for the connection. If not
         provided, a new client will be created.
@@ -92,10 +83,7 @@ def ChatDatabricks(
             model=model,
             workspace_client=workspace_client,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 

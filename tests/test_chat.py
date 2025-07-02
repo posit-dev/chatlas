@@ -10,7 +10,6 @@ from chatlas import (
     Turn,
 )
 from chatlas._chat import ToolFailureWarning
-from chatlas._tokens import token_usage
 from pydantic import BaseModel
 
 
@@ -69,33 +68,39 @@ async def test_simple_streaming_chat_async():
 
 def test_basic_repr(snapshot):
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output",
-        turns=[
+        system_prompt="You're a helpful assistant that returns very minimal output"
+    )
+    chat.set_turns(
+        [
             Turn("user", "What's 1 + 1? What's 1 + 2?"),
             Turn("assistant", "2  3", tokens=(15, 5)),
-        ],
+        ]
     )
     assert snapshot == repr(chat)
 
 
 def test_basic_str(snapshot):
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output",
-        turns=[
+        system_prompt="You're a helpful assistant that returns very minimal output"
+    )
+    chat.set_turns(
+        [
             Turn("user", "What's 1 + 1? What's 1 + 2?"),
             Turn("assistant", "2  3", tokens=(15, 5)),
-        ],
+        ]
     )
     assert snapshot == str(chat)
 
 
 def test_basic_export(snapshot):
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output",
-        turns=[
+        system_prompt="You're a helpful assistant that returns very minimal output"
+    )
+    chat.set_turns(
+        [
             Turn("user", "What's 1 + 1? What's 1 + 2?"),
             Turn("assistant", "2  3", tokens=(15, 5)),
-        ],
+        ]
     )
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpfile = tmpdir + "/chat.html"
@@ -153,8 +158,9 @@ def test_system_prompt_retrieval():
 
 
 def test_modify_system_prompt():
-    chat = ChatOpenAI(
-        turns=[
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
             Turn("user", "Hi"),
             Turn("assistant", "Hello"),
         ]
@@ -240,6 +246,7 @@ def test_chat_callbacks():
     assert cb_count_result == 2
 
 
+@pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject():
     chat = ChatOpenAI()
 
@@ -287,15 +294,16 @@ def test_chat_tool_request_reject2(capsys):
 
 
 def test_get_cost():
-    chat = ChatOpenAI(
-        api_key="fake_key",
-        turns=[
+    chat = ChatOpenAI(api_key="fake_key")
+    chat.set_turns(
+        [
             Turn(role="user", contents="Hi"),
             Turn(role="assistant", contents="Hello", tokens=(2, 10)),
             Turn(role="user", contents="Hi"),
             Turn(role="assistant", contents="Hello", tokens=(14, 10)),
-        ],
+        ]
     )
+
     # Checking that these have the right form vs. the actual calculation because the price may change
     cost = chat.get_cost(options="all")
     assert isinstance(cost, float)

@@ -14,8 +14,9 @@ def test_tokens_method():
     chat = ChatOpenAI(api_key="fake_key")
     assert len(chat.get_tokens()) == 0
 
-    chat = ChatOpenAI(
-        turns=[
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
             Turn(role="user", contents="Hi"),
             Turn(role="assistant", contents="Hello", tokens=(2, 10)),
         ]
@@ -26,9 +27,9 @@ def test_tokens_method():
         {"role": "assistant", "tokens": 10, "tokens_total": 10},
     ]
 
-    chat = ChatOpenAI(
-        api_key="fake_key",
-        turns=[
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
             Turn(role="user", contents="Hi"),
             Turn(role="assistant", contents="Hello", tokens=(2, 10)),
             Turn(role="user", contents="Hi"),

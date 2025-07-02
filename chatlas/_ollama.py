@@ -7,8 +7,7 @@ from typing import TYPE_CHECKING, Optional
 import orjson
 
 from ._chat import Chat
-from ._openai import OpenAIProvider, normalize_turns
-from ._turn import Turn
+from ._openai import OpenAIProvider
 from ._utils import MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -20,7 +19,6 @@ def ChatOllama(
     model: Optional[str] = None,
     *,
     system_prompt: Optional[str] = None,
-    turns: Optional[list[Turn]] = None,
     base_url: str = "http://localhost:11434",
     seed: Optional[int] = None,
     kwargs: Optional["ChatClientArgs"] = None,
@@ -68,13 +66,6 @@ def ChatOllama(
         models will be printed.
     system_prompt
         A system prompt to set the behavior of the assistant.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-`None` values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
     base_url
         The base URL to the endpoint; the default uses ollama's API.
     seed
@@ -115,10 +106,7 @@ def ChatOllama(
             name="Ollama",
             kwargs=kwargs,
         ),
-        turns=normalize_turns(
-            turns or [],
-            system_prompt,
-        ),
+        system_prompt=system_prompt,
     )
 
 
