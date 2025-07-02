@@ -43,13 +43,14 @@ def test_set_model_params_none_reset():
 
     # First set some parameters
     chat.set_model_params(temperature=0.8, top_p=0.95)
-    assert "temperature" in chat._standard_model_params
-    assert "top_p" in chat._standard_model_params
+    params = getattr(chat, "_standard_model_params", {})
+    assert "temperature" in params
+    assert "top_p" in params
 
     # Reset temperature to None
     chat.set_model_params(temperature=None)
-    assert "temperature" not in chat._standard_model_params
-    assert "top_p" in chat._standard_model_params  # Should still be there
+    assert "temperature" not in params
+    assert "top_p" in params  # Should still be there
 
 
 def test_set_model_params_kwargs():
