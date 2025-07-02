@@ -645,7 +645,6 @@ def ChatAzureOpenAI(
 
 
 class OpenAIAzureProvider(OpenAIProvider):
-
     def __init__(
         self,
         *,
