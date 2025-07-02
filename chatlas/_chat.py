@@ -20,7 +20,6 @@ from typing import (
     Literal,
     Optional,
     Sequence,
-    TypeGuard,
     TypeVar,
     overload,
 )
@@ -48,7 +47,7 @@ from ._provider import Provider, StandardModelParams, SubmitInputArgsT
 from ._tokens import get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
-from ._typing_extensions import TypedDict
+from ._typing_extensions import TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 
