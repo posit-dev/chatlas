@@ -293,6 +293,7 @@ def test_chat_tool_request_reject2(capsys):
     assert "Joe denied the request." in capsys.readouterr().out
 
 
+@pytest.mark.filterwarnings("ignore", category=UserWarning)
 def test_get_cost():
     chat = ChatOpenAI(api_key="fake_key")
     chat.set_turns(

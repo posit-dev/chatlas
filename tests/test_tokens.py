@@ -74,6 +74,7 @@ def test_get_token_prices():
         assert pricing is None
 
 
+@pytest.mark.filterwarnings("ignore", category=UserWarning)
 def test_compute_price():
     chat = ChatOpenAI(model="o1-mini")
     price = compute_price(chat.provider.name, chat.provider.model, 10, 50)
@@ -90,6 +91,7 @@ def test_usage_is_none():
     assert token_usage() is None
 
 
+@pytest.mark.filterwarnings("ignore", category=UserWarning)
 def test_can_retrieve_and_log_tokens():
     tokens_reset()
 
