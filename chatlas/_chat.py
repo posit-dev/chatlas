@@ -2170,10 +2170,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             return ChatMarkdownDisplay(MockMarkdownDisplay(), self)
 
         # rich does a lot to detect a notebook environment, but it doesn't
-        # detect Quarto (at least not yet).
+        # detect Quarto, or a Positron notebook
         from rich.console import Console
 
-        is_web = Console().is_jupyter or os.getenv("QUARTO_PYTHON", None) is not None
+        is_web = Console().is_jupyter or is_quarto() or is_positron_notebook()
 
         opts = self._echo_options
 
@@ -2421,3 +2421,17 @@ class ToolFailureWarning(RuntimeWarning):
 
 # By default warnings are shown once; we want to always show them.
 warnings.simplefilter("always", ToolFailureWarning)
+
+
+def is_quarto():
+    return os.getenv("QUARTO_PYTHON", None) is not None
+
+
+def is_positron_notebook():
+    try:
+        get_ipython  # type: ignore[name-defined]
+    except NameError:
+        return False
+    ipython = get_ipython()  # type: ignore[name-defined]
+    session_mode = getattr(ipython, "session_mode", None)
+    return session_mode == "notebook"
