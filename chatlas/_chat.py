@@ -2429,9 +2429,7 @@ def is_quarto():
 
 def is_positron_notebook():
     try:
-        get_ipython  # type: ignore[name-defined]
-    except NameError:
+        mode = get_ipython().session_mode  # noqa: F821 # type: ignore
+        return mode == "notebook"
+    except Exception:
         return False
-    ipython = get_ipython()  # type: ignore[name-defined]
-    session_mode = getattr(ipython, "session_mode", None)
-    return session_mode == "notebook"

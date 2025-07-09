@@ -7,6 +7,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [UNRELEASED]
+
+### Bug fixes
+
+* Fixed an issue where `.chat()` wasn't streaming output properly in (the latest build of) Positron's Jupyter notebook. (#131)
+
 ## [0.9.0] - 2025-07-02
 
 ### New features
