@@ -2,7 +2,7 @@ import pytest
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
 from chatlas._openai import OpenAIAzureProvider, OpenAIProvider
 from chatlas._tokens import (
-    compute_price,
+    compute_cost,
     get_token_pricing,
     token_usage,
     tokens_log,
@@ -59,29 +59,22 @@ def test_token_count_method():
 def test_get_token_prices():
     chat = ChatOpenAI(model="o1-mini")
     pricing = get_token_pricing(chat.provider.name, chat.provider.model)
+    assert pricing is not None
     assert pricing["provider"] == "OpenAI"
     assert pricing["model"] == "o1-mini"
     assert isinstance(pricing["cached_input"], float)
     assert isinstance(pricing["input"], float)
     assert isinstance(pricing["output"], float)
 
-    with pytest.warns(
-        match="Token pricing for the provider 'OpenAI' and model 'ABCD' you selected is not available. "
-        "Please check the provider's documentation."
-    ):
-        chat = ChatOpenAI(model="ABCD")
-        pricing = get_token_pricing(chat.provider.name, chat.provider.model)
-        assert pricing is None
 
-
-def test_compute_price():
+def test_compute_cost():
     chat = ChatOpenAI(model="o1-mini")
-    price = compute_price(chat.provider.name, chat.provider.model, 10, 50)
+    price = compute_cost(chat.provider.name, chat.provider.model, 10, 50)
     assert isinstance(price, float)
     assert price > 0
 
     chat = ChatOpenAI(model="ABCD")
-    price = compute_price(chat.provider.name, chat.provider.model, 10, 50)
+    price = compute_cost(chat.provider.name, chat.provider.model, 10, 50)
     assert price is None
 
 

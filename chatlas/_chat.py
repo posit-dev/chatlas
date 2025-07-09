@@ -44,7 +44,7 @@ from ._display import (
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
 from ._provider import Provider, StandardModelParams, SubmitInputArgsT
-from ._tokens import get_token_pricing
+from ._tokens import compute_cost, get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict, TypeGuard
@@ -2222,11 +2222,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def __repr__(self):
         turns = self.get_turns(include_system_prompt=True)
         tokens = self.get_tokens()
-        cost = self.get_cost()
         tokens_asst = sum(u["tokens_total"] for u in tokens if u["role"] == "assistant")
         tokens_user = sum(u["tokens_total"] for u in tokens if u["role"] == "user")
 
-        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)} tokens={tokens_user}/{tokens_asst} ${round(cost, ndigits=2)}>"
+        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)} tokens={tokens_user}/{tokens_asst}"
+
+        # Add cost info only if we can compute it
+        cost = compute_cost(
+            self.provider.name,
+            self.provider.model,
+            tokens_user,
+            tokens_asst,
+        )
+        if cost is not None:
+            res += f" ${round(cost, ndigits=2)}"
+
+        res += ">"
         for turn in turns:
             res += "\n" + turn.__repr__(indent=2)
         return res + "\n"

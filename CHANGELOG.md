@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed an issue where `.chat()` wasn't streaming output properly in (the latest build of) Positron's Jupyter notebook. (#131)
 
+* Needless warnings and errors are no longer thrown when model pricing info is unavailable. (#132)
+
 ## [0.9.0] - 2025-07-02
 
 ### New features

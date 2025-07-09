@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import copy
 import importlib.resources as resources
-import warnings
 from threading import Lock
 from typing import TYPE_CHECKING
 
@@ -47,12 +46,12 @@ class ThreadSafeTokenCounter:
                     "model": model,
                     "input": input_tokens,
                     "output": output_tokens,
-                    "cost": compute_price(name, model, input_tokens, output_tokens),
+                    "cost": compute_cost(name, model, input_tokens, output_tokens),
                 }
             else:
                 self._tokens[name]["input"] += input_tokens
                 self._tokens[name]["output"] += output_tokens
-                price = compute_price(name, model, input_tokens, output_tokens)
+                price = compute_cost(name, model, input_tokens, output_tokens)
                 if price is not None:
                     cost = self._tokens[name]["cost"]
                     if cost is None:
@@ -122,7 +121,7 @@ def get_token_pricing(name: str, model: str) -> TokenPrice | None:
     -------
     TokenPrice | None
     """
-    result = next(
+    return next(
         (
             item
             for item in pricing_list
@@ -130,16 +129,9 @@ def get_token_pricing(name: str, model: str) -> TokenPrice | None:
         ),
         None,
     )
-    if result is None:
-        warnings.warn(
-            f"Token pricing for the provider '{name}' and model '{model}' you selected is not available. "
-            "Please check the provider's documentation."
-        )
-
-    return result
 
 
-def compute_price(
+def compute_cost(
     name: str, model: str, input_tokens: int, output_tokens: int
 ) -> float | None:
     """
