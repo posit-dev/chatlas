@@ -2433,5 +2433,5 @@ def is_positron_notebook():
     except NameError:
         return False
     ipython = get_ipython()  # type: ignore[name-defined]
-    session_mode = getattr(ipython, "session_mode")
+    session_mode = getattr(ipython, "session_mode", None)
     return session_mode == "notebook"
