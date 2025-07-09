@@ -310,7 +310,7 @@ def test_get_cost():
             "Expected `options` to be one of 'all' or 'last', not 'bad_option'"
         ),
     ):
-        chat.get_cost(options="bad_option")
+        chat.get_cost(options="bad_option")  # type: ignore
 
     # Checking that these have the right form vs. the actual calculation because the price may change
     cost = chat.get_cost(options="all")
