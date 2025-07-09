@@ -2235,7 +2235,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             tokens_asst,
         )
         if cost is not None:
-            res += f"${round(cost, ndigits=2)}"
+            res += f" ${round(cost, ndigits=2)}"
 
         res += ">"
         for turn in turns:
