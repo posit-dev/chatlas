@@ -27,7 +27,7 @@ def test_anthropic_simple_request():
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (26, 5)
+    assert turn.tokens == (26, 5, 0)
     assert turn.finish_reason == "end_turn"
 
 

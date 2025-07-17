@@ -23,6 +23,7 @@ class TokenUsage(TypedDict):
     model: str
     input: int
     output: int
+    cached_input: int | None
     cost: float | None
 
 
@@ -32,11 +33,16 @@ class ThreadSafeTokenCounter:
         self._tokens: dict[str, TokenUsage] = {}
 
     def log_tokens(
-        self, name: str, model: str, input_tokens: int, output_tokens: int
+        self,
+        name: str,
+        model: str,
+        input_tokens: int,
+        output_tokens: int,
+        cached_tokens: int,
     ) -> None:
         logger.info(
             f"Provider '{name}' generated a response of {output_tokens} tokens "
-            f"from an input of {input_tokens} tokens."
+            f"from an input of {input_tokens} tokens and {cached_tokens} cached input tokens."
         )
 
         with self._lock:
@@ -46,12 +52,16 @@ class ThreadSafeTokenCounter:
                     "model": model,
                     "input": input_tokens,
                     "output": output_tokens,
+                    "cached_input": cached_tokens,
                     "cost": compute_cost(name, model, input_tokens, output_tokens),
                 }
             else:
                 self._tokens[name]["input"] += input_tokens
                 self._tokens[name]["output"] += output_tokens
-                price = compute_cost(name, model, input_tokens, output_tokens)
+                self._tokens[name]["cached_input"] += cached_tokens
+                price = compute_cost(
+                    name, model, input_tokens, output_tokens, cached_tokens
+                )
                 if price is not None:
                     cost = self._tokens[name]["cost"]
                     if cost is None:
@@ -71,11 +81,13 @@ class ThreadSafeTokenCounter:
 _token_counter = ThreadSafeTokenCounter()
 
 
-def tokens_log(provider: "Provider", tokens: tuple[int, int]) -> None:
+def tokens_log(provider: "Provider", tokens: tuple[int, int, int]) -> None:
     """
     Log token usage for a provider in a thread-safe manner.
     """
-    _token_counter.log_tokens(provider.name, provider.model, tokens[0], tokens[1])
+    _token_counter.log_tokens(
+        provider.name, provider.model, tokens[0], tokens[1], tokens[2]
+    )
 
 
 def tokens_reset() -> None:
@@ -132,7 +144,7 @@ def get_token_pricing(name: str, model: str) -> TokenPrice | None:
 
 
 def compute_cost(
-    name: str, model: str, input_tokens: int, output_tokens: int
+    name: str, model: str, input_tokens: int, output_tokens: int, cached_tokens: int = 0
 ) -> float | None:
     """
     Compute the cost of a turn.
@@ -147,7 +159,10 @@ def compute_cost(
         return None
     input_price = input_tokens * (price["input"] / 1e6)
     output_price = output_tokens * (price["output"] / 1e6)
-    return input_price + output_price
+    cached_price = (
+        cached_tokens * (price["cached_input"] / 1e6) if cached_tokens else 0.0
+    )
+    return input_price + output_price + cached_price
 
 
 def token_usage() -> list[TokenUsage] | None:

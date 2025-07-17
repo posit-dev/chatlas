@@ -57,7 +57,7 @@ def test_google_simple_request():
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (18, 1)
+    assert turn.tokens == (18, 1, 0)
     assert turn.finish_reason == "STOP"
     assert chat.provider.name == "Google/Gemini"
 

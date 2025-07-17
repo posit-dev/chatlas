@@ -39,7 +39,7 @@
     <Turn role='user'>
       <ContentText text='What's 1 + 1? What's 1 + 2?'>
   
-    <Turn role='assistant' tokens=(15, 5)>
+    <Turn role='assistant' tokens=(15, 5, 0)>
       <ContentText text='2  3'>
   
   
