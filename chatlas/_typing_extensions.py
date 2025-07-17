@@ -14,9 +14,9 @@ else:
 # they should both come from the same typing module.
 # https://peps.python.org/pep-0655/#usage-in-python-3-11
 if sys.version_info >= (3, 11):
-    from typing import Required, TypedDict, NotRequired
+    from typing import NotRequired, Required, TypedDict
 else:
-    from typing_extensions import Required, TypedDict, NotRequired
+    from typing_extensions import NotRequired, Required, TypedDict
 
 
 # The only purpose of the following line is so that pyright will put all of the
