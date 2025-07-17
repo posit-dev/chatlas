@@ -716,7 +716,7 @@ class OpenAIAzureProvider(OpenAIProvider):
         api_version: Optional[str] = None,
         api_key: Optional[str] = None,
         seed: int | None = None,
-        name: str = "OpenAIAzure",
+        name: str = "Azure/OpenAI",
         model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
