@@ -85,14 +85,9 @@ def tokens_log(provider: "Provider", tokens: tuple[int, int, int]) -> None:
     """
     Log token usage for a provider in a thread-safe manner.
     """
-    if provider.name == "Azure/OpenAI":
-        _token_counter.log_tokens(
-            provider.name, provider.deployment_id, tokens[0], tokens[1], tokens[2]
-        )
-    else:
-        _token_counter.log_tokens(
-            provider.name, provider.model, tokens[0], tokens[1], tokens[2]
-        )
+    _token_counter.log_tokens(
+        provider.name, provider.model, tokens[0], tokens[1], tokens[2]
+    )
 
 
 def tokens_reset() -> None:
