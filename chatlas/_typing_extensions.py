@@ -14,13 +14,13 @@ else:
 # they should both come from the same typing module.
 # https://peps.python.org/pep-0655/#usage-in-python-3-11
 if sys.version_info >= (3, 11):
-    from typing import Required, TypedDict
+    from typing import Required, TypedDict, NotRequired
 else:
-    from typing_extensions import Required, TypedDict
+    from typing_extensions import Required, TypedDict, NotRequired
 
 
 # The only purpose of the following line is so that pyright will put all of the
 # conditional imports into the .pyi file when generating type stubs. Without this line,
 # pyright will not include the above imports in the generated .pyi file, and it will
 # result in a lot of red squiggles in user code.
-_: "ParamSpec | TypeGuard | is_typeddict | Required | TypedDict"  # type: ignore
+_: "ParamSpec | TypeGuard | is_typeddict | Required | TypedDict | NotRequired"  # type: ignore

@@ -47,7 +47,7 @@ from ._provider import Provider, StandardModelParams, SubmitInputArgsT
 from ._tokens import compute_cost, get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
-from ._typing_extensions import TypedDict, TypeGuard
+from ._typing_extensions import NotRequired, TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 
@@ -65,6 +65,7 @@ class TokensDict(TypedDict):
     role: Literal["user", "assistant"]
     tokens: int
     tokens_total: int
+    tokens_cached: NotRequired[int]
 
 
 CompletionT = TypeVar("CompletionT")
