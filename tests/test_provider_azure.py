@@ -21,7 +21,7 @@ def test_azure_simple_request():
     assert "2" == response.get_content()
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (27, 2)
+    assert turn.tokens == (27, 2, 0)
     assert chat.provider.name == "OpenAIAzure"
 
 
@@ -38,4 +38,4 @@ async def test_azure_simple_request_async():
     assert "2" == await response.get_content()
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.tokens == (27, 2)
+    assert turn.tokens == (27, 2, 0)
