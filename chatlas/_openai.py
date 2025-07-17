@@ -559,9 +559,9 @@ class OpenAIProvider(
         if usage is None:
             tokens = (0, 0, 0)
         else:
-            if usage.get("prompt_tokens_details", None) is not None:
+            if usage.prompt_tokens_details is not None:
                 cached_tokens = (
-                    usage.prompt_tokens_details.get("cached_tokens", 0)
+                    usage.prompt_tokens_details.cached_tokens
                     if usage.prompt_tokens_details.cached_tokens
                     else 0
                 )
