@@ -121,7 +121,7 @@ def test_can_retrieve_and_log_tokens():
     usage = token_usage()
     assert usage is not None
     assert len(usage) == 2
-    assert usage[1]["name"] == "OpenAIAzure"
+    assert usage[1]["name"] == "Azure/OpenAI"
     assert usage[1]["input"] == 5
     assert usage[1]["output"] == 25
     assert usage[1]["cost"] is None
