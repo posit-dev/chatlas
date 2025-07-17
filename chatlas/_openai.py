@@ -571,6 +571,7 @@ class OpenAIProvider(
             )
 
         # For some reason ChatGroq() includes tokens under completion.x_groq
+        # Groq does not support caching, so we set cached_tokens to 0
         if usage is None and hasattr(completion, "x_groq"):
             usage = completion.x_groq["usage"]  # type: ignore
             tokens = usage["prompt_tokens"], usage["completion_tokens"], 0

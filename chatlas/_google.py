@@ -505,7 +505,6 @@ class GoogleProvider(
                     )
 
         usage = message.get("usage_metadata")
-        print("USAGE:", usage)
         tokens = (0, 0, 0)
         if usage:
             cached = (usage.get("cached_content_token_count") or 0,)
