@@ -557,14 +557,27 @@ class OpenAIProvider(
 
         usage = completion.usage
         if usage is None:
-            tokens = (0, 0)
+            tokens = (0, 0, 0)
         else:
-            tokens = usage.prompt_tokens, usage.completion_tokens
+            if usage.prompt_tokens_details is not None:
+                cached_tokens = (
+                    usage.prompt_tokens_details.cached_tokens
+                    if usage.prompt_tokens_details.cached_tokens
+                    else 0
+                )
+            else:
+                cached_tokens = 0
+            tokens = (
+                usage.prompt_tokens - cached_tokens,
+                usage.completion_tokens,
+                cached_tokens,
+            )
 
         # For some reason ChatGroq() includes tokens under completion.x_groq
+        # Groq does not support caching, so we set cached_tokens to 0
         if usage is None and hasattr(completion, "x_groq"):
             usage = completion.x_groq["usage"]  # type: ignore
-            tokens = usage["prompt_tokens"], usage["completion_tokens"]
+            tokens = usage["prompt_tokens"], usage["completion_tokens"], 0
 
         tokens_log(self, tokens)
 
@@ -703,7 +716,7 @@ class OpenAIAzureProvider(OpenAIProvider):
         api_version: Optional[str] = None,
         api_key: Optional[str] = None,
         seed: int | None = None,
-        name: str = "OpenAIAzure",
+        name: str = "Azure/OpenAI",
         model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):

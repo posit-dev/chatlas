@@ -55,7 +55,7 @@ class Turn(BaseModel, Generic[CompletionT]):
     contents
         A list of [](`~chatlas.types.Content`) objects.
     tokens
-        A numeric vector of length 2 representing the number of input and output
+        A numeric vector of length 3 representing the number of input, output, and cached
         tokens (respectively) used in this turn. Currently only recorded for
         assistant turns.
     finish_reason
@@ -69,7 +69,7 @@ class Turn(BaseModel, Generic[CompletionT]):
 
     role: Literal["user", "assistant", "system"]
     contents: list[ContentUnion] = Field(default_factory=list)
-    tokens: Optional[tuple[int, int]] = None
+    tokens: Optional[tuple[int, int, int]] = None
     finish_reason: Optional[str] = None
     completion: Optional[CompletionT] = Field(default=None, exclude=True)
 
@@ -80,7 +80,7 @@ class Turn(BaseModel, Generic[CompletionT]):
         role: Literal["user", "assistant", "system"],
         contents: str | Sequence[Content | str],
         *,
-        tokens: Optional[tuple[int, int]] = None,
+        tokens: Optional[tuple[int, int, int]] = None,
         finish_reason: Optional[str] = None,
         completion: Optional[CompletionT] = None,
         **kwargs,
@@ -134,4 +134,3 @@ def user_turn(*args: Content | str) -> Turn:
         raise ValueError("Must supply at least one input.")
 
     return Turn("user", args)
-

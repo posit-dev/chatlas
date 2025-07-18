@@ -537,12 +537,12 @@ class SnowflakeProvider(
                         arguments=params,
                     )
                 )
-
+        # Snowflake does not currently appear to support caching, so we set cached tokens to 0
         usage = completion.usage
         if usage is None:
-            tokens = (0, 0)
+            tokens = (0, 0, 0)
         else:
-            tokens = (usage.prompt_tokens or 0, usage.completion_tokens or 0)
+            tokens = (usage.prompt_tokens or 0, usage.completion_tokens or 0, 0)
 
         tokens_log(self, tokens)
 

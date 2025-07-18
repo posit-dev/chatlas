@@ -585,8 +585,18 @@ class AnthropicProvider(
                             arguments=content.input,
                         )
                     )
+        # Anthropic's caching is complex, reconsider how we do this as it evolves.
+        cached_tokens = (
+            completion.usage.cache_read_input_tokens
+            if completion.usage.cache_read_input_tokens
+            else 0
+        )
 
-        tokens = completion.usage.input_tokens, completion.usage.output_tokens
+        tokens = (
+            completion.usage.input_tokens,
+            completion.usage.output_tokens,
+            cached_tokens,
+        )
 
         tokens_log(self, tokens)
 
@@ -764,7 +774,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_session_token: str | None,
         max_tokens: int = 4096,
         base_url: str | None,
-        name: str = "AnthropicBedrock",
+        name: str = "AWS/Bedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
         super().__init__(name=name, model=model, max_tokens=max_tokens)

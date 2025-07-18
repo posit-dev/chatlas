@@ -47,7 +47,7 @@ from ._provider import Provider, StandardModelParams, SubmitInputArgsT
 from ._tokens import compute_cost, get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
-from ._typing_extensions import TypedDict, TypeGuard
+from ._typing_extensions import NotRequired, TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 
@@ -65,6 +65,7 @@ class TokensDict(TypedDict):
     role: Literal["user", "assistant"]
     tokens: int
     tokens_total: int
+    tokens_cached: NotRequired[int]
 
 
 CompletionT = TypeVar("CompletionT")
@@ -287,12 +288,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError(
                 "Expected the 1st assistant turn to contain token counts. " + err_info
             )
-
         res: list[TokensDict] = [
             # Implied token count for the 1st user input
             {
                 "role": "user",
                 "tokens": turns[1].tokens[0],
+                # Number of tokens currently cached (reduces input token usage)
+                "tokens_cached": turns[1].tokens[2],
                 "tokens_total": turns[1].tokens[0],
             },
             # The token count for the 1st assistant response
@@ -319,8 +321,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 [
                     {
                         "role": "user",
-                        # Implied token count for the user input
+                        # Implied new token count for the user input (input tokens - context - cached reads)
+                        # Cached reads are only subtracted for particular providers
                         "tokens": tj.tokens[0] - sum(ti.tokens),
+                        # Number of tokens currently cached (reduces input token usage depending on provider's API)
+                        "tokens_cached": tj.tokens[2],
                         # Total tokens = Total User Tokens for the Turn = Distinct new tokens + context sent
                         "tokens_total": tj.tokens[0],
                     },
@@ -333,13 +338,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     },
                 ]
             )
-
         return res
 
     def get_cost(
         self,
         options: Literal["all", "last"] = "all",
-        token_price: Optional[tuple[float, float]] = None,
+        token_price: Optional[tuple[float, float, float]] = None,
     ) -> float:
         """
         Estimate the cost of the chat.
@@ -357,10 +361,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
               - `"last"`: Return the cost of the last turn in the chat.
         token_price
             An optional tuple in the format of (input_token_cost,
-            output_token_cost) for bringing your own cost information.
+            output_token_cost, cached_token_cost) for bringing your own cost information.
                  - `"input_token_cost"`: The cost per user token in USD per
                    million tokens.
                  - `"output_token_cost"`: The cost per assistant token in USD
+                   per million tokens.
+                - `"cached_token_cost"`: The cost per cached token read in USD
                    per million tokens.
 
         Returns
@@ -374,6 +380,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if token_price:
             input_token_price = token_price[0] / 1e6
             output_token_price = token_price[1] / 1e6
+            cached_token_price = token_price[2] / 1e6
         else:
             price_token = get_token_pricing(self.provider.name, self.provider.model)
             if not price_token:
@@ -381,8 +388,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     f"We could not locate pricing information for model '{self.provider.model}' from provider '{self.provider.name}'. "
                     "If you know the pricing for this model, specify it in `token_price`."
                 )
+
             input_token_price = price_token["input"] / 1e6
             output_token_price = price_token["output"] / 1e6
+            cached_token_price = price_token["cached_input"] / 1e6
 
         if len(turns_tokens) == 0:
             return 0.0
@@ -393,14 +402,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         if options == "all":
+            print(turns_tokens)
             asst_tokens = sum(
                 u["tokens_total"] for u in turns_tokens if u["role"] == "assistant"
             )
             user_tokens = sum(
                 u["tokens_total"] for u in turns_tokens if u["role"] == "user"
             )
-            cost = (asst_tokens * output_token_price) + (
-                user_tokens * input_token_price
+            # We add the cacheded tokens here because for relevant providers they have already been subtrated
+            # from the user tokens. This assumes the provider uses (reads) the cache each time.
+            cached_token_reads = sum(
+                u["tokens_cached"]  # type: ignore
+                for u in turns_tokens
+                if u["role"] == "user"
+            )
+
+            cost = (
+                (asst_tokens * output_token_price)
+                + (user_tokens * input_token_price)
+                + (cached_token_reads * cached_token_price)
             )
             return cost
 
@@ -408,7 +428,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if last_turn["role"] == "assistant":
             return last_turn["tokens"] * output_token_price
         if last_turn["role"] == "user":
-            return last_turn["tokens_total"] * input_token_price
+            return (last_turn["tokens_total"] * input_token_price) + (
+                last_turn["tokens_cached"] * cached_token_price  # type: ignore
+            )
         raise ValueError(
             f"Expected last turn to have a role of 'user' or `'assistant'`, not '{last_turn['role']}'"
         )
@@ -817,9 +839,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             kwargs=kwargs,
         )
 
-        def wrapper() -> Generator[
-            str | ContentToolRequest | ContentToolResult, None, None
-        ]:
+        def wrapper() -> (
+            Generator[str | ContentToolRequest | ContentToolResult, None, None]
+        ):
             with display:
                 for chunk in generator:
                     yield chunk
@@ -881,9 +903,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
-        async def wrapper() -> AsyncGenerator[
-            str | ContentToolRequest | ContentToolResult, None
-        ]:
+        async def wrapper() -> (
+            AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]
+        ):
             with display:
                 async for chunk in self._chat_impl_async(
                     turn,
@@ -2224,6 +2246,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tokens = self.get_tokens()
         tokens_asst = sum(u["tokens_total"] for u in tokens if u["role"] == "assistant")
         tokens_user = sum(u["tokens_total"] for u in tokens if u["role"] == "user")
+        tokens_cached = sum(u["tokens_cached"] for u in tokens if u["role"] == "user")  # type: ignore
 
         res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)} tokens={tokens_user}/{tokens_asst}"
 
@@ -2233,6 +2256,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             self.provider.model,
             tokens_user,
             tokens_asst,
+            tokens_cached,
         )
         if cost is not None:
             res += f" ${round(cost, ndigits=2)}"
