@@ -53,7 +53,9 @@ class ThreadSafeTokenCounter:
                     "input": input_tokens,
                     "output": output_tokens,
                     "cached_input": cached_tokens,
-                    "cost": compute_cost(name, model, input_tokens, output_tokens),
+                    "cost": compute_cost(
+                        name, model, input_tokens, output_tokens, cached_tokens
+                    ),
                 }
             else:
                 self._tokens[name]["input"] += input_tokens
