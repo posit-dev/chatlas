@@ -412,9 +412,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             # We add the cacheded tokens here because for relevant providers they have already been subtrated
             # from the user tokens. This assumes the provider uses (reads) the cache each time.
             cached_token_reads = sum(
-                u["tokens_cached"]
+                u["tokens_cached"]  # type: ignore
                 for u in turns_tokens
-                if u["role"] == "user"  # type: ignore
+                if u["role"] == "user"
             )
 
             cost = (
@@ -839,9 +839,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             kwargs=kwargs,
         )
 
-        def wrapper() -> Generator[
-            str | ContentToolRequest | ContentToolResult, None, None
-        ]:
+        def wrapper() -> (
+            Generator[str | ContentToolRequest | ContentToolResult, None, None]
+        ):
             with display:
                 for chunk in generator:
                     yield chunk
@@ -903,9 +903,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
-        async def wrapper() -> AsyncGenerator[
-            str | ContentToolRequest | ContentToolResult, None
-        ]:
+        async def wrapper() -> (
+            AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]
+        ):
             with display:
                 async for chunk in self._chat_impl_async(
                     turn,
