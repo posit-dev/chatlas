@@ -23,7 +23,7 @@ class TokenUsage(TypedDict):
     model: str
     input: int
     output: int
-    cached_input: int | None
+    cached_input: int
     cost: float | None
 
 

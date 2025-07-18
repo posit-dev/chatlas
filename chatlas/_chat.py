@@ -402,6 +402,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         if options == "all":
+            print(turns_tokens)
             asst_tokens = sum(
                 u["tokens_total"] for u in turns_tokens if u["role"] == "assistant"
             )
