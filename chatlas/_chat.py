@@ -412,7 +412,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             # We add the cacheded tokens here because for relevant providers they have already been subtrated
             # from the user tokens. This assumes the provider uses (reads) the cache each time.
             cached_token_reads = sum(
-                u["tokens_cached"] for u in turns_tokens if u["role"] == "user"
+                u["tokens_cached"] for u in turns_tokens if u["role"] == "user"  # type: ignore
             )
 
             cost = (
@@ -427,7 +427,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             return last_turn["tokens"] * output_token_price
         if last_turn["role"] == "user":
             return (last_turn["tokens_total"] * input_token_price) + (
-                last_turn["tokens_cached"] * cached_token_price
+                last_turn["tokens_cached"] * cached_token_price  # type: ignore
             )
         raise ValueError(
             f"Expected last turn to have a role of 'user' or `'assistant'`, not '{last_turn['role']}'"
@@ -2244,7 +2244,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tokens = self.get_tokens()
         tokens_asst = sum(u["tokens_total"] for u in tokens if u["role"] == "assistant")
         tokens_user = sum(u["tokens_total"] for u in tokens if u["role"] == "user")
-        tokens_cached = sum(u["tokens_cached"] for u in tokens if u["role"] == "user")
+        tokens_cached = sum(u["tokens_cached"] for u in tokens if u["role"] == "user")  # type: ignore
 
         res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)} tokens={tokens_user}/{tokens_asst}"
 
