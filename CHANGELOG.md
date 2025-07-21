@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
-* Chat costing now takes caching into account when calculating cost estimates. (#133)
+* `Chat.get_cost()` now covers many more models and also takes cached tokens into account. (#133)
 
 ## [0.9.1] - 2025-07-09
 
