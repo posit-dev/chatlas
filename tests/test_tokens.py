@@ -18,30 +18,46 @@ def test_tokens_method():
     chat.set_turns(
         [
             Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10)),
+            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
         ]
     )
 
     assert chat.get_tokens() == [
-        {"role": "user", "tokens": 2, "tokens_total": 2},
-        {"role": "assistant", "tokens": 10, "tokens_total": 10},
+        {"role": "user", "tokens": 2, "tokens_cached": 0, "tokens_total": 2},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
     ]
 
     chat = ChatOpenAI()
     chat.set_turns(
         [
             Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10)),
+            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
             Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(14, 10)),
+            Turn(role="assistant", contents="Hello", tokens=(14, 10, 0)),
         ],
     )
 
     assert chat.get_tokens() == [
-        {"role": "user", "tokens": 2, "tokens_total": 2},
-        {"role": "assistant", "tokens": 10, "tokens_total": 10},
-        {"role": "user", "tokens": 2, "tokens_total": 14},
-        {"role": "assistant", "tokens": 10, "tokens_total": 10},
+        {"role": "user", "tokens": 2, "tokens_cached": 0, "tokens_total": 2},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
+        {"role": "user", "tokens": 2, "tokens_cached": 0, "tokens_total": 14},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
+    ]
+
+    chat2 = ChatOpenAI()
+    chat2.set_turns(
+        [
+            Turn(role="user", contents="Hi"),
+            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
+            Turn(role="user", contents="Hi"),
+            Turn(role="assistant", contents="Hello", tokens=(14, 10, 2)),
+        ],
+    )
+    assert chat2.get_tokens() == [
+        {"role": "user", "tokens": 2, "tokens_cached": 0, "tokens_total": 2},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
+        {"role": "user", "tokens": 2, "tokens_cached": 2, "tokens_total": 14},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
     ]
 
 
@@ -87,8 +103,8 @@ def test_can_retrieve_and_log_tokens():
     tokens_reset()
 
     provider = OpenAIProvider(api_key="fake_key", model="gpt-4.1")
-    tokens_log(provider, (10, 50))
-    tokens_log(provider, (0, 10))
+    tokens_log(provider, (10, 50, 0))
+    tokens_log(provider, (0, 10, 0))
     usage = token_usage()
     assert usage is not None
     assert len(usage) == 1
@@ -101,11 +117,11 @@ def test_can_retrieve_and_log_tokens():
         api_key="fake_key", endpoint="foo", deployment_id="test", api_version="bar"
     )
 
-    tokens_log(provider2, (5, 25))
+    tokens_log(provider2, (5, 25, 0))
     usage = token_usage()
     assert usage is not None
     assert len(usage) == 2
-    assert usage[1]["name"] == "OpenAIAzure"
+    assert usage[1]["name"] == "Azure/OpenAI"
     assert usage[1]["input"] == 5
     assert usage[1]["output"] == 25
     assert usage[1]["cost"] is None

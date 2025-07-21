@@ -426,9 +426,7 @@ class GoogleProvider(
                 )
             )
         elif isinstance(content, ContentToolResult):
-            if isinstance(
-                content, (ContentToolResultImage, ContentToolResultResource)
-            ):
+            if isinstance(content, (ContentToolResultImage, ContentToolResultResource)):
                 raise NotImplementedError(
                     "Tool results with images or resources aren't supported by Google (Gemini). "
                 )
@@ -507,11 +505,13 @@ class GoogleProvider(
                     )
 
         usage = message.get("usage_metadata")
-        tokens = (0, 0)
+        tokens = (0, 0, 0)
         if usage:
+            cached = usage.get("cached_content_token_count") or 0
             tokens = (
-                usage.get("prompt_token_count") or 0,
+                (usage.get("prompt_token_count") or 0) - cached,
                 usage.get("candidates_token_count") or 0,
+                usage.get("cached_content_token_count") or 0,
             )
 
         tokens_log(self, tokens)

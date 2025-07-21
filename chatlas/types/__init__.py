@@ -1,7 +1,7 @@
 from .._chat import (  # noqa: A005
-  ChatResponse,
-  ChatResponseAsync,
-  SubmitInputArgsT,
+    ChatResponse,
+    ChatResponseAsync,
+    SubmitInputArgsT,
 )
 from .._content import (
     Content,

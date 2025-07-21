@@ -73,7 +73,7 @@ def test_basic_repr(snapshot):
     chat.set_turns(
         [
             Turn("user", "What's 1 + 1? What's 1 + 2?"),
-            Turn("assistant", "2  3", tokens=(15, 5)),
+            Turn("assistant", "2  3", tokens=(15, 5, 5)),
         ]
     )
     assert snapshot == repr(chat)
@@ -86,7 +86,7 @@ def test_basic_str(snapshot):
     chat.set_turns(
         [
             Turn("user", "What's 1 + 1? What's 1 + 2?"),
-            Turn("assistant", "2  3", tokens=(15, 5)),
+            Turn("assistant", "2  3", tokens=(15, 5, 0)),
         ]
     )
     assert snapshot == str(chat)
@@ -99,7 +99,7 @@ def test_basic_export(snapshot):
     chat.set_turns(
         [
             Turn("user", "What's 1 + 1? What's 1 + 2?"),
-            Turn("assistant", "2  3", tokens=(15, 5)),
+            Turn("assistant", "2  3", tokens=(15, 5, 0)),
         ]
     )
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -298,9 +298,9 @@ def test_get_cost():
     chat.set_turns(
         [
             Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10)),
+            Turn(role="assistant", contents="Hello", tokens=(2, 10, 2)),
             Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(14, 10)),
+            Turn(role="assistant", contents="Hello", tokens=(14, 10, 2)),
         ]
     )
 
@@ -323,21 +323,26 @@ def test_get_cost():
 
     assert cost > last
 
-    byoc = (2.0, 3.0)
+    # User-specified cost values
+    byoc = (2.0, 3.0, 0.1)
 
+    expected_cost = (
+        (10 * byoc[1] / 1e6) + (2 * byoc[0] / 1e6) + (2 * byoc[2] / 1e6)
+    ) + ((10 * byoc[1] / 1e6) + (14 * byoc[0] / 1e6) + (2 * byoc[2] / 1e6))
     cost2 = chat.get_cost(options="all", token_price=byoc)
-    assert cost2 == 0.000092
+    assert cost2 == expected_cost
 
+    last_expected_cost = 10 * byoc[1] / 1e6  # Only the last turn's assistant tokens
     last2 = chat.get_cost(options="last", token_price=byoc)
-    assert last2 == 0.00003
+    assert last2 == last_expected_cost
 
     chat2 = ChatOpenAI(api_key="fake_key", model="BADBAD")
     chat2.set_turns(
         [
             Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10)),
+            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
             Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(14, 10)),
+            Turn(role="assistant", contents="Hello", tokens=(14, 10, 0)),
         ]
     )
     with pytest.raises(
