@@ -73,7 +73,7 @@ def test_basic_repr(snapshot):
     chat.set_turns(
         [
             Turn("user", "What's 1 + 1? What's 1 + 2?"),
-            Turn("assistant", "2  3", tokens=(15, 5, 0)),
+            Turn("assistant", "2  3", tokens=(15, 5, 5)),
         ]
     )
     assert snapshot == repr(chat)

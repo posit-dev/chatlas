@@ -32,14 +32,14 @@
 # ---
 # name: test_basic_repr
   '''
-  <Chat OpenAI/gpt-4.1 turns=3 tokens=15/5 $0.0>
+  <Chat OpenAI/gpt-4.1 turns=3 tokens=20/5 $0.0>
     <Turn role='system'>
       <ContentText text='You're a helpful assistant that returns very minim...'>
   
     <Turn role='user'>
       <ContentText text='What's 1 + 1? What's 1 + 2?'>
   
-    <Turn role='assistant' tokens=(15, 5, 0)>
+    <Turn role='assistant' tokens=(15, 5, 5)>
       <ContentText text='2  3'>
   
   
