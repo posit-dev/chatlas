@@ -24,7 +24,7 @@ def test_tokens_method():
 
     assert chat.get_tokens() == [
         {"role": "user", "tokens": 2, "tokens_cached": 0, "tokens_total": 2},
-        {"role": "assistant", "tokens": 10, "tokens_total": 10},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
     ]
 
     chat = ChatOpenAI()
@@ -39,9 +39,9 @@ def test_tokens_method():
 
     assert chat.get_tokens() == [
         {"role": "user", "tokens": 2, "tokens_cached": 0, "tokens_total": 2},
-        {"role": "assistant", "tokens": 10, "tokens_total": 10},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
         {"role": "user", "tokens": 2, "tokens_cached": 0, "tokens_total": 14},
-        {"role": "assistant", "tokens": 10, "tokens_total": 10},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
     ]
 
     chat2 = ChatOpenAI()
@@ -55,9 +55,9 @@ def test_tokens_method():
     )
     assert chat2.get_tokens() == [
         {"role": "user", "tokens": 2, "tokens_cached": 0, "tokens_total": 2},
-        {"role": "assistant", "tokens": 10, "tokens_total": 10},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
         {"role": "user", "tokens": 2, "tokens_cached": 2, "tokens_total": 14},
-        {"role": "assistant", "tokens": 10, "tokens_total": 10},
+        {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
     ]
 
 
