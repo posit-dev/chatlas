@@ -2,9 +2,10 @@ import os
 
 import pytest
 import requests
-from chatlas import ChatGoogle, ChatVertex
 from google.genai.errors import APIError
 from tenacity import retry, retry_if_exception, wait_exponential
+
+from chatlas import ChatGoogle, ChatVertex
 
 from .conftest import (
     assert_data_extraction,
@@ -123,7 +124,7 @@ def test_tools_simple_stream_content():
 
 @retry_gemini_call
 def test_tools_parallel():
-    assert_tools_parallel(chat_func, total_calls=6)
+    assert_tools_parallel(chat_func)
 
 
 @retry_gemini_call
