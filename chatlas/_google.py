@@ -509,7 +509,7 @@ class GoogleProvider(
         if usage:
             cached = usage.get("cached_content_token_count") or 0
             tokens = (
-                usage.get("prompt_token_count") or 0 - cached,
+                (usage.get("prompt_token_count") or 0) - cached,
                 usage.get("candidates_token_count") or 0,
                 usage.get("cached_content_token_count") or 0,
             )

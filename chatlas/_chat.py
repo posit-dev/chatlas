@@ -47,7 +47,7 @@ from ._provider import Provider, StandardModelParams, SubmitInputArgsT
 from ._tokens import compute_cost, get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
-from ._typing_extensions import NotRequired, TypedDict, TypeGuard
+from ._typing_extensions import TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 
@@ -65,7 +65,7 @@ class TokensDict(TypedDict):
     role: Literal["user", "assistant"]
     tokens: int
     tokens_total: int
-    tokens_cached: NotRequired[int]
+    tokens_cached: int
 
 
 CompletionT = TypeVar("CompletionT")
@@ -301,6 +301,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             {
                 "role": "assistant",
                 "tokens": turns[1].tokens[1],
+                "tokens_cached": 0,
                 "tokens_total": turns[1].tokens[1],
             },
         ]
@@ -334,6 +335,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         # The token count for the assistant response
                         "tokens": tj.tokens[1],
                         # Total tokens = Total Assistant tokens used in the turn
+                        "tokens_cached": 0,
                         "tokens_total": tj.tokens[1],
                     },
                 ]
@@ -412,9 +414,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             # We add the cacheded tokens here because for relevant providers they have already been subtrated
             # from the user tokens. This assumes the provider uses (reads) the cache each time.
             cached_token_reads = sum(
-                u["tokens_cached"]  # type: ignore
-                for u in turns_tokens
-                if u["role"] == "user"
+                u["tokens_cached"] for u in turns_tokens if u["role"] == "user"
             )
 
             cost = (
@@ -429,7 +429,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             return last_turn["tokens"] * output_token_price
         if last_turn["role"] == "user":
             return (last_turn["tokens_total"] * input_token_price) + (
-                last_turn["tokens_cached"] * cached_token_price  # type: ignore
+                last_turn["tokens_cached"] * cached_token_price
             )
         raise ValueError(
             f"Expected last turn to have a role of 'user' or `'assistant'`, not '{last_turn['role']}'"
@@ -2246,9 +2246,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tokens = self.get_tokens()
         tokens_asst = sum(u["tokens_total"] for u in tokens if u["role"] == "assistant")
         tokens_user = sum(u["tokens_total"] for u in tokens if u["role"] == "user")
-        tokens_cached = sum(u["tokens_cached"] for u in tokens if u["role"] == "user")  # type: ignore
+        tokens_cached = sum(u["tokens_cached"] for u in tokens if u["role"] == "user")
 
-        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)} tokens={tokens_user}/{tokens_asst}"
+        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)} tokens={tokens_user + tokens_cached}/{tokens_asst}"
 
         # Add cost info only if we can compute it
         cost = compute_cost(

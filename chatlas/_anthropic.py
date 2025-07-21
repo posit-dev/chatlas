@@ -585,17 +585,16 @@ class AnthropicProvider(
                             arguments=content.input,
                         )
                     )
-        # Anthropic's caching is complex, reconsider how we do this as it evolves.
-        cached_tokens = (
-            completion.usage.cache_read_input_tokens
-            if completion.usage.cache_read_input_tokens
-            else 0
-        )
+
+        usage = completion.usage
+        # N.B. Currently, Anthropic doesn't cache by default and we currently do not support
+        # manual caching in chatlas. Note also that this only tracks reads, NOT writes, which
+        # have their own cost. To track that properly, we would need another caching category and per-token cost.
 
         tokens = (
             completion.usage.input_tokens,
             completion.usage.output_tokens,
-            cached_tokens,
+            usage.cache_read_input_tokens if usage.cache_read_input_tokens else 0,
         )
 
         tokens_log(self, tokens)
