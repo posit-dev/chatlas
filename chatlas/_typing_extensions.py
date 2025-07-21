@@ -14,7 +14,7 @@ else:
 # they should both come from the same typing module.
 # https://peps.python.org/pep-0655/#usage-in-python-3-11
 if sys.version_info >= (3, 11):
-    from typing import NotRequired, Required, TypedDict
+    from typing import Required, TypedDict
 else:
     from typing_extensions import Required, TypedDict
 
