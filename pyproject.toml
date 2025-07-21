@@ -90,7 +90,10 @@ ollama = []
 openai = []
 azure-openai = []
 perplexity = []
-snowflake = ["snowflake-ml-python"]
+# Version requirement is to avoid an install issue with recent Python versions
+# If and when this extra can be installed without a version requirement, we can
+# remove it
+snowflake = ["snowflake-ml-python<=1.9.0"]
 vertex = ["google-genai>=1.14.0"]
 
 [tool.uv]
