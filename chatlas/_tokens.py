@@ -161,9 +161,7 @@ def compute_cost(
         return None
     input_price = input_tokens * (price["input"] / 1e6)
     output_price = output_tokens * (price["output"] / 1e6)
-    cached_price = (
-        cached_tokens * (price["cached_input"] / 1e6) if cached_tokens else 0.0
-    )
+    cached_price = cached_tokens * (price["cached_input"] / 1e6)
     return input_price + output_price + cached_price
 
 

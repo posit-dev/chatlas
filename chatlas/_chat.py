@@ -413,7 +413,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             user_tokens = sum(
                 u["tokens_total"] for u in turns_tokens if u["role"] == "user"
             )
-            # We add the cacheded tokens here because for relevant providers they have already been subtrated
+            # We add the cached tokens here because for relevant providers they have already been subtracted
             # from the user tokens. This assumes the provider uses (reads) the cache each time.
             cached_token_reads = sum(
                 u["tokens_cached"] for u in turns_tokens if u["role"] == "user"
