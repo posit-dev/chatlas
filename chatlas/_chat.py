@@ -288,6 +288,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError(
                 "Expected the 1st assistant turn to contain token counts. " + err_info
             )
+
         res: list[TokensDict] = [
             # Implied token count for the 1st user input
             {
@@ -340,6 +341,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     },
                 ]
             )
+
         return res
 
     def get_cost(
@@ -387,7 +389,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             price_token = get_token_pricing(self.provider.name, self.provider.model)
             if not price_token:
                 raise KeyError(
-                    f"We could not locate pricing information for model '{self.provider.model}' from provider '{self.provider.name}'. "
+                    f"We could not locate pricing information for model '{self.provider.model}'"
+                    f" from provider '{self.provider.name}'. "
                     "If you know the pricing for this model, specify it in `token_price`."
                 )
 
@@ -838,9 +841,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             kwargs=kwargs,
         )
 
-        def wrapper() -> (
-            Generator[str | ContentToolRequest | ContentToolResult, None, None]
-        ):
+        def wrapper() -> Generator[
+            str | ContentToolRequest | ContentToolResult, None, None
+        ]:
             with display:
                 for chunk in generator:
                     yield chunk
@@ -902,9 +905,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
-        async def wrapper() -> (
-            AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]
-        ):
+        async def wrapper() -> AsyncGenerator[
+            str | ContentToolRequest | ContentToolResult, None
+        ]:
             with display:
                 async for chunk in self._chat_impl_async(
                     turn,
@@ -2247,7 +2250,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tokens_user = sum(u["tokens_total"] for u in tokens if u["role"] == "user")
         tokens_cached = sum(u["tokens_cached"] for u in tokens if u["role"] == "user")
 
-        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)} tokens={tokens_user + tokens_cached}/{tokens_asst}"
+        res = (
+            f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)}"
+            f" tokens={tokens_user + tokens_cached}/{tokens_asst}"
+        )
 
         # Add cost info only if we can compute it
         cost = compute_cost(
