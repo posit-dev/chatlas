@@ -531,6 +531,8 @@ class OpenAIProvider(
 
         if tool_calls is not None:
             for call in tool_calls:
+                if call.type != "function":
+                    continue
                 func = call.function
                 if func is None:
                     continue
