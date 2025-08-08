@@ -5,16 +5,16 @@ from typing import Callable, Literal, Optional
 
 import orjson
 
-from ._anthropic import ChatAnthropic, ChatBedrockAnthropic
+from ._provider_anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._chat import Chat
-from ._databricks import ChatDatabricks
-from ._github import ChatGithub
-from ._google import ChatGoogle, ChatVertex
-from ._groq import ChatGroq
-from ._ollama import ChatOllama
-from ._openai import ChatAzureOpenAI, ChatOpenAI
-from ._perplexity import ChatPerplexity
-from ._snowflake import ChatSnowflake
+from ._provider_databricks import ChatDatabricks
+from ._provider_github import ChatGithub
+from ._provider_google import ChatGoogle, ChatVertex
+from ._provider_groq import ChatGroq
+from ._provider_ollama import ChatOllama
+from ._provider_openai import ChatAzureOpenAI, ChatOpenAI
+from ._provider_perplexity import ChatPerplexity
+from ._provider_snowflake import ChatSnowflake
 
 AutoProviders = Literal[
     "anthropic",

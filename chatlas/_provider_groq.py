@@ -5,29 +5,27 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._openai import OpenAIProvider
+from ._provider_openai import OpenAIProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
-    from ._openai import ChatCompletion
+    from ._provider_openai import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
-def ChatPerplexity(
+def ChatGroq(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
     api_key: Optional[str] = None,
-    base_url: str = "https://api.perplexity.ai/",
+    base_url: str = "https://api.groq.com/openai/v1",
     seed: Optional[int] | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
-    Chat with a model hosted on perplexity.ai.
+    Chat with a model hosted on Groq.
 
-    Perplexity AI is a platform for running LLMs that are capable of
-    searching the web in real-time to help them answer questions with
-    information that may not have been available when the model was trained.
+    Groq provides a platform for highly efficient AI inference.
 
     Prerequisites
     -------------
@@ -35,18 +33,17 @@ def ChatPerplexity(
     ::: {.callout-note}
     ## API key
 
-    Sign up at <https://www.perplexity.ai> to get an API key.
+    Sign up at <https://groq.com> to get an API key.
     :::
-
 
     Examples
     --------
 
     ```python
     import os
-    from chatlas import ChatPerplexity
+    from chatlas import ChatGroq
 
-    chat = ChatPerplexity(api_key=os.getenv("PERPLEXITY_API_KEY"))
+    chat = ChatGroq(api_key=os.getenv("GROQ_API_KEY"))
     chat.chat("What is the capital of France?")
     ```
 
@@ -56,20 +53,18 @@ def ChatPerplexity(
         A system prompt to set the behavior of the assistant.
     model
         The model to use for the chat. The default, None, will pick a reasonable
-        default, and warn you about it. We strongly recommend explicitly
-        choosing a model for all but the most casual use.
+        default, and warn you about it. We strongly recommend explicitly choosing
+        a model for all but the most casual use.
     api_key
         The API key to use for authentication. You generally should not supply
-        this directly, but instead set the `PERPLEXITY_API_KEY` environment
-        variable.
+        this directly, but instead set the `GROQ_API_KEY` environment variable.
     base_url
-        The base URL to the endpoint; the default uses Perplexity's API.
+        The base URL to the endpoint; the default uses Groq's API.
     seed
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
     kwargs
-        Additional arguments to pass to the `openai.OpenAI()` client
-        constructor.
+        Additional arguments to pass to the `openai.OpenAI()` client constructor.
 
     Returns
     -------
@@ -78,12 +73,12 @@ def ChatPerplexity(
 
     Note
     ----
-    This function is a lightweight wrapper around [](`chatlas.ChatOpenAI`) with
-    the defaults tweaked for perplexity.ai.
+    This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
+    the defaults tweaked for groq.
 
     Note
     ----
-    Pasting an API key into a chat constructor (e.g., `ChatPerplexity(api_key="...")`)
+    Pasting an API key into a chat constructor (e.g., `ChatGroq(api_key="...")`)
     is the simplest way to get started, and is fine for interactive use, but is
     problematic for code that may be shared with others.
 
@@ -98,15 +93,15 @@ def ChatPerplexity(
 
     ```shell
     # .env
-    PERPLEXITY_API_KEY=...
+    GROQ_API_KEY=...
     ```
 
     ```python
-    from chatlas import ChatPerplexity
+    from chatlas import ChatGroq
     from dotenv import load_dotenv
 
     load_dotenv()
-    chat = ChatPerplexity()
+    chat = ChatGroq()
     chat.console()
     ```
 
@@ -114,13 +109,14 @@ def ChatPerplexity(
     before starting Python (maybe in a `.bashrc`, `.zshrc`, etc. file):
 
     ```shell
-    export PERPLEXITY_API_KEY=...
+    export GROQ_API_KEY=...
     ```
     """
     if model is None:
-        model = log_model_default("llama-3.1-sonar-small-128k-online")
+        model = log_model_default("llama3-8b-8192")
+
     if api_key is None:
-        api_key = os.getenv("PERPLEXITY_API_KEY")
+        api_key = os.getenv("GROQ_API_KEY")
 
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
@@ -131,7 +127,7 @@ def ChatPerplexity(
             model=model,
             base_url=base_url,
             seed=seed,
-            name="Perplexity",
+            name="Groq",
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,

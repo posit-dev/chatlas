@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._openai import OpenAIProvider
+from ._provider_openai import OpenAIProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
-    from ._openai import ChatCompletion
+    from ._provider_openai import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
