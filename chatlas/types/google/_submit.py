@@ -12,52 +12,46 @@ import PIL.Image
 class SubmitInputArgs(TypedDict, total=False):
     model: str
     contents: Union[
-        list[
-            Union[
-                google.genai.types.Content,
-                list[
-                    Union[
-                        google.genai.types.File,
-                        google.genai.types.Part,
-                        PIL.Image.Image,
-                        str,
-                    ]
-                ],
-                google.genai.types.File,
-                google.genai.types.Part,
-                PIL.Image.Image,
-                str,
-            ]
-        ],
         google.genai.types.Content,
+        google.genai.types.ContentDict,
+        str,
+        PIL.Image.Image,
+        google.genai.types.File,
+        google.genai.types.FileDict,
+        google.genai.types.Part,
+        google.genai.types.PartDict,
         list[
             Union[
-                google.genai.types.File, google.genai.types.Part, PIL.Image.Image, str
+                str,
+                PIL.Image.Image,
+                google.genai.types.File,
+                google.genai.types.FileDict,
+                google.genai.types.Part,
+                google.genai.types.PartDict,
             ]
         ],
-        google.genai.types.File,
-        google.genai.types.Part,
-        PIL.Image.Image,
-        str,
         list[
             Union[
                 google.genai.types.Content,
+                google.genai.types.ContentDict,
+                str,
+                PIL.Image.Image,
+                google.genai.types.File,
+                google.genai.types.FileDict,
+                google.genai.types.Part,
+                google.genai.types.PartDict,
                 list[
                     Union[
-                        google.genai.types.File,
-                        google.genai.types.Part,
-                        PIL.Image.Image,
                         str,
+                        PIL.Image.Image,
+                        google.genai.types.File,
+                        google.genai.types.FileDict,
+                        google.genai.types.Part,
+                        google.genai.types.PartDict,
                     ]
                 ],
-                google.genai.types.File,
-                google.genai.types.Part,
-                PIL.Image.Image,
-                str,
-                google.genai.types.ContentDict,
             ]
         ],
-        google.genai.types.ContentDict,
     ]
     config: Union[
         google.genai.types.GenerateContentConfig,

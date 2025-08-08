@@ -2,10 +2,10 @@ import pytest
 
 import chatlas
 from chatlas import Chat, ChatAuto
-from chatlas._anthropic import AnthropicBedrockProvider, AnthropicProvider
 from chatlas._auto import _provider_chat_model_map
-from chatlas._google import GoogleProvider
-from chatlas._openai import OpenAIProvider
+from chatlas._provider_anthropic import AnthropicBedrockProvider, AnthropicProvider
+from chatlas._provider_google import GoogleProvider
+from chatlas._provider_openai import OpenAIProvider
 
 from .conftest import assert_turns_existing, assert_turns_system
 

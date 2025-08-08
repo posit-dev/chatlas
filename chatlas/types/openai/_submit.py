@@ -6,17 +6,20 @@
 from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
 
 import openai
+import openai.types.chat.chat_completion_allowed_tool_choice_param
 import openai.types.chat.chat_completion_assistant_message_param
 import openai.types.chat.chat_completion_audio_param
+import openai.types.chat.chat_completion_custom_tool_param
 import openai.types.chat.chat_completion_developer_message_param
 import openai.types.chat.chat_completion_function_call_option_param
 import openai.types.chat.chat_completion_function_message_param
+import openai.types.chat.chat_completion_function_tool_param
+import openai.types.chat.chat_completion_named_tool_choice_custom_param
 import openai.types.chat.chat_completion_named_tool_choice_param
 import openai.types.chat.chat_completion_prediction_content_param
 import openai.types.chat.chat_completion_stream_options_param
 import openai.types.chat.chat_completion_system_message_param
 import openai.types.chat.chat_completion_tool_message_param
-import openai.types.chat.chat_completion_tool_param
 import openai.types.chat.chat_completion_user_message_param
 import openai.types.chat.completion_create_params
 import openai.types.shared_params.response_format_json_object
@@ -38,6 +41,13 @@ class SubmitInputArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "gpt-5",
+            "gpt-5-mini",
+            "gpt-5-nano",
+            "gpt-5-2025-08-07",
+            "gpt-5-mini-2025-08-07",
+            "gpt-5-nano-2025-08-07",
+            "gpt-5-chat-latest",
             "gpt-4.1",
             "gpt-4.1-mini",
             "gpt-4.1-nano",
@@ -123,13 +133,17 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.NotGiven,
     ]
     presence_penalty: Union[float, None, openai.NotGiven]
-    reasoning_effort: Union[Literal["low", "medium", "high"], None, openai.NotGiven]
+    prompt_cache_key: str | openai.NotGiven
+    reasoning_effort: Union[
+        Literal["minimal", "low", "medium", "high"], None, openai.NotGiven
+    ]
     response_format: Union[
         openai.types.shared_params.response_format_text.ResponseFormatText,
         openai.types.shared_params.response_format_json_schema.ResponseFormatJSONSchema,
         openai.types.shared_params.response_format_json_object.ResponseFormatJSONObject,
         openai.NotGiven,
     ]
+    safety_identifier: str | openai.NotGiven
     seed: Union[int, None, openai.NotGiven]
     service_tier: Union[
         Literal["auto", "default", "flex", "scale", "priority"], None, openai.NotGiven
@@ -145,16 +159,24 @@ class SubmitInputArgs(TypedDict, total=False):
     temperature: Union[float, None, openai.NotGiven]
     tool_choice: Union[
         Literal["none", "auto", "required"],
+        openai.types.chat.chat_completion_allowed_tool_choice_param.ChatCompletionAllowedToolChoiceParam,
         openai.types.chat.chat_completion_named_tool_choice_param.ChatCompletionNamedToolChoiceParam,
+        openai.types.chat.chat_completion_named_tool_choice_custom_param.ChatCompletionNamedToolChoiceCustomParam,
         openai.NotGiven,
     ]
     tools: Union[
-        Iterable[openai.types.chat.chat_completion_tool_param.ChatCompletionToolParam],
+        Iterable[
+            Union[
+                openai.types.chat.chat_completion_function_tool_param.ChatCompletionFunctionToolParam,
+                openai.types.chat.chat_completion_custom_tool_param.ChatCompletionCustomToolParam,
+            ]
+        ],
         openai.NotGiven,
     ]
     top_logprobs: Union[int, None, openai.NotGiven]
     top_p: Union[float, None, openai.NotGiven]
     user: str | openai.NotGiven
+    verbosity: Union[Literal["low", "medium", "high"], None, openai.NotGiven]
     extra_headers: Optional[Mapping[str, Union[str, openai.Omit]]]
     extra_query: Optional[Mapping[str, object]]
     extra_body: object | None
