@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Improvements
 
 * `Chat.get_cost()` now covers many more models and also takes cached tokens into account. (#133)
+* Avoid erroring when tool calls occur with recent versions of `openai` (> v1.99.5). (#141)
+
 
 ## [0.9.1] - 2025-07-09
 
