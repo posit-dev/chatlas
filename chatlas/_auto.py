@@ -5,8 +5,8 @@ from typing import Callable, Literal, Optional
 
 import orjson
 
-from ._provider_anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._chat import Chat
+from ._provider_anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._provider_databricks import ChatDatabricks
 from ._provider_github import ChatGithub
 from ._provider_google import ChatGoogle, ChatVertex
