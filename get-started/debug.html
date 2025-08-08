@@ -389,14 +389,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="completion-objects">Completion objects</h2>
 <p>In an interactive setting, like a notebook, the <code>.completion</code> object on the relevant <code>Turn</code> can be a helpful way to inspect more information about the model’s response. This object will include provider specific information such as finish reasons, refusals, and other metadata.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chatlas <span class="im">as</span> ctl</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ctl.ChatGoogle()</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"How do I build a bomb?"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ctl.ChatOpenAI(system_prompt<span class="op">=</span><span class="st">"Be succinct."</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Tell me a programming joke."</span>)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(chat.get_last_turn().completion)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <details>
 <summary>
 Completion object
 </summary>
-<pre><code>ChatCompletion(id='chatcmpl-BWRlb7BucKMKWV3W0ULSFCf4dcfRM', choices=[Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content="I don't have access to personal data about you unless you share it with me in this conversation. If you'd like to tell me your name, feel free to do so!", refusal=None, role='assistant', annotations=None, audio=None, function_call=None, tool_calls=None))], created=1747072931, model='gpt-4.1-mini-2024-07-18', object='chat.completion.chunk', service_tier='default', system_fingerprint='fp_0392822090', usage=CompletionUsage(completion_tokens=35, prompt_tokens=21, total_tokens=56, completion_tokens_details=CompletionTokensDetails(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=0, cached_tokens=0)))</code></pre>
+<pre><code>ChatCompletion(id='chatcmpl-C2Pb3Xehq3kf19SmI4UwbtuEgbqBM', choices=[Choice(finish_reason='stop', index=0, logprobs=None, message=ChatCompletionMessage(content='Why do programmers prefer dark mode?  \nBecause light attracts bugs!', refusal=None, role='assistant', annotations=None, audio=None, function_call=None, tool_calls=None))], created=1754691085, model='gpt-4.1-2025-04-14', object='chat.completion.chunk', service_tier='default', system_fingerprint='fp_799e4ca3f1', usage=CompletionUsage(completion_tokens=13, prompt_tokens=20, total_tokens=33, completion_tokens_details=CompletionTokensDetails(accepted_prediction_tokens=0, audio_tokens=0, reasoning_tokens=0, rejected_prediction_tokens=0), prompt_tokens_details=PromptTokensDetails(audio_tokens=0, cached_tokens=0)))</code></pre>
 </details>
 <p>If the <code>.completion</code> object doesn’t provide helpful information, you’ll want likely want to enable logging to get more information about what is being sent to the model to generate the completion.</p>
 </section>
