@@ -75,7 +75,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-441cf8784b515adac1424855ab078ac0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-51542af24d6bf233f273bd52631cd675.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-cf9289e79690e31abfd808b53678e2bf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -825,7 +825,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>kwargs</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="../reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
 <td>Additional keyword arguments to pass to the method used for requesting the response.</td>
 <td><code>None</code></td>
 </tr>
@@ -869,7 +869,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>kwargs</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="../reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
 <td>Additional keyword arguments to pass to the method used for requesting the response.</td>
 <td><code>None</code></td>
 </tr>
@@ -932,7 +932,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>kwargs</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="../reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
 <td>Additional keyword arguments to pass to the method used for requesting the response.</td>
 <td><code>None</code></td>
 </tr>
@@ -1036,7 +1036,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>kwargs</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="../reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
 <td>Additional keyword arguments to pass to the method used for requesting the response</td>
 <td><code>None</code></td>
 </tr>
@@ -1300,8 +1300,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>token_price</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a>[<a href="https://docs.python.org/3/library/functions.html#float">float</a>, <a href="https://docs.python.org/3/library/functions.html#float">float</a>]]</td>
-<td>An optional tuple in the format of (input_token_cost, output_token_cost) for bringing your own cost information. - <code>"input_token_cost"</code>: The cost per user token in USD per million tokens. - <code>"output_token_cost"</code>: The cost per assistant token in USD per million tokens.</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a>[<a href="https://docs.python.org/3/library/functions.html#float">float</a>, <a href="https://docs.python.org/3/library/functions.html#float">float</a>, <a href="https://docs.python.org/3/library/functions.html#float">float</a>]]</td>
+<td>An optional tuple in the format of (input_token_cost, output_token_cost, cached_token_cost) for bringing your own cost information. - <code>"input_token_cost"</code>: The cost per user token in USD per million tokens. - <code>"output_token_cost"</code>: The cost per assistant token in USD per million tokens. - <code>"cached_token_cost"</code>: The cost per cached token read in USD per million tokens.</td>
 <td><code>None</code></td>
 </tr>
 </tbody>
@@ -2005,7 +2005,7 @@ Note
 </tr>
 <tr class="even">
 <td>kwargs</td>
-<td><a href="../reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a> | None | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a></td>
+<td><a href="https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a> | None | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a></td>
 <td>Additional keyword arguments to use when submitting input to the model. When calling this method repeatedly with different parameters, only the parameters from the last call will be used.</td>
 <td><code>MISSING</code></td>
 </tr>
@@ -2103,7 +2103,7 @@ Note
 </tr>
 <tr class="even">
 <td>kwargs</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="../reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
 <td>Additional keyword arguments to pass to the method used for requesting the response.</td>
 <td><code>None</code></td>
 </tr>
@@ -2166,7 +2166,7 @@ Note
 </tr>
 <tr class="even">
 <td>kwargs</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="../reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
 <td>Additional keyword arguments to pass to the method used for requesting the response.</td>
 <td><code>None</code></td>
 </tr>

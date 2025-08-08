@@ -75,7 +75,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-441cf8784b515adac1424855ab078ac0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-51542af24d6bf233f273bd52631cd675.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-cf9289e79690e31abfd808b53678e2bf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -401,8 +401,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  disable_batch<span class="op">=</span><span class="va">True</span>,</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  telemetry_enabled<span class="op">=</span><span class="va">False</span></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This approach does have the downside of requiring a <a href="https://traceloop.io/">Traceloop</a> account, but it does provide a free tier, and makes it quite easy to get started visualizing your app’s telemetry data.</p>
-<p>If you want to avoid the Traceloop account, you can also use their OTel instrumentation libraries (e.g., <a href="https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-openai">openai</a> and <a href="https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-anthropic">anthropic</a>) more directly. If Traceloop is not for you, however, you may prefer to use the “official” OTel libraries directly, which are more truly vendor agnostic.</p>
+<p>From here, a quick and easy way to get started visualizing your app’s telemetry data is to sign up for a (free) <a href="https://traceloop.com/">Traceloop</a> account. Openllmetry does, however, <a href="https://www.traceloop.com/docs/openllmetry/integrations/introduction">integrate with many other observability platforms</a>. If you want to avoid the Traceloop Python SDK, you can also use these OTel instrumentation libraries from the openllmetry project more directly (e.g., <a href="https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-openai">openai</a> and <a href="https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-anthropic">anthropic</a>).</p>
 </section>
 <section id="opentelemetry" class="level2">
 <h2 class="anchored" data-anchor-id="opentelemetry">OpenTelemetry</h2>
