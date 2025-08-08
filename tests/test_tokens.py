@@ -1,6 +1,5 @@
-import pytest
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
-from chatlas._openai import OpenAIAzureProvider, OpenAIProvider
+from chatlas._provider_openai import OpenAIAzureProvider, OpenAIProvider
 from chatlas._tokens import (
     compute_cost,
     get_token_pricing,
