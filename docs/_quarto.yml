@@ -120,6 +120,7 @@ quartodoc:
         - ChatGithub
         - ChatGoogle
         - ChatGroq
+        - ChatHuggingFace
         - ChatOllama
         - ChatOpenAI
         - ChatPerplexity

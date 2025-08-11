@@ -32,6 +32,7 @@ jobs:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       PORTKEY_API_KEY: ${{ secrets.PORTKEY_API_KEY }}
+      HUGGINGFACE_API_KEY: ${{ secrets.HUGGINGFACE_API_KEY }}
       # Free tier of Google is rate limited, so we only test on 3.12
       TEST_GOOGLE: ${{ matrix.config.test_google }}
       # Free tier of Azure is rate limited, so we only test on 3.12
