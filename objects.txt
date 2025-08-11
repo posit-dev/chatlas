@@ -18,6 +18,8 @@ chatlas.ChatGoogle py:function 1 reference/ChatGoogle.html#chatlas.ChatGoogle -
 chatlas._provider_google.ChatGoogle py:function 1 reference/ChatGoogle.html#chatlas.ChatGoogle chatlas.ChatGoogle
 chatlas.ChatGroq py:function 1 reference/ChatGroq.html#chatlas.ChatGroq -
 chatlas._provider_groq.ChatGroq py:function 1 reference/ChatGroq.html#chatlas.ChatGroq chatlas.ChatGroq
+chatlas.ChatHuggingFace py:function 1 reference/ChatHuggingFace.html#chatlas.ChatHuggingFace -
+chatlas._provider_huggingface.ChatHuggingFace py:function 1 reference/ChatHuggingFace.html#chatlas.ChatHuggingFace chatlas.ChatHuggingFace
 chatlas.ChatOllama py:function 1 reference/ChatOllama.html#chatlas.ChatOllama -
 chatlas._provider_ollama.ChatOllama py:function 1 reference/ChatOllama.html#chatlas.ChatOllama chatlas.ChatOllama
 chatlas.ChatOpenAI py:function 1 reference/ChatOpenAI.html#chatlas.ChatOpenAI -
