@@ -121,6 +121,7 @@ quartodoc:
         - ChatGoogle
         - ChatGroq
         - ChatHuggingFace
+        - ChatMistral
         - ChatOllama
         - ChatOpenAI
         - ChatPerplexity
