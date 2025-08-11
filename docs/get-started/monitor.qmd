@@ -28,10 +28,8 @@ Traceloop.init(
 )
 ```
 
-This approach does have the downside of requiring a [Traceloop](https://traceloop.io/) account, but it does provide a free tier, and makes it quite easy to get started visualizing your app's telemetry data.
-
-If you want to avoid the Traceloop account, you can also use their OTel instrumentation libraries (e.g., [openai](https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-openai) and [anthropic](https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-anthropic)) more directly.
-If Traceloop is not for you, however, you may prefer to use the "official" OTel libraries directly, which are more truly vendor agnostic.
+From here, a quick and easy way to get started visualizing your app's telemetry data is to sign up for a (free) [Traceloop](https://traceloop.com/) account. Openllmetry does, however, [integrate with many other observability platforms](https://www.traceloop.com/docs/openllmetry/integrations/introduction).
+If you want to avoid the Traceloop Python SDK, you can also use these OTel instrumentation libraries from the openllmetry project more directly (e.g., [openai](https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-openai) and [anthropic](https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-anthropic)).
 
 
 ## OpenTelemetry
