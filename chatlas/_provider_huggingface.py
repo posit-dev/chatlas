@@ -30,16 +30,6 @@ def ChatHuggingFace(
     Ensure that at least "Make calls to Inference Providers" and
     "Make calls to your Inference Endpoints" is checked.
 
-    This function is a lightweight wrapper around ChatOpenAI(), with
-    the defaults adjusted for Hugging Face.
-
-    ## Known limitations
-
-    * Some models do not support the chat interface or parts of it, for example
-      `google/gemma-2-2b-it` does not support a system prompt. You will need to
-      carefully choose the model.
-    * Tool calling support varies by model - many models do not support it.
-
     Prerequisites
     --------------
 
@@ -81,6 +71,19 @@ def ChatHuggingFace(
     -------
     Chat
         A chat object that retains the state of the conversation.
+
+    Known limitations
+    -----------------
+
+    * Some models do not support the chat interface or parts of it, for example
+      `google/gemma-2-2b-it` does not support a system prompt. You will need to
+      carefully choose the model.
+    * Tool calling support varies by model - many models do not support it.
+
+    Note
+    ----
+    This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`), with
+    the defaults tweaked for Hugging Face.
 
     Note
     ----

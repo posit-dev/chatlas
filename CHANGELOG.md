@@ -9,7 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
-* Added a new `ChatPortkey()` which integrates with [Portkey AI](https://portkey.ai/). (#)
+### New features
+
+* Added `ChatHuggingFace()` for chatting via [Hugging Face](https://huggingface.co/). (#144)
+* Added `ChatPortkey()` for chatting via [Portkey AI](https://portkey.ai/). (#143)
 
 
 ## [0.9.2] - 2025-08-08
