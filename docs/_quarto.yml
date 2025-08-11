@@ -123,6 +123,7 @@ quartodoc:
         - ChatOllama
         - ChatOpenAI
         - ChatPerplexity
+        - ChatPortkey
         - ChatSnowflake
         - ChatVertex
     - title: The chat object
