@@ -26,6 +26,7 @@ To see the pre-requisites for a given provider, visit the relevant usage page in
 | AWS Bedrock              | [`ChatBedrockAnthropic()`](../reference/ChatBedrockAnthropic.qmd) | ✅ |
 | Azure OpenAI             | [`ChatAzureOpenAI()`](../reference/ChatAzureOpenAI.qmd) | ✅ |
 | Databricks               | [`ChatDatabricks()`](../reference/ChatDatabricks.qmd)   | ✅ |
+| Portkey                  | [`ChatPortkey()`](../reference/ChatPortkey.qmd)         | ✅ |
 | Snowflake Cortex         | [`ChatSnowflake()`](../reference/ChatSnowflake.qmd)     | ✅ |
 | Vertex AI                | [`ChatVertex()`](../reference/ChatVertex.qmd)           | ✅ |
 
