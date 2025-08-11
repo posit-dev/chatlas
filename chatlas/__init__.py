@@ -11,6 +11,7 @@ from ._provider_databricks import ChatDatabricks
 from ._provider_github import ChatGithub
 from ._provider_google import ChatGoogle, ChatVertex
 from ._provider_groq import ChatGroq
+from ._provider_huggingface import ChatHuggingFace
 from ._provider_ollama import ChatOllama
 from ._provider_openai import ChatAzureOpenAI, ChatOpenAI
 from ._provider_perplexity import ChatPerplexity
@@ -33,6 +34,7 @@ __all__ = (
     "ChatGithub",
     "ChatGoogle",
     "ChatGroq",
+    "ChatHuggingFace",
     "ChatOllama",
     "ChatOpenAI",
     "ChatAzureOpenAI",
@@ -58,4 +60,3 @@ __all__ = (
     "Turn",
     "types",
 )
-

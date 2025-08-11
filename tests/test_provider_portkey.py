@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from chatlas import ChatPortkey
 
@@ -13,6 +15,10 @@ from .conftest import (
     assert_turns_existing,
     assert_turns_system,
 )
+
+api_key = os.getenv("PORTKEY_API_KEY")
+if api_key is None:
+    pytest.skip("PORTKEY_API_KEY is not set; skipping tests", allow_module_level=True)
 
 
 def _chat_portkey_test(**kwargs):
