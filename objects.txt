@@ -24,6 +24,8 @@ chatlas.ChatOpenAI py:function 1 reference/ChatOpenAI.html#chatlas.ChatOpenAI -
 chatlas._provider_openai.ChatOpenAI py:function 1 reference/ChatOpenAI.html#chatlas.ChatOpenAI chatlas.ChatOpenAI
 chatlas.ChatPerplexity py:function 1 reference/ChatPerplexity.html#chatlas.ChatPerplexity -
 chatlas._provider_perplexity.ChatPerplexity py:function 1 reference/ChatPerplexity.html#chatlas.ChatPerplexity chatlas.ChatPerplexity
+chatlas.ChatPortkey py:function 1 reference/ChatPortkey.html#chatlas.ChatPortkey -
+chatlas._provider_portkey.ChatPortkey py:function 1 reference/ChatPortkey.html#chatlas.ChatPortkey chatlas.ChatPortkey
 chatlas.ChatSnowflake py:function 1 reference/ChatSnowflake.html#chatlas.ChatSnowflake -
 chatlas._provider_snowflake.ChatSnowflake py:function 1 reference/ChatSnowflake.html#chatlas.ChatSnowflake chatlas.ChatSnowflake
 chatlas.ChatVertex py:function 1 reference/ChatVertex.html#chatlas.ChatVertex -

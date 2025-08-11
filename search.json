@@ -246,7 +246,7 @@
     "href": "get-started/models.html",
     "title": "Model choice",
     "section": "",
-    "text": "Below is a table of model providers that come pre-packaged with chatlas.\n\n\n\n\n\n\nUsage pre-requisites\n\n\n\nEach model provider has its own set of pre-requisites. For example, OpenAI requires an API key, while Ollama requires you to install the Ollama CLI and download models. To see the pre-requisites for a given provider, visit the relevant usage page in the table below.\n\n\n\n\n\nName\nUsage\nEnterprise?\n\n\n\n\nAnthropic (Claude)\nChatAnthropic()\n\n\n\nGitHub model marketplace\nChatGithub()\n\n\n\nGoogle (Gemini)\nChatGoogle()\n\n\n\nGroq\nChatGroq()\n\n\n\nOllama local models\nChatOllama()\n\n\n\nOpenAI\nChatOpenAI()\n\n\n\nperplexity.ai\nChatPerplexity()\n\n\n\nAWS Bedrock\nChatBedrockAnthropic()\n✅\n\n\nAzure OpenAI\nChatAzureOpenAI()\n✅\n\n\nDatabricks\nChatDatabricks()\n✅\n\n\nSnowflake Cortex\nChatSnowflake()\n✅\n\n\nVertex AI\nChatVertex()\n✅\n\n\n\n\n\n\n\n\n\nOther providers\n\n\n\nIf you want to use a model provider that isn’t listed in the table above, you have two options:\n\nIf the model provider is OpenAI compatible (i.e., it can be used with the openai Python SDK), use ChatOpenAI() with the appropriate base_url and api_key.\nIf you’re motivated, implement a new provider by subclassing Provider and implementing the required methods.\n\n\n\n\nModel choice\nIn addition to choosing a model provider, you also need to choose a specific model from that provider. This is important because different models have different capabilities and performance characteristics. For example, some models are faster and cheaper, while others are more accurate and capable of handling more complex tasks.\nIf you’re using chatlas inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g. ChatAzureOpenAI() and ChatBedrockAnthropic()). If you’re using chatlas for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:\n\nChatOpenAI() or ChatAnthropic() are both good places to start. ChatOpenAI() defaults to GPT-4.1, but you can use model = \"gpt-4.1-mini\" for a cheaper lower-quality model, or model = \"o1-mini\" for more complex reasoning. ChatAnthropic() is similarly good; it defaults to Claude 3.7 Sonnet which we have found to be particularly good at writing code.\nChatGoogle() is great for large prompts, because it has a much larger context window than other models. It allows up to 1 million tokens, compared to Claude 3.7 Sonnet’s 200k and GPT-4.1’s 128k.\nChatOllama(), which uses Ollama, allows you to run models on your own computer. The biggest models you can run locally aren’t as good as the state of the art hosted models, but they also don’t share your data and and are effectively free.\n\n\n\nAuto complete\nIf you’re using an IDE that supports type hints, you can get autocompletion for the model parameter. This is particularly useful for getting the right model name, or simply to see what models are available.\n\n\n\nScreenshot of model autocompletion\n\n\n\n\nAuto provider\nChatAuto() is a special model provider that allows one to configure the model provider through environment variables. This is useful for having a single, simple, script that can run on any model provider, without having to change the code.",
+    "text": "Below is a table of model providers that come pre-packaged with chatlas.\n\n\n\n\n\n\nUsage pre-requisites\n\n\n\nEach model provider has its own set of pre-requisites. For example, OpenAI requires an API key, while Ollama requires you to install the Ollama CLI and download models. To see the pre-requisites for a given provider, visit the relevant usage page in the table below.\n\n\n\n\n\nName\nUsage\nEnterprise?\n\n\n\n\nAnthropic (Claude)\nChatAnthropic()\n\n\n\nGitHub model marketplace\nChatGithub()\n\n\n\nGoogle (Gemini)\nChatGoogle()\n\n\n\nGroq\nChatGroq()\n\n\n\nOllama local models\nChatOllama()\n\n\n\nOpenAI\nChatOpenAI()\n\n\n\nperplexity.ai\nChatPerplexity()\n\n\n\nAWS Bedrock\nChatBedrockAnthropic()\n✅\n\n\nAzure OpenAI\nChatAzureOpenAI()\n✅\n\n\nDatabricks\nChatDatabricks()\n✅\n\n\nPortkey\nChatPortkey()\n✅\n\n\nSnowflake Cortex\nChatSnowflake()\n✅\n\n\nVertex AI\nChatVertex()\n✅\n\n\n\n\n\n\n\n\n\nOther providers\n\n\n\nIf you want to use a model provider that isn’t listed in the table above, you have two options:\n\nIf the model provider is OpenAI compatible (i.e., it can be used with the openai Python SDK), use ChatOpenAI() with the appropriate base_url and api_key.\nIf you’re motivated, implement a new provider by subclassing Provider and implementing the required methods.\n\n\n\n\nModel choice\nIn addition to choosing a model provider, you also need to choose a specific model from that provider. This is important because different models have different capabilities and performance characteristics. For example, some models are faster and cheaper, while others are more accurate and capable of handling more complex tasks.\nIf you’re using chatlas inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g. ChatAzureOpenAI() and ChatBedrockAnthropic()). If you’re using chatlas for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:\n\nChatOpenAI() or ChatAnthropic() are both good places to start. ChatOpenAI() defaults to GPT-4.1, but you can use model = \"gpt-4.1-mini\" for a cheaper lower-quality model, or model = \"o1-mini\" for more complex reasoning. ChatAnthropic() is similarly good; it defaults to Claude 3.7 Sonnet which we have found to be particularly good at writing code.\nChatGoogle() is great for large prompts, because it has a much larger context window than other models. It allows up to 1 million tokens, compared to Claude 3.7 Sonnet’s 200k and GPT-4.1’s 128k.\nChatOllama(), which uses Ollama, allows you to run models on your own computer. The biggest models you can run locally aren’t as good as the state of the art hosted models, but they also don’t share your data and and are effectively free.\n\n\n\nAuto complete\nIf you’re using an IDE that supports type hints, you can get autocompletion for the model parameter. This is particularly useful for getting the right model name, or simply to see what models are available.\n\n\n\nScreenshot of model autocompletion\n\n\n\n\nAuto provider\nChatAuto() is a special model provider that allows one to configure the model provider through environment variables. This is useful for having a single, simple, script that can run on any model provider, without having to change the code.",
     "crumbs": [
       "Get started",
       "Model choice"
@@ -378,7 +378,7 @@
     "href": "structured-data/entity-recognition.html",
     "title": "Entity recognition",
     "section": "",
-    "text": "The following example, which closely inspired by the Claude documentation, shows how .extract_data() can be used to perform entity recognition.\n\nfrom chatlas import ChatOpenAI\nfrom pydantic import BaseModel, Field\nimport pandas as pd\n\n# | warning: false\ntext = \"John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco.\"\n\n\nclass NamedEntity(BaseModel):\n    \"\"\"Named entity in the text.\"\"\"\n\n    name: str = Field(description=\"The extracted entity name\")\n\n    type_: str = Field(description=\"The entity type, e.g. 'person', 'location', 'organization'\")\n\n    context: str = Field(description=\"The context in which the entity appears in the text.\")\n\n\nclass NamedEntities(BaseModel):\n    \"\"\"Named entities in the text.\"\"\"\n\n    entities: list[NamedEntity] = Field(description=\"Array of named entities\")\n\n\nchat = ChatOpenAI()\ndata = chat.extract_data(text, data_model=NamedEntities)\npd.DataFrame(data[\"entities\"])\n\n\n\n\n\n\n\n\nname\ntype_\ncontext\n\n\n\n\n0\nJohn\nperson\nJohn works at Google in New York. He met with ...\n\n\n1\nGoogle\norganization\nJohn works at Google...\n\n\n2\nNew York\nlocation\nJohn works at Google in New York.\n\n\n3\nSarah\nperson\nHe met with Sarah, the CEO of Acme Inc....\n\n\n4\nCEO\nrole\nSarah, the CEO of Acme Inc.\n\n\n5\nAcme Inc.\norganization\nSarah, the CEO of Acme Inc.\n\n\n6\nSan Francisco\nlocation\nlast week in San Francisco.",
+    "text": "The following example, which closely inspired by the Claude documentation, shows how .extract_data() can be used to perform entity recognition.\n\nfrom chatlas import ChatOpenAI\nfrom pydantic import BaseModel, Field\nimport pandas as pd\n\n# | warning: false\ntext = \"John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco.\"\n\n\nclass NamedEntity(BaseModel):\n    \"\"\"Named entity in the text.\"\"\"\n\n    name: str = Field(description=\"The extracted entity name\")\n\n    type_: str = Field(description=\"The entity type, e.g. 'person', 'location', 'organization'\")\n\n    context: str = Field(description=\"The context in which the entity appears in the text.\")\n\n\nclass NamedEntities(BaseModel):\n    \"\"\"Named entities in the text.\"\"\"\n\n    entities: list[NamedEntity] = Field(description=\"Array of named entities\")\n\n\nchat = ChatOpenAI()\ndata = chat.extract_data(text, data_model=NamedEntities)\npd.DataFrame(data[\"entities\"])\n\n\n\n\n\n\n\n\nname\ntype_\ncontext\n\n\n\n\n0\nJohn\nperson\nJohn works at Google in New York.\n\n\n1\nGoogle\norganization\nJohn works at Google\n\n\n2\nNew York\nlocation\nGoogle in New York\n\n\n3\nSarah\nperson\nHe met with Sarah, the CEO of Acme Inc.\n\n\n4\nAcme Inc.\norganization\nSarah, the CEO of Acme Inc.\n\n\n5\nSan Francisco\nlocation\nlast week in San Francisco.",
     "crumbs": [
       "Structured data",
       "Entity recognition"
@@ -1217,75 +1217,147 @@
     ]
   },
   {
-    "objectID": "reference/types.ImageContentTypes.html",
-    "href": "reference/types.ImageContentTypes.html",
-    "title": "types.ImageContentTypes",
+    "objectID": "reference/ChatPortkey.html",
+    "href": "reference/ChatPortkey.html",
+    "title": "ChatPortkey",
     "section": "",
-    "text": "types.ImageContentTypes\ntypes.ImageContentTypes\nAllowable content types for images.",
-    "crumbs": [
-      "Reference",
-      "User-facing types",
-      "types.ImageContentTypes"
-    ]
-  },
-  {
-    "objectID": "reference/ChatVertex.html",
-    "href": "reference/ChatVertex.html",
-    "title": "ChatVertex",
-    "section": "",
-    "text": "ChatVertex(\n    model=None,\n    project=None,\n    location=None,\n    api_key=None,\n    system_prompt=None,\n    kwargs=None,\n)\nChat with a Google Vertex AI model.\n\n\n\n\n\n\n\n\nPython requirements\n\n\n\nChatGoogle requires the google-genai package: pip install \"chatlas[vertex]\".\n\n\n\n\n\n\n\n\nCredentials\n\n\n\nTo use Google’s models (i.e., Vertex AI), you’ll need to sign up for an account with Vertex AI, then specify the appropriate model, project, and location.\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\nproject\nOptional[str]\nThe Google Cloud project ID (e.g., “your-project-id”). If not provided, the GOOGLE_CLOUD_PROJECT environment variable will be used.\nNone\n\n\nlocation\nOptional[str]\nThe Google Cloud location (e.g., “us-central1”). If not provided, the GOOGLE_CLOUD_LOCATION environment variable will be used.\nNone\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nChat\nA Chat object.\n\n\n\n\n\n\nimport os\nfrom chatlas import ChatVertex\n\nchat = ChatVertex(\n    project=\"your-project-id\",\n    location=\"us-central1\",\n)\nchat.chat(\"What is the capital of France?\")",
+    "text": "ChatPortkey(\n    system_prompt=None,\n    model=None,\n    api_key=None,\n    virtual_key=None,\n    base_url='https://api.portkey.ai/v1',\n    kwargs=None,\n)\nChat with a model hosted on PortkeyAI\nPortkeyAI provides an interface (AI Gateway) to connect through its Universal API to a variety of LLMs providers with a single endpoint.\n\n\n\n\n\n\n\n\nPortkey credentials\n\n\n\nFollow the instructions at https://portkey.ai/docs/introduction/make-your-first-request to get started making requests to PortkeyAI. You will need to set the PORTKEY_API_KEY environment variable to your Portkey API key, and optionally the PORTKEY_VIRTUAL_KEY environment variable to your virtual key.\n\n\n\n\n\nimport os\nfrom chatlas import ChatPortkey\n\nchat = ChatPortkey(api_key=os.getenv(\"PORTKEY_API_KEY\"))\nchat.chat(\"What is the capital of France?\")\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the PORTKEY_API_KEY environment variable.\nNone\n\n\nvirtual_key\nOptional[str]\nAn (optional) virtual identifier, storing the LLM provider’s API key. See documentation. You generally should not supply this directly, but instead set the PORTKEY_VIRTUAL_KEY environment variable.\nNone\n\n\nbase_url\nstr\nThe base URL for the Portkey API. The default is suitable for most users.\n'https://api.portkey.ai/v1'\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the OpenAIProvider, such as headers or other client configuration options.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.\n\n\n\n\n\n\nThis function is a lightweight wrapper around ChatOpenAI with the defaults tweaked for PortkeyAI.",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatVertex"
+      "ChatPortkey"
     ]
   },
   {
-    "objectID": "reference/ChatVertex.html#prerequisites",
-    "href": "reference/ChatVertex.html#prerequisites",
-    "title": "ChatVertex",
+    "objectID": "reference/ChatPortkey.html#prerequisites",
+    "href": "reference/ChatPortkey.html#prerequisites",
+    "title": "ChatPortkey",
     "section": "",
-    "text": "Python requirements\n\n\n\nChatGoogle requires the google-genai package: pip install \"chatlas[vertex]\".\n\n\n\n\n\n\n\n\nCredentials\n\n\n\nTo use Google’s models (i.e., Vertex AI), you’ll need to sign up for an account with Vertex AI, then specify the appropriate model, project, and location.",
+    "text": "Portkey credentials\n\n\n\nFollow the instructions at https://portkey.ai/docs/introduction/make-your-first-request to get started making requests to PortkeyAI. You will need to set the PORTKEY_API_KEY environment variable to your Portkey API key, and optionally the PORTKEY_VIRTUAL_KEY environment variable to your virtual key.",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatVertex"
+      "ChatPortkey"
     ]
   },
   {
-    "objectID": "reference/ChatVertex.html#parameters",
-    "href": "reference/ChatVertex.html#parameters",
-    "title": "ChatVertex",
+    "objectID": "reference/ChatPortkey.html#examples",
+    "href": "reference/ChatPortkey.html#examples",
+    "title": "ChatPortkey",
     "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\nproject\nOptional[str]\nThe Google Cloud project ID (e.g., “your-project-id”). If not provided, the GOOGLE_CLOUD_PROJECT environment variable will be used.\nNone\n\n\nlocation\nOptional[str]\nThe Google Cloud location (e.g., “us-central1”). If not provided, the GOOGLE_CLOUD_LOCATION environment variable will be used.\nNone\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone",
+    "text": "import os\nfrom chatlas import ChatPortkey\n\nchat = ChatPortkey(api_key=os.getenv(\"PORTKEY_API_KEY\"))\nchat.chat(\"What is the capital of France?\")",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatVertex"
+      "ChatPortkey"
     ]
   },
   {
-    "objectID": "reference/ChatVertex.html#returns",
-    "href": "reference/ChatVertex.html#returns",
-    "title": "ChatVertex",
+    "objectID": "reference/ChatPortkey.html#parameters",
+    "href": "reference/ChatPortkey.html#parameters",
+    "title": "ChatPortkey",
     "section": "",
-    "text": "Name\nType\nDescription\n\n\n\n\n\nChat\nA Chat object.",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the PORTKEY_API_KEY environment variable.\nNone\n\n\nvirtual_key\nOptional[str]\nAn (optional) virtual identifier, storing the LLM provider’s API key. See documentation. You generally should not supply this directly, but instead set the PORTKEY_VIRTUAL_KEY environment variable.\nNone\n\n\nbase_url\nstr\nThe base URL for the Portkey API. The default is suitable for most users.\n'https://api.portkey.ai/v1'\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the OpenAIProvider, such as headers or other client configuration options.\nNone",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatVertex"
+      "ChatPortkey"
     ]
   },
   {
-    "objectID": "reference/ChatVertex.html#examples",
-    "href": "reference/ChatVertex.html#examples",
-    "title": "ChatVertex",
+    "objectID": "reference/ChatPortkey.html#returns",
+    "href": "reference/ChatPortkey.html#returns",
+    "title": "ChatPortkey",
     "section": "",
-    "text": "import os\nfrom chatlas import ChatVertex\n\nchat = ChatVertex(\n    project=\"your-project-id\",\n    location=\"us-central1\",\n)\nchat.chat(\"What is the capital of France?\")",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatVertex"
+      "ChatPortkey"
+    ]
+  },
+  {
+    "objectID": "reference/ChatPortkey.html#notes",
+    "href": "reference/ChatPortkey.html#notes",
+    "title": "ChatPortkey",
+    "section": "",
+    "text": "This function is a lightweight wrapper around ChatOpenAI with the defaults tweaked for PortkeyAI.",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatPortkey"
+    ]
+  },
+  {
+    "objectID": "reference/ChatOllama.html",
+    "href": "reference/ChatOllama.html",
+    "title": "ChatOllama",
+    "section": "",
+    "text": "ChatOllama(\n    model=None,\n    *,\n    system_prompt=None,\n    base_url='http://localhost:11434',\n    seed=None,\n    kwargs=None,\n)\nChat with a local Ollama model.\nOllama makes it easy to run a wide-variety of open-source models locally, making it a great choice for privacy and security.\n\n\n\n\n\n\n\n\nOllama runtime\n\n\n\nChatOllama requires the ollama executable to be installed and running on your machine.\n\n\n\n\n\n\n\n\nPull model(s)\n\n\n\nOnce ollama is running locally, download a model from the command line (e.g. ollama pull llama3.2).\n\n\n\n\n\nfrom chatlas import ChatOllama\n\nchat = ChatOllama(model=\"llama3.2\")\nchat.chat(\"What is the capital of France?\")\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nmodel\nOptional[str]\nThe model to use for the chat. If None, a list of locally installed models will be printed.\nNone\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses ollama’s API.\n'http://localhost:11434'\n\n\nseed\nOptional[int]\nOptional integer seed that helps to make output more reproducible.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor.\nNone\n\n\n\n\n\n\nThis function is a lightweight wrapper around ChatOpenAI with the defaults tweaked for ollama.\n\n\n\nChatOllama currently doesn’t work with streaming tools, and tool calling more generally doesn’t seem to work very well with currently available models.",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatOllama"
+    ]
+  },
+  {
+    "objectID": "reference/ChatOllama.html#prerequisites",
+    "href": "reference/ChatOllama.html#prerequisites",
+    "title": "ChatOllama",
+    "section": "",
+    "text": "Ollama runtime\n\n\n\nChatOllama requires the ollama executable to be installed and running on your machine.\n\n\n\n\n\n\n\n\nPull model(s)\n\n\n\nOnce ollama is running locally, download a model from the command line (e.g. ollama pull llama3.2).",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatOllama"
+    ]
+  },
+  {
+    "objectID": "reference/ChatOllama.html#examples",
+    "href": "reference/ChatOllama.html#examples",
+    "title": "ChatOllama",
+    "section": "",
+    "text": "from chatlas import ChatOllama\n\nchat = ChatOllama(model=\"llama3.2\")\nchat.chat(\"What is the capital of France?\")",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatOllama"
+    ]
+  },
+  {
+    "objectID": "reference/ChatOllama.html#parameters",
+    "href": "reference/ChatOllama.html#parameters",
+    "title": "ChatOllama",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nmodel\nOptional[str]\nThe model to use for the chat. If None, a list of locally installed models will be printed.\nNone\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses ollama’s API.\n'http://localhost:11434'\n\n\nseed\nOptional[int]\nOptional integer seed that helps to make output more reproducible.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor.\nNone",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatOllama"
+    ]
+  },
+  {
+    "objectID": "reference/ChatOllama.html#note",
+    "href": "reference/ChatOllama.html#note",
+    "title": "ChatOllama",
+    "section": "",
+    "text": "This function is a lightweight wrapper around ChatOpenAI with the defaults tweaked for ollama.",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatOllama"
+    ]
+  },
+  {
+    "objectID": "reference/ChatOllama.html#limitations",
+    "href": "reference/ChatOllama.html#limitations",
+    "title": "ChatOllama",
+    "section": "",
+    "text": "ChatOllama currently doesn’t work with streaming tools, and tool calling more generally doesn’t seem to work very well with currently available models.",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatOllama"
     ]
   },
   {
@@ -1373,75 +1445,75 @@
     ]
   },
   {
-    "objectID": "reference/ChatOllama.html",
-    "href": "reference/ChatOllama.html",
-    "title": "ChatOllama",
+    "objectID": "reference/ChatVertex.html",
+    "href": "reference/ChatVertex.html",
+    "title": "ChatVertex",
     "section": "",
-    "text": "ChatOllama(\n    model=None,\n    *,\n    system_prompt=None,\n    base_url='http://localhost:11434',\n    seed=None,\n    kwargs=None,\n)\nChat with a local Ollama model.\nOllama makes it easy to run a wide-variety of open-source models locally, making it a great choice for privacy and security.\n\n\n\n\n\n\n\n\nOllama runtime\n\n\n\nChatOllama requires the ollama executable to be installed and running on your machine.\n\n\n\n\n\n\n\n\nPull model(s)\n\n\n\nOnce ollama is running locally, download a model from the command line (e.g. ollama pull llama3.2).\n\n\n\n\n\nfrom chatlas import ChatOllama\n\nchat = ChatOllama(model=\"llama3.2\")\nchat.chat(\"What is the capital of France?\")\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nmodel\nOptional[str]\nThe model to use for the chat. If None, a list of locally installed models will be printed.\nNone\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses ollama’s API.\n'http://localhost:11434'\n\n\nseed\nOptional[int]\nOptional integer seed that helps to make output more reproducible.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor.\nNone\n\n\n\n\n\n\nThis function is a lightweight wrapper around ChatOpenAI with the defaults tweaked for ollama.\n\n\n\nChatOllama currently doesn’t work with streaming tools, and tool calling more generally doesn’t seem to work very well with currently available models.",
+    "text": "ChatVertex(\n    model=None,\n    project=None,\n    location=None,\n    api_key=None,\n    system_prompt=None,\n    kwargs=None,\n)\nChat with a Google Vertex AI model.\n\n\n\n\n\n\n\n\nPython requirements\n\n\n\nChatGoogle requires the google-genai package: pip install \"chatlas[vertex]\".\n\n\n\n\n\n\n\n\nCredentials\n\n\n\nTo use Google’s models (i.e., Vertex AI), you’ll need to sign up for an account with Vertex AI, then specify the appropriate model, project, and location.\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\nproject\nOptional[str]\nThe Google Cloud project ID (e.g., “your-project-id”). If not provided, the GOOGLE_CLOUD_PROJECT environment variable will be used.\nNone\n\n\nlocation\nOptional[str]\nThe Google Cloud location (e.g., “us-central1”). If not provided, the GOOGLE_CLOUD_LOCATION environment variable will be used.\nNone\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nChat\nA Chat object.\n\n\n\n\n\n\nimport os\nfrom chatlas import ChatVertex\n\nchat = ChatVertex(\n    project=\"your-project-id\",\n    location=\"us-central1\",\n)\nchat.chat(\"What is the capital of France?\")",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatOllama"
+      "ChatVertex"
     ]
   },
   {
-    "objectID": "reference/ChatOllama.html#prerequisites",
-    "href": "reference/ChatOllama.html#prerequisites",
-    "title": "ChatOllama",
+    "objectID": "reference/ChatVertex.html#prerequisites",
+    "href": "reference/ChatVertex.html#prerequisites",
+    "title": "ChatVertex",
     "section": "",
-    "text": "Ollama runtime\n\n\n\nChatOllama requires the ollama executable to be installed and running on your machine.\n\n\n\n\n\n\n\n\nPull model(s)\n\n\n\nOnce ollama is running locally, download a model from the command line (e.g. ollama pull llama3.2).",
+    "text": "Python requirements\n\n\n\nChatGoogle requires the google-genai package: pip install \"chatlas[vertex]\".\n\n\n\n\n\n\n\n\nCredentials\n\n\n\nTo use Google’s models (i.e., Vertex AI), you’ll need to sign up for an account with Vertex AI, then specify the appropriate model, project, and location.",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatOllama"
+      "ChatVertex"
     ]
   },
   {
-    "objectID": "reference/ChatOllama.html#examples",
-    "href": "reference/ChatOllama.html#examples",
-    "title": "ChatOllama",
+    "objectID": "reference/ChatVertex.html#parameters",
+    "href": "reference/ChatVertex.html#parameters",
+    "title": "ChatVertex",
     "section": "",
-    "text": "from chatlas import ChatOllama\n\nchat = ChatOllama(model=\"llama3.2\")\nchat.chat(\"What is the capital of France?\")",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\nproject\nOptional[str]\nThe Google Cloud project ID (e.g., “your-project-id”). If not provided, the GOOGLE_CLOUD_PROJECT environment variable will be used.\nNone\n\n\nlocation\nOptional[str]\nThe Google Cloud location (e.g., “us-central1”). If not provided, the GOOGLE_CLOUD_LOCATION environment variable will be used.\nNone\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatOllama"
+      "ChatVertex"
     ]
   },
   {
-    "objectID": "reference/ChatOllama.html#parameters",
-    "href": "reference/ChatOllama.html#parameters",
-    "title": "ChatOllama",
+    "objectID": "reference/ChatVertex.html#returns",
+    "href": "reference/ChatVertex.html#returns",
+    "title": "ChatVertex",
     "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nmodel\nOptional[str]\nThe model to use for the chat. If None, a list of locally installed models will be printed.\nNone\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses ollama’s API.\n'http://localhost:11434'\n\n\nseed\nOptional[int]\nOptional integer seed that helps to make output more reproducible.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor.\nNone",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nChat\nA Chat object.",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatOllama"
+      "ChatVertex"
     ]
   },
   {
-    "objectID": "reference/ChatOllama.html#note",
-    "href": "reference/ChatOllama.html#note",
-    "title": "ChatOllama",
+    "objectID": "reference/ChatVertex.html#examples",
+    "href": "reference/ChatVertex.html#examples",
+    "title": "ChatVertex",
     "section": "",
-    "text": "This function is a lightweight wrapper around ChatOpenAI with the defaults tweaked for ollama.",
+    "text": "import os\nfrom chatlas import ChatVertex\n\nchat = ChatVertex(\n    project=\"your-project-id\",\n    location=\"us-central1\",\n)\nchat.chat(\"What is the capital of France?\")",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatOllama"
+      "ChatVertex"
     ]
   },
   {
-    "objectID": "reference/ChatOllama.html#limitations",
-    "href": "reference/ChatOllama.html#limitations",
-    "title": "ChatOllama",
+    "objectID": "reference/types.ImageContentTypes.html",
+    "href": "reference/types.ImageContentTypes.html",
+    "title": "types.ImageContentTypes",
     "section": "",
-    "text": "ChatOllama currently doesn’t work with streaming tools, and tool calling more generally doesn’t seem to work very well with currently available models.",
+    "text": "types.ImageContentTypes\ntypes.ImageContentTypes\nAllowable content types for images.",
     "crumbs": [
       "Reference",
-      "Chat model providers",
-      "ChatOllama"
+      "User-facing types",
+      "types.ImageContentTypes"
     ]
   },
   {
@@ -2073,7 +2145,7 @@
     "href": "reference/index.html",
     "title": "Function reference",
     "section": "",
-    "text": "Start a chat with a particular large language model (llm) provider.\n\n\n\nChatAnthropic\nChat with an Anthropic Claude model.\n\n\nChatAuto\nUse environment variables (env vars) to configure the Chat provider and model.\n\n\nChatAzureOpenAI\nChat with a model hosted on Azure OpenAI.\n\n\nChatBedrockAnthropic\nChat with an AWS bedrock model.\n\n\nChatDatabricks\nChat with a model hosted on Databricks.\n\n\nChatGithub\nChat with a model hosted on the GitHub model marketplace.\n\n\nChatGoogle\nChat with a Google Gemini model.\n\n\nChatGroq\nChat with a model hosted on Groq.\n\n\nChatOllama\nChat with a local Ollama model.\n\n\nChatOpenAI\nChat with an OpenAI model.\n\n\nChatPerplexity\nChat with a model hosted on perplexity.ai.\n\n\nChatSnowflake\nChat with a Snowflake Cortex LLM\n\n\nChatVertex\nChat with a Google Vertex AI model.\n\n\n\n\n\n\nMethods and attributes available on a chat instance\n\n\n\nChat\nA chat object that can be used to interact with a language model.\n\n\n\n\n\n\nSubmit image input to the chat\n\n\n\ncontent_image_file\nEncode image content from a file for chat input.\n\n\ncontent_image_plot\nEncode the current matplotlib plot as an image for chat input.\n\n\ncontent_image_url\nEncode image content from a URL for chat input.\n\n\n\n\n\n\nSubmit pdf input to the chat\n\n\n\ncontent_pdf_file\nPrepare a local PDF for input to a chat.\n\n\ncontent_pdf_url\nUse a remote PDF for input to a chat.\n\n\n\n\n\n\nInterpolate variables into prompt templates\n\n\n\ninterpolate\nInterpolate variables into a prompt\n\n\ninterpolate_file\nInterpolate variables into a prompt from a file\n\n\n\n\n\n\nAdd context to python function before registering it as a tool.\n\n\n\nTool\nDefine a tool\n\n\nToolRejectError\nError to represent a tool call being rejected.\n\n\n\n\n\n\nA provider-agnostic representation of content generated during an assistant/user turn.\n\n\n\nTurn\nA user or assistant turn\n\n\n\n\n\n\n\n\n\ntoken_usage\nReport on token usage in the current session\n\n\n\n\n\n\n\n\n\nProvider\nA model provider interface for a Chat.\n\n\n\n\n\n\n\n\n\ntypes.Content\nBase class for all content types that can be appear in a Turn\n\n\ntypes.ContentImage\nBase class for image content.\n\n\ntypes.ContentImageInline\nInline image content.\n\n\ntypes.ContentImageRemote\nImage content from a URL.\n\n\ntypes.ContentJson\nJSON content\n\n\ntypes.ContentText\nText content for a Turn\n\n\ntypes.ContentToolRequest\nA request to call a tool/function\n\n\ntypes.ContentToolResult\nThe result of calling a tool/function\n\n\ntypes.ChatResponse\nChat response object.\n\n\ntypes.ChatResponseAsync\nChat response (async) object.\n\n\ntypes.ImageContentTypes\nAllowable content types for images.\n\n\ntypes.MISSING_TYPE\nA singleton representing a missing value.\n\n\ntypes.MISSING\n\n\n\ntypes.SubmitInputArgsT\nA TypedDict representing the provider specific arguments that can specified when\n\n\ntypes.TokenUsage\nToken usage for a given provider (name).",
+    "text": "Start a chat with a particular large language model (llm) provider.\n\n\n\nChatAnthropic\nChat with an Anthropic Claude model.\n\n\nChatAuto\nUse environment variables (env vars) to configure the Chat provider and model.\n\n\nChatAzureOpenAI\nChat with a model hosted on Azure OpenAI.\n\n\nChatBedrockAnthropic\nChat with an AWS bedrock model.\n\n\nChatDatabricks\nChat with a model hosted on Databricks.\n\n\nChatGithub\nChat with a model hosted on the GitHub model marketplace.\n\n\nChatGoogle\nChat with a Google Gemini model.\n\n\nChatGroq\nChat with a model hosted on Groq.\n\n\nChatOllama\nChat with a local Ollama model.\n\n\nChatOpenAI\nChat with an OpenAI model.\n\n\nChatPerplexity\nChat with a model hosted on perplexity.ai.\n\n\nChatPortkey\nChat with a model hosted on PortkeyAI\n\n\nChatSnowflake\nChat with a Snowflake Cortex LLM\n\n\nChatVertex\nChat with a Google Vertex AI model.\n\n\n\n\n\n\nMethods and attributes available on a chat instance\n\n\n\nChat\nA chat object that can be used to interact with a language model.\n\n\n\n\n\n\nSubmit image input to the chat\n\n\n\ncontent_image_file\nEncode image content from a file for chat input.\n\n\ncontent_image_plot\nEncode the current matplotlib plot as an image for chat input.\n\n\ncontent_image_url\nEncode image content from a URL for chat input.\n\n\n\n\n\n\nSubmit pdf input to the chat\n\n\n\ncontent_pdf_file\nPrepare a local PDF for input to a chat.\n\n\ncontent_pdf_url\nUse a remote PDF for input to a chat.\n\n\n\n\n\n\nInterpolate variables into prompt templates\n\n\n\ninterpolate\nInterpolate variables into a prompt\n\n\ninterpolate_file\nInterpolate variables into a prompt from a file\n\n\n\n\n\n\nAdd context to python function before registering it as a tool.\n\n\n\nTool\nDefine a tool\n\n\nToolRejectError\nError to represent a tool call being rejected.\n\n\n\n\n\n\nA provider-agnostic representation of content generated during an assistant/user turn.\n\n\n\nTurn\nA user or assistant turn\n\n\n\n\n\n\n\n\n\ntoken_usage\nReport on token usage in the current session\n\n\n\n\n\n\n\n\n\nProvider\nA model provider interface for a Chat.\n\n\n\n\n\n\n\n\n\ntypes.Content\nBase class for all content types that can be appear in a Turn\n\n\ntypes.ContentImage\nBase class for image content.\n\n\ntypes.ContentImageInline\nInline image content.\n\n\ntypes.ContentImageRemote\nImage content from a URL.\n\n\ntypes.ContentJson\nJSON content\n\n\ntypes.ContentText\nText content for a Turn\n\n\ntypes.ContentToolRequest\nA request to call a tool/function\n\n\ntypes.ContentToolResult\nThe result of calling a tool/function\n\n\ntypes.ChatResponse\nChat response object.\n\n\ntypes.ChatResponseAsync\nChat response (async) object.\n\n\ntypes.ImageContentTypes\nAllowable content types for images.\n\n\ntypes.MISSING_TYPE\nA singleton representing a missing value.\n\n\ntypes.MISSING\n\n\n\ntypes.SubmitInputArgsT\nA TypedDict representing the provider specific arguments that can specified when\n\n\ntypes.TokenUsage\nToken usage for a given provider (name).",
     "crumbs": [
       "Reference",
       "Function reference"
@@ -2084,7 +2156,7 @@
     "href": "reference/index.html#chat-model-providers",
     "title": "Function reference",
     "section": "",
-    "text": "Start a chat with a particular large language model (llm) provider.\n\n\n\nChatAnthropic\nChat with an Anthropic Claude model.\n\n\nChatAuto\nUse environment variables (env vars) to configure the Chat provider and model.\n\n\nChatAzureOpenAI\nChat with a model hosted on Azure OpenAI.\n\n\nChatBedrockAnthropic\nChat with an AWS bedrock model.\n\n\nChatDatabricks\nChat with a model hosted on Databricks.\n\n\nChatGithub\nChat with a model hosted on the GitHub model marketplace.\n\n\nChatGoogle\nChat with a Google Gemini model.\n\n\nChatGroq\nChat with a model hosted on Groq.\n\n\nChatOllama\nChat with a local Ollama model.\n\n\nChatOpenAI\nChat with an OpenAI model.\n\n\nChatPerplexity\nChat with a model hosted on perplexity.ai.\n\n\nChatSnowflake\nChat with a Snowflake Cortex LLM\n\n\nChatVertex\nChat with a Google Vertex AI model.",
+    "text": "Start a chat with a particular large language model (llm) provider.\n\n\n\nChatAnthropic\nChat with an Anthropic Claude model.\n\n\nChatAuto\nUse environment variables (env vars) to configure the Chat provider and model.\n\n\nChatAzureOpenAI\nChat with a model hosted on Azure OpenAI.\n\n\nChatBedrockAnthropic\nChat with an AWS bedrock model.\n\n\nChatDatabricks\nChat with a model hosted on Databricks.\n\n\nChatGithub\nChat with a model hosted on the GitHub model marketplace.\n\n\nChatGoogle\nChat with a Google Gemini model.\n\n\nChatGroq\nChat with a model hosted on Groq.\n\n\nChatOllama\nChat with a local Ollama model.\n\n\nChatOpenAI\nChat with an OpenAI model.\n\n\nChatPerplexity\nChat with a model hosted on perplexity.ai.\n\n\nChatPortkey\nChat with a model hosted on PortkeyAI\n\n\nChatSnowflake\nChat with a Snowflake Cortex LLM\n\n\nChatVertex\nChat with a Google Vertex AI model.",
     "crumbs": [
       "Reference",
       "Function reference"
@@ -2444,7 +2516,7 @@
     "href": "structured-data/classification.html",
     "title": "Classification",
     "section": "",
-    "text": "The following example, which closely inspired by the Claude documentation, shows how .extract_data() can be used to perform text classification.\n\nfrom typing import Literal\n\nfrom chatlas import ChatOpenAI\nfrom pydantic import BaseModel, Field\nimport pandas as pd\n\ntext = \"The new quantum computing breakthrough could revolutionize the tech industry.\"\n\nclass Classification(BaseModel):\n    name: Literal[\n        \"Politics\", \"Sports\", \"Technology\", \"Entertainment\", \"Business\", \"Other\"\n    ] = Field(description=\"The category name\")\n\n    score: float = Field(\n        description=\"The classification score for the category, ranging from 0.0 to 1.0.\"\n    )\n\nclass Classifications(BaseModel):\n    \"\"\"Array of classification results. The scores should sum to 1.\"\"\"\n    classifications: list[Classification]\n\n\nchat = ChatOpenAI()\ndata = chat.extract_data(text, data_model=Classifications)\npd.DataFrame(data[\"classifications\"])\n\n\n\n\n\n\n\n\nname\nscore\n\n\n\n\n0\nTechnology\n0.95\n\n\n1\nBusiness\n0.05\n\n\n2\nPolitics\n0.00\n\n\n3\nSports\n0.00\n\n\n4\nEntertainment\n0.00\n\n\n5\nOther\n0.00",
+    "text": "The following example, which closely inspired by the Claude documentation, shows how .extract_data() can be used to perform text classification.\n\nfrom typing import Literal\n\nfrom chatlas import ChatOpenAI\nfrom pydantic import BaseModel, Field\nimport pandas as pd\n\ntext = \"The new quantum computing breakthrough could revolutionize the tech industry.\"\n\nclass Classification(BaseModel):\n    name: Literal[\n        \"Politics\", \"Sports\", \"Technology\", \"Entertainment\", \"Business\", \"Other\"\n    ] = Field(description=\"The category name\")\n\n    score: float = Field(\n        description=\"The classification score for the category, ranging from 0.0 to 1.0.\"\n    )\n\nclass Classifications(BaseModel):\n    \"\"\"Array of classification results. The scores should sum to 1.\"\"\"\n    classifications: list[Classification]\n\n\nchat = ChatOpenAI()\ndata = chat.extract_data(text, data_model=Classifications)\npd.DataFrame(data[\"classifications\"])\n\n\n\n\n\n\n\n\nname\nscore\n\n\n\n\n0\nTechnology\n1.0\n\n\n1\nPolitics\n0.0\n\n\n2\nSports\n0.0\n\n\n3\nEntertainment\n0.0\n\n\n4\nBusiness\n0.0\n\n\n5\nOther\n0.0",
     "crumbs": [
       "Structured data",
       "Classification"
