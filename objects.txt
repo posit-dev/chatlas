@@ -12,6 +12,8 @@ chatlas.ChatBedrockAnthropic py:function 1 reference/ChatBedrockAnthropic.html#c
 chatlas._provider_anthropic.ChatBedrockAnthropic py:function 1 reference/ChatBedrockAnthropic.html#chatlas.ChatBedrockAnthropic chatlas.ChatBedrockAnthropic
 chatlas.ChatDatabricks py:function 1 reference/ChatDatabricks.html#chatlas.ChatDatabricks -
 chatlas._provider_databricks.ChatDatabricks py:function 1 reference/ChatDatabricks.html#chatlas.ChatDatabricks chatlas.ChatDatabricks
+chatlas.ChatDeepSeek py:function 1 reference/ChatDeepSeek.html#chatlas.ChatDeepSeek -
+chatlas._provider_deepseek.ChatDeepSeek py:function 1 reference/ChatDeepSeek.html#chatlas.ChatDeepSeek chatlas.ChatDeepSeek
 chatlas.ChatGithub py:function 1 reference/ChatGithub.html#chatlas.ChatGithub -
 chatlas._provider_github.ChatGithub py:function 1 reference/ChatGithub.html#chatlas.ChatGithub chatlas.ChatGithub
 chatlas.ChatGoogle py:function 1 reference/ChatGoogle.html#chatlas.ChatGoogle -
