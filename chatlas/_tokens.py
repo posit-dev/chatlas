@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import orjson
 
 from ._logging import logger
-from ._typing_extensions import TypedDict
+from ._typing_extensions import NotRequired, TypedDict
 
 if TYPE_CHECKING:
     from ._provider import Provider
@@ -109,11 +109,11 @@ class TokenPrice(TypedDict):
     """The provider name (e.g., "OpenAI", "Anthropic", etc.)"""
     model: str
     """The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.)"""
-    cached_input: float
+    cached_input: NotRequired[float]
     """The cost per user token in USD per million tokens for cached input"""
     input: float
     """The cost per user token in USD per million tokens"""
-    output: float
+    output: NotRequired[float]
     """The cost per assistant token in USD per million tokens"""
 
 
@@ -160,8 +160,8 @@ def compute_cost(
     if price is None:
         return None
     input_price = input_tokens * (price["input"] / 1e6)
-    output_price = output_tokens * (price["output"] / 1e6)
-    cached_price = cached_tokens * (price["cached_input"] / 1e6)
+    output_price = output_tokens * (price.get("output", 0) / 1e6)
+    cached_price = cached_tokens * (price.get("cached_input", 0) / 1e6)
     return input_price + output_price + cached_price
 
 
