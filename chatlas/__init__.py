@@ -19,10 +19,10 @@ from ._provider_openrouter import ChatOpenRouter
 from ._provider_perplexity import ChatPerplexity
 from ._provider_portkey import ChatPortkey
 from ._provider_snowflake import ChatSnowflake
+from ._provider_vllm import ChatVllm
 from ._tokens import token_usage
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn
-from ._vllm import ChatVLLM
 
 try:
     from ._version import version as __version__
@@ -44,10 +44,10 @@ __all__ = (
     "ChatOpenRouter",
     "ChatAzureOpenAI",
     "ChatPerplexity",
-    "ChatVLLM",
     "ChatPortkey",
     "ChatSnowflake",
     "ChatVertex",
+    "ChatVllm",
     "Chat",
     "content_image_file",
     "content_image_plot",
