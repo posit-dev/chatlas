@@ -36,29 +36,16 @@ def ChatVllm(
 
     `ChatVllm` requires a vLLM server to be running somewhere (either on your
     machine or a remote server). If you want to run a vLLM server locally, see
-    the [vLLM documentation](https://docs.vllm.ai/en/v0.5.3/getting_started/quickstart.html).
-    :::
-
-    ::: {.callout-note}
-    ## Python requirements
-
-    `ChatVllm` requires the `openai` package (e.g., `pip install openai`).
+    the [vLLM documentation](https://docs.vllm.ai/en/stable/getting_started/quickstart.html).
     :::
 
 
     Parameters
     ----------
     base_url
-        A system prompt to set the behavior of the assistant.
+        Base URL of the vLLM server (e.g., "http://localhost:8000/v1").
     system_prompt
-        Optional system prompt to prepend to conversation.
-    turns
-        A list of turns to start the chat with (i.e., continuing a previous
-        conversation). If not provided, the conversation begins from scratch. Do
-        not provide non-`None` values for both `turns` and `system_prompt`. Each
-        message in the list should be a dictionary with at least `role` (usually
-        `system`, `user`, or `assistant`, but `tool` is also possible). Normally
-        there is also a `content` field, which is a string.
+        A system prompt to set the behavior of the assistant.
     model
         Model identifier to use.
     seed
@@ -69,8 +56,15 @@ def ChatVllm(
     kwargs
         Additional arguments to pass to the LLM client.
 
-    Returns:
-        Chat instance configured for vLLM
+    Return
+    ------
+    Chat
+        A chat object that retains the state of the conversation.
+
+    Note
+    -----
+    This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
+    the defaults tweaked for PortkeyAI.
     """
 
     if api_key is None:
