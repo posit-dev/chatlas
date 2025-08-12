@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from chatlas import ChatDeepSeek
 
@@ -7,6 +9,10 @@ from .conftest import (
     assert_turns_existing,
     assert_turns_system,
 )
+
+api_key = os.getenv("DEEPSEEK_API_KEY")
+if api_key is None:
+    pytest.skip("DEEPSEEK_API_KEY is not set; skipping tests", allow_module_level=True)
 
 
 def test_deepseek_simple_request():
