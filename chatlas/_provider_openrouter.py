@@ -48,15 +48,6 @@ def ChatOpenRouter(
     chat.chat("What is the capital of France?")
     ```
 
-    ```python
-    # Use a specific model
-    chat = ChatOpenRouter(
-        model="openai/gpt-4o",
-        api_key=os.getenv("OPENROUTER_API_KEY")
-    )
-    chat.chat("Tell me about quantum computing")
-    ```
-
     Parameters
     ----------
     system_prompt
@@ -124,7 +115,7 @@ def ChatOpenRouter(
     ```
     """
     if model is None:
-        model = log_model_default("gpt-4o")
+        model = log_model_default("gpt-4.1")
 
     if api_key is None:
         api_key = os.getenv("OPENROUTER_API_KEY")
@@ -148,8 +139,8 @@ def ChatOpenRouter(
 
 
 def add_default_headers(kwargs: "ChatClientArgs") -> "ChatClientArgs":
-    """Add OpenRouter-specific headers to the client kwargs."""
     headers = kwargs.get("default_headers", None)
+    # https://openrouter.ai/docs/api-keys
     default_headers = {
         "HTTP-Referer": "https://posit-dev.github.io/chatlas",
         "X-Title": "chatlas",
