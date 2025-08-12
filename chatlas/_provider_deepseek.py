@@ -39,11 +39,6 @@ def ChatDeepSeek(
     Sign up at <https://platform.deepseek.com> to get an API key.
     :::
 
-    ## Known limitations
-
-    * Structured data extraction is not supported.
-    * Images are not supported.
-
     Examples
     --------
 
@@ -54,6 +49,12 @@ def ChatDeepSeek(
     chat = ChatDeepSeek(api_key=os.getenv("DEEPSEEK_API_KEY"))
     chat.chat("What is the capital of France?")
     ```
+
+    Known limitations
+    --------------
+
+    * Structured data extraction is not supported.
+    * Images are not supported.
 
     Parameters
     ----------
