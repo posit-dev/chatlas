@@ -26,6 +26,8 @@ chatlas.ChatOllama py:function 1 reference/ChatOllama.html#chatlas.ChatOllama -
 chatlas._provider_ollama.ChatOllama py:function 1 reference/ChatOllama.html#chatlas.ChatOllama chatlas.ChatOllama
 chatlas.ChatOpenAI py:function 1 reference/ChatOpenAI.html#chatlas.ChatOpenAI -
 chatlas._provider_openai.ChatOpenAI py:function 1 reference/ChatOpenAI.html#chatlas.ChatOpenAI chatlas.ChatOpenAI
+chatlas.ChatOpenRouter py:function 1 reference/ChatOpenRouter.html#chatlas.ChatOpenRouter -
+chatlas._provider_openrouter.ChatOpenRouter py:function 1 reference/ChatOpenRouter.html#chatlas.ChatOpenRouter chatlas.ChatOpenRouter
 chatlas.ChatPerplexity py:function 1 reference/ChatPerplexity.html#chatlas.ChatPerplexity -
 chatlas._provider_perplexity.ChatPerplexity py:function 1 reference/ChatPerplexity.html#chatlas.ChatPerplexity chatlas.ChatPerplexity
 chatlas.ChatPortkey py:function 1 reference/ChatPortkey.html#chatlas.ChatPortkey -

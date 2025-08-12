@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>types.imagecontenttypes – chatlas</title>
+<title>chatopenrouter – chatlas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -30,8 +64,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/types.MISSING_TYPE.html" rel="next">
-<link href="../reference/types.ChatResponseAsync.html" rel="prev">
+<link href="../reference/ChatPerplexity.html" rel="next">
+<link href="../reference/ChatOpenAI.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -118,7 +152,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.ImageContentTypes.html">types.ImageContentTypes</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/ChatAnthropic.html">Chat model providers</a></li><li class="breadcrumb-item"><a href="../reference/ChatOpenRouter.html">ChatOpenRouter</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -219,7 +253,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/ChatOpenRouter.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/ChatOpenRouter.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">ChatOpenRouter</span></a>
   </div>
 </li>
@@ -486,7 +520,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/types.ImageContentTypes.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/types.ImageContentTypes.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.ImageContentTypes</span></a>
   </div>
 </li>
@@ -526,9 +560,17 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.types.ImageContentTypes" id="toc-chatlas.types.ImageContentTypes" class="nav-link active" data-scroll-target="#chatlas.types.ImageContentTypes">types.ImageContentTypes</a></li>
+  <li><a href="#chatlas.ChatOpenRouter" id="toc-chatlas.ChatOpenRouter" class="nav-link active" data-scroll-target="#chatlas.ChatOpenRouter">ChatOpenRouter</a>
+  <ul class="collapse">
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#note" id="toc-note" class="nav-link" data-scroll-target="#note">Note</a></li>
+  <li><a href="#note-1" id="toc-note-1" class="nav-link" data-scroll-target="#note-1">Note</a></li>
+  </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ImageContentTypes.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatOpenRouter.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -536,12 +578,134 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<section id="chatlas.types.ImageContentTypes" class="level1">
-<h1>types.ImageContentTypes</h1>
-<p><code>types.ImageContentTypes</code></p>
-<p>Allowable content types for images.</p>
+<section id="chatlas.ChatOpenRouter" class="level1">
+<h1>ChatOpenRouter</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ChatOpenRouter(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span><span class="st">'https://openrouter.ai/api/v1'</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    seed<span class="op">=</span>MISSING,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Chat with one of the many models hosted on OpenRouter.</p>
+<p>OpenRouter provides access to a wide variety of language models from different providers through a unified API. Support for features depends on the underlying model that you use.</p>
+<section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
+<h2 class="doc-section doc-section-prerequisites anchored" data-anchor-id="prerequisites">Prerequisites</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+API key
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sign up at <a href="https://openrouter.ai" class="uri">https://openrouter.ai</a> to get an API key.</p>
+</div>
+</div>
+</section>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenRouter</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenRouter(api_key<span class="op">=</span>os.getenv(<span class="st">"OPENROUTER_API_KEY"</span>))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is the capital of France?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>system_prompt</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>A system prompt to set the behavior of the assistant.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>model</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use. See <a href="https://openrouter.ai/models" class="uri">https://openrouter.ai/models</a> for available models.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>api_key</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>The API key to use for authentication. You generally should not supply this directly, but instead set the <code>OPENROUTER_API_KEY</code> environment variable.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>base_url</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
+<td>The base URL to the endpoint; the default uses OpenRouter’s API.</td>
+<td><code>'https://openrouter.ai/api/v1'</code></td>
+</tr>
+<tr class="odd">
+<td>seed</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#int">int</a>] | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a></td>
+<td>Optional integer seed that the model uses to try and make output more reproducible.</td>
+<td><code>MISSING</code></td>
+</tr>
+<tr class="even">
+<td>kwargs</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['ChatClientArgs']</td>
+<td>Additional arguments to pass to the <code>openai.OpenAI()</code> client constructor.</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td><a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat">Chat</a></td>
+<td>A chat object that retains the state of the conversation.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="note" class="level2 doc-section doc-section-note">
+<h2 class="doc-section doc-section-note anchored" data-anchor-id="note">Note</h2>
+<p>This function is a lightweight wrapper around <a href="https://posit-dev.github.io/chatlas/reference/ChatOpenAI.html#chatlas.ChatOpenAI"><code>ChatOpenAI</code></a> with the defaults tweaked for OpenRouter.</p>
+</section>
+<section id="note-1" class="level2 doc-section doc-section-note">
+<h2 class="doc-section doc-section-note anchored" data-anchor-id="note-1">Note</h2>
+<p>Pasting an API key into a chat constructor (e.g., <code>ChatOpenRouter(api_key="...")</code>) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.</p>
+<p>Instead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a <code>.env</code> file to store your credentials, and then use the <code>python-dotenv</code> package to load them into your environment.</p>
+<pre class="shell"><code>pip install python-dotenv</code></pre>
+<pre class="shell"><code># .env
+OPENROUTER_API_KEY=...</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenRouter</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>load_dotenv()</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenRouter()</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>chat.console()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Another, more general, solution is to load your environment variables into the shell before starting Python (maybe in a <code>.bashrc</code>, <code>.zshrc</code>, etc. file):</p>
+<pre class="shell"><code>export OPENROUTER_API_KEY=...</code></pre>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -967,13 +1131,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/types.ChatResponseAsync.html" class="pagination-link" aria-label="types.ChatResponseAsync">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">types.ChatResponseAsync</span>
+      <a href="../reference/ChatOpenAI.html" class="pagination-link" aria-label="ChatOpenAI">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">ChatOpenAI</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/types.MISSING_TYPE.html" class="pagination-link" aria-label="types.MISSING_TYPE">
-        <span class="nav-page-text">types.MISSING_TYPE</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/ChatPerplexity.html" class="pagination-link" aria-label="ChatPerplexity">
+        <span class="nav-page-text">ChatPerplexity</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -985,7 +1149,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ImageContentTypes.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatOpenRouter.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
