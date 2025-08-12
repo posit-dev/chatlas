@@ -11,9 +11,6 @@ from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote,
-    assert_tools_async,
-    assert_tools_simple,
-    assert_tools_simple_stream_content,
     assert_turns_existing,
     assert_turns_system,
 )
@@ -53,17 +50,16 @@ def test_mistral_respects_turns_interface():
     assert_turns_existing(chat_fun)
 
 
-def test_mistral_tool_variations():
-    """Note: Tool calling may be unstable with Mistral."""
-    chat_fun = ChatMistral
-    assert_tools_simple(chat_fun)
-    assert_tools_simple_stream_content(chat_fun)
+# Tool calling is poorly supported
+# def test_mistral_tool_variations():
+#    chat_fun = ChatMistral
+#    assert_tools_simple(chat_fun)
+#    assert_tools_simple_stream_content(chat_fun)
 
-
-@pytest.mark.asyncio
-async def test_mistral_tool_variations_async():
-    """Note: Tool calling may be unstable with Mistral."""
-    await assert_tools_async(ChatMistral)
+# Tool calling is poorly supported
+# @pytest.mark.asyncio
+# async def test_mistral_tool_variations_async():
+#    await assert_tools_async(ChatMistral)
 
 
 def test_data_extraction():
@@ -71,7 +67,8 @@ def test_data_extraction():
 
 
 def test_mistral_images():
-    """Note: Images require a model that supports vision."""
-    chat_fun = lambda **kwargs: ChatMistral(model="pixtral-12b-latest", **kwargs)
+    def chat_fun(**kwargs):
+        return ChatMistral(model="pixtral-12b-latest", **kwargs)
+
     assert_images_inline(chat_fun)
     assert_images_remote(chat_fun)
