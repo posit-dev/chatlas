@@ -1,7 +1,5 @@
-import importlib.resources as resources
 from typing import Optional
 
-import orjson
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
 from chatlas._provider_openai import OpenAIAzureProvider, OpenAIProvider
 from chatlas._tokens import (
@@ -141,6 +139,7 @@ class TokenPricePydantic(BaseModel):
     Pydantic model that corresponds to the TokenPrice TypedDict.
     Used for validation of the prices.json data.
     """
+
     provider: str
     model: str
     cached_input: Optional[float] = None  # Not all models have cached input

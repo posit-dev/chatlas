@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `ChatHuggingFace()` for chatting via [Hugging Face](https://huggingface.co/). (#144)
 * Added `ChatPortkey()` for chatting via [Portkey AI](https://portkey.ai/). (#143)
 
+### Bug fixes
+
+* Fixed an issue where chatting with some models was leading to `KeyError: 'cached_input'`. (#149)
 
 ## [0.9.2] - 2025-08-08
 
