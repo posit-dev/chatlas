@@ -124,6 +124,7 @@ quartodoc:
         - ChatHuggingFace
         - ChatOllama
         - ChatOpenAI
+        - ChatOpenRouter
         - ChatPerplexity
         - ChatPortkey
         - ChatSnowflake
