@@ -31,6 +31,7 @@ To see the pre-requisites for a given provider, visit the relevant usage page in
 | Snowflake Cortex         | [`ChatSnowflake()`](../reference/ChatSnowflake.qmd)     | ✅ |
 | Groq                     | [`ChatGroq()`](../reference/ChatGroq.qmd)               |    |
 | perplexity.ai            | [`ChatPerplexity()`](../reference/ChatPerplexity.qmd)   |    |
+| Cloudflare               | [`ChatCloudflare()`](../reference/ChatCloudflare.qmd)   |    |
 | Portkey                  | [`ChatPortkey()`](../reference/ChatPortkey.qmd)         | ✅ |
 
 
