@@ -17,6 +17,7 @@ To see the pre-requisites for a given provider, visit the relevant usage page in
 | Name                     | Usage                                                    | Enterprise? |
 |--------------------------|----------------------------------------------------------|------------|
 | Anthropic (Claude)       | [`ChatAnthropic()`](../reference/ChatAnthropic.qmd)     |    |
+| DeepSeek                 | [`ChatDeepSeek()`](../reference/ChatDeepSeek.qmd)       |    |
 | GitHub model marketplace | [`ChatGithub()`](../reference/ChatGithub.qmd)           |    |
 | Google (Gemini)          | [`ChatGoogle()`](../reference/ChatGoogle.qmd)           |    |
 | Groq                     | [`ChatGroq()`](../reference/ChatGroq.qmd)               |    |
