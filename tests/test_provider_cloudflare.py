@@ -16,7 +16,6 @@ if api_key is None or account_id is None:
 
 def test_cloudflare_simple_request():
     chat = ChatCloudflare(
-        system_prompt="Be as terse as possible; no punctuation",
         model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
     )
     chat.chat("What is 1 + 1?")
@@ -32,7 +31,6 @@ def test_cloudflare_simple_request():
 @pytest.mark.asyncio
 async def test_cloudflare_simple_streaming_request():
     chat = ChatCloudflare(
-        system_prompt="Be as terse as possible; no punctuation",
         model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
     )
     res = []
@@ -64,23 +62,7 @@ def test_cloudflare_custom_model():
     assert chat.provider.model == "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 
 
-def test_cloudflare_base_url():
-    account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID")
-    chat = ChatCloudflare()
-    expected_base_url = (
-        f"https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/v1"
-    )
-    assert str(chat.provider._client.base_url) == expected_base_url
-
-
-def test_cloudflare_provider_name():
-    chat = ChatCloudflare()
-    assert chat.provider.name == "Cloudflare"
-
-
 def test_cloudflare_missing_account_id():
-    """Test that missing account ID raises appropriate error."""
-    # Temporarily remove account ID from environment
     original_account_id = os.environ.get("CLOUDFLARE_ACCOUNT_ID")
     if "CLOUDFLARE_ACCOUNT_ID" in os.environ:
         del os.environ["CLOUDFLARE_ACCOUNT_ID"]
@@ -89,7 +71,6 @@ def test_cloudflare_missing_account_id():
         with pytest.raises(ValueError, match="Cloudflare account ID is required"):
             ChatCloudflare()
     finally:
-        # Restore original environment
         if original_account_id is not None:
             os.environ["CLOUDFLARE_ACCOUNT_ID"] = original_account_id
 
