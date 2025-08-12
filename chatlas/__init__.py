@@ -15,6 +15,7 @@ from ._provider_groq import ChatGroq
 from ._provider_huggingface import ChatHuggingFace
 from ._provider_ollama import ChatOllama
 from ._provider_openai import ChatAzureOpenAI, ChatOpenAI
+from ._provider_openrouter import ChatOpenRouter
 from ._provider_perplexity import ChatPerplexity
 from ._provider_portkey import ChatPortkey
 from ._provider_snowflake import ChatSnowflake
@@ -39,6 +40,7 @@ __all__ = (
     "ChatHuggingFace",
     "ChatOllama",
     "ChatOpenAI",
+    "ChatOpenRouter",
     "ChatAzureOpenAI",
     "ChatPerplexity",
     "ChatPortkey",

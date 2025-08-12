@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* Added `ChatDeepSeek()` for chatting via [DeepSeek](https://www.deepseek.com/). 
+* Added `ChatDeepSeek()` for chatting via [DeepSeek](https://www.deepseek.com/). (#147)
+* Added `ChatOpenRouter()` for chatting via [Open Router](https://openrouter.ai/). (#148)
 * Added `ChatHuggingFace()` for chatting via [Hugging Face](https://huggingface.co/). (#144)
 * Added `ChatPortkey()` for chatting via [Portkey AI](https://portkey.ai/). (#143)
 

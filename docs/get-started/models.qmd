@@ -22,7 +22,8 @@ To see the pre-requisites for a given provider, visit the relevant usage page in
 | Google (Gemini)          | [`ChatGoogle()`](../reference/ChatGoogle.qmd)           |    |
 | Groq                     | [`ChatGroq()`](../reference/ChatGroq.qmd)               |    |
 | Hugging Face             | [`ChatHuggingFace()`](../reference/ChatHuggingFace.qmd) |    |
-| Ollama local models      | [`ChatOllama()`](../reference/ChatOllama.qmd)           |    |
+| Ollama (local models)    | [`ChatOllama()`](../reference/ChatOllama.qmd)           |    |
+| Open Router              | [`ChatOpenRouter()`](../reference/ChatOpenRouter.qmd)   |    |
 | OpenAI                   | [`ChatOpenAI()`](../reference/ChatOpenAI.qmd)           |    |
 | perplexity.ai            | [`ChatPerplexity()`](../reference/ChatPerplexity.qmd)   |    |
 | AWS Bedrock              | [`ChatBedrockAnthropic()`](../reference/ChatBedrockAnthropic.qmd) | ✅ |
