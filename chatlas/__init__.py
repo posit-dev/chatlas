@@ -8,6 +8,7 @@ from ._interpolate import interpolate, interpolate_file
 from ._provider import Provider
 from ._provider_anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._provider_databricks import ChatDatabricks
+from ._provider_deepseek import ChatDeepSeek
 from ._provider_github import ChatGithub
 from ._provider_google import ChatGoogle, ChatVertex
 from ._provider_groq import ChatGroq
@@ -31,6 +32,7 @@ __all__ = (
     "ChatAuto",
     "ChatBedrockAnthropic",
     "ChatDatabricks",
+    "ChatDeepSeek",
     "ChatGithub",
     "ChatGoogle",
     "ChatGroq",
