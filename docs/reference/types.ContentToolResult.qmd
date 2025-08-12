@@ -1,6 +1,57 @@
 # types.ContentToolResult { #chatlas.types.ContentToolResult }
 
 ```python
-types.ContentToolResult(self, id, value=None, error=None)
+types.ContentToolResult()
 ```
 
+The result of calling a tool/function
+
+A content type representing the result of a tool function call. When a model
+requests a tool function, [](`~chatlas.Chat`) will create, (optionally)
+echo, (optionally) yield, and store this content type in the chat history.
+
+A tool function may also construct an instance of this class and return it.
+This is useful for a tool that wishes to customize how the result is handled
+(e.g., the format of the value sent to the model).
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type   | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Default    |
+|--------------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| value        |        | The return value of the tool/function.                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | _required_ |
+| model_format |        | The format used for sending the value to the model. The default, `"auto"`, first attempts to format the value as a JSON string. If that fails, it gets converted to a string via `str()`. To force `orjson.dumps()` or `str()`, set to `"json"` or `"str"`. Finally, `"as_is"` is useful for doing your own formatting and/or passing a non-string value (e.g., a list or dict) straight to the model. Non-string values are useful for tools that return images or other 'known' non-text content types. | _required_ |
+| error        |        | An exception that occurred while invoking the tool. If this is set, the error message sent to the model and the value is ignored.                                                                                                                                                                                                                                                                                                                                                                         | _required_ |
+| extra        |        | Additional data associated with the tool result that isn't sent to the model.                                                                                                                                                                                                                                                                                                                                                                                                                             | _required_ |
+| request      |        | Not intended to be used directly. It will be set when the :class:`~chatlas.Chat` invokes the tool.                                                                                                                                                                                                                                                                                                                                                                                                        | _required_ |
+
+## Note {.doc-section .doc-section-note}
+
+When `model_format` is `"json"` (or `"auto"`), and the value has a
+`.to_json()`/`.to_dict()` method, those methods are called to obtain the
+JSON representation of the value. This is convenient for classes, like
+`pandas.DataFrame`, that have a `.to_json()` method, but don't necessarily
+dump to JSON directly. If this happens to not be the desired behavior, set
+`model_format="as_is"` return the desired value as-is.
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [get_model_value](#chatlas.types.ContentToolResult.get_model_value) | Get the actual value sent to the model. |
+| [tagify](#chatlas.types.ContentToolResult.tagify) | A method for rendering this object via htmltools/shiny. |
+
+### get_model_value { #chatlas.types.ContentToolResult.get_model_value }
+
+```python
+types.ContentToolResult.get_model_value()
+```
+
+Get the actual value sent to the model.
+
+### tagify { #chatlas.types.ContentToolResult.tagify }
+
+```python
+types.ContentToolResult.tagify()
+```
+
+A method for rendering this object via htmltools/shiny.

@@ -29,6 +29,8 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
       AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       # Free tier of Google is rate limited, so we only test on 3.12
       TEST_GOOGLE: ${{ matrix.config.test_google }}
       # Free tier of Azure is rate limited, so we only test on 3.12
@@ -46,10 +48,29 @@ jobs:
       - name: 📦 Install the project
         run: uv sync --python ${{ matrix.config.python-version }} --all-extras
 
+      - name: Create Snowflake connections.toml file
+        run: |
+          mkdir -p ~/.ssh
+          echo '${{ secrets.SNOWFLAKE_SSH_PUBLIC_KEY }}' > ~/.ssh/snowflake_key.pub
+          echo '${{ secrets.SNOWFLAKE_SSH_PRIVATE_KEY }}' > ~/.ssh/snowflake_key.p8
+          chmod 644 ~/.ssh/snowflake_key.pub
+          chmod 600 ~/.ssh/snowflake_key.p8
+          chmod 700 ~/.ssh
+
+          mkdir -p ~/.snowflake
+          cat > ~/.snowflake/connections.toml << 'EOF'
+          [posit]
+          account="duloftf-posit-software-pbc-dev"
+          user="carson@posit.co"
+          private_key_file="/home/runner/.ssh/snowflake_key.p8"
+          private_key_file_pwd="${{ secrets.SNOWFLAKE_SSH_PRIVATE_KEY_PASSWORD }}"
+          EOF
+
       - name: 🧪 Check tests
         run: make check-tests
 
       - name: 📝 Check types
+        if: ${{ matrix.config.python-version != '3.9' }}
         run: make check-types
 
       - name: 📐 Check formatting

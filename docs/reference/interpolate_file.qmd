@@ -1,0 +1,39 @@
+# interpolate_file { #chatlas.interpolate_file }
+
+```python
+interpolate_file(
+    path,
+    *,
+    variables=None,
+    variable_start='{{',
+    variable_end='}}',
+)
+```
+
+Interpolate variables into a prompt from a file
+
+This is a light-weight wrapper around the Jinja2 templating engine, making
+it easier to interpolate dynamic data into a static prompt. Compared to
+f-strings, which expects you to wrap dynamic values in `{ }`, this function
+expects `{{{ }}}` instead, making it easier to include Python code and JSON in
+your prompt.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                                                                                 | Description                                                                                                                  | Default    |
+|----------------|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|------------|
+| path           | [Union](`typing.Union`)\[[str](`str`), [Path](`pathlib.Path`)\]                      | The path to the file containing the prompt to interpolate.                                                                   | _required_ |
+| variables      | [Optional](`typing.Optional`)\[[dict](`dict`)\[[str](`str`), [Any](`typing.Any`)\]\] | A dictionary of variables to interpolate into the prompt. If not provided, the caller's global and local variables are used. | `None`     |
+| variable_start | [str](`str`)                                                                         | The string that marks the beginning of a variable.                                                                           | `'{{'`     |
+| variable_end   | [str](`str`)                                                                         | The string that marks the end of a variable.                                                                                 | `'}}'`     |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description                             |
+|--------|--------------|-----------------------------------------|
+|        | [str](`str`) | The prompt with variables interpolated. |
+
+## See Also {.doc-section .doc-section-see-also}
+
+interpolate
+    Interpolating data into a system prompt

@@ -1,0 +1,46 @@
+---
+title: Vocabulary
+callout-appearance: simple
+---
+
+
+If you're new to LLMs, you may be confused by some of the vocabulary. This is a quick guide to define the most important terms you'll need to know to get started with chatlas and LLMs in general. Unfortunately the vocab is all a little entangled: to understand one term you'll often have to know a little about some of the others. So we'll start with some simple definitions of the most important terms then iteratively go a little deeper.
+
+It all starts with a **prompt**, which is the text (typically a question or a request) that you send to the LLM. This starts a **conversation**, a sequence of turns that alternate between user prompts and model responses. Inside the model, both the prompt and response are represented by a sequence of **tokens**, which represent either individual words or subcomponents of a word. The tokens are used to compute the cost of using a model and to measure the size of the **context**, the combination of the current prompt and any previous prompts and responses used to generate the next response.
+
+It's useful to make the distinction between providers and models. A **provider** is a web API that gives access to one or more **models**. The distinction is a bit subtle because providers are often synonymous with a model, like OpenAI and GPT, Anthropic and Claude, and Google and Gemini. But other providers, like Ollama, can host many different models, typically open source models like LLaMa and Mistral. Still other providers support both open and closed models, typically by partnering with a company that provides a popular closed model. For example, Azure OpenAI offers both open source models and OpenAI's GPT, while AWS Bedrock offers both open source models and Anthropic's Claude.
+
+### What is a token?
+
+An LLM is a _model_, and like all models needs some way to represent its inputs numerically. For LLMs, that means we need some way to convert words to numbers. This is the goal of the **tokenizer**. For example, using the GPT 4o tokenizer, the string "When was R created?" is converted to 5 tokens: 5958 ("When"), 673 (" was"), 460 (" R"), 5371 (" created"), 30 ("?"). As you can see, many simple strings can be represented by a single token. But more complex strings require multiple tokens. For example, the string "counterrevolutionary" requires 4 tokens: 32128 ("counter"), 264 ("re"), 9477 ("volution"), 815 ("ary"). (You can see how various strings are tokenized at <http://tiktokenizer.vercel.app/>).
+
+It's important to have a rough sense of how text is converted to tokens because tokens are used to determine the cost of a model and how much context can be used to predict the next response. On average an English word needs ~1.5 tokens so a page might require 375-400 tokens and a complete book might require 75,000 to 150,000 tokens. Other languages will typically require more tokens, because (in brief) LLMs are trained on data from the internet, which is primarily in English.
+
+LLMs are priced per million tokens. State of the art models (like GPT-4.1 or Claude 3.7 sonnet) cost ~$2 per million input tokens, and ~$10 per million output tokens. Cheaper models can cost much less, e.g. GPT-4.1 mini costs ~$0.25 per million input tokens and ~$1 per million output tokens. Even $10 of API credit will give you a lot of room for experimentation, particularly with cheaper models, and prices are likely to decline as model performance improves.
+
+Tokens also used to measure the context window, which is how much text the LLM can use to generate the next response. As we'll discuss shortly, the context length includes the full state of your conversation so far (both your prompts and the model's responses), which means that cost grow rapidly with the number of conversational turns.
+
+
+### What is a conversation?
+
+A conversation with an LLM takes place through a series of HTTP requests and responses: you send your question to the LLM as an HTTP request, and it sends back its reply as an HTTP response. In other words, a conversation consists of a sequence of a paired turns: a sent prompt and a returned response.
+
+It's important to note that a request includes not only the current user prompt, but every previous user prompt and model response. This means that:
+
+* The cost of a conversation grows quadratically with the number of turns: if you want to save money, keep your conversations short.
+
+* Each response is affected by all previous prompts and responses. This can make a converstion get stuck in a local optimum, so it's generally better to iterate by starting a new conversation with a better prompt rather than having a long back-and-forth.
+
+* chatlas has full control over the conversational history. Because it's chatlas's responsibility to send the previous turns of the conversation, it's possible to start a conversation with one model and finish it with another.
+
+### What is a prompt?
+
+The user prompt is the question that you send to the model. There are two other important prompts that underlie the user prompt:
+
+* The **core system prompt**, which is unchangeable, set by the model provider, and affects every conversation. You can see what these look like from Anthropic, who [publishes their core system prompts](https://docs.anthropic.com/en/release-notes/system-prompts).
+
+* The **system prompt**, which is set when you create a new conversation, and affects every response. It's used to provide additional instructions to the model, shaping its responses to your needs. For example, you might use the system prompt to ask the model to always respond in Spanish or to write dependency-free base R code. You can also use the system prompt to provide the model with information it wouldn't otherwise know, like the details of your database schema, or your preferred plotly theme and color palette.
+
+When you use a chat app like ChatGPT or claude.ai you can only iterate on the user prompt. But when you're programming with LLMs, you'll primarily iterate on the system prompt. For example, if you're developing an app that helps a user write Python code, you'd work with the system prompt to ensure that user gets the style of code they want.
+
+Writing a good prompt is key to effective use of LLMs. For some tips on writing a good system prompt, see the [System Prompt](../get-started/system-prompt.qmd) page.

@@ -4,14 +4,18 @@ website:
     - reference/index.qmd
     - contents:
       - reference/ChatAnthropic.qmd
+      - reference/ChatAuto.qmd
       - reference/ChatAzureOpenAI.qmd
       - reference/ChatBedrockAnthropic.qmd
+      - reference/ChatDatabricks.qmd
       - reference/ChatGithub.qmd
       - reference/ChatGoogle.qmd
       - reference/ChatGroq.qmd
       - reference/ChatOllama.qmd
       - reference/ChatOpenAI.qmd
       - reference/ChatPerplexity.qmd
+      - reference/ChatSnowflake.qmd
+      - reference/ChatVertex.qmd
       section: Chat model providers
     - contents:
       - reference/Chat.qmd
@@ -22,7 +26,16 @@ website:
       - reference/content_image_url.qmd
       section: Image input
     - contents:
+      - reference/content_pdf_file.qmd
+      - reference/content_pdf_url.qmd
+      section: PDF input
+    - contents:
+      - reference/interpolate.qmd
+      - reference/interpolate_file.qmd
+      section: Prompt interpolation
+    - contents:
       - reference/Tool.qmd
+      - reference/ToolRejectError.qmd
       section: Tool calling
     - contents:
       - reference/Turn.qmd

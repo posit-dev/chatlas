@@ -1,0 +1,245 @@
+---
+title: MCP tools
+callout-appearance: simple
+---
+
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io) provides a standard 
+way to build services that LLMs can use to gain context.
+Most significantly, MCP provides a standard way to serve [tools](../get-started/tools.qmd) (i.e., functions) for an LLM to call from another program or machine.
+As a result, there are now [many useful MCP server implementations available](https://github.com/punkpeye/awesome-mcp-servers?tab=readme-ov-file#server-implementations) to help extend the capabilities of your chat application.
+In this article, you'll learn the basics of implementing and using MCP tools in chatlas.
+
+
+::: callout-note
+## Prerequisites
+
+To leverage MCP tools from chatlas, you'll need to install the `mcp` library.
+
+```bash
+pip install 'chatlas[mcp]'
+```
+:::
+
+
+## Basic usage
+
+Chatlas provides two ways to register MCP tools: [`.register_mcp_tools_http_stream_async()`](../reference/Chat.qmd#register_mcp_tools_http_stream_async) and [`.register_mcp_tools_stdio_async()`](../reference/Chat.qmd#register_mcp_tools_stdio_async).
+
+
+The main difference is how they interact with the MCP server: the former connects to an already running HTTP server, while the latter executes a system command to run the server locally.
+Roughly speaking, usage looks something like this:
+
+::: panel-tabset
+
+### Streaming HTTP
+
+```python
+from chatlas import ChatOpenAI
+
+chat = ChatOpenAI()
+
+# Assuming you have an MCP server running at the specified URL
+await chat.register_mcp_tools_http_stream_async(
+    url="http://localhost:8000/mcp",
+)
+```
+
+### Stdio (Standard Input/Output)
+
+```python
+from chatlas import ChatOpenAI
+
+chat = ChatOpenAI()
+
+# Assuming my_mcp_server.py is a valid MCP server script
+await chat.register_mcp_tools_stdio_async(
+    command="mcp",
+    args=["run", "my_mcp_server.py"],
+)
+```
+
+:::
+
+::: callout-warning
+### Async methods
+
+For performance reasons, the methods for registering MCP tools are asynchronous, so you'll need to use `await` when calling them. 
+In some environments, such as Jupyter notebooks and the [Positron IDE](https://positron.posit.co/) console, you can simply use `await` directly (as is done above).
+However, in other environments, you may need to wrap your code in an `async` function and use `asyncio.run()` to execute it.
+The examples below use `asyncio.run()` to run the asynchronous code, but you can adapt them to your environment as needed.
+:::
+
+Note that these methods work by:
+
+1. Opening a connection to the MCP server
+2. Requesting the available tools and making them available to the chat instance
+3. Keeping the connection open for tool calls during the chat session
+
+
+::: callout-warning
+### Cleanup
+
+When you no longer need the MCP tools, it's important to clean up the connection to the MCP server, as well `Chat`'s tool state.
+This is done by calling [`.cleanup_mcp_tools()`](../reference/Chat.qmd#cleanup_mcp_tools) at the end of your chat session (the examples demonstrate how to do this). 
+:::
+
+
+## Basic example
+
+Let's walk through a full-fledged example of using MCP tools in chatlas, including implementing our own MCP server.
+
+### Basic server {#basic-server}
+
+Below is a basic MCP server with a simple `add` tool to add two numbers together.
+This particular server is implemented in Python (via [mcp](https://pypi.org/project/mcp/)), but remember that MCP servers can be implemented in any programming language.
+
+```python
+from mcp.server.fastmcp import FastMCP
+
+app = FastMCP("my_server")
+
+@app.tool(description="Add two numbers.")
+def add(x: int, y: int) -> int:
+    return x + y
+```
+
+
+### HTTP Stream
+
+The `mcp` library provides a CLI tool to run the MCP server over HTTP transport.
+As long as you have `mcp` installed, and the [server above](#basic-server) saved as `my_mcp_server.py`, this can be done as follows:
+
+```bash
+$ mcp run -t sse my_mcp_server.py 
+INFO:     Started server process [19144]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+```
+
+With the server now running at `http://localhost:8000/mcp`, let's connect to it from chatlas and prompt it to use the `add` tool to demonstrate it's working.
+
+```python
+import asyncio
+from chatlas import ChatOpenAI
+
+async def do_chat(prompt: str):
+    chat = ChatOpenAI(
+        system_prompt="Always use tools available to you, even if the answer is simple.",
+    )
+
+    await chat.register_mcp_tools_http_stream_async(
+        url="http://localhost:8000/mcp",
+    )
+
+    await chat.chat_async(prompt)
+    await chat.cleanup_mcp_tools()
+
+asyncio.run(do_chat("What is 5 - 3?"))
+```
+
+::: chatlas-response-container
+
+```python
+# 🔧 tool request                        
+add(x=5, y=-3)
+```
+
+```python
+# ✅ tool result                  
+2
+```
+
+5 - 3 equals 2.
+:::
+
+
+
+### Stdio
+
+Another way to run the MCP server is to use the Stdio protocol, which allows you to run the server as a local process.
+The command used to run the server must be specified in the `command` argument, and any additional arguments can be passed in the `args` list.
+In our case, since we are using the `mcp` library, we can run the server using the `mcp` command with the `run` subcommand and the path to our server script.
+So, as long as you have `mcp` installed, and the [basic server](#basic-server) saved as `my_mcp_server.py`, you can run the MCP server and connect its tools to chatlas, as follows:
+
+```python
+import asyncio
+from chatlas import ChatOpenAI
+
+chat = ChatOpenAI(
+    system_prompt="Always use tools available to you, even if the answer is simple.",
+)
+
+async def do_chat(prompt: str):
+    await chat.register_mcp_tools_stdio_async(
+        command="mcp",
+        args=["run", "my_mcp_server.py"],
+    )
+
+    await chat.chat_async(prompt)
+    await chat.cleanup_mcp_tools()
+
+
+asyncio.run(do_chat("What is 5 - 3?"))
+```
+
+::: chatlas-response-container
+
+```python
+# 🔧 tool request                        
+add(x=5, y=-3)
+```
+
+```python
+# ✅ tool result                  
+2
+```
+
+5 - 3 equals 2.
+:::
+
+
+## Motivating example
+
+Let's look at a more compelling use case for MCP tools: code execution.
+A tool that can execute code and return the results is a powerful way to extend the capabilities of an LLM.
+This way, LLMs can generate code based on natural language prompts (which they are quite good at!) and then execute that code to get precise and reliable results from data (which LLMs are not so good at!).
+However, allowing an LLM to execute arbitrary code is risky, as the generated code could potentially be destructive, harmful, or even malicious.
+
+To mitigate these risks, it's important to implement safeguards around code execution. 
+This can include running code in isolated environments, restricting access to sensitive resources, and carefully validating and sanitizing inputs to the code execution tool.
+One such implementation is Pydantic's [Run Python MCP server](https://github.com/pydantic/pydantic-ai/tree/main/mcp-run-python), which provides a sandboxed environment for executing Python code safely via [Pyodide](https://pyodide.org/en/stable/) and [Deno](https://deno.com/).
+
+
+Below is a Shiny [chatbot](../get-started/chatbots.qmd) example that uses the Pydantic Run Python MCP server to execute Python code safely.
+Notice how, when tool calls are made, both the tool request (i.e., the code to be executed) and result (i.e., the output of the code execution) are displayed in the chat, making it much easier to understand what the LLM is doing and how it arrived at its answer.
+This is a great way to build trust in the LLM's responses, as users can see exactly what code was executed and what the results were.
+
+```python
+from chatlas import ChatOpenAI
+from shiny import reactive
+from shiny.express import ui
+
+chat_client = ChatOpenAI()
+
+@reactive.effect
+async def _():
+    await chat_client.register_mcp_tools_stdio_async(
+        command="deno",
+        args=["run", "-N", "-R=node_modules", "-W=node_modules", "--node-modules-dir=auto", "jsr:@pydantic/mcp-run-python", "stdio"],
+    )
+
+
+chat = ui.Chat("chat")
+chat.ui(
+    messages=["Hi! Try asking me a question that can be answered by executing Python code."],
+)
+chat.update_user_input(value="What's the 47th number in the Fibonacci sequence?")
+
+@chat.on_user_submit
+async def _(user_input: str):
+    stream = await chat_client.stream_async(user_input, content="all")
+    await chat.append_message_stream(stream)
+```
+
+![Screenshot of a LLM executing Python code via a tool call in a Shiny chatbot](../images/shiny-mcp-run-python.png){class="shadow rounded"}

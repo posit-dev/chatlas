@@ -16,6 +16,7 @@ class ChatAzureClientArgs(TypedDict, total=False):
     azure_ad_token: str | None
     organization: str | None
     project: str | None
+    webhook_secret: str | None
     base_url: str | None
     websocket_base_url: str | httpx.URL | None
     timeout: float | openai.Timeout | None | openai.NotGiven

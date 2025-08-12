@@ -1,7 +1,7 @@
 # types.ChatResponseAsync { #chatlas.types.ChatResponseAsync }
 
 ```python
-types.ChatResponseAsync(self, generator)
+types.ChatResponseAsync(generator)
 ```
 
 Chat response (async) object.
@@ -30,18 +30,9 @@ consumed
 
 | Name | Description |
 | --- | --- |
-| [display](#chatlas.types.ChatResponseAsync.display) | Display the content in a rich console. |
-| [get_string](#chatlas.types.ChatResponseAsync.get_string) | Get the chat response content as a string. |
+| [get_content](#chatlas.types.ChatResponseAsync.get_content) | Get the chat response content as a string. |
 
-### display { #chatlas.types.ChatResponseAsync.display }
-
-```python
-types.ChatResponseAsync.display()
-```
-
-Display the content in a rich console.
-
-### get_string { #chatlas.types.ChatResponseAsync.get_string }
+### get_content { #chatlas.types.ChatResponseAsync.get_content }
 
 ```python
 types.ChatResponseAsync.get_content()

@@ -1,15 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Generic, Literal, Optional, Sequence, TypeVar
+from typing import Generic, Literal, Optional, Sequence, TypeVar
 
-from ._content import Content, ContentText
+from pydantic import BaseModel, ConfigDict, Field
+
+from ._content import Content, ContentText, ContentUnion, create_content
 
 __all__ = ("Turn",)
 
 CompletionT = TypeVar("CompletionT")
 
 
-class Turn(Generic[CompletionT]):
+class Turn(BaseModel, Generic[CompletionT]):
     """
     A user or assistant turn
 
@@ -40,7 +42,8 @@ class Turn(Generic[CompletionT]):
     assert turns[1].role == "assistant"
 
     # Load context into a new chat instance
-    chat2 = ChatAnthropic(turns=turns)
+    chat2 = ChatAnthropic()
+    chat2.set_turns(turns)
     turns2 = chat2.get_turns()
     assert turns == turns2
     ```
@@ -52,7 +55,7 @@ class Turn(Generic[CompletionT]):
     contents
         A list of [](`~chatlas.types.Content`) objects.
     tokens
-        A numeric vector of length 2 representing the number of input and output
+        A numeric vector of length 3 representing the number of input, output, and cached
         tokens (respectively) used in this turn. Currently only recorded for
         assistant turns.
     finish_reason
@@ -64,34 +67,50 @@ class Turn(Generic[CompletionT]):
         This is only relevant for assistant turns.
     """
 
+    role: Literal["user", "assistant", "system"]
+    contents: list[ContentUnion] = Field(default_factory=list)
+    tokens: Optional[tuple[int, int, int]] = None
+    finish_reason: Optional[str] = None
+    completion: Optional[CompletionT] = Field(default=None, exclude=True)
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     def __init__(
         self,
         role: Literal["user", "assistant", "system"],
         contents: str | Sequence[Content | str],
         *,
-        tokens: Optional[tuple[int, int]] = None,
+        tokens: Optional[tuple[int, int, int]] = None,
         finish_reason: Optional[str] = None,
         completion: Optional[CompletionT] = None,
+        **kwargs,
     ):
-        self.role = role
-
         if isinstance(contents, str):
-            contents = [ContentText(contents)]
+            contents = [ContentText(text=contents)]
 
         contents2: list[Content] = []
         for x in contents:
             if isinstance(x, Content):
                 contents2.append(x)
             elif isinstance(x, str):
-                contents2.append(ContentText(x))
+                contents2.append(ContentText(text=x))
+            elif isinstance(x, dict):
+                contents2.append(create_content(x))
             else:
                 raise ValueError("All contents must be Content objects or str.")
 
-        self.contents = contents2
-        self.text = "".join(x.text for x in self.contents if isinstance(x, ContentText))
-        self.tokens = tokens
-        self.finish_reason = finish_reason
-        self.completion = completion
+        super().__init__(
+            role=role,
+            contents=contents2,
+            tokens=tokens,
+            finish_reason=finish_reason,
+            completion=completion,
+            **kwargs,
+        )
+
+    @property
+    def text(self) -> str:
+        return "".join(x.text for x in self.contents if isinstance(x, ContentText))
 
     def __str__(self) -> str:
         return self.text
@@ -109,39 +128,9 @@ class Turn(Generic[CompletionT]):
             res += "\n" + content.__repr__(indent=indent + 2)
         return res + "\n"
 
-    def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, Turn):
-            return False
-        res = (
-            self.role == other.role
-            and self.contents == other.contents
-            and self.tokens == other.tokens
-            and self.finish_reason == other.finish_reason
-            and self.completion == other.completion
-        )
-        return res
-
 
 def user_turn(*args: Content | str) -> Turn:
     if len(args) == 0:
         raise ValueError("Must supply at least one input.")
 
     return Turn("user", args)
-
-
-def normalize_turns(turns: list[Turn], system_prompt: str | None = None) -> list[Turn]:
-    if system_prompt is not None:
-        system_turn = Turn("system", system_prompt)
-
-        if not turns:
-            turns = [system_turn]
-        elif turns[0].role != "system":
-            turns = [system_turn] + turns
-        elif turns[0] == system_turn:
-            pass  # Duplicate system prompt; don't need to do anything
-        else:
-            raise ValueError(
-                "system_prompt and turns[0] can't contain conflicting system prompts."
-            )
-
-    return turns

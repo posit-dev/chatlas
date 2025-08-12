@@ -1,0 +1,61 @@
+# ChatVertex { #chatlas.ChatVertex }
+
+```python
+ChatVertex(
+    model=None,
+    project=None,
+    location=None,
+    api_key=None,
+    system_prompt=None,
+    turns=None,
+    kwargs=None,
+)
+```
+
+Chat with a Google Vertex AI model.
+
+## Prerequisites {.doc-section .doc-section-prerequisites}
+
+
+::: {.callout-note}
+## Python requirements
+
+`ChatGoogle` requires the `google-genai` package: `pip install "chatlas[vertex]"`.
+:::
+
+::: {.callout-note}
+## Credentials
+
+To use Google's models (i.e., Vertex AI), you'll need to sign up for an account
+with [Vertex AI](https://cloud.google.com/vertex-ai), then specify the appropriate
+model, project, and location.
+:::
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                                                                            | Description                                                                                                                                                                                                                                                                                                                                                                                                                 | Default   |
+|---------------|---------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------|
+| model         | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.                                                                                                                                                                                                                                 | `None`    |
+| project       | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The Google Cloud project ID (e.g., "your-project-id"). If not provided, the GOOGLE_CLOUD_PROJECT environment variable will be used.                                                                                                                                                                                                                                                                                         | `None`    |
+| location      | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | The Google Cloud location (e.g., "us-central1"). If not provided, the GOOGLE_CLOUD_LOCATION environment variable will be used.                                                                                                                                                                                                                                                                                              | `None`    |
+| system_prompt | [Optional](`typing.Optional`)\[[str](`str`)\]                                   | A system prompt to set the behavior of the assistant.                                                                                                                                                                                                                                                                                                                                                                       | `None`    |
+| turns         | [Optional](`typing.Optional`)\[[list](`list`)\[[Turn](`chatlas._turn.Turn`)\]\] | A list of turns to start the chat with (i.e., continuing a previous conversation). If not provided, the conversation begins from scratch. Do not provide non-`None` values for both `turns` and `system_prompt`. Each message in the list should be a dictionary with at least `role` (usually `system`, `user`, or `assistant`, but `tool` is also possible). Normally there is also a `content` field, which is a string. | `None`    |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                         | Description    |
+|--------|------------------------------|----------------|
+|        | [Chat](`chatlas._chat.Chat`) | A Chat object. |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+import os
+from chatlas import ChatVertex
+
+chat = ChatVertex(
+    project="your-project-id",
+    location="us-central1",
+)
+chat.chat("What is the capital of France?")
+```

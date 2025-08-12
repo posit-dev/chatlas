@@ -1,0 +1,37 @@
+# interpolate { #chatlas.interpolate }
+
+```python
+interpolate(prompt, *, variables=None, variable_start='{{', variable_end='}}')
+```
+
+Interpolate variables into a prompt
+
+This is a light-weight wrapper around the Jinja2 templating engine, making
+it easier to interpolate dynamic data into a prompt template. Compared to
+f-strings, which expects you to wrap dynamic values in `{ }`, this function
+expects `{{{ }}}` instead, making it easier to include Python code and JSON in
+your prompt.
+
+## Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                                                                                 | Description                                                                                                                  | Default    |
+|----------------|--------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|------------|
+| prompt         | [str](`str`)                                                                         | The prompt to interpolate (as a string).                                                                                     | _required_ |
+| variables      | [Optional](`typing.Optional`)\[[dict](`dict`)\[[str](`str`), [Any](`typing.Any`)\]\] | A dictionary of variables to interpolate into the prompt. If not provided, the caller's global and local variables are used. | `None`     |
+| variable_start | [str](`str`)                                                                         | The string that marks the beginning of a variable.                                                                           | `'{{'`     |
+| variable_end   | [str](`str`)                                                                         | The string that marks the end of a variable.                                                                                 | `'}}'`     |
+
+## Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description                             |
+|--------|--------------|-----------------------------------------|
+|        | [str](`str`) | The prompt with variables interpolated. |
+
+## Examples {.doc-section .doc-section-examples}
+
+```python
+from chatlas import interpolate
+
+x = 1
+interpolate("The value of `x` is: {{ x }}")
+```

@@ -3,111 +3,58 @@
 # ---------------------------------------------------------
 
 
-from typing import Any, Callable, Iterable, TypedDict, Union
+from typing import TypedDict, Union
 
-import google.ai.generativelanguage_v1beta.types.content
-import google.ai.generativelanguage_v1beta.types.file
-import google.ai.generativelanguage_v1beta.types.generative_service
-import google.generativeai.types.content_types
-import google.generativeai.types.file_types
-import google.generativeai.types.generation_types
-import google.generativeai.types.helper_types
+import google.genai.types
+import PIL.Image
 
 
 class SubmitInputArgs(TypedDict, total=False):
+    model: str
     contents: Union[
-        google.ai.generativelanguage_v1beta.types.content.Content,
-        google.generativeai.types.content_types.ContentDict,
-        Iterable[
-            Union[
-                google.ai.generativelanguage_v1beta.types.content.Part,
-                google.generativeai.types.content_types.PartDict,
-                google.ai.generativelanguage_v1beta.types.content.Blob,
-                google.generativeai.types.content_types.BlobDict,
-                Any,
-                str,
-                google.ai.generativelanguage_v1beta.types.content.FunctionCall,
-                google.ai.generativelanguage_v1beta.types.content.FunctionResponse,
-                google.generativeai.types.file_types.FileDataDict,
-                google.ai.generativelanguage_v1beta.types.content.FileData,
-                google.ai.generativelanguage_v1beta.types.file.File,
-                google.generativeai.types.file_types.File,
-            ]
-        ],
-        google.ai.generativelanguage_v1beta.types.content.Part,
-        google.generativeai.types.content_types.PartDict,
-        google.ai.generativelanguage_v1beta.types.content.Blob,
-        google.generativeai.types.content_types.BlobDict,
-        Any,
+        google.genai.types.Content,
+        google.genai.types.ContentDict,
         str,
-        google.ai.generativelanguage_v1beta.types.content.FunctionCall,
-        google.ai.generativelanguage_v1beta.types.content.FunctionResponse,
-        google.generativeai.types.file_types.FileDataDict,
-        google.ai.generativelanguage_v1beta.types.content.FileData,
-        google.ai.generativelanguage_v1beta.types.file.File,
-        google.generativeai.types.file_types.File,
-        Iterable[
-            Union[
-                google.ai.generativelanguage_v1beta.types.content.Content,
-                google.generativeai.types.content_types.ContentDict,
-            ]
-        ],
-        None,
-    ]
-    generation_config: Union[
-        google.ai.generativelanguage_v1beta.types.generative_service.GenerationConfig,
-        google.generativeai.types.generation_types.GenerationConfigDict,
-        google.generativeai.types.generation_types.GenerationConfig,
-        None,
-    ]
-    stream: bool
-    tools: Union[
-        google.generativeai.types.content_types.FunctionLibrary,
-        Iterable[
+        PIL.Image.Image,
+        google.genai.types.File,
+        google.genai.types.FileDict,
+        google.genai.types.Part,
+        google.genai.types.PartDict,
+        list[
             Union[
                 str,
-                google.generativeai.types.content_types.Tool,
-                google.ai.generativelanguage_v1beta.types.content.Tool,
-                google.generativeai.types.content_types.ToolDict,
-                Iterable[
+                PIL.Image.Image,
+                google.genai.types.File,
+                google.genai.types.FileDict,
+                google.genai.types.Part,
+                google.genai.types.PartDict,
+            ]
+        ],
+        list[
+            Union[
+                google.genai.types.Content,
+                google.genai.types.ContentDict,
+                str,
+                PIL.Image.Image,
+                google.genai.types.File,
+                google.genai.types.FileDict,
+                google.genai.types.Part,
+                google.genai.types.PartDict,
+                list[
                     Union[
-                        google.generativeai.types.content_types.FunctionDeclaration,
-                        google.ai.generativelanguage_v1beta.types.content.FunctionDeclaration,
-                        dict[str, Any],
-                        Callable[..., Any],
+                        str,
+                        PIL.Image.Image,
+                        google.genai.types.File,
+                        google.genai.types.FileDict,
+                        google.genai.types.Part,
+                        google.genai.types.PartDict,
                     ]
                 ],
-                google.generativeai.types.content_types.FunctionDeclaration,
-                google.ai.generativelanguage_v1beta.types.content.FunctionDeclaration,
-                dict[str, Any],
-                Callable[..., Any],
             ]
         ],
-        str,
-        google.generativeai.types.content_types.Tool,
-        google.ai.generativelanguage_v1beta.types.content.Tool,
-        google.generativeai.types.content_types.ToolDict,
-        Iterable[
-            Union[
-                google.generativeai.types.content_types.FunctionDeclaration,
-                google.ai.generativelanguage_v1beta.types.content.FunctionDeclaration,
-                dict[str, Any],
-                Callable[..., Any],
-            ]
-        ],
-        google.generativeai.types.content_types.FunctionDeclaration,
-        google.ai.generativelanguage_v1beta.types.content.FunctionDeclaration,
-        dict[str, Any],
-        Callable[..., Any],
-        None,
     ]
-    tool_config: Union[
-        google.generativeai.types.content_types.ToolConfigDict,
-        google.ai.generativelanguage_v1beta.types.content.ToolConfig,
-        None,
-    ]
-    request_options: Union[
-        google.generativeai.types.helper_types.RequestOptions,
-        google.generativeai.types.helper_types.RequestOptionsDict,
+    config: Union[
+        google.genai.types.GenerateContentConfig,
+        google.genai.types.GenerateContentConfigDict,
         None,
     ]

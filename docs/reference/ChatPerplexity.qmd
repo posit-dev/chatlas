@@ -2,13 +2,13 @@
 
 ```python
 ChatPerplexity(
-    system_prompt=None
-    turns=None
-    model=None
-    api_key=None
-    base_url='https://api.perplexity.ai/'
-    seed=MISSING
-    kwargs=None
+    system_prompt=None,
+    turns=None,
+    model=None,
+    api_key=None,
+    base_url='https://api.perplexity.ai/',
+    seed=MISSING,
+    kwargs=None,
 )
 ```
 
@@ -25,12 +25,6 @@ information that may not have been available when the model was trained.
 ## API key
 
 Sign up at <https://www.perplexity.ai> to get an API key.
-:::
-
-::: {.callout-note}
-## Python requirements
-
-`ChatPerplexity` requires the `openai` package (e.g., `pip install openai`).
 :::
 
 ## Examples {.doc-section .doc-section-examples}

@@ -1,0 +1,68 @@
+Compared to other popular Python LLM libraries, chatlas focuses on making the barrier to entry as low as possible. It also makes certain design decisions that make common tasks less tedious and generally help you be more productive and prototype faster.
+
+A few good examples of this are:
+
+1. The `Chat` class retains conversation history for you. 
+2. Streaming output "just works" out of the box -- no extra code needed.
+3. `chatlas` handles the details of tool calling for you -- just provide a function with a docstring + type hints. You'll even get smart default streaming output of tool requests/results for free.
+
+To drive these points home, let's walk through a few examples:
+
+### Conversation history
+
+Take, for example, a simple multi-turn conversation:
+
+```python
+from chatlas import ChatOpenAI
+
+chat = ChatOpenAI(
+    model="gpt-4.1",
+    system_prompt="You are a terse assistant.",
+)
+
+chat.chat("What is the capital of the moon?")
+chat.chat("Are you sure?")
+```
+
+Implementing the same functionality with LangChain requires something much more complex:
+
+
+```python
+from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_openai import ChatOpenAI
+
+# The underlying chat model. It doesn't manage any state, so we need to wrap it.
+model = ChatOpenAI(model="gpt-4.1")
+
+# This is how you provide a system message in Langchain. Surprisingly
+# complicated, isn't it?
+prompt = ChatPromptTemplate.from_messages(
+    [
+        SystemMessage("You are a terse assistant."),
+        MessagesPlaceholder(variable_name="messages"),
+    ]
+)
+
+# Wrap the model and prompt up with some history.
+history = InMemoryChatMessageHistory()
+client = RunnableWithMessageHistory(prompt | model, lambda: history)
+
+# We're ready to chat with the model now. For this example we'll make a blocking
+# call, but there are ways to do async, streaming, and async streaming as well.
+response = client.invoke("What is the capital of the moon?")
+print(response.content)
+
+# The input of invoke() can be a message object as well, or a list of messages.
+response2 = client.invoke(HumanMessage("Are you sure?"))
+print(response2.content)
+```
+
+Other frameworks like Pydantic AI and llm do a better 
+
+
+It also:
+
+  * Designs for the developer experience, with a focus on rich streaming output at the console, in notebooks, and in web apps.

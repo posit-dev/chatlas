@@ -2,12 +2,12 @@
 
 ```python
 ChatAnthropic(
-    system_prompt=None
-    turns=None
-    model=None
-    api_key=None
-    max_tokens=4096
-    kwargs=None
+    system_prompt=None,
+    turns=None,
+    model=None,
+    api_key=None,
+    max_tokens=4096,
+    kwargs=None,
 )
 ```
 
@@ -22,7 +22,7 @@ models under the [Claude](https://www.anthropic.com/claude) moniker.
 ::: {.callout-note}
 ## API key
 
-Note that a Claude Prop membership does not give you the ability to call
+Note that a Claude Pro membership does not give you the ability to call
 models via the API. You will need to go to the [developer
 console](https://console.anthropic.com/account/keys) to sign up (and pay
 for) a developer account that will give you an API key that you can use with
@@ -32,7 +32,7 @@ this package.
 ::: {.callout-note}
 ## Python requirements
 
-`ChatAnthropic` requires the `anthropic` package (e.g., `pip install anthropic`).
+`ChatAnthropic` requires the `anthropic` package: `pip install "chatlas[anthropic]"`.
 :::
 
 ## Examples {.doc-section .doc-section-examples}

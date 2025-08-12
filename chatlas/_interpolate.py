@@ -23,7 +23,7 @@ def interpolate(
     This is a light-weight wrapper around the Jinja2 templating engine, making
     it easier to interpolate dynamic data into a prompt template. Compared to
     f-strings, which expects you to wrap dynamic values in `{ }`, this function
-    expects `{{ }}` instead, making it easier to include Python code and JSON in
+    expects `{{{ }}}` instead, making it easier to include Python code and JSON in
     your prompt.
 
     Parameters
@@ -80,7 +80,7 @@ def interpolate_file(
     This is a light-weight wrapper around the Jinja2 templating engine, making
     it easier to interpolate dynamic data into a static prompt. Compared to
     f-strings, which expects you to wrap dynamic values in `{ }`, this function
-    expects `{{ }}` instead, making it easier to include Python code and JSON in
+    expects `{{{ }}}` instead, making it easier to include Python code and JSON in
     your prompt.
 
     Parameters
@@ -102,8 +102,7 @@ def interpolate_file(
 
     See Also
     --------
-    interpolate
-        Interpolating data into a system prompt
+    * :func:`~chatlas.interpolate` : Interpolating data into a prompt
     """
     if variables is None:
         frame = inspect.currentframe()

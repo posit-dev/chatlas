@@ -17,8 +17,6 @@
   <shiny-user-message content='What&apos;s 1 + 1? What&apos;s 1 + 2?'></shiny-user-message>
   
   <shiny-chat-message content='2  3'></shiny-chat-message>
-  
-  
   </shiny-chat-messages></shiny-chat-container>
   <br><br>
   <details><summary>System prompt</summary>
@@ -34,14 +32,14 @@
 # ---
 # name: test_basic_repr
   '''
-  <Chat turns=3 tokens=20>
+  <Chat OpenAI/gpt-4.1 turns=3 tokens=20/5 $0.0>
     <Turn role='system'>
       <ContentText text='You're a helpful assistant that returns very minim...'>
   
     <Turn role='user'>
       <ContentText text='What's 1 + 1? What's 1 + 2?'>
   
-    <Turn role='assistant' tokens=(15, 5)>
+    <Turn role='assistant' tokens=(15, 5, 5)>
       <ContentText text='2  3'>
   
   

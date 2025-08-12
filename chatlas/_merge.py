@@ -1,5 +1,5 @@
 # Adapted from https://github.com/langchain-ai/langchain/blob/master/libs/core/langchain_core/utils/_merge.py
-# Also tweaked to more closely match https://github.com/hadley/elmer/blob/main/R/utils-merge.R
+# Also tweaked to more closely match https://github.com/hadley/ellmer/blob/main/R/utils-merge.R
 
 from __future__ import annotations
 

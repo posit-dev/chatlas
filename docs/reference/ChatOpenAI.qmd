@@ -2,13 +2,13 @@
 
 ```python
 ChatOpenAI(
-    system_prompt=None
-    turns=None
-    model=None
-    api_key=None
-    base_url='https://api.openai.com/v1'
-    seed=MISSING
-    kwargs=None
+    system_prompt=None,
+    turns=None,
+    model=None,
+    api_key=None,
+    base_url='https://api.openai.com/v1',
+    seed=MISSING,
+    kwargs=None,
 )
 ```
 
@@ -27,12 +27,6 @@ Note that a ChatGPT Plus membership does not give you the ability to call
 models via the API. You will need to go to the [developer
 platform](https://platform.openai.com) to sign up (and pay for) a developer
 account that will give you an API key that you can use with this package.
-:::
-
-::: {.callout-note}
-## Python requirements
-
-`ChatOpenAI` requires the `openai` package (e.g., `pip install openai`).
 :::
 
 ## Examples {.doc-section .doc-section-examples}

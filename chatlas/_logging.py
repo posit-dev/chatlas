@@ -1,6 +1,7 @@
 import logging
 import os
 import warnings
+from typing import Literal
 
 from rich.logging import RichHandler
 
@@ -12,15 +13,38 @@ def _rich_handler() -> RichHandler:
     return handler
 
 
-logger = logging.getLogger("chatlas")
-
-if os.environ.get("CHATLAS_LOG") == "info":
+def setup_logger(x: str, level: Literal["debug", "info"]) -> logging.Logger:
+    logger = logging.getLogger(x)
+    if level == "debug":
+        logger.setLevel(logging.DEBUG)
+    elif level == "info":
+        logger.setLevel(logging.INFO)
     # By adding a RichHandler to chatlas' logger, we can guarantee that they
     # never get dropped, even if the root logger's handlers are not
     # RichHandlers.
-    logger.setLevel(logging.INFO)
-    logger.addHandler(_rich_handler())
+    if not any(isinstance(h, RichHandler) for h in logger.handlers):
+        logger.addHandler(_rich_handler())
     logger.propagate = False
+    return logger
+
+
+logger = logging.getLogger("chatlas")
+log_level = os.environ.get("CHATLAS_LOG")
+if log_level:
+    if log_level != "debug" and log_level != "info":
+        warnings.warn(
+            f"CHATLAS_LOG is set to '{log_level}', but the log level must "
+            "be one of 'debug' or 'info'. Defaulting to 'info'.",
+        )
+        log_level = "info"
+
+    # Manually setup the logger for each dependency we care about. This way, we
+    # can ensure that the logs won't get dropped when a rich display is activate
+    logger = setup_logger("chatlas", log_level)
+    openai_logger = setup_logger("openai", log_level)
+    anthropic_logger = setup_logger("anthropic", log_level)
+    google_logger = setup_logger("google_genai.models", log_level)
+    httpx_logger = setup_logger("httpx", log_level)
 
     # Add a RichHandler to the root logger if there are no handlers. Note that
     # if chatlas is imported before other libraries that set up logging, (like

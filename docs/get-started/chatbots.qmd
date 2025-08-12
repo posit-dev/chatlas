@@ -1,0 +1,304 @@
+---
+title: Chatbots
+callout-appearance: simple
+---
+
+Here you'll learn how to build the most common type of LLM application: a chatbot.
+There's a surprising amount of value in a chatbot that simply has a custom [system prompt](system-prompt.qmd) with instructions and useful knowledge (e.g., proprietary documents, data schemas, etc).
+Adding [tools](tools.qmd) as well can lead to even more compelling user experiences like [querychat](https://github.com/posit-dev/querychat) and [sidebot](https://github.com/jcheng5/py-sidebot).
+
+Chatbots are also a great use-case for chatlas since it makes multi-turn conversations trivial to implement.
+Various web frameworks like [Shiny](https://shiny.posit.co/), [Streamlit](https://streamlit.io/), Gradio, etc., provide a chat interface that you can combine with chatlas on the backend.
+You can even combine chatlas with something like [textualize](https://textualize.io) to create a fancy terminal-based chatbot.
+
+## Web-based
+
+### Shiny
+
+[Shiny](https://shiny.posit.co/py/) is a great option for building a chatbot with chatlas.
+To get a basic [Shiny chatbot](https://shiny.posit.co/py/docs/genai-chatbots.html), pass a chatlas [stream](stream.qmd) to the `.append_message_stream()` method. Some reasons to use Shiny include:
+
+1. Easy to [bookmark](https://shiny.posit.co/py/docs/genai-chatbots.html#bookmark-messages) chat history
+2. Easy to [embed](https://shiny.posit.co/py/docs/genai-chatbots.html#layout) inside a larger app
+3. Easy to [theme](https://shiny.posit.co/py/docs/genai-chatbots.html#theming) and customize
+4. Easy to add features like [input suggestions](https://shiny.posit.co/py/docs/genai-chatbots.html#suggest-input). 
+5. [Reactivity](https://shiny.posit.co/py/docs/reactive-foundations.html) can efficiently handle updates without caching/state management hacks
+
+<details>
+<summary>Show <code>app.py</code></summary>
+
+```python
+from chatlas import ChatAnthropic
+from shiny.express import ui
+
+chat_client = ChatAnthropic()
+
+chat = ui.Chat(
+    id="chat",
+    messages=["Hello! How can I help you today?"],
+)
+chat.ui()
+
+chat.enable_bookmarking(chat_client, bookmark_store="url")
+
+@chat.on_user_submit
+async def _(user_input: str):
+    # Async stream helps scale to many concurrent users
+    response = await chat_client.stream_async(user_input)
+    await chat.append_message_stream(response)
+```
+</details>
+
+
+![Screenshot of a Shiny chatbot.](/images/chatbot-shiny.png){class="rounded shadow lightbox mt-3" width="75%"}
+
+### Gradio
+
+[Gradio](https://www.gradio.app/) is another option for building a chatbot with chatlas. 
+To get a basic [Gradio chatbot](https://www.gradio.app/guides/creating-a-chatbot-fast), pass a generator function to the `gr.ChatInterface` component's `fn` argument, and make sure the generator yields the entire response as it is [streamed](stream.qmd).
+
+<details>
+<summary>Show <code>app.py</code></summary>
+
+```python
+import gradio as gr
+from chatlas import ChatOpenAI
+
+chat = ChatOpenAI()
+
+def generate(message, _):
+    res = ""
+    for chunk in chat.stream(message):
+        res += chunk
+        yield res
+
+gr.ChatInterface(fn=generate, type="messages").launch()
+```
+
+</details>
+
+![Screenshot of a gradio chatbot.](/images/chatbot-gradio.png){class="rounded shadow lightbox mt-3" width="75%"}
+
+### Streamlit
+
+Building a chatbot that retains conversation history with [streamlit](https://streamlit.io/) is bit more involved since streamlit re-executes the script from top to bottom on every change.
+
+To workaround this, you can use the `st.session_state` object to store the chat history:
+
+<details>
+<summary>Show <code>app.py</code></summary>
+
+```python
+import streamlit as st
+from chatlas import ChatOpenAI, Turn
+
+with st.sidebar:
+    openai_api_key = st.text_input(
+        "OpenAI API Key", key="chatbot_api_key", type="password"
+    )
+    "[Get an OpenAI API key](https://platform.openai.com/account/api-keys)"
+    "[View the source code](https://github.com/streamlit/llm-examples/blob/main/Chatbot.py)"
+
+st.title("💬 Chatbot")
+
+if "turns" not in st.session_state:
+    st.session_state["turns"] = [
+        Turn(role="assistant", contents="How can I help you?"),
+    ]
+
+turns: list[Turn] = st.session_state.turns
+
+for turn in turns:
+    st.chat_message(turn.role).write(turn.text)
+
+
+if prompt := st.chat_input():
+    if not openai_api_key:
+        st.info("Please add your OpenAI API key to continue.")
+        st.stop()
+
+    st.chat_message("user").write(prompt)
+
+    chat = ChatOpenAI(api_key=openai_api_key)
+    chat.set_turns(turns)
+    response = chat.stream(prompt)
+
+    with st.chat_message("assistant"):
+        st.write_stream(response)
+
+    st.session_state["turns"] = chat.get_turns()
+```
+
+</details>
+
+
+![Screenshot of a streamlit chatbot.](/images/chatbot-streamlit.png){class="rounded shadow lightbox mt-3" width="75%"}
+
+## Terminal-based
+
+[Textualize](https://www.textualize.io/) is an excellent option for building a chatbot in the terminal.
+
+chatlas itself does, in a sense, already comes with a terminal-based "chatbot" through the [`.chat()` method](chat.qmd).
+However, if you want to build a more fully featured terminal-based chatbot with things like hyperlinks, proper scrolling, etc., [Textual](https://textual.textualize.io/) would be a great option for doing so.
+
+The code below implements a basic [Textual](https://textual.textualize.io/) chatbot -- the implementation derives from [this blog post](https://chaoticengineer.hashnode.dev/textual-and-chatgpt).
+
+
+<details>
+<summary>Show <code>app.py</code></summary>
+
+```python
+from chatlas import ChatOpenAI
+from textual.app import App, ComposeResult
+from textual.binding import Binding
+from textual.containers import Horizontal, ScrollableContainer
+from textual.widget import Widget
+from textual.widgets import Button, Footer, Header, Input, Markdown
+
+
+class FocusableContainer(ScrollableContainer, can_focus=True):
+    """Focusable container widget."""
+
+
+class MessageBox(Widget, can_focus=True):
+    """Box widget for a message."""
+
+    def __init__(self, text: str, role: str = "assistant") -> None:
+        self.text = text
+        self.role = role
+        super().__init__()
+
+    def compose(self) -> ComposeResult:
+        """Yield message component."""
+        yield Markdown(self.text, classes=f"message {self.role}")
+
+
+class ChatApp(App):
+    """Chat app."""
+
+    TITLE = "chatui"
+    SUB_TITLE = "A Chat interface directly in your terminal"
+    CSS_PATH = "static/styles.css"
+
+    BINDINGS = [
+        Binding("q", "quit", "Quit", key_display="Q / CTRL+C"),
+        ("ctrl+x", "clear", "Clear"),
+    ]
+
+    def compose(self) -> ComposeResult:
+        """Yield components."""
+        yield Header()
+        with FocusableContainer(id="conversation_box"):
+            yield MessageBox("Hi! How can I help you today?")
+        with Horizontal(id="input_box"):
+            yield Input(placeholder="Enter your message", id="message_input")
+            yield Button(label="Send", variant="success", id="send_button")
+        yield Footer()
+
+    def on_mount(self) -> None:
+        """Start the conversation and focus input widget."""
+        self.chat_client = ChatOpenAI()
+        self.query_one(Input).focus()
+
+    def action_clear(self) -> None:
+        """Clear the conversation and reset widgets."""
+        self.chat_client.set_turns([])
+        conversation_box = self.query_one("#conversation_box")
+        conversation_box.remove()
+        self.mount(FocusableContainer(id="conversation_box"))
+
+    async def on_button_pressed(self) -> None:
+        """Process when send was pressed."""
+        await self.process_conversation()
+
+    async def on_input_submitted(self) -> None:
+        """Process when input was submitted."""
+        await self.process_conversation()
+
+    async def process_conversation(self) -> None:
+        """Process a single question/answer in conversation."""
+        message_input = self.query_one("#message_input", Input)
+        # Don't do anything if input is empty
+        if message_input.value == "":
+            return
+        button = self.query_one("#send_button")
+        conversation_box = self.query_one("#conversation_box")
+
+        self.toggle_widgets(message_input, button)
+
+        # Create question message, add it to the conversation and scroll down
+        user_box = MessageBox(message_input.value, "user")
+        conversation_box.mount(user_box)
+        conversation_box.scroll_end(animate=False)
+
+        # Clean up the input without triggering events
+        with message_input.prevent(Input.Changed):
+            message_input.value = ""
+
+        # Take answer from the chat and add it to the conversation
+        response = await self.chat_client.chat_async(user_box.text)
+        content = await response.get_content()
+        conversation_box.mount(
+            MessageBox(content.removeprefix("\n").removeprefix("\n"))
+        )
+
+        self.toggle_widgets(message_input, button)
+        # For some reason single scroll doesn't work
+        conversation_box.scroll_end(animate=False)
+        conversation_box.scroll_end(animate=False)
+
+    def toggle_widgets(self, *widgets: Widget) -> None:
+        """Toggle a list of widgets."""
+        for w in widgets:
+            w.disabled = not w.disabled
+
+
+if __name__ == "__main__":
+    ChatApp().run()
+```
+
+</details>
+
+<details>
+<summary>Show <code>static/styles.css</code></summary>
+
+```css
+MessageBox {
+    height: auto;
+}
+
+.message {
+    border: tall solid #343a40;
+}
+
+.assistant {
+    margin: 1 25 1 0;
+}
+
+.user {
+    margin: 1 0 1 25;
+}
+
+#input_box {
+    dock: bottom;
+    height: auto;
+    width: 100%;
+    margin: 0 0 2 0;
+    align-horizontal: center;
+    overflow-y: hidden;
+}
+
+#message_input {
+    width: 50%;
+    background: #343a40;
+}
+
+#send_button {
+    width: auto;
+}
+```
+
+</details>
+
+
+![Screenshot of a textual chatbot.](/images/chatbot-textual.png){class="rounded shadow lightbox mt-3" width="75%"}

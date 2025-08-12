@@ -2,13 +2,13 @@
 
 ```python
 ChatGithub(
-    system_prompt=None
-    turns=None
-    model=None
-    api_key=None
-    base_url='https://models.inference.ai.azure.com/'
-    seed=MISSING
-    kwargs=None
+    system_prompt=None,
+    turns=None,
+    model=None,
+    api_key=None,
+    base_url='https://models.inference.ai.azure.com/',
+    seed=MISSING,
+    kwargs=None,
 )
 ```
 
@@ -25,12 +25,6 @@ which are fined tuned for specific tasks.
 
 Sign up at <https://github.com/marketplace/models> to get an API key.
 You may need to apply for and be accepted into a beta access program.
-:::
-
-::: {.callout-note}
-## Python requirements
-
-`ChatGithub` requires the `openai` package (e.g., `pip install openai`).
 :::
 
 ## Examples {.doc-section .doc-section-examples}
