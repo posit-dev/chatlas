@@ -127,3 +127,14 @@ class DatabricksProvider(OpenAIProvider):
             api_key="no-token",  # A placeholder to pass validations, this will not be used
             http_client=httpx.AsyncClient(auth=client._client.auth),
         )
+
+    # Databricks doesn't support stream_options
+    def _chat_perform_args(
+        self, stream, turns, tools, data_model=None, kwargs=None
+    ) -> "SubmitInputArgs":
+        kwargs2 = super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
+
+        if "stream_options" in kwargs2:
+            del kwargs2["stream_options"]
+
+        return kwargs2

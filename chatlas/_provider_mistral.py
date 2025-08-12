@@ -152,21 +152,26 @@ class MistralProvider(OpenAIProvider):
             kwargs=kwargs,
         )
 
+    # Mistral is essentially OpenAI-compatible, with a couple small differences.
+    # We _could_ bring in the Mistral SDK and use it directly for more precise typing,
+    # etc., but for now that doesn't seem worth it.
     def _chat_perform_args(
-        self,
-        stream: bool,
-        turns,
-        tools,
-        data_model=None,
-        kwargs=None,
+        self, stream, turns, tools, data_model=None, kwargs=None
     ) -> "SubmitInputArgs":
         # Get the base arguments from OpenAI provider
-        kwargs_full = super()._chat_perform_args(
-            stream, turns, tools, data_model, kwargs
-        )
+        kwargs2 = super()._chat_perform_args(stream, turns, tools, data_model, kwargs)
 
         # Mistral doesn't support stream_options
-        if "stream_options" in kwargs_full:
-            del kwargs_full["stream_options"]
+        if "stream_options" in kwargs2:
+            del kwargs2["stream_options"]
 
-        return kwargs_full
+        # Mistral wants random_seed, not seed
+        if seed := kwargs2.pop("seed", None):
+            if isinstance(seed, int):
+                kwargs2["extra_body"] = {"random_seed": seed}
+            elif seed is not None:
+                raise ValueError(
+                    "MistralProvider only accepts an integer seed, or None."
+                )
+
+        return kwargs2

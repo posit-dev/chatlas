@@ -310,8 +310,7 @@ class OpenAIProvider(
                 del kwargs_full["tools"]
 
         if stream and "stream_options" not in kwargs_full:
-            if self.__class__.__name__ != "DatabricksProvider":
-                kwargs_full["stream_options"] = {"include_usage": True}
+            kwargs_full["stream_options"] = {"include_usage": True}
 
         return kwargs_full
 
