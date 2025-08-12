@@ -1,8 +1,9 @@
 from pathlib import Path
 
-from _utils import generate_typeddict_code, write_code_to_file
 from openai import AsyncAzureOpenAI, AsyncOpenAI
 from openai.resources.chat import Completions
+
+from _utils import generate_typeddict_code, write_code_to_file
 
 types_dir = Path(__file__).parent.parent / "chatlas" / "types"
 provider_dir = types_dir / "openai"
