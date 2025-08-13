@@ -43,7 +43,7 @@ from ._display import (
 )
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
-from ._provider import Provider, StandardModelParams, SubmitInputArgsT
+from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
 from ._tokens import compute_cost, get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
@@ -127,6 +127,30 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         # Chat input parameters from `set_model_params()`
         self._standard_model_params: StandardModelParams = {}
         self._submit_input_kwargs: Optional[SubmitInputArgsT] = None
+
+    def list_models(self) -> list[ModelInfo]:
+        """
+        List all models available for the provider.
+
+        Useful for not only getting model ids, but also getting model metadata such as pricing.
+
+        Examples
+        --------
+        ```python
+        import pandas as pd
+        from chatlas import ChatOpenAI
+
+        chat = ChatOpenAI()
+        pd.DataFrame(chat.list_models())
+        ```
+
+        Returns
+        -------
+        list[ModelInfo]
+            A list of ModelInfo objects representing the available models. The list is
+            sorted by creation date.
+        """
+        return self.provider.list_models()
 
     def get_turns(
         self,

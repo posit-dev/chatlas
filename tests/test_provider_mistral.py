@@ -8,6 +8,7 @@ from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote,
+    assert_list_models,
     assert_turns_existing,
     assert_turns_system,
 )
@@ -68,6 +69,9 @@ def test_data_extraction():
 
 
 def test_mistral_images():
-
     assert_images_inline(ChatMistral)
     assert_images_remote(ChatMistral)
+
+
+def test_huggingface_model_list():
+    assert_list_models(ChatMistral)

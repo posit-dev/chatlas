@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from datetime import date
 from typing import (
     AsyncIterable,
     Generic,
@@ -16,7 +17,7 @@ from pydantic import BaseModel
 from ._content import Content
 from ._tools import Tool
 from ._turn import Turn
-from ._typing_extensions import TypedDict
+from ._typing_extensions import NotRequired, TypedDict
 
 ChatCompletionT = TypeVar("ChatCompletionT")
 ChatCompletionChunkT = TypeVar("ChatCompletionChunkT")
@@ -33,6 +34,37 @@ SubmitInputArgsT = TypeVar("SubmitInputArgsT", bound=AnyTypeDict)
 A TypedDict representing the provider specific arguments that can specified when
 submitting input to a model provider.
 """
+
+
+class ModelInfo(TypedDict):
+    "Information returned from the `.list_models()` method"
+
+    id: str
+    "The model ID (this gets passed to the `model` parameter of the `Chat` constructor)"
+
+    cached_input: float | None
+    "The cost per user token in USD per million tokens for cached input"
+
+    input: float | None
+    "The cost per user token in USD per million tokens"
+
+    output: float | None
+    "The cost per assistant token in USD per million tokens"
+
+    created_at: NotRequired[date]
+    "The date the model was created"
+
+    name: NotRequired[str]
+    "The model name"
+
+    owned_by: NotRequired[str]
+    "The owner of the model"
+
+    size: NotRequired[int]
+    "The size of the model in bytes"
+
+    provider: NotRequired[str]
+    "The provider of the model"
 
 
 class StandardModelParams(TypedDict, total=False):
@@ -101,6 +133,13 @@ class Provider(
         Get the model used by the provider
         """
         return self._model
+
+    @abstractmethod
+    def list_models(self) -> list[ModelInfo]:
+        """
+        List all available models for the provider.
+        """
+        pass
 
     @overload
     @abstractmethod

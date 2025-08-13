@@ -1,12 +1,14 @@
 import os
 
 import pytest
+
 from chatlas import ChatOpenRouter
 
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote,
+    assert_list_models,
     assert_tools_simple,
 )
 
@@ -66,3 +68,7 @@ def test_openrouter_images():
 
     assert_images_inline(chat_fun)
     assert_images_remote(chat_fun)
+
+
+def test_openrouter_list_models():
+    assert_list_models(ChatOpenRouter)

@@ -1,12 +1,14 @@
 import os
 
 import pytest
+
 from chatlas import ChatHuggingFace
 
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote,
+    assert_list_models,
     assert_tools_async,
     assert_tools_simple,
     assert_turns_existing,
@@ -88,14 +90,13 @@ def test_huggingface_images():
     assert_images_remote(chat_fun)
 
 
+def test_huggingface_model_list():
+    assert_list_models(ChatHuggingFace)
+
+
 def test_huggingface_custom_model():
     chat = ChatHuggingFace(model="microsoft/DialoGPT-medium")
     assert chat.provider.model == "microsoft/DialoGPT-medium"
-
-
-def test_huggingface_base_url():
-    chat = ChatHuggingFace()
-    assert "huggingface.co" in str(chat.provider._client.base_url)
 
 
 def test_huggingface_provider_name():

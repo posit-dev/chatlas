@@ -11,6 +11,7 @@ from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote_error,
+    assert_list_models,
     assert_pdf_local,
     assert_tools_parallel,
     assert_tools_sequential,
@@ -160,3 +161,7 @@ def test_images_remote_error():
 @retry_gemini_call
 def test_google_pdfs():
     assert_pdf_local(chat_func)
+
+
+def test_google_list_models():
+    assert_list_models(ChatGoogle)

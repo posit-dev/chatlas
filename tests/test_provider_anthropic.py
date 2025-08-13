@@ -2,12 +2,14 @@ import base64
 
 import httpx
 import pytest
+
 from chatlas import ChatAnthropic, ContentToolResultImage
 
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote,
+    assert_list_models,
     assert_pdf_local,
     assert_tools_async,
     assert_tools_parallel,
@@ -126,3 +128,7 @@ def test_anthropic_image_tool(test_images_dir):
 
 def test_anthropic_custom_http_client():
     ChatAnthropic(kwargs={"http_client": httpx.AsyncClient()})
+
+
+def test_anthropic_list_models():
+    assert_list_models(ChatAnthropic)

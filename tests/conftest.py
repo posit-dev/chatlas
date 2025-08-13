@@ -260,6 +260,17 @@ def assert_pdf_local(chat_fun: ChatFun):
     assert "red delicious" in str(response).lower()
 
 
+def assert_list_models(chat_fun: ChatFun):
+    chat = chat_fun()
+    models = chat.list_models()
+    assert models is not None
+    assert isinstance(models, list)
+    assert len(models) > 0, (
+        f"{chat_fun.__name__}().list_models() returned an empty list"
+    )
+    assert "id" in models[0]
+
+
 retry_api_call = retry(
     wait=wait_exponential(min=1, max=60),
     reraise=True,
