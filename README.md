@@ -1,4 +1,4 @@
-# chatlas <a href="https://posit-dev.github.io/chatlas"><img src="docs/logos/hex/logo.png" align="right" height="138" alt="chatlas website" /></a>
+# chatlas <a href="https://posit-dev.github.io/chatlas"><img src="https://posit-dev.github.io/chatlas/logos/hex/logo.png" align="right" height="138" alt="chatlas website" /></a>
 
 <p>
 <!-- badges start -->
@@ -54,7 +54,7 @@ chat.chat("How's the weather in San Francisco?")
 ```
 
 
-<img src="docs/images/chatlas-hello.png" alt="Model response output to the user query: 'How's the weather in San Francisco?'" width="67%" style="display: block; margin-left: auto; margin-right: auto">
+<img src="https://posit-dev.github.io/chatlas/images/chatlas-hello.png" alt="Model response output to the user query: 'How's the weather in San Francisco?'" width="67%" style="display: block; margin-left: auto; margin-right: auto">
 
 
 Learn more at <https://posit-dev.github.io/chatlas>
