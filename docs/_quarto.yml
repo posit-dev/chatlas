@@ -2,7 +2,8 @@ project:
   type: website
   resources:
     - objects.txt
-    - images/logo.png
+    - images/
+    - logos/
 
 metadata-files:
   - _sidebar.yml
