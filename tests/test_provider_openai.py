@@ -1,11 +1,13 @@
 import httpx
 import pytest
+
 from chatlas import ChatOpenAI
 
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote,
+    assert_list_models,
     assert_pdf_local,
     assert_tools_async,
     assert_tools_parallel,
@@ -98,3 +100,7 @@ def test_openai_pdf():
 
 def test_openai_custom_http_client():
     ChatOpenAI(kwargs={"http_client": httpx.AsyncClient()})
+
+
+def test_openai_list_models():
+    assert_list_models(ChatOpenAI)

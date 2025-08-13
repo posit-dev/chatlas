@@ -21,8 +21,8 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import Provider, StandardModelParamNames, StandardModelParams
-from ._tokens import tokens_log
+from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
+from ._tokens import get_token_pricing, tokens_log
 from ._tools import Tool
 from ._turn import Turn, user_turn
 
@@ -179,6 +179,30 @@ class GoogleProvider(
         }
 
         self._client = genai.Client(**kwargs_full)
+
+    def list_models(self):
+        models = self._client.models.list()
+
+        res: list[ModelInfo] = []
+        for m in models:
+            name = m.name or "[unknown]"
+            pricing = get_token_pricing(self.name, name) or {}
+            info: ModelInfo = {
+                "id": name,
+                "name": m.display_name or "[unknown]",
+                "cached_input": pricing.get("cached_input"),
+                "input": pricing.get("input"),
+                "output": pricing.get("output"),
+            }
+            res.append(info)
+
+        # Sort list by created_by field (more recent first)
+        res.sort(
+            key=lambda x: x.get("created", 0),
+            reverse=True,
+        )
+
+        return res
 
     @overload
     def chat_perform(

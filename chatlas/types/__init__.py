@@ -1,6 +1,6 @@
-from .._chat import (  # noqa: A005
+from .._chat import (
     ChatResponse,
-    ChatResponseAsync,
+    ChatResponseAsync,  # noqa: A005
     SubmitInputArgsT,
 )
 from .._content import (
@@ -14,6 +14,7 @@ from .._content import (
     ContentToolResult,
     ImageContentTypes,
 )
+from .._provider import ModelInfo
 from .._tokens import TokenUsage
 from .._utils import MISSING, MISSING_TYPE
 
@@ -33,4 +34,5 @@ __all__ = (
     "TokenUsage",
     "MISSING_TYPE",
     "MISSING",
+    "ModelInfo",
 )
