@@ -1,11 +1,8 @@
 import os
 
 import pytest
-from chatlas import ChatMistral
 
-do_test = os.getenv("TEST_MISTRAL", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping Mistral tests", allow_module_level=True)
+from chatlas import ChatMistral
 
 from .conftest import (
     assert_data_extraction,
@@ -14,6 +11,10 @@ from .conftest import (
     assert_turns_existing,
     assert_turns_system,
 )
+
+api_key = os.getenv("MISTRAL_API_KEY")
+if api_key is None:
+    pytest.skip("MISTRAL_API_KEY is not set; skipping tests", allow_module_level=True)
 
 
 def test_mistral_simple_request():

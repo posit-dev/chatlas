@@ -29,15 +29,13 @@ def ChatMistral(
     Mistral AI provides high-performance language models through their API platform.
 
     Prerequisites
-    --------------
+    -------------
+
+    ::: {.callout-note}
+    ## API credentials
 
     Get your API key from https://console.mistral.ai/api-keys.
-
-    Known limitations
-    -----------------
-
-    * Tool calling may be unstable.
-    * Images require a model that supports vision.
+    :::
 
     Examples
     --------
@@ -48,6 +46,12 @@ def ChatMistral(
     chat = ChatMistral(api_key=os.getenv("MISTRAL_API_KEY"))
     chat.chat("Tell me three jokes about statisticians")
     ```
+
+    Known limitations
+    -----------------
+
+    * Tool calling may be unstable.
+    * Images require a model that supports vision.
 
     Parameters
     ----------
