@@ -410,7 +410,9 @@ class OpenAIProvider(
                     if isinstance(x, ContentText):
                         content_parts.append({"type": "text", "text": x.text})
                     elif isinstance(x, ContentJson):
-                        content_parts.append({"type": "text", "text": ""})
+                        content_parts.append(
+                            {"type": "text", "text": "<structured data/>"}
+                        )
                     elif isinstance(x, ContentToolRequest):
                         tool_calls.append(
                             {
@@ -449,7 +451,7 @@ class OpenAIProvider(
                     if isinstance(x, ContentText):
                         contents.append({"type": "text", "text": x.text})
                     elif isinstance(x, ContentJson):
-                        contents.append({"type": "text", "text": ""})
+                        contents.append({"type": "text", "text": "<structured data/>"})
                     elif isinstance(x, ContentPDF):
                         contents.append(
                             {
