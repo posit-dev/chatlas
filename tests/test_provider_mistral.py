@@ -68,8 +68,6 @@ def test_data_extraction():
 
 
 def test_mistral_images():
-    def chat_fun(**kwargs):
-        return ChatMistral(model="pixtral-12b-latest", **kwargs)
 
-    assert_images_inline(chat_fun)
-    assert_images_remote(chat_fun)
+    assert_images_inline(ChatMistral)
+    assert_images_remote(ChatMistral)
