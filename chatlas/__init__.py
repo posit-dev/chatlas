@@ -7,7 +7,9 @@ from ._content_pdf import content_pdf_file, content_pdf_url
 from ._interpolate import interpolate, interpolate_file
 from ._provider import Provider
 from ._provider_anthropic import ChatAnthropic, ChatBedrockAnthropic
+from ._provider_cloudflare import ChatCloudflare
 from ._provider_databricks import ChatDatabricks
+from ._provider_deepseek import ChatDeepSeek
 from ._provider_github import ChatGithub
 from ._provider_google import ChatGoogle, ChatVertex
 from ._provider_groq import ChatGroq
@@ -15,6 +17,7 @@ from ._provider_huggingface import ChatHuggingFace
 from ._provider_mistral import ChatMistral
 from ._provider_ollama import ChatOllama
 from ._provider_openai import ChatAzureOpenAI, ChatOpenAI
+from ._provider_openrouter import ChatOpenRouter
 from ._provider_perplexity import ChatPerplexity
 from ._provider_portkey import ChatPortkey
 from ._provider_snowflake import ChatSnowflake
@@ -31,7 +34,9 @@ __all__ = (
     "ChatAnthropic",
     "ChatAuto",
     "ChatBedrockAnthropic",
+    "ChatCloudflare",
     "ChatDatabricks",
+    "ChatDeepSeek",
     "ChatGithub",
     "ChatGoogle",
     "ChatGroq",
@@ -39,6 +44,7 @@ __all__ = (
     "ChatMistral",
     "ChatOllama",
     "ChatOpenAI",
+    "ChatOpenRouter",
     "ChatAzureOpenAI",
     "ChatPerplexity",
     "ChatPortkey",

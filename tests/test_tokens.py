@@ -1,3 +1,5 @@
+from typing import Optional
+
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
 from chatlas._provider_openai import OpenAIAzureProvider, OpenAIProvider
 from chatlas._tokens import (
@@ -7,6 +9,7 @@ from chatlas._tokens import (
     tokens_log,
     tokens_reset,
 )
+from pydantic import BaseModel
 
 
 def test_tokens_method():
@@ -77,9 +80,12 @@ def test_get_token_prices():
     assert pricing is not None
     assert pricing["provider"] == "OpenAI"
     assert pricing["model"] == "o1-mini"
-    assert isinstance(pricing["cached_input"], float)
     assert isinstance(pricing["input"], float)
-    assert isinstance(pricing["output"], float)
+    # cached_input and output might be optional
+    if "cached_input" in pricing:
+        assert isinstance(pricing["cached_input"], float)
+    if "output" in pricing:
+        assert isinstance(pricing["output"], float)
 
 
 def test_compute_cost():
@@ -126,3 +132,27 @@ def test_can_retrieve_and_log_tokens():
     assert usage[1]["cost"] is None
 
     tokens_reset()
+
+
+class TokenPricePydantic(BaseModel):
+    """
+    Pydantic model that corresponds to the TokenPrice TypedDict.
+    Used for validation of the prices.json data.
+    """
+
+    provider: str
+    model: str
+    cached_input: Optional[float] = None  # Not all models have cached input
+    input: float
+    output: Optional[float] = None  # Made optional for embedding models
+
+
+def test_prices_json_validates_against_typeddict():
+    from chatlas._tokens import pricing_list
+
+    try:
+        validated_entries = [TokenPricePydantic(**entry) for entry in pricing_list]
+    except Exception as e:
+        raise AssertionError(f"Validation failed for prices.json: {e}")
+
+    assert len(validated_entries) == len(pricing_list)

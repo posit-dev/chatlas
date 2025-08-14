@@ -11,10 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* Added `ChatCloudflare()` for chatting via [Cloudflare AI](https://developers.cloudflare.com/workers-ai/get-started/rest-api/). (#150) 
+* Added `ChatDeepSeek()` for chatting via [DeepSeek](https://www.deepseek.com/). (#147)
+* Added `ChatOpenRouter()` for chatting via [Open Router](https://openrouter.ai/). (#148)
 * Added `ChatHuggingFace()` for chatting via [Hugging Face](https://huggingface.co/). (#144)
 * Added `ChatMistral()` for chatting via [Mistral AI](https://mistral.ai/). (#145)
 * Added `ChatPortkey()` for chatting via [Portkey AI](https://portkey.ai/). (#143)
 
+### Bug fixes
+
+* Fixed an issue where chatting with some models was leading to `KeyError: 'cached_input'`. (#149)
 
 ## [0.9.2] - 2025-08-08
 

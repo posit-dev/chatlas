@@ -1,8 +1,9 @@
 from pathlib import Path
 
-from _utils import generate_typeddict_code, write_code_to_file
 from google.genai import Client
 from google.genai.models import Models
+
+from _utils import generate_typeddict_code, write_code_to_file
 
 types_dir = Path(__file__).parent.parent / "chatlas" / "types"
 provider_dir = types_dir / "google"

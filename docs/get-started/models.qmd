@@ -17,20 +17,22 @@ To see the pre-requisites for a given provider, visit the relevant usage page in
 | Name                     | Usage                                                    | Enterprise? |
 |--------------------------|----------------------------------------------------------|------------|
 | Anthropic (Claude)       | [`ChatAnthropic()`](../reference/ChatAnthropic.qmd)     |    |
-| GitHub model marketplace | [`ChatGithub()`](../reference/ChatGithub.qmd)           |    |
-| Google (Gemini)          | [`ChatGoogle()`](../reference/ChatGoogle.qmd)           |    |
-| Groq                     | [`ChatGroq()`](../reference/ChatGroq.qmd)               |    |
-| Hugging Face             | [`ChatHuggingFace()`](../reference/ChatHuggingFace.qmd) |    |
-| Ollama local models      | [`ChatOllama()`](../reference/ChatOllama.qmd)           |    |
-| OpenAI                   | [`ChatOpenAI()`](../reference/ChatOpenAI.qmd)           |    |
-| perplexity.ai            | [`ChatPerplexity()`](../reference/ChatPerplexity.qmd)   |    |
 | AWS Bedrock              | [`ChatBedrockAnthropic()`](../reference/ChatBedrockAnthropic.qmd) | ✅ |
+| OpenAI                   | [`ChatOpenAI()`](../reference/ChatOpenAI.qmd)           |    |
 | Azure OpenAI             | [`ChatAzureOpenAI()`](../reference/ChatAzureOpenAI.qmd) | ✅ |
-| Databricks               | [`ChatDatabricks()`](../reference/ChatDatabricks.qmd)   | ✅ |
-| Mistral                  | [`ChatMistral()`](../reference/ChatMistral.qmd)         | ✅ |
-| Portkey                  | [`ChatPortkey()`](../reference/ChatPortkey.qmd)         | ✅ |
-| Snowflake Cortex         | [`ChatSnowflake()`](../reference/ChatSnowflake.qmd)     | ✅ |
 | Vertex AI                | [`ChatVertex()`](../reference/ChatVertex.qmd)           | ✅ |
+| GitHub model marketplace | [`ChatGithub()`](../reference/ChatGithub.qmd)           |    |
+| Ollama (local models)    | [`ChatOllama()`](../reference/ChatOllama.qmd)           |    |
+| Open Router              | [`ChatOpenRouter()`](../reference/ChatOpenRouter.qmd)   |    |
+| DeepSeek                 | [`ChatDeepSeek()`](../reference/ChatDeepSeek.qmd)       |    |
+| Hugging Face             | [`ChatHuggingFace()`](../reference/ChatHuggingFace.qmd) |    |
+| Databricks               | [`ChatDatabricks()`](../reference/ChatDatabricks.qmd)   | ✅ |
+| Snowflake Cortex         | [`ChatSnowflake()`](../reference/ChatSnowflake.qmd)     | ✅ |
+| Mistral                  | [`ChatMistral()`](../reference/ChatMistral.qmd)         | ✅ |
+| Groq                     | [`ChatGroq()`](../reference/ChatGroq.qmd)               |    |
+| perplexity.ai            | [`ChatPerplexity()`](../reference/ChatPerplexity.qmd)   |    |
+| Cloudflare               | [`ChatCloudflare()`](../reference/ChatCloudflare.qmd)   |    |
+| Portkey                  | [`ChatPortkey()`](../reference/ChatPortkey.qmd)         | ✅ |
 
 
 ::: callout-note

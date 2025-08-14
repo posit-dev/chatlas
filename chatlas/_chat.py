@@ -395,8 +395,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 )
 
             input_token_price = price_token["input"] / 1e6
-            output_token_price = price_token["output"] / 1e6
-            cached_token_price = price_token["cached_input"] / 1e6
+            output_token_price = price_token.get("output", 0) / 1e6
+            cached_token_price = price_token.get("cached_input", 0) / 1e6
 
         if len(turns_tokens) == 0:
             return 0.0

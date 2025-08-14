@@ -2,7 +2,8 @@ project:
   type: website
   resources:
     - objects.txt
-    - images/logo.png
+    - images/
+    - logos/
 
 metadata-files:
   - _sidebar.yml
@@ -116,7 +117,9 @@ quartodoc:
         - ChatAuto
         - ChatAzureOpenAI
         - ChatBedrockAnthropic
+        - ChatCloudflare
         - ChatDatabricks
+        - ChatDeepSeek
         - ChatGithub
         - ChatGoogle
         - ChatGroq
@@ -124,6 +127,7 @@ quartodoc:
         - ChatMistral
         - ChatOllama
         - ChatOpenAI
+        - ChatOpenRouter
         - ChatPerplexity
         - ChatPortkey
         - ChatSnowflake
