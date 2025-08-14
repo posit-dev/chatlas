@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `ChatMistral()` for chatting via [Mistral AI](https://mistral.ai/). (#145)
 * Added `ChatPortkey()` for chatting via [Portkey AI](https://portkey.ai/). (#143)
 
+### Changes
+
+* `ChatAnthropic()` now defaults to Claude Sonnet 4.0.
+
 ### Bug fixes
 
 * Fixed an issue where chatting with some models was leading to `KeyError: 'cached_input'`. (#149)

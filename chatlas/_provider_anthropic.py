@@ -163,7 +163,7 @@ def ChatAnthropic(
     """
 
     if model is None:
-        model = log_model_default("claude-3-7-sonnet-latest")
+        model = log_model_default("claude-sonnet-4-0")
 
     return Chat(
         provider=AnthropicProvider(
