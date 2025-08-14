@@ -503,8 +503,8 @@ Known limitations
 <p>In addition to choosing a model provider, you also need to choose a specific model from that provider. This is important because different models have different capabilities and performance characteristics. For example, some models are faster and cheaper, while others are more accurate and capable of handling more complex tasks.</p>
 <p>If you’re using <code>chatlas</code> inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g.&nbsp;<code>ChatAzureOpenAI()</code> and <code>ChatBedrockAnthropic()</code>). If you’re using <code>chatlas</code> for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:</p>
 <ul>
-<li><p><code>ChatOpenAI()</code> or <code>ChatAnthropic()</code> are both good places to start. <code>ChatOpenAI()</code> defaults to <strong>GPT-4.1</strong>, but you can use <code>model = "gpt-4.1-mini"</code> for a cheaper lower-quality model, or <code>model = "o1-mini"</code> for more complex reasoning. <code>ChatAnthropic()</code> is similarly good; it defaults to <strong>Claude 3.7 Sonnet</strong> which we have found to be particularly good at writing code.</p></li>
-<li><p><code>ChatGoogle()</code> is great for large prompts, because it has a much larger context window than other models. It allows up to 1 million tokens, compared to Claude 3.7 Sonnet’s 200k and GPT-4.1’s 128k.</p></li>
+<li><p><code>ChatOpenAI()</code> or <code>ChatAnthropic()</code> are both good places to start. <code>ChatOpenAI()</code> defaults to <strong>GPT-4.1</strong>, but you can use <code>model = "gpt-4.1-nano"</code> for a cheaper lower-quality model, or <code>model = "o3"</code> for more complex reasoning. <code>ChatAnthropic()</code> is similarly good; it defaults to <strong>Claude 4.0 Sonnet</strong> which we have found to be particularly good at writing code.</p></li>
+<li><p><code>ChatGoogle()</code> is a strong model with generous free tier (with the downside that <a href="https://ai.google.dev/gemini-api/terms#unpaid-services">your data is used</a> to improve the model), making it a great place to start if you don’t want to spend any money.</p></li>
 <li><p><code>ChatOllama()</code>, which uses <a href="https://ollama.com">Ollama</a>, allows you to run models on your own computer. The biggest models you can run locally aren’t as good as the state of the art hosted models, but they also don’t share your data and and are effectively free.</p></li>
 </ul>
 </section>
@@ -972,7 +972,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>
   </div>
 </footer>
-<script>var lightboxQuarto = GLightbox({"selector":".lightbox","openEffect":"zoom","loop":false,"closeEffect":"zoom","descPosition":"bottom"});
+<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","closeEffect":"zoom","loop":false,"descPosition":"bottom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
