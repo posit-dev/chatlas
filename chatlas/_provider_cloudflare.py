@@ -25,7 +25,7 @@ def ChatCloudflare(
     """
     Chat with a model hosted on Cloudflare Workers AI.
 
-    Cloudflare Works AI hosts a variety of open-source AI models.
+    Cloudflare Workers AI hosts a variety of open-source AI models.
 
     Prerequisites
     -------------
@@ -153,7 +153,7 @@ def ChatCloudflare(
     base_url = f"{cloudflare_api}/{account}/ai/v1/"
 
     return Chat(
-        provider=CloudflareProvider(
+        provider=OpenAIProvider(
             api_key=api_key,
             model=model,
             base_url=base_url,
@@ -163,10 +163,3 @@ def ChatCloudflare(
         ),
         system_prompt=system_prompt,
     )
-
-
-# TODO: need to treat tools like Google?
-
-
-class CloudflareProvider(OpenAIProvider):
-    pass
