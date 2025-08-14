@@ -522,7 +522,10 @@ class OpenAIProvider(
         contents: list[Content] = []
         if message.content is not None:
             if has_data_model:
-                data = orjson.loads(message.content)
+                data = message.content
+                # Some providers (e.g., Cloudflare) may already provide a dict
+                if not isinstance(data, dict):
+                    data = orjson.loads(data)
                 contents = [ContentJson(value=data)]
             else:
                 contents = [ContentText(text=message.content)]

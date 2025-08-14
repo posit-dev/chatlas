@@ -7,6 +7,7 @@ from ._content_pdf import content_pdf_file, content_pdf_url
 from ._interpolate import interpolate, interpolate_file
 from ._provider import Provider
 from ._provider_anthropic import ChatAnthropic, ChatBedrockAnthropic
+from ._provider_cloudflare import ChatCloudflare
 from ._provider_databricks import ChatDatabricks
 from ._provider_deepseek import ChatDeepSeek
 from ._provider_github import ChatGithub
@@ -32,6 +33,7 @@ __all__ = (
     "ChatAnthropic",
     "ChatAuto",
     "ChatBedrockAnthropic",
+    "ChatCloudflare",
     "ChatDatabricks",
     "ChatDeepSeek",
     "ChatGithub",

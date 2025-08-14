@@ -117,6 +117,7 @@ quartodoc:
         - ChatAuto
         - ChatAzureOpenAI
         - ChatBedrockAnthropic
+        - ChatCloudflare
         - ChatDatabricks
         - ChatDeepSeek
         - ChatGithub
