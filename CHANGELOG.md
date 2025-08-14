@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* Added `ChatCloudflare()` for chatting via [Cloudflare AI](https://developers.cloudflare.com/workers-ai/get-started/rest-api/). (#150) 
 * Added `ChatDeepSeek()` for chatting via [DeepSeek](https://www.deepseek.com/). (#147)
 * Added `ChatOpenRouter()` for chatting via [Open Router](https://openrouter.ai/). (#148)
 * Added `ChatHuggingFace()` for chatting via [Hugging Face](https://huggingface.co/). (#144)
