@@ -310,8 +310,7 @@ class OpenAIProvider(
                 del kwargs_full["tools"]
 
         if stream and "stream_options" not in kwargs_full:
-            if self.__class__.__name__ != "DatabricksProvider":
-                kwargs_full["stream_options"] = {"include_usage": True}
+            kwargs_full["stream_options"] = {"include_usage": True}
 
         return kwargs_full
 
@@ -411,7 +410,9 @@ class OpenAIProvider(
                     if isinstance(x, ContentText):
                         content_parts.append({"type": "text", "text": x.text})
                     elif isinstance(x, ContentJson):
-                        content_parts.append({"type": "text", "text": ""})
+                        content_parts.append(
+                            {"type": "text", "text": "<structured data/>"}
+                        )
                     elif isinstance(x, ContentToolRequest):
                         tool_calls.append(
                             {
@@ -450,7 +451,7 @@ class OpenAIProvider(
                     if isinstance(x, ContentText):
                         contents.append({"type": "text", "text": x.text})
                     elif isinstance(x, ContentJson):
-                        contents.append({"type": "text", "text": ""})
+                        contents.append({"type": "text", "text": "<structured data/>"})
                     elif isinstance(x, ContentPDF):
                         contents.append(
                             {

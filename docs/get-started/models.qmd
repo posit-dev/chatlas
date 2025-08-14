@@ -21,7 +21,7 @@ To see the pre-requisites for a given provider, visit the relevant usage page in
 | OpenAI                   | [`ChatOpenAI()`](../reference/ChatOpenAI.qmd)           |    |
 | Azure OpenAI             | [`ChatAzureOpenAI()`](../reference/ChatAzureOpenAI.qmd) | ✅ |
 | Google (Gemini)          | [`ChatGoogle()`](../reference/ChatGoogle.qmd)           |    |
-| Vertex AI                | [`ChatVertex()`](../reference/ChatVertex.qmd)           | ✅ |
+| Google (Vertex)          | [`ChatVertex()`](../reference/ChatVertex.qmd)           | ✅ |
 | GitHub model marketplace | [`ChatGithub()`](../reference/ChatGithub.qmd)           |    |
 | Ollama (local models)    | [`ChatOllama()`](../reference/ChatOllama.qmd)           |    |
 | Open Router              | [`ChatOpenRouter()`](../reference/ChatOpenRouter.qmd)   |    |
@@ -29,21 +29,26 @@ To see the pre-requisites for a given provider, visit the relevant usage page in
 | Hugging Face             | [`ChatHuggingFace()`](../reference/ChatHuggingFace.qmd) |    |
 | Databricks               | [`ChatDatabricks()`](../reference/ChatDatabricks.qmd)   | ✅ |
 | Snowflake Cortex         | [`ChatSnowflake()`](../reference/ChatSnowflake.qmd)     | ✅ |
+| Mistral                  | [`ChatMistral()`](../reference/ChatMistral.qmd)         | ✅ |
 | Groq                     | [`ChatGroq()`](../reference/ChatGroq.qmd)               |    |
 | perplexity.ai            | [`ChatPerplexity()`](../reference/ChatPerplexity.qmd)   |    |
 | Cloudflare               | [`ChatCloudflare()`](../reference/ChatCloudflare.qmd)   |    |
 | Portkey                  | [`ChatPortkey()`](../reference/ChatPortkey.qmd)         | ✅ |
 
 
-::: callout-note
-
+::: callout-tip
 ### Other providers
 
-If you want to use a model provider that isn't listed in the table above, you have two options:
+To use chatlas with a provider not listed in the table above, you have two options:
 
 1. If the model provider is OpenAI compatible (i.e., it can be used with the [`openai` Python SDK](https://github.com/openai/openai-python?tab=readme-ov-file#configuring-the-http-client)), use `ChatOpenAI()` with the appropriate `base_url` and `api_key`.
 2. If you're motivated, implement a new provider by subclassing [`Provider`](https://github.com/posit-dev/chatlas/blob/main/chatlas/_provider.py) and implementing the required methods.
+:::
 
+::: callout-warning
+### Known limitations
+
+Some providers may have a limited amount of support for things like tool calling, structured data extraction, images, etc. In this case, the provider's reference page should include a known limitations section describing the limitations.
 :::
 
 ### Model choice
