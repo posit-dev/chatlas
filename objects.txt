@@ -24,6 +24,8 @@ chatlas.ChatGroq py:function 1 reference/ChatGroq.html#chatlas.ChatGroq -
 chatlas._provider_groq.ChatGroq py:function 1 reference/ChatGroq.html#chatlas.ChatGroq chatlas.ChatGroq
 chatlas.ChatHuggingFace py:function 1 reference/ChatHuggingFace.html#chatlas.ChatHuggingFace -
 chatlas._provider_huggingface.ChatHuggingFace py:function 1 reference/ChatHuggingFace.html#chatlas.ChatHuggingFace chatlas.ChatHuggingFace
+chatlas.ChatMistral py:function 1 reference/ChatMistral.html#chatlas.ChatMistral -
+chatlas._provider_mistral.ChatMistral py:function 1 reference/ChatMistral.html#chatlas.ChatMistral chatlas.ChatMistral
 chatlas.ChatOllama py:function 1 reference/ChatOllama.html#chatlas.ChatOllama -
 chatlas._provider_ollama.ChatOllama py:function 1 reference/ChatOllama.html#chatlas.ChatOllama chatlas.ChatOllama
 chatlas.ChatOpenAI py:function 1 reference/ChatOpenAI.html#chatlas.ChatOpenAI -

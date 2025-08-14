@@ -402,7 +402,7 @@ Usage pre-requisites
 <td></td>
 </tr>
 <tr class="even">
-<td>Vertex AI</td>
+<td>Google (Vertex)</td>
 <td><a href="../reference/ChatVertex.html"><code>ChatVertex()</code></a></td>
 <td>✅</td>
 </tr>
@@ -442,28 +442,33 @@ Usage pre-requisites
 <td>✅</td>
 </tr>
 <tr class="even">
+<td>Mistral</td>
+<td><a href="../reference/ChatMistral.html"><code>ChatMistral()</code></a></td>
+<td>✅</td>
+</tr>
+<tr class="odd">
 <td>Groq</td>
 <td><a href="../reference/ChatGroq.html"><code>ChatGroq()</code></a></td>
 <td></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>perplexity.ai</td>
 <td><a href="../reference/ChatPerplexity.html"><code>ChatPerplexity()</code></a></td>
 <td></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Cloudflare</td>
 <td><a href="../reference/ChatCloudflare.html"><code>ChatCloudflare()</code></a></td>
 <td></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Portkey</td>
 <td><a href="../reference/ChatPortkey.html"><code>ChatPortkey()</code></a></td>
 <td>✅</td>
 </tr>
 </tbody>
 </table>
-<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout callout-style-simple callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -473,11 +478,24 @@ Other providers
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>If you want to use a model provider that isn’t listed in the table above, you have two options:</p>
+<p>To use chatlas with a provider not listed in the table above, you have two options:</p>
 <ol type="1">
 <li>If the model provider is OpenAI compatible (i.e., it can be used with the <a href="https://github.com/openai/openai-python?tab=readme-ov-file#configuring-the-http-client"><code>openai</code> Python SDK</a>), use <code>ChatOpenAI()</code> with the appropriate <code>base_url</code> and <code>api_key</code>.</li>
 <li>If you’re motivated, implement a new provider by subclassing <a href="https://github.com/posit-dev/chatlas/blob/main/chatlas/_provider.py"><code>Provider</code></a> and implementing the required methods.</li>
 </ol>
+</div>
+</div>
+<div class="callout callout-style-simple callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Known limitations
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Some providers may have a limited amount of support for things like tool calling, structured data extraction, images, etc. In this case, the provider’s reference page should include a known limitations section describing the limitations.</p>
 </div>
 </div>
 <section id="model-choice" class="level3">
