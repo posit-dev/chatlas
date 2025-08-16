@@ -64,6 +64,7 @@ def ChatAnthropic(
     model: "Optional[ModelParam]" = None,
     api_key: Optional[str] = None,
     max_tokens: int = 4096,
+    server_tools: Optional[list[dict[str, Any]]] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
     """
@@ -102,6 +103,29 @@ def ChatAnthropic(
     chat.chat("What is the capital of France?")
     ```
 
+    Using server-side tools like web search:
+
+    ```python
+    # Enable web search with configuration
+    chat = ChatAnthropic(
+        server_tools=[{
+            "type": "web_search_20250305",
+            "name": "web_search",
+            "max_uses": 3,
+            "allowed_domains": ["reuters.com", "techcrunch.com"]
+        }]
+    )
+    chat.chat("What are the latest AI developments today?")
+    
+    # Multiple server tools
+    chat = ChatAnthropic(
+        server_tools=[
+            {"type": "web_search_20250305", "name": "web_search"},
+            {"type": "bash_20250124", "name": "bash"}
+        ]
+    )
+    ```
+
     Parameters
     ----------
     system_prompt
@@ -116,6 +140,12 @@ def ChatAnthropic(
         variable.
     max_tokens
         Maximum number of tokens to generate before stopping.
+    server_tools
+        Optional list of server-side tools to enable. These are passed directly
+        to the Anthropic API. Examples include web search and bash tools:
+        [{"type": "web_search_20250305", "name": "web_search", "max_uses": 5}].
+        See Anthropic's documentation for available tools and their configurations:
+        https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/
     kwargs
         Additional arguments to pass to the `anthropic.Anthropic()` client
         constructor.
@@ -170,6 +200,7 @@ def ChatAnthropic(
             api_key=api_key,
             model=model,
             max_tokens=max_tokens,
+            server_tools=server_tools,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -185,6 +216,7 @@ class AnthropicProvider(
         max_tokens: int = 4096,
         model: str,
         api_key: Optional[str] = None,
+        server_tools: Optional[list[dict[str, Any]]] = None,
         name: str = "Anthropic",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
@@ -197,6 +229,7 @@ class AnthropicProvider(
                 "You can install it with 'pip install anthropic'."
             )
         self._max_tokens = max_tokens
+        self._server_tools = server_tools or []
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
@@ -285,9 +318,14 @@ class AnthropicProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
+        # Start with server tools (passed through as-is)
+        all_tools = list(self._server_tools)
+        
+        # Add custom tools (converted to Anthropic format)
         tool_schemas = [
             self._anthropic_tool_schema(tool.schema) for tool in tools.values()
         ]
+        all_tools.extend(tool_schemas)
 
         # If data extraction is requested, add a "mock" tool with parameters inferred from the data model
         data_model_tool: Tool | None = None
@@ -306,7 +344,7 @@ class AnthropicProvider(
                 },
             }
 
-            tool_schemas.append(self._anthropic_tool_schema(data_model_tool.schema))
+            all_tools.append(self._anthropic_tool_schema(data_model_tool.schema))
 
             if stream:
                 stream = False
@@ -320,7 +358,7 @@ class AnthropicProvider(
             "messages": self._as_message_params(turns),
             "model": self.model,
             "max_tokens": self._max_tokens,
-            "tools": tool_schemas,
+            "tools": all_tools,
             **(kwargs or {}),
         }
 
@@ -619,6 +657,7 @@ def ChatBedrockAnthropic(
     aws_session_token: Optional[str] = None,
     base_url: Optional[str] = None,
     system_prompt: Optional[str] = None,
+    server_tools: Optional[list[dict[str, Any]]] = None,
     kwargs: Optional["ChatBedrockClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
     """
@@ -684,6 +723,9 @@ def ChatBedrockAnthropic(
         `f"https://bedrock-runtime.{aws_region}.amazonaws.com"`.
     system_prompt
         A system prompt to set the behavior of the assistant.
+    server_tools
+        Optional list of server-side tools to enable. See ChatAnthropic
+        documentation for details.
     kwargs
         Additional arguments to pass to the `anthropic.AnthropicBedrock()`
         client constructor.
@@ -754,6 +796,7 @@ def ChatBedrockAnthropic(
             aws_profile=aws_profile,
             aws_session_token=aws_session_token,
             base_url=base_url,
+            server_tools=server_tools,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -772,10 +815,11 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_session_token: str | None,
         max_tokens: int = 4096,
         base_url: str | None,
+        server_tools: Optional[list[dict[str, Any]]] = None,
         name: str = "AWS/Bedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
-        super().__init__(name=name, model=model, max_tokens=max_tokens)
+        super().__init__(name=name, model=model, max_tokens=max_tokens, server_tools=server_tools)
 
         try:
             from anthropic import AnthropicBedrock, AsyncAnthropicBedrock

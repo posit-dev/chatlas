@@ -126,3 +126,87 @@ def test_anthropic_image_tool(test_images_dir):
 
 def test_anthropic_custom_http_client():
     ChatAnthropic(kwargs={"http_client": httpx.AsyncClient()})
+
+
+def test_anthropic_server_tools_basic():
+    # Test that server tools can be passed through
+    server_tools = [
+        {
+            "type": "web_search_20250305",
+            "name": "web_search",
+            "max_uses": 3
+        }
+    ]
+    chat = ChatAnthropic(server_tools=server_tools)
+    assert chat.provider._server_tools == server_tools
+
+
+def test_anthropic_server_tools_mixed_with_custom_tools():
+    # Test that server tools work alongside custom tools
+    server_tools = [
+        {
+            "type": "web_search_20250305",
+            "name": "web_search"
+        }
+    ]
+    
+    def my_tool(x: int) -> int:
+        """Double a number"""
+        return x * 2
+    
+    chat = ChatAnthropic(server_tools=server_tools)
+    chat.register_tool(my_tool)
+    
+    # Verify both server tools and custom tools are present
+    assert chat.provider._server_tools == server_tools
+    assert len(chat.get_tools()) == 1
+    assert chat.get_tools()[0].name == "my_tool"
+
+
+def test_anthropic_server_tools_in_api_args():
+    # Test that server tools are included in API arguments
+    server_tools = [
+        {
+            "type": "web_search_20250305",
+            "name": "web_search",
+            "max_uses": 2
+        },
+        {
+            "type": "bash_20250124",
+            "name": "bash"
+        }
+    ]
+    
+    chat = ChatAnthropic(server_tools=server_tools)
+    
+    from chatlas._turn import user_turn
+    turn = user_turn("test")
+    
+    # Get the args that would be sent to the API
+    args = chat.provider._chat_perform_args(
+        stream=False,
+        turns=[turn],
+        tools={},  # No custom tools
+        data_model=None,
+        kwargs=None
+    )
+    
+    # Check that server tools are in the tools list
+    assert len(args["tools"]) == 2
+    assert args["tools"][0]["type"] == "web_search_20250305"
+    assert args["tools"][0]["name"] == "web_search"
+    assert args["tools"][0]["max_uses"] == 2
+    assert args["tools"][1]["type"] == "bash_20250124"
+    assert args["tools"][1]["name"] == "bash"
+
+
+def test_anthropic_server_tools_disabled_by_default():
+    # Test that no server tools are included by default
+    chat = ChatAnthropic()
+    assert chat.provider._server_tools == []
+
+
+def test_anthropic_server_tools_empty_list():
+    # Test that empty list works
+    chat = ChatAnthropic(server_tools=[])
+    assert chat.provider._server_tools == []
