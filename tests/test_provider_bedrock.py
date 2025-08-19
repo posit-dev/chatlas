@@ -1,7 +1,5 @@
 import pytest
-
 from chatlas import ChatBedrockAnthropic
-from botocore.exceptions import TokenRetrievalError
 
 from .conftest import (
     assert_data_extraction,
@@ -18,7 +16,7 @@ from .conftest import (
 try:
     chat = ChatBedrockAnthropic()
     chat.chat("What is 1 + 1?")
-except TokenRetrievalError:
+except Exception:
     pytest.skip("Bedrock credentials aren't configured", allow_module_level=True)
 
 
