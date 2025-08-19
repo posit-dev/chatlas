@@ -157,6 +157,7 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.NotGiven,
     ]
     temperature: Union[float, None, openai.NotGiven]
+    text: openai.types.chat.completion_create_params.Text | openai.NotGiven
     tool_choice: Union[
         Literal["none", "auto", "required"],
         openai.types.chat.chat_completion_allowed_tool_choice_param.ChatCompletionAllowedToolChoiceParam,
@@ -177,6 +178,9 @@ class SubmitInputArgs(TypedDict, total=False):
     top_p: Union[float, None, openai.NotGiven]
     user: str | openai.NotGiven
     verbosity: Union[Literal["low", "medium", "high"], None, openai.NotGiven]
+    web_search_options: (
+        openai.types.chat.completion_create_params.WebSearchOptions | openai.NotGiven
+    )
     extra_headers: Optional[Mapping[str, Union[str, openai.Omit]]]
     extra_query: Optional[Mapping[str, object]]
     extra_body: object | None

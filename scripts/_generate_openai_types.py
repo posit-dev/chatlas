@@ -14,8 +14,7 @@ for file in provider_dir.glob("*.py"):
 create_args = generate_typeddict_code(
     Completions.create,
     "SubmitInputArgs",
-    # For some reason web_search_options is not being generated correctly
-    excluded_fields={"self", "web_search_options"},
+    excluded_fields={"self"},
 )
 
 write_code_to_file(
