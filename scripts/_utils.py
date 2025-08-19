@@ -148,7 +148,7 @@ def get_type_string(typ: Any) -> tuple[str, set[str]]:
             processed_parts = []
             for part in parts:
                 namespace_match = re.match(
-                    r"([a-zA-Z_][a-zA-Z0-9_.]*[a-zA-Z0-9_])\.([a-zA-Z_][a-zA-Z0-9_]*)",
+                    r"([a-zA-Z_][a-zA-Z0-9_.]*)\.([a-zA-Z_][a-zA-Z0-9_]*)",
                     part,
                 )
                 if namespace_match:
@@ -161,7 +161,7 @@ def get_type_string(typ: Any) -> tuple[str, set[str]]:
 
         # Handle namespaced types
         namespace_match = re.match(
-            r"([a-zA-Z_][a-zA-Z0-9_.]*[a-zA-Z0-9_])\.([a-zA-Z_][a-zA-Z0-9_]*)",
+            r"([a-zA-Z_][a-zA-Z0-9_.]*)\.([a-zA-Z_][a-zA-Z0-9_]*)",
             type_str,
         )
         if namespace_match:
