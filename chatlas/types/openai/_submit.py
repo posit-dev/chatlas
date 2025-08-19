@@ -177,6 +177,9 @@ class SubmitInputArgs(TypedDict, total=False):
     top_p: Union[float, None, openai.NotGiven]
     user: str | openai.NotGiven
     verbosity: Union[Literal["low", "medium", "high"], None, openai.NotGiven]
+    web_search_options: (
+        openai.types.chat.completion_create_params.WebSearchOptions | openai.NotGiven
+    )
     extra_headers: Optional[Mapping[str, Union[str, openai.Omit]]]
     extra_query: Optional[Mapping[str, object]]
     extra_body: object | None

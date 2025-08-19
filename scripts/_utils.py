@@ -142,9 +142,27 @@ def get_type_string(typ: Any) -> tuple[str, set[str]]:
                 imports.add(f"from typing import {type_name}")
             return type_str.replace("typing.", ""), imports
 
+        # Handle namespaced types (including union syntax)
+        if "|" in type_str:
+            parts = [part.strip() for part in type_str.split("|")]
+            processed_parts = []
+            for part in parts:
+                namespace_match = re.match(
+                    r"([a-zA-Z_][a-zA-Z0-9_.]*)\.([a-zA-Z_][a-zA-Z0-9_]*)",
+                    part,
+                )
+                if namespace_match:
+                    namespace, type_name = namespace_match.groups()
+                    imports.add(f"import {namespace}")
+                    processed_parts.append(f"{namespace}.{type_name}")
+                else:
+                    processed_parts.append(part)
+            return " | ".join(processed_parts), imports
+
         # Handle namespaced types
         namespace_match = re.match(
-            r"([a-zA-Z_][a-zA-Z0-9_]*)\.([a-zA-Z_][a-zA-Z0-9_]*)", type_str
+            r"([a-zA-Z_][a-zA-Z0-9_.]*)\.([a-zA-Z_][a-zA-Z0-9_]*)",
+            type_str,
         )
         if namespace_match:
             namespace, type_name = namespace_match.groups()

@@ -19,5 +19,5 @@ class ChatBedrockClientArgs(TypedDict, total=False):
     max_retries: int
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
-    http_client: httpx.AsyncClient
+    http_client: httpx.AsyncClient | None
     _strict_response_validation: bool
