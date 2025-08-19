@@ -157,7 +157,6 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.NotGiven,
     ]
     temperature: Union[float, None, openai.NotGiven]
-    text: openai.types.chat.completion_create_params.Text | openai.NotGiven
     tool_choice: Union[
         Literal["none", "auto", "required"],
         openai.types.chat.chat_completion_allowed_tool_choice_param.ChatCompletionAllowedToolChoiceParam,
