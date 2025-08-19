@@ -1,11 +1,17 @@
 from __future__ import annotations
 
 import base64
+import os
+import re
+import tempfile
+import warnings
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import orjson
 from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI
+from openai.types.batch import Batch
+from openai.types.chat import ChatCompletion, ChatCompletionChunk
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -24,18 +30,20 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
+from ._provider import (
+    BatchStatus,
+    ModelInfo,
+    Provider,
+    StandardModelParamNames,
+    StandardModelParams,
+)
 from ._tokens import get_token_pricing, tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, user_turn
 from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
 
 if TYPE_CHECKING:
-    from openai.types.chat import (
-        ChatCompletion,
-        ChatCompletionChunk,
-        ChatCompletionMessageParam,
-    )
+    from openai.types.chat import ChatCompletionMessageParam
     from openai.types.chat.chat_completion_assistant_message_param import (
         ContentArrayOfContentPart,
     )
@@ -45,10 +53,6 @@ if TYPE_CHECKING:
     from openai.types.chat_model import ChatModel
 
     from .types.openai import ChatAzureClientArgs, ChatClientArgs, SubmitInputArgs
-else:
-    ChatCompletion = object
-    ChatCompletionChunk = object
-
 
 # The dictionary form of ChatCompletion (TODO: stronger typing)?
 ChatCompletionDict = dict[str, Any]
@@ -171,8 +175,30 @@ def ChatOpenAI(
     )
 
 
+# Seems there is no native typing support for `files.content()` results
+# so mock them based on the docs here
+# https://platform.openai.com/docs/guides/batch#5-retrieve-the-results
+class BatchResult(BaseModel):
+    id: str
+    custom_id: str
+    response: BatchResultResponse
+
+
+class BatchResultResponse(BaseModel):
+    status_code: int
+    request_id: str
+    body: ChatCompletionDict
+
+
 class OpenAIProvider(
-    Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict, "SubmitInputArgs"]
+    Provider[
+        ChatCompletion,
+        ChatCompletionChunk,
+        ChatCompletionDict,
+        "SubmitInputArgs",
+        Batch,
+        BatchResult,
+    ]
 ):
     def __init__(
         self,
@@ -353,8 +379,6 @@ class OpenAIProvider(
         return merge_dicts(completion, chunkd)
 
     def stream_turn(self, completion, has_data_model) -> Turn:
-        from openai.types.chat import ChatCompletion
-
         delta = completion["choices"][0].pop("delta")  # type: ignore
         completion["choices"][0]["message"] = delta  # type: ignore
         completion = ChatCompletion.construct(**completion)
@@ -661,6 +685,115 @@ class OpenAIProvider(
             "log_probs",
             "stop_sequences",
         }
+
+    def has_batch_support(self) -> bool:
+        return True
+
+    def batch_submit(
+        self,
+        conversations: list[list[Turn]],
+        data_model: Optional[type[BaseModel]] = None,
+    ):
+        # First put the requests in a file
+        # https://platform.openai.com/docs/api-reference/batch/request-input
+        # https://platform.openai.com/docs/api-reference/batch
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
+            temp_path = f.name
+
+            for i, turns in enumerate(conversations):
+                kwargs = self._chat_perform_args(
+                    stream=False,
+                    turns=turns,
+                    tools={},
+                    data_model=data_model,
+                )
+
+                body = {
+                    "messages": kwargs.get("messages", []),
+                    "model": self.model,
+                }
+
+                if "response_format" in kwargs:
+                    body["response_format"] = kwargs["response_format"]
+
+                request = {
+                    "custom_id": f"request-{i}",
+                    "method": "POST",
+                    "url": "/v1/chat/completions",
+                    "body": body,
+                }
+
+                f.write(orjson.dumps(request).decode() + "\n")
+
+        try:
+            with open(temp_path, "rb") as f:
+                file_response = self._client.files.create(file=f, purpose="batch")
+
+            return self._client.batches.create(
+                input_file_id=file_response.id,
+                endpoint="/v1/chat/completions",
+                completion_window="24h",
+            )
+        finally:
+            os.unlink(temp_path)
+
+    def batch_poll(self, batch):
+        return self._client.batches.retrieve(batch.id)
+
+    def batch_status(self, batch):
+        counts = batch.request_counts
+        total, completed, failed = 0, 0, 0
+        if counts is not None:
+            total = counts.total
+            completed = counts.completed
+            failed = counts.failed
+
+        return BatchStatus(
+            working=batch.status not in ["completed", "failed", "cancelled"],
+            n_processing=total - completed - failed,
+            n_succeeded=completed,
+            n_failed=failed,
+        )
+
+    def batch_retrieve(self, batch) -> list["BatchResult"]:
+        if batch.output_file_id is None:
+            raise ValueError("Batch has no output file")
+
+        # Download and parse JSONL results
+        response = self._client.files.content(batch.output_file_id)
+        results: list["BatchResult"] = []
+        for line in response.text.splitlines():
+            result = BatchResult.model_validate_json(orjson.loads(line))
+            results.append(result)
+
+        # Sort by custom_id to maintain order
+        def extract_id(x: str):
+            match = re.search(r"-(\d+)$", x)
+            return int(match.group(1)) if match else 0
+
+        results.sort(key=lambda x: int(extract_id(x.custom_id)))
+
+        return results
+
+    def batch_result_turn(
+        self,
+        result: "BatchResult",
+        has_data_model: bool = False,
+    ) -> Turn | None:
+        breakpoint()
+        response = result.response
+        if response.status_code != 200:
+            # TODO: offer advice on what to do?
+            warnings.warn(f"Batch request failed: {response.body}")
+            return None
+
+        completion = ChatCompletion.construct(**response.body)
+        return self._as_turn(completion, has_data_model)
+
+
+# -------------------------------------------------------------------------------------
+# Azure OpenAI Chat
+# -------------------------------------------------------------------------------------
 
 
 def ChatAzureOpenAI(

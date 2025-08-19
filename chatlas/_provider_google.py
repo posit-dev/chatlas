@@ -154,6 +154,8 @@ class GoogleProvider(
         GenerateContentResponse,
         "GenerateContentResponseDict",
         "SubmitInputArgs",
+        object,  # No batch support yet
+        BaseModel,  # No batch result support yet
     ]
 ):
     def __init__(
