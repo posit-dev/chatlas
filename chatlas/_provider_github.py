@@ -140,21 +140,58 @@ def ChatGithub(
 
 
 class GitHubProvider(OpenAIProvider):
-    def list_models(self):
+    def __init__(self, base_url: str, **kwargs):
+        super().__init__(**kwargs)
+        self._base_url = base_url
+
+    def list_models(self) -> list[ModelInfo]:
         # For some reason the OpenAI SDK API fails here? So perform request manually
         # models = self._client.models.list()
-        response = requests.get("https://models.github.ai/catalog/models")
-        models = response.json()
 
-        res: list[ModelInfo] = []
-        for m in models:
-            _id = m["id"].split("/")[-1]
-            info: ModelInfo = {
-                "id": _id,
-                "name": m["name"],
-                "provider": m["publisher"],
-                "url": m["html_url"],
-            }
-            res.append(info)
+        base_url = self._base_url
+        if not base_url.endswith("/"):
+            base_url += "/"
 
-        return res
+        if "azure" in base_url:
+            # i.e., https://models.inference.ai.azure.com
+            return list_models_gh_azure(base_url)
+        else:
+            # i.e., https://models.github.ai/inference/
+            return list_models_gh(base_url)
+
+
+def list_models_gh(base_url: str = "https://models.github.ai/inference/"):
+    # replace /inference endpoint with /catalog
+    base_url = base_url.replace("/inference", "/catalog")
+    response = requests.get(f"{base_url}models")
+    response.raise_for_status()
+    models = response.json()
+
+    res: list[ModelInfo] = []
+    for m in models:
+        _id = m["id"].split("/")[-1]
+        info: ModelInfo = {
+            "id": _id,
+            "name": m["name"],
+            "provider": m["publisher"],
+            "url": m["html_url"],
+        }
+        res.append(info)
+
+    return res
+
+
+def list_models_gh_azure(base_url: str = "https://models.inference.ai.azure.com"):
+    response = requests.get(f"{base_url}models")
+    response.raise_for_status()
+    models = response.json()
+
+    res: list[ModelInfo] = []
+    for m in models:
+        info: ModelInfo = {
+            "id": m["name"],
+            "provider": m["publisher"]
+        }
+        res.append(info)
+
+    return res
