@@ -78,11 +78,10 @@ def ChatPortkey(
     Chat
         A chat object that retains the state of the conversation.
 
-    Notes
+    Note
     -----
     This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
     the defaults tweaked for PortkeyAI.
-
     """
     if model is None:
         model = log_model_default("gpt-4.1")
