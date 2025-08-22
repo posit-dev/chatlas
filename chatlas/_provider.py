@@ -42,13 +42,13 @@ class ModelInfo(TypedDict):
     id: str
     "The model ID (this gets passed to the `model` parameter of the `Chat` constructor)"
 
-    cached_input: float | None
+    cached_input: NotRequired[float]
     "The cost per user token in USD per million tokens for cached input"
 
-    input: float | None
+    input: NotRequired[float]
     "The cost per user token in USD per million tokens"
 
-    output: float | None
+    output: NotRequired[float]
     "The cost per assistant token in USD per million tokens"
 
     created_at: NotRequired[date]
@@ -65,6 +65,9 @@ class ModelInfo(TypedDict):
 
     provider: NotRequired[str]
     "The provider of the model"
+
+    url: NotRequired[str]
+    "A URL to learn more about the model"
 
 
 class StandardModelParams(TypedDict, total=False):

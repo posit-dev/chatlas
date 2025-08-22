@@ -141,9 +141,6 @@ def ollama_model_info(base_url: str) -> list[ModelInfo]:
             "id": re.sub(":latest$", "", model["name"]),
             "created_at": model["modified_at"],
             "size": model["size"],
-            "cached_input": None,
-            "input": None,
-            "output": None,
         }
         res.append(info)
 
