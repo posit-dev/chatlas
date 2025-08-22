@@ -142,5 +142,5 @@ class PerplexityProvider(OpenAIProvider):
     def list_models(self):
         raise NotImplementedError(
             ".list_models() is not yet implemented for Perplexity."
-            "To view available models online, see https://docs.perplexity.ai/getting-started/models"
+            " To view available models online, see https://docs.perplexity.ai/getting-started/models"
         )
