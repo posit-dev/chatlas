@@ -196,8 +196,8 @@ class SnowflakeProvider(
 
     def list_models(self):
         raise NotImplementedError(
-            "list_models() is not yet implemented for Snowflake. "
-            "For a table of model availability, see https://docs.snowflake.com/user-guide/snowflake-cortex/aisql#availability"
+            ".list_models() is not yet implemented for Snowflake. "
+            "To view model availability online, see https://docs.snowflake.com/user-guide/snowflake-cortex/aisql#availability"
         )
 
     @overload

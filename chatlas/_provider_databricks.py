@@ -128,6 +128,13 @@ class DatabricksProvider(OpenAIProvider):
             http_client=httpx.AsyncClient(auth=client._client.auth),
         )
 
+    def list_models(self):
+        raise NotImplementedError(
+            ".list_models() is not yet implemented for Databricks. "
+            "To view model availability online, see "
+            "https://docs.databricks.com/aws/en/machine-learning/model-serving/score-foundation-models#-foundation-model-types"
+        )
+
     # Databricks doesn't support stream_options
     def _chat_perform_args(
         self, stream, turns, tools, data_model=None, kwargs=None

@@ -121,3 +121,11 @@ def add_default_headers(
         }
     )
     return {"default_headers": default_headers, **kwargs}
+
+
+class PortkeyProvider(OpenAIProvider):
+    def list_models(self):
+        raise NotImplementedError(
+            ".list_models() is not yet implemented for Portkey. "
+            "To view model availability online, see https://portkey.ai/docs/product/model-catalog"
+        )
