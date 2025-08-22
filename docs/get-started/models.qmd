@@ -66,9 +66,47 @@ If you're using `chatlas` inside your organisation, you'll be limited to what yo
 
 ### Auto complete
 
-If you're using an IDE that supports type hints, you can get autocompletion for the `model` parameter. This is particularly useful for getting the right model name, or simply to see what models are available.
+Some providers like `ChatOpenAI()` and `ChatAnthropic()` provide autocompletion for the `model` parameter. This makes it quick and easy to find the right model id -- just enter `model=""` and you'll get a list of available models to choose from (assuming your IDE supports type hints).
 
 ![Screenshot of model autocompletion](/images/model-type-hints.png){class="shadow rounded mb-3" width="67%" }
+
+### Listing model info
+
+Most providers support the `.list_models()` method, which returns detailed information about all available models, including model IDs, pricing, and metadata. This is particularly useful for:
+
+- Discovering what models are available (ordered by most recent).
+- Comparing model pricing and characteristics.
+- Finding exactly the right model ID to pass to the `Chat` constructor.
+
+```python
+from chatlas import ChatOpenAI
+import pandas as pd
+
+chat = ChatOpenAI()
+models = chat.list_models()
+
+pd.DataFrame(models)
+```
+
+```
+                        id         owned_by  input  output  cached_input  created_at
+0               gpt-5-nano           system   0.05     0.4         0.005  2025-08-05
+1                    gpt-5           system   1.25    10.0         0.125  2025-08-05
+2    gpt-5-mini-2025-08-07           system   0.25     2.0         0.025  2025-08-05
+3               gpt-5-mini           system   0.25     2.0         0.025  2025-08-05
+4    gpt-5-nano-2025-08-07           system   0.05     0.4         0.005  2025-08-05
+..                     ...              ...    ...     ...           ...         ...
+83       gpt-3.5-turbo-16k  openai-internal   3.00     4.0           NaN  2023-05-10
+84                   tts-1  openai-internal    NaN     NaN           NaN  2023-04-19
+85           gpt-3.5-turbo           openai   1.50     2.0           NaN  2023-02-28
+86               whisper-1  openai-internal    NaN     NaN           NaN  2023-02-27
+87  text-embedding-ada-002  openai-internal   0.10     0.0           NaN  2022-12-16
+```
+
+Different providers may include different metadata fields in the model information, but they all generally include the following key details:
+
+- **`id`**: Model identifier to use with the `Chat` constructor
+- **`input`/`output`/`cached_input`**: Token pricing in USD per million tokens
 
 
 ### Auto provider

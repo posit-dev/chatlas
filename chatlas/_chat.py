@@ -132,23 +132,71 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         List all models available for the provider.
 
-        Useful for not only getting model ids, but also getting model metadata such as pricing.
+        This method returns detailed information about all models supported by the provider,
+        including model IDs, pricing information, creation dates, and other metadata. This is
+        useful for discovering available models and their characteristics without needing to
+        consult provider documentation.
 
         Examples
         --------
+        Get all available models:
+
         ```python
-        import pandas as pd
         from chatlas import ChatOpenAI
 
         chat = ChatOpenAI()
-        pd.DataFrame(chat.list_models())
+        models = chat.list_models()
+        print(f"Found {len(models)} models")
+        print(f"First model: {models[0]['id']}")
+        ```
+
+        View models in a table format:
+
+        ```python
+        import pandas as pd
+        from chatlas import ChatAnthropic
+
+        chat = ChatAnthropic()
+        df = pd.DataFrame(chat.list_models())
+        print(df[["id", "input", "output"]].head())  # Show pricing info
+        ```
+
+        Find models by criteria:
+
+        ```python
+        from chatlas import ChatGoogle
+
+        chat = ChatGoogle()
+        models = chat.list_models()
+
+        # Find cheapest input model
+        cheapest = min(models, key=lambda m: m.get("input", float("inf")))
+        print(f"Cheapest model: {cheapest['id']}")
         ```
 
         Returns
         -------
         list[ModelInfo]
-            A list of ModelInfo objects representing the available models. The list is
-            sorted by creation date.
+            A list of ModelInfo dictionaries containing model information. Each dictionary
+            contains:
+
+            - `id` (str): The model identifier to use with the Chat constructor
+            - `name` (str, optional): Human-readable model name
+            - `input` (float, optional): Cost per input token in USD per million tokens
+            - `output` (float, optional): Cost per output token in USD per million tokens
+            - `cached_input` (float, optional): Cost per cached input token in USD per million tokens
+            - `created_at` (date, optional): Date the model was created
+            - `owned_by` (str, optional): Organization that owns the model
+            - `provider` (str, optional): Model provider name
+            - `size` (int, optional): Model size in bytes
+            - `url` (str, optional): URL with more information about the model
+
+            The list is typically sorted by creation date (most recent first).
+
+        Note
+        ----
+        Not all providers support this method. Some providers may raise NotImplementedError
+        with information about where to find model listings online.
         """
         return self.provider.list_models()
 

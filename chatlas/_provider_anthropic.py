@@ -219,9 +219,9 @@ class AnthropicProvider(
                 "id": m.id,
                 "name": m.display_name,
                 "created_at": m.created_at.date(),
-                "cached_input": pricing.get("cached_input"),
                 "input": pricing.get("input"),
                 "output": pricing.get("output"),
+                "cached_input": pricing.get("cached_input"),
             }
             res.append(info)
 
@@ -837,9 +837,9 @@ class AnthropicBedrockProvider(AnthropicProvider):
                 "id": m["modelId"],
                 "name": m["modelName"],
                 "provider": m["providerName"],
-                "cached_input": pricing.get("cached_input"),
                 "input": pricing.get("input"),
                 "output": pricing.get("output"),
+                "cached_input": pricing.get("cached_input"),
             }
             res.append(info)
 

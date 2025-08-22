@@ -190,9 +190,9 @@ class GoogleProvider(
             info: ModelInfo = {
                 "id": name,
                 "name": m.display_name or "[unknown]",
-                "cached_input": pricing.get("cached_input"),
                 "input": pricing.get("input"),
                 "output": pricing.get("output"),
+                "cached_input": pricing.get("cached_input"),
             }
             res.append(info)
 

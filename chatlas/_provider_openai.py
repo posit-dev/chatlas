@@ -210,9 +210,9 @@ class OpenAIProvider(
             info: ModelInfo = {
                 "id": m.id,
                 "owned_by": m.owned_by,
-                "cached_input": pricing.get("cached_input"),
                 "input": pricing.get("input"),
                 "output": pricing.get("output"),
+                "cached_input": pricing.get("cached_input"),
             }
             # DeepSeek compatibility
             if m.created is not None:
