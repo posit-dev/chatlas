@@ -70,6 +70,8 @@ chatlas.Chat.get_tools py:function 1 reference/Chat.html#chatlas.Chat.get_tools 
 chatlas._chat.Chat.get_tools py:function 1 reference/Chat.html#chatlas.Chat.get_tools chatlas.Chat.get_tools
 chatlas.Chat.get_turns py:function 1 reference/Chat.html#chatlas.Chat.get_turns -
 chatlas._chat.Chat.get_turns py:function 1 reference/Chat.html#chatlas.Chat.get_turns chatlas.Chat.get_turns
+chatlas.Chat.list_models py:function 1 reference/Chat.html#chatlas.Chat.list_models -
+chatlas._chat.Chat.list_models py:function 1 reference/Chat.html#chatlas.Chat.list_models chatlas.Chat.list_models
 chatlas.Chat.on_tool_request py:function 1 reference/Chat.html#chatlas.Chat.on_tool_request -
 chatlas._chat.Chat.on_tool_request py:function 1 reference/Chat.html#chatlas.Chat.on_tool_request chatlas.Chat.on_tool_request
 chatlas.Chat.on_tool_result py:function 1 reference/Chat.html#chatlas.Chat.on_tool_result -
@@ -126,6 +128,8 @@ chatlas.Turn py:class 1 reference/Turn.html#chatlas.Turn -
 chatlas._turn.Turn py:class 1 reference/Turn.html#chatlas.Turn chatlas.Turn
 chatlas.token_usage py:function 1 reference/token_usage.html#chatlas.token_usage -
 chatlas._tokens.token_usage py:function 1 reference/token_usage.html#chatlas.token_usage chatlas.token_usage
+chatlas.Provider.list_models py:function 1 reference/Provider.html#chatlas.Provider.list_models -
+chatlas._provider.Provider.list_models py:function 1 reference/Provider.html#chatlas.Provider.list_models chatlas.Provider.list_models
 chatlas.Provider.model py:attribute 1 reference/Provider.html#chatlas.Provider.model -
 chatlas._provider.Provider.model py:attribute 1 reference/Provider.html#chatlas.Provider.model chatlas.Provider.model
 chatlas.Provider.name py:attribute 1 reference/Provider.html#chatlas.Provider.name -

@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -327,6 +361,7 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#model-choice" id="toc-model-choice" class="nav-link active" data-scroll-target="#model-choice">Model choice</a></li>
   <li><a href="#auto-complete" id="toc-auto-complete" class="nav-link" data-scroll-target="#auto-complete">Auto complete</a></li>
+  <li><a href="#listing-model-info" id="toc-listing-model-info" class="nav-link" data-scroll-target="#listing-model-info">Listing model info</a></li>
   <li><a href="#auto-provider" id="toc-auto-provider" class="nav-link" data-scroll-target="#auto-provider">Auto provider</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/get-started/models.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
@@ -510,13 +545,46 @@ Known limitations
 </section>
 <section id="auto-complete" class="level3">
 <h3 class="anchored" data-anchor-id="auto-complete">Auto complete</h3>
-<p>If you’re using an IDE that supports type hints, you can get autocompletion for the <code>model</code> parameter. This is particularly useful for getting the right model name, or simply to see what models are available.</p>
+<p>Some providers like <code>ChatOpenAI()</code> and <code>ChatAnthropic()</code> provide autocompletion for the <code>model</code> parameter. This makes it quick and easy to find the right model id – just enter <code>model=""</code> and you’ll get a list of available models to choose from (assuming your IDE supports type hints).</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><a href="../images/model-type-hints.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Screenshot of model autocompletion"><img src="../images/model-type-hints.png" class="shadow rounded mb-3 img-fluid figure-img" style="width:67.0%" alt="Screenshot of model autocompletion"></a></p>
 <figcaption>Screenshot of model autocompletion</figcaption>
 </figure>
 </div>
+</section>
+<section id="listing-model-info" class="level3">
+<h3 class="anchored" data-anchor-id="listing-model-info">Listing model info</h3>
+<p>Most providers support the <code>.list_models()</code> method, which returns detailed information about all available models, including model IDs, pricing, and metadata. This is particularly useful for:</p>
+<ul>
+<li>Discovering what models are available (ordered by most recent).</li>
+<li>Comparing model pricing and characteristics.</li>
+<li>Finding exactly the right model ID to pass to the <code>Chat</code> constructor.</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> chat.list_models()</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(models)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>                        id         owned_by  input  output  cached_input  created_at
+0               gpt-5-nano           system   0.05     0.4         0.005  2025-08-05
+1                    gpt-5           system   1.25    10.0         0.125  2025-08-05
+2    gpt-5-mini-2025-08-07           system   0.25     2.0         0.025  2025-08-05
+3               gpt-5-mini           system   0.25     2.0         0.025  2025-08-05
+4    gpt-5-nano-2025-08-07           system   0.05     0.4         0.005  2025-08-05
+..                     ...              ...    ...     ...           ...         ...
+83       gpt-3.5-turbo-16k  openai-internal   3.00     4.0           NaN  2023-05-10
+84                   tts-1  openai-internal    NaN     NaN           NaN  2023-04-19
+85           gpt-3.5-turbo           openai   1.50     2.0           NaN  2023-02-28
+86               whisper-1  openai-internal    NaN     NaN           NaN  2023-02-27
+87  text-embedding-ada-002  openai-internal   0.10     0.0           NaN  2022-12-16</code></pre>
+<p>Different providers may include different metadata fields in the model information, but they all generally include the following key details:</p>
+<ul>
+<li><strong><code>id</code></strong>: Model identifier to use with the <code>Chat</code> constructor</li>
+<li><strong><code>input</code>/<code>output</code>/<code>cached_input</code></strong>: Token pricing in USD per million tokens</li>
+</ul>
 </section>
 <section id="auto-provider" class="level3">
 <h3 class="anchored" data-anchor-id="auto-provider">Auto provider</h3>
@@ -972,7 +1040,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>
   </div>
 </footer>
-<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","closeEffect":"zoom","loop":false,"descPosition":"bottom"});
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","selector":".lightbox","loop":false,"openEffect":"zoom","descPosition":"bottom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
