@@ -5,6 +5,7 @@ from .conftest import (
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote_error,
+    assert_list_models,
     assert_tools_async,
     assert_tools_parallel,
     assert_tools_sequential,
@@ -71,3 +72,7 @@ def test_anthropic_images():
     chat_fun = ChatBedrockAnthropic
     assert_images_inline(chat_fun)
     assert_images_remote_error(chat_fun)
+
+
+def test_anthropic_models():
+    assert_list_models(ChatBedrockAnthropic)

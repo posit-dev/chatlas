@@ -153,7 +153,7 @@ def ChatCloudflare(
     base_url = f"{cloudflare_api}/{account}/ai/v1/"
 
     return Chat(
-        provider=OpenAIProvider(
+        provider=CloudflareProvider(
             api_key=api_key,
             model=model,
             base_url=base_url,
@@ -163,3 +163,11 @@ def ChatCloudflare(
         ),
         system_prompt=system_prompt,
     )
+
+
+class CloudflareProvider(OpenAIProvider):
+    def list_models(self):
+        raise NotImplementedError(
+            ".list_models() is not yet implemented for Cloudflare. "
+            "To view model availability online, see https://developers.cloudflare.com/workers-ai/models/"
+        )

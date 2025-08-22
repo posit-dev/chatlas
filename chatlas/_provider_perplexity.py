@@ -126,7 +126,7 @@ def ChatPerplexity(
         seed = 1014 if is_testing() else None
 
     return Chat(
-        provider=OpenAIProvider(
+        provider=PerplexityProvider(
             api_key=api_key,
             model=model,
             base_url=base_url,
@@ -136,3 +136,11 @@ def ChatPerplexity(
         ),
         system_prompt=system_prompt,
     )
+
+
+class PerplexityProvider(OpenAIProvider):
+    def list_models(self):
+        raise NotImplementedError(
+            ".list_models() is not yet implemented for Perplexity."
+            " To view available models online, see https://docs.perplexity.ai/getting-started/models"
+        )

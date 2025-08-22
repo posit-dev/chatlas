@@ -21,8 +21,8 @@ from ._content import (
     ContentToolResultResource,
 )
 from ._logging import log_model_default
-from ._provider import Provider, StandardModelParamNames, StandardModelParams
-from ._tokens import tokens_log
+from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
+from ._tokens import get_token_pricing, tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, user_turn
 from ._utils import split_http_client_kwargs
@@ -208,6 +208,30 @@ class AnthropicProvider(
         # TODO: worth bringing in sync types?
         self._client = Anthropic(**sync_kwargs)  # type: ignore
         self._async_client = AsyncAnthropic(**async_kwargs)
+
+    def list_models(self):
+        models = self._client.models.list()
+
+        res: list[ModelInfo] = []
+        for m in models:
+            pricing = get_token_pricing(self.name, m.id) or {}
+            info: ModelInfo = {
+                "id": m.id,
+                "name": m.display_name,
+                "created_at": m.created_at.date(),
+                "input": pricing.get("input"),
+                "output": pricing.get("output"),
+                "cached_input": pricing.get("cached_input"),
+            }
+            res.append(info)
+
+        # Sort list by created_by field (more recent first)
+        res.sort(
+            key=lambda x: x.get("created_at", 0),
+            reverse=True,
+        )
+
+        return res
 
     @overload
     def chat_perform(
@@ -797,3 +821,26 @@ class AnthropicBedrockProvider(AnthropicProvider):
 
         self._client = AnthropicBedrock(**kwargs_full)  # type: ignore
         self._async_client = AsyncAnthropicBedrock(**kwargs_full)  # type: ignore
+
+    def list_models(self):
+        # boto3 should come via anthropic's bedrock extras
+        import boto3
+
+        bedrock = boto3.client("bedrock")
+        resp = bedrock.list_foundation_models()
+        models = resp["modelSummaries"]
+
+        res: list[ModelInfo] = []
+        for m in models:
+            pricing = get_token_pricing(self.name, m["modelId"]) or {}
+            info: ModelInfo = {
+                "id": m["modelId"],
+                "name": m["modelName"],
+                "provider": m["providerName"],
+                "input": pricing.get("input"),
+                "output": pricing.get("output"),
+                "cached_input": pricing.get("cached_input"),
+            }
+            res.append(info)
+
+        return res

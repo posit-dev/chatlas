@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional
 import orjson
 
 from ._chat import Chat
-from ._provider_openai import OpenAIProvider
+from ._provider_openai import ModelInfo, OpenAIProvider
 from ._utils import MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -90,18 +90,19 @@ def ChatOllama(
         raise RuntimeError("Can't find locally running ollama.")
 
     if model is None:
-        models = ollama_models(base_url)
+        models = ollama_model_info(base_url)
+        model_ids = [m["id"] for m in models]
         raise ValueError(
-            f"Must specify model. Locally installed models: {', '.join(models)}"
+            f"Must specify model. Locally installed models: {', '.join(model_ids)}"
         )
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
 
     return Chat(
-        provider=OpenAIProvider(
+        provider=OllamaProvider(
             api_key="ollama",  # ignored
             model=model,
-            base_url=f"{base_url}/v1",
+            base_url=base_url,
             seed=seed,
             name="Ollama",
             kwargs=kwargs,
@@ -110,10 +111,40 @@ def ChatOllama(
     )
 
 
-def ollama_models(base_url: str) -> list[str]:
-    res = urllib.request.urlopen(url=f"{base_url}/api/tags")
-    data = orjson.loads(res.read())
-    return [re.sub(":latest$", "", x["name"]) for x in data["models"]]
+class OllamaProvider(OpenAIProvider):
+    def __init__(self, *, api_key, model, base_url, seed, name, kwargs):
+        super().__init__(
+            api_key=api_key,
+            model=model,
+            base_url=f"{base_url}/v1",
+            seed=seed,
+            name=name,
+            kwargs=kwargs,
+        )
+        self.base_url = base_url
+
+    def list_models(self):
+        return ollama_model_info(self.base_url)
+
+
+def ollama_model_info(base_url: str) -> list[ModelInfo]:
+    response = urllib.request.urlopen(url=f"{base_url}/api/tags")
+    data = orjson.loads(response.read())
+    models = data.get("models", [])
+    if not models:
+        return []
+
+    res: list[ModelInfo] = []
+    for model in models:
+        # TODO: add capabilities
+        info: ModelInfo = {
+            "id": re.sub(":latest$", "", model["name"]),
+            "created_at": model["modified_at"],
+            "size": model["size"],
+        }
+        res.append(info)
+
+    return res
 
 
 def has_ollama(base_url):

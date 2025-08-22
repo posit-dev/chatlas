@@ -1,9 +1,11 @@
 import os
 
 import pytest
+
 from chatlas import ChatDeepSeek
 
 from .conftest import (
+    assert_list_models,
     assert_tools_async,
     assert_tools_simple,
     assert_turns_existing,
@@ -60,3 +62,7 @@ async def test_deepseek_tool_variations_async():
 
 
 # Doesn't seem to support data extraction or images
+
+
+def test_deepseek_list_models():
+    assert_list_models(ChatDeepSeek)

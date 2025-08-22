@@ -3,9 +3,11 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Optional
 
+import requests
+
 from ._chat import Chat
 from ._logging import log_model_default
-from ._provider_openai import OpenAIProvider
+from ._provider_openai import ModelInfo, OpenAIProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -18,7 +20,7 @@ def ChatGithub(
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
     api_key: Optional[str] = None,
-    base_url: str = "https://models.inference.ai.azure.com/",
+    base_url: str = "https://models.github.ai/inference/",
     seed: Optional[int] | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
@@ -125,7 +127,7 @@ def ChatGithub(
         seed = 1014 if is_testing() else None
 
     return Chat(
-        provider=OpenAIProvider(
+        provider=GitHubProvider(
             api_key=api_key,
             model=model,
             base_url=base_url,
@@ -135,3 +137,61 @@ def ChatGithub(
         ),
         system_prompt=system_prompt,
     )
+
+
+class GitHubProvider(OpenAIProvider):
+    def __init__(self, base_url: str, **kwargs):
+        super().__init__(**kwargs)
+        self._base_url = base_url
+
+    def list_models(self) -> list[ModelInfo]:
+        # For some reason the OpenAI SDK API fails here? So perform request manually
+        # models = self._client.models.list()
+
+        base_url = self._base_url
+        if not base_url.endswith("/"):
+            base_url += "/"
+
+        if "azure" in base_url:
+            # i.e., https://models.inference.ai.azure.com
+            return list_models_gh_azure(base_url)
+        else:
+            # i.e., https://models.github.ai/inference/
+            return list_models_gh(base_url)
+
+
+def list_models_gh(base_url: str = "https://models.github.ai/inference/"):
+    # replace /inference endpoint with /catalog
+    base_url = base_url.replace("/inference", "/catalog")
+    response = requests.get(f"{base_url}models")
+    response.raise_for_status()
+    models = response.json()
+
+    res: list[ModelInfo] = []
+    for m in models:
+        _id = m["id"].split("/")[-1]
+        info: ModelInfo = {
+            "id": _id,
+            "name": m["name"],
+            "provider": m["publisher"],
+            "url": m["html_url"],
+        }
+        res.append(info)
+
+    return res
+
+
+def list_models_gh_azure(base_url: str = "https://models.inference.ai.azure.com"):
+    response = requests.get(f"{base_url}models")
+    response.raise_for_status()
+    models = response.json()
+
+    res: list[ModelInfo] = []
+    for m in models:
+        info: ModelInfo = {
+            "id": m["name"],
+            "provider": m["publisher"]
+        }
+        res.append(info)
+
+    return res

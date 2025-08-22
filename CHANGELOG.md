@@ -7,6 +7,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## {UNRELEASED}
+
+### New features
+
+* The `Chat` class gains a new `.list_models()` method for obtaining a list of model ids/names, pricing info, and more. (#155)
+
+### Changes
+
+* `ChatGithub()` changed its default for `base_url` from <https://models.inference.ai.azure.com> to <https://models.github.ai/inference/>. As a result, more models are available (by default). (#155)
+
 ## [0.10.0] - 2025-08-19
 
 ### New features

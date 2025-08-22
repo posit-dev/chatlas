@@ -194,6 +194,12 @@ class SnowflakeProvider(
         session = Session.builder.configs(configs).create()
         self._cortex_service = Root(session).cortex_inference_service
 
+    def list_models(self):
+        raise NotImplementedError(
+            ".list_models() is not yet implemented for Snowflake. "
+            "To view model availability online, see https://docs.snowflake.com/user-guide/snowflake-cortex/aisql#availability"
+        )
+
     @overload
     def chat_perform(
         self,

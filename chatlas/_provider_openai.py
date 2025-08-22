@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import orjson
@@ -23,8 +24,8 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import Provider, StandardModelParamNames, StandardModelParams
-from ._tokens import tokens_log
+from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
+from ._tokens import get_token_pricing, tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, user_turn
 from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
@@ -199,6 +200,32 @@ class OpenAIProvider(
         # TODO: worth bringing in AsyncOpenAI types?
         self._client = OpenAI(**sync_kwargs)  # type: ignore
         self._async_client = AsyncOpenAI(**async_kwargs)
+
+    def list_models(self):
+        models = self._client.models.list()
+
+        res: list[ModelInfo] = []
+        for m in models:
+            pricing = get_token_pricing(self.name, m.id) or {}
+            info: ModelInfo = {
+                "id": m.id,
+                "owned_by": m.owned_by,
+                "input": pricing.get("input"),
+                "output": pricing.get("output"),
+                "cached_input": pricing.get("cached_input"),
+            }
+            # DeepSeek compatibility
+            if m.created is not None:
+                info["created_at"] = datetime.fromtimestamp(m.created).date()
+            res.append(info)
+
+        # More recent models first
+        res.sort(
+            key=lambda x: x.get("created_at", 0),
+            reverse=True,
+        )
+
+        return res
 
     @overload
     def chat_perform(
