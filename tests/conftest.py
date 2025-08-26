@@ -90,20 +90,33 @@ def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
 
 
 def assert_tools_simple_stream_content(chat_fun: ChatFun):
+    from mcp.types import ToolAnnotations
+
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
 
     def get_date():
         """Gets the current date"""
         return "2024-01-01"
 
-    chat.register_tool(get_date)
+    chat.register_tool(get_date, annotations=ToolAnnotations(title="Get Date"))
 
     response = chat.stream("What's the current date in Y-M-D format?", content="all")
     chunks = [chunk for chunk in response]
+
+    # Emits a request with tool annotations
     request = [x for x in chunks if isinstance(x, ContentToolRequest)]
     assert len(request) == 1
+    assert request[0].name == "get_date"
+    assert request[0].tool is not None
+    assert request[0].tool.name == "get_date"
+    assert request[0].tool.annotations is not None
+    assert request[0].tool.annotations.title == "Get Date"
+
+    # Emits a response (with a reference to the request)
     response = [x for x in chunks if isinstance(x, ContentToolResult)]
     assert len(response) == 1
+    assert response[0].request == request[0]
+
     str_response = "".join([str(x) for x in chunks])
     assert "2024-01-01" in str_response
     assert "get_date" in str_response
