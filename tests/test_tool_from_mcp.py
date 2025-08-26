@@ -15,15 +15,17 @@ except ImportError:
     pytest.skip("MCP package not available", allow_module_level=True)
 
 
+
 class TestToolFromMCP:
     """Test Tool.from_mcp() class method."""
 
-    def create_mock_mcp_tool(self, name: str, description: str, input_schema: dict):
+    def create_mock_mcp_tool(self, name: str, description: str, input_schema: dict, annotations=None):
         """Create a mock MCP tool."""
         tool = MagicMock()
         tool.name = name
         tool.description = description
         tool.inputSchema = input_schema
+        tool.annotations = annotations
         return tool
 
     def create_mock_session(self):
@@ -441,3 +443,74 @@ class TestToolFromMCP:
         props = cast(dict, params.get("properties", {}))
         param = props.get("param", {})
         assert "title" not in param
+
+    def test_from_mcp_with_annotations(self):
+        """Test creating a Tool from MCP tool with annotations."""
+        from mcp.types import ToolAnnotations
+        
+        input_schema = {
+            "type": "object",
+            "properties": {"x": {"type": "integer"}},
+            "required": ["x"],
+        }
+
+        annotations = ToolAnnotations(
+            audience=["developers"],
+            is_dangerous=True,
+        )
+
+        mcp_tool = self.create_mock_mcp_tool(
+            name="dangerous_tool",
+            description="A dangerous tool",
+            input_schema=input_schema,
+            annotations=annotations,
+        )
+        session = self.create_mock_session()
+
+        tool = Tool.from_mcp(session, mcp_tool)
+
+        assert tool.name == "dangerous_tool"
+        assert tool.annotations == annotations
+        assert tool.annotations.audience == ["developers"]
+        assert tool.annotations.is_dangerous is True
+
+    def test_from_mcp_without_annotations(self):
+        """Test creating a Tool from MCP tool without annotations."""
+        input_schema = {
+            "type": "object",
+            "properties": {"x": {"type": "integer"}},
+            "required": ["x"],
+        }
+
+        mcp_tool = self.create_mock_mcp_tool(
+            name="safe_tool",
+            description="A safe tool",
+            input_schema=input_schema,
+        )
+        session = self.create_mock_session()
+
+        tool = Tool.from_mcp(session, mcp_tool)
+
+        assert tool.name == "safe_tool"
+        assert tool.annotations is None
+
+    def test_from_mcp_annotations_none(self):
+        """Test creating a Tool from MCP tool with annotations=None."""
+        input_schema = {
+            "type": "object",
+            "properties": {"x": {"type": "integer"}},
+            "required": ["x"],
+        }
+
+        mcp_tool = self.create_mock_mcp_tool(
+            name="neutral_tool",
+            description="A neutral tool",
+            input_schema=input_schema,
+            annotations=None,
+        )
+        session = self.create_mock_session()
+
+        tool = Tool.from_mcp(session, mcp_tool)
+
+        assert tool.name == "neutral_tool"
+        assert tool.annotations is None

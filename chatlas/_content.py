@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from pprint import pformat
-from typing import Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 import orjson
 from pydantic import BaseModel, ConfigDict
+
+if TYPE_CHECKING:
+    from ._tools import Tool
 
 ImageContentTypes = Literal[
     "image/png",
@@ -171,11 +174,15 @@ class ContentToolRequest(Content):
         The name of the tool/function to call.
     arguments
         The arguments to pass to the tool/function.
+    tool
+        The tool/function to be called. This is set internally by chatlas's tool
+        calling loop.
     """
 
     id: str
     name: str
     arguments: object
+    tool: Optional["Tool"] = None
 
     content_type: ContentTypeEnum = "tool_request"
 

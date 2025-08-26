@@ -5,6 +5,14 @@ from chatlas._tools import Tool
 from chatlas.types import ContentToolRequest, ContentToolResult
 from pydantic import BaseModel, Field
 
+try:
+    from mcp.types import ToolAnnotations
+    HAS_MCP = True
+except ImportError:
+    HAS_MCP = False
+    ToolAnnotations = None
+
+
 
 class TestNewToolConstructor:
     """Test the new Tool constructor that takes schema parameters directly."""
@@ -60,6 +68,63 @@ class TestNewToolConstructor:
         assert tool.name == "async_tool"
         assert tool.func == async_func
         assert tool._is_async is True
+
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
+    def test_tool_constructor_with_annotations(self):
+        """Test Tool constructor with annotations parameter."""
+
+        def my_func(x: int, y: str) -> str:
+            return f"{x}: {y}"
+
+        parameters = {
+            "type": "object",
+            "properties": {"x": {"type": "integer"}, "y": {"type": "string"}},
+            "required": ["x", "y"],
+            "additionalProperties": False,
+        }
+
+        annotations = ToolAnnotations(
+            audience=["general"],
+            is_dangerous=False,
+        )
+
+        tool = Tool(
+            func=my_func,
+            name="my_tool",
+            description="A test tool",
+            parameters=parameters,
+            annotations=annotations,
+        )
+
+        assert tool.name == "my_tool"
+        assert tool.func == my_func
+        assert tool.annotations == annotations
+        assert tool.annotations.audience == ["general"]
+        assert tool.annotations.is_dangerous is False
+
+    def test_tool_constructor_without_annotations(self):
+        """Test Tool constructor with annotations=None."""
+
+        def my_func(x: int, y: str) -> str:
+            return f"{x}: {y}"
+
+        parameters = {
+            "type": "object",
+            "properties": {"x": {"type": "integer"}, "y": {"type": "string"}},
+            "required": ["x", "y"],
+            "additionalProperties": False,
+        }
+
+        tool = Tool(
+            func=my_func,
+            name="my_tool",
+            description="A test tool",
+            parameters=parameters,
+        )
+
+        assert tool.name == "my_tool"
+        assert tool.func == my_func
+        assert tool.annotations is None
 
 
 class TestToolFromFunc:
@@ -156,6 +221,72 @@ class TestToolFromFunc:
         assert tool._is_async is True
         func = tool.schema["function"]
         assert func.get("description") == "Add two numbers asynchronously."
+
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
+    def test_from_func_with_annotations(self):
+        """Test creating a Tool from a function with annotations."""
+
+        def add(x: int, y: int) -> int:
+            """Add two numbers."""
+            return x + y
+
+        annotations = ToolAnnotations(
+            audience=["developers"],
+            is_dangerous=False,
+        )
+
+        tool = Tool.from_func(add, annotations=annotations)
+
+        assert tool.name == "add"
+        assert tool.func == add
+        assert tool.annotations == annotations
+        assert tool.annotations.audience == ["developers"]
+        assert tool.annotations.is_dangerous is False
+
+        func = tool.schema["function"]
+        assert func["name"] == "add"
+        assert func.get("description") == "Add two numbers."
+
+    def test_from_func_without_annotations(self):
+        """Test creating a Tool from a function without annotations."""
+
+        def add(x: int, y: int) -> int:
+            """Add two numbers."""
+            return x + y
+
+        tool = Tool.from_func(add)
+
+        assert tool.name == "add"
+        assert tool.func == add
+        assert tool.annotations is None
+
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
+    def test_from_func_with_model_and_annotations(self):
+        """Test creating a Tool from a function with both model and annotations."""
+
+        class AddParams(BaseModel):
+            """Parameters for adding numbers."""
+            x: int = Field(description="First number")
+            y: int = Field(description="Second number")
+
+        def add(x: int, y: int) -> int:
+            return x + y
+
+        annotations = ToolAnnotations(
+            audience=["general"],
+            is_dangerous=False,
+        )
+
+        tool = Tool.from_func(add, model=AddParams, annotations=annotations)
+
+        assert tool.name == "AddParams"
+        assert tool.func == add
+        assert tool.annotations == annotations
+        assert tool.annotations.audience == ["general"]
+
+        func = tool.schema["function"]
+        assert func["name"] == "AddParams"
+        assert func.get("description") == "Parameters for adding numbers."
 
 
 class TestNewContentClasses:
@@ -410,6 +541,111 @@ class TestRegisterToolForce:
         chat.register_tool(another_func, force=True)
         assert chat._tools["test_tool"].func == another_func
 
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
+    def test_register_tool_with_annotations(self):
+        """Test register_tool() with annotations parameter."""
+        chat = ChatOpenAI()
+
+        def add(x: int, y: int) -> int:
+            """Add two numbers."""
+            return x + y
+
+        annotations = ToolAnnotations(
+            audience=["general"],
+            is_dangerous=False,
+        )
+
+        chat.register_tool(add, annotations=annotations)
+
+        assert len(chat._tools) == 1
+        tool = chat._tools["add"]
+        assert tool.name == "add"
+        assert tool.func == add
+        assert tool.annotations == annotations
+        assert tool.annotations.audience == ["general"]
+        assert tool.annotations.is_dangerous is False
+
+    def test_register_tool_without_annotations(self):
+        """Test register_tool() without annotations parameter."""
+        chat = ChatOpenAI()
+
+        def add(x: int, y: int) -> int:
+            """Add two numbers."""
+            return x + y
+
+        chat.register_tool(add)
+
+        assert len(chat._tools) == 1
+        tool = chat._tools["add"]
+        assert tool.name == "add"
+        assert tool.func == add
+        assert tool.annotations is None
+
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
+    def test_register_tool_with_model_and_annotations(self):
+        """Test register_tool() with both model and annotations."""
+        chat = ChatOpenAI()
+
+        class AddParams(BaseModel):
+            """Parameters for adding numbers."""
+            x: int = Field(description="First number")
+            y: int = Field(description="Second number")
+
+        def add(x: int, y: int) -> int:
+            return x + y
+
+        annotations = ToolAnnotations(
+            audience=["developers"],
+            is_dangerous=False,
+        )
+
+        chat.register_tool(add, model=AddParams, annotations=annotations)
+
+        assert len(chat._tools) == 1
+        tool = chat._tools["AddParams"]
+        assert tool.name == "AddParams"
+        assert tool.func == add
+        assert tool.annotations == annotations
+        assert tool.annotations.audience == ["developers"]
+
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
+    def test_register_tool_force_overwrite_with_annotations(self):
+        """Test register_tool() force overwrite with annotations."""
+        chat = ChatOpenAI()
+
+        def add(x: int, y: int) -> int:
+            """Original add function."""
+            return x + y
+
+        def new_add(x: int, y: int) -> int:
+            """New add function."""
+            return (x + y) * 2
+
+        new_add.__name__ = "add"
+
+        original_annotations = ToolAnnotations(
+            audience=["general"],
+            is_dangerous=False,
+        )
+
+        new_annotations = ToolAnnotations(
+            audience=["developers"],
+            is_dangerous=True,
+        )
+
+        # Register original with annotations
+        chat.register_tool(add, annotations=original_annotations)
+        original_tool = chat._tools["add"]
+        assert original_tool.annotations.audience == ["general"]
+        assert original_tool.annotations.is_dangerous is False
+
+        # Overwrite with force=True and new annotations
+        chat.register_tool(new_add, force=True, annotations=new_annotations)
+        new_tool = chat._tools["add"]
+        assert new_tool.func == new_add
+        assert new_tool.annotations.audience == ["developers"]
+        assert new_tool.annotations.is_dangerous is True
+
 
 class TestToolYielding:
     """Test tool functions that yield multiple results."""
@@ -588,3 +824,138 @@ class TestExistingToolsStillWork:
         assert result.error is not None
         # The error message was updated to just "Unknown tool." instead of "Unknown tool: {name}"
         assert str(result.error) == "Unknown tool."
+
+
+class TestToolRequestAssignment:
+    """Test that ContentToolRequest.tool attribute is correctly assigned during tool invocation."""
+
+    def test_tool_assignment_in_tool_request(self):
+        """Test that ContentToolRequest.tool is assigned and used during tool invocation."""
+        chat = ChatOpenAI()
+
+        def add(x: int, y: int) -> int:
+            """Add two numbers."""
+            return x + y
+
+        chat.register_tool(add)
+
+        # Create a tool request
+        request = ContentToolRequest(
+            id="test-id", name="add", arguments={"x": 3, "y": 4}
+        )
+
+        # Initially tool should be None (not assigned yet)
+        assert request.tool is None
+
+        # Manually assign the tool (simulating what happens in _submit_request)
+        request.tool = chat._tools.get("add")
+
+        # Now the tool should be assigned
+        assert request.tool is not None
+        assert request.tool.name == "add"
+        assert request.tool.func == add
+
+        # Invoke the tool - this should work with the assigned tool
+        results = list(chat._invoke_tool(request))
+        assert len(results) == 1
+        assert results[0].value == 7
+
+    def test_tool_assignment_with_annotations(self):
+        """Test that ContentToolRequest.tool with annotations is correctly assigned."""
+        if not HAS_MCP:
+            pytest.skip("mcp not installed")
+
+        chat = ChatOpenAI()
+
+        def multiply(x: int, y: int) -> int:
+            """Multiply two numbers."""
+            return x * y
+
+        annotations = ToolAnnotations(
+            audience=["general"],
+            is_dangerous=False,
+        )
+
+        chat.register_tool(multiply, annotations=annotations)
+
+        # Create a tool request
+        request = ContentToolRequest(
+            id="test-id", name="multiply", arguments={"x": 3, "y": 4}
+        )
+
+        # Initially tool should be None
+        assert request.tool is None
+
+        # Manually assign the tool (simulating what happens in _submit_request)
+        request.tool = chat._tools.get("multiply")
+
+        # The tool should be assigned with annotations
+        assert request.tool is not None
+        assert request.tool.name == "multiply"
+        assert request.tool.func == multiply
+        assert request.tool.annotations == annotations
+        assert request.tool.annotations.audience == ["general"]
+
+        # Invoke the tool
+        results = list(chat._invoke_tool(request))
+        assert len(results) == 1
+        assert results[0].value == 12
+
+    def test_tool_assignment_unknown_tool(self):
+        """Test that ContentToolRequest.tool remains None for unknown tools."""
+        chat = ChatOpenAI()
+
+        # Create a tool request for a non-existent tool
+        request = ContentToolRequest(
+            id="test-id", name="nonexistent_tool", arguments={}
+        )
+
+        # Initially tool should be None
+        assert request.tool is None
+
+        # Try to assign a non-existent tool (simulating what happens in _submit_request)
+        request.tool = chat._tools.get("nonexistent_tool")  # This returns None
+
+        # The tool should still be None since it wasn't found
+        assert request.tool is None
+
+        # Invoke the tool (should fail)
+        results = list(chat._invoke_tool(request))
+        assert len(results) == 1
+        assert results[0].error is not None
+        assert "Unknown tool" in str(results[0].error)
+
+    @pytest.mark.asyncio
+    async def test_tool_assignment_async(self):
+        """Test that ContentToolRequest.tool is assigned during async tool invocation."""
+        chat = ChatOpenAI()
+
+        async def async_add(x: int, y: int) -> int:
+            """Add two numbers asynchronously."""
+            return x + y
+
+        chat.register_tool(async_add)
+
+        # Create a tool request
+        request = ContentToolRequest(
+            id="test-id", name="async_add", arguments={"x": 3, "y": 4}
+        )
+
+        # Initially tool should be None
+        assert request.tool is None
+
+        # Manually assign the tool (simulating what happens in _submit_request)
+        request.tool = chat._tools.get("async_add")
+
+        # The tool should now be assigned to the request
+        assert request.tool is not None
+        assert request.tool.name == "async_add"
+        assert request.tool.func == async_add
+
+        # Invoke the tool asynchronously
+        results = []
+        async for result in chat._invoke_tool_async(request):
+            results.append(result)
+
+        assert len(results) == 1
+        assert results[0].value == 7

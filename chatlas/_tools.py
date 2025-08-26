@@ -22,6 +22,7 @@ __all__ = (
 if TYPE_CHECKING:
     from mcp import ClientSession as MCPClientSession
     from mcp import Tool as MCPTool
+    from mcp.types import ToolAnnotations
     from openai.types.chat import ChatCompletionToolParam
 
 
@@ -42,6 +43,9 @@ class Tool:
         A description of what the tool does.
     parameters
         A dictionary describing the input parameters and their types.
+    annotations
+        Additional properties that describe the tool and its behavior. Should be
+        a `from mcp.types import ToolAnnotations` instance.
     """
 
     func: Callable[..., Any] | Callable[..., Awaitable[Any]]
@@ -53,9 +57,11 @@ class Tool:
         name: str,
         description: str,
         parameters: dict[str, Any],
+        annotations: "Optional[ToolAnnotations]" = None,
     ):
         self.name = name
         self.func = func
+        self.annotations = annotations
         self._is_async = _utils.is_async_callable(func)
         self.schema: "ChatCompletionToolParam" = {
             "type": "function",
@@ -72,6 +78,7 @@ class Tool:
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
         model: Optional[type[BaseModel]] = None,
+        annotations: "Optional[ToolAnnotations]" = None,
     ) -> "Tool":
         """
         Create a Tool from a Python function
@@ -86,6 +93,9 @@ class Tool:
             The primary reason why you might want to provide a model in
             Note that the name and docstring of the model takes precedence over the
             name and docstring of the function.
+        annotations
+            Additional properties that describe the tool and its behavior. Should be
+            a `from mcp.types import ToolAnnotations` instance.
 
         Returns
         -------
@@ -118,6 +128,7 @@ class Tool:
             name=model.__name__ or func.__name__,
             description=model.__doc__ or func.__doc__ or "",
             parameters=params,
+            annotations=annotations,
         )
 
     @classmethod
@@ -197,6 +208,7 @@ class Tool:
             name=mcp_tool.name,
             description=mcp_tool.description or "",
             parameters=params,
+            annotations=mcp_tool.annotations,
         )
 
 
