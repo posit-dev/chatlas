@@ -136,6 +136,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
 <span class="menu-text">Reference</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
+  </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/posit-dev/chatlas"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
 </i> 
@@ -1922,7 +1926,7 @@ Note
 </section>
 <section id="chatlas.Chat.register_tool" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.register_tool">register_tool</h3>
-<div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>Chat.register_tool(func, <span class="op">*</span>, force<span class="op">=</span><span class="va">False</span>, model<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>Chat.register_tool(func, <span class="op">*</span>, force<span class="op">=</span><span class="va">False</span>, model<span class="op">=</span><span class="va">None</span>, annotations<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Register a tool (function) with the chat.</p>
 <p>The function will always be invoked in the current Python process.</p>
 <section id="examples-3" class="level4 doc-section doc-section-examples">
@@ -1973,7 +1977,7 @@ Note
 </section>
 <section id="parameters-16" class="level2">
 <h2 class="anchored" data-anchor-id="parameters-16">Parameters</h2>
-<p>func The function to be invoked when the tool is called. force If <code>True</code>, overwrite any existing tool with the same name. If <code>False</code> (the default), raise an error if a tool with the same name already exists. model A Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function.</p>
+<p>func The function to be invoked when the tool is called. force If <code>True</code>, overwrite any existing tool with the same name. If <code>False</code> (the default), raise an error if a tool with the same name already exists. model A Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function. annotations Additional properties that describe the tool and its behavior. Should be a <code>from mcp.types import ToolAnnotations</code> instance.</p>
 </section>
 <section id="raises-1" class="level2">
 <h2 class="anchored" data-anchor-id="raises-1">Raises</h2>

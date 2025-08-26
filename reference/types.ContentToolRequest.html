@@ -136,6 +136,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
 <span class="menu-text">Reference</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
+  </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/posit-dev/chatlas"> <i class="bi bi-github" role="img" aria-label="GitHub repository">
 </i> 
@@ -598,10 +602,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 14%">
+<col style="width: 9%">
+<col style="width: 6%">
+<col style="width: 73%">
 <col style="width: 10%">
-<col style="width: 59%">
-<col style="width: 15%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -628,6 +632,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>arguments</td>
 <td></td>
 <td>The arguments to pass to the tool/function.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>tool</td>
+<td></td>
+<td>The tool/function to be called. This is set internally by chatlas’s tool calling loop.</td>
 <td><em>required</em></td>
 </tr>
 </tbody>
