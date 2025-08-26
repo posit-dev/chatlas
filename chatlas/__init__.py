@@ -1,7 +1,12 @@
 from . import types
 from ._auto import ChatAuto
 from ._chat import Chat
-from ._content import ContentToolRequest, ContentToolResult, ContentToolResultImage
+from ._content import (
+    ContentToolRequest,
+    ContentToolResult,
+    ContentToolResultImage,
+    ContentToolResultResource,
+)
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._content_pdf import content_pdf_file, content_pdf_url
 from ._interpolate import interpolate, interpolate_file
@@ -59,6 +64,7 @@ __all__ = (
     "ContentToolRequest",
     "ContentToolResult",
     "ContentToolResultImage",
+    "ContentToolResultResource",
     "interpolate",
     "interpolate_file",
     "Provider",
@@ -68,3 +74,9 @@ __all__ = (
     "Turn",
     "types",
 )
+
+# Rebuild content models to resolve forward references to ToolAnnotation
+ContentToolRequest.model_rebuild()
+ContentToolResult.model_rebuild()
+ContentToolResultImage.model_rebuild()
+ContentToolResultResource.model_rebuild()

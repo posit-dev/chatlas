@@ -4,10 +4,11 @@ from typing import cast
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from pydantic.networks import AnyUrl
+
 from chatlas._content import ContentToolResultImage, ContentToolResultResource
 from chatlas._tools import Tool
 from chatlas.types import ContentToolResult
-from pydantic.networks import AnyUrl
 
 try:
     import mcp  # noqa: F401
@@ -18,12 +19,15 @@ except ImportError:
 class TestToolFromMCP:
     """Test Tool.from_mcp() class method."""
 
-    def create_mock_mcp_tool(self, name: str, description: str, input_schema: dict):
+    def create_mock_mcp_tool(
+        self, name: str, description: str, input_schema: dict, annotations=None
+    ):
         """Create a mock MCP tool."""
         tool = MagicMock()
         tool.name = name
         tool.description = description
         tool.inputSchema = input_schema
+        tool.annotations = annotations
         return tool
 
     def create_mock_session(self):
@@ -441,3 +445,48 @@ class TestToolFromMCP:
         props = cast(dict, params.get("properties", {}))
         param = props.get("param", {})
         assert "title" not in param
+
+    def test_from_mcp_with_annotations(self):
+        """Test creating a Tool from MCP tool with annotations."""
+        from mcp.types import ToolAnnotations
+
+        mcp_tool = self.create_mock_mcp_tool(
+            name="dangerous_tool",
+            description="A dangerous tool",
+            input_schema={
+                "type": "object",
+                "properties": {"x": {"type": "integer"}},
+                "required": ["x"],
+            },
+            annotations=ToolAnnotations(
+                title="Dangerous Tool",
+                destructiveHint=True,
+            ),
+        )
+        session = self.create_mock_session()
+
+        tool = Tool.from_mcp(session, mcp_tool)
+
+        assert tool.name == "dangerous_tool"
+        assert tool.annotations is not None
+        assert tool.annotations.title == "Dangerous Tool"
+        assert tool.annotations.destructiveHint is True
+
+    def test_from_mcp_without_annotations(self):
+        """Test creating a Tool from MCP tool without annotations."""
+
+        mcp_tool = self.create_mock_mcp_tool(
+            name="safe_tool",
+            description="A safe tool",
+            input_schema={
+                "type": "object",
+                "properties": {"x": {"type": "integer"}},
+                "required": ["x"],
+            },
+        )
+        session = self.create_mock_session()
+
+        tool = Tool.from_mcp(session, mcp_tool)
+
+        assert tool.name == "safe_tool"
+        assert tool.annotations is None

@@ -9,6 +9,7 @@ import warnings
 from pathlib import Path
 from threading import Thread
 from typing import (
+    TYPE_CHECKING,
     Any,
     AsyncGenerator,
     AsyncIterator,
@@ -49,6 +50,9 @@ from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
+
+if TYPE_CHECKING:
+    from mcp.types import ToolAnnotations
 
 
 class TokensDict(TypedDict):
@@ -1534,6 +1538,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         force: bool = False,
         model: Optional[type[BaseModel]] = None,
+        annotations: "Optional[ToolAnnotations]" = None,
     ):
         """
         Register a tool (function) with the chat.
@@ -1611,13 +1616,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             The primary reason why you might want to provide a model in
             Note that the name and docstring of the model takes precedence over the
             name and docstring of the function.
+        annotations
+            Additional properties that describe the tool and its behavior.
+            Should be a `from mcp.types import ToolAnnotations` instance.
 
         Raises
         ------
         ValueError
             If a tool with the same name already exists and `force` is `False`.
         """
-        tool = Tool.from_func(func, model=model)
+        tool = Tool.from_func(func, model=model, annotations=annotations)
         if tool.name in self._tools and not force:
             raise ValueError(
                 f"Tool with name '{tool.name}' is already registered. "
@@ -1925,6 +1933,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             all_results: list[ContentToolResult] = []
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
+                    x.tool = self._tools.get(x.name)
                     if echo == "output":
                         self._echo_content(f"\n\n{x}\n\n")
                     if content == "all":
@@ -1985,6 +1994,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             all_results: list[ContentToolResult] = []
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
+                    x.tool = self._tools.get(x.name)
                     if echo == "output":
                         self._echo_content(f"\n\n{x}\n\n")
                     if content == "all":
@@ -2142,8 +2152,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self._turns.extend([user_turn, turn])
 
     def _invoke_tool(self, request: ContentToolRequest):
-        tool_def = self._tools.get(request.name, None)
-        func = tool_def.func if tool_def is not None else None
+        tool = request.tool
+        func = tool.func if tool is not None else None
 
         if func is None:
             yield self._handle_tool_error_result(
@@ -2190,20 +2200,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             yield self._handle_tool_error_result(request, e)
 
     async def _invoke_tool_async(self, request: ContentToolRequest):
-        tool_def = self._tools.get(request.name, None)
-        func = None
-        if tool_def:
-            if tool_def._is_async:
-                func = tool_def.func
-            else:
-                func = wrap_async(tool_def.func)
+        tool = request.tool
 
-        if func is None:
+        if tool is None:
             yield self._handle_tool_error_result(
                 request,
                 error=RuntimeError("Unknown tool."),
             )
             return
+
+        if tool._is_async:
+            func = tool.func
+        else:
+            func = wrap_async(tool.func)
 
         # First, invoke the request callbacks. If a ToolRejectError is raised,
         # treat it like a tool failure (i.e., gracefully handle it).
