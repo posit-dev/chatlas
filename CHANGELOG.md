@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 
 * The `Chat` class gains a new `.list_models()` method for obtaining a list of model ids/names, pricing info, and more. (#155)
+* The `.register_tool()` method gains an `annotations` parameter, useful for describing the tool and its behavior. This information can and may then be used for display in downstream chat applications. (#156)
+
+### Improvements
+
+* Tools registered via MCP (e.g., `.register_mcp_tools_http_stream_async()`) now automatically pick up on tool annotations. (#156)
 
 ### Changes
 
