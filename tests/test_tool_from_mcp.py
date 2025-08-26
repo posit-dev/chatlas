@@ -4,10 +4,11 @@ from typing import cast
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from pydantic.networks import AnyUrl
+
 from chatlas._content import ContentToolResultImage, ContentToolResultResource
 from chatlas._tools import Tool
 from chatlas.types import ContentToolResult
-from pydantic.networks import AnyUrl
 
 try:
     import mcp  # noqa: F401
@@ -15,11 +16,12 @@ except ImportError:
     pytest.skip("MCP package not available", allow_module_level=True)
 
 
-
 class TestToolFromMCP:
     """Test Tool.from_mcp() class method."""
 
-    def create_mock_mcp_tool(self, name: str, description: str, input_schema: dict, annotations=None):
+    def create_mock_mcp_tool(
+        self, name: str, description: str, input_schema: dict, annotations=None
+    ):
         """Create a mock MCP tool."""
         tool = MagicMock()
         tool.name = name
@@ -447,7 +449,7 @@ class TestToolFromMCP:
     def test_from_mcp_with_annotations(self):
         """Test creating a Tool from MCP tool with annotations."""
         from mcp.types import ToolAnnotations
-        
+
         input_schema = {
             "type": "object",
             "properties": {"x": {"type": "integer"}},
@@ -455,8 +457,8 @@ class TestToolFromMCP:
         }
 
         annotations = ToolAnnotations(
-            audience=["developers"],
-            is_dangerous=True,
+            title="Dangerous Tool",
+            destructiveHint=True,
         )
 
         mcp_tool = self.create_mock_mcp_tool(
@@ -471,8 +473,9 @@ class TestToolFromMCP:
 
         assert tool.name == "dangerous_tool"
         assert tool.annotations == annotations
-        assert tool.annotations.audience == ["developers"]
-        assert tool.annotations.is_dangerous is True
+        assert tool.annotations is not None
+        assert tool.annotations.title == "Dangerous Tool"
+        assert tool.annotations.destructiveHint is True
 
     def test_from_mcp_without_annotations(self):
         """Test creating a Tool from MCP tool without annotations."""
@@ -513,4 +516,6 @@ class TestToolFromMCP:
         tool = Tool.from_mcp(session, mcp_tool)
 
         assert tool.name == "neutral_tool"
+        assert tool.annotations is None
+        assert tool.annotations is None
         assert tool.annotations is None

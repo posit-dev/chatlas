@@ -1,17 +1,15 @@
 import pytest
+from pydantic import BaseModel, Field
+
 from chatlas import ChatOpenAI
 from chatlas._content import ContentToolResultImage, ContentToolResultResource
 from chatlas._tools import Tool
 from chatlas.types import ContentToolRequest, ContentToolResult
-from pydantic import BaseModel, Field
 
 try:
     from mcp.types import ToolAnnotations
-    HAS_MCP = True
 except ImportError:
-    HAS_MCP = False
-    ToolAnnotations = None
-
+    pytest.skip("MCP package not available", allow_module_level=True)
 
 
 class TestNewToolConstructor:
@@ -84,8 +82,8 @@ class TestNewToolConstructor:
         }
 
         annotations = ToolAnnotations(
-            audience=["general"],
-            is_dangerous=False,
+            title="My Tool",
+            destructiveHint=False,
         )
 
         tool = Tool(
@@ -99,8 +97,8 @@ class TestNewToolConstructor:
         assert tool.name == "my_tool"
         assert tool.func == my_func
         assert tool.annotations == annotations
-        assert tool.annotations.audience == ["general"]
-        assert tool.annotations.is_dangerous is False
+        assert tool.annotations.title == "My Tool"
+        assert tool.annotations.destructiveHint is False
 
     def test_tool_constructor_without_annotations(self):
         """Test Tool constructor with annotations=None."""
@@ -231,8 +229,8 @@ class TestToolFromFunc:
             return x + y
 
         annotations = ToolAnnotations(
-            audience=["developers"],
-            is_dangerous=False,
+            title="Add Function",
+            readOnlyHint=True,
         )
 
         tool = Tool.from_func(add, annotations=annotations)
@@ -240,8 +238,8 @@ class TestToolFromFunc:
         assert tool.name == "add"
         assert tool.func == add
         assert tool.annotations == annotations
-        assert tool.annotations.audience == ["developers"]
-        assert tool.annotations.is_dangerous is False
+        assert tool.annotations.title == "Add Function"
+        assert tool.annotations.readOnlyHint is True
 
         func = tool.schema["function"]
         assert func["name"] == "add"
@@ -266,6 +264,7 @@ class TestToolFromFunc:
 
         class AddParams(BaseModel):
             """Parameters for adding numbers."""
+
             x: int = Field(description="First number")
             y: int = Field(description="Second number")
 
@@ -273,8 +272,8 @@ class TestToolFromFunc:
             return x + y
 
         annotations = ToolAnnotations(
-            audience=["general"],
-            is_dangerous=False,
+            title="Add Parameters Tool",
+            idempotentHint=True,
         )
 
         tool = Tool.from_func(add, model=AddParams, annotations=annotations)
@@ -282,7 +281,7 @@ class TestToolFromFunc:
         assert tool.name == "AddParams"
         assert tool.func == add
         assert tool.annotations == annotations
-        assert tool.annotations.audience == ["general"]
+        assert tool.annotations.title == "Add Parameters Tool"
 
         func = tool.schema["function"]
         assert func["name"] == "AddParams"
@@ -551,8 +550,8 @@ class TestRegisterToolForce:
             return x + y
 
         annotations = ToolAnnotations(
-            audience=["general"],
-            is_dangerous=False,
+            title="Add Tool",
+            openWorldHint=True,
         )
 
         chat.register_tool(add, annotations=annotations)
@@ -562,8 +561,8 @@ class TestRegisterToolForce:
         assert tool.name == "add"
         assert tool.func == add
         assert tool.annotations == annotations
-        assert tool.annotations.audience == ["general"]
-        assert tool.annotations.is_dangerous is False
+        assert tool.annotations.title == "Add Tool"
+        assert tool.annotations.openWorldHint is True
 
     def test_register_tool_without_annotations(self):
         """Test register_tool() without annotations parameter."""
@@ -588,6 +587,7 @@ class TestRegisterToolForce:
 
         class AddParams(BaseModel):
             """Parameters for adding numbers."""
+
             x: int = Field(description="First number")
             y: int = Field(description="Second number")
 
@@ -595,8 +595,8 @@ class TestRegisterToolForce:
             return x + y
 
         annotations = ToolAnnotations(
-            audience=["developers"],
-            is_dangerous=False,
+            title="Advanced Add Tool",
+            destructiveHint=False,
         )
 
         chat.register_tool(add, model=AddParams, annotations=annotations)
@@ -606,7 +606,7 @@ class TestRegisterToolForce:
         assert tool.name == "AddParams"
         assert tool.func == add
         assert tool.annotations == annotations
-        assert tool.annotations.audience == ["developers"]
+        assert tool.annotations.title == "Advanced Add Tool"
 
     @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
     def test_register_tool_force_overwrite_with_annotations(self):
@@ -624,27 +624,27 @@ class TestRegisterToolForce:
         new_add.__name__ = "add"
 
         original_annotations = ToolAnnotations(
-            audience=["general"],
-            is_dangerous=False,
+            title="Original Add",
+            readOnlyHint=True,
         )
 
         new_annotations = ToolAnnotations(
-            audience=["developers"],
-            is_dangerous=True,
+            title="New Add",
+            destructiveHint=True,
         )
 
         # Register original with annotations
         chat.register_tool(add, annotations=original_annotations)
         original_tool = chat._tools["add"]
-        assert original_tool.annotations.audience == ["general"]
-        assert original_tool.annotations.is_dangerous is False
+        assert original_tool.annotations.title == "Original Add"
+        assert original_tool.annotations.readOnlyHint is True
 
         # Overwrite with force=True and new annotations
         chat.register_tool(new_add, force=True, annotations=new_annotations)
         new_tool = chat._tools["add"]
         assert new_tool.func == new_add
-        assert new_tool.annotations.audience == ["developers"]
-        assert new_tool.annotations.is_dangerous is True
+        assert new_tool.annotations.title == "New Add"
+        assert new_tool.annotations.destructiveHint is True
 
 
 class TestToolYielding:
@@ -872,8 +872,8 @@ class TestToolRequestAssignment:
             return x * y
 
         annotations = ToolAnnotations(
-            audience=["general"],
-            is_dangerous=False,
+            title="Multiply Tool",
+            idempotentHint=True,
         )
 
         chat.register_tool(multiply, annotations=annotations)
@@ -894,7 +894,7 @@ class TestToolRequestAssignment:
         assert request.tool.name == "multiply"
         assert request.tool.func == multiply
         assert request.tool.annotations == annotations
-        assert request.tool.annotations.audience == ["general"]
+        assert request.tool.annotations.title == "Multiply Tool"
 
         # Invoke the tool
         results = list(chat._invoke_tool(request))
@@ -958,4 +958,5 @@ class TestToolRequestAssignment:
             results.append(result)
 
         assert len(results) == 1
+        assert results[0].value == 7
         assert results[0].value == 7
