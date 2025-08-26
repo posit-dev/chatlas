@@ -4,6 +4,8 @@ project:
     - objects.txt
     - images/
     - logos/
+  pre-render:
+    cp ../CHANGELOG.md CHANGELOG.md
 
 metadata-files:
   - _sidebar.yml
@@ -53,6 +55,8 @@ website:
     right:
       - text: Reference
         href: reference/index.qmd
+      - text: Changelog
+        href: changelog.html
       - icon: github
         href: https://github.com/posit-dev/chatlas
         aria-label: GitHub repository

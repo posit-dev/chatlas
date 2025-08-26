@@ -3,3 +3,8 @@
 /_inv
 *.quarto_ipynb
 objects.txt
+
+# API reference
+/reference
+
+CHANGELOG.md
