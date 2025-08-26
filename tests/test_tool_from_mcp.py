@@ -448,7 +448,11 @@ class TestToolFromMCP:
 
     def test_from_mcp_with_annotations(self):
         """Test creating a Tool from MCP tool with annotations."""
-        from mcp.types import ToolAnnotations
+        try:
+            from mcp.types import ToolAnnotations
+        except ImportError:
+            pytest.skip("mcp is not installed")
+            return
 
         mcp_tool = self.create_mock_mcp_tool(
             name="dangerous_tool",
