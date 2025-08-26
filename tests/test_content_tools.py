@@ -360,15 +360,4 @@ async def test_tool_custom_result_async():
     assert res_err.id == req_err.id
     assert res_err.name == req_err.name
     assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
-    assert res_err.arguments == req_err.arguments
+
