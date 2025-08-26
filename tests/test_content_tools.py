@@ -1,10 +1,9 @@
 from typing import Any, Optional, Union
 
 import pytest
-from chatlas import ChatOpenAI
-from chatlas._tools import Tool
-from chatlas.types import ContentToolRequest, ContentToolResult
 
+from chatlas import ChatOpenAI
+from chatlas.types import ContentToolRequest, ContentToolResult
 
 
 def test_register_tool():
@@ -114,14 +113,12 @@ def test_invoke_tool_returns_tool_result():
         name: str = "tool",
         args: Optional[dict[str, Any]] = None,
     ):
-        request = ContentToolRequest(
+        return ContentToolRequest(
             id="id",
             name=name,
             arguments=args or {},
+            tool=chat._tools.get(name),
         )
-        # Assign the tool (simulating what happens in _submit_request)
-        request.tool = chat._tools.get(name)
-        return request
 
     req1 = new_tool_request()
     results = list(chat._invoke_tool(req1))
@@ -181,14 +178,12 @@ async def test_invoke_tool_returns_tool_result_async():
         name: str = "tool",
         args: Optional[dict[str, Any]] = None,
     ):
-        request = ContentToolRequest(
+        return ContentToolRequest(
             id="id",
             name=name,
             arguments=args or {},
+            tool=chat._tools.get(name),
         )
-        # Assign the tool (simulating what happens in _submit_request)
-        request.tool = chat._tools.get(name)
-        return request
 
     req1 = new_tool_request()
     results = []
@@ -263,15 +258,15 @@ def test_tool_custom_result():
         id="id",
         name="custom_tool",
         arguments={},
+        tool=chat._tools.get("custom_tool"),
     )
-    req.tool = chat._tools.get("custom_tool")
-    
+
     req_err = ContentToolRequest(
         id="id",
         name="custom_tool_err",
         arguments={},
+        tool=chat._tools.get("custom_tool_err"),
     )
-    req_err.tool = chat._tools.get("custom_tool_err")
 
     results = list(chat._invoke_tool(req))
     assert len(results) == 1
@@ -325,15 +320,15 @@ async def test_tool_custom_result_async():
         id="id",
         name="custom_tool",
         arguments={},
+        tool=chat._tools.get("custom_tool"),
     )
-    req.tool = chat._tools.get("custom_tool")
 
     req_err = ContentToolRequest(
         id="id",
         name="custom_tool_err",
         arguments={},
+        tool=chat._tools.get("custom_tool_err"),
     )
-    req_err.tool = chat._tools.get("custom_tool_err")
 
     results = []
     async for result in chat._invoke_tool_async(req):
@@ -364,4 +359,16 @@ async def test_tool_custom_result_async():
     assert res_err.request == req_err
     assert res_err.id == req_err.id
     assert res_err.name == req_err.name
+    assert res_err.arguments == req_err.arguments
+    assert res_err.arguments == req_err.arguments
+    assert res_err.arguments == req_err.arguments
+    assert res_err.arguments == req_err.arguments
+    assert res_err.arguments == req_err.arguments
+    assert res_err.arguments == req_err.arguments
+    assert res_err.arguments == req_err.arguments
+    assert res_err.arguments == req_err.arguments
+    assert res_err.arguments == req_err.arguments
+    assert res_err.arguments == req_err.arguments
+    assert res_err.arguments == req_err.arguments
+    assert res_err.arguments == req_err.arguments
     assert res_err.arguments == req_err.arguments

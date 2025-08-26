@@ -67,7 +67,6 @@ class TestNewToolConstructor:
         assert tool.func == async_func
         assert tool._is_async is True
 
-    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
     def test_tool_constructor_with_annotations(self):
         """Test Tool constructor with annotations parameter."""
 
@@ -97,6 +96,7 @@ class TestNewToolConstructor:
         assert tool.name == "my_tool"
         assert tool.func == my_func
         assert tool.annotations == annotations
+        assert tool.annotations is not None
         assert tool.annotations.title == "My Tool"
         assert tool.annotations.destructiveHint is False
 
@@ -220,7 +220,6 @@ class TestToolFromFunc:
         func = tool.schema["function"]
         assert func.get("description") == "Add two numbers asynchronously."
 
-    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
     def test_from_func_with_annotations(self):
         """Test creating a Tool from a function with annotations."""
 
@@ -258,7 +257,6 @@ class TestToolFromFunc:
         assert tool.func == add
         assert tool.annotations is None
 
-    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
     def test_from_func_with_model_and_annotations(self):
         """Test creating a Tool from a function with both model and annotations."""
 
@@ -281,6 +279,7 @@ class TestToolFromFunc:
         assert tool.name == "AddParams"
         assert tool.func == add
         assert tool.annotations == annotations
+        assert tool.annotations is not None
         assert tool.annotations.title == "Add Parameters Tool"
 
         func = tool.schema["function"]
@@ -330,10 +329,18 @@ class TestNewContentClasses:
 
     def test_content_tool_result_image_valid_mime_types(self):
         """Test that valid MIME types work correctly."""
-        valid_types = ["image/png", "image/jpeg", "image/webp", "image/gif"]
+        valid_types = [
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            "image/gif",
+        ]
 
         for mime_type in valid_types:
-            result = ContentToolResultImage(value="base64data", mime_type=mime_type)
+            result = ContentToolResultImage(
+                value="base64data",
+                mime_type=mime_type,  # type: ignore
+            )
             assert result.mime_type == mime_type
 
 
@@ -540,7 +547,6 @@ class TestRegisterToolForce:
         chat.register_tool(another_func, force=True)
         assert chat._tools["test_tool"].func == another_func
 
-    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
     def test_register_tool_with_annotations(self):
         """Test register_tool() with annotations parameter."""
         chat = ChatOpenAI()
@@ -561,6 +567,7 @@ class TestRegisterToolForce:
         assert tool.name == "add"
         assert tool.func == add
         assert tool.annotations == annotations
+        assert tool.annotations is not None
         assert tool.annotations.title == "Add Tool"
         assert tool.annotations.openWorldHint is True
 
@@ -580,7 +587,6 @@ class TestRegisterToolForce:
         assert tool.func == add
         assert tool.annotations is None
 
-    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
     def test_register_tool_with_model_and_annotations(self):
         """Test register_tool() with both model and annotations."""
         chat = ChatOpenAI()
@@ -608,7 +614,6 @@ class TestRegisterToolForce:
         assert tool.annotations == annotations
         assert tool.annotations.title == "Advanced Add Tool"
 
-    @pytest.mark.skipif(not HAS_MCP, reason="mcp not installed")
     def test_register_tool_force_overwrite_with_annotations(self):
         """Test register_tool() force overwrite with annotations."""
         chat = ChatOpenAI()
@@ -636,6 +641,7 @@ class TestRegisterToolForce:
         # Register original with annotations
         chat.register_tool(add, annotations=original_annotations)
         original_tool = chat._tools["add"]
+        assert original_tool.annotations is not None
         assert original_tool.annotations.title == "Original Add"
         assert original_tool.annotations.readOnlyHint is True
 
@@ -643,6 +649,7 @@ class TestRegisterToolForce:
         chat.register_tool(new_add, force=True, annotations=new_annotations)
         new_tool = chat._tools["add"]
         assert new_tool.func == new_add
+        assert new_tool.annotations is not None
         assert new_tool.annotations.title == "New Add"
         assert new_tool.annotations.destructiveHint is True
 
@@ -958,5 +965,21 @@ class TestToolRequestAssignment:
             results.append(result)
 
         assert len(results) == 1
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
+        assert results[0].value == 7
         assert results[0].value == 7
         assert results[0].value == 7
