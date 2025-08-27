@@ -90,7 +90,11 @@ def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
 
 
 def assert_tools_simple_stream_content(chat_fun: ChatFun):
-    from mcp.types import ToolAnnotations
+    try:
+        from mcp.types import ToolAnnotations
+    except ImportError:
+        pytest.skip("mcp is not installed")
+        return
 
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
 
