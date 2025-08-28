@@ -114,7 +114,8 @@ class Tool:
         # Throw if there is a mismatch between the model and the function parameters
         params = inspect.signature(func).parameters
         fields = model.model_fields
-        diff = set(params) ^ set(fields)
+        fields_alias = [val.alias if val.alias else key for key, val in fields.items()]
+        diff = set(params) ^ set(fields_alias)
         if diff:
             raise ValueError(
                 f"`model` fields must match tool function parameters exactly. "
