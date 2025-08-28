@@ -54,7 +54,9 @@ def test_auto_settings_from_old_env_backwards_compatibility(monkeypatch):
 }""",
     )
 
-    chat = ChatAuto()
+    with pytest.warns(DeprecationWarning, match="CHATLAS_CHAT_PROVIDER"):
+        with pytest.warns(DeprecationWarning, match="CHATLAS_CHAT_MODEL"):
+            chat = ChatAuto()
 
     assert isinstance(chat, Chat)
     assert isinstance(chat.provider, OpenAIProvider)
