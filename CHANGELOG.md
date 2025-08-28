@@ -9,7 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### Breaking changes
 
+* `ChatAuto()` now takes `provider_model` as an optional first argument, which takes both provider and model in a single string in the format `"{provider}/{model}"`, e.g. `"openai/gpt-5"`. If not provided, `ChatAuto()` looks for the `CHATLAS_CHAT_PROVIDER_MODEL` environment variable, defaulting to `"openai"` if neither are provided. (#159)
+
+  The `provider` and `model` keyword arguments are now deprecated, but continue to work with a warning, as are the previous `CHATLAS_CHAT_PROVIDER` and `CHATLAS_CHAT_MODEL` environment variables.
+
+  Unlike previous versions of `ChatAuto()`, the environment variables are now used *only if function arguments are not provided*. In other words, if `provider_model` is given, the `CHATLAS_CHAT_PROVIDER_MODEL` environment variable is ignored. Similarly, `CHATLAS_CHAT_ARGS` are only used if no `kwargs` are provided. This improves interactive use cases and makes it easier to introduce application-specific environment variables.
 
 ## [0.11.0] - 2025-08-26
 
@@ -30,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* Added `ChatCloudflare()` for chatting via [Cloudflare AI](https://developers.cloudflare.com/workers-ai/get-started/rest-api/). (#150) 
+* Added `ChatCloudflare()` for chatting via [Cloudflare AI](https://developers.cloudflare.com/workers-ai/get-started/rest-api/). (#150)
 * Added `ChatDeepSeek()` for chatting via [DeepSeek](https://www.deepseek.com/). (#147)
 * Added `ChatOpenRouter()` for chatting via [Open Router](https://openrouter.ai/). (#148)
 * Added `ChatHuggingFace()` for chatting via [Hugging Face](https://huggingface.co/). (#144)
@@ -66,7 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* `Chat` gains a handful of new methods: 
+* `Chat` gains a handful of new methods:
     * `.register_mcp_tools_http_stream_async()` and `.register_mcp_tools_stdio_async()`: for registering tools from a [MCP server](https://modelcontextprotocol.io/). (#39)
     * `.get_tools()` and `.set_tools()`: for fine-grained control over registered tools. (#39)
     * `.set_model_params()`: for setting common LLM parameters in a model-agnostic fashion. (#127)
@@ -75,7 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Tool functions passed to `.register_tool()` can now `yield` numerous results. (#39)
 * A `ContentToolResultImage` content class was added for returning images from tools. It is currently only works with `ChatAnthropic`. (#39)
 * A `Tool` can now be constructed from a pre-existing tool schema (via a new `__init__` method). (#39)
-* The `Chat.app()` method gains a `host` parameter. (#122) 
+* The `Chat.app()` method gains a `host` parameter. (#122)
 * `ChatGithub()` now supports the more standard `GITHUB_TOKEN` environment variable for storing the API key. (#123)
 
 ### Changes
@@ -137,7 +143,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.1] - 2025-05-10
 
-* Added `openai` as a hard dependency, making installation easier for a wide range of use cases. (#91) 
+* Added `openai` as a hard dependency, making installation easier for a wide range of use cases. (#91)
 
 ## [0.7.0] - 2025-04-22
 
@@ -147,7 +153,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `.stream()` and `.stream_async()` gain a `content` argument. Set this to `"all"` to include `ContentToolResult`/`ContentToolRequest` objects in the stream. (#75)
 * `ContentToolResult`/`ContentToolRequest` are now exported to `chatlas` namespace. (#75)
 * `ContentToolResult`/`ContentToolRequest` gain a `.tagify()` method so they render sensibly in a Shiny app. (#75)
-* A tool can now return a `ContentToolResult`. This is useful for: 
+* A tool can now return a `ContentToolResult`. This is useful for:
     * Specifying the format used for sending the tool result to the chat model (`model_format`). (#87)
     * Custom rendering of the tool result (by overriding relevant methods in a subclass). (#75)
 * `Chat` gains a new `.current_display` property. When a `.chat()` or `.stream()` is currently active, this property returns an object with a `.echo()` method (to echo new content to the display). This is primarily useful for displaying custom content during a tool call. (#79)
