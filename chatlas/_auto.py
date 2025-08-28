@@ -226,7 +226,7 @@ def ChatAuto(
     return _provider_chat_model_map[the_provider](**final_kwargs)
 
 
-def _value_if_not_deprecated(value: Optional[str | DEPRECATED_TYPE]) -> str | None:
+def _value_if_not_deprecated(value: str | None | DEPRECATED_TYPE) -> str | None:
     return value if not isinstance(value, DEPRECATED_TYPE) else None
 
 
@@ -248,7 +248,10 @@ def _parse_provider_model(provider_model: str) -> tuple[str, Optional[str]]:
         return provider_model, None
 
 
-def _get_legacy_env_var(env_var_name: str, default: str | None) -> str | None:
+def _get_legacy_env_var(
+    env_var_name: str,
+    default: str | None | DEPRECATED_TYPE,
+) -> str | None:
     """Get legacy environment variable with deprecation warning, fallback to default."""
     env_value = os.environ.get(env_var_name)
     if env_value:
