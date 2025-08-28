@@ -75,7 +75,7 @@ async def test_register_http_mcp_server():
         assert len(chat._tools) == 1
         tool = chat._tools["add"]
         assert tool.name == "add"
-        func = tool.schema["function"]
+        func = tool.tool_schema["function"]
         assert func["name"] == "add"
         assert func.get("description") == "Add two numbers."
         assert func.get("parameters") == {
@@ -106,7 +106,7 @@ async def test_register_stdio_mcp_server():
     assert len(chat._tools) == 1
     tool = chat._tools["multiply"]
     assert tool.name == "multiply"
-    func = tool.schema["function"]
+    func = tool.tool_schema["function"]
     assert func["name"] == "multiply"
     assert func.get("description") == "Multiply two numbers."
     assert func.get("parameters") == {
@@ -174,12 +174,12 @@ async def test_register_multiple_mcp_servers():
         for tool_name, expected_tool in expected_tools.items():
             tool = chat._tools[tool_name]
             assert tool.name == expected_tool.name
-            func = tool.schema["function"]
-            assert func["name"] == expected_tool.schema["function"]["name"]
-            assert func.get("description") == expected_tool.schema["function"].get(
+            func = tool.tool_schema["function"]
+            assert func["name"] == expected_tool.tool_schema["function"]["name"]
+            assert func.get("description") == expected_tool.tool_schema["function"].get(
                 "description", "N/A"
             )
-            assert func.get("parameters") == expected_tool.schema["function"].get(
+            assert func.get("parameters") == expected_tool.tool_schema["function"].get(
                 "parameters", "N/A"
             )
 
@@ -541,4 +541,6 @@ class TestMCPTransportKwargs:
             tools = chat.get_tools()
             assert len(tools) == 1
 
+            await chat.cleanup_mcp_tools()
+            await chat.cleanup_mcp_tools()
             await chat.cleanup_mcp_tools()

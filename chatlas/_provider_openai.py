@@ -303,7 +303,7 @@ class OpenAIProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        tool_schemas = [tool.schema for tool in tools.values()]
+        tool_schemas = [tool.tool_schema for tool in tools.values()]
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,

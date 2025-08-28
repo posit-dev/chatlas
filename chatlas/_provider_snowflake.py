@@ -566,7 +566,7 @@ class SnowflakeProvider(
     def _as_snowflake_tool(self, tool: Tool):
         import snowflake.core.cortex.inference_service._generated.models as models
 
-        func = tool.schema["function"]
+        func = tool.tool_schema["function"]
         params = func.get("parameters", {})
 
         props = params.get("properties", {})

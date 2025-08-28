@@ -31,8 +31,8 @@ class TestNewToolConstructor:
 
         assert tool.name == "my_tool"
         assert tool.func == my_func
-        assert tool.schema["type"] == "function"
-        func = tool.schema["function"]
+        assert tool.tool_schema["type"] == "function"
+        func = tool.tool_schema["function"]
         assert func["name"] == "my_tool"
         assert func.get("description") == "A test tool"
         assert func.get("parameters") == parameters
@@ -77,7 +77,7 @@ class TestToolFromFunc:
         assert tool.name == "add"
         assert tool.func == add
 
-        func = tool.schema["function"]
+        func = tool.tool_schema["function"]
         assert func["name"] == "add"
         assert func.get("description") == "Add two numbers."
         assert func.get("parameters") == {
@@ -107,7 +107,7 @@ class TestToolFromFunc:
         assert tool.name == "AddParams"
         assert tool.func == add
 
-        func = tool.schema["function"]
+        func = tool.tool_schema["function"]
         assert func["name"] == "AddParams"
         assert func.get("description") == "Parameters for adding numbers."
 
@@ -140,7 +140,7 @@ class TestToolFromFunc:
 
         assert tool.name == "no_doc"
 
-        func = tool.schema["function"]
+        func = tool.tool_schema["function"]
         assert func.get("description") == ""
 
     def test_from_func_async(self):
@@ -154,7 +154,7 @@ class TestToolFromFunc:
 
         assert tool.name == "async_add"
         assert tool._is_async is True
-        func = tool.schema["function"]
+        func = tool.tool_schema["function"]
         assert func.get("description") == "Add two numbers asynchronously."
 
 
@@ -395,13 +395,13 @@ class TestRegisterToolForce:
         # Register original
         chat.register_tool(add)
         original_tool = chat._tools["add"]
-        original_func = original_tool.schema["function"]
+        original_func = original_tool.tool_schema["function"]
         assert original_func.get("description") == "Original add function."
 
         # Overwrite with force=True
         chat.register_tool(new_add, force=True)
         new_tool = chat._tools["add"]
-        new_func = new_tool.schema["function"]
+        new_func = new_tool.tool_schema["function"]
         assert new_func.get("description") == "New add function."
         assert new_tool.func == new_add
         assert len(chat._tools) == 1  # Should still be only one tool
@@ -629,4 +629,6 @@ class TestExistingToolsStillWork:
         assert result.value is None
         assert result.error is not None
         # The error message was updated to just "Unknown tool." instead of "Unknown tool: {name}"
+        assert str(result.error) == "Unknown tool."
+        assert str(result.error) == "Unknown tool."
         assert str(result.error) == "Unknown tool."

@@ -4,11 +4,10 @@ from typing import cast
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from pydantic.networks import AnyUrl
-
 from chatlas._content import ContentToolResultImage, ContentToolResultResource
 from chatlas._tools import Tool
 from chatlas.types import ContentToolResult
+from pydantic.networks import AnyUrl
 
 try:
     import mcp  # noqa: F401
@@ -52,7 +51,7 @@ class TestToolFromMCP:
 
         assert tool.name == "add"
 
-        func = tool.schema["function"]
+        func = tool.tool_schema["function"]
         assert func["name"] == "add"
         assert func.get("description") == "Add two numbers"
         assert func.get("parameters") == {
@@ -78,7 +77,7 @@ class TestToolFromMCP:
 
         tool = Tool.from_mcp(session, mcp_tool)
 
-        func = tool.schema["function"]
+        func = tool.tool_schema["function"]
         assert func.get("description") == ""
 
     def test_from_mcp_complex_schema(self):
@@ -115,7 +114,7 @@ class TestToolFromMCP:
             "additionalProperties": False,
         }
 
-        func = tool.schema["function"]
+        func = tool.tool_schema["function"]
         assert func.get("parameters") == expected_params
 
     @pytest.mark.asyncio
@@ -437,7 +436,7 @@ class TestToolFromMCP:
             "additionalProperties": False,
         }
 
-        func = tool.schema["function"]
+        func = tool.tool_schema["function"]
         assert func.get("parameters") == expected_params
         # Titles should be removed
         params = func.get("parameters", {})
@@ -493,4 +492,6 @@ class TestToolFromMCP:
         tool = Tool.from_mcp(session, mcp_tool)
 
         assert tool.name == "safe_tool"
+        assert tool.annotations is None
+        assert tool.annotations is None
         assert tool.annotations is None

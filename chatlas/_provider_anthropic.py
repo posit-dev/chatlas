@@ -310,7 +310,7 @@ class AnthropicProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
         tool_schemas = [
-            self._anthropic_tool_schema(tool.schema) for tool in tools.values()
+            self._anthropic_tool_schema(tool.tool_schema) for tool in tools.values()
         ]
 
         # If data extraction is requested, add a "mock" tool with parameters inferred from the data model
@@ -323,14 +323,16 @@ class AnthropicProvider(
 
             data_model_tool = Tool.from_func(_structured_tool_call)
 
-            data_model_tool.schema["function"]["parameters"] = {
+            data_model_tool.tool_schema["function"]["parameters"] = {
                 "type": "object",
                 "properties": {
                     "data": basemodel_to_param_schema(data_model),
                 },
             }
 
-            tool_schemas.append(self._anthropic_tool_schema(data_model_tool.schema))
+            tool_schemas.append(
+                self._anthropic_tool_schema(data_model_tool.tool_schema)
+            )
 
             if stream:
                 stream = False

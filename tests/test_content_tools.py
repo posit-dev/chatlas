@@ -1,7 +1,6 @@
 from typing import Any, Optional, Union
 
 import pytest
-
 from chatlas import ChatOpenAI
 from chatlas.types import ContentToolRequest, ContentToolResult
 
@@ -20,11 +19,11 @@ def test_register_tool():
     tool = chat._tools["add"]
     assert tool.name == "add"
     assert tool.func == add
-    assert tool.schema["function"]["name"] == "add"
-    assert "description" in tool.schema["function"]
-    assert tool.schema["function"]["description"] == ""
-    assert "parameters" in tool.schema["function"]
-    assert tool.schema["function"]["parameters"] == {
+    assert tool.tool_schema["function"]["name"] == "add"
+    assert "description" in tool.tool_schema["function"]
+    assert tool.tool_schema["function"]["description"] == ""
+    assert "parameters" in tool.tool_schema["function"]
+    assert tool.tool_schema["function"]["parameters"] == {
         "type": "object",
         "additionalProperties": False,
         "properties": {
@@ -52,14 +51,14 @@ def test_register_tool_with_complex_parameters():
     tool = chat._tools["foo"]
     assert tool.name == "foo"
     assert tool.func == foo
-    assert tool.schema["function"]["name"] == "foo"
-    assert "description" in tool.schema["function"]
+    assert tool.tool_schema["function"]["name"] == "foo"
+    assert "description" in tool.tool_schema["function"]
     assert (
-        tool.schema["function"]["description"]
+        tool.tool_schema["function"]["description"]
         == "Dummy tool for testing parameter JSON schema."
     )
-    assert "parameters" in tool.schema["function"]
-    assert tool.schema["function"]["parameters"] == {
+    assert "parameters" in tool.tool_schema["function"]
+    assert tool.tool_schema["function"]["parameters"] == {
         "type": "object",
         "additionalProperties": False,
         "properties": {
@@ -360,4 +359,3 @@ async def test_tool_custom_result_async():
     assert res_err.id == req_err.id
     assert res_err.name == req_err.name
     assert res_err.arguments == req_err.arguments
-

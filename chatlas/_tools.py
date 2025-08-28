@@ -5,7 +5,14 @@ import warnings
 from typing import TYPE_CHECKING, Any, AsyncGenerator, Awaitable, Callable, Optional
 
 import openai
-from pydantic import BaseModel, Field, create_model
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    create_model,
+    field_serializer,
+)
 
 from . import _utils
 from ._content import (
@@ -26,7 +33,7 @@ if TYPE_CHECKING:
     from openai.types.chat import ChatCompletionToolParam
 
 
-class Tool:
+class Tool(BaseModel):
     """
     Define a tool
 
@@ -48,29 +55,30 @@ class Tool:
         a `from mcp.types import ToolAnnotations` instance.
     """
 
-    func: Callable[..., Any] | Callable[..., Awaitable[Any]]
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def __init__(
-        self,
-        *,
-        func: Callable[..., Any] | Callable[..., Awaitable[Any]],
-        name: str,
-        description: str,
-        parameters: dict[str, Any],
-        annotations: "Optional[ToolAnnotations]" = None,
-    ):
-        self.name = name
-        self.func = func
-        self.annotations = annotations
-        self._is_async = _utils.is_async_callable(func)
-        self.schema: "ChatCompletionToolParam" = {
+    func: Callable[..., Any] | Callable[..., Awaitable[Any]]
+    name: str
+    description: str
+    parameters: dict[str, Any]
+    annotations: "Optional[ToolAnnotations]" = None
+    tool_schema: "Optional[ChatCompletionToolParam]" = None
+    _is_async: bool = PrivateAttr()
+
+    def model_post_init(self, __context: Any) -> None:
+        self._is_async = _utils.is_async_callable(self.func)
+        self.tool_schema = {
             "type": "function",
             "function": {
-                "name": name,
-                "description": description,
-                "parameters": parameters,
+                "name": self.name,
+                "description": self.description,
+                "parameters": self.parameters,
             },
         }
+
+    @field_serializer("func")
+    def serialize_func(self, func: Callable[..., Any]) -> str:
+        return getattr(func, "__name__", "<unknown>")
 
     @classmethod
     def from_func(
