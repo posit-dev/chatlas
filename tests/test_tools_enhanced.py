@@ -1,10 +1,9 @@
 import pytest
-from pydantic import BaseModel, Field
-
 from chatlas import ChatOpenAI
 from chatlas._content import ContentToolResultImage, ContentToolResultResource
 from chatlas._tools import Tool
 from chatlas.types import ContentToolRequest, ContentToolResult
+from pydantic import BaseModel, Field
 
 
 class TestNewToolConstructor:
@@ -329,6 +328,30 @@ class TestChatGetSetTools:
         assert len(tools) == 2
         tool_names = {tool.name for tool in tools}
         assert tool_names == {"new1", "new2"}
+
+
+class TestRegisterToolName:
+    """Test register_tool() with name parameter."""
+
+    def test_register_tool_with_custom_name(self):
+        """Test registering a tool with a custom name."""
+        chat = ChatOpenAI()
+
+        def add_numbers(x: int, y: int) -> int:
+            """Add two numbers together."""
+            return x + y
+
+        chat.register_tool(add_numbers, name="add")
+
+        tools = chat.get_tools()
+        assert len(tools) == 1
+        tool = tools[0]
+        assert tool.name == "add"
+        assert tool.func == add_numbers
+
+        # Check the schema uses the custom name
+        func_schema = tool.schema["function"]
+        assert func_schema["name"] == "add"
 
 
 class TestRegisterToolForce:
