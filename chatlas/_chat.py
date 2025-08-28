@@ -1537,6 +1537,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
         force: bool = False,
+        name: Optional[str] = None,
         model: Optional[type[BaseModel]] = None,
         annotations: "Optional[ToolAnnotations]" = None,
     ):
@@ -1610,6 +1611,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         force
             If `True`, overwrite any existing tool with the same name. If `False`
             (the default), raise an error if a tool with the same name already exists.
+        name
+            The name of the tool. If not provided, the name will be inferred from the
+            `func`'s name (or the `model`'s name, if provided).
         model
             A Pydantic model that describes the input parameters for the function.
             If not provided, the model will be inferred from the function's type hints.
@@ -1625,7 +1629,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ValueError
             If a tool with the same name already exists and `force` is `False`.
         """
-        tool = Tool.from_func(func, model=model, annotations=annotations)
+        tool = Tool.from_func(func, name=name, model=model, annotations=annotations)
         if tool.name in self._tools and not force:
             raise ValueError(
                 f"Tool with name '{tool.name}' is already registered. "

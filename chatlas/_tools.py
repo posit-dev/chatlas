@@ -77,6 +77,7 @@ class Tool:
         cls: type["Tool"],
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
+        name: Optional[str] = None,
         model: Optional[type[BaseModel]] = None,
         annotations: "Optional[ToolAnnotations]" = None,
     ) -> "Tool":
@@ -87,6 +88,9 @@ class Tool:
         ----------
         func
             The function to wrap as a tool.
+        name
+            The name of the tool. If not provided, the name will be inferred from the
+            function's name.
         model
             A Pydantic model that describes the input parameters for the function.
             If not provided, the model will be inferred from the function's type hints.
@@ -126,7 +130,7 @@ class Tool:
 
         return cls(
             func=func,
-            name=model.__name__ or func.__name__,
+            name=name or model.__name__ or func.__name__,
             description=model.__doc__ or func.__doc__ or "",
             parameters=params,
             annotations=annotations,
