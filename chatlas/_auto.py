@@ -176,11 +176,7 @@ def ChatAuto(
         environment variables.
     """
     if provider is not DEPRECATED:
-        warnings.warn(
-            "The 'provider' parameter is deprecated. Use 'provider_model' instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        _warn_deprecated_param("provider")
 
     if model is not DEPRECATED:
         if provider is DEPRECATED:
@@ -188,25 +184,15 @@ def ChatAuto(
                 "The `model` parameter is deprecated and cannot be used without the `provider` parameter. "
                 "Use `provider_model` instead."
             )
-
-        warnings.warn(
-            "The 'model' parameter is deprecated. Use 'provider_model' instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        _warn_deprecated_param("model")
 
     if provider_model is None:
         provider_model = os.environ.get("CHATLAS_CHAT_PROVIDER_MODEL")
 
     if provider_model is None:
         # Backwards compatibility: construct from old env vars as a fallback
-        env_provider = os.environ.get(
-            "CHATLAS_CHAT_PROVIDER", _value_if_not_deprecated(provider)
-        )
-
-        env_model = os.environ.get(
-            "CHATLAS_CHAT_MODEL", _value_if_not_deprecated(model)
-        )
+        env_provider = _get_legacy_env_var("CHATLAS_CHAT_PROVIDER", provider)
+        env_model = _get_legacy_env_var("CHATLAS_CHAT_MODEL", model)
 
         if env_provider:
             provider_model = env_provider
@@ -260,3 +246,27 @@ def _parse_provider_model(provider_model: str) -> tuple[str, Optional[str]]:
         return provider, model
     else:
         return provider_model, None
+
+
+def _get_legacy_env_var(env_var_name: str, default: str | None) -> str | None:
+    """Get legacy environment variable with deprecation warning, fallback to default."""
+    env_value = os.environ.get(env_var_name)
+    if env_value:
+        warnings.warn(
+            f"The '{env_var_name}' environment variable is deprecated. "
+            "Use 'CHATLAS_CHAT_PROVIDER_MODEL' instead.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        return env_value
+    else:
+        return _value_if_not_deprecated(default)
+
+
+def _warn_deprecated_param(param_name: str, stacklevel: int = 3) -> None:
+    """Issue deprecation warning for old parameters."""
+    warnings.warn(
+        f"The '{param_name}' parameter is deprecated. Use 'provider_model' instead.",
+        DeprecationWarning,
+        stacklevel=stacklevel,
+    )
