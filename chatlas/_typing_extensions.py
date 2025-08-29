@@ -13,7 +13,7 @@ else:
 # Even though TypedDict is available in Python 3.8, because it's used with NotRequired,
 # they should both come from the same typing module.
 # https://peps.python.org/pep-0655/#usage-in-python-3-11
-if sys.version_info > (3, 12):
+if sys.version_info >= (3, 12):
     from typing import NotRequired, Required, TypedDict
 else:
     from typing_extensions import NotRequired, Required, TypedDict
