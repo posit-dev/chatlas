@@ -6,8 +6,58 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 import orjson
 from pydantic import BaseModel, ConfigDict
 
+from ._typing_extensions import NotRequired, TypedDict
+
 if TYPE_CHECKING:
     from ._tools import Tool
+
+
+class ToolAnnotations(TypedDict, total=False):
+    """
+    Additional properties describing a Tool to clients.
+
+    NOTE: all properties in ToolAnnotations are **hints**.
+    They are not guaranteed to provide a faithful description of
+    tool behavior (including descriptive properties like `title`).
+
+    Clients should never make tool use decisions based on ToolAnnotations
+    received from untrusted servers.
+    """
+
+    title: NotRequired[str]
+    """A human-readable title for the tool."""
+
+    readOnlyHint: NotRequired[bool]
+    """
+    If true, the tool does not modify its environment.
+    Default: false
+    """
+
+    destructiveHint: NotRequired[bool]
+    """
+    If true, the tool may perform destructive updates to its environment.
+    If false, the tool performs only additive updates.
+    (This property is meaningful only when `readOnlyHint == false`)
+    Default: true
+    """
+
+    idempotentHint: NotRequired[bool]
+    """
+    If true, calling the tool repeatedly with the same arguments
+    will have no additional effect on the its environment.
+    (This property is meaningful only when `readOnlyHint == false`)
+    Default: false
+    """
+
+    openWorldHint: NotRequired[bool]
+    """
+    If true, this tool may interact with an "open world" of external
+    entities. If false, the tool's domain of interaction is closed.
+    For example, the world of a web search tool is open, whereas that
+    of a memory tool is not.
+    Default: true
+    """
+
 
 ImageContentTypes = Literal[
     "image/png",
@@ -18,6 +68,45 @@ ImageContentTypes = Literal[
 """
 Allowable content types for images.
 """
+
+
+class ToolInfo(BaseModel):
+    """
+    Serializable tool information
+
+    This contains only the serializable parts of a Tool that are needed
+    for ContentToolRequest to be JSON-serializable. This allows tool
+    metadata to be preserved without including the non-serializable
+    function reference.
+
+    Parameters
+    ----------
+    name
+        The name of the tool.
+    description
+        A description of what the tool does.
+    parameters
+        A dictionary describing the input parameters and their types.
+    annotations
+        Additional properties that describe the tool and its behavior.
+    """
+
+    name: str
+    description: str
+    parameters: dict[str, Any]
+    annotations: Optional[ToolAnnotations] = None
+
+    @classmethod
+    def from_tool(cls, tool: "Tool") -> "ToolInfo":
+        """Create a ToolInfo from a Tool instance."""
+        func_schema = tool.schema["function"]
+        return cls(
+            name=tool.name,
+            description=func_schema.get("description", ""),
+            parameters=func_schema.get("parameters", {}),
+            annotations=tool.annotations,
+        )
+
 
 ContentTypeEnum = Literal[
     "text",
@@ -175,14 +264,15 @@ class ContentToolRequest(Content):
     arguments
         The arguments to pass to the tool/function.
     tool
-        The tool/function to be called. This is set internally by chatlas's tool
-        calling loop.
+        Serializable information about the tool. This is set internally by
+        chatlas's tool calling loop and contains only the metadata needed
+        for serialization (name, description, parameters, annotations).
     """
 
     id: str
     name: str
     arguments: object
-    tool: Optional["Tool"] = None
+    tool: Optional[ToolInfo] = None
 
     content_type: ContentTypeEnum = "tool_request"
 

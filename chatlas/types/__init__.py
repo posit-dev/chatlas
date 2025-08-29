@@ -13,6 +13,8 @@ from .._content import (
     ContentToolRequest,
     ContentToolResult,
     ImageContentTypes,
+    ToolAnnotations,
+    ToolInfo,
 )
 from .._provider import ModelInfo
 from .._tokens import TokenUsage
@@ -32,6 +34,8 @@ __all__ = (
     "ImageContentTypes",
     "SubmitInputArgsT",
     "TokenUsage",
+    "ToolAnnotations",
+    "ToolInfo",
     "MISSING_TYPE",
     "MISSING",
     "ModelInfo",

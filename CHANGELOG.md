@@ -15,7 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* `ContentToolRequest` is (once again) serializable to/from JSON via Pydantic. (#164)
 * `.register_tool(model=model)` no longer unexpectedly errors when `model` contains `pydantic.Field(alias='_my_alias')`. (#161)
+
+### Changes
+
+* `.register_tool(annotations=annotations)` drops support for `mcp.types.ToolAnnotations()` and instead expects a dictionary of the same info. (#164)
 
 
 ## [0.11.0] - 2025-08-26

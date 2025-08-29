@@ -34,6 +34,7 @@ from ._content import (
     ContentText,
     ContentToolRequest,
     ContentToolResult,
+    ToolInfo,
 )
 from ._display import (
     EchoDisplayOptions,
@@ -52,7 +53,7 @@ from ._typing_extensions import TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 if TYPE_CHECKING:
-    from mcp.types import ToolAnnotations
+    from ._content import ToolAnnotations
 
 
 class TokensDict(TypedDict):
@@ -1622,7 +1623,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             name and docstring of the function.
         annotations
             Additional properties that describe the tool and its behavior.
-            Should be a `from mcp.types import ToolAnnotations` instance.
 
         Raises
         ------
@@ -1937,7 +1937,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             all_results: list[ContentToolResult] = []
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
-                    x.tool = self._tools.get(x.name)
+                    tool = self._tools.get(x.name)
+                    if tool is not None:
+                        x.tool = ToolInfo.from_tool(tool)
                     if echo == "output":
                         self._echo_content(f"\n\n{x}\n\n")
                     if content == "all":
@@ -1998,7 +2000,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             all_results: list[ContentToolResult] = []
             for x in turn.contents:
                 if isinstance(x, ContentToolRequest):
-                    x.tool = self._tools.get(x.name)
+                    tool = self._tools.get(x.name)
+                    if tool is not None:
+                        x.tool = ToolInfo.from_tool(tool)
                     if echo == "output":
                         self._echo_content(f"\n\n{x}\n\n")
                     if content == "all":
@@ -2156,7 +2160,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self._turns.extend([user_turn, turn])
 
     def _invoke_tool(self, request: ContentToolRequest):
-        tool = request.tool
+        tool = self._tools.get(request.name)
         func = tool.func if tool is not None else None
 
         if func is None:
@@ -2204,7 +2208,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             yield self._handle_tool_error_result(request, e)
 
     async def _invoke_tool_async(self, request: ContentToolRequest):
-        tool = request.tool
+        tool = self._tools.get(request.name)
 
         if tool is None:
             yield self._handle_tool_error_result(

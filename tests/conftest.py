@@ -90,11 +90,7 @@ def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
 
 
 def assert_tools_simple_stream_content(chat_fun: ChatFun):
-    try:
-        from mcp.types import ToolAnnotations
-    except ImportError:
-        pytest.skip("mcp is not installed")
-        return
+    from chatlas._content import ToolAnnotations
 
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
 
@@ -114,7 +110,7 @@ def assert_tools_simple_stream_content(chat_fun: ChatFun):
     assert request[0].tool is not None
     assert request[0].tool.name == "get_date"
     assert request[0].tool.annotations is not None
-    assert request[0].tool.annotations.title == "Get Date"
+    assert request[0].tool.annotations["title"] == "Get Date"
 
     # Emits a response (with a reference to the request)
     response = [x for x in chunks if isinstance(x, ContentToolResult)]
