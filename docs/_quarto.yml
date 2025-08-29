@@ -136,6 +136,7 @@ quartodoc:
         - ChatPortkey
         - ChatSnowflake
         - ChatVertex
+        - ChatVllm
     - title: The chat object
       desc: Methods and attributes available on a chat instance
       contents:
