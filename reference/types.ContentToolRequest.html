@@ -75,7 +75,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-441cf8784b515adac1424855ab078ac0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-cf9289e79690e31abfd808b53678e2bf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-9ba14904f6787f6df8e0dd2d65b77f38.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -564,6 +564,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">types.TokenUsage</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ToolAnnotations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ToolAnnotations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ToolInfo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ToolInfo</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -602,10 +614,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 9%">
-<col style="width: 6%">
-<col style="width: 73%">
-<col style="width: 10%">
+<col style="width: 4%">
+<col style="width: 3%">
+<col style="width: 86%">
+<col style="width: 5%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -637,7 +649,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td>tool</td>
 <td></td>
-<td>The tool/function to be called. This is set internally by chatlas’s tool calling loop.</td>
+<td>Serializable information about the tool. This is set internally by chatlas’s tool calling loop and contains only the metadata needed for serialization (name, description, parameters, annotations).</td>
 <td><em>required</em></td>
 </tr>
 </tbody>

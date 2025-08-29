@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>provider – chatlas</title>
+<title>types.toolannotations – chatlas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,8 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/types.Content.html" rel="next">
-<link href="../reference/token_usage.html" rel="prev">
+<link href="../reference/types.ToolInfo.html" rel="next">
+<link href="../reference/types.TokenUsage.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -156,7 +156,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/Provider.html">Implement a model provider</a></li><li class="breadcrumb-item"><a href="../reference/Provider.html">Provider</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.ToolAnnotations.html">types.ToolAnnotations</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -459,7 +459,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/Provider.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/Provider.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Provider</span></a>
   </div>
 </li>
@@ -566,7 +566,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/types.ToolAnnotations.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/types.ToolAnnotations.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">types.ToolAnnotations</span></a>
   </div>
 </li>
@@ -588,16 +588,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.Provider" id="toc-chatlas.Provider" class="nav-link active" data-scroll-target="#chatlas.Provider">Provider</a>
+  <li><a href="#chatlas.types.ToolAnnotations" id="toc-chatlas.types.ToolAnnotations" class="nav-link active" data-scroll-target="#chatlas.types.ToolAnnotations">types.ToolAnnotations</a>
   <ul class="collapse">
   <li><a href="#attributes" id="toc-attributes" class="nav-link" data-scroll-target="#attributes">Attributes</a></li>
-  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
-  <ul class="collapse">
-  <li><a href="#chatlas.Provider.list_models" id="toc-chatlas.Provider.list_models" class="nav-link" data-scroll-target="#chatlas.Provider.list_models">list_models</a></li>
-  </ul></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/Provider.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ToolAnnotations.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -605,12 +601,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="chatlas.Provider" class="level1">
-<h1>Provider</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Provider(name, model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>A model provider interface for a <a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat"><code>Chat</code></a>.</p>
-<p>This abstract class defines the interface a model provider must implement in order to be used with a <a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat"><code>Chat</code></a> instance. The provider is responsible for performing the actual chat completion, and for handling the streaming of the completion results.</p>
-<p>Note that this class is exposed for developers who wish to implement their own provider. In general, you should not need to interact with this class directly.</p>
+<section id="chatlas.types.ToolAnnotations" class="level1">
+<h1>types.ToolAnnotations</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>types.ToolAnnotations()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Additional properties describing a Tool to clients.</p>
+<p>NOTE: all properties in ToolAnnotations are <strong>hints</strong>. They are not guaranteed to provide a faithful description of tool behavior (including descriptive properties like <code>title</code>).</p>
+<p>Clients should never make tool use decisions based on ToolAnnotations received from untrusted servers.</p>
 <section id="attributes" class="level2">
 <h2 class="anchored" data-anchor-id="attributes">Attributes</h2>
 <table class="caption-top table">
@@ -622,39 +618,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><a href="#chatlas.Provider.model">model</a></td>
-<td>Get the model used by the provider</td>
+<td><a href="#chatlas.types.ToolAnnotations.destructiveHint">destructiveHint</a></td>
+<td>If true, the tool may perform destructive updates to its environment.</td>
 </tr>
 <tr class="even">
-<td><a href="#chatlas.Provider.name">name</a></td>
-<td>Get the name of the provider</td>
+<td><a href="#chatlas.types.ToolAnnotations.idempotentHint">idempotentHint</a></td>
+<td>If true, calling the tool repeatedly with the same arguments</td>
 </tr>
-</tbody>
-</table>
-</section>
-<section id="methods" class="level2">
-<h2 class="anchored" data-anchor-id="methods">Methods</h2>
-<table class="caption-top table">
-<thead>
-<tr class="header">
-<th>Name</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
 <tr class="odd">
-<td><a href="#chatlas.Provider.list_models">list_models</a></td>
-<td>List all available models for the provider.</td>
+<td><a href="#chatlas.types.ToolAnnotations.openWorldHint">openWorldHint</a></td>
+<td>If true, this tool may interact with an “open world” of external</td>
+</tr>
+<tr class="even">
+<td><a href="#chatlas.types.ToolAnnotations.readOnlyHint">readOnlyHint</a></td>
+<td>If true, the tool does not modify its environment.</td>
+</tr>
+<tr class="odd">
+<td><a href="#chatlas.types.ToolAnnotations.title">title</a></td>
+<td>A human-readable title for the tool.</td>
 </tr>
 </tbody>
 </table>
-<section id="chatlas.Provider.list_models" class="level3">
-<h3 class="anchored" data-anchor-id="chatlas.Provider.list_models">list_models</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>Provider.list_models()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>List all available models for the provider.</p>
 
 
-</section>
 </section>
 </section>
 
@@ -1081,13 +1067,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/token_usage.html" class="pagination-link" aria-label="token_usage">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">token_usage</span>
+      <a href="../reference/types.TokenUsage.html" class="pagination-link" aria-label="types.TokenUsage">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">types.TokenUsage</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/types.Content.html" class="pagination-link" aria-label="types.Content">
-        <span class="nav-page-text">types.Content</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/types.ToolInfo.html" class="pagination-link" aria-label="types.ToolInfo">
+        <span class="nav-page-text">types.ToolInfo</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1099,7 +1085,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/Provider.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ToolAnnotations.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
