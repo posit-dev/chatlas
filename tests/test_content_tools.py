@@ -4,6 +4,7 @@ import pytest
 
 from chatlas import ChatOpenAI
 from chatlas.types import ContentToolRequest, ContentToolResult
+from chatlas._content import ToolInfo
 
 
 def test_register_tool():
@@ -113,11 +114,12 @@ def test_invoke_tool_returns_tool_result():
         name: str = "tool",
         args: Optional[dict[str, Any]] = None,
     ):
+        tool_obj = chat._tools.get(name)
         return ContentToolRequest(
             id="id",
             name=name,
             arguments=args or {},
-            tool=chat._tools.get(name),
+            tool=ToolInfo.from_tool(tool_obj) if tool_obj else None,
         )
 
     req1 = new_tool_request()
@@ -178,11 +180,12 @@ async def test_invoke_tool_returns_tool_result_async():
         name: str = "tool",
         args: Optional[dict[str, Any]] = None,
     ):
+        tool_obj = chat._tools.get(name)
         return ContentToolRequest(
             id="id",
             name=name,
             arguments=args or {},
-            tool=chat._tools.get(name),
+            tool=ToolInfo.from_tool(tool_obj) if tool_obj else None,
         )
 
     req1 = new_tool_request()
@@ -254,18 +257,20 @@ def test_tool_custom_result():
     chat.register_tool(custom_tool)
     chat.register_tool(custom_tool_err)
 
+    tool_obj = chat._tools.get("custom_tool")
     req = ContentToolRequest(
         id="id",
         name="custom_tool",
         arguments={},
-        tool=chat._tools.get("custom_tool"),
+        tool=ToolInfo.from_tool(tool_obj) if tool_obj else None,
     )
 
+    tool_err_obj = chat._tools.get("custom_tool_err")
     req_err = ContentToolRequest(
         id="id",
         name="custom_tool_err",
         arguments={},
-        tool=chat._tools.get("custom_tool_err"),
+        tool=ToolInfo.from_tool(tool_err_obj) if tool_err_obj else None,
     )
 
     results = list(chat._invoke_tool(req))
@@ -316,18 +321,20 @@ async def test_tool_custom_result_async():
     chat.register_tool(custom_tool)
     chat.register_tool(custom_tool_err)
 
+    tool_obj = chat._tools.get("custom_tool")
     req = ContentToolRequest(
         id="id",
         name="custom_tool",
         arguments={},
-        tool=chat._tools.get("custom_tool"),
+        tool=ToolInfo.from_tool(tool_obj) if tool_obj else None,
     )
 
+    tool_err_obj = chat._tools.get("custom_tool_err")
     req_err = ContentToolRequest(
         id="id",
         name="custom_tool_err",
         arguments={},
-        tool=chat._tools.get("custom_tool_err"),
+        tool=ToolInfo.from_tool(tool_err_obj) if tool_err_obj else None,
     )
 
     results = []

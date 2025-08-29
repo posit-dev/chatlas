@@ -6,6 +6,8 @@ from ._content import (
     ContentToolResult,
     ContentToolResultImage,
     ContentToolResultResource,
+    ToolAnnotations,
+    ToolInfo,
 )
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._content_pdf import content_pdf_file, content_pdf_url
@@ -65,6 +67,8 @@ __all__ = (
     "ContentToolResult",
     "ContentToolResultImage",
     "ContentToolResultResource",
+    "ToolAnnotations",
+    "ToolInfo",
     "interpolate",
     "interpolate_file",
     "Provider",
