@@ -9,6 +9,8 @@ from pydantic import BaseModel, ConfigDict
 from ._typing_extensions import NotRequired, TypedDict
 
 if TYPE_CHECKING:
+    from htmltools import HTML, MetadataNode, Tag, TagList
+
     from ._tools import Tool
 
 
@@ -300,7 +302,7 @@ class ContentToolRequest(Content):
     def __repr_html__(self) -> str:
         return str(self.tagify())
 
-    def tagify(self):
+    def tagify(self) -> "TagList | Tag | MetadataNode | str | HTML":
         "Returns an HTML string suitable for passing to htmltools/shiny's `Chat()` component."
         try:
             from htmltools import HTML, TagList, head_content, tags
@@ -471,7 +473,7 @@ class ContentToolResult(Content):
     def __repr_html__(self):
         return str(self.tagify())
 
-    def tagify(self):
+    def tagify(self) -> "TagList | Tag | MetadataNode | str | HTML":
         "A method for rendering this object via htmltools/shiny."
         try:
             from htmltools import HTML, html_escape
