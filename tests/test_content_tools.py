@@ -403,7 +403,3 @@ def test_content_tool_request_serializable():
     assert parsed.tool is not None
     assert parsed.tool.name == "add"
     assert parsed.tool.description == "Add two numbers"
-    assert parsed.tool.description == "Add two numbers"
-    assert parsed.tool.description == "Add two numbers"
-    assert parsed.tool.description == "Add two numbers"
-    assert parsed.tool.description == "Add two numbers"
