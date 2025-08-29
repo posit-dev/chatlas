@@ -1,3 +1,4 @@
+import json
 from typing import Any, Optional, Union
 
 import pytest
@@ -295,6 +296,43 @@ def test_tool_custom_result():
     assert res_err.arguments == req_err.arguments
 
 
+def test_content_tool_request_serializable():
+    """Test that ContentToolRequest with Tool instance is JSON serializable"""
+    chat = ChatOpenAI()
+
+    def add(x: int, y: int) -> int:
+        """Add two numbers"""
+        return x + y
+
+    chat.register_tool(add)
+    tool = chat._tools["add"]
+
+    # Create a ContentToolRequest with a Tool instance
+    request = ContentToolRequest(
+        id="test-123",
+        name="add",
+        arguments={"x": 1, "y": 2},
+        tool=tool,
+    )
+
+    # Test that it can be serialized to JSON
+    json_data = request.model_dump_json()
+    assert isinstance(json_data, str)
+
+    # Test model can be validated from JSON
+    parsed = ContentToolRequest.model_validate_json(json_data)
+    assert parsed.id == "test-123"
+    assert parsed.name == "add"
+    assert parsed.arguments == {"x": 1, "y": 2}
+    assert parsed.content_type == "tool_request"
+
+    # Test that the tool is serialized (func is excluded from serialization)
+    assert parsed.tool is not None
+    assert parsed.tool.name == "add"
+    assert parsed.tool.func is None  # func is excluded from serialization
+    assert parsed.tool.description == "Add two numbers"
+
+
 @pytest.mark.asyncio
 async def test_tool_custom_result_async():
     chat = ChatOpenAI()
@@ -359,3 +397,40 @@ async def test_tool_custom_result_async():
     assert res_err.id == req_err.id
     assert res_err.name == req_err.name
     assert res_err.arguments == req_err.arguments
+
+
+def test_content_tool_request_serializable():
+    """Test that ContentToolRequest with Tool instance is JSON serializable"""
+    chat = ChatOpenAI()
+
+    def add(x: int, y: int) -> int:
+        """Add two numbers"""
+        return x + y
+
+    chat.register_tool(add)
+    tool = chat._tools["add"]
+
+    # Create a ContentToolRequest with a Tool instance
+    request = ContentToolRequest(
+        id="test-123",
+        name="add",
+        arguments={"x": 1, "y": 2},
+        tool=tool,
+    )
+
+    # Test that it can be serialized to JSON
+    json_data = request.model_dump_json()
+    assert isinstance(json_data, str)
+
+    # Test that the JSON can be parsed
+    parsed = ContentToolRequest.model_validate_json(json_data)
+    assert parsed.id == "test-123"
+    assert parsed.name == "add"
+    assert parsed.arguments == {"x": 1, "y": 2}
+    assert parsed.content_type == "tool_request"
+
+    # Test that the tool is serialized (func is excluded from serialization)
+    assert parsed.tool is not None
+    assert parsed.tool.name == "add"
+    assert parsed.tool.func is None  # func is excluded from serialization
+    assert parsed.tool.description == "Add two numbers"

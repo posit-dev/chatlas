@@ -2,16 +2,24 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from typing import TYPE_CHECKING, Any, AsyncGenerator, Awaitable, Callable, Optional
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncGenerator,
+    Awaitable,
+    Callable,
+    Optional,
+    cast,
+)
 
 import openai
+from openai.types.chat import ChatCompletionToolParam
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
     PrivateAttr,
     create_model,
-    field_serializer,
 )
 
 from . import _utils
@@ -20,6 +28,7 @@ from ._content import (
     ContentToolResultImage,
     ContentToolResultResource,
 )
+from ._typing_extensions import NotRequired, TypedDict
 
 __all__ = (
     "Tool",
@@ -29,8 +38,54 @@ __all__ = (
 if TYPE_CHECKING:
     from mcp import ClientSession as MCPClientSession
     from mcp import Tool as MCPTool
-    from mcp.types import ToolAnnotations
-    from openai.types.chat import ChatCompletionToolParam
+
+
+# Copy-pasted from mcp.types.ToolAnnotations
+class ToolAnnotations(TypedDict):
+    """
+    Additional properties describing a Tool to clients.
+
+    NOTE: all properties in ToolAnnotations are **hints**.
+    They are not guaranteed to provide a faithful description of
+    tool behavior (including descriptive properties like `title`).
+
+    Clients should never make tool use decisions based on ToolAnnotations
+    received from untrusted servers.
+    """
+
+    title: NotRequired[str]
+    """A human-readable title for the tool."""
+
+    readOnlyHint: NotRequired[bool]
+    """
+    If true, the tool does not modify its environment.
+    Default: false
+    """
+
+    destructiveHint: NotRequired[bool]
+    """
+    If true, the tool may perform destructive updates to its environment.
+    If false, the tool performs only additive updates.
+    (This property is meaningful only when `readOnlyHint == false`)
+    Default: true
+    """
+
+    idempotentHint: NotRequired[bool]
+    """
+    If true, calling the tool repeatedly with the same arguments
+    will have no additional effect on the its environment.
+    (This property is meaningful only when `readOnlyHint == false`)
+    Default: false
+    """
+
+    openWorldHint: NotRequired[bool]
+    """
+    If true, this tool may interact with an "open world" of external
+    entities. If false, the tool's domain of interaction is closed.
+    For example, the world of a web search tool is open, whereas that
+    of a memory tool is not.
+    Default: true
+    """
 
 
 class Tool(BaseModel):
@@ -57,16 +112,20 @@ class Tool(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    func: Callable[..., Any] | Callable[..., Awaitable[Any]]
+    func: Optional[Callable[..., Any] | Callable[..., Awaitable[Any]]] = Field(default=None, exclude=True)
     name: str
     description: str
     parameters: dict[str, Any]
-    annotations: "Optional[ToolAnnotations]" = None
-    tool_schema: "Optional[ChatCompletionToolParam]" = None
+    annotations: Optional[ToolAnnotations] = None
+    tool_schema: Optional[ChatCompletionToolParam] = None
     _is_async: bool = PrivateAttr()
 
     def model_post_init(self, __context: Any) -> None:
-        self._is_async = _utils.is_async_callable(self.func)
+        # Only set _is_async if func is callable, default to False for None
+        if self.func is not None:
+            self._is_async = _utils.is_async_callable(self.func)
+        else:
+            self._is_async = False
         self.tool_schema = {
             "type": "function",
             "function": {
@@ -76,9 +135,6 @@ class Tool(BaseModel):
             },
         }
 
-    @field_serializer("func")
-    def serialize_func(self, func: Callable[..., Any]) -> str:
-        return getattr(func, "__name__", "<unknown>")
 
     @classmethod
     def from_func(
@@ -216,12 +272,16 @@ class Tool(BaseModel):
 
         params = mcp_tool_input_schema_to_param_schema(mcp_tool.inputSchema)
 
+        annotations = None
+        if mcp_tool.annotations:
+            annotations = cast(ToolAnnotations, mcp_tool.annotations.model_dump())
+
         return cls(
             func=_utils.wrap_async(_call),
             name=mcp_tool.name,
             description=mcp_tool.description or "",
             parameters=params,
-            annotations=mcp_tool.annotations,
+            annotations=annotations,
         )
 
 
