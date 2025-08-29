@@ -215,7 +215,7 @@ class Tool:
         params = mcp_tool_input_schema_to_param_schema(mcp_tool.inputSchema)
 
         # Convert MCP ToolAnnotations to our TypedDict format
-        annotations: ToolAnnotations = {}
+        annotations = None
         if mcp_tool.annotations:
             annotations = cast(ToolAnnotations, mcp_tool.annotations.model_dump())
 
