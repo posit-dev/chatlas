@@ -4,11 +4,13 @@ from pprint import pformat
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 
 import orjson
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
 
 from ._typing_extensions import NotRequired, TypedDict
 
 if TYPE_CHECKING:
+    from htmltools import RenderedHTML, TagChild
+
     from ._tools import Tool
 
 
@@ -468,6 +470,35 @@ class ContentToolResult(Content):
 
         return orjson.dumps(value).decode("utf-8")
 
+    # The extra field serializer/validator below is a hack to get
+    # bookmarking/serializing of custom tool displays working for shinychat.
+    # There, extra["display"] can be a dictionary, with 'html'/'icon' keys that
+    # hold Tag objects (and Tags currently aren't serializable).
+    # https://github.com/posit-dev/shinychat/blob/7c569e53/pkg-py/src/shinychat/_chat_normalize_chatlas.py#L142
+    @field_serializer("extra")
+    def _serialize_extra(self, value: Any) -> dict:
+        if isinstance(value, dict) and "display" in value:
+            display = value["display"]
+            for key in ["html", "icon"]:
+                if key in display and not isinstance(display[key], dict):
+                    display[key] = serialize_html(display[key])
+            value["display"] = display
+
+        return value
+
+    @field_validator("extra", mode="before")
+    @classmethod
+    def _validate_extra(cls, value: Any) -> Any:
+        if isinstance(value, dict) and "display" in value:
+            display = value["display"]
+            for key in ["html", "icon"]:
+                if isinstance(display, dict) and key in display:
+                    item = display[key]
+                    if isinstance(item, dict):
+                        display[key] = restore_html(item)
+
+        return value
+
     def __repr_html__(self):
         return str(self.tagify())
 
@@ -691,6 +722,46 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentPDF.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
+
+
+def serialize_html(x: "TagChild") -> "RenderedHTML":
+    from htmltools import TagList
+
+    return TagList(x).render()
+
+
+def restore_html(x: dict[str, Any]):
+    from htmltools import HTML, HTMLDependency, TagList
+
+    if "html" not in x or "dependencies" not in x:
+        raise ValueError(f"Don't know how to restore HTML from {x}")
+
+    deps: list[HTMLDependency] = []
+    for d in x["dependencies"]:
+        if not isinstance(d, dict):
+            continue
+        name = d.pop("name")
+        version = d.pop("version")
+        # TODO: warn if the source is a tempdir?
+        deps.append(HTMLDependency(name=name, version=version, **d))
+
+    res = TagList(HTML(x["html"]), *deps)
+    if not deps:
+        return res
+
+    session = None
+    try:
+        from shiny.session import get_current_session
+
+        session = get_current_session()
+    except Exception:
+        pass
+
+    # De-dupe dependencies for the current Shiny session
+    if session:
+        session._process_ui(res)
+
+    return res
 
 
 TOOL_CSS = """
