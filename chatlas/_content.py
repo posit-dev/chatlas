@@ -740,10 +740,11 @@ def restore_html(x: dict[str, Any]):
     for d in x["dependencies"]:
         if not isinstance(d, dict):
             continue
-        name = d.pop("name")
-        version = d.pop("version")
+        name = d["name"]
+        version = d["version"]
+        other = {k: v for k, v in d.items() if k not in ("name", "version")}
         # TODO: warn if the source is a tempdir?
-        deps.append(HTMLDependency(name=name, version=version, **d))
+        deps.append(HTMLDependency(name=name, version=version, **other))
 
     res = TagList(HTML(x["html"]), *deps)
     if not deps:

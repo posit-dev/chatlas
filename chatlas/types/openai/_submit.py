@@ -3,7 +3,7 @@
 # ---------------------------------------------------------
 
 
-from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
+from typing import Iterable, Literal, Mapping, Optional, Sequence, TypedDict, Union
 
 import openai
 import openai.types.chat.chat_completion_allowed_tool_choice_param
@@ -148,7 +148,7 @@ class SubmitInputArgs(TypedDict, total=False):
     service_tier: Union[
         Literal["auto", "default", "flex", "scale", "priority"], None, openai.NotGiven
     ]
-    stop: Union[str, None, list[str], openai.NotGiven]
+    stop: Union[str, None, Sequence[str], openai.NotGiven]
     store: Union[bool, None, openai.NotGiven]
     stream: Union[Literal[False], None, Literal[True], openai.NotGiven]
     stream_options: Union[
