@@ -293,3 +293,7 @@ retry_api_call = retry(
 @pytest.fixture
 def test_images_dir():
     return Path(__file__).parent / "images"
+
+@pytest.fixture
+def test_batch_dir():
+    return Path(__file__).parent / "batch"

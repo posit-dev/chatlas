@@ -1,5 +1,11 @@
 from . import types
 from ._auto import ChatAuto
+from ._batch_chat import (
+    batch_chat,
+    batch_chat_completed,
+    batch_chat_structured,
+    batch_chat_text,
+)
 from ._chat import Chat
 from ._content import (
     ContentToolRequest,
@@ -36,6 +42,10 @@ except ImportError:  # pragma: no cover
     __version__ = "0.0.0"  # stub value for docs
 
 __all__ = (
+    "batch_chat",
+    "batch_chat_completed",
+    "batch_chat_structured",
+    "batch_chat_text",
     "ChatAnthropic",
     "ChatAuto",
     "ChatBedrockAnthropic",
