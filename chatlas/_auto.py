@@ -8,27 +8,39 @@ import orjson
 
 from ._chat import Chat
 from ._provider_anthropic import ChatAnthropic, ChatBedrockAnthropic
+from ._provider_cloudflare import ChatCloudflare
 from ._provider_databricks import ChatDatabricks
+from ._provider_deepseek import ChatDeepSeek
 from ._provider_github import ChatGithub
 from ._provider_google import ChatGoogle, ChatVertex
 from ._provider_groq import ChatGroq
+from ._provider_huggingface import ChatHuggingFace
+from ._provider_mistral import ChatMistral
 from ._provider_ollama import ChatOllama
 from ._provider_openai import ChatAzureOpenAI, ChatOpenAI
+from ._provider_openrouter import ChatOpenRouter
 from ._provider_perplexity import ChatPerplexity
+from ._provider_portkey import ChatPortkey
 from ._provider_snowflake import ChatSnowflake
 from ._utils import MISSING_TYPE as DEPRECATED_TYPE
 
 AutoProviders = Literal[
     "anthropic",
     "bedrock-anthropic",
+    "cloudflare",
     "databricks",
+    "deep-seek",
     "github",
     "google",
     "groq",
+    "hugging-face",
+    "mistral",
     "ollama",
     "openai",
     "azure-openai",
+    "open-router",
     "perplexity",
+    "portkey",
     "snowflake",
     "vertex",
 ]
@@ -36,14 +48,20 @@ AutoProviders = Literal[
 _provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
     "anthropic": ChatAnthropic,
     "bedrock-anthropic": ChatBedrockAnthropic,
+    "cloudflare": ChatCloudflare,
     "databricks": ChatDatabricks,
+    "deep-seek": ChatDeepSeek,
     "github": ChatGithub,
     "google": ChatGoogle,
     "groq": ChatGroq,
+    "hugging-face": ChatHuggingFace,
+    "mistral": ChatMistral,
     "ollama": ChatOllama,
     "openai": ChatOpenAI,
     "azure-openai": ChatAzureOpenAI,
+    "open-router": ChatOpenRouter,
     "perplexity": ChatPerplexity,
+    "portkey": ChatPortkey,
     "snowflake": ChatSnowflake,
     "vertex": ChatVertex,
 }

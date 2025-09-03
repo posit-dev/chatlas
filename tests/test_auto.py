@@ -1,10 +1,11 @@
 import os
 import warnings
 
-import chatlas
 import pytest
+
+import chatlas
 from chatlas import Chat, ChatAuto
-from chatlas._auto import _parse_provider_model, _provider_chat_model_map
+from chatlas._auto import _provider_chat_model_map
 from chatlas._provider_anthropic import AnthropicBedrockProvider, AnthropicProvider
 from chatlas._provider_google import GoogleProvider
 from chatlas._provider_openai import OpenAIProvider
@@ -151,23 +152,23 @@ def test_deprecated_model_without_provider_error():
 
 def test_parse_provider_model_with_model():
     """Test _parse_provider_model with provider/model format."""
-    provider, model = _parse_provider_model("openai/gpt-4o")
-    assert provider == "openai"
-    assert model == "gpt-4o"
+    provider = ChatAuto("openai/gpt-4o").provider
+    assert provider.name.lower() == "openai"
+    assert provider.model == "gpt-4o"
 
 
 def test_parse_provider_model_without_model():
     """Test _parse_provider_model with just provider."""
-    provider, model = _parse_provider_model("openai")
-    assert provider == "openai"
-    assert model is None
+    provider = ChatAuto("openai").provider
+    assert provider.name.lower() == "openai"
+    assert provider.model is not None
 
 
 def test_parse_provider_model_with_multiple_slashes():
     """Test _parse_provider_model handles multiple slashes correctly."""
-    provider, model = _parse_provider_model("provider/model/with/slashes")
-    assert provider == "provider"
-    assert model == "model/with/slashes"
+    provider = ChatAuto("open-router/model/with/slashes").provider
+    assert provider.name.lower() == "openrouter"
+    assert provider.model == "model/with/slashes"
 
 
 def chat_to_kebab_case(s):
@@ -192,14 +193,15 @@ def chat_to_kebab_case(s):
 
 
 def test_auto_includes_all_providers():
-    providers = [
-        chat_to_kebab_case(x)
-        for x in dir(chatlas)
-        if x.startswith("Chat") and x != "Chat"
-    ]
-    providers = set(providers)
+    providers = set(
+        [
+            chat_to_kebab_case(x)
+            for x in dir(chatlas)
+            if x.startswith("Chat") and x not in ["Chat", "ChatAuto"]
+        ]
+    )
 
-    missing = set(_provider_chat_model_map.keys()).difference(providers)
+    missing = providers.difference(_provider_chat_model_map.keys())
 
     assert len(missing) == 0, (
         f"Missing chat providers from ChatAuto: {', '.join(missing)}"
