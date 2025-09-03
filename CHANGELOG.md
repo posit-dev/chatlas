@@ -11,11 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking changes
 
-* `ChatAuto()` now takes `provider_model` as an optional first argument, which takes both provider and model in a single string in the format `"{provider}/{model}"`, e.g. `"openai/gpt-5"`. If not provided, `ChatAuto()` looks for the `CHATLAS_CHAT_PROVIDER_MODEL` environment variable, defaulting to `"openai"` if neither are provided. (#159)
+* `ChatAuto()`'s first (optional) positional parameter has changed from `system_prompt` to `provider_model`, and `system_prompt` is now a keyword parameter. As a result, you may need to change `ChatAuto("[system prompt]")` -> `ChatAuto(system_prompt="[system prompt]")`. In addition, the `provider` and `model` keyword arguments are now deprecated, but continue to work with a warning, as are the previous `CHATLAS_CHAT_PROVIDER` and `CHATLAS_CHAT_MODEL` environment variables. (#159)
 
-  The `provider` and `model` keyword arguments are now deprecated, but continue to work with a warning, as are the previous `CHATLAS_CHAT_PROVIDER` and `CHATLAS_CHAT_MODEL` environment variables.
+### New features
 
-  Unlike previous versions of `ChatAuto()`, the environment variables are now used *only if function arguments are not provided*. In other words, if `provider_model` is given, the `CHATLAS_CHAT_PROVIDER_MODEL` environment variable is ignored. Similarly, `CHATLAS_CHAT_ARGS` are only used if no `kwargs` are provided. This improves interactive use cases and makes it easier to introduce application-specific environment variables.
+* `ChatAuto()`'s new `provider_model` takes both provider and model in a single string in the format `"{provider}/{model}"`, e.g. `"openai/gpt-5"`. If not provided, `ChatAuto()` looks for the `CHATLAS_CHAT_PROVIDER_MODEL` environment variable, defaulting to `"openai"` if neither are provided. Unlike previous versions of `ChatAuto()`, the environment variables are now used *only if function arguments are not provided*. In other words, if `provider_model` is given, the `CHATLAS_CHAT_PROVIDER_MODEL` environment variable is ignored. Similarly, `CHATLAS_CHAT_ARGS` are only used if no `kwargs` are provided. This improves interactive use cases, makes it easier to introduce application-specific environment variables, and puts more control in the hands of the developer. (#159)
 
 
 ## [0.11.1] - 2025-08-29
