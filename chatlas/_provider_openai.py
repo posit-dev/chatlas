@@ -753,7 +753,7 @@ class OpenAIAzureProvider(OpenAIProvider):
         model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
-        super().__init__(name=name, model=deployment_id)
+        super().__init__(name=name, model=deployment_id, api_key=api_key)
 
         self._seed = seed
 
