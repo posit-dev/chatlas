@@ -1046,18 +1046,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         turn = self.get_last_turn()
         assert turn is not None
 
-        res: list[ContentJson] = []
-        for x in turn.contents:
-            if isinstance(x, ContentJson):
-                res.append(x)
-
-        if len(res) != 1:
-            raise ValueError(
-                f"Data extraction failed: {len(res)} data results received."
-            )
-
-        json = res[0]
-        return json.value
+        return Chat._extract_turn_json(turn)
 
     async def extract_data_async(
         self,
@@ -1109,6 +1098,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         turn = self.get_last_turn()
         assert turn is not None
 
+        return Chat._extract_turn_json(turn)
+
+    @staticmethod
+    def _extract_turn_json(turn: Turn) -> dict[str, Any]:
         res: list[ContentJson] = []
         for x in turn.contents:
             if isinstance(x, ContentJson):
