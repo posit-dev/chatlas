@@ -17,6 +17,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   Unlike previous versions of `ChatAuto()`, the environment variables are now used *only if function arguments are not provided*. In other words, if `provider_model` is given, the `CHATLAS_CHAT_PROVIDER_MODEL` environment variable is ignored. Similarly, `CHATLAS_CHAT_ARGS` are only used if no `kwargs` are provided. This improves interactive use cases and makes it easier to introduce application-specific environment variables.
 
+
+## [0.11.1] - 2025-08-29
+
+### New features
+
+* `.register_tool()` gains a `name` parameter (useful for overriding the name of the function). (#162)
+
+### Bug fixes
+
+* `ContentToolRequest` is (once again) serializable to/from JSON via Pydantic. (#164)
+* `.register_tool(model=model)` no longer unexpectedly errors when `model` contains `pydantic.Field(alias='_my_alias')`. (#161)
+
+### Changes
+
+* `.register_tool(annotations=annotations)` drops support for `mcp.types.ToolAnnotations()` and instead expects a dictionary of the same info. (#164)
+
 ## [0.11.0] - 2025-08-26
 
 ### New features

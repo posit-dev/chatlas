@@ -2,7 +2,15 @@ from __future__ import annotations
 
 import inspect
 import warnings
-from typing import TYPE_CHECKING, Any, AsyncGenerator, Awaitable, Callable, Optional
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncGenerator,
+    Awaitable,
+    Callable,
+    Optional,
+    cast,
+)
 
 import openai
 from pydantic import BaseModel, Field, create_model
@@ -12,6 +20,7 @@ from ._content import (
     ContentToolResult,
     ContentToolResultImage,
     ContentToolResultResource,
+    ToolAnnotations,
 )
 
 __all__ = (
@@ -22,7 +31,6 @@ __all__ = (
 if TYPE_CHECKING:
     from mcp import ClientSession as MCPClientSession
     from mcp import Tool as MCPTool
-    from mcp.types import ToolAnnotations
     from openai.types.chat import ChatCompletionToolParam
 
 
@@ -44,8 +52,7 @@ class Tool:
     parameters
         A dictionary describing the input parameters and their types.
     annotations
-        Additional properties that describe the tool and its behavior. Should be
-        a `from mcp.types import ToolAnnotations` instance.
+        Additional properties that describe the tool and its behavior.
     """
 
     func: Callable[..., Any] | Callable[..., Awaitable[Any]]
@@ -77,6 +84,7 @@ class Tool:
         cls: type["Tool"],
         func: Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
+        name: Optional[str] = None,
         model: Optional[type[BaseModel]] = None,
         annotations: "Optional[ToolAnnotations]" = None,
     ) -> "Tool":
@@ -87,6 +95,9 @@ class Tool:
         ----------
         func
             The function to wrap as a tool.
+        name
+            The name of the tool. If not provided, the name will be inferred from the
+            function's name.
         model
             A Pydantic model that describes the input parameters for the function.
             If not provided, the model will be inferred from the function's type hints.
@@ -94,8 +105,7 @@ class Tool:
             Note that the name and docstring of the model takes precedence over the
             name and docstring of the function.
         annotations
-            Additional properties that describe the tool and its behavior. Should be
-            a `from mcp.types import ToolAnnotations` instance.
+            Additional properties that describe the tool and its behavior.
 
         Returns
         -------
@@ -114,7 +124,8 @@ class Tool:
         # Throw if there is a mismatch between the model and the function parameters
         params = inspect.signature(func).parameters
         fields = model.model_fields
-        diff = set(params) ^ set(fields)
+        fields_alias = [val.alias if val.alias else key for key, val in fields.items()]
+        diff = set(params) ^ set(fields_alias)
         if diff:
             raise ValueError(
                 f"`model` fields must match tool function parameters exactly. "
@@ -125,7 +136,7 @@ class Tool:
 
         return cls(
             func=func,
-            name=model.__name__ or func.__name__,
+            name=name or model.__name__ or func.__name__,
             description=model.__doc__ or func.__doc__ or "",
             parameters=params,
             annotations=annotations,
@@ -203,12 +214,17 @@ class Tool:
 
         params = mcp_tool_input_schema_to_param_schema(mcp_tool.inputSchema)
 
+        # Convert MCP ToolAnnotations to our TypedDict format
+        annotations = None
+        if mcp_tool.annotations:
+            annotations = cast(ToolAnnotations, mcp_tool.annotations.model_dump())
+
         return cls(
             func=_utils.wrap_async(_call),
             name=mcp_tool.name,
             description=mcp_tool.description or "",
             parameters=params,
-            annotations=mcp_tool.annotations,
+            annotations=annotations,
         )
 
 

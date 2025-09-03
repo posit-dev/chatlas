@@ -449,7 +449,7 @@ class TestToolFromMCP:
     def test_from_mcp_with_annotations(self):
         """Test creating a Tool from MCP tool with annotations."""
         try:
-            from mcp.types import ToolAnnotations
+            from mcp.types import ToolAnnotations as MCPToolAnnotations
         except ImportError:
             pytest.skip("mcp is not installed")
             return
@@ -462,7 +462,7 @@ class TestToolFromMCP:
                 "properties": {"x": {"type": "integer"}},
                 "required": ["x"],
             },
-            annotations=ToolAnnotations(
+            annotations=MCPToolAnnotations(
                 title="Dangerous Tool",
                 destructiveHint=True,
             ),
@@ -473,8 +473,8 @@ class TestToolFromMCP:
 
         assert tool.name == "dangerous_tool"
         assert tool.annotations is not None
-        assert tool.annotations.title == "Dangerous Tool"
-        assert tool.annotations.destructiveHint is True
+        assert tool.annotations["title"] == "Dangerous Tool"
+        assert tool.annotations["destructiveHint"] is True
 
     def test_from_mcp_without_annotations(self):
         """Test creating a Tool from MCP tool without annotations."""

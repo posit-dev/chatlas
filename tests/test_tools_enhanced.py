@@ -2,7 +2,7 @@ import pytest
 from pydantic import BaseModel, Field
 
 from chatlas import ChatOpenAI
-from chatlas._content import ContentToolResultImage, ContentToolResultResource
+from chatlas._content import ContentToolResultImage, ContentToolResultResource, ToolInfo
 from chatlas._tools import Tool
 from chatlas.types import ContentToolRequest, ContentToolResult
 
@@ -331,6 +331,30 @@ class TestChatGetSetTools:
         assert tool_names == {"new1", "new2"}
 
 
+class TestRegisterToolName:
+    """Test register_tool() with name parameter."""
+
+    def test_register_tool_with_custom_name(self):
+        """Test registering a tool with a custom name."""
+        chat = ChatOpenAI()
+
+        def add_numbers(x: int, y: int) -> int:
+            """Add two numbers together."""
+            return x + y
+
+        chat.register_tool(add_numbers, name="add")
+
+        tools = chat.get_tools()
+        assert len(tools) == 1
+        tool = tools[0]
+        assert tool.name == "add"
+        assert tool.func == add_numbers
+
+        # Check the schema uses the custom name
+        func_schema = tool.schema["function"]
+        assert func_schema["name"] == "add"
+
+
 class TestRegisterToolForce:
     """Test register_tool() with force parameter and exception handling."""
 
@@ -426,11 +450,12 @@ class TestToolYielding:
 
         chat.register_tool(multi_result_tool)
 
+        tool = chat._tools["multi_result_tool"]
         request = ContentToolRequest(
             id="test-id",
             name="multi_result_tool",
             arguments={"count": 3},
-            tool=chat._tools["multi_result_tool"],
+            tool=ToolInfo.from_tool(tool),
         )
 
         results = list(chat._invoke_tool(request))
@@ -452,11 +477,12 @@ class TestToolYielding:
 
         chat.register_tool(single_result_tool)
 
+        tool = chat._tools["single_result_tool"]
         request = ContentToolRequest(
             id="test-id",
             name="single_result_tool",
             arguments={"x": 5},
-            tool=chat._tools["single_result_tool"],
+            tool=ToolInfo.from_tool(tool),
         )
 
         results = list(chat._invoke_tool(request))
@@ -481,11 +507,12 @@ class TestToolYielding:
 
         chat.register_tool(custom_result_tool)
 
+        tool = chat._tools["custom_result_tool"]
         request = ContentToolRequest(
             id="test-id",
             name="custom_result_tool",
             arguments={"count": 2},
-            tool=chat._tools["custom_result_tool"],
+            tool=ToolInfo.from_tool(tool),
         )
 
         results = list(chat._invoke_tool(request))
@@ -509,11 +536,12 @@ class TestToolYielding:
 
         chat.register_tool(async_multi_tool)
 
+        tool = chat._tools["async_multi_tool"]
         request = ContentToolRequest(
             id="test-id",
             name="async_multi_tool",
             arguments={"count": 2},
-            tool=chat._tools["async_multi_tool"],
+            tool=ToolInfo.from_tool(tool),
         )
 
         results = []
@@ -541,11 +569,12 @@ class TestToolYielding:
 
         chat.register_tool(error_after_yield_tool)
 
+        tool = chat._tools["error_after_yield_tool"]
         request = ContentToolRequest(
             id="test-id",
             name="error_after_yield_tool",
             arguments={"count": 5},
-            tool=chat._tools["error_after_yield_tool"],
+            tool=ToolInfo.from_tool(tool),
         )
 
         results = list(chat._invoke_tool(request))
@@ -578,11 +607,12 @@ class TestExistingToolsStillWork:
 
         chat.register_tool(add)
 
+        tool = chat._tools["add"]
         request = ContentToolRequest(
             id="test-id",
             name="add",
             arguments={"x": 3, "y": 4},
-            tool=chat._tools["add"],
+            tool=ToolInfo.from_tool(tool),
         )
 
         results = list(chat._invoke_tool(request))
@@ -597,7 +627,9 @@ class TestExistingToolsStillWork:
         chat = ChatOpenAI()
 
         request = ContentToolRequest(
-            id="test-id", name="nonexistent_tool", arguments={}
+            id="test-id",
+            name="nonexistent_tool",
+            arguments={},
         )
 
         results = list(chat._invoke_tool(request))

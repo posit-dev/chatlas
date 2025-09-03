@@ -3,6 +3,7 @@ from typing import Any, Optional, Union
 import pytest
 
 from chatlas import ChatOpenAI
+from chatlas._content import ToolInfo
 from chatlas.types import ContentToolRequest, ContentToolResult
 
 
@@ -113,11 +114,12 @@ def test_invoke_tool_returns_tool_result():
         name: str = "tool",
         args: Optional[dict[str, Any]] = None,
     ):
+        tool_obj = chat._tools.get(name)
         return ContentToolRequest(
             id="id",
             name=name,
             arguments=args or {},
-            tool=chat._tools.get(name),
+            tool=ToolInfo.from_tool(tool_obj) if tool_obj else None,
         )
 
     req1 = new_tool_request()
@@ -178,11 +180,12 @@ async def test_invoke_tool_returns_tool_result_async():
         name: str = "tool",
         args: Optional[dict[str, Any]] = None,
     ):
+        tool_obj = chat._tools.get(name)
         return ContentToolRequest(
             id="id",
             name=name,
             arguments=args or {},
-            tool=chat._tools.get(name),
+            tool=ToolInfo.from_tool(tool_obj) if tool_obj else None,
         )
 
     req1 = new_tool_request()
@@ -254,18 +257,20 @@ def test_tool_custom_result():
     chat.register_tool(custom_tool)
     chat.register_tool(custom_tool_err)
 
+    tool_obj = chat._tools.get("custom_tool")
     req = ContentToolRequest(
         id="id",
         name="custom_tool",
         arguments={},
-        tool=chat._tools.get("custom_tool"),
+        tool=ToolInfo.from_tool(tool_obj) if tool_obj else None,
     )
 
+    tool_err_obj = chat._tools.get("custom_tool_err")
     req_err = ContentToolRequest(
         id="id",
         name="custom_tool_err",
         arguments={},
-        tool=chat._tools.get("custom_tool_err"),
+        tool=ToolInfo.from_tool(tool_err_obj) if tool_err_obj else None,
     )
 
     results = list(chat._invoke_tool(req))
@@ -316,18 +321,20 @@ async def test_tool_custom_result_async():
     chat.register_tool(custom_tool)
     chat.register_tool(custom_tool_err)
 
+    tool_obj = chat._tools.get("custom_tool")
     req = ContentToolRequest(
         id="id",
         name="custom_tool",
         arguments={},
-        tool=chat._tools.get("custom_tool"),
+        tool=ToolInfo.from_tool(tool_obj) if tool_obj else None,
     )
 
+    tool_err_obj = chat._tools.get("custom_tool_err")
     req_err = ContentToolRequest(
         id="id",
         name="custom_tool_err",
         arguments={},
-        tool=chat._tools.get("custom_tool_err"),
+        tool=ToolInfo.from_tool(tool_err_obj) if tool_err_obj else None,
     )
 
     results = []
@@ -361,3 +368,38 @@ async def test_tool_custom_result_async():
     assert res_err.name == req_err.name
     assert res_err.arguments == req_err.arguments
 
+
+def test_content_tool_request_serializable():
+    """Test that ContentToolRequest with Tool instance is JSON serializable"""
+    chat = ChatOpenAI()
+
+    def add(x: int, y: int) -> int:
+        """Add two numbers"""
+        return x + y
+
+    chat.register_tool(add)
+
+    # Create a ContentToolRequest with the Tool info
+    tool = chat._tools["add"]
+    request = ContentToolRequest(
+        id="test-123",
+        name="add",
+        arguments={"x": 1, "y": 2},
+        tool=ToolInfo.from_tool(tool),
+    )
+
+    # Test that it can be serialized to JSON
+    json_data = request.model_dump_json()
+    assert isinstance(json_data, str)
+
+    # Test that the JSON can be parsed
+    parsed = ContentToolRequest.model_validate_json(json_data)
+    assert parsed.id == "test-123"
+    assert parsed.name == "add"
+    assert parsed.arguments == {"x": 1, "y": 2}
+    assert parsed.content_type == "tool_request"
+
+    # Test that the tool is serialized (func is excluded from serialization)
+    assert parsed.tool is not None
+    assert parsed.tool.name == "add"
+    assert parsed.tool.description == "Add two numbers"
