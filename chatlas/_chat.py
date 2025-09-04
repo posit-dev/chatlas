@@ -1535,7 +1535,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def register_tool(
         self,
-        func: Tool | Callable[..., Any] | Callable[..., Awaitable[Any]],
+        func: Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool,
         *,
         force: bool = False,
         name: Optional[str] = None,
