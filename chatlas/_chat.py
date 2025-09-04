@@ -1535,7 +1535,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def register_tool(
         self,
-        func: Callable[..., Any] | Callable[..., Awaitable[Any]],
+        func: Tool | Callable[..., Any] | Callable[..., Awaitable[Any]],
         *,
         force: bool = False,
         name: Optional[str] = None,
@@ -1629,6 +1629,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ValueError
             If a tool with the same name already exists and `force` is `False`.
         """
+        if isinstance(func, Tool):
+            name = name or func.name
+            annotations = annotations or func.annotations
+            if model is not None:
+                func = Tool.from_func(
+                    func.func, name=name, model=model, annotations=annotations
+                )
+            func = func.func
+
         tool = Tool.from_func(func, name=name, model=model, annotations=annotations)
         if tool.name in self._tools and not force:
             raise ValueError(
