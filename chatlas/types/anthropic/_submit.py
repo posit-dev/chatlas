@@ -3,7 +3,7 @@
 # ---------------------------------------------------------
 
 
-from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
+from typing import Iterable, Literal, Mapping, Optional, Sequence, TypedDict, Union
 
 import anthropic
 import anthropic.types.message_param
@@ -48,7 +48,7 @@ class SubmitInputArgs(TypedDict, total=False):
         str,
     ]
     service_tier: Union[Literal["auto", "standard_only"], anthropic.NotGiven]
-    stop_sequences: Union[list[str], anthropic.NotGiven]
+    stop_sequences: Union[Sequence[str], anthropic.NotGiven]
     stream: Union[Literal[False], Literal[True], anthropic.NotGiven]
     system: Union[
         str,

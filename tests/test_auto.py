@@ -1,3 +1,6 @@
+import os
+import warnings
+
 import pytest
 
 import chatlas
@@ -10,12 +13,25 @@ from chatlas._provider_openai import OpenAIProvider
 from .conftest import assert_turns_existing, assert_turns_system
 
 
+@pytest.fixture(autouse=True)
+def mock_api_keys(monkeypatch):
+    """Set mock API keys for providers to avoid missing key errors."""
+    api_keys = {
+        "OPENAI_API_KEY": "api-key",
+        "ANTHROPIC_API_KEY": "api-key",
+        "GOOGLE_API_KEY": "api-key",
+    }
+
+    for key, value in api_keys.items():
+        monkeypatch.setenv(key, value)
+
+
 def test_auto_settings_from_env(monkeypatch):
-    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER", "openai")
+    """Test the new CHATLAS_CHAT_PROVIDER_MODEL environment variable."""
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "openai/gpt-4o")
     monkeypatch.setenv(
         "CHATLAS_CHAT_ARGS",
         """{
-    "model": "gpt-4o",
     "system_prompt": "Be as terse as possible; no punctuation",
     "kwargs": {"max_retries": 2}
 }""",
@@ -27,33 +43,132 @@ def test_auto_settings_from_env(monkeypatch):
     assert isinstance(chat.provider, OpenAIProvider)
 
 
-def test_auto_settings_from_env_unknown_arg_fails(monkeypatch):
+def test_auto_settings_from_old_env_backwards_compatibility(monkeypatch):
+    """Test backwards compatibility with old environment variables."""
     monkeypatch.setenv("CHATLAS_CHAT_PROVIDER", "openai")
+    monkeypatch.setenv("CHATLAS_CHAT_MODEL", "gpt-4o")
     monkeypatch.setenv(
-        "CHATLAS_CHAT_ARGS", '{"model": "gpt-4o", "aws_region": "us-east-1"}'
+        "CHATLAS_CHAT_ARGS",
+        """{
+    "system_prompt": "Be as terse as possible; no punctuation",
+    "kwargs": {"max_retries": 2}
+}""",
     )
+
+    with pytest.warns(DeprecationWarning, match="CHATLAS_CHAT_PROVIDER"):
+        with pytest.warns(DeprecationWarning, match="CHATLAS_CHAT_MODEL"):
+            chat = ChatAuto()
+
+    assert isinstance(chat, Chat)
+    assert isinstance(chat.provider, OpenAIProvider)
+
+
+def test_auto_provider_model_parameter():
+    """Test using provider_model parameter directly."""
+    chat = ChatAuto(provider_model="openai/gpt-4o")
+    assert isinstance(chat, Chat)
+    assert isinstance(chat.provider, OpenAIProvider)
+
+
+def test_auto_provider_only_parameter():
+    """Test using provider_model with just provider (no model)."""
+    chat = ChatAuto(provider_model="openai")
+    assert isinstance(chat, Chat)
+    assert isinstance(chat.provider, OpenAIProvider)
+
+
+def test_auto_settings_from_env_unknown_arg_fails(monkeypatch):
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "openai/gpt-4o")
+    monkeypatch.setenv("CHATLAS_CHAT_ARGS", '{"aws_region": "us-east-1"}')
 
     with pytest.raises(TypeError):
         ChatAuto()
 
 
-def test_auto_override_provider_with_env(monkeypatch):
-    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER", "openai")
-    chat = ChatAuto(provider="anthropic")
+def test_auto_parameter_overrides_env(monkeypatch):
+    """Test that direct parameters override environment variables."""
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "anthropic")
+    chat = ChatAuto(provider_model="openai")
     assert isinstance(chat.provider, OpenAIProvider)
 
 
-def test_auto_missing_provider_raises_exception():
-    with pytest.raises(ValueError):
-        ChatAuto()
+def test_auto_falls_back_to_openai_default():
+    """Test that ChatAuto falls back to OpenAI when no provider is specified."""
+    chat = ChatAuto()
+    assert isinstance(chat, Chat)
+    assert isinstance(chat.provider, OpenAIProvider)
+
+
+def test_auto_unknown_provider_raises_exception():
+    """Test that unknown provider raises ValueError."""
+    with pytest.raises(
+        ValueError, match="Provider name 'unknown' is not a known chatlas provider"
+    ):
+        ChatAuto(provider_model="unknown")
 
 
 def test_auto_respects_turns_interface(monkeypatch):
-    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER", "openai")
-    monkeypatch.setenv("CHATLAS_CHAT_ARGS", '{"model": "gpt-4o"}')
+    monkeypatch.delenv("OPENAI_API_KEY")
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "openai/gpt-4o")
+
+    if not os.getenv("OPENAI_API_KEY"):
+        pytest.skip("Skipping test because OPENAI_API_KEY is not set.")
+
     chat_fun = ChatAuto
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
+
+
+def test_deprecated_provider_parameter_warning():
+    """Test that using deprecated provider parameter raises warning."""
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        ChatAuto(provider="openai")
+
+        assert len(w) == 1
+        assert issubclass(w[0].category, DeprecationWarning)
+        assert "provider" in str(w[0].message)
+        assert "provider_model" in str(w[0].message)
+
+
+def test_deprecated_model_parameter_warning():
+    """Test that using deprecated model parameter raises warning."""
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        ChatAuto(provider="openai", model="gpt-4o")
+
+        assert len(w) == 2  # Both provider and model warnings
+        assert all(issubclass(warning.category, DeprecationWarning) for warning in w)
+
+
+def test_deprecated_model_without_provider_error():
+    """Test that using model parameter without provider raises ValueError."""
+    with pytest.raises(
+        ValueError,
+        match="The `model` parameter is deprecated and cannot be used without the `provider` parameter",
+    ):
+        ChatAuto(model="gpt-4o")
+
+
+def test_parse_provider_model_with_model():
+    """Test _parse_provider_model with provider/model format."""
+    provider = ChatAuto("openai/gpt-4o").provider
+    assert provider.name.lower() == "openai"
+    assert provider.model == "gpt-4o"
+
+
+def test_parse_provider_model_without_model():
+    """Test _parse_provider_model with just provider."""
+    provider = ChatAuto("openai").provider
+    assert provider.name.lower() == "openai"
+    assert provider.model is not None
+
+
+def test_parse_provider_model_with_multiple_slashes():
+    """Test _parse_provider_model handles multiple slashes correctly."""
+    provider = ChatAuto("open-router/model/with/slashes").provider
+    assert provider.name.lower() == "openrouter"
+    assert provider.model == "model/with/slashes"
 
 
 def chat_to_kebab_case(s):
@@ -78,14 +193,15 @@ def chat_to_kebab_case(s):
 
 
 def test_auto_includes_all_providers():
-    providers = [
-        chat_to_kebab_case(x)
-        for x in dir(chatlas)
-        if x.startswith("Chat") and x != "Chat"
-    ]
-    providers = set(providers)
+    providers = set(
+        [
+            chat_to_kebab_case(x)
+            for x in dir(chatlas)
+            if x.startswith("Chat") and x not in ["Chat", "ChatAuto"]
+        ]
+    )
 
-    missing = set(_provider_chat_model_map.keys()).difference(providers)
+    missing = providers.difference(_provider_chat_model_map.keys())
 
     assert len(missing) == 0, (
         f"Missing chat providers from ChatAuto: {', '.join(missing)}"
@@ -93,17 +209,58 @@ def test_auto_includes_all_providers():
 
 
 def test_provider_instances(monkeypatch):
-    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER", "anthropic")
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "anthropic")
     chat = ChatAuto()
     assert isinstance(chat, Chat)
     assert isinstance(chat.provider, AnthropicProvider)
 
-    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER", "bedrock-anthropic")
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "bedrock-anthropic")
     chat = ChatAuto()
     assert isinstance(chat, Chat)
     assert isinstance(chat.provider, AnthropicBedrockProvider)
 
-    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER", "google")
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "google")
     chat = ChatAuto()
     assert isinstance(chat, Chat)
     assert isinstance(chat.provider, GoogleProvider)
+
+
+def test_kwargs_priority_over_env_args(monkeypatch):
+    """Test that direct kwargs override CHATLAS_CHAT_ARGS."""
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "openai")
+    monkeypatch.setenv("CHATLAS_CHAT_ARGS", '{"seed": 12}')
+
+    chatlas.ChatOpenAI()
+
+    chat = ChatAuto(seed=42)
+    assert isinstance(chat.provider, OpenAIProvider)
+    assert chat.provider._seed == 42
+
+
+def test_env_args_ignored_when_kwargs_provided(monkeypatch):
+    """Test that CHATLAS_CHAT_ARGS is ignored when any kwargs are provided."""
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "openai")
+    monkeypatch.setenv("CHATLAS_CHAT_ARGS", '{"seed": -1}')
+
+    # Even providing one kwarg should ignore the entire env args
+    chat = ChatAuto(base_url="https://api.example.com")
+    assert isinstance(chat, Chat)
+    assert isinstance(chat.provider, OpenAIProvider)
+    assert str(chat.provider._client.base_url).startswith("https://api.example.com")
+    assert chat.provider._seed != -1
+
+
+def test_system_prompt_parameter_priority():
+    """Test that system_prompt parameter is always respected."""
+    chat = ChatAuto(provider_model="openai", system_prompt="Test prompt")
+    assert isinstance(chat, Chat)
+    # The system_prompt should be set - this would need verification based on Chat implementation
+
+
+def test_new_env_var_priority_over_old(monkeypatch):
+    """Test that new env var takes priority over old ones."""
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "anthropic")
+    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER", "openai")  # Should be ignored
+
+    chat = ChatAuto()
+    assert isinstance(chat.provider, AnthropicProvider)

@@ -1,9 +1,8 @@
 from pathlib import Path
 
+from _utils import generate_typeddict_code, write_code_to_file
 from openai import AsyncAzureOpenAI, AsyncOpenAI
 from openai.resources.chat import Completions
-
-from _utils import generate_typeddict_code, write_code_to_file
 
 types_dir = Path(__file__).parent.parent / "chatlas" / "types"
 provider_dir = types_dir / "openai"
@@ -28,11 +27,21 @@ init_args = generate_typeddict_code(
     excluded_fields={"self"},
 )
 
+
+# Temporary workaround for an issue where a type like
+#   Callable[[], Awaitable[str]]
+# is getting incorrectly transpiled as
+#   Callable[Awaitable[str]]
+def fix_callable_types(text: str):
+    return text.replace("Callable[Awaitable[str]]", "Callable[[], Awaitable[str]]")
+
+
+init_args = fix_callable_types(init_args)
+
 write_code_to_file(
     init_args,
     provider_dir / "_client.py",
 )
-
 
 init_args = generate_typeddict_code(
     AsyncAzureOpenAI.__init__,
@@ -43,6 +52,8 @@ init_args = generate_typeddict_code(
         "azure_ad_token_provider",
     },
 )
+
+init_args = fix_callable_types(init_args)
 
 write_code_to_file(
     init_args,

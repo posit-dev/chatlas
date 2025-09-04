@@ -64,11 +64,37 @@ If you're using `chatlas` inside your organisation, you'll be limited to what yo
 - `ChatOllama()`, which uses [Ollama](https://ollama.com), allows you to run models on your own computer. The biggest models you can run locally aren't as good as the state of the art hosted models, but they also don't share your data and and are effectively free.
 
 
-### Auto complete
+### Model type hints
 
-Some providers like `ChatOpenAI()` and `ChatAnthropic()` provide autocompletion for the `model` parameter. This makes it quick and easy to find the right model id -- just enter `model=""` and you'll get a list of available models to choose from (assuming your IDE supports type hints).
+Some providers like `ChatOpenAI()` and `ChatAnthropic()` provide type hints for the `model` parameter. This makes it quick and easy to find the right model id -- just enter `model=""` and you'll get a list of available models to choose from (assuming your IDE supports type hints).
 
 ![Screenshot of model autocompletion](/images/model-type-hints.png){class="shadow rounded mb-3" width="67%" }
+
+::: callout-tip
+If the provider doesn't provide these type hints, try using the `.list_models()` method (mentioned below) to find available models.
+:::
+
+
+### Auto provider
+
+[`ChatAuto()`](../reference/ChatAuto.qmd) provides access to any provider/model combination through one simple string.
+This makes for a nice interactive/prototyping experience, where you can quickly switch between different models and providers, and leverage `chatlas`' smart defaults:
+
+```python
+from chatlas import ChatAuto
+
+# Default provider (OpenAI) & model
+chat = ChatAuto()
+print(chat.provider.name)
+print(chat.provider.model)
+
+# Different provider (Anthropic) & default model
+chat = ChatAuto("anthropic")
+
+# Choose specific provider/model (Claude Sonnet 4)
+chat = ChatAuto("anthropic/claude-sonnet-4-0")
+```
+
 
 ### Listing model info
 
@@ -107,8 +133,3 @@ Different providers may include different metadata fields in the model informati
 
 - **`id`**: Model identifier to use with the `Chat` constructor
 - **`input`/`output`/`cached_input`**: Token pricing in USD per million tokens
-
-
-### Auto provider
-
-[`ChatAuto()`](../reference/ChatAuto.qmd) is a special model provider that allows one to configure the model provider through environment variables. This is useful for having a single, simple, script that can run on any model provider, without having to change the code.
