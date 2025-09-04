@@ -99,45 +99,60 @@ def ChatAuto(
     Python packages.
     :::
 
-
     Examples
     --------
-    First, set the environment variables for the provider, arguments, and API key:
+
+    `ChatAuto()` makes it easy to switch between different chat providers and models.
+
+    ```python
+    import pandas as pd
+    from chatlas import ChatAuto
+
+    # Default provider (OpenAI) & model
+    chat = ChatAuto()
+    print(chat.provider.name)
+    print(chat.provider.model)
+
+    # Different provider (Anthropic) & default model
+    chat = ChatAuto("anthropic")
+
+    # List models available through the provider
+    models = chat.list_models()
+    print(pd.DataFrame(models))
+
+    # Choose specific provider/model (Claude Sonnet 4)
+    chat = ChatAuto("anthropic/claude-sonnet-4-0")
+    ```
+
+    The default provider/model can also be controlled through an environment variable:
 
     ```bash
     export CHATLAS_CHAT_PROVIDER_MODEL="anthropic/claude-sonnet-4-0"
-    export CHATLAS_CHAT_ARGS='{"kwargs": {"max_retries": 3}}'
-    export ANTHROPIC_API_KEY=your_api_key
     ```
-
-    Then, you can use the `ChatAuto` function to create a Chat instance:
 
     ```python
     from chatlas import ChatAuto
 
     chat = ChatAuto()
-    chat.chat("What is the capital of France?")
+    print(chat.provider.name)   # anthropic
+    print(chat.provider.model)  # claude-sonnet-4-0
     ```
 
-    Note that you can also define your own environment variables and pass them
-    to `ChatAuto()` as an alternative way to configure the provider/model:
+    For application-specific configurations, consider defining your own environment variables:
 
     ```bash
-    export MYAPP_PROVIDER_MODEL="anthropic/claude-sonnet-4-0"
-    export MYAPP_ARGS='{"kwargs": {"max_retries": 3}}'
-    export ANTHROPIC_API_KEY=your_api_key
+    export MYAPP_PROVIDER_MODEL="google/gemini-2.5-flash"
     ```
+
+    And passing them to `ChatAuto()` as an alternative way to configure the provider/model:
 
     ```python
     import os
-    import json
     from chatlas import ChatAuto
 
-    chat = ChatAuto(
-        provider_model=os.environ.get("MYAPP_PROVIDER_MODEL"),
-        **(json.loads(os.environ.get("MYAPP_ARGS", "{}"))),
-    )
-    chat.chat("What is the capital of France?")
+    chat = ChatAuto(os.getenv("MYAPP_PROVIDER_MODEL"))
+    print(chat.provider.name)   # google
+    print(chat.provider.model)  # gemini-2.5-flash
     ```
 
     Parameters
@@ -171,6 +186,14 @@ def ChatAuto(
 
         Note that `system_prompt` and `turns` can't be set via environment variables.
         They must be provided/set directly to/on `ChatAuto()`.
+
+    Note
+    ----
+    If you want to work with a specific provider, but don't know what models are
+    available (or the exact model name), use
+    `ChatAuto('provider_name').list_models()` to list available models. Another
+    option is to use the provider more directly (e.g., `ChatAnthropic()`). There,
+    the `model` parameter may have type hints for available models.
 
     Returns
     -------
