@@ -12,7 +12,7 @@ class ChatAzureClientArgs(TypedDict, total=False):
     azure_endpoint: str | None
     azure_deployment: str | None
     api_version: str | None
-    api_key: Union[str, Callable[Awaitable[str]], None]
+    api_key: Union[str, Callable[[], Awaitable[str]], None]
     azure_ad_token: str | None
     organization: str | None
     project: str | None

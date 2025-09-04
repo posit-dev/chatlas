@@ -10,7 +10,7 @@ import openai
 
 
 class ChatClientArgs(TypedDict, total=False):
-    api_key: Union[str, Callable[Awaitable[str]], None]
+    api_key: Union[str, Callable[[], Awaitable[str]], None]
     organization: str | None
     project: str | None
     webhook_secret: str | None
