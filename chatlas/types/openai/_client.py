@@ -3,14 +3,14 @@
 # ---------------------------------------------------------
 
 
-from typing import Mapping, Optional, TypedDict, Union
+from typing import Awaitable, Callable, Mapping, Optional, TypedDict, Union
 
 import httpx
 import openai
 
 
 class ChatClientArgs(TypedDict, total=False):
-    api_key: str | None
+    api_key: Union[str, Callable[Awaitable[str]], None]
     organization: str | None
     project: str | None
     webhook_secret: str | None
