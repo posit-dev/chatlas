@@ -364,9 +364,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#model-choice" id="toc-model-choice" class="nav-link active" data-scroll-target="#model-choice">Model choice</a></li>
-  <li><a href="#auto-complete" id="toc-auto-complete" class="nav-link" data-scroll-target="#auto-complete">Auto complete</a></li>
-  <li><a href="#listing-model-info" id="toc-listing-model-info" class="nav-link" data-scroll-target="#listing-model-info">Listing model info</a></li>
+  <li><a href="#model-type-hints" id="toc-model-type-hints" class="nav-link" data-scroll-target="#model-type-hints">Model type hints</a></li>
   <li><a href="#auto-provider" id="toc-auto-provider" class="nav-link" data-scroll-target="#auto-provider">Auto provider</a></li>
+  <li><a href="#listing-model-info" id="toc-listing-model-info" class="nav-link" data-scroll-target="#listing-model-info">Listing model info</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/get-started/models.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
@@ -547,15 +547,41 @@ Known limitations
 <li><p><code>ChatOllama()</code>, which uses <a href="https://ollama.com">Ollama</a>, allows you to run models on your own computer. The biggest models you can run locally aren’t as good as the state of the art hosted models, but they also don’t share your data and and are effectively free.</p></li>
 </ul>
 </section>
-<section id="auto-complete" class="level3">
-<h3 class="anchored" data-anchor-id="auto-complete">Auto complete</h3>
-<p>Some providers like <code>ChatOpenAI()</code> and <code>ChatAnthropic()</code> provide autocompletion for the <code>model</code> parameter. This makes it quick and easy to find the right model id – just enter <code>model=""</code> and you’ll get a list of available models to choose from (assuming your IDE supports type hints).</p>
+<section id="model-type-hints" class="level3">
+<h3 class="anchored" data-anchor-id="model-type-hints">Model type hints</h3>
+<p>Some providers like <code>ChatOpenAI()</code> and <code>ChatAnthropic()</code> provide type hints for the <code>model</code> parameter. This makes it quick and easy to find the right model id – just enter <code>model=""</code> and you’ll get a list of available models to choose from (assuming your IDE supports type hints).</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><a href="../images/model-type-hints.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Screenshot of model autocompletion"><img src="../images/model-type-hints.png" class="shadow rounded mb-3 img-fluid figure-img" style="width:67.0%" alt="Screenshot of model autocompletion"></a></p>
 <figcaption>Screenshot of model autocompletion</figcaption>
 </figure>
 </div>
+<div class="callout callout-style-simple callout-tip">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-body-container">
+<p>If the provider doesn’t provide these type hints, try using the <code>.list_models()</code> method (mentioned below) to find available models.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="auto-provider" class="level3">
+<h3 class="anchored" data-anchor-id="auto-provider">Auto provider</h3>
+<p><a href="../reference/ChatAuto.html"><code>ChatAuto()</code></a> provides access to any provider/model combination through one simple string. This makes for a nice interactive/prototyping experience, where you can quickly switch between different models and providers, and leverage <code>chatlas</code>’ smart defaults:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatAuto</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Default provider (OpenAI) &amp; model</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatAuto()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(chat.provider.name)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(chat.provider.model)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Different provider (Anthropic) &amp; default model</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatAuto(<span class="st">"anthropic"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Choose specific provider/model (Claude Sonnet 4)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatAuto(<span class="st">"anthropic/claude-sonnet-4-0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="listing-model-info" class="level3">
 <h3 class="anchored" data-anchor-id="listing-model-info">Listing model info</h3>
@@ -565,13 +591,13 @@ Known limitations
 <li>Comparing model pricing and characteristics.</li>
 <li>Finding exactly the right model ID to pass to the <code>Chat</code> constructor.</li>
 </ul>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> chat.list_models()</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(models)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> chat.list_models()</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(models)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>                        id         owned_by  input  output  cached_input  created_at
 0               gpt-5-nano           system   0.05     0.4         0.005  2025-08-05
 1                    gpt-5           system   1.25    10.0         0.125  2025-08-05
@@ -589,10 +615,6 @@ Known limitations
 <li><strong><code>id</code></strong>: Model identifier to use with the <code>Chat</code> constructor</li>
 <li><strong><code>input</code>/<code>output</code>/<code>cached_input</code></strong>: Token pricing in USD per million tokens</li>
 </ul>
-</section>
-<section id="auto-provider" class="level3">
-<h3 class="anchored" data-anchor-id="auto-provider">Auto provider</h3>
-<p><a href="../reference/ChatAuto.html"><code>ChatAuto()</code></a> is a special model provider that allows one to configure the model provider through environment variables. This is useful for having a single, simple, script that can run on any model provider, without having to change the code.</p>
 
 
 </section>
@@ -1044,7 +1066,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>
   </div>
 </footer>
-<script>var lightboxQuarto = GLightbox({"selector":".lightbox","descPosition":"bottom","closeEffect":"zoom","loop":false,"openEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"selector":".lightbox","loop":false,"descPosition":"bottom","openEffect":"zoom","closeEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
