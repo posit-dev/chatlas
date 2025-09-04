@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Literal, Optional, Union
 import orjson
 from pydantic import BaseModel, ConfigDict
 
-from ._typing_extensions import NotRequired, TypedDict
+from ._typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from ._tools import Tool
@@ -24,16 +24,16 @@ class ToolAnnotations(TypedDict, total=False):
     received from untrusted servers.
     """
 
-    title: NotRequired[str]
+    title: str
     """A human-readable title for the tool."""
 
-    readOnlyHint: NotRequired[bool]
+    readOnlyHint: bool
     """
     If true, the tool does not modify its environment.
     Default: false
     """
 
-    destructiveHint: NotRequired[bool]
+    destructiveHint: bool
     """
     If true, the tool may perform destructive updates to its environment.
     If false, the tool performs only additive updates.
@@ -41,7 +41,7 @@ class ToolAnnotations(TypedDict, total=False):
     Default: true
     """
 
-    idempotentHint: NotRequired[bool]
+    idempotentHint: bool
     """
     If true, calling the tool repeatedly with the same arguments
     will have no additional effect on the its environment.
@@ -49,13 +49,18 @@ class ToolAnnotations(TypedDict, total=False):
     Default: false
     """
 
-    openWorldHint: NotRequired[bool]
+    openWorldHint: bool
     """
     If true, this tool may interact with an "open world" of external
     entities. If false, the tool's domain of interaction is closed.
     For example, the world of a web search tool is open, whereas that
     of a memory tool is not.
     Default: true
+    """
+
+    extra: dict[str, Any]
+    """
+    Additional metadata about the tool.
     """
 
 
