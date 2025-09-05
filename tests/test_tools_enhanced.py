@@ -436,6 +436,137 @@ class TestRegisterToolForce:
         assert chat._tools["test_tool"].func == another_func
 
 
+class TestRegisterToolInstance:
+    """Test register_tool() with Tool instances."""
+
+    def test_register_tool_instance_basic(self):
+        """Test registering a Tool instance directly."""
+        chat = ChatOpenAI()
+
+        def add(x: int, y: int) -> int:
+            """Add two numbers."""
+            return x + y
+
+        # Create a Tool instance
+        tool = Tool.from_func(add)
+
+        # Register the Tool instance
+        chat.register_tool(tool)
+
+        # Verify it was registered correctly
+        tools = chat.get_tools()
+        assert len(tools) == 1
+        registered_tool = tools[0]
+        assert registered_tool.name == "add"
+        assert registered_tool.func == add
+
+        # Check the schema
+        func_schema = registered_tool.schema["function"]
+        assert func_schema["name"] == "add"
+        assert func_schema.get("description") == "Add two numbers."
+
+    def test_register_tool_instance_with_custom_name(self):
+        """Test registering a Tool instance with a custom name override."""
+        chat = ChatOpenAI()
+
+        def multiply(x: int, y: int) -> int:
+            """Multiply two numbers."""
+            return x * y
+
+        # Create a Tool instance
+        tool = Tool.from_func(multiply)
+
+        # Register with custom name
+        chat.register_tool(tool, name="custom_multiply")
+
+        # Verify it was registered with the custom name
+        tools = chat.get_tools()
+        assert len(tools) == 1
+        registered_tool = tools[0]
+        assert registered_tool.name == "custom_multiply"
+        assert registered_tool.func == multiply
+
+    def test_register_tool_instance_with_model_override(self):
+        """Test registering a Tool instance with a model override."""
+        from pydantic import BaseModel, Field
+
+        chat = ChatOpenAI()
+
+        def divide(x: int, y: int) -> float:
+            """Divide two numbers."""
+            return x / y
+
+        class DivideParams(BaseModel):
+            """Parameters for division with detailed descriptions."""
+
+            x: int = Field(description="The dividend")
+            y: int = Field(description="The divisor (must not be zero)")
+
+        # Create a Tool instance
+        tool = Tool.from_func(divide)
+
+        # Register with model override
+        chat.register_tool(tool, model=DivideParams)
+
+        # Verify it was registered with the new model
+        tools = chat.get_tools()
+        assert len(tools) == 1
+        registered_tool = tools[0]
+        assert registered_tool.name == "divide"
+        assert registered_tool.func == divide
+
+        # Check that Field descriptions are preserved
+        func_schema = registered_tool.schema["function"]
+        params: dict = func_schema.get("parameters", {})
+        props = params["properties"]
+        assert props["x"]["description"] == "The dividend"
+        assert props["y"]["description"] == "The divisor (must not be zero)"
+
+    def test_register_tool_instance_force_overwrite(self):
+        """Test force overwriting an existing tool with a Tool instance."""
+        chat = ChatOpenAI()
+
+        def original_func(x: int) -> int:
+            """Original function."""
+            return x
+
+        def new_func(x: int) -> int:
+            """New function."""
+            return x * 2
+
+        # Register original function
+        chat.register_tool(original_func)
+
+        # Create Tool instance with same name
+        new_tool = Tool.from_func(new_func)
+        new_tool = Tool(
+            func=new_func,
+            name="original_func",  # Use same name as original
+            description="New function.",
+            parameters={
+                "type": "object",
+                "properties": {"x": {"type": "integer"}},
+                "required": ["x"],
+                "additionalProperties": False,
+            },
+        )
+
+        # Should fail without force
+        with pytest.raises(
+            ValueError, match="Tool with name 'original_func' is already registered"
+        ):
+            chat.register_tool(new_tool)
+
+        # Should succeed with force=True
+        chat.register_tool(new_tool, force=True)
+
+        tools = chat.get_tools()
+        assert len(tools) == 1
+        registered_tool = tools[0]
+        assert registered_tool.name == "original_func"
+        assert registered_tool.func == new_func
+
+
 class TestToolYielding:
     """Test tool functions that yield multiple results."""
 
