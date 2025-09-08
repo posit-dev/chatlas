@@ -326,10 +326,17 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
             )
             annotation = Any
 
+        # create_model() will error if the field name starts with `_` (since Pydantic
+        # uses this to indicate private fields). We can work around this by using an alias.
+        alias = None
+        if name.startswith("_"):
+            alias = name
+            name = name.lstrip("_")
+
         if param.default != inspect.Parameter.empty:
-            field = Field(default=param.default)
+            field = Field(default=param.default, alias=alias)
         else:
-            field = Field()
+            field = Field(alias=alias)
 
         # Add the field to our fields dict
         fields[name] = (annotation, field)
