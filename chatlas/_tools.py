@@ -330,8 +330,9 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
         # uses this to indicate private fields). We can work around this by using an alias.
         alias = None
         if name.startswith("_"):
-            alias = name
-            name = name.lstrip("_")
+            field_name, alias = (name.lstrip("_"), name)
+        else:
+            field_name, alias = (name, None)
 
         if param.default != inspect.Parameter.empty:
             field = Field(default=param.default, alias=alias)
@@ -339,7 +340,7 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
             field = Field(alias=alias)
 
         # Add the field to our fields dict
-        fields[name] = (annotation, field)
+        fields[field_name] = (annotation, field)
 
     return create_model(func.__name__, **fields)
 
