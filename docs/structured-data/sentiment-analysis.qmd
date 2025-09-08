@@ -32,13 +32,13 @@ class Sentiment(BaseModel):
 
 
 chat = ctl.ChatOpenAI()
-chat.extract_data(text, data_model=Sentiment)
+chat.chat_structured(text, data_model=Sentiment)
 ```
 
 ::: chatlas-response-container
 
 ```
-{"positive_score": 0.1, "negative_score": 0.7, "neutral_score": 0.2}
+positive_score=0.1 negative_score=0.7 neutral_score=0.2
 ```
 
 :::

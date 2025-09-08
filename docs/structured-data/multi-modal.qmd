@@ -32,10 +32,11 @@ class Invoice(BaseModel):
 _ = Invoice.model_rebuild()
 
 chat = ctl.ChatOpenAI()
-chat.extract_data(
+res = chat.chat_structured(
     "https://storage.googleapis.com/generativeai-downloads/data/pdf_structured_outputs/invoice.pdf",
     data_model=Invoice,
 )
+res.model_dump_json(indent=2)
 ```
 
 ::: chatlas-response-container
@@ -86,9 +87,9 @@ class DisclosureReport(BaseModel):
     assets: list[Asset]
 
 chat = ctl.ChatOpenAI()
-data = chat.extract_data(
+data = chat.chat_structured(
     ctl.content_image_file("../images/congressional-assets.png"),
     data_model=DisclosureReport,
 )
-pd.DataFrame(data["assets"])
+pd.DataFrame([c.model_dump() for c in data.assets])
 ```

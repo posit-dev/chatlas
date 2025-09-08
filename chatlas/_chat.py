@@ -78,6 +78,7 @@ CompletionT = TypeVar("CompletionT")
 EchoOptions = Literal["output", "all", "none", "text"]
 
 T = TypeVar("T")
+BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
 
 
 def is_present(value: T | None | MISSING_TYPE) -> TypeGuard[T]:
@@ -531,7 +532,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         args
             The input to get a token count for.
         data_model
-            If the input is meant for data extraction (i.e., `.extract_data()`), then
+            If the input is meant for data extraction (i.e., `.chat_structured()`), then
             this should be the Pydantic model that describes the structure of the data to
             extract.
 
@@ -585,7 +586,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         args
             The input to get a token count for.
         data_model
-            If this input is meant for data extraction (i.e., `.extract_data_async()`),
+            If this input is meant for data extraction (i.e., `.chat_structured_async()`),
             then this should be the Pydantic model that describes the structure of the data
             to extract.
 
@@ -997,20 +998,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return wrapper()
 
-    def extract_data(
+    def chat_structured(
         self,
         *args: Content | str,
-        data_model: type[BaseModel],
+        data_model: type[BaseModelT],
         echo: EchoOptions = "none",
         stream: bool = False,
-    ) -> dict[str, Any]:
+    ) -> BaseModelT:
         """
-        Extract structured data from the given input.
+        Extract structured data.
 
         Parameters
         ----------
         args
-            The input to extract data from.
+            The input to send to the chatbot. This is typically the text you
+            want to extract data from, but it can be omitted if the data is
+            obvious from the existing conversation.
         data_model
             A Pydantic model describing the structure of the data to extract.
         echo
@@ -1024,10 +1027,47 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Returns
         -------
-        dict[str, Any]
-            The extracted data.
+        BaseModelT
+            An instance of the provided `data_model` containing the extracted data.
         """
+        dat = self._submit_and_extract_data(
+            *args,
+            data_model=data_model,
+            echo=echo,
+            stream=stream,
+        )
+        return data_model.model_validate(dat)
 
+    def extract_data(
+        self,
+        *args: Content | str,
+        data_model: type[BaseModel],
+        echo: EchoOptions = "none",
+        stream: bool = False,
+    ) -> dict[str, Any]:
+        """
+        Deprecated: use `.chat_structured()` instead.
+        """
+        warnings.warn(
+            "The `extract_data()` method is deprecated and will be removed in a future release. "
+            "Use the `chat_structured()` method instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._submit_and_extract_data(
+            *args,
+            data_model=data_model,
+            echo=echo,
+            stream=stream,
+        )
+
+    def _submit_and_extract_data(
+        self,
+        *args: Content | str,
+        data_model: type[BaseModel],
+        echo: EchoOptions = "none",
+        stream: bool = False,
+    ) -> dict[str, Any]:
         display = self._markdown_display(echo=echo)
 
         response = ChatResponse(
@@ -1059,20 +1099,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         json = res[0]
         return json.value
 
-    async def extract_data_async(
+    async def chat_structured_async(
         self,
         *args: Content | str,
-        data_model: type[BaseModel],
+        data_model: type[BaseModelT],
         echo: EchoOptions = "none",
         stream: bool = False,
-    ) -> dict[str, Any]:
+    ) -> BaseModelT:
         """
         Extract structured data from the given input asynchronously.
 
         Parameters
         ----------
         args
-            The input to extract data from.
+            The input to send to the chatbot. This is typically the text you
+            want to extract data from, but it can be omitted if the data is
+            obvious from the existing conversation.
         data_model
             A Pydantic model describing the structure of the data to extract.
         echo
@@ -1087,10 +1129,47 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Returns
         -------
-        dict[str, Any]
-            The extracted data.
+        BaseModelT
+            An instance of the provided `data_model` containing the extracted data.
         """
+        dat = await self._submit_and_extract_data_async(
+            *args,
+            data_model=data_model,
+            echo=echo,
+            stream=stream,
+        )
+        return data_model.model_validate(dat)
 
+    async def extract_data_async(
+        self,
+        *args: Content | str,
+        data_model: type[BaseModel],
+        echo: EchoOptions = "none",
+        stream: bool = False,
+    ) -> dict[str, Any]:
+        """
+        Deprecated: use `.chat_structured_async()` instead.
+        """
+        warnings.warn(
+            "The `extract_data_async()` method is deprecated and will be removed in a future release. "
+            "Use the `chat_structured_async()` method instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return await self._submit_and_extract_data_async(
+            *args,
+            data_model=data_model,
+            echo=echo,
+            stream=stream,
+        )
+
+    async def _submit_and_extract_data_async(
+        self,
+        *args: Content | str,
+        data_model: type[BaseModel],
+        echo: EchoOptions = "none",
+        stream: bool = False,
+    ) -> dict[str, Any]:
         display = self._markdown_display(echo=echo)
 
         response = ChatResponseAsync(

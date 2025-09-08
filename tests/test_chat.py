@@ -2,6 +2,8 @@ import re
 import tempfile
 
 import pytest
+from pydantic import BaseModel
+
 from chatlas import (
     ChatOpenAI,
     ContentToolRequest,
@@ -10,7 +12,6 @@ from chatlas import (
     Turn,
 )
 from chatlas._chat import ToolFailureWarning
-from pydantic import BaseModel
 
 
 def test_simple_batch_chat():
@@ -109,29 +110,29 @@ def test_basic_export(snapshot):
             assert snapshot == f.read()
 
 
-def test_extract_data():
+def test_chat_structured():
     chat = ChatOpenAI()
 
     class Person(BaseModel):
         name: str
         age: int
 
-    data = chat.extract_data("John, age 15, won first prize", data_model=Person)
-    assert data == dict(name="John", age=15)
+    data = chat.chat_structured("John, age 15, won first prize", data_model=Person)
+    assert data == Person(name="John", age=15)
 
 
 @pytest.mark.asyncio
-async def test_extract_data_async():
+async def test_chat_structured_async():
     chat = ChatOpenAI()
 
     class Person(BaseModel):
         name: str
         age: int
 
-    data = await chat.extract_data_async(
+    data = await chat.chat_structured_async(
         "John, age 15, won first prize", data_model=Person
     )
-    assert data == dict(name="John", age=15)
+    assert data == Person(name="John", age=15)
 
 
 def test_last_turn_retrieval():

@@ -3,7 +3,7 @@ title: Entity recognition
 callout-appearance: simple
 ---
 
-The following example, which [closely inspired by the Claude documentation](https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb), shows how `.extract_data()` can be used to perform entity recognition.
+The following example, which [closely inspired by the Claude documentation](https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb), shows how `.chat_structured()` can be used to perform entity recognition.
 
 ```{python}
 from chatlas import ChatOpenAI
@@ -31,6 +31,6 @@ class NamedEntities(BaseModel):
 
 
 chat = ChatOpenAI()
-data = chat.extract_data(text, data_model=NamedEntities)
-pd.DataFrame(data["entities"])
+data = chat.chat_structured(text, data_model=NamedEntities)
+pd.DataFrame([e.model_dump() for e in data.entities])
 ```

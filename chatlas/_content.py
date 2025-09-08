@@ -603,7 +603,7 @@ class ContentJson(Content):
     JSON content
 
     This content type primarily exists to signal structured data extraction
-    (i.e., data extracted via [](`~chatlas.Chat`)'s `.extract_data()` method)
+    (i.e., data extracted via [](`~chatlas.Chat`)'s `.chat_structured()` method)
 
     Parameters
     ----------
@@ -630,7 +630,7 @@ class ContentPDF(Content):
     PDF content
 
     This content type primarily exists to signal PDF data extraction
-    (i.e., data extracted via [](`~chatlas.Chat`)'s `.extract_data()` method)
+    (i.e., data extracted via [](`~chatlas.Chat`)'s `.chat_structured()` method)
 
     Parameters
     ----------
