@@ -35,6 +35,7 @@ if TYPE_CHECKING:
         ChatCompletion,
         ChatCompletionChunk,
         ChatCompletionMessageParam,
+        ChatCompletionToolParam,
     )
     from openai.types.chat.chat_completion_assistant_message_param import (
         ContentArrayOfContentPart,
@@ -303,7 +304,7 @@ class OpenAIProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        tool_schemas = [tool.schema for tool in tools.values()]
+        tool_schemas = [self._tool_schema_json(tool.schema) for tool in tools.values()]
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
@@ -541,6 +542,12 @@ class OpenAIProvider(
                 raise ValueError(f"Unknown role: {turn.role}")
 
         return res
+
+    @staticmethod
+    def _tool_schema_json(
+        schema: "ChatCompletionToolParam",
+    ) -> "ChatCompletionToolParam":
+        return schema
 
     def _as_turn(
         self, completion: "ChatCompletion", has_data_model: bool

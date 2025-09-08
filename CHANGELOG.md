@@ -71,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added `ChatHuggingFace()` for chatting via [Hugging Face](https://huggingface.co/). (#144)
 * Added `ChatMistral()` for chatting via [Mistral AI](https://mistral.ai/). (#145)
 * Added `ChatPortkey()` for chatting via [Portkey AI](https://portkey.ai/). (#143)
+* Added `ChatVllm()` for chatting via [vLLM](https://docs.vllm.ai/en/latest/). (#24)
 
 ### Changes
 
