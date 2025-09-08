@@ -16,7 +16,7 @@ Here are just a few scenarios where this can be useful:
 
 ## Basic usage
 
-To extract data, provide some input and a [pydantic model](https://docs.pydantic.dev/latest/concepts/models/) to [the `.extract_data()` method](../reference/Chat.qmd#extract_data).
+To extract data, provide some input and a [pydantic model](https://docs.pydantic.dev/latest/concepts/models/) to [the `.chat_structured()` method](../reference/Chat.qmd#chat_structured).
 The pydantic `BaseModel` defines the data structure to extract from the input.
 It should include the field names and types that you want to extract, and the LLM will do its best to fill in the values for those fields.
 Here's a simple example text extraction:
@@ -30,7 +30,7 @@ class Person(BaseModel):
     age: int
 
 chat = ctl.ChatOpenAI()
-chat.extract_data(
+chat.chat_structured(
   "My name is Susan and I'm 13 years old", 
   data_model=Person,
 )
@@ -39,7 +39,7 @@ chat.extract_data(
 ::: chatlas-response-container
 
 ```python
-{"name": "Susan", "age": 13}
+name='Susan' age=13
 ```
 
 :::
@@ -53,7 +53,7 @@ class Image(BaseModel):
     primary_shape: str
     primary_colour: str
 
-chat.extract_data(
+chat.chat_structured(
   content_image_url("https://www.r-project.org/Rlogo.png"),
   data_model=Image,
 )
@@ -62,7 +62,7 @@ chat.extract_data(
 ::: chatlas-response-container
 
 ```python
-{"primary_shape": "rectangle", "primary_colour": "blue"}
+primary_shape='rectangle' primary_colour='blue'
 ```
 :::
 
@@ -88,7 +88,7 @@ class Person(BaseModel):
 
 ## Advanced data types
 
-This section covers some of the more advanced data types you may encounter when using `.extract_data()`, like data frames, required vs optional fields, and unknown keys.
+This section covers some of the more advanced data types you may encounter when using `.chat_structured()`, like data frames, required vs optional fields, and unknown keys.
 
 ::: callout-tip
 ### Examples
@@ -146,13 +146,13 @@ When using an LLM to extract data from text or images, you can ask the chatbot t
 """
 
 chat = ChatOpenAI()
-chat.extract_data(prompt, data_model=ArticleSpec)
+chat.chat_structured(prompt, data_model=ArticleSpec)
 ```
 
 ::: chatlas-response-container
 
 ```python
-{"title": "Structured Data", "author": "Carson Sievert", "date": "2023-10-01"}
+title='Structured Data' author='Carson Sievert' date='2023-10-01'
 ```
 
 :::
@@ -169,13 +169,13 @@ class ArticleSpec(BaseModel):
     author: str = Field(description="Name of the author")
     date: str | None = Field(description="Date written in YYYY-MM-DD format.")
 
-chat.extract_data(prompt, data_model=ArticleSpec)
+chat.chat_structured(prompt, data_model=ArticleSpec)
 ```
 
 ::: chatlas-response-container
 
 ```python
-{"title": "Structured Data", "author": "Carson Sievert", "date": null}
+title='Structured Data' author='Carson Sievert' date=None
 ```
 
 :::
@@ -202,22 +202,12 @@ The man is tall, with a beard and a scar on his left cheek. He has a deep voice 
 """
 
 chat = ChatAnthropic()
-chat.extract_data(prompt, data_model=Characteristics)
+chat.chat_structured(prompt, data_model=Characteristics)
 ```
 
 ::: chatlas-response-container
 ```python
-{
-  "height": "tall",
-  "facial_features": [
-    "beard",
-    "scar on left cheek"
-  ],
-  "voice": "deep",
-  "clothing": [
-    "black leather jacket"
-  ]
-}
+height='tall' facial_hair='beard' scars='scar on left cheek' voice='deep voice' clothing='black leather jacket' gender='man'
 ```
 :::
 

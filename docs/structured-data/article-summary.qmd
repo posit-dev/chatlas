@@ -3,7 +3,7 @@ title: Article summary
 callout-appearance: simple
 ---
 
-The following example, which [closely inspired by the Claude documentation](https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb), shows how `.extract_data()` can be used to summarize an article.
+The following example, which [closely inspired by the Claude documentation](https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb), shows how `.chat_structured()` can be used to summarize an article.
 
 <details>
 <summary>Click to show <code>text</code></summary>
@@ -167,7 +167,8 @@ class ArticleSummary(BaseModel):
 
 
 chat = ChatOpenAI()
-chat.extract_data(text, data_model=ArticleSummary)
+res = chat.chat_structured(text, data_model=ArticleSummary)
+res.model_dump_json(indent=2)
 ```
 
 
