@@ -48,6 +48,10 @@ chatlas.Chat.chat py:function 1 reference/Chat.html#chatlas.Chat.chat -
 chatlas._chat.Chat.chat py:function 1 reference/Chat.html#chatlas.Chat.chat chatlas.Chat.chat
 chatlas.Chat.chat_async py:function 1 reference/Chat.html#chatlas.Chat.chat_async -
 chatlas._chat.Chat.chat_async py:function 1 reference/Chat.html#chatlas.Chat.chat_async chatlas.Chat.chat_async
+chatlas.Chat.chat_structured py:function 1 reference/Chat.html#chatlas.Chat.chat_structured -
+chatlas._chat.Chat.chat_structured py:function 1 reference/Chat.html#chatlas.Chat.chat_structured chatlas.Chat.chat_structured
+chatlas.Chat.chat_structured_async py:function 1 reference/Chat.html#chatlas.Chat.chat_structured_async -
+chatlas._chat.Chat.chat_structured_async py:function 1 reference/Chat.html#chatlas.Chat.chat_structured_async chatlas.Chat.chat_structured_async
 chatlas.Chat.cleanup_mcp_tools py:function 1 reference/Chat.html#chatlas.Chat.cleanup_mcp_tools -
 chatlas._chat.Chat.cleanup_mcp_tools py:function 1 reference/Chat.html#chatlas.Chat.cleanup_mcp_tools chatlas.Chat.cleanup_mcp_tools
 chatlas.Chat.console py:function 1 reference/Chat.html#chatlas.Chat.console -
@@ -178,6 +182,8 @@ chatlas.types.TokenUsage py:class 1 reference/types.TokenUsage.html#chatlas.type
 chatlas._tokens.TokenUsage py:class 1 reference/types.TokenUsage.html#chatlas.types.TokenUsage chatlas.types.TokenUsage
 chatlas.types.ToolAnnotations.destructiveHint py:attribute 1 reference/types.ToolAnnotations.html#chatlas.types.ToolAnnotations.destructiveHint -
 chatlas._content.ToolAnnotations.destructiveHint py:attribute 1 reference/types.ToolAnnotations.html#chatlas.types.ToolAnnotations.destructiveHint chatlas.types.ToolAnnotations.destructiveHint
+chatlas.types.ToolAnnotations.extra py:attribute 1 reference/types.ToolAnnotations.html#chatlas.types.ToolAnnotations.extra -
+chatlas._content.ToolAnnotations.extra py:attribute 1 reference/types.ToolAnnotations.html#chatlas.types.ToolAnnotations.extra chatlas.types.ToolAnnotations.extra
 chatlas.types.ToolAnnotations.idempotentHint py:attribute 1 reference/types.ToolAnnotations.html#chatlas.types.ToolAnnotations.idempotentHint -
 chatlas._content.ToolAnnotations.idempotentHint py:attribute 1 reference/types.ToolAnnotations.html#chatlas.types.ToolAnnotations.idempotentHint chatlas.types.ToolAnnotations.idempotentHint
 chatlas.types.ToolAnnotations.openWorldHint py:attribute 1 reference/types.ToolAnnotations.html#chatlas.types.ToolAnnotations.openWorldHint -
