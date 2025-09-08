@@ -162,9 +162,9 @@ def assert_tools_parallel(
 ):
     chat = chat_fun(system_prompt="Be very terse, not even punctuation.")
 
-    def favorite_color(person: str):
+    def favorite_color(_person: str):
         """Returns a person's favourite colour"""
-        return "sage green" if person == "Joe" else "red"
+        return "sage green" if _person == "Joe" else "red"
 
     chat.register_tool(favorite_color)
 
