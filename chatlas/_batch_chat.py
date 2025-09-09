@@ -11,18 +11,12 @@ from __future__ import annotations
 
 import copy
 from pathlib import Path
-from typing import TYPE_CHECKING, TypeVar, Union
+from typing import TypeVar, Union
 
 from pydantic import BaseModel
 
 from ._batch_job import BatchJob, ContentT
 from ._chat import Chat
-
-if TYPE_CHECKING:
-    from ._provider_anthropic import MessageBatchIndividualResponse as AnthropicResult
-    from ._provider_openai import BatchResult as OpenAIResult
-
-    BatchResult = Union[OpenAIResult, AnthropicResult]
 
 ChatT = TypeVar("ChatT", bound=Chat)
 BaseModelT = TypeVar("BaseModelT", bound=BaseModel)

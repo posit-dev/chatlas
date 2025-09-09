@@ -8,6 +8,7 @@ from chatlas._batch_chat import (
     BatchJob,
     batch_chat,
     batch_chat_completed,
+    batch_chat_structured,
     batch_chat_text,
 )
 from chatlas._provider import BatchStatus
@@ -41,18 +42,17 @@ def test_can_retrieve_batch(test_batch_dir):
     assert "Paris" in out[0]
     assert "Berlin" in out[1]
 
-    # TODO: incorporate structured output test
-    # capitals = batch_chat_structured(
-    #    chat,
-    #    prompts,
-    #    test_batch_dir / "country-capitals-structured.json",
-    #    CountryCapital,
-    # )
-    # assert len(capitals) == 2
-    # assert capitals[0] is not None
-    # assert capitals[1] is not None
-    # assert capitals[0].name == "Paris"
-    # assert capitals[1].name == "Berlin"
+    capitals = batch_chat_structured(
+        chat,
+        prompts,
+        test_batch_dir / "country-capitals-structured.json",
+        CountryCapital,
+    )
+    assert len(capitals) == 2
+    assert capitals[0] is not None
+    assert capitals[1] is not None
+    assert capitals[0].name == "Paris"
+    assert capitals[1].name == "Berlin"
 
 
 def test_can_submit_openai_batch():
