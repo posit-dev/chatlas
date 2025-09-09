@@ -151,16 +151,23 @@ quartodoc:
       contents:
         - content_pdf_file
         - content_pdf_url
-    - title: Prompt interpolation
-      desc: Interpolate variables into prompt templates
-      contents:
-        - interpolate
-        - interpolate_file
     - title: Tool calling
       desc: Add context to python function before registering it as a tool.
       contents:
         - Tool
         - ToolRejectError
+    - title: Batch chat
+      desc: Submit multiple chats in one batch
+      contents:
+        - batch_chat
+        - batch_chat_text
+        - batch_chat_structured
+        - batch_chat_completed
+    - title: Prompt interpolation
+      desc: Interpolate variables into prompt templates
+      contents:
+        - interpolate
+        - interpolate_file
     - title: Turns
       desc: A provider-agnostic representation of content generated during an assistant/user turn.
       contents:
