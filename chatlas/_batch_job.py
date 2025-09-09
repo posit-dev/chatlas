@@ -3,7 +3,7 @@ import json
 import time
 from datetime import timedelta
 from pathlib import Path
-from typing import Any, Literal, Optional, TypedDict, TypeVar, Union
+from typing import Any, Literal, Optional, TypeVar, Union
 
 from pydantic import BaseModel
 from rich.console import Console
@@ -13,6 +13,7 @@ from ._chat import Chat
 from ._content import Content
 from ._provider import BatchStatus
 from ._turn import Turn, user_turn
+from ._typing_extensions import TypedDict
 
 BatchStage = Literal["submitting", "waiting", "retrieving", "done"]
 
