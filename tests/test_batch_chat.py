@@ -55,6 +55,26 @@ def test_can_retrieve_batch(test_batch_dir):
     # assert capitals[1].name == "Berlin"
 
 
+def test_can_submit_openai_batch():
+    with tempfile.NamedTemporaryFile() as temp_file:
+        chat = ChatOpenAI()
+        prompts = ["What's the capital of France?", "What's the capital of Germany?"]
+        job = BatchJob(chat, prompts, temp_file.name, wait=False)
+        assert job.stage == "submitting"
+        job.step()
+        assert job.stage == "waiting"
+
+
+def test_can_submit_anthropic_batch():
+    with tempfile.NamedTemporaryFile() as temp_file:
+        chat = ChatAnthropic()
+        prompts = ["What's the capital of France?", "What's the capital of Germany?"]
+        job = BatchJob(chat, prompts, temp_file.name, wait=False)
+        assert job.stage == "submitting"
+        job.step()
+        assert job.stage == "waiting"
+
+
 def test_informative_errors(test_batch_dir):
     with pytest.raises(ValueError, match="not supported by this provider"):
         batch_chat(
