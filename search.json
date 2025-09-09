@@ -4,14 +4,14 @@
     "href": "CHANGELOG.html",
     "title": "Changelog",
     "section": "",
-    "text": "The Chat class gains new .chat_structured() (and .chat_structured_async()) methods. These methods supersede the now deprecated .extract_data() (and .extract_data_async()). The only difference is that the new methods return a BaseModel instance (instead of a dict()), leading to a better type hinting/checking experience. (#175)\n\n\n\n\n\n\n\n\nChatAuto()’s first (optional) positional parameter has changed from system_prompt to provider_model, and system_prompt is now a keyword parameter. As a result, you may need to change ChatAuto(\"[system prompt]\") -&gt; ChatAuto(system_prompt=\"[system prompt]\"). In addition, the provider and model keyword arguments are now deprecated, but continue to work with a warning, as are the previous CHATLAS_CHAT_PROVIDER and CHATLAS_CHAT_MODEL environment variables. (#159)\n\n\n\n\n\nChatAuto()’s new provider_model takes both provider and model in a single string in the format \"{provider}/{model}\", e.g. \"openai/gpt-5\". If not provided, ChatAuto() looks for the CHATLAS_CHAT_PROVIDER_MODEL environment variable, defaulting to \"openai\" if neither are provided. Unlike previous versions of ChatAuto(), the environment variables are now used only if function arguments are not provided. In other words, if provider_model is given, the CHATLAS_CHAT_PROVIDER_MODEL environment variable is ignored. Similarly, CHATLAS_CHAT_ARGS are only used if no kwargs are provided. This improves interactive use cases, makes it easier to introduce application-specific environment variables, and puts more control in the hands of the developer. (#159)\nThe .register_tool() method now:\n\nAccepts a Tool instance as input. This is primarily useful for binding things like annotations to the Tool in one place, and registering it in another. (#172)\nSupports function parameter names that start with an underscore. (#174)\n\nThe ToolAnnotations type gains an extra key field – providing a place for providing additional information that other consumers of tool annotations (e.g., shinychat) may make use of.\n\n\n\n\n\nChatAuto() now supports recently added providers such as ChatCloudflare(), ChatDeepseek(), ChatHuggingFace(), etc. (#159)\n\n\n\n\n\n\n\n\n.register_tool() gains a name parameter (useful for overriding the name of the function). (#162)\n\n\n\n\n\nContentToolRequest is (once again) serializable to/from JSON via Pydantic. (#164)\n.register_tool(model=model) no longer unexpectedly errors when model contains pydantic.Field(alias='_my_alias'). (#161)\n\n\n\n\n\n.register_tool(annotations=annotations) drops support for mcp.types.ToolAnnotations() and instead expects a dictionary of the same info. (#164)\n\n\n\n\n\n\n\n\nThe Chat class gains a new .list_models() method for obtaining a list of model ids/names, pricing info, and more. (#155)\nChat’s .register_tool() method gains an annotations parameter, which is useful for describing the tool and its behavior. This information is attached to ContentToolRequest() and ContentToolResult() (via the .request parameter) objects when tool calls occur. To include these objects in streaming content, make sure to set .stream(content=\"all\"). (#156)\n\n\n\n\n\nTools registered via MCP (e.g., .register_mcp_tools_http_stream_async()) now automatically pick up on tool annotations. (#156)\n\n\n\n\n\nChatGithub() changed its default for base_url from https://models.inference.ai.azure.com to https://models.github.ai/inference/. As a result, more models are available (by default). (#155)\n\n\n\n\n\n\n\n\nAdded ChatCloudflare() for chatting via Cloudflare AI. (#150)\nAdded ChatDeepSeek() for chatting via DeepSeek. (#147)\nAdded ChatOpenRouter() for chatting via Open Router. (#148)\nAdded ChatHuggingFace() for chatting via Hugging Face. (#144)\nAdded ChatMistral() for chatting via Mistral AI. (#145)\nAdded ChatPortkey() for chatting via Portkey AI. (#143)\n\n\n\n\n\nChatAnthropic() and ChatBedrockAnthropic() now default to Claude Sonnet 4.0.\n\n\n\n\n\nFixed an issue where chatting with some models was leading to KeyError: 'cached_input'. (#149)\n\n\n\n\n\n\n\n\nChat.get_cost() now covers many more models and also takes cached tokens into account. (#133)\nAvoid erroring when tool calls occur with recent versions of openai (&gt; v1.99.5). (#141)\n\n\n\n\n\n\n\n\nFixed an issue where .chat() wasn’t streaming output properly in (the latest build of) Positron’s Jupyter notebook. (#131)\nNeedless warnings and errors are no longer thrown when model pricing info is unavailable. (#132)\n\n\n\n\n\n\n\n\nChat gains a handful of new methods:\n\n.register_mcp_tools_http_stream_async() and .register_mcp_tools_stdio_async(): for registering tools from a MCP server. (#39)\n.get_tools() and .set_tools(): for fine-grained control over registered tools. (#39)\n.set_model_params(): for setting common LLM parameters in a model-agnostic fashion. (#127)\n.get_cost(): to get the estimated cost of the chat. Only popular models are supported, but you can also supply your own token prices. (#106)\n.add_turn(): to add Turn(s) to the current chat history. (#126)\n\nTool functions passed to .register_tool() can now yield numerous results. (#39)\nA ContentToolResultImage content class was added for returning images from tools. It is currently only works with ChatAnthropic. (#39)\nA Tool can now be constructed from a pre-existing tool schema (via a new __init__ method). (#39)\nThe Chat.app() method gains a host parameter. (#122)\nChatGithub() now supports the more standard GITHUB_TOKEN environment variable for storing the API key. (#123)\n\n\n\n\n\n\n\nChat constructors (ChatOpenAI(), ChatAnthropic(), etc) no longer have a turns keyword parameter. Use the .set_turns() method instead to set the (initial) chat history. (#126)\nChat’s .tokens() methods have been removed in favor of .get_tokens() which returns both cumulative tokens in the turn and discrete tokens. (#106)\n\n\n\n\n\nTool’s constructor no longer takes a function as input. Use the new .from_func() method instead to create a Tool from a function. (#39)\n.register_tool() now throws an exception when the tool has the same name as an already registered tool. Set the new force parameter to True to force the registration. (#39)\n\n\n\n\n\n\nChatGoogle() and ChatVertex() now default to Gemini 2.5 (instead of 2.0). (#125)\nChatOpenAI() and ChatGithub() now default to GPT 4.1 (instead of 4o). (#115)\nChatAnthropic() now supports content_image_url(). (#112)\nHTML styling improvements for ContentToolResult and ContentToolRequest. (#39)\nChat’s representation now includes cost information if it can be calculated. (#106)\ntoken_usage() includes cost if it can be calculated. (#106)\n\n\n\n\n\nFixed an issue where httpx client customization (e.g., ChatOpenAI(kwargs = {\"http_client\": httpx.Client()})) wasn’t working as expected (#108)\n\n\n\n\n\nThe base Provider class now includes a name and model property. In order for them to work properly, provider implementations should pass a name and model along to the __init__() method. (#106)\nProvider implementations must implement two new abstract methods: translate_model_params() and supported_model_params().\n\n\n\n\n\n\nFixed @overload definitions for .stream() and .stream_async().\n\n\n\n\n\n\n\nNew .on_tool_request() and .on_tool_result() methods register callbacks that fire when a tool is requested or produces a result. These callbacks can be used to implement custom logging or other actions when tools are called, without modifying the tool function (#101).\nNew ToolRejectError exception can be thrown from tool request/result callbacks or from within a tool function itself to prevent the tool from executing. Moreover, this exception will provide some context for the the LLM to know that the tool didn’t produce a result because it was rejected. (#101)\n\n\n\n\n\nThe CHATLAS_LOG environment variable now enables logs for the relevant model provider. It now also supports a level of debug in addition to info. (#97)\nChatSnowflake() now supports tool calling. (#98)\nChat instances can now be deep copied, which is useful for forking the chat session. (#96)\n\n\n\n\n\nChatDatabricks()’s model now defaults to databricks-claude-3-7-sonnet instead of databricks-dbrx-instruct. (#95)\nChatSnowflake()’s model now defaults to claude-3-7-sonnet instead of llama3.1-70b. (#98)\n\n\n\n\n\nFixed an issue where ChatDatabricks() with an Anthropic model wasn’t handling empty-string responses gracefully. (#95)\n\n\n\n\n\n\nAdded openai as a hard dependency, making installation easier for a wide range of use cases. (#91)\n\n\n\n\n\n\n\nAdded ChatDatabricks(), for chatting with Databrick’s foundation models. (#82)\n.stream() and .stream_async() gain a content argument. Set this to \"all\" to include ContentToolResult/ContentToolRequest objects in the stream. (#75)\nContentToolResult/ContentToolRequest are now exported to chatlas namespace. (#75)\nContentToolResult/ContentToolRequest gain a .tagify() method so they render sensibly in a Shiny app. (#75)\nA tool can now return a ContentToolResult. This is useful for:\n\nSpecifying the format used for sending the tool result to the chat model (model_format). (#87)\nCustom rendering of the tool result (by overriding relevant methods in a subclass). (#75)\n\nChat gains a new .current_display property. When a .chat() or .stream() is currently active, this property returns an object with a .echo() method (to echo new content to the display). This is primarily useful for displaying custom content during a tool call. (#79)\n\n\n\n\n\nWhen a tool call ends in failure, a warning is now raised and the stacktrace is printed. (#79)\nSeveral improvements to ChatSnowflake():\n\n.extract_data() is now supported.\nasync methods are now supported. (#81)\nFixed an issue with more than one session being active at once. (#83)\n\nChatAnthropic() no longer chokes after receiving an output that consists only of whitespace. (#86)\norjson is now used for JSON loading and dumping. (#87)\n\n\n\n\n\nThe echo argument of the .chat() method defaults to a new value of \"output\". As a result, tool requests and results are now echoed by default. To revert to the previous behavior, set echo=\"text\". (#78)\nTool results are now dumped to JSON by default before being sent to the model. To revert to the previous behavior, have the tool return a ContentToolResult with model_format=\"str\". (#87)\n\n\n\n\n\nThe .export() method’s include argument has been renamed to content (to match .stream()). (#75)\n\n\n\n\n\n\n\n\nFixed a missing dependency on the requests package.\n\n\n\n\n\n\n\n\nNew content_pdf_file() and content_pdf_url() allow you to upload PDFs to supported models. (#74)\n\n\n\n\n\nTurn and Content now inherit from pydantic.BaseModel to provide easier saving to and loading from JSON. (#72)\n\n\n\n\n\n\n\n\nAdded a ChatSnowflake() class to interact with Snowflake Cortex LLM. (#54)\nAdded a ChatAuto() class, allowing for configuration of chat providers and models via environment variables. (#38, thanks @mconflitti-pbc)\n\n\n\n\n\nUpdated ChatAnthropic()’s model default to \"claude-3-7-sonnet-latest\". (#62)\nThe version is now accessible as chatlas.__version__. (#64)\nAll provider-specific Chat subclasses now have an associated extras in chatlas. For example, ChatOpenAI has chatlas[openai], ChatPerplexity has chatlas[perplexity], ChatBedrockAnthropic has chatlas[bedrock-anthropic], and so forth for the other Chat classes. (#66)\n\n\n\n\n\nFixed an issue with content getting duplicated when it overflows in a Live() console. (#71)\nFix an issue with tool calls not working with ChatVertex(). (#61)\n\n\n\n\n\n\n\n\nAdded a ChatVertex() class to interact with Google Cloud’s Vertex AI. (#50)\nAdded .app(*, echo=) support. This allows for chatlas to change the echo behavior when running the Shiny app. (#31)\n\n\n\n\n\nMigrated ChatGoogle()’s underlying python SDK from google-generative to google-genai. As a result, streaming tools are now working properly. (#50)\n\n\n\n\n\nFixed a bug where synchronous chat tools would not work properly when used in a _async() context. (#56)\nFix broken Chat’s Shiny app when .app(*, stream=True) by using async chat tools. (#31)\nUpdate formatting of exported markdown to use repr() instead of str() when exporting tool call results. (#30)\n\n\n\n\n\n\n\n\nChat’s .tokens() method gains a values argument. Set it to \"discrete\" to get a result that can be summed to determine the token cost of submitting the current turns. The default (\"cumulative\"), remains the same (the result can be summed to determine the overall token cost of the conversation).\nChat gains a .token_count() method to help estimate token cost of new input. (#23)\n\n\n\n\n\nChatOllama no longer fails when a OPENAI_API_KEY environment variable is not set.\nChatOpenAI now correctly includes the relevant detail on ContentImageRemote() input.\nChatGoogle now correctly logs its token_usage(). (#23)\n\n\n\n\n\nFirst stable release of chatlas, see the website to learn more https://posit-dev.github.io/chatlas/"
+    "text": "Added support for submitting multiple chats in one batch. With batch submission, results can take up to 24 hours to complete, but in return you pay ~50% less than usual. For more, see the reference for batch_chat(), batch_chat_text(), batch_chat_structured() and batch_chat_completed(). (#177)\nThe Chat class gains new .chat_structured() (and .chat_structured_async()) methods. These methods supersede the now deprecated .extract_data() (and .extract_data_async()). The only difference is that the new methods return a BaseModel instance (instead of a dict()), leading to a better type hinting/checking experience. (#175)\n\n\n\n\n\n\n\n\nChatAuto()’s first (optional) positional parameter has changed from system_prompt to provider_model, and system_prompt is now a keyword parameter. As a result, you may need to change ChatAuto(\"[system prompt]\") -&gt; ChatAuto(system_prompt=\"[system prompt]\"). In addition, the provider and model keyword arguments are now deprecated, but continue to work with a warning, as are the previous CHATLAS_CHAT_PROVIDER and CHATLAS_CHAT_MODEL environment variables. (#159)\n\n\n\n\n\nChatAuto()’s new provider_model takes both provider and model in a single string in the format \"{provider}/{model}\", e.g. \"openai/gpt-5\". If not provided, ChatAuto() looks for the CHATLAS_CHAT_PROVIDER_MODEL environment variable, defaulting to \"openai\" if neither are provided. Unlike previous versions of ChatAuto(), the environment variables are now used only if function arguments are not provided. In other words, if provider_model is given, the CHATLAS_CHAT_PROVIDER_MODEL environment variable is ignored. Similarly, CHATLAS_CHAT_ARGS are only used if no kwargs are provided. This improves interactive use cases, makes it easier to introduce application-specific environment variables, and puts more control in the hands of the developer. (#159)\nThe .register_tool() method now:\n\nAccepts a Tool instance as input. This is primarily useful for binding things like annotations to the Tool in one place, and registering it in another. (#172)\nSupports function parameter names that start with an underscore. (#174)\n\nThe ToolAnnotations type gains an extra key field – providing a place for providing additional information that other consumers of tool annotations (e.g., shinychat) may make use of.\n\n\n\n\n\nChatAuto() now supports recently added providers such as ChatCloudflare(), ChatDeepseek(), ChatHuggingFace(), etc. (#159)\n\n\n\n\n\n\n\n\n.register_tool() gains a name parameter (useful for overriding the name of the function). (#162)\n\n\n\n\n\nContentToolRequest is (once again) serializable to/from JSON via Pydantic. (#164)\n.register_tool(model=model) no longer unexpectedly errors when model contains pydantic.Field(alias='_my_alias'). (#161)\n\n\n\n\n\n.register_tool(annotations=annotations) drops support for mcp.types.ToolAnnotations() and instead expects a dictionary of the same info. (#164)\n\n\n\n\n\n\n\n\nThe Chat class gains a new .list_models() method for obtaining a list of model ids/names, pricing info, and more. (#155)\nChat’s .register_tool() method gains an annotations parameter, which is useful for describing the tool and its behavior. This information is attached to ContentToolRequest() and ContentToolResult() (via the .request parameter) objects when tool calls occur. To include these objects in streaming content, make sure to set .stream(content=\"all\"). (#156)\n\n\n\n\n\nTools registered via MCP (e.g., .register_mcp_tools_http_stream_async()) now automatically pick up on tool annotations. (#156)\n\n\n\n\n\nChatGithub() changed its default for base_url from https://models.inference.ai.azure.com to https://models.github.ai/inference/. As a result, more models are available (by default). (#155)\n\n\n\n\n\n\n\n\nAdded ChatCloudflare() for chatting via Cloudflare AI. (#150)\nAdded ChatDeepSeek() for chatting via DeepSeek. (#147)\nAdded ChatOpenRouter() for chatting via Open Router. (#148)\nAdded ChatHuggingFace() for chatting via Hugging Face. (#144)\nAdded ChatMistral() for chatting via Mistral AI. (#145)\nAdded ChatPortkey() for chatting via Portkey AI. (#143)\n\n\n\n\n\nChatAnthropic() and ChatBedrockAnthropic() now default to Claude Sonnet 4.0.\n\n\n\n\n\nFixed an issue where chatting with some models was leading to KeyError: 'cached_input'. (#149)\n\n\n\n\n\n\n\n\nChat.get_cost() now covers many more models and also takes cached tokens into account. (#133)\nAvoid erroring when tool calls occur with recent versions of openai (&gt; v1.99.5). (#141)\n\n\n\n\n\n\n\n\nFixed an issue where .chat() wasn’t streaming output properly in (the latest build of) Positron’s Jupyter notebook. (#131)\nNeedless warnings and errors are no longer thrown when model pricing info is unavailable. (#132)\n\n\n\n\n\n\n\n\nChat gains a handful of new methods:\n\n.register_mcp_tools_http_stream_async() and .register_mcp_tools_stdio_async(): for registering tools from a MCP server. (#39)\n.get_tools() and .set_tools(): for fine-grained control over registered tools. (#39)\n.set_model_params(): for setting common LLM parameters in a model-agnostic fashion. (#127)\n.get_cost(): to get the estimated cost of the chat. Only popular models are supported, but you can also supply your own token prices. (#106)\n.add_turn(): to add Turn(s) to the current chat history. (#126)\n\nTool functions passed to .register_tool() can now yield numerous results. (#39)\nA ContentToolResultImage content class was added for returning images from tools. It is currently only works with ChatAnthropic. (#39)\nA Tool can now be constructed from a pre-existing tool schema (via a new __init__ method). (#39)\nThe Chat.app() method gains a host parameter. (#122)\nChatGithub() now supports the more standard GITHUB_TOKEN environment variable for storing the API key. (#123)\n\n\n\n\n\n\n\nChat constructors (ChatOpenAI(), ChatAnthropic(), etc) no longer have a turns keyword parameter. Use the .set_turns() method instead to set the (initial) chat history. (#126)\nChat’s .tokens() methods have been removed in favor of .get_tokens() which returns both cumulative tokens in the turn and discrete tokens. (#106)\n\n\n\n\n\nTool’s constructor no longer takes a function as input. Use the new .from_func() method instead to create a Tool from a function. (#39)\n.register_tool() now throws an exception when the tool has the same name as an already registered tool. Set the new force parameter to True to force the registration. (#39)\n\n\n\n\n\n\nChatGoogle() and ChatVertex() now default to Gemini 2.5 (instead of 2.0). (#125)\nChatOpenAI() and ChatGithub() now default to GPT 4.1 (instead of 4o). (#115)\nChatAnthropic() now supports content_image_url(). (#112)\nHTML styling improvements for ContentToolResult and ContentToolRequest. (#39)\nChat’s representation now includes cost information if it can be calculated. (#106)\ntoken_usage() includes cost if it can be calculated. (#106)\n\n\n\n\n\nFixed an issue where httpx client customization (e.g., ChatOpenAI(kwargs = {\"http_client\": httpx.Client()})) wasn’t working as expected (#108)\n\n\n\n\n\nThe base Provider class now includes a name and model property. In order for them to work properly, provider implementations should pass a name and model along to the __init__() method. (#106)\nProvider implementations must implement two new abstract methods: translate_model_params() and supported_model_params().\n\n\n\n\n\n\nFixed @overload definitions for .stream() and .stream_async().\n\n\n\n\n\n\n\nNew .on_tool_request() and .on_tool_result() methods register callbacks that fire when a tool is requested or produces a result. These callbacks can be used to implement custom logging or other actions when tools are called, without modifying the tool function (#101).\nNew ToolRejectError exception can be thrown from tool request/result callbacks or from within a tool function itself to prevent the tool from executing. Moreover, this exception will provide some context for the the LLM to know that the tool didn’t produce a result because it was rejected. (#101)\n\n\n\n\n\nThe CHATLAS_LOG environment variable now enables logs for the relevant model provider. It now also supports a level of debug in addition to info. (#97)\nChatSnowflake() now supports tool calling. (#98)\nChat instances can now be deep copied, which is useful for forking the chat session. (#96)\n\n\n\n\n\nChatDatabricks()’s model now defaults to databricks-claude-3-7-sonnet instead of databricks-dbrx-instruct. (#95)\nChatSnowflake()’s model now defaults to claude-3-7-sonnet instead of llama3.1-70b. (#98)\n\n\n\n\n\nFixed an issue where ChatDatabricks() with an Anthropic model wasn’t handling empty-string responses gracefully. (#95)\n\n\n\n\n\n\nAdded openai as a hard dependency, making installation easier for a wide range of use cases. (#91)\n\n\n\n\n\n\n\nAdded ChatDatabricks(), for chatting with Databrick’s foundation models. (#82)\n.stream() and .stream_async() gain a content argument. Set this to \"all\" to include ContentToolResult/ContentToolRequest objects in the stream. (#75)\nContentToolResult/ContentToolRequest are now exported to chatlas namespace. (#75)\nContentToolResult/ContentToolRequest gain a .tagify() method so they render sensibly in a Shiny app. (#75)\nA tool can now return a ContentToolResult. This is useful for:\n\nSpecifying the format used for sending the tool result to the chat model (model_format). (#87)\nCustom rendering of the tool result (by overriding relevant methods in a subclass). (#75)\n\nChat gains a new .current_display property. When a .chat() or .stream() is currently active, this property returns an object with a .echo() method (to echo new content to the display). This is primarily useful for displaying custom content during a tool call. (#79)\n\n\n\n\n\nWhen a tool call ends in failure, a warning is now raised and the stacktrace is printed. (#79)\nSeveral improvements to ChatSnowflake():\n\n.extract_data() is now supported.\nasync methods are now supported. (#81)\nFixed an issue with more than one session being active at once. (#83)\n\nChatAnthropic() no longer chokes after receiving an output that consists only of whitespace. (#86)\norjson is now used for JSON loading and dumping. (#87)\n\n\n\n\n\nThe echo argument of the .chat() method defaults to a new value of \"output\". As a result, tool requests and results are now echoed by default. To revert to the previous behavior, set echo=\"text\". (#78)\nTool results are now dumped to JSON by default before being sent to the model. To revert to the previous behavior, have the tool return a ContentToolResult with model_format=\"str\". (#87)\n\n\n\n\n\nThe .export() method’s include argument has been renamed to content (to match .stream()). (#75)\n\n\n\n\n\n\n\n\nFixed a missing dependency on the requests package.\n\n\n\n\n\n\n\n\nNew content_pdf_file() and content_pdf_url() allow you to upload PDFs to supported models. (#74)\n\n\n\n\n\nTurn and Content now inherit from pydantic.BaseModel to provide easier saving to and loading from JSON. (#72)\n\n\n\n\n\n\n\n\nAdded a ChatSnowflake() class to interact with Snowflake Cortex LLM. (#54)\nAdded a ChatAuto() class, allowing for configuration of chat providers and models via environment variables. (#38, thanks @mconflitti-pbc)\n\n\n\n\n\nUpdated ChatAnthropic()’s model default to \"claude-3-7-sonnet-latest\". (#62)\nThe version is now accessible as chatlas.__version__. (#64)\nAll provider-specific Chat subclasses now have an associated extras in chatlas. For example, ChatOpenAI has chatlas[openai], ChatPerplexity has chatlas[perplexity], ChatBedrockAnthropic has chatlas[bedrock-anthropic], and so forth for the other Chat classes. (#66)\n\n\n\n\n\nFixed an issue with content getting duplicated when it overflows in a Live() console. (#71)\nFix an issue with tool calls not working with ChatVertex(). (#61)\n\n\n\n\n\n\n\n\nAdded a ChatVertex() class to interact with Google Cloud’s Vertex AI. (#50)\nAdded .app(*, echo=) support. This allows for chatlas to change the echo behavior when running the Shiny app. (#31)\n\n\n\n\n\nMigrated ChatGoogle()’s underlying python SDK from google-generative to google-genai. As a result, streaming tools are now working properly. (#50)\n\n\n\n\n\nFixed a bug where synchronous chat tools would not work properly when used in a _async() context. (#56)\nFix broken Chat’s Shiny app when .app(*, stream=True) by using async chat tools. (#31)\nUpdate formatting of exported markdown to use repr() instead of str() when exporting tool call results. (#30)\n\n\n\n\n\n\n\n\nChat’s .tokens() method gains a values argument. Set it to \"discrete\" to get a result that can be summed to determine the token cost of submitting the current turns. The default (\"cumulative\"), remains the same (the result can be summed to determine the overall token cost of the conversation).\nChat gains a .token_count() method to help estimate token cost of new input. (#23)\n\n\n\n\n\nChatOllama no longer fails when a OPENAI_API_KEY environment variable is not set.\nChatOpenAI now correctly includes the relevant detail on ContentImageRemote() input.\nChatGoogle now correctly logs its token_usage(). (#23)\n\n\n\n\n\nFirst stable release of chatlas, see the website to learn more https://posit-dev.github.io/chatlas/"
   },
   {
     "objectID": "CHANGELOG.html#unreleased",
     "href": "CHANGELOG.html#unreleased",
     "title": "Changelog",
     "section": "",
-    "text": "The Chat class gains new .chat_structured() (and .chat_structured_async()) methods. These methods supersede the now deprecated .extract_data() (and .extract_data_async()). The only difference is that the new methods return a BaseModel instance (instead of a dict()), leading to a better type hinting/checking experience. (#175)"
+    "text": "Added support for submitting multiple chats in one batch. With batch submission, results can take up to 24 hours to complete, but in return you pay ~50% less than usual. For more, see the reference for batch_chat(), batch_chat_text(), batch_chat_structured() and batch_chat_completed(). (#177)\nThe Chat class gains new .chat_structured() (and .chat_structured_async()) methods. These methods supersede the now deprecated .extract_data() (and .extract_data_async()). The only difference is that the new methods return a BaseModel instance (instead of a dict()), leading to a better type hinting/checking experience. (#175)"
   },
   {
     "objectID": "CHANGELOG.html#section",
@@ -396,7 +396,7 @@
     "href": "structured-data/classification.html",
     "title": "Classification",
     "section": "",
-    "text": "The following example, which closely inspired by the Claude documentation, shows how .chat_structured() can be used to perform text classification.\n\nfrom typing import Literal\n\nfrom chatlas import ChatOpenAI\nfrom pydantic import BaseModel, Field\nimport pandas as pd\n\ntext = \"The new quantum computing breakthrough could revolutionize the tech industry.\"\n\n\nclass Classification(BaseModel):\n    name: Literal[\n        \"Politics\", \"Sports\", \"Technology\", \"Entertainment\", \"Business\", \"Other\"\n    ] = Field(description=\"The category name\")\n\n    score: float = Field(\n        description=\"The classification score for the category, ranging from 0.0 to 1.0.\"\n    )\n\n\nclass Classifications(BaseModel):\n    \"\"\"Array of classification results. The scores should sum to 1.\"\"\"\n    classifications: list[Classification]\n\n\nchat = ChatOpenAI()\ndata = chat.chat_structured(text, data_model=Classifications)\npd.DataFrame([c.model_dump() for c in data.classifications])\n\n\n\n\n\n\n\n\nname\nscore\n\n\n\n\n0\nTechnology\n0.95\n\n\n1\nOther\n0.05\n\n\n2\nPolitics\n0.00\n\n\n3\nSports\n0.00\n\n\n4\nEntertainment\n0.00\n\n\n5\nBusiness\n0.00",
+    "text": "The following example, which closely inspired by the Claude documentation, shows how .chat_structured() can be used to perform text classification.\n\nfrom typing import Literal\n\nfrom chatlas import ChatOpenAI\nfrom pydantic import BaseModel, Field\nimport pandas as pd\n\ntext = \"The new quantum computing breakthrough could revolutionize the tech industry.\"\n\n\nclass Classification(BaseModel):\n    name: Literal[\n        \"Politics\", \"Sports\", \"Technology\", \"Entertainment\", \"Business\", \"Other\"\n    ] = Field(description=\"The category name\")\n\n    score: float = Field(\n        description=\"The classification score for the category, ranging from 0.0 to 1.0.\"\n    )\n\n\nclass Classifications(BaseModel):\n    \"\"\"Array of classification results. The scores should sum to 1.\"\"\"\n    classifications: list[Classification]\n\n\nchat = ChatOpenAI()\ndata = chat.chat_structured(text, data_model=Classifications)\npd.DataFrame([c.model_dump() for c in data.classifications])\n\n\n\n\n\n\n\n\nname\nscore\n\n\n\n\n0\nTechnology\n0.95\n\n\n1\nBusiness\n0.05\n\n\n2\nPolitics\n0.00\n\n\n3\nSports\n0.00\n\n\n4\nEntertainment\n0.00\n\n\n5\nOther\n0.00",
     "crumbs": [
       "Structured data",
       "Classification"
@@ -842,87 +842,171 @@
     ]
   },
   {
-    "objectID": "reference/ChatPerplexity.html",
-    "href": "reference/ChatPerplexity.html",
-    "title": "ChatPerplexity",
+    "objectID": "reference/Tool.html",
+    "href": "reference/Tool.html",
+    "title": "Tool",
     "section": "",
-    "text": "ChatPerplexity(\n    system_prompt=None,\n    model=None,\n    api_key=None,\n    base_url='https://api.perplexity.ai/',\n    seed=MISSING,\n    kwargs=None,\n)\nChat with a model hosted on perplexity.ai.\nPerplexity AI is a platform for running LLMs that are capable of searching the web in real-time to help them answer questions with information that may not have been available when the model was trained.\n\n\n\n\n\n\n\n\nAPI key\n\n\n\nSign up at https://www.perplexity.ai to get an API key.\n\n\n\n\n\nimport os\nfrom chatlas import ChatPerplexity\n\nchat = ChatPerplexity(api_key=os.getenv(\"PERPLEXITY_API_KEY\"))\nchat.chat(\"What is the capital of France?\")\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the PERPLEXITY_API_KEY environment variable.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses Perplexity’s API.\n'https://api.perplexity.ai/'\n\n\nseed\nOptional[int] | MISSING_TYPE\nOptional integer seed that ChatGPT uses to try and make output more reproducible.\nMISSING\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.\n\n\n\n\n\n\nThis function is a lightweight wrapper around chatlas.ChatOpenAI with the defaults tweaked for perplexity.ai.\n\n\n\nPasting an API key into a chat constructor (e.g., ChatPerplexity(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nPERPLEXITY_API_KEY=...\nfrom chatlas import ChatPerplexity\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatPerplexity()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport PERPLEXITY_API_KEY=...",
+    "text": "Tool(func, name, description, parameters, annotations=None)\nDefine a tool\nDefine a Python function for use by a chatbot. The function will always be invoked in the current Python process.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfunc\nCallable[…, Any] | Callable[…, Awaitable[Any]]\nThe function to be invoked when the tool is called.\nrequired\n\n\nname\nstr\nThe name of the tool.\nrequired\n\n\ndescription\nstr\nA description of what the tool does.\nrequired\n\n\nparameters\ndict[str, Any]\nA dictionary describing the input parameters and their types.\nrequired\n\n\nannotations\n'Optional[ToolAnnotations]'\nAdditional properties that describe the tool and its behavior.\nNone\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_func\nCreate a Tool from a Python function\n\n\nfrom_mcp\nCreate a Tool from an MCP tool\n\n\n\n\n\nTool.from_func(func, *, name=None, model=None, annotations=None)\nCreate a Tool from a Python function\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfunc\nCallable[…, Any] | Callable[…, Awaitable[Any]]\nThe function to wrap as a tool.\nrequired\n\n\nname\nOptional[str]\nThe name of the tool. If not provided, the name will be inferred from the function’s name.\nNone\n\n\nmodel\nOptional[type[BaseModel]]\nA Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function.\nNone\n\n\nannotations\n'Optional[ToolAnnotations]'\nAdditional properties that describe the tool and its behavior.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nTool\nA new Tool instance wrapping the provided function.\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nValueError\nIf there is a mismatch between model fields and function parameters.\n\n\n\n\n\n\n\nTool.from_mcp(session, mcp_tool)\nCreate a Tool from an MCP tool\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsession\n'MCPClientSession'\nThe MCP client session to use for calling the tool.\nrequired\n\n\nmcp_tool\n'MCPTool'\nThe MCP tool to wrap.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nTool\nA new Tool instance wrapping the MCP tool.",
     "crumbs": [
       "Reference",
-      "Chat model providers",
-      "ChatPerplexity"
+      "Tool calling",
+      "Tool"
     ]
   },
   {
-    "objectID": "reference/ChatPerplexity.html#prerequisites",
-    "href": "reference/ChatPerplexity.html#prerequisites",
-    "title": "ChatPerplexity",
+    "objectID": "reference/Tool.html#parameters",
+    "href": "reference/Tool.html#parameters",
+    "title": "Tool",
     "section": "",
-    "text": "API key\n\n\n\nSign up at https://www.perplexity.ai to get an API key.",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nfunc\nCallable[…, Any] | Callable[…, Awaitable[Any]]\nThe function to be invoked when the tool is called.\nrequired\n\n\nname\nstr\nThe name of the tool.\nrequired\n\n\ndescription\nstr\nA description of what the tool does.\nrequired\n\n\nparameters\ndict[str, Any]\nA dictionary describing the input parameters and their types.\nrequired\n\n\nannotations\n'Optional[ToolAnnotations]'\nAdditional properties that describe the tool and its behavior.\nNone",
     "crumbs": [
       "Reference",
-      "Chat model providers",
-      "ChatPerplexity"
+      "Tool calling",
+      "Tool"
     ]
   },
   {
-    "objectID": "reference/ChatPerplexity.html#examples",
-    "href": "reference/ChatPerplexity.html#examples",
-    "title": "ChatPerplexity",
+    "objectID": "reference/Tool.html#methods",
+    "href": "reference/Tool.html#methods",
+    "title": "Tool",
     "section": "",
-    "text": "import os\nfrom chatlas import ChatPerplexity\n\nchat = ChatPerplexity(api_key=os.getenv(\"PERPLEXITY_API_KEY\"))\nchat.chat(\"What is the capital of France?\")",
+    "text": "Name\nDescription\n\n\n\n\nfrom_func\nCreate a Tool from a Python function\n\n\nfrom_mcp\nCreate a Tool from an MCP tool\n\n\n\n\n\nTool.from_func(func, *, name=None, model=None, annotations=None)\nCreate a Tool from a Python function\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfunc\nCallable[…, Any] | Callable[…, Awaitable[Any]]\nThe function to wrap as a tool.\nrequired\n\n\nname\nOptional[str]\nThe name of the tool. If not provided, the name will be inferred from the function’s name.\nNone\n\n\nmodel\nOptional[type[BaseModel]]\nA Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function.\nNone\n\n\nannotations\n'Optional[ToolAnnotations]'\nAdditional properties that describe the tool and its behavior.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nTool\nA new Tool instance wrapping the provided function.\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nValueError\nIf there is a mismatch between model fields and function parameters.\n\n\n\n\n\n\n\nTool.from_mcp(session, mcp_tool)\nCreate a Tool from an MCP tool\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsession\n'MCPClientSession'\nThe MCP client session to use for calling the tool.\nrequired\n\n\nmcp_tool\n'MCPTool'\nThe MCP tool to wrap.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nTool\nA new Tool instance wrapping the MCP tool.",
     "crumbs": [
       "Reference",
-      "Chat model providers",
-      "ChatPerplexity"
+      "Tool calling",
+      "Tool"
     ]
   },
   {
-    "objectID": "reference/ChatPerplexity.html#parameters",
-    "href": "reference/ChatPerplexity.html#parameters",
-    "title": "ChatPerplexity",
+    "objectID": "reference/index.html",
+    "href": "reference/index.html",
+    "title": "Function reference",
     "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the PERPLEXITY_API_KEY environment variable.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses Perplexity’s API.\n'https://api.perplexity.ai/'\n\n\nseed\nOptional[int] | MISSING_TYPE\nOptional integer seed that ChatGPT uses to try and make output more reproducible.\nMISSING\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor.\nNone",
+    "text": "Start a chat with a particular large language model (llm) provider.\n\n\n\nChatAnthropic\nChat with an Anthropic Claude model.\n\n\nChatAuto\nChat with any provider.\n\n\nChatAzureOpenAI\nChat with a model hosted on Azure OpenAI.\n\n\nChatBedrockAnthropic\nChat with an AWS bedrock model.\n\n\nChatCloudflare\nChat with a model hosted on Cloudflare Workers AI.\n\n\nChatDatabricks\nChat with a model hosted on Databricks.\n\n\nChatDeepSeek\nChat with a model hosted on DeepSeek.\n\n\nChatGithub\nChat with a model hosted on the GitHub model marketplace.\n\n\nChatGoogle\nChat with a Google Gemini model.\n\n\nChatGroq\nChat with a model hosted on Groq.\n\n\nChatHuggingFace\nChat with a model hosted on Hugging Face Inference API.\n\n\nChatMistral\nChat with a model hosted on Mistral’s La Plateforme.\n\n\nChatOllama\nChat with a local Ollama model.\n\n\nChatOpenAI\nChat with an OpenAI model.\n\n\nChatOpenRouter\nChat with one of the many models hosted on OpenRouter.\n\n\nChatPerplexity\nChat with a model hosted on perplexity.ai.\n\n\nChatPortkey\nChat with a model hosted on PortkeyAI\n\n\nChatSnowflake\nChat with a Snowflake Cortex LLM\n\n\nChatVertex\nChat with a Google Vertex AI model.\n\n\n\n\n\n\nMethods and attributes available on a chat instance\n\n\n\nChat\nA chat object that can be used to interact with a language model.\n\n\n\n\n\n\nSubmit image input to the chat\n\n\n\ncontent_image_file\nEncode image content from a file for chat input.\n\n\ncontent_image_plot\nEncode the current matplotlib plot as an image for chat input.\n\n\ncontent_image_url\nEncode image content from a URL for chat input.\n\n\n\n\n\n\nSubmit pdf input to the chat\n\n\n\ncontent_pdf_file\nPrepare a local PDF for input to a chat.\n\n\ncontent_pdf_url\nUse a remote PDF for input to a chat.\n\n\n\n\n\n\nAdd context to python function before registering it as a tool.\n\n\n\nTool\nDefine a tool\n\n\nToolRejectError\nError to represent a tool call being rejected.\n\n\n\n\n\n\nSubmit multiple chats in one batch\n\n\n\nbatch_chat\nSubmit multiple chat requests in a batch.\n\n\nbatch_chat_text\nSubmit multiple chat requests in a batch and return text responses.\n\n\nbatch_chat_structured\nSubmit multiple structured data requests in a batch.\n\n\nbatch_chat_completed\nCheck if a batch job is completed without waiting.\n\n\n\n\n\n\nInterpolate variables into prompt templates\n\n\n\ninterpolate\nInterpolate variables into a prompt\n\n\ninterpolate_file\nInterpolate variables into a prompt from a file\n\n\n\n\n\n\nA provider-agnostic representation of content generated during an assistant/user turn.\n\n\n\nTurn\nA user or assistant turn\n\n\n\n\n\n\n\n\n\ntoken_usage\nReport on token usage in the current session\n\n\n\n\n\n\n\n\n\nProvider\nA model provider interface for a Chat.\n\n\n\n\n\n\n\n\n\ntypes.Content\nBase class for all content types that can be appear in a Turn\n\n\ntypes.ContentImage\nBase class for image content.\n\n\ntypes.ContentImageInline\nInline image content.\n\n\ntypes.ContentImageRemote\nImage content from a URL.\n\n\ntypes.ContentJson\nJSON content\n\n\ntypes.ContentText\nText content for a Turn\n\n\ntypes.ContentToolRequest\nA request to call a tool/function\n\n\ntypes.ContentToolResult\nThe result of calling a tool/function\n\n\ntypes.ChatResponse\nChat response object.\n\n\ntypes.ChatResponseAsync\nChat response (async) object.\n\n\ntypes.ImageContentTypes\nAllowable content types for images.\n\n\ntypes.MISSING_TYPE\nA singleton representing a missing value.\n\n\ntypes.MISSING\n\n\n\ntypes.SubmitInputArgsT\nA TypedDict representing the provider specific arguments that can specified when\n\n\ntypes.TokenUsage\nToken usage for a given provider (name).\n\n\ntypes.ToolAnnotations\nAdditional properties describing a Tool to clients.\n\n\ntypes.ToolInfo\nSerializable tool information",
     "crumbs": [
       "Reference",
-      "Chat model providers",
-      "ChatPerplexity"
+      "Function reference"
     ]
   },
   {
-    "objectID": "reference/ChatPerplexity.html#returns",
-    "href": "reference/ChatPerplexity.html#returns",
-    "title": "ChatPerplexity",
+    "objectID": "reference/index.html#chat-model-providers",
+    "href": "reference/index.html#chat-model-providers",
+    "title": "Function reference",
     "section": "",
-    "text": "Name\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.",
+    "text": "Start a chat with a particular large language model (llm) provider.\n\n\n\nChatAnthropic\nChat with an Anthropic Claude model.\n\n\nChatAuto\nChat with any provider.\n\n\nChatAzureOpenAI\nChat with a model hosted on Azure OpenAI.\n\n\nChatBedrockAnthropic\nChat with an AWS bedrock model.\n\n\nChatCloudflare\nChat with a model hosted on Cloudflare Workers AI.\n\n\nChatDatabricks\nChat with a model hosted on Databricks.\n\n\nChatDeepSeek\nChat with a model hosted on DeepSeek.\n\n\nChatGithub\nChat with a model hosted on the GitHub model marketplace.\n\n\nChatGoogle\nChat with a Google Gemini model.\n\n\nChatGroq\nChat with a model hosted on Groq.\n\n\nChatHuggingFace\nChat with a model hosted on Hugging Face Inference API.\n\n\nChatMistral\nChat with a model hosted on Mistral’s La Plateforme.\n\n\nChatOllama\nChat with a local Ollama model.\n\n\nChatOpenAI\nChat with an OpenAI model.\n\n\nChatOpenRouter\nChat with one of the many models hosted on OpenRouter.\n\n\nChatPerplexity\nChat with a model hosted on perplexity.ai.\n\n\nChatPortkey\nChat with a model hosted on PortkeyAI\n\n\nChatSnowflake\nChat with a Snowflake Cortex LLM\n\n\nChatVertex\nChat with a Google Vertex AI model.",
     "crumbs": [
       "Reference",
-      "Chat model providers",
-      "ChatPerplexity"
+      "Function reference"
     ]
   },
   {
-    "objectID": "reference/ChatPerplexity.html#note",
-    "href": "reference/ChatPerplexity.html#note",
-    "title": "ChatPerplexity",
+    "objectID": "reference/index.html#the-chat-object",
+    "href": "reference/index.html#the-chat-object",
+    "title": "Function reference",
     "section": "",
-    "text": "This function is a lightweight wrapper around chatlas.ChatOpenAI with the defaults tweaked for perplexity.ai.",
+    "text": "Methods and attributes available on a chat instance\n\n\n\nChat\nA chat object that can be used to interact with a language model.",
     "crumbs": [
       "Reference",
-      "Chat model providers",
-      "ChatPerplexity"
+      "Function reference"
     ]
   },
   {
-    "objectID": "reference/ChatPerplexity.html#note-1",
-    "href": "reference/ChatPerplexity.html#note-1",
-    "title": "ChatPerplexity",
+    "objectID": "reference/index.html#image-input",
+    "href": "reference/index.html#image-input",
+    "title": "Function reference",
     "section": "",
-    "text": "Pasting an API key into a chat constructor (e.g., ChatPerplexity(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nPERPLEXITY_API_KEY=...\nfrom chatlas import ChatPerplexity\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatPerplexity()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport PERPLEXITY_API_KEY=...",
+    "text": "Submit image input to the chat\n\n\n\ncontent_image_file\nEncode image content from a file for chat input.\n\n\ncontent_image_plot\nEncode the current matplotlib plot as an image for chat input.\n\n\ncontent_image_url\nEncode image content from a URL for chat input.",
     "crumbs": [
       "Reference",
-      "Chat model providers",
-      "ChatPerplexity"
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "reference/index.html#pdf-input",
+    "href": "reference/index.html#pdf-input",
+    "title": "Function reference",
+    "section": "",
+    "text": "Submit pdf input to the chat\n\n\n\ncontent_pdf_file\nPrepare a local PDF for input to a chat.\n\n\ncontent_pdf_url\nUse a remote PDF for input to a chat.",
+    "crumbs": [
+      "Reference",
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "reference/index.html#tool-calling",
+    "href": "reference/index.html#tool-calling",
+    "title": "Function reference",
+    "section": "",
+    "text": "Add context to python function before registering it as a tool.\n\n\n\nTool\nDefine a tool\n\n\nToolRejectError\nError to represent a tool call being rejected.",
+    "crumbs": [
+      "Reference",
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "reference/index.html#batch-chat",
+    "href": "reference/index.html#batch-chat",
+    "title": "Function reference",
+    "section": "",
+    "text": "Submit multiple chats in one batch\n\n\n\nbatch_chat\nSubmit multiple chat requests in a batch.\n\n\nbatch_chat_text\nSubmit multiple chat requests in a batch and return text responses.\n\n\nbatch_chat_structured\nSubmit multiple structured data requests in a batch.\n\n\nbatch_chat_completed\nCheck if a batch job is completed without waiting.",
+    "crumbs": [
+      "Reference",
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "reference/index.html#prompt-interpolation",
+    "href": "reference/index.html#prompt-interpolation",
+    "title": "Function reference",
+    "section": "",
+    "text": "Interpolate variables into prompt templates\n\n\n\ninterpolate\nInterpolate variables into a prompt\n\n\ninterpolate_file\nInterpolate variables into a prompt from a file",
+    "crumbs": [
+      "Reference",
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "reference/index.html#turns",
+    "href": "reference/index.html#turns",
+    "title": "Function reference",
+    "section": "",
+    "text": "A provider-agnostic representation of content generated during an assistant/user turn.\n\n\n\nTurn\nA user or assistant turn",
+    "crumbs": [
+      "Reference",
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "reference/index.html#query-token-usage",
+    "href": "reference/index.html#query-token-usage",
+    "title": "Function reference",
+    "section": "",
+    "text": "token_usage\nReport on token usage in the current session",
+    "crumbs": [
+      "Reference",
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "reference/index.html#implement-a-model-provider",
+    "href": "reference/index.html#implement-a-model-provider",
+    "title": "Function reference",
+    "section": "",
+    "text": "Provider\nA model provider interface for a Chat.",
+    "crumbs": [
+      "Reference",
+      "Function reference"
+    ]
+  },
+  {
+    "objectID": "reference/index.html#user-facing-types",
+    "href": "reference/index.html#user-facing-types",
+    "title": "Function reference",
+    "section": "",
+    "text": "types.Content\nBase class for all content types that can be appear in a Turn\n\n\ntypes.ContentImage\nBase class for image content.\n\n\ntypes.ContentImageInline\nInline image content.\n\n\ntypes.ContentImageRemote\nImage content from a URL.\n\n\ntypes.ContentJson\nJSON content\n\n\ntypes.ContentText\nText content for a Turn\n\n\ntypes.ContentToolRequest\nA request to call a tool/function\n\n\ntypes.ContentToolResult\nThe result of calling a tool/function\n\n\ntypes.ChatResponse\nChat response object.\n\n\ntypes.ChatResponseAsync\nChat response (async) object.\n\n\ntypes.ImageContentTypes\nAllowable content types for images.\n\n\ntypes.MISSING_TYPE\nA singleton representing a missing value.\n\n\ntypes.MISSING\n\n\n\ntypes.SubmitInputArgsT\nA TypedDict representing the provider specific arguments that can specified when\n\n\ntypes.TokenUsage\nToken usage for a given provider (name).\n\n\ntypes.ToolAnnotations\nAdditional properties describing a Tool to clients.\n\n\ntypes.ToolInfo\nSerializable tool information",
+    "crumbs": [
+      "Reference",
+      "Function reference"
     ]
   },
   {
@@ -1278,7 +1362,7 @@
     "href": "reference/Provider.html",
     "title": "Provider",
     "section": "",
-    "text": "Provider(name, model)\nA model provider interface for a Chat.\nThis abstract class defines the interface a model provider must implement in order to be used with a Chat instance. The provider is responsible for performing the actual chat completion, and for handling the streaming of the completion results.\nNote that this class is exposed for developers who wish to implement their own provider. In general, you should not need to interact with this class directly.\n\n\n\n\n\nName\nDescription\n\n\n\n\nmodel\nGet the model used by the provider\n\n\nname\nGet the name of the provider\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nlist_models\nList all available models for the provider.\n\n\n\n\n\nProvider.list_models()\nList all available models for the provider.",
+    "text": "Provider(name, model)\nA model provider interface for a Chat.\nThis abstract class defines the interface a model provider must implement in order to be used with a Chat instance. The provider is responsible for performing the actual chat completion, and for handling the streaming of the completion results.\nNote that this class is exposed for developers who wish to implement their own provider. In general, you should not need to interact with this class directly.\n\n\n\n\n\nName\nDescription\n\n\n\n\nmodel\nGet the model used by the provider\n\n\nname\nGet the name of the provider\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nbatch_poll\nPoll the status of a submitted batch.\n\n\nbatch_result_turn\nConvert a batch result to a Turn.\n\n\nbatch_retrieve\nRetrieve results from a completed batch.\n\n\nbatch_status\nGet the status of a batch.\n\n\nbatch_submit\nSubmit a batch of conversations for processing.\n\n\nhas_batch_support\nReturns whether this provider supports batch processing.\n\n\nlist_models\nList all available models for the provider.\n\n\n\n\n\nProvider.batch_poll(batch)\nPoll the status of a submitted batch.\nArgs: batch: Batch information returned from batch_submit\nReturns: Updated batch information\n\n\n\nProvider.batch_result_turn(result, has_data_model=False)\nConvert a batch result to a Turn.\nArgs: result: Individual BatchResult from batch_retrieve has_data_model: Whether the request used a structured data model\nReturns: Turn object or None if the result was an error\n\n\n\nProvider.batch_retrieve(batch)\nRetrieve results from a completed batch.\nArgs: batch: Batch information\nReturns: List of BatchResult objects, one for each request in the batch\n\n\n\nProvider.batch_status(batch)\nGet the status of a batch.\nArgs: batch: Batch information\nReturns: BatchStatus with processing status information\n\n\n\nProvider.batch_submit(conversations, data_model=None)\nSubmit a batch of conversations for processing.\nArgs: conversations: List of conversation histories (each is a list of Turns) data_model: Optional structured data model for responses\nReturns: BatchInfo containing batch job information\n\n\n\nProvider.has_batch_support()\nReturns whether this provider supports batch processing. Override this method to return True for providers that implement batch methods.\n\n\n\nProvider.list_models()\nList all available models for the provider.",
     "crumbs": [
       "Reference",
       "Implement a model provider",
@@ -1302,7 +1386,7 @@
     "href": "reference/Provider.html#methods",
     "title": "Provider",
     "section": "",
-    "text": "Name\nDescription\n\n\n\n\nlist_models\nList all available models for the provider.\n\n\n\n\n\nProvider.list_models()\nList all available models for the provider.",
+    "text": "Name\nDescription\n\n\n\n\nbatch_poll\nPoll the status of a submitted batch.\n\n\nbatch_result_turn\nConvert a batch result to a Turn.\n\n\nbatch_retrieve\nRetrieve results from a completed batch.\n\n\nbatch_status\nGet the status of a batch.\n\n\nbatch_submit\nSubmit a batch of conversations for processing.\n\n\nhas_batch_support\nReturns whether this provider supports batch processing.\n\n\nlist_models\nList all available models for the provider.\n\n\n\n\n\nProvider.batch_poll(batch)\nPoll the status of a submitted batch.\nArgs: batch: Batch information returned from batch_submit\nReturns: Updated batch information\n\n\n\nProvider.batch_result_turn(result, has_data_model=False)\nConvert a batch result to a Turn.\nArgs: result: Individual BatchResult from batch_retrieve has_data_model: Whether the request used a structured data model\nReturns: Turn object or None if the result was an error\n\n\n\nProvider.batch_retrieve(batch)\nRetrieve results from a completed batch.\nArgs: batch: Batch information\nReturns: List of BatchResult objects, one for each request in the batch\n\n\n\nProvider.batch_status(batch)\nGet the status of a batch.\nArgs: batch: Batch information\nReturns: BatchStatus with processing status information\n\n\n\nProvider.batch_submit(conversations, data_model=None)\nSubmit a batch of conversations for processing.\nArgs: conversations: List of conversation histories (each is a list of Turns) data_model: Optional structured data model for responses\nReturns: BatchInfo containing batch job information\n\n\n\nProvider.has_batch_support()\nReturns whether this provider supports batch processing. Override this method to return True for providers that implement batch methods.\n\n\n\nProvider.list_models()\nList all available models for the provider.",
     "crumbs": [
       "Reference",
       "Implement a model provider",
@@ -1310,303 +1394,267 @@
     ]
   },
   {
-    "objectID": "reference/types.ContentText.html",
-    "href": "reference/types.ContentText.html",
-    "title": "types.ContentText",
+    "objectID": "reference/batch_chat_structured.html",
+    "href": "reference/batch_chat_structured.html",
+    "title": "batch_chat_structured",
     "section": "",
-    "text": "types.ContentText\ntypes.ContentText(**data)\nText content for a Turn",
+    "text": "batch_chat_structured(chat, prompts, path, data_model, wait=True)\nSubmit multiple structured data requests in a batch.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nchat\nChat\nChat instance to use for the batch\nrequired\n\n\nprompts\nlist[ContentT] | list[list[ContentT]]\nList of prompts to process\nrequired\n\n\npath\nUnion[str, Path]\nPath to file (with .json extension) to store batch state\nrequired\n\n\ndata_model\ntype[BaseModelT]\nPydantic model class for structured responses\nrequired\n\n\nwait\nbool\nIf True, wait for batch to complete\nTrue\n\n\n\n\n\n\nList of structured data objects (or None for failed requests)",
+    "crumbs": [
+      "Reference",
+      "Batch chat",
+      "batch_chat_structured"
+    ]
+  },
+  {
+    "objectID": "reference/batch_chat_structured.html#parameters",
+    "href": "reference/batch_chat_structured.html#parameters",
+    "title": "batch_chat_structured",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nchat\nChat\nChat instance to use for the batch\nrequired\n\n\nprompts\nlist[ContentT] | list[list[ContentT]]\nList of prompts to process\nrequired\n\n\npath\nUnion[str, Path]\nPath to file (with .json extension) to store batch state\nrequired\n\n\ndata_model\ntype[BaseModelT]\nPydantic model class for structured responses\nrequired\n\n\nwait\nbool\nIf True, wait for batch to complete\nTrue",
+    "crumbs": [
+      "Reference",
+      "Batch chat",
+      "batch_chat_structured"
+    ]
+  },
+  {
+    "objectID": "reference/batch_chat_structured.html#return",
+    "href": "reference/batch_chat_structured.html#return",
+    "title": "batch_chat_structured",
+    "section": "",
+    "text": "List of structured data objects (or None for failed requests)",
+    "crumbs": [
+      "Reference",
+      "Batch chat",
+      "batch_chat_structured"
+    ]
+  },
+  {
+    "objectID": "reference/types.ContentImage.html",
+    "href": "reference/types.ContentImage.html",
+    "title": "types.ContentImage",
+    "section": "",
+    "text": "types.ContentImage\ntypes.ContentImage()\nBase class for image content.\nThis class is not meant to be used directly. Instead, use content_image_url, content_image_file, or content_image_plot.",
     "crumbs": [
       "Reference",
       "User-facing types",
-      "types.ContentText"
+      "types.ContentImage"
     ]
   },
   {
-    "objectID": "reference/ChatHuggingFace.html",
-    "href": "reference/ChatHuggingFace.html",
-    "title": "ChatHuggingFace",
+    "objectID": "reference/types.ContentToolRequest.html",
+    "href": "reference/types.ContentToolRequest.html",
+    "title": "types.ContentToolRequest",
     "section": "",
-    "text": "ChatHuggingFace(system_prompt=None, model=None, api_key=None, kwargs=None)\nChat with a model hosted on Hugging Face Inference API.\nHugging Face hosts a variety of open-source and proprietary AI models available via their Inference API. To use the Hugging Face API, you must have an Access Token, which you can obtain from your Hugging Face account. Ensure that at least “Make calls to Inference Providers” and “Make calls to your Inference Endpoints” is checked.\n\n\n\n\n\n\n\n\nAPI key\n\n\n\nYou will need to create a Hugging Face account and generate an API token from your account settings. Make sure to enable “Make calls to Inference Providers” permission.\n\n\n\n\n\nimport os\nfrom chatlas import ChatHuggingFace\n\nchat = ChatHuggingFace(api_key=os.getenv(\"HUGGINGFACE_API_KEY\"))\nchat.chat(\"What is the capital of France?\")\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the HUGGINGFACE_API_KEY environment variable.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the underlying OpenAI client constructor.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.\n\n\n\n\n\n\n\nSome models do not support the chat interface or parts of it, for example google/gemma-2-2b-it does not support a system prompt. You will need to carefully choose the model.\nTool calling support varies by model - many models do not support it.\n\n\n\n\nThis function is a lightweight wrapper around ChatOpenAI, with the defaults tweaked for Hugging Face.\n\n\n\nPasting an API key into a chat constructor (e.g., ChatHuggingFace(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nHUGGINGFACE_API_KEY=...\nfrom chatlas import ChatHuggingFace\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatHuggingFace()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport HUGGINGFACE_API_KEY=...",
+    "text": "types.ContentToolRequest()\nA request to call a tool/function\nThis content type isn’t meant to be used directly. Instead, it’s automatically generated by Chat when a tool/function is requested by the model assistant.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nid\n\nA unique identifier for this request.\nrequired\n\n\nname\n\nThe name of the tool/function to call.\nrequired\n\n\narguments\n\nThe arguments to pass to the tool/function.\nrequired\n\n\ntool\n\nSerializable information about the tool. This is set internally by chatlas’s tool calling loop and contains only the metadata needed for serialization (name, description, parameters, annotations).\nrequired\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\ntagify\nReturns an HTML string suitable for passing to htmltools/shiny’s Chat() component.\n\n\n\n\n\ntypes.ContentToolRequest.tagify()\nReturns an HTML string suitable for passing to htmltools/shiny’s Chat() component.",
+    "crumbs": [
+      "Reference",
+      "User-facing types",
+      "types.ContentToolRequest"
+    ]
+  },
+  {
+    "objectID": "reference/types.ContentToolRequest.html#parameters",
+    "href": "reference/types.ContentToolRequest.html#parameters",
+    "title": "types.ContentToolRequest",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nid\n\nA unique identifier for this request.\nrequired\n\n\nname\n\nThe name of the tool/function to call.\nrequired\n\n\narguments\n\nThe arguments to pass to the tool/function.\nrequired\n\n\ntool\n\nSerializable information about the tool. This is set internally by chatlas’s tool calling loop and contains only the metadata needed for serialization (name, description, parameters, annotations).\nrequired",
+    "crumbs": [
+      "Reference",
+      "User-facing types",
+      "types.ContentToolRequest"
+    ]
+  },
+  {
+    "objectID": "reference/types.ContentToolRequest.html#methods",
+    "href": "reference/types.ContentToolRequest.html#methods",
+    "title": "types.ContentToolRequest",
+    "section": "",
+    "text": "Name\nDescription\n\n\n\n\ntagify\nReturns an HTML string suitable for passing to htmltools/shiny’s Chat() component.\n\n\n\n\n\ntypes.ContentToolRequest.tagify()\nReturns an HTML string suitable for passing to htmltools/shiny’s Chat() component.",
+    "crumbs": [
+      "Reference",
+      "User-facing types",
+      "types.ContentToolRequest"
+    ]
+  },
+  {
+    "objectID": "reference/ChatGoogle.html",
+    "href": "reference/ChatGoogle.html",
+    "title": "ChatGoogle",
+    "section": "",
+    "text": "ChatGoogle(system_prompt=None, model=None, api_key=None, kwargs=None)\nChat with a Google Gemini model.\n\n\n\n\n\n\n\n\nAPI key\n\n\n\nTo use Google’s models (i.e., Gemini), you’ll need to sign up for an account and get an API key.\n\n\n\n\n\n\n\n\nPython requirements\n\n\n\nChatGoogle requires the google-genai package: pip install \"chatlas[google]\".\n\n\n\n\n\nimport os\nfrom chatlas import ChatGoogle\n\nchat = ChatGoogle(api_key=os.getenv(\"GOOGLE_API_KEY\"))\nchat.chat(\"What is the capital of France?\")\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the GOOGLE_API_KEY environment variable.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the genai.Client constructor.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nChat\nA Chat object.\n\n\n\n\n\n\nPasting an API key into a chat constructor (e.g., ChatGoogle(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nGOOGLE_API_KEY=...\nfrom chatlas import ChatGoogle\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatGoogle()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport GOOGLE_API_KEY=...",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatHuggingFace"
+      "ChatGoogle"
     ]
   },
   {
-    "objectID": "reference/ChatHuggingFace.html#prerequisites",
-    "href": "reference/ChatHuggingFace.html#prerequisites",
-    "title": "ChatHuggingFace",
+    "objectID": "reference/ChatGoogle.html#prerequisites",
+    "href": "reference/ChatGoogle.html#prerequisites",
+    "title": "ChatGoogle",
     "section": "",
-    "text": "API key\n\n\n\nYou will need to create a Hugging Face account and generate an API token from your account settings. Make sure to enable “Make calls to Inference Providers” permission.",
+    "text": "API key\n\n\n\nTo use Google’s models (i.e., Gemini), you’ll need to sign up for an account and get an API key.\n\n\n\n\n\n\n\n\nPython requirements\n\n\n\nChatGoogle requires the google-genai package: pip install \"chatlas[google]\".",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatHuggingFace"
+      "ChatGoogle"
     ]
   },
   {
-    "objectID": "reference/ChatHuggingFace.html#examples",
-    "href": "reference/ChatHuggingFace.html#examples",
-    "title": "ChatHuggingFace",
+    "objectID": "reference/ChatGoogle.html#examples",
+    "href": "reference/ChatGoogle.html#examples",
+    "title": "ChatGoogle",
     "section": "",
-    "text": "import os\nfrom chatlas import ChatHuggingFace\n\nchat = ChatHuggingFace(api_key=os.getenv(\"HUGGINGFACE_API_KEY\"))\nchat.chat(\"What is the capital of France?\")",
+    "text": "import os\nfrom chatlas import ChatGoogle\n\nchat = ChatGoogle(api_key=os.getenv(\"GOOGLE_API_KEY\"))\nchat.chat(\"What is the capital of France?\")",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatHuggingFace"
+      "ChatGoogle"
     ]
   },
   {
-    "objectID": "reference/ChatHuggingFace.html#parameters",
-    "href": "reference/ChatHuggingFace.html#parameters",
-    "title": "ChatHuggingFace",
+    "objectID": "reference/ChatGoogle.html#parameters",
+    "href": "reference/ChatGoogle.html#parameters",
+    "title": "ChatGoogle",
     "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the HUGGINGFACE_API_KEY environment variable.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the underlying OpenAI client constructor.\nNone",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the GOOGLE_API_KEY environment variable.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the genai.Client constructor.\nNone",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatHuggingFace"
+      "ChatGoogle"
     ]
   },
   {
-    "objectID": "reference/ChatHuggingFace.html#returns",
-    "href": "reference/ChatHuggingFace.html#returns",
-    "title": "ChatHuggingFace",
+    "objectID": "reference/ChatGoogle.html#returns",
+    "href": "reference/ChatGoogle.html#returns",
+    "title": "ChatGoogle",
     "section": "",
-    "text": "Name\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nChat\nA Chat object.",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatHuggingFace"
+      "ChatGoogle"
     ]
   },
   {
-    "objectID": "reference/ChatHuggingFace.html#known-limitations",
-    "href": "reference/ChatHuggingFace.html#known-limitations",
-    "title": "ChatHuggingFace",
+    "objectID": "reference/ChatGoogle.html#note",
+    "href": "reference/ChatGoogle.html#note",
+    "title": "ChatGoogle",
     "section": "",
-    "text": "Some models do not support the chat interface or parts of it, for example google/gemma-2-2b-it does not support a system prompt. You will need to carefully choose the model.\nTool calling support varies by model - many models do not support it.",
+    "text": "Pasting an API key into a chat constructor (e.g., ChatGoogle(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nGOOGLE_API_KEY=...\nfrom chatlas import ChatGoogle\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatGoogle()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport GOOGLE_API_KEY=...",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatHuggingFace"
+      "ChatGoogle"
     ]
   },
   {
-    "objectID": "reference/ChatHuggingFace.html#note",
-    "href": "reference/ChatHuggingFace.html#note",
-    "title": "ChatHuggingFace",
+    "objectID": "reference/ToolRejectError.html",
+    "href": "reference/ToolRejectError.html",
+    "title": "ToolRejectError",
     "section": "",
-    "text": "This function is a lightweight wrapper around ChatOpenAI, with the defaults tweaked for Hugging Face.",
+    "text": "ToolRejectError(reason='The user has chosen to disallow the tool call.')\nError to represent a tool call being rejected.\nThis error is meant to be raised when an end user has chosen to deny a tool call. It can be raised in a tool function or in a .on_tool_request() callback registered via a :class:~chatlas.Chat. When used in the callback, the tool call is rejected before the tool function is invoked.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nreason\nstr\nA string describing the reason for rejecting the tool call. This will be included in the error message passed to the LLM. In addition to the reason, the error message will also include “Tool call rejected.” to indicate that the tool call was not processed.\n'The user has chosen to disallow the tool call.'\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nToolRejectError\nAn error with a message informing the LLM that the tool call was rejected (and the reason why).\n\n\n\n\n\n\n&gt;&gt;&gt; import os\n&gt;&gt;&gt; import chatlas as ctl\n&gt;&gt;&gt;\n&gt;&gt;&gt; chat = ctl.ChatOpenAI()\n&gt;&gt;&gt;\n&gt;&gt;&gt; def list_files():\n...     \"List files in the user's current directory\"\n...     while True:\n...         allow = input(\n...             \"Would you like to allow access to your current directory? (yes/no): \"\n...         )\n...         if allow.lower() == \"yes\":\n...             return os.listdir(\".\")\n...         elif allow.lower() == \"no\":\n...             raise ctl.ToolRejectError(\n...                 \"The user has chosen to disallow the tool call.\"\n...             )\n...         else:\n...             print(\"Please answer with 'yes' or 'no'.\")\n&gt;&gt;&gt;\n&gt;&gt;&gt; chat.register_tool(list_files)\n&gt;&gt;&gt; chat.chat(\"What files are available in my current directory?\")",
     "crumbs": [
       "Reference",
-      "Chat model providers",
-      "ChatHuggingFace"
+      "Tool calling",
+      "ToolRejectError"
     ]
   },
   {
-    "objectID": "reference/ChatHuggingFace.html#note-1",
-    "href": "reference/ChatHuggingFace.html#note-1",
-    "title": "ChatHuggingFace",
+    "objectID": "reference/ToolRejectError.html#parameters",
+    "href": "reference/ToolRejectError.html#parameters",
+    "title": "ToolRejectError",
     "section": "",
-    "text": "Pasting an API key into a chat constructor (e.g., ChatHuggingFace(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nHUGGINGFACE_API_KEY=...\nfrom chatlas import ChatHuggingFace\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatHuggingFace()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport HUGGINGFACE_API_KEY=...",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nreason\nstr\nA string describing the reason for rejecting the tool call. This will be included in the error message passed to the LLM. In addition to the reason, the error message will also include “Tool call rejected.” to indicate that the tool call was not processed.\n'The user has chosen to disallow the tool call.'",
     "crumbs": [
       "Reference",
-      "Chat model providers",
-      "ChatHuggingFace"
+      "Tool calling",
+      "ToolRejectError"
     ]
   },
   {
-    "objectID": "reference/Turn.html",
-    "href": "reference/Turn.html",
-    "title": "Turn",
+    "objectID": "reference/ToolRejectError.html#raises",
+    "href": "reference/ToolRejectError.html#raises",
+    "title": "ToolRejectError",
     "section": "",
-    "text": "Turn(\n    role,\n    contents,\n    *,\n    tokens=None,\n    finish_reason=None,\n    completion=None,\n    **kwargs,\n)\nA user or assistant turn\nEvery conversation with a chatbot consists of pairs of user and assistant turns, corresponding to an HTTP request and response. These turns are represented by the Turn object, which contains a list of Contents representing the individual messages within the turn. These might be text, images, tool requests (assistant only), or tool responses (user only).\nNote that a call to .chat() and related functions may result in multiple user-assistant turn cycles. For example, if you have registered tools, chatlas will automatically handle the tool calling loop, which may result in any number of additional cycles.\n\n\nfrom chatlas import Turn, ChatOpenAI, ChatAnthropic\n\nchat = ChatOpenAI()\nstr(chat.chat(\"What is the capital of France?\"))\nturns = chat.get_turns()\nassert len(turns) == 2\nassert isinstance(turns[0], Turn)\nassert turns[0].role == \"user\"\nassert turns[1].role == \"assistant\"\n\n# Load context into a new chat instance\nchat2 = ChatAnthropic()\nchat2.set_turns(turns)\nturns2 = chat2.get_turns()\nassert turns == turns2\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nrole\nLiteral['user', 'assistant', 'system']\nEither “user”, “assistant”, or “system”.\nrequired\n\n\ncontents\nstr | Sequence[Content | str]\nA list of Content objects.\nrequired\n\n\ntokens\nOptional[tuple[int, int, int]]\nA numeric vector of length 3 representing the number of input, output, and cached tokens (respectively) used in this turn. Currently only recorded for assistant turns.\nNone\n\n\nfinish_reason\nOptional[str]\nA string indicating the reason why the conversation ended. This is only relevant for assistant turns.\nNone\n\n\ncompletion\nOptional[CompletionT]\nThe completion object returned by the provider. This is useful if there’s information returned by the provider that chatlas doesn’t otherwise expose. This is only relevant for assistant turns.\nNone",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nToolRejectError\nAn error with a message informing the LLM that the tool call was rejected (and the reason why).",
     "crumbs": [
       "Reference",
-      "Turns",
-      "Turn"
+      "Tool calling",
+      "ToolRejectError"
     ]
   },
   {
-    "objectID": "reference/Turn.html#examples",
-    "href": "reference/Turn.html#examples",
-    "title": "Turn",
+    "objectID": "reference/ToolRejectError.html#examples",
+    "href": "reference/ToolRejectError.html#examples",
+    "title": "ToolRejectError",
     "section": "",
-    "text": "from chatlas import Turn, ChatOpenAI, ChatAnthropic\n\nchat = ChatOpenAI()\nstr(chat.chat(\"What is the capital of France?\"))\nturns = chat.get_turns()\nassert len(turns) == 2\nassert isinstance(turns[0], Turn)\nassert turns[0].role == \"user\"\nassert turns[1].role == \"assistant\"\n\n# Load context into a new chat instance\nchat2 = ChatAnthropic()\nchat2.set_turns(turns)\nturns2 = chat2.get_turns()\nassert turns == turns2",
+    "text": "&gt;&gt;&gt; import os\n&gt;&gt;&gt; import chatlas as ctl\n&gt;&gt;&gt;\n&gt;&gt;&gt; chat = ctl.ChatOpenAI()\n&gt;&gt;&gt;\n&gt;&gt;&gt; def list_files():\n...     \"List files in the user's current directory\"\n...     while True:\n...         allow = input(\n...             \"Would you like to allow access to your current directory? (yes/no): \"\n...         )\n...         if allow.lower() == \"yes\":\n...             return os.listdir(\".\")\n...         elif allow.lower() == \"no\":\n...             raise ctl.ToolRejectError(\n...                 \"The user has chosen to disallow the tool call.\"\n...             )\n...         else:\n...             print(\"Please answer with 'yes' or 'no'.\")\n&gt;&gt;&gt;\n&gt;&gt;&gt; chat.register_tool(list_files)\n&gt;&gt;&gt; chat.chat(\"What files are available in my current directory?\")",
     "crumbs": [
       "Reference",
-      "Turns",
-      "Turn"
+      "Tool calling",
+      "ToolRejectError"
     ]
   },
   {
-    "objectID": "reference/Turn.html#parameters",
-    "href": "reference/Turn.html#parameters",
-    "title": "Turn",
+    "objectID": "reference/types.ContentImageRemote.html",
+    "href": "reference/types.ContentImageRemote.html",
+    "title": "types.ContentImageRemote",
     "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nrole\nLiteral['user', 'assistant', 'system']\nEither “user”, “assistant”, or “system”.\nrequired\n\n\ncontents\nstr | Sequence[Content | str]\nA list of Content objects.\nrequired\n\n\ntokens\nOptional[tuple[int, int, int]]\nA numeric vector of length 3 representing the number of input, output, and cached tokens (respectively) used in this turn. Currently only recorded for assistant turns.\nNone\n\n\nfinish_reason\nOptional[str]\nA string indicating the reason why the conversation ended. This is only relevant for assistant turns.\nNone\n\n\ncompletion\nOptional[CompletionT]\nThe completion object returned by the provider. This is useful if there’s information returned by the provider that chatlas doesn’t otherwise expose. This is only relevant for assistant turns.\nNone",
+    "text": "types.ContentImageRemote()\nImage content from a URL.\nThis is the return type for content_image_url. It’s not meant to be used directly.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nurl\n\nThe URL of the image.\nrequired\n\n\ndetail\n\nA detail setting for the image. Can be \"auto\", \"low\", or \"high\".\nrequired",
     "crumbs": [
       "Reference",
-      "Turns",
-      "Turn"
+      "User-facing types",
+      "types.ContentImageRemote"
     ]
   },
   {
-    "objectID": "reference/content_pdf_url.html",
-    "href": "reference/content_pdf_url.html",
-    "title": "content_pdf_url",
+    "objectID": "reference/types.ContentImageRemote.html#parameters",
+    "href": "reference/types.ContentImageRemote.html#parameters",
+    "title": "types.ContentImageRemote",
     "section": "",
-    "text": "content_pdf_url(url)\nUse a remote PDF for input to a chat.\nNot all providers support PDF input, so check the documentation for the provider you are using.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nurl\nstr\nA URL to a remote PDF file.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\n[](~chatlas.types.Content)\nContent suitable for a Turn object.",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nurl\n\nThe URL of the image.\nrequired\n\n\ndetail\n\nA detail setting for the image. Can be \"auto\", \"low\", or \"high\".\nrequired",
     "crumbs": [
       "Reference",
-      "PDF input",
-      "content_pdf_url"
+      "User-facing types",
+      "types.ContentImageRemote"
     ]
   },
   {
-    "objectID": "reference/content_pdf_url.html#parameters",
-    "href": "reference/content_pdf_url.html#parameters",
-    "title": "content_pdf_url",
+    "objectID": "reference/batch_chat_text.html",
+    "href": "reference/batch_chat_text.html",
+    "title": "batch_chat_text",
     "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nurl\nstr\nA URL to a remote PDF file.\nrequired",
+    "text": "batch_chat_text(chat, prompts, path, wait=True)\nSubmit multiple chat requests in a batch and return text responses.\nThis is a convenience function that returns just the text of the responses rather than full Chat objects.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nchat\nChat\nChat instance to use for the batch\nrequired\n\n\nprompts\nlist[ContentT] | list[list[ContentT]]\nList of prompts to process\nrequired\n\n\npath\nUnion[str, Path]\nPath to file (with .json extension) to store batch state\nrequired\n\n\nwait\nbool\nIf True, wait for batch to complete\nTrue\n\n\n\n\n\n\nList of text responses (or None for failed requests)",
     "crumbs": [
       "Reference",
-      "PDF input",
-      "content_pdf_url"
+      "Batch chat",
+      "batch_chat_text"
     ]
   },
   {
-    "objectID": "reference/content_pdf_url.html#returns",
-    "href": "reference/content_pdf_url.html#returns",
-    "title": "content_pdf_url",
+    "objectID": "reference/batch_chat_text.html#parameters",
+    "href": "reference/batch_chat_text.html#parameters",
+    "title": "batch_chat_text",
     "section": "",
-    "text": "Name\nType\nDescription\n\n\n\n\n\n[](~chatlas.types.Content)\nContent suitable for a Turn object.",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nchat\nChat\nChat instance to use for the batch\nrequired\n\n\nprompts\nlist[ContentT] | list[list[ContentT]]\nList of prompts to process\nrequired\n\n\npath\nUnion[str, Path]\nPath to file (with .json extension) to store batch state\nrequired\n\n\nwait\nbool\nIf True, wait for batch to complete\nTrue",
     "crumbs": [
       "Reference",
-      "PDF input",
-      "content_pdf_url"
+      "Batch chat",
+      "batch_chat_text"
     ]
   },
   {
-    "objectID": "reference/ChatMistral.html",
-    "href": "reference/ChatMistral.html",
-    "title": "ChatMistral",
+    "objectID": "reference/batch_chat_text.html#return",
+    "href": "reference/batch_chat_text.html#return",
+    "title": "batch_chat_text",
     "section": "",
-    "text": "ChatMistral(\n    system_prompt=None,\n    model=None,\n    api_key=None,\n    base_url='https://api.mistral.ai/v1/',\n    seed=MISSING,\n    kwargs=None,\n)\nChat with a model hosted on Mistral’s La Plateforme.\nMistral AI provides high-performance language models through their API platform.\n\n\n\n\n\n\n\n\nAPI credentials\n\n\n\nGet your API key from https://console.mistral.ai/api-keys.\n\n\n\n\n\nimport os\nfrom chatlas import ChatMistral\n\nchat = ChatMistral(api_key=os.getenv(\"MISTRAL_API_KEY\"))\nchat.chat(\"Tell me three jokes about statisticians\")\n\n\n\n\nTool calling may be unstable.\nImages require a model that supports vision.\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the MISTRAL_API_KEY environment variable.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses Mistral AI.\n'https://api.mistral.ai/v1/'\n\n\nseed\nint | None | MISSING_TYPE\nOptional integer seed that Mistral uses to try and make output more reproducible.\nMISSING\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor (Mistral uses OpenAI-compatible API).\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.\n\n\n\n\n\n\nPasting an API key into a chat constructor (e.g., ChatMistral(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nMISTRAL_API_KEY=...\nfrom chatlas import ChatMistral\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatMistral()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport MISTRAL_API_KEY=...",
+    "text": "List of text responses (or None for failed requests)",
     "crumbs": [
       "Reference",
-      "Chat model providers",
-      "ChatMistral"
-    ]
-  },
-  {
-    "objectID": "reference/ChatMistral.html#prerequisites",
-    "href": "reference/ChatMistral.html#prerequisites",
-    "title": "ChatMistral",
-    "section": "",
-    "text": "API credentials\n\n\n\nGet your API key from https://console.mistral.ai/api-keys.",
-    "crumbs": [
-      "Reference",
-      "Chat model providers",
-      "ChatMistral"
-    ]
-  },
-  {
-    "objectID": "reference/ChatMistral.html#examples",
-    "href": "reference/ChatMistral.html#examples",
-    "title": "ChatMistral",
-    "section": "",
-    "text": "import os\nfrom chatlas import ChatMistral\n\nchat = ChatMistral(api_key=os.getenv(\"MISTRAL_API_KEY\"))\nchat.chat(\"Tell me three jokes about statisticians\")",
-    "crumbs": [
-      "Reference",
-      "Chat model providers",
-      "ChatMistral"
-    ]
-  },
-  {
-    "objectID": "reference/ChatMistral.html#known-limitations",
-    "href": "reference/ChatMistral.html#known-limitations",
-    "title": "ChatMistral",
-    "section": "",
-    "text": "Tool calling may be unstable.\nImages require a model that supports vision.",
-    "crumbs": [
-      "Reference",
-      "Chat model providers",
-      "ChatMistral"
-    ]
-  },
-  {
-    "objectID": "reference/ChatMistral.html#parameters",
-    "href": "reference/ChatMistral.html#parameters",
-    "title": "ChatMistral",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the MISTRAL_API_KEY environment variable.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses Mistral AI.\n'https://api.mistral.ai/v1/'\n\n\nseed\nint | None | MISSING_TYPE\nOptional integer seed that Mistral uses to try and make output more reproducible.\nMISSING\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor (Mistral uses OpenAI-compatible API).\nNone",
-    "crumbs": [
-      "Reference",
-      "Chat model providers",
-      "ChatMistral"
-    ]
-  },
-  {
-    "objectID": "reference/ChatMistral.html#returns",
-    "href": "reference/ChatMistral.html#returns",
-    "title": "ChatMistral",
-    "section": "",
-    "text": "Name\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.",
-    "crumbs": [
-      "Reference",
-      "Chat model providers",
-      "ChatMistral"
-    ]
-  },
-  {
-    "objectID": "reference/ChatMistral.html#note",
-    "href": "reference/ChatMistral.html#note",
-    "title": "ChatMistral",
-    "section": "",
-    "text": "Pasting an API key into a chat constructor (e.g., ChatMistral(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nMISTRAL_API_KEY=...\nfrom chatlas import ChatMistral\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatMistral()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport MISTRAL_API_KEY=...",
-    "crumbs": [
-      "Reference",
-      "Chat model providers",
-      "ChatMistral"
-    ]
-  },
-  {
-    "objectID": "reference/ChatSnowflake.html",
-    "href": "reference/ChatSnowflake.html",
-    "title": "ChatSnowflake",
-    "section": "",
-    "text": "ChatSnowflake(\n    system_prompt=None,\n    model=None,\n    connection_name=None,\n    account=None,\n    user=None,\n    password=None,\n    private_key_file=None,\n    private_key_file_pwd=None,\n    kwargs=None,\n)\nChat with a Snowflake Cortex LLM\nhttps://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions\n\n\n\n\n\n\n\n\nPython requirements\n\n\n\nChatSnowflake, requires the snowflake-ml-python package: pip install \"chatlas[snowflake]\".\n\n\n\n\n\n\n\n\nSnowflake credentials\n\n\n\nSnowflake provides a handful of ways to authenticate, but it’s recommended to use key-pair auth to generate a private_key_file. It’s also recommended to place your credentials in a connections.toml file.\nThis way, once your credentials are in the connections.toml file, you can simply call ChatSnowflake(connection_name=\"my_connection\") to authenticate. If you don’t want to use a connections.toml file, you can specify the connection parameters directly (with account, user, password, etc.).\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\nconnection_name\nOptional[str]\nThe name of the connection (i.e., section) within the connections.toml file. This is useful if you want to keep your credentials in a connections.toml file rather than specifying them directly in the arguments. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file\nNone\n\n\naccount\nOptional[str]\nYour Snowflake account identifier. Required if connection_name is not provided. https://docs.snowflake.com/en/user-guide/admin-account-identifier\nNone\n\n\nuser\nOptional[str]\nYour Snowflake user name. Required if connection_name is not provided.\nNone\n\n\npassword\nOptional[str]\nYour Snowflake password. Required if doing password authentication and connection_name is not provided.\nNone\n\n\nprivate_key_file\nOptional[str]\nThe path to your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth\nNone\n\n\nprivate_key_file_pwd\nOptional[str]\nThe password for your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth\nNone\n\n\nkwargs\nOptional[dict[str, str | int]]\nAdditional keyword arguments passed along to the Snowflake connection builder. These can include any parameters supported by the snowflake-ml-python package. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-specifying-connection-parameters\nNone",
-    "crumbs": [
-      "Reference",
-      "Chat model providers",
-      "ChatSnowflake"
-    ]
-  },
-  {
-    "objectID": "reference/ChatSnowflake.html#prerequisites",
-    "href": "reference/ChatSnowflake.html#prerequisites",
-    "title": "ChatSnowflake",
-    "section": "",
-    "text": "Python requirements\n\n\n\nChatSnowflake, requires the snowflake-ml-python package: pip install \"chatlas[snowflake]\".\n\n\n\n\n\n\n\n\nSnowflake credentials\n\n\n\nSnowflake provides a handful of ways to authenticate, but it’s recommended to use key-pair auth to generate a private_key_file. It’s also recommended to place your credentials in a connections.toml file.\nThis way, once your credentials are in the connections.toml file, you can simply call ChatSnowflake(connection_name=\"my_connection\") to authenticate. If you don’t want to use a connections.toml file, you can specify the connection parameters directly (with account, user, password, etc.).",
-    "crumbs": [
-      "Reference",
-      "Chat model providers",
-      "ChatSnowflake"
-    ]
-  },
-  {
-    "objectID": "reference/ChatSnowflake.html#parameters",
-    "href": "reference/ChatSnowflake.html#parameters",
-    "title": "ChatSnowflake",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\nconnection_name\nOptional[str]\nThe name of the connection (i.e., section) within the connections.toml file. This is useful if you want to keep your credentials in a connections.toml file rather than specifying them directly in the arguments. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file\nNone\n\n\naccount\nOptional[str]\nYour Snowflake account identifier. Required if connection_name is not provided. https://docs.snowflake.com/en/user-guide/admin-account-identifier\nNone\n\n\nuser\nOptional[str]\nYour Snowflake user name. Required if connection_name is not provided.\nNone\n\n\npassword\nOptional[str]\nYour Snowflake password. Required if doing password authentication and connection_name is not provided.\nNone\n\n\nprivate_key_file\nOptional[str]\nThe path to your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth\nNone\n\n\nprivate_key_file_pwd\nOptional[str]\nThe password for your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth\nNone\n\n\nkwargs\nOptional[dict[str, str | int]]\nAdditional keyword arguments passed along to the Snowflake connection builder. These can include any parameters supported by the snowflake-ml-python package. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-specifying-connection-parameters\nNone",
-    "crumbs": [
-      "Reference",
-      "Chat model providers",
-      "ChatSnowflake"
+      "Batch chat",
+      "batch_chat_text"
     ]
   },
   {
@@ -1874,195 +1922,303 @@
     ]
   },
   {
-    "objectID": "reference/types.ContentImageRemote.html",
-    "href": "reference/types.ContentImageRemote.html",
-    "title": "types.ContentImageRemote",
+    "objectID": "reference/ChatSnowflake.html",
+    "href": "reference/ChatSnowflake.html",
+    "title": "ChatSnowflake",
     "section": "",
-    "text": "types.ContentImageRemote()\nImage content from a URL.\nThis is the return type for content_image_url. It’s not meant to be used directly.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nurl\n\nThe URL of the image.\nrequired\n\n\ndetail\n\nA detail setting for the image. Can be \"auto\", \"low\", or \"high\".\nrequired",
-    "crumbs": [
-      "Reference",
-      "User-facing types",
-      "types.ContentImageRemote"
-    ]
-  },
-  {
-    "objectID": "reference/types.ContentImageRemote.html#parameters",
-    "href": "reference/types.ContentImageRemote.html#parameters",
-    "title": "types.ContentImageRemote",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nurl\n\nThe URL of the image.\nrequired\n\n\ndetail\n\nA detail setting for the image. Can be \"auto\", \"low\", or \"high\".\nrequired",
-    "crumbs": [
-      "Reference",
-      "User-facing types",
-      "types.ContentImageRemote"
-    ]
-  },
-  {
-    "objectID": "reference/ToolRejectError.html",
-    "href": "reference/ToolRejectError.html",
-    "title": "ToolRejectError",
-    "section": "",
-    "text": "ToolRejectError(reason='The user has chosen to disallow the tool call.')\nError to represent a tool call being rejected.\nThis error is meant to be raised when an end user has chosen to deny a tool call. It can be raised in a tool function or in a .on_tool_request() callback registered via a :class:~chatlas.Chat. When used in the callback, the tool call is rejected before the tool function is invoked.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nreason\nstr\nA string describing the reason for rejecting the tool call. This will be included in the error message passed to the LLM. In addition to the reason, the error message will also include “Tool call rejected.” to indicate that the tool call was not processed.\n'The user has chosen to disallow the tool call.'\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nToolRejectError\nAn error with a message informing the LLM that the tool call was rejected (and the reason why).\n\n\n\n\n\n\n&gt;&gt;&gt; import os\n&gt;&gt;&gt; import chatlas as ctl\n&gt;&gt;&gt;\n&gt;&gt;&gt; chat = ctl.ChatOpenAI()\n&gt;&gt;&gt;\n&gt;&gt;&gt; def list_files():\n...     \"List files in the user's current directory\"\n...     while True:\n...         allow = input(\n...             \"Would you like to allow access to your current directory? (yes/no): \"\n...         )\n...         if allow.lower() == \"yes\":\n...             return os.listdir(\".\")\n...         elif allow.lower() == \"no\":\n...             raise ctl.ToolRejectError(\n...                 \"The user has chosen to disallow the tool call.\"\n...             )\n...         else:\n...             print(\"Please answer with 'yes' or 'no'.\")\n&gt;&gt;&gt;\n&gt;&gt;&gt; chat.register_tool(list_files)\n&gt;&gt;&gt; chat.chat(\"What files are available in my current directory?\")",
-    "crumbs": [
-      "Reference",
-      "Tool calling",
-      "ToolRejectError"
-    ]
-  },
-  {
-    "objectID": "reference/ToolRejectError.html#parameters",
-    "href": "reference/ToolRejectError.html#parameters",
-    "title": "ToolRejectError",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nreason\nstr\nA string describing the reason for rejecting the tool call. This will be included in the error message passed to the LLM. In addition to the reason, the error message will also include “Tool call rejected.” to indicate that the tool call was not processed.\n'The user has chosen to disallow the tool call.'",
-    "crumbs": [
-      "Reference",
-      "Tool calling",
-      "ToolRejectError"
-    ]
-  },
-  {
-    "objectID": "reference/ToolRejectError.html#raises",
-    "href": "reference/ToolRejectError.html#raises",
-    "title": "ToolRejectError",
-    "section": "",
-    "text": "Name\nType\nDescription\n\n\n\n\n\nToolRejectError\nAn error with a message informing the LLM that the tool call was rejected (and the reason why).",
-    "crumbs": [
-      "Reference",
-      "Tool calling",
-      "ToolRejectError"
-    ]
-  },
-  {
-    "objectID": "reference/ToolRejectError.html#examples",
-    "href": "reference/ToolRejectError.html#examples",
-    "title": "ToolRejectError",
-    "section": "",
-    "text": "&gt;&gt;&gt; import os\n&gt;&gt;&gt; import chatlas as ctl\n&gt;&gt;&gt;\n&gt;&gt;&gt; chat = ctl.ChatOpenAI()\n&gt;&gt;&gt;\n&gt;&gt;&gt; def list_files():\n...     \"List files in the user's current directory\"\n...     while True:\n...         allow = input(\n...             \"Would you like to allow access to your current directory? (yes/no): \"\n...         )\n...         if allow.lower() == \"yes\":\n...             return os.listdir(\".\")\n...         elif allow.lower() == \"no\":\n...             raise ctl.ToolRejectError(\n...                 \"The user has chosen to disallow the tool call.\"\n...             )\n...         else:\n...             print(\"Please answer with 'yes' or 'no'.\")\n&gt;&gt;&gt;\n&gt;&gt;&gt; chat.register_tool(list_files)\n&gt;&gt;&gt; chat.chat(\"What files are available in my current directory?\")",
-    "crumbs": [
-      "Reference",
-      "Tool calling",
-      "ToolRejectError"
-    ]
-  },
-  {
-    "objectID": "reference/ChatGoogle.html",
-    "href": "reference/ChatGoogle.html",
-    "title": "ChatGoogle",
-    "section": "",
-    "text": "ChatGoogle(system_prompt=None, model=None, api_key=None, kwargs=None)\nChat with a Google Gemini model.\n\n\n\n\n\n\n\n\nAPI key\n\n\n\nTo use Google’s models (i.e., Gemini), you’ll need to sign up for an account and get an API key.\n\n\n\n\n\n\n\n\nPython requirements\n\n\n\nChatGoogle requires the google-genai package: pip install \"chatlas[google]\".\n\n\n\n\n\nimport os\nfrom chatlas import ChatGoogle\n\nchat = ChatGoogle(api_key=os.getenv(\"GOOGLE_API_KEY\"))\nchat.chat(\"What is the capital of France?\")\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the GOOGLE_API_KEY environment variable.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the genai.Client constructor.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nChat\nA Chat object.\n\n\n\n\n\n\nPasting an API key into a chat constructor (e.g., ChatGoogle(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nGOOGLE_API_KEY=...\nfrom chatlas import ChatGoogle\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatGoogle()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport GOOGLE_API_KEY=...",
+    "text": "ChatSnowflake(\n    system_prompt=None,\n    model=None,\n    connection_name=None,\n    account=None,\n    user=None,\n    password=None,\n    private_key_file=None,\n    private_key_file_pwd=None,\n    kwargs=None,\n)\nChat with a Snowflake Cortex LLM\nhttps://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions\n\n\n\n\n\n\n\n\nPython requirements\n\n\n\nChatSnowflake, requires the snowflake-ml-python package: pip install \"chatlas[snowflake]\".\n\n\n\n\n\n\n\n\nSnowflake credentials\n\n\n\nSnowflake provides a handful of ways to authenticate, but it’s recommended to use key-pair auth to generate a private_key_file. It’s also recommended to place your credentials in a connections.toml file.\nThis way, once your credentials are in the connections.toml file, you can simply call ChatSnowflake(connection_name=\"my_connection\") to authenticate. If you don’t want to use a connections.toml file, you can specify the connection parameters directly (with account, user, password, etc.).\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\nconnection_name\nOptional[str]\nThe name of the connection (i.e., section) within the connections.toml file. This is useful if you want to keep your credentials in a connections.toml file rather than specifying them directly in the arguments. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file\nNone\n\n\naccount\nOptional[str]\nYour Snowflake account identifier. Required if connection_name is not provided. https://docs.snowflake.com/en/user-guide/admin-account-identifier\nNone\n\n\nuser\nOptional[str]\nYour Snowflake user name. Required if connection_name is not provided.\nNone\n\n\npassword\nOptional[str]\nYour Snowflake password. Required if doing password authentication and connection_name is not provided.\nNone\n\n\nprivate_key_file\nOptional[str]\nThe path to your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth\nNone\n\n\nprivate_key_file_pwd\nOptional[str]\nThe password for your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth\nNone\n\n\nkwargs\nOptional[dict[str, str | int]]\nAdditional keyword arguments passed along to the Snowflake connection builder. These can include any parameters supported by the snowflake-ml-python package. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-specifying-connection-parameters\nNone",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatGoogle"
+      "ChatSnowflake"
     ]
   },
   {
-    "objectID": "reference/ChatGoogle.html#prerequisites",
-    "href": "reference/ChatGoogle.html#prerequisites",
-    "title": "ChatGoogle",
+    "objectID": "reference/ChatSnowflake.html#prerequisites",
+    "href": "reference/ChatSnowflake.html#prerequisites",
+    "title": "ChatSnowflake",
     "section": "",
-    "text": "API key\n\n\n\nTo use Google’s models (i.e., Gemini), you’ll need to sign up for an account and get an API key.\n\n\n\n\n\n\n\n\nPython requirements\n\n\n\nChatGoogle requires the google-genai package: pip install \"chatlas[google]\".",
+    "text": "Python requirements\n\n\n\nChatSnowflake, requires the snowflake-ml-python package: pip install \"chatlas[snowflake]\".\n\n\n\n\n\n\n\n\nSnowflake credentials\n\n\n\nSnowflake provides a handful of ways to authenticate, but it’s recommended to use key-pair auth to generate a private_key_file. It’s also recommended to place your credentials in a connections.toml file.\nThis way, once your credentials are in the connections.toml file, you can simply call ChatSnowflake(connection_name=\"my_connection\") to authenticate. If you don’t want to use a connections.toml file, you can specify the connection parameters directly (with account, user, password, etc.).",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatGoogle"
+      "ChatSnowflake"
     ]
   },
   {
-    "objectID": "reference/ChatGoogle.html#examples",
-    "href": "reference/ChatGoogle.html#examples",
-    "title": "ChatGoogle",
+    "objectID": "reference/ChatSnowflake.html#parameters",
+    "href": "reference/ChatSnowflake.html#parameters",
+    "title": "ChatSnowflake",
     "section": "",
-    "text": "import os\nfrom chatlas import ChatGoogle\n\nchat = ChatGoogle(api_key=os.getenv(\"GOOGLE_API_KEY\"))\nchat.chat(\"What is the capital of France?\")",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\nconnection_name\nOptional[str]\nThe name of the connection (i.e., section) within the connections.toml file. This is useful if you want to keep your credentials in a connections.toml file rather than specifying them directly in the arguments. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-using-the-connections-toml-file\nNone\n\n\naccount\nOptional[str]\nYour Snowflake account identifier. Required if connection_name is not provided. https://docs.snowflake.com/en/user-guide/admin-account-identifier\nNone\n\n\nuser\nOptional[str]\nYour Snowflake user name. Required if connection_name is not provided.\nNone\n\n\npassword\nOptional[str]\nYour Snowflake password. Required if doing password authentication and connection_name is not provided.\nNone\n\n\nprivate_key_file\nOptional[str]\nThe path to your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth\nNone\n\n\nprivate_key_file_pwd\nOptional[str]\nThe password for your private key file. Required if you are using key pair authentication. https://docs.snowflake.com/en/user-guide/key-pair-auth\nNone\n\n\nkwargs\nOptional[dict[str, str | int]]\nAdditional keyword arguments passed along to the Snowflake connection builder. These can include any parameters supported by the snowflake-ml-python package. https://docs.snowflake.com/en/developer-guide/snowpark/python/creating-session#connect-by-specifying-connection-parameters\nNone",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatGoogle"
+      "ChatSnowflake"
     ]
   },
   {
-    "objectID": "reference/ChatGoogle.html#parameters",
-    "href": "reference/ChatGoogle.html#parameters",
-    "title": "ChatGoogle",
+    "objectID": "reference/ChatMistral.html",
+    "href": "reference/ChatMistral.html",
+    "title": "ChatMistral",
     "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the GOOGLE_API_KEY environment variable.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the genai.Client constructor.\nNone",
+    "text": "ChatMistral(\n    system_prompt=None,\n    model=None,\n    api_key=None,\n    base_url='https://api.mistral.ai/v1/',\n    seed=MISSING,\n    kwargs=None,\n)\nChat with a model hosted on Mistral’s La Plateforme.\nMistral AI provides high-performance language models through their API platform.\n\n\n\n\n\n\n\n\nAPI credentials\n\n\n\nGet your API key from https://console.mistral.ai/api-keys.\n\n\n\n\n\nimport os\nfrom chatlas import ChatMistral\n\nchat = ChatMistral(api_key=os.getenv(\"MISTRAL_API_KEY\"))\nchat.chat(\"Tell me three jokes about statisticians\")\n\n\n\n\nTool calling may be unstable.\nImages require a model that supports vision.\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the MISTRAL_API_KEY environment variable.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses Mistral AI.\n'https://api.mistral.ai/v1/'\n\n\nseed\nint | None | MISSING_TYPE\nOptional integer seed that Mistral uses to try and make output more reproducible.\nMISSING\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor (Mistral uses OpenAI-compatible API).\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.\n\n\n\n\n\n\nPasting an API key into a chat constructor (e.g., ChatMistral(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nMISTRAL_API_KEY=...\nfrom chatlas import ChatMistral\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatMistral()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport MISTRAL_API_KEY=...",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatGoogle"
+      "ChatMistral"
     ]
   },
   {
-    "objectID": "reference/ChatGoogle.html#returns",
-    "href": "reference/ChatGoogle.html#returns",
-    "title": "ChatGoogle",
+    "objectID": "reference/ChatMistral.html#prerequisites",
+    "href": "reference/ChatMistral.html#prerequisites",
+    "title": "ChatMistral",
     "section": "",
-    "text": "Name\nType\nDescription\n\n\n\n\n\nChat\nA Chat object.",
+    "text": "API credentials\n\n\n\nGet your API key from https://console.mistral.ai/api-keys.",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatGoogle"
+      "ChatMistral"
     ]
   },
   {
-    "objectID": "reference/ChatGoogle.html#note",
-    "href": "reference/ChatGoogle.html#note",
-    "title": "ChatGoogle",
+    "objectID": "reference/ChatMistral.html#examples",
+    "href": "reference/ChatMistral.html#examples",
+    "title": "ChatMistral",
     "section": "",
-    "text": "Pasting an API key into a chat constructor (e.g., ChatGoogle(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nGOOGLE_API_KEY=...\nfrom chatlas import ChatGoogle\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatGoogle()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport GOOGLE_API_KEY=...",
+    "text": "import os\nfrom chatlas import ChatMistral\n\nchat = ChatMistral(api_key=os.getenv(\"MISTRAL_API_KEY\"))\nchat.chat(\"Tell me three jokes about statisticians\")",
     "crumbs": [
       "Reference",
       "Chat model providers",
-      "ChatGoogle"
+      "ChatMistral"
     ]
   },
   {
-    "objectID": "reference/types.ContentToolRequest.html",
-    "href": "reference/types.ContentToolRequest.html",
-    "title": "types.ContentToolRequest",
+    "objectID": "reference/ChatMistral.html#known-limitations",
+    "href": "reference/ChatMistral.html#known-limitations",
+    "title": "ChatMistral",
     "section": "",
-    "text": "types.ContentToolRequest()\nA request to call a tool/function\nThis content type isn’t meant to be used directly. Instead, it’s automatically generated by Chat when a tool/function is requested by the model assistant.\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nid\n\nA unique identifier for this request.\nrequired\n\n\nname\n\nThe name of the tool/function to call.\nrequired\n\n\narguments\n\nThe arguments to pass to the tool/function.\nrequired\n\n\ntool\n\nSerializable information about the tool. This is set internally by chatlas’s tool calling loop and contains only the metadata needed for serialization (name, description, parameters, annotations).\nrequired\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\ntagify\nReturns an HTML string suitable for passing to htmltools/shiny’s Chat() component.\n\n\n\n\n\ntypes.ContentToolRequest.tagify()\nReturns an HTML string suitable for passing to htmltools/shiny’s Chat() component.",
+    "text": "Tool calling may be unstable.\nImages require a model that supports vision.",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatMistral"
+    ]
+  },
+  {
+    "objectID": "reference/ChatMistral.html#parameters",
+    "href": "reference/ChatMistral.html#parameters",
+    "title": "ChatMistral",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the MISTRAL_API_KEY environment variable.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses Mistral AI.\n'https://api.mistral.ai/v1/'\n\n\nseed\nint | None | MISSING_TYPE\nOptional integer seed that Mistral uses to try and make output more reproducible.\nMISSING\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor (Mistral uses OpenAI-compatible API).\nNone",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatMistral"
+    ]
+  },
+  {
+    "objectID": "reference/ChatMistral.html#returns",
+    "href": "reference/ChatMistral.html#returns",
+    "title": "ChatMistral",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatMistral"
+    ]
+  },
+  {
+    "objectID": "reference/ChatMistral.html#note",
+    "href": "reference/ChatMistral.html#note",
+    "title": "ChatMistral",
+    "section": "",
+    "text": "Pasting an API key into a chat constructor (e.g., ChatMistral(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nMISTRAL_API_KEY=...\nfrom chatlas import ChatMistral\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatMistral()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport MISTRAL_API_KEY=...",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatMistral"
+    ]
+  },
+  {
+    "objectID": "reference/content_pdf_url.html",
+    "href": "reference/content_pdf_url.html",
+    "title": "content_pdf_url",
+    "section": "",
+    "text": "content_pdf_url(url)\nUse a remote PDF for input to a chat.\nNot all providers support PDF input, so check the documentation for the provider you are using.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nurl\nstr\nA URL to a remote PDF file.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\n[](~chatlas.types.Content)\nContent suitable for a Turn object.",
+    "crumbs": [
+      "Reference",
+      "PDF input",
+      "content_pdf_url"
+    ]
+  },
+  {
+    "objectID": "reference/content_pdf_url.html#parameters",
+    "href": "reference/content_pdf_url.html#parameters",
+    "title": "content_pdf_url",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nurl\nstr\nA URL to a remote PDF file.\nrequired",
+    "crumbs": [
+      "Reference",
+      "PDF input",
+      "content_pdf_url"
+    ]
+  },
+  {
+    "objectID": "reference/content_pdf_url.html#returns",
+    "href": "reference/content_pdf_url.html#returns",
+    "title": "content_pdf_url",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\n[](~chatlas.types.Content)\nContent suitable for a Turn object.",
+    "crumbs": [
+      "Reference",
+      "PDF input",
+      "content_pdf_url"
+    ]
+  },
+  {
+    "objectID": "reference/Turn.html",
+    "href": "reference/Turn.html",
+    "title": "Turn",
+    "section": "",
+    "text": "Turn(\n    role,\n    contents,\n    *,\n    tokens=None,\n    finish_reason=None,\n    completion=None,\n    **kwargs,\n)\nA user or assistant turn\nEvery conversation with a chatbot consists of pairs of user and assistant turns, corresponding to an HTTP request and response. These turns are represented by the Turn object, which contains a list of Contents representing the individual messages within the turn. These might be text, images, tool requests (assistant only), or tool responses (user only).\nNote that a call to .chat() and related functions may result in multiple user-assistant turn cycles. For example, if you have registered tools, chatlas will automatically handle the tool calling loop, which may result in any number of additional cycles.\n\n\nfrom chatlas import Turn, ChatOpenAI, ChatAnthropic\n\nchat = ChatOpenAI()\nstr(chat.chat(\"What is the capital of France?\"))\nturns = chat.get_turns()\nassert len(turns) == 2\nassert isinstance(turns[0], Turn)\nassert turns[0].role == \"user\"\nassert turns[1].role == \"assistant\"\n\n# Load context into a new chat instance\nchat2 = ChatAnthropic()\nchat2.set_turns(turns)\nturns2 = chat2.get_turns()\nassert turns == turns2\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nrole\nLiteral['user', 'assistant', 'system']\nEither “user”, “assistant”, or “system”.\nrequired\n\n\ncontents\nstr | Sequence[Content | str]\nA list of Content objects.\nrequired\n\n\ntokens\nOptional[tuple[int, int, int]]\nA numeric vector of length 3 representing the number of input, output, and cached tokens (respectively) used in this turn. Currently only recorded for assistant turns.\nNone\n\n\nfinish_reason\nOptional[str]\nA string indicating the reason why the conversation ended. This is only relevant for assistant turns.\nNone\n\n\ncompletion\nOptional[CompletionT]\nThe completion object returned by the provider. This is useful if there’s information returned by the provider that chatlas doesn’t otherwise expose. This is only relevant for assistant turns.\nNone",
+    "crumbs": [
+      "Reference",
+      "Turns",
+      "Turn"
+    ]
+  },
+  {
+    "objectID": "reference/Turn.html#examples",
+    "href": "reference/Turn.html#examples",
+    "title": "Turn",
+    "section": "",
+    "text": "from chatlas import Turn, ChatOpenAI, ChatAnthropic\n\nchat = ChatOpenAI()\nstr(chat.chat(\"What is the capital of France?\"))\nturns = chat.get_turns()\nassert len(turns) == 2\nassert isinstance(turns[0], Turn)\nassert turns[0].role == \"user\"\nassert turns[1].role == \"assistant\"\n\n# Load context into a new chat instance\nchat2 = ChatAnthropic()\nchat2.set_turns(turns)\nturns2 = chat2.get_turns()\nassert turns == turns2",
+    "crumbs": [
+      "Reference",
+      "Turns",
+      "Turn"
+    ]
+  },
+  {
+    "objectID": "reference/Turn.html#parameters",
+    "href": "reference/Turn.html#parameters",
+    "title": "Turn",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nrole\nLiteral['user', 'assistant', 'system']\nEither “user”, “assistant”, or “system”.\nrequired\n\n\ncontents\nstr | Sequence[Content | str]\nA list of Content objects.\nrequired\n\n\ntokens\nOptional[tuple[int, int, int]]\nA numeric vector of length 3 representing the number of input, output, and cached tokens (respectively) used in this turn. Currently only recorded for assistant turns.\nNone\n\n\nfinish_reason\nOptional[str]\nA string indicating the reason why the conversation ended. This is only relevant for assistant turns.\nNone\n\n\ncompletion\nOptional[CompletionT]\nThe completion object returned by the provider. This is useful if there’s information returned by the provider that chatlas doesn’t otherwise expose. This is only relevant for assistant turns.\nNone",
+    "crumbs": [
+      "Reference",
+      "Turns",
+      "Turn"
+    ]
+  },
+  {
+    "objectID": "reference/ChatHuggingFace.html",
+    "href": "reference/ChatHuggingFace.html",
+    "title": "ChatHuggingFace",
+    "section": "",
+    "text": "ChatHuggingFace(system_prompt=None, model=None, api_key=None, kwargs=None)\nChat with a model hosted on Hugging Face Inference API.\nHugging Face hosts a variety of open-source and proprietary AI models available via their Inference API. To use the Hugging Face API, you must have an Access Token, which you can obtain from your Hugging Face account. Ensure that at least “Make calls to Inference Providers” and “Make calls to your Inference Endpoints” is checked.\n\n\n\n\n\n\n\n\nAPI key\n\n\n\nYou will need to create a Hugging Face account and generate an API token from your account settings. Make sure to enable “Make calls to Inference Providers” permission.\n\n\n\n\n\nimport os\nfrom chatlas import ChatHuggingFace\n\nchat = ChatHuggingFace(api_key=os.getenv(\"HUGGINGFACE_API_KEY\"))\nchat.chat(\"What is the capital of France?\")\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the HUGGINGFACE_API_KEY environment variable.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the underlying OpenAI client constructor.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.\n\n\n\n\n\n\n\nSome models do not support the chat interface or parts of it, for example google/gemma-2-2b-it does not support a system prompt. You will need to carefully choose the model.\nTool calling support varies by model - many models do not support it.\n\n\n\n\nThis function is a lightweight wrapper around ChatOpenAI, with the defaults tweaked for Hugging Face.\n\n\n\nPasting an API key into a chat constructor (e.g., ChatHuggingFace(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nHUGGINGFACE_API_KEY=...\nfrom chatlas import ChatHuggingFace\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatHuggingFace()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport HUGGINGFACE_API_KEY=...",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatHuggingFace"
+    ]
+  },
+  {
+    "objectID": "reference/ChatHuggingFace.html#prerequisites",
+    "href": "reference/ChatHuggingFace.html#prerequisites",
+    "title": "ChatHuggingFace",
+    "section": "",
+    "text": "API key\n\n\n\nYou will need to create a Hugging Face account and generate an API token from your account settings. Make sure to enable “Make calls to Inference Providers” permission.",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatHuggingFace"
+    ]
+  },
+  {
+    "objectID": "reference/ChatHuggingFace.html#examples",
+    "href": "reference/ChatHuggingFace.html#examples",
+    "title": "ChatHuggingFace",
+    "section": "",
+    "text": "import os\nfrom chatlas import ChatHuggingFace\n\nchat = ChatHuggingFace(api_key=os.getenv(\"HUGGINGFACE_API_KEY\"))\nchat.chat(\"What is the capital of France?\")",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatHuggingFace"
+    ]
+  },
+  {
+    "objectID": "reference/ChatHuggingFace.html#parameters",
+    "href": "reference/ChatHuggingFace.html#parameters",
+    "title": "ChatHuggingFace",
+    "section": "",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the HUGGINGFACE_API_KEY environment variable.\nNone\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the underlying OpenAI client constructor.\nNone",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatHuggingFace"
+    ]
+  },
+  {
+    "objectID": "reference/ChatHuggingFace.html#returns",
+    "href": "reference/ChatHuggingFace.html#returns",
+    "title": "ChatHuggingFace",
+    "section": "",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatHuggingFace"
+    ]
+  },
+  {
+    "objectID": "reference/ChatHuggingFace.html#known-limitations",
+    "href": "reference/ChatHuggingFace.html#known-limitations",
+    "title": "ChatHuggingFace",
+    "section": "",
+    "text": "Some models do not support the chat interface or parts of it, for example google/gemma-2-2b-it does not support a system prompt. You will need to carefully choose the model.\nTool calling support varies by model - many models do not support it.",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatHuggingFace"
+    ]
+  },
+  {
+    "objectID": "reference/ChatHuggingFace.html#note",
+    "href": "reference/ChatHuggingFace.html#note",
+    "title": "ChatHuggingFace",
+    "section": "",
+    "text": "This function is a lightweight wrapper around ChatOpenAI, with the defaults tweaked for Hugging Face.",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatHuggingFace"
+    ]
+  },
+  {
+    "objectID": "reference/ChatHuggingFace.html#note-1",
+    "href": "reference/ChatHuggingFace.html#note-1",
+    "title": "ChatHuggingFace",
+    "section": "",
+    "text": "Pasting an API key into a chat constructor (e.g., ChatHuggingFace(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nHUGGINGFACE_API_KEY=...\nfrom chatlas import ChatHuggingFace\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatHuggingFace()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport HUGGINGFACE_API_KEY=...",
+    "crumbs": [
+      "Reference",
+      "Chat model providers",
+      "ChatHuggingFace"
+    ]
+  },
+  {
+    "objectID": "reference/types.ContentText.html",
+    "href": "reference/types.ContentText.html",
+    "title": "types.ContentText",
+    "section": "",
+    "text": "types.ContentText\ntypes.ContentText(**data)\nText content for a Turn",
     "crumbs": [
       "Reference",
       "User-facing types",
-      "types.ContentToolRequest"
-    ]
-  },
-  {
-    "objectID": "reference/types.ContentToolRequest.html#parameters",
-    "href": "reference/types.ContentToolRequest.html#parameters",
-    "title": "types.ContentToolRequest",
-    "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nid\n\nA unique identifier for this request.\nrequired\n\n\nname\n\nThe name of the tool/function to call.\nrequired\n\n\narguments\n\nThe arguments to pass to the tool/function.\nrequired\n\n\ntool\n\nSerializable information about the tool. This is set internally by chatlas’s tool calling loop and contains only the metadata needed for serialization (name, description, parameters, annotations).\nrequired",
-    "crumbs": [
-      "Reference",
-      "User-facing types",
-      "types.ContentToolRequest"
-    ]
-  },
-  {
-    "objectID": "reference/types.ContentToolRequest.html#methods",
-    "href": "reference/types.ContentToolRequest.html#methods",
-    "title": "types.ContentToolRequest",
-    "section": "",
-    "text": "Name\nDescription\n\n\n\n\ntagify\nReturns an HTML string suitable for passing to htmltools/shiny’s Chat() component.\n\n\n\n\n\ntypes.ContentToolRequest.tagify()\nReturns an HTML string suitable for passing to htmltools/shiny’s Chat() component.",
-    "crumbs": [
-      "Reference",
-      "User-facing types",
-      "types.ContentToolRequest"
-    ]
-  },
-  {
-    "objectID": "reference/types.ContentImage.html",
-    "href": "reference/types.ContentImage.html",
-    "title": "types.ContentImage",
-    "section": "",
-    "text": "types.ContentImage\ntypes.ContentImage()\nBase class for image content.\nThis class is not meant to be used directly. Instead, use content_image_url, content_image_file, or content_image_plot.",
-    "crumbs": [
-      "Reference",
-      "User-facing types",
-      "types.ContentImage"
+      "types.ContentText"
     ]
   },
   {
@@ -2354,160 +2510,171 @@
     ]
   },
   {
-    "objectID": "reference/index.html",
-    "href": "reference/index.html",
-    "title": "Function reference",
+    "objectID": "reference/batch_chat.html",
+    "href": "reference/batch_chat.html",
+    "title": "batch_chat",
     "section": "",
-    "text": "Start a chat with a particular large language model (llm) provider.\n\n\n\nChatAnthropic\nChat with an Anthropic Claude model.\n\n\nChatAuto\nChat with any provider.\n\n\nChatAzureOpenAI\nChat with a model hosted on Azure OpenAI.\n\n\nChatBedrockAnthropic\nChat with an AWS bedrock model.\n\n\nChatCloudflare\nChat with a model hosted on Cloudflare Workers AI.\n\n\nChatDatabricks\nChat with a model hosted on Databricks.\n\n\nChatDeepSeek\nChat with a model hosted on DeepSeek.\n\n\nChatGithub\nChat with a model hosted on the GitHub model marketplace.\n\n\nChatGoogle\nChat with a Google Gemini model.\n\n\nChatGroq\nChat with a model hosted on Groq.\n\n\nChatHuggingFace\nChat with a model hosted on Hugging Face Inference API.\n\n\nChatMistral\nChat with a model hosted on Mistral’s La Plateforme.\n\n\nChatOllama\nChat with a local Ollama model.\n\n\nChatOpenAI\nChat with an OpenAI model.\n\n\nChatOpenRouter\nChat with one of the many models hosted on OpenRouter.\n\n\nChatPerplexity\nChat with a model hosted on perplexity.ai.\n\n\nChatPortkey\nChat with a model hosted on PortkeyAI\n\n\nChatSnowflake\nChat with a Snowflake Cortex LLM\n\n\nChatVertex\nChat with a Google Vertex AI model.\n\n\n\n\n\n\nMethods and attributes available on a chat instance\n\n\n\nChat\nA chat object that can be used to interact with a language model.\n\n\n\n\n\n\nSubmit image input to the chat\n\n\n\ncontent_image_file\nEncode image content from a file for chat input.\n\n\ncontent_image_plot\nEncode the current matplotlib plot as an image for chat input.\n\n\ncontent_image_url\nEncode image content from a URL for chat input.\n\n\n\n\n\n\nSubmit pdf input to the chat\n\n\n\ncontent_pdf_file\nPrepare a local PDF for input to a chat.\n\n\ncontent_pdf_url\nUse a remote PDF for input to a chat.\n\n\n\n\n\n\nInterpolate variables into prompt templates\n\n\n\ninterpolate\nInterpolate variables into a prompt\n\n\ninterpolate_file\nInterpolate variables into a prompt from a file\n\n\n\n\n\n\nAdd context to python function before registering it as a tool.\n\n\n\nTool\nDefine a tool\n\n\nToolRejectError\nError to represent a tool call being rejected.\n\n\n\n\n\n\nA provider-agnostic representation of content generated during an assistant/user turn.\n\n\n\nTurn\nA user or assistant turn\n\n\n\n\n\n\n\n\n\ntoken_usage\nReport on token usage in the current session\n\n\n\n\n\n\n\n\n\nProvider\nA model provider interface for a Chat.\n\n\n\n\n\n\n\n\n\ntypes.Content\nBase class for all content types that can be appear in a Turn\n\n\ntypes.ContentImage\nBase class for image content.\n\n\ntypes.ContentImageInline\nInline image content.\n\n\ntypes.ContentImageRemote\nImage content from a URL.\n\n\ntypes.ContentJson\nJSON content\n\n\ntypes.ContentText\nText content for a Turn\n\n\ntypes.ContentToolRequest\nA request to call a tool/function\n\n\ntypes.ContentToolResult\nThe result of calling a tool/function\n\n\ntypes.ChatResponse\nChat response object.\n\n\ntypes.ChatResponseAsync\nChat response (async) object.\n\n\ntypes.ImageContentTypes\nAllowable content types for images.\n\n\ntypes.MISSING_TYPE\nA singleton representing a missing value.\n\n\ntypes.MISSING\n\n\n\ntypes.SubmitInputArgsT\nA TypedDict representing the provider specific arguments that can specified when\n\n\ntypes.TokenUsage\nToken usage for a given provider (name).\n\n\ntypes.ToolAnnotations\nAdditional properties describing a Tool to clients.\n\n\ntypes.ToolInfo\nSerializable tool information",
+    "text": "batch_chat(chat, prompts, path, wait=True)\nSubmit multiple chat requests in a batch.\nThis function allows you to submit multiple chat requests simultaneously using provider batch APIs (currently OpenAI and Anthropic). Batch processing can take up to 24 hours but offers significant cost savings.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nchat\nChatT\nChat instance to use for the batch\nrequired\n\n\nprompts\nlist[ContentT] | list[list[ContentT]]\nList of prompts to process. Each can be a string or list of strings.\nrequired\n\n\npath\nUnion[str, Path]\nPath to file (with .json extension) to store batch state\nrequired\n\n\nwait\nbool\nIf True, wait for batch to complete. If False, return None if incomplete.\nTrue\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nList of Chat objects (one per prompt) if complete, None if wait=False and incomplete.\n\n\n\n\nIndividual Chat objects may be None if their request failed.\n\n\n\n\n\n\n\nfrom chatlas import ChatOpenAI\n\nchat = ChatOpenAI()\nprompts = [\n    \"What's the capital of France?\",\n    \"What's the capital of Germany?\",\n    \"What's the capital of Italy?\",\n]\n\nchats = batch_chat(chat, prompts, \"capitals.json\")\nfor i, result_chat in enumerate(chats):\n    if result_chat:\n        print(f\"Prompt {i + 1}: {result_chat.get_last_turn().text}\")",
     "crumbs": [
       "Reference",
-      "Function reference"
+      "Batch chat",
+      "batch_chat"
     ]
   },
   {
-    "objectID": "reference/index.html#chat-model-providers",
-    "href": "reference/index.html#chat-model-providers",
-    "title": "Function reference",
+    "objectID": "reference/batch_chat.html#parameters",
+    "href": "reference/batch_chat.html#parameters",
+    "title": "batch_chat",
     "section": "",
-    "text": "Start a chat with a particular large language model (llm) provider.\n\n\n\nChatAnthropic\nChat with an Anthropic Claude model.\n\n\nChatAuto\nChat with any provider.\n\n\nChatAzureOpenAI\nChat with a model hosted on Azure OpenAI.\n\n\nChatBedrockAnthropic\nChat with an AWS bedrock model.\n\n\nChatCloudflare\nChat with a model hosted on Cloudflare Workers AI.\n\n\nChatDatabricks\nChat with a model hosted on Databricks.\n\n\nChatDeepSeek\nChat with a model hosted on DeepSeek.\n\n\nChatGithub\nChat with a model hosted on the GitHub model marketplace.\n\n\nChatGoogle\nChat with a Google Gemini model.\n\n\nChatGroq\nChat with a model hosted on Groq.\n\n\nChatHuggingFace\nChat with a model hosted on Hugging Face Inference API.\n\n\nChatMistral\nChat with a model hosted on Mistral’s La Plateforme.\n\n\nChatOllama\nChat with a local Ollama model.\n\n\nChatOpenAI\nChat with an OpenAI model.\n\n\nChatOpenRouter\nChat with one of the many models hosted on OpenRouter.\n\n\nChatPerplexity\nChat with a model hosted on perplexity.ai.\n\n\nChatPortkey\nChat with a model hosted on PortkeyAI\n\n\nChatSnowflake\nChat with a Snowflake Cortex LLM\n\n\nChatVertex\nChat with a Google Vertex AI model.",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nchat\nChatT\nChat instance to use for the batch\nrequired\n\n\nprompts\nlist[ContentT] | list[list[ContentT]]\nList of prompts to process. Each can be a string or list of strings.\nrequired\n\n\npath\nUnion[str, Path]\nPath to file (with .json extension) to store batch state\nrequired\n\n\nwait\nbool\nIf True, wait for batch to complete. If False, return None if incomplete.\nTrue",
     "crumbs": [
       "Reference",
-      "Function reference"
+      "Batch chat",
+      "batch_chat"
     ]
   },
   {
-    "objectID": "reference/index.html#the-chat-object",
-    "href": "reference/index.html#the-chat-object",
-    "title": "Function reference",
+    "objectID": "reference/batch_chat.html#returns",
+    "href": "reference/batch_chat.html#returns",
+    "title": "batch_chat",
     "section": "",
-    "text": "Methods and attributes available on a chat instance\n\n\n\nChat\nA chat object that can be used to interact with a language model.",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nList of Chat objects (one per prompt) if complete, None if wait=False and incomplete.\n\n\n\n\nIndividual Chat objects may be None if their request failed.",
     "crumbs": [
       "Reference",
-      "Function reference"
+      "Batch chat",
+      "batch_chat"
     ]
   },
   {
-    "objectID": "reference/index.html#image-input",
-    "href": "reference/index.html#image-input",
-    "title": "Function reference",
+    "objectID": "reference/batch_chat.html#example",
+    "href": "reference/batch_chat.html#example",
+    "title": "batch_chat",
     "section": "",
-    "text": "Submit image input to the chat\n\n\n\ncontent_image_file\nEncode image content from a file for chat input.\n\n\ncontent_image_plot\nEncode the current matplotlib plot as an image for chat input.\n\n\ncontent_image_url\nEncode image content from a URL for chat input.",
+    "text": "from chatlas import ChatOpenAI\n\nchat = ChatOpenAI()\nprompts = [\n    \"What's the capital of France?\",\n    \"What's the capital of Germany?\",\n    \"What's the capital of Italy?\",\n]\n\nchats = batch_chat(chat, prompts, \"capitals.json\")\nfor i, result_chat in enumerate(chats):\n    if result_chat:\n        print(f\"Prompt {i + 1}: {result_chat.get_last_turn().text}\")",
     "crumbs": [
       "Reference",
-      "Function reference"
+      "Batch chat",
+      "batch_chat"
     ]
   },
   {
-    "objectID": "reference/index.html#pdf-input",
-    "href": "reference/index.html#pdf-input",
-    "title": "Function reference",
+    "objectID": "reference/ChatPerplexity.html",
+    "href": "reference/ChatPerplexity.html",
+    "title": "ChatPerplexity",
     "section": "",
-    "text": "Submit pdf input to the chat\n\n\n\ncontent_pdf_file\nPrepare a local PDF for input to a chat.\n\n\ncontent_pdf_url\nUse a remote PDF for input to a chat.",
+    "text": "ChatPerplexity(\n    system_prompt=None,\n    model=None,\n    api_key=None,\n    base_url='https://api.perplexity.ai/',\n    seed=MISSING,\n    kwargs=None,\n)\nChat with a model hosted on perplexity.ai.\nPerplexity AI is a platform for running LLMs that are capable of searching the web in real-time to help them answer questions with information that may not have been available when the model was trained.\n\n\n\n\n\n\n\n\nAPI key\n\n\n\nSign up at https://www.perplexity.ai to get an API key.\n\n\n\n\n\nimport os\nfrom chatlas import ChatPerplexity\n\nchat = ChatPerplexity(api_key=os.getenv(\"PERPLEXITY_API_KEY\"))\nchat.chat(\"What is the capital of France?\")\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the PERPLEXITY_API_KEY environment variable.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses Perplexity’s API.\n'https://api.perplexity.ai/'\n\n\nseed\nOptional[int] | MISSING_TYPE\nOptional integer seed that ChatGPT uses to try and make output more reproducible.\nMISSING\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.\n\n\n\n\n\n\nThis function is a lightweight wrapper around chatlas.ChatOpenAI with the defaults tweaked for perplexity.ai.\n\n\n\nPasting an API key into a chat constructor (e.g., ChatPerplexity(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nPERPLEXITY_API_KEY=...\nfrom chatlas import ChatPerplexity\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatPerplexity()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport PERPLEXITY_API_KEY=...",
     "crumbs": [
       "Reference",
-      "Function reference"
+      "Chat model providers",
+      "ChatPerplexity"
     ]
   },
   {
-    "objectID": "reference/index.html#prompt-interpolation",
-    "href": "reference/index.html#prompt-interpolation",
-    "title": "Function reference",
+    "objectID": "reference/ChatPerplexity.html#prerequisites",
+    "href": "reference/ChatPerplexity.html#prerequisites",
+    "title": "ChatPerplexity",
     "section": "",
-    "text": "Interpolate variables into prompt templates\n\n\n\ninterpolate\nInterpolate variables into a prompt\n\n\ninterpolate_file\nInterpolate variables into a prompt from a file",
+    "text": "API key\n\n\n\nSign up at https://www.perplexity.ai to get an API key.",
     "crumbs": [
       "Reference",
-      "Function reference"
+      "Chat model providers",
+      "ChatPerplexity"
     ]
   },
   {
-    "objectID": "reference/index.html#tool-calling",
-    "href": "reference/index.html#tool-calling",
-    "title": "Function reference",
+    "objectID": "reference/ChatPerplexity.html#examples",
+    "href": "reference/ChatPerplexity.html#examples",
+    "title": "ChatPerplexity",
     "section": "",
-    "text": "Add context to python function before registering it as a tool.\n\n\n\nTool\nDefine a tool\n\n\nToolRejectError\nError to represent a tool call being rejected.",
+    "text": "import os\nfrom chatlas import ChatPerplexity\n\nchat = ChatPerplexity(api_key=os.getenv(\"PERPLEXITY_API_KEY\"))\nchat.chat(\"What is the capital of France?\")",
     "crumbs": [
       "Reference",
-      "Function reference"
+      "Chat model providers",
+      "ChatPerplexity"
     ]
   },
   {
-    "objectID": "reference/index.html#turns",
-    "href": "reference/index.html#turns",
-    "title": "Function reference",
+    "objectID": "reference/ChatPerplexity.html#parameters",
+    "href": "reference/ChatPerplexity.html#parameters",
+    "title": "ChatPerplexity",
     "section": "",
-    "text": "A provider-agnostic representation of content generated during an assistant/user turn.\n\n\n\nTurn\nA user or assistant turn",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nsystem_prompt\nOptional[str]\nA system prompt to set the behavior of the assistant.\nNone\n\n\nmodel\nOptional[str]\nThe model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.\nNone\n\n\napi_key\nOptional[str]\nThe API key to use for authentication. You generally should not supply this directly, but instead set the PERPLEXITY_API_KEY environment variable.\nNone\n\n\nbase_url\nstr\nThe base URL to the endpoint; the default uses Perplexity’s API.\n'https://api.perplexity.ai/'\n\n\nseed\nOptional[int] | MISSING_TYPE\nOptional integer seed that ChatGPT uses to try and make output more reproducible.\nMISSING\n\n\nkwargs\nOptional['ChatClientArgs']\nAdditional arguments to pass to the openai.OpenAI() client constructor.\nNone",
     "crumbs": [
       "Reference",
-      "Function reference"
+      "Chat model providers",
+      "ChatPerplexity"
     ]
   },
   {
-    "objectID": "reference/index.html#query-token-usage",
-    "href": "reference/index.html#query-token-usage",
-    "title": "Function reference",
+    "objectID": "reference/ChatPerplexity.html#returns",
+    "href": "reference/ChatPerplexity.html#returns",
+    "title": "ChatPerplexity",
     "section": "",
-    "text": "token_usage\nReport on token usage in the current session",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nChat\nA chat object that retains the state of the conversation.",
     "crumbs": [
       "Reference",
-      "Function reference"
+      "Chat model providers",
+      "ChatPerplexity"
     ]
   },
   {
-    "objectID": "reference/index.html#implement-a-model-provider",
-    "href": "reference/index.html#implement-a-model-provider",
-    "title": "Function reference",
+    "objectID": "reference/ChatPerplexity.html#note",
+    "href": "reference/ChatPerplexity.html#note",
+    "title": "ChatPerplexity",
     "section": "",
-    "text": "Provider\nA model provider interface for a Chat.",
+    "text": "This function is a lightweight wrapper around chatlas.ChatOpenAI with the defaults tweaked for perplexity.ai.",
     "crumbs": [
       "Reference",
-      "Function reference"
+      "Chat model providers",
+      "ChatPerplexity"
     ]
   },
   {
-    "objectID": "reference/index.html#user-facing-types",
-    "href": "reference/index.html#user-facing-types",
-    "title": "Function reference",
+    "objectID": "reference/ChatPerplexity.html#note-1",
+    "href": "reference/ChatPerplexity.html#note-1",
+    "title": "ChatPerplexity",
     "section": "",
-    "text": "types.Content\nBase class for all content types that can be appear in a Turn\n\n\ntypes.ContentImage\nBase class for image content.\n\n\ntypes.ContentImageInline\nInline image content.\n\n\ntypes.ContentImageRemote\nImage content from a URL.\n\n\ntypes.ContentJson\nJSON content\n\n\ntypes.ContentText\nText content for a Turn\n\n\ntypes.ContentToolRequest\nA request to call a tool/function\n\n\ntypes.ContentToolResult\nThe result of calling a tool/function\n\n\ntypes.ChatResponse\nChat response object.\n\n\ntypes.ChatResponseAsync\nChat response (async) object.\n\n\ntypes.ImageContentTypes\nAllowable content types for images.\n\n\ntypes.MISSING_TYPE\nA singleton representing a missing value.\n\n\ntypes.MISSING\n\n\n\ntypes.SubmitInputArgsT\nA TypedDict representing the provider specific arguments that can specified when\n\n\ntypes.TokenUsage\nToken usage for a given provider (name).\n\n\ntypes.ToolAnnotations\nAdditional properties describing a Tool to clients.\n\n\ntypes.ToolInfo\nSerializable tool information",
+    "text": "Pasting an API key into a chat constructor (e.g., ChatPerplexity(api_key=\"...\")) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.\nInstead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a .env file to store your credentials, and then use the python-dotenv package to load them into your environment.\npip install python-dotenv\n# .env\nPERPLEXITY_API_KEY=...\nfrom chatlas import ChatPerplexity\nfrom dotenv import load_dotenv\n\nload_dotenv()\nchat = ChatPerplexity()\nchat.console()\nAnother, more general, solution is to load your environment variables into the shell before starting Python (maybe in a .bashrc, .zshrc, etc. file):\nexport PERPLEXITY_API_KEY=...",
     "crumbs": [
       "Reference",
-      "Function reference"
+      "Chat model providers",
+      "ChatPerplexity"
     ]
   },
   {
-    "objectID": "reference/Tool.html",
-    "href": "reference/Tool.html",
-    "title": "Tool",
+    "objectID": "reference/batch_chat_completed.html",
+    "href": "reference/batch_chat_completed.html",
+    "title": "batch_chat_completed",
     "section": "",
-    "text": "Tool(func, name, description, parameters, annotations=None)\nDefine a tool\nDefine a Python function for use by a chatbot. The function will always be invoked in the current Python process.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfunc\nCallable[…, Any] | Callable[…, Awaitable[Any]]\nThe function to be invoked when the tool is called.\nrequired\n\n\nname\nstr\nThe name of the tool.\nrequired\n\n\ndescription\nstr\nA description of what the tool does.\nrequired\n\n\nparameters\ndict[str, Any]\nA dictionary describing the input parameters and their types.\nrequired\n\n\nannotations\n'Optional[ToolAnnotations]'\nAdditional properties that describe the tool and its behavior.\nNone\n\n\n\n\n\n\n\n\n\nName\nDescription\n\n\n\n\nfrom_func\nCreate a Tool from a Python function\n\n\nfrom_mcp\nCreate a Tool from an MCP tool\n\n\n\n\n\nTool.from_func(func, *, name=None, model=None, annotations=None)\nCreate a Tool from a Python function\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfunc\nCallable[…, Any] | Callable[…, Awaitable[Any]]\nThe function to wrap as a tool.\nrequired\n\n\nname\nOptional[str]\nThe name of the tool. If not provided, the name will be inferred from the function’s name.\nNone\n\n\nmodel\nOptional[type[BaseModel]]\nA Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function.\nNone\n\n\nannotations\n'Optional[ToolAnnotations]'\nAdditional properties that describe the tool and its behavior.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nTool\nA new Tool instance wrapping the provided function.\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nValueError\nIf there is a mismatch between model fields and function parameters.\n\n\n\n\n\n\n\nTool.from_mcp(session, mcp_tool)\nCreate a Tool from an MCP tool\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsession\n'MCPClientSession'\nThe MCP client session to use for calling the tool.\nrequired\n\n\nmcp_tool\n'MCPTool'\nThe MCP tool to wrap.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nTool\nA new Tool instance wrapping the MCP tool.",
+    "text": "batch_chat_completed(chat, prompts, path)\nCheck if a batch job is completed without waiting.\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nchat\nChat\nChat instance used for the batch\nrequired\n\n\nprompts\nlist[ContentT] | list[list[ContentT]]\nList of prompts used for the batch\nrequired\n\n\npath\nUnion[str, Path]\nPath to batch state file\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nTrue if batch is complete, False otherwise",
     "crumbs": [
       "Reference",
-      "Tool calling",
-      "Tool"
+      "Batch chat",
+      "batch_chat_completed"
     ]
   },
   {
-    "objectID": "reference/Tool.html#parameters",
-    "href": "reference/Tool.html#parameters",
-    "title": "Tool",
+    "objectID": "reference/batch_chat_completed.html#parameters",
+    "href": "reference/batch_chat_completed.html#parameters",
+    "title": "batch_chat_completed",
     "section": "",
-    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nfunc\nCallable[…, Any] | Callable[…, Awaitable[Any]]\nThe function to be invoked when the tool is called.\nrequired\n\n\nname\nstr\nThe name of the tool.\nrequired\n\n\ndescription\nstr\nA description of what the tool does.\nrequired\n\n\nparameters\ndict[str, Any]\nA dictionary describing the input parameters and their types.\nrequired\n\n\nannotations\n'Optional[ToolAnnotations]'\nAdditional properties that describe the tool and its behavior.\nNone",
+    "text": "Name\nType\nDescription\nDefault\n\n\n\n\nchat\nChat\nChat instance used for the batch\nrequired\n\n\nprompts\nlist[ContentT] | list[list[ContentT]]\nList of prompts used for the batch\nrequired\n\n\npath\nUnion[str, Path]\nPath to batch state file\nrequired",
     "crumbs": [
       "Reference",
-      "Tool calling",
-      "Tool"
+      "Batch chat",
+      "batch_chat_completed"
     ]
   },
   {
-    "objectID": "reference/Tool.html#methods",
-    "href": "reference/Tool.html#methods",
-    "title": "Tool",
+    "objectID": "reference/batch_chat_completed.html#returns",
+    "href": "reference/batch_chat_completed.html#returns",
+    "title": "batch_chat_completed",
     "section": "",
-    "text": "Name\nDescription\n\n\n\n\nfrom_func\nCreate a Tool from a Python function\n\n\nfrom_mcp\nCreate a Tool from an MCP tool\n\n\n\n\n\nTool.from_func(func, *, name=None, model=None, annotations=None)\nCreate a Tool from a Python function\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nfunc\nCallable[…, Any] | Callable[…, Awaitable[Any]]\nThe function to wrap as a tool.\nrequired\n\n\nname\nOptional[str]\nThe name of the tool. If not provided, the name will be inferred from the function’s name.\nNone\n\n\nmodel\nOptional[type[BaseModel]]\nA Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function.\nNone\n\n\nannotations\n'Optional[ToolAnnotations]'\nAdditional properties that describe the tool and its behavior.\nNone\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nTool\nA new Tool instance wrapping the provided function.\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nValueError\nIf there is a mismatch between model fields and function parameters.\n\n\n\n\n\n\n\nTool.from_mcp(session, mcp_tool)\nCreate a Tool from an MCP tool\n\n\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\nDefault\n\n\n\n\nsession\n'MCPClientSession'\nThe MCP client session to use for calling the tool.\nrequired\n\n\nmcp_tool\n'MCPTool'\nThe MCP tool to wrap.\nrequired\n\n\n\n\n\n\n\n\n\nName\nType\nDescription\n\n\n\n\n\nTool\nA new Tool instance wrapping the MCP tool.",
+    "text": "Name\nType\nDescription\n\n\n\n\n\nTrue if batch is complete, False otherwise",
     "crumbs": [
       "Reference",
-      "Tool calling",
-      "Tool"
+      "Batch chat",
+      "batch_chat_completed"
     ]
   },
   {
@@ -3060,7 +3227,7 @@
     "href": "structured-data/entity-recognition.html",
     "title": "Entity recognition",
     "section": "",
-    "text": "The following example, which closely inspired by the Claude documentation, shows how .chat_structured() can be used to perform entity recognition.\n\nfrom chatlas import ChatOpenAI\nfrom pydantic import BaseModel, Field\nimport pandas as pd\n\n# | warning: false\ntext = \"John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco.\"\n\n\nclass NamedEntity(BaseModel):\n    \"\"\"Named entity in the text.\"\"\"\n\n    name: str = Field(description=\"The extracted entity name\")\n\n    type_: str = Field(description=\"The entity type, e.g. 'person', 'location', 'organization'\")\n\n    context: str = Field(description=\"The context in which the entity appears in the text.\")\n\n\nclass NamedEntities(BaseModel):\n    \"\"\"Named entities in the text.\"\"\"\n\n    entities: list[NamedEntity] = Field(description=\"Array of named entities\")\n\n\nchat = ChatOpenAI()\ndata = chat.chat_structured(text, data_model=NamedEntities)\npd.DataFrame([e.model_dump() for e in data.entities])\n\n\n\n\n\n\n\n\nname\ntype_\ncontext\n\n\n\n\n0\nJohn\nperson\nJohn works at Google in New York.\n\n\n1\nGoogle\norganization\nJohn works at Google in New York.\n\n\n2\nNew York\nlocation\nJohn works at Google in New York.\n\n\n3\nSarah\nperson\nHe met with Sarah, the CEO of Acme Inc., last ...\n\n\n4\nAcme Inc.\norganization\nSarah, the CEO of Acme Inc.\n\n\n5\nSan Francisco\nlocation\nHe met with Sarah...last week in San Francisco.",
+    "text": "The following example, which closely inspired by the Claude documentation, shows how .chat_structured() can be used to perform entity recognition.\n\nfrom chatlas import ChatOpenAI\nfrom pydantic import BaseModel, Field\nimport pandas as pd\n\n# | warning: false\ntext = \"John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco.\"\n\n\nclass NamedEntity(BaseModel):\n    \"\"\"Named entity in the text.\"\"\"\n\n    name: str = Field(description=\"The extracted entity name\")\n\n    type_: str = Field(description=\"The entity type, e.g. 'person', 'location', 'organization'\")\n\n    context: str = Field(description=\"The context in which the entity appears in the text.\")\n\n\nclass NamedEntities(BaseModel):\n    \"\"\"Named entities in the text.\"\"\"\n\n    entities: list[NamedEntity] = Field(description=\"Array of named entities\")\n\n\nchat = ChatOpenAI()\ndata = chat.chat_structured(text, data_model=NamedEntities)\npd.DataFrame([e.model_dump() for e in data.entities])\n\n\n\n\n\n\n\n\nname\ntype_\ncontext\n\n\n\n\n0\nJohn\nperson\nEmployee at Google\n\n\n1\nGoogle\norganization\nEmployer of John, located in New York\n\n\n2\nNew York\nlocation\nLocation of Google's office where John works\n\n\n3\nSarah\nperson\nCEO of Acme Inc., met with John\n\n\n4\nAcme Inc.\norganization\nSarah is the CEO\n\n\n5\nSan Francisco\nlocation\nPlace where John and Sarah met last week",
     "crumbs": [
       "Structured data",
       "Entity recognition"

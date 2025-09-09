@@ -235,6 +235,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <section id="new-features" class="level3">
 <h3 class="anchored" data-anchor-id="new-features">New features</h3>
 <ul>
+<li>Added support for submitting multiple chats in one batch. With batch submission, results can take up to 24 hours to complete, but in return you pay ~50% less than usual. For more, see the <a href="https://posit-dev.github.io/chatlas/reference/">reference</a> for <code>batch_chat()</code>, <code>batch_chat_text()</code>, <code>batch_chat_structured()</code> and <code>batch_chat_completed()</code>. (#177)</li>
 <li>The <code>Chat</code> class gains new <code>.chat_structured()</code> (and <code>.chat_structured_async()</code>) methods. These methods supersede the now deprecated <code>.extract_data()</code> (and <code>.extract_data_async()</code>). The only difference is that the new methods return a <code>BaseModel</code> instance (instead of a <code>dict()</code>), leading to a better type hinting/checking experience. (#175)</li>
 </ul>
 </section>

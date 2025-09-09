@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>types.toolannotations – chatlas</title>
+<title>batch_chat_structured – chatlas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,8 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/types.ToolInfo.html" rel="next">
-<link href="../reference/types.TokenUsage.html" rel="prev">
+<link href="../reference/batch_chat_completed.html" rel="next">
+<link href="../reference/batch_chat_text.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -156,7 +156,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.ToolAnnotations.html">types.ToolAnnotations</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/batch_chat.html">Batch chat</a></li><li class="breadcrumb-item"><a href="../reference/batch_chat_structured.html">batch_chat_structured</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -414,7 +414,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/batch_chat_structured.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/batch_chat_structured.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">batch_chat_structured</span></a>
   </div>
 </li>
@@ -601,7 +601,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/types.ToolAnnotations.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/types.ToolAnnotations.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.ToolAnnotations</span></a>
   </div>
 </li>
@@ -623,12 +623,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.types.ToolAnnotations" id="toc-chatlas.types.ToolAnnotations" class="nav-link active" data-scroll-target="#chatlas.types.ToolAnnotations">types.ToolAnnotations</a>
+  <li><a href="#chatlas.batch_chat_structured" id="toc-chatlas.batch_chat_structured" class="nav-link active" data-scroll-target="#chatlas.batch_chat_structured">batch_chat_structured</a>
   <ul class="collapse">
-  <li><a href="#attributes" id="toc-attributes" class="nav-link" data-scroll-target="#attributes">Attributes</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#return" id="toc-return" class="nav-link" data-scroll-target="#return">Return</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ToolAnnotations.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/batch_chat_structured.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -636,48 +637,58 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="chatlas.types.ToolAnnotations" class="level1">
-<h1>types.ToolAnnotations</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>types.ToolAnnotations()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Additional properties describing a Tool to clients.</p>
-<p>NOTE: all properties in ToolAnnotations are <strong>hints</strong>. They are not guaranteed to provide a faithful description of tool behavior (including descriptive properties like <code>title</code>).</p>
-<p>Clients should never make tool use decisions based on ToolAnnotations received from untrusted servers.</p>
-<section id="attributes" class="level2">
-<h2 class="anchored" data-anchor-id="attributes">Attributes</h2>
+<section id="chatlas.batch_chat_structured" class="level1">
+<h1>batch_chat_structured</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>batch_chat_structured(chat, prompts, path, data_model, wait<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Submit multiple structured data requests in a batch.</p>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Name</th>
+<th>Type</th>
 <th>Description</th>
+<th>Default</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><a href="#chatlas.types.ToolAnnotations.destructiveHint">destructiveHint</a></td>
-<td>If true, the tool may perform destructive updates to its environment.</td>
+<td>chat</td>
+<td><a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat">Chat</a></td>
+<td>Chat instance to use for the batch</td>
+<td><em>required</em></td>
 </tr>
 <tr class="even">
-<td><a href="#chatlas.types.ToolAnnotations.extra">extra</a></td>
-<td>Additional metadata about the tool.</td>
+<td>prompts</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<code>ContentT</code>] | <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<code>ContentT</code>]]</td>
+<td>List of prompts to process</td>
+<td><em>required</em></td>
 </tr>
 <tr class="odd">
-<td><a href="#chatlas.types.ToolAnnotations.idempotentHint">idempotentHint</a></td>
-<td>If true, calling the tool repeatedly with the same arguments</td>
+<td>path</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Union">Union</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a>]</td>
+<td>Path to file (with .json extension) to store batch state</td>
+<td><em>required</em></td>
 </tr>
 <tr class="even">
-<td><a href="#chatlas.types.ToolAnnotations.openWorldHint">openWorldHint</a></td>
-<td>If true, this tool may interact with an “open world” of external</td>
+<td>data_model</td>
+<td><a href="https://docs.python.org/3/library/functions.html#type">type</a>[<code>BaseModelT</code>]</td>
+<td>Pydantic model class for structured responses</td>
+<td><em>required</em></td>
 </tr>
 <tr class="odd">
-<td><a href="#chatlas.types.ToolAnnotations.readOnlyHint">readOnlyHint</a></td>
-<td>If true, the tool does not modify its environment.</td>
-</tr>
-<tr class="even">
-<td><a href="#chatlas.types.ToolAnnotations.title">title</a></td>
-<td>A human-readable title for the tool.</td>
+<td>wait</td>
+<td><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></td>
+<td>If True, wait for batch to complete</td>
+<td><code>True</code></td>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="return" class="level2 doc-section doc-section-return">
+<h2 class="doc-section doc-section-return anchored" data-anchor-id="return">Return</h2>
+<p>List of structured data objects (or None for failed requests)</p>
 
 
 </section>
@@ -1106,13 +1117,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/types.TokenUsage.html" class="pagination-link" aria-label="types.TokenUsage">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">types.TokenUsage</span>
+      <a href="../reference/batch_chat_text.html" class="pagination-link" aria-label="batch_chat_text">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">batch_chat_text</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/types.ToolInfo.html" class="pagination-link" aria-label="types.ToolInfo">
-        <span class="nav-page-text">types.ToolInfo</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/batch_chat_completed.html" class="pagination-link" aria-label="batch_chat_completed">
+        <span class="nav-page-text">batch_chat_completed</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1124,7 +1135,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ToolAnnotations.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/batch_chat_structured.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
