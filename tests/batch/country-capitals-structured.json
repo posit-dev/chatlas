@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "stage": "done",
+  "batch": {
+    "id": "batch_68c045e8d5108190949582bc3c028af4",
+    "completion_window": "24h",
+    "created_at": 1757431272,
+    "endpoint": "/v1/chat/completions",
+    "input_file_id": "file-2oi7LNA358NPBuSrWXcZsF",
+    "object": "batch",
+    "status": "completed",
+    "cancelled_at": null,
+    "cancelling_at": null,
+    "completed_at": 1757440259,
+    "error_file_id": null,
+    "errors": null,
+    "expired_at": null,
+    "expires_at": 1757517672,
+    "failed_at": null,
+    "finalizing_at": 1757440258,
+    "in_progress_at": 1757431335,
+    "metadata": null,
+    "output_file_id": "file-KBzTN6egssBMxEJ9E3iGaq",
+    "request_counts": {
+      "completed": 2,
+      "failed": 0,
+      "total": 2
+    },
+    "usage": {
+      "input_tokens": 86,
+      "output_tokens": 10,
+      "total_tokens": 96,
+      "input_tokens_details": {
+        "cached_tokens": 0
+      },
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "batch_req_68c069035300819093210276a3530651",
+      "custom_id": "request-0",
+      "response": {
+        "status_code": 200,
+        "request_id": "d968ee5ca37299bddef923f7217ff987",
+        "body": {
+          "id": "chatcmpl-CDwm9AC2NCS5m1z5IcY0XwBbvIfdP",
+          "object": "chat.completion",
+          "created": 1757440233,
+          "model": "gpt-4o-mini-2024-07-18",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"name\":\"Paris\"}",
+                "refusal": null,
+                "annotations": []
+              },
+              "logprobs": null,
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 43,
+            "completion_tokens": 5,
+            "total_tokens": 48,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "service_tier": "default",
+          "system_fingerprint": "fp_e665f7564b"
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "batch_req_68c06903978c8190ad48a117b7882887",
+      "custom_id": "request-1",
+      "response": {
+        "status_code": 200,
+        "request_id": "eb6973b88aba352cfa2be3a905a20094",
+        "body": {
+          "id": "chatcmpl-CDwmCHXOgh9gssdwGcVGEj3pE9zZl",
+          "object": "chat.completion",
+          "created": 1757440236,
+          "model": "gpt-4o-mini-2024-07-18",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "{\"name\":\"Berlin\"}",
+                "refusal": null,
+                "annotations": []
+              },
+              "logprobs": null,
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 43,
+            "completion_tokens": 5,
+            "total_tokens": 48,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "service_tier": "default",
+          "system_fingerprint": "fp_8bda4d3a2c"
+        }
+      },
+      "error": null
+    }
+  ],
+  "started_at": 1757431270,
+  "hash": {
+    "provider": "OpenAI",
+    "model": "gpt-4o-mini",
+    "prompts": "123ef0f8b30649a2e428cd300ed0e78a",
+    "user_turns": "d751713988987e9331980363e24189ce"
+  }
+}

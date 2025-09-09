@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from datetime import date
 from typing import (
+    Any,
     AsyncIterable,
     Generic,
     Iterable,
@@ -98,6 +99,16 @@ StandardModelParamNames = Literal[
     "log_probs",
     "stop_sequences",
 ]
+
+
+# Provider-agnostic batch status info
+class BatchStatus(BaseModel):
+    """Status information for a batch job."""
+
+    working: bool
+    n_processing: int
+    n_succeeded: int
+    n_failed: int
 
 
 class Provider(
@@ -261,3 +272,80 @@ class Provider(
 
     @abstractmethod
     def supported_model_params(self) -> set[StandardModelParamNames]: ...
+
+    def has_batch_support(self) -> bool:
+        """
+        Returns whether this provider supports batch processing.
+        Override this method to return True for providers that implement batch methods.
+        """
+        return False
+
+    def batch_submit(
+        self,
+        conversations: list[list[Turn]],
+        data_model: Optional[type[BaseModel]] = None,
+    ) -> dict[str, Any]:
+        """
+        Submit a batch of conversations for processing.
+
+        Args:
+            conversations: List of conversation histories (each is a list of Turns)
+            data_model: Optional structured data model for responses
+
+        Returns:
+            BatchInfo containing batch job information
+        """
+        raise NotImplementedError("This provider does not support batch processing")
+
+    def batch_poll(self, batch: dict[str, Any]) -> dict[str, Any]:
+        """
+        Poll the status of a submitted batch.
+
+        Args:
+            batch: Batch information returned from batch_submit
+
+        Returns:
+            Updated batch information
+        """
+        raise NotImplementedError("This provider does not support batch processing")
+
+    def batch_status(self, batch: dict[str, Any]) -> BatchStatus:
+        """
+        Get the status of a batch.
+
+        Args:
+            batch: Batch information
+
+        Returns:
+            BatchStatus with processing status information
+        """
+        raise NotImplementedError("This provider does not support batch processing")
+
+    def batch_retrieve(self, batch: dict[str, Any]) -> list[dict[str, Any]]:
+        """
+        Retrieve results from a completed batch.
+
+        Args:
+            batch: Batch information
+
+        Returns:
+            List of BatchResult objects, one for each request in the batch
+        """
+        raise NotImplementedError("This provider does not support batch processing")
+
+    def batch_result_turn(
+        self,
+        result: dict[str, Any],
+        has_data_model: bool = False,
+    ) -> Turn | None:
+        """
+        Convert a batch result to a Turn.
+
+        Args:
+            result: Individual BatchResult from batch_retrieve
+            has_data_model: Whether the request used a structured data model
+
+        Returns:
+            Turn object or None if the result was an error
+        """
+        raise NotImplementedError("This provider does not support batch processing")

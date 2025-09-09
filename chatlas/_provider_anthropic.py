@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import base64
+import re
 import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
 
 import orjson
+from openai.types.chat import ChatCompletionToolParam
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -21,13 +23,20 @@ from ._content import (
     ContentToolResultResource,
 )
 from ._logging import log_model_default
-from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
+from ._provider import (
+    BatchStatus,
+    ModelInfo,
+    Provider,
+    StandardModelParamNames,
+    StandardModelParams,
+)
 from ._tokens import get_token_pricing, tokens_log
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
+    import anthropic
     from anthropic.types import (
         Message,
         MessageParam,
@@ -38,11 +47,12 @@ if TYPE_CHECKING:
     )
     from anthropic.types.document_block_param import DocumentBlockParam
     from anthropic.types.image_block_param import ImageBlockParam
+    from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
+    from anthropic.types.messages.batch_create_params import Request as BatchRequest
     from anthropic.types.model_param import ModelParam
     from anthropic.types.text_block_param import TextBlockParam
     from anthropic.types.tool_result_block_param import ToolResultBlockParam
     from anthropic.types.tool_use_block_param import ToolUseBlockParam
-    from openai.types.chat import ChatCompletionToolParam
 
     from .types.anthropic import ChatBedrockClientArgs, ChatClientArgs, SubmitInputArgs
 
@@ -630,6 +640,99 @@ class AnthropicProvider(
             finish_reason=completion.stop_reason,
             completion=completion,
         )
+
+    def has_batch_support(self) -> bool:
+        return True
+
+    def batch_submit(
+        self,
+        conversations: list[list[Turn]],
+        data_model: Optional[type[BaseModel]] = None,
+    ):
+        requests: list["BatchRequest"] = []
+
+        for i, turns in enumerate(conversations):
+            kwargs = self._chat_perform_args(
+                stream=False,
+                turns=turns,
+                tools={},
+                data_model=data_model,
+            )
+
+            params: "MessageCreateParamsNonStreaming" = {
+                "messages": kwargs.get("messages", {}),
+                "model": self.model,
+                "max_tokens": kwargs.get("max_tokens", 4096),
+            }
+
+            # If data_model, tools/tool_choice should be present
+            tools = kwargs.get("tools")
+            tool_choice = kwargs.get("tool_choice")
+            if tools and not isinstance(tools, anthropic.NotGiven):
+                params["tools"] = tools
+            if tool_choice and not isinstance(tool_choice, anthropic.NotGiven):
+                params["tool_choice"] = tool_choice
+
+            requests.append({"custom_id": f"request-{i}", "params": params})
+
+        batch = self._client.messages.batches.create(requests=requests)
+        return batch.model_dump()
+
+    def batch_poll(self, batch):
+        from anthropic.types.messages import MessageBatch
+
+        batch = MessageBatch.model_validate(batch)
+        b = self._client.messages.batches.retrieve(batch.id)
+        return b.model_dump()
+
+    def batch_status(self, batch) -> "BatchStatus":
+        from anthropic.types.messages import MessageBatch
+
+        batch = MessageBatch.model_validate(batch)
+        status = batch.processing_status
+        counts = batch.request_counts
+
+        return BatchStatus(
+            working=status != "ended",
+            n_processing=counts.processing,
+            n_succeeded=counts.succeeded,
+            n_failed=counts.errored + counts.canceled + counts.expired,
+        )
+
+    # https://docs.anthropic.com/en/api/retrieving-message-batch-results
+    def batch_retrieve(self, batch):
+        from anthropic.types.messages import MessageBatch
+
+        batch = MessageBatch.model_validate(batch)
+        if batch.results_url is None:
+            raise ValueError("Batch has no results URL")
+
+        results: list[dict[str, Any]] = []
+        for res in self._client.messages.batches.results(batch.id):
+            results.append(res.model_dump())
+
+        # Sort by custom_id to maintain order
+        def extract_id(x: str):
+            match = re.search(r"-(\d+)$", x)
+            return int(match.group(1)) if match else 0
+
+        results.sort(key=lambda x: extract_id(x.get("custom_id", "")))
+
+        return results
+
+    def batch_result_turn(self, result, has_data_model: bool = False) -> Turn | None:
+        from anthropic.types.messages.message_batch_individual_response import (
+            MessageBatchIndividualResponse,
+        )
+
+        result = MessageBatchIndividualResponse.model_validate(result)
+        if result.result.type != "succeeded":
+            # TODO: offer advice on what to do?
+            warnings.warn(f"Batch request didn't succeed: {result.result}")
+            return None
+
+        message = result.result.message
+        return self._as_turn(message, has_data_model)
 
 
 def ChatBedrockAnthropic(
