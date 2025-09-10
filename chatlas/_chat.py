@@ -697,7 +697,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         try:
-            from shinychat import Chat, chat_ui, message_content
+            from shinychat import (
+                Chat,
+                chat_ui,
+                message_content,  # pyright: ignore[reportAttributeAccessIssue]
+            )
         except ImportError:
             raise ImportError(
                 "The `shinychat` package is required for the `app()` method. "
