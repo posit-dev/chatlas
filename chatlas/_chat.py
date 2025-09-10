@@ -652,19 +652,23 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Install it with `pip install shiny`."
             )
 
+        try:
+            from shinychat import message_content
+        except ImportError:
+            raise ImportError(
+                "The `shinychat` package is required for the `browser` method. "
+                "Install it with `pip install shinychat`."
+            )
+
+        messages = [message_content(x) for x in self.get_turns()]
+
         app_ui = ui.page_fillable(
-            ui.chat_ui("chat"),
+            ui.chat_ui("chat", messages=messages),
             fillable_mobile=True,
         )
 
         def server(input):  # noqa: A002
-            chat = ui.Chat(
-                "chat",
-                messages=[
-                    {"role": turn.role, "content": turn.text}
-                    for turn in self.get_turns()
-                ],
-            )
+            chat = ui.Chat("chat")
 
             @chat.on_user_submit
             async def _(user_input: str):
