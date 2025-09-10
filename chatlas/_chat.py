@@ -220,12 +220,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         include_system_prompt
             Whether to include the system prompt in the turns.
         tool_result_role
-            The role to assign to tool results in the chat history. By default,
-            tool results are assigned the "user" role, since they represent
-            information provided to the assistant. However, in some contexts
-            (e.g., for display purposes) it may be more appropriate to assign
-            them the "assistant" role. In the case of "assistant", sequential
-            turns with the "assistant" role are collapsed into a single turn.
+            The role to assign to turns containing tool results. By default,
+            tool results are assigned a role of "user" since they represent
+            information provided to the assistant. If set to "assistant" tool
+            result content (plus the surrounding assistant turn contents) is
+            collected into a single assistant turn. This is convenient for
+            display purposes and more generally if you want the tool calling
+            loop to be contained in a single turn.
         """
 
         if not self._turns:
