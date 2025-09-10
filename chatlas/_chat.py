@@ -210,6 +210,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         *,
         include_system_prompt: bool = False,
+        tool_result_role: Literal["assistant", "user"] = "user",
     ) -> list[Turn[CompletionT]]:
         """
         Get all the turns (i.e., message contents) in the chat.
@@ -218,14 +219,50 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         include_system_prompt
             Whether to include the system prompt in the turns.
+        tool_result_role
+            The role to assign to turns containing tool results. By default,
+            tool results are assigned a role of "user" since they represent
+            information provided to the assistant. If set to "assistant" tool
+            result content (plus the surrounding assistant turn contents) is
+            collected into a single assistant turn. This is convenient for
+            display purposes and more generally if you want the tool calling
+            loop to be contained in a single turn.
         """
 
         if not self._turns:
             return self._turns
 
         if not include_system_prompt and self._turns[0].role == "system":
-            return self._turns[1:]
-        return self._turns
+            turns = self._turns[1:]
+        else:
+            turns = self._turns
+
+        if tool_result_role == "user":
+            return turns
+
+        if tool_result_role != "assistant":
+            raise ValueError(
+                f"Expected `tool_result_role` to be one of 'user' or 'assistant', not '{tool_result_role}'"
+            )
+
+        # If a turn is purely a tool result, change its role
+        turns2 = copy.deepcopy(turns)
+        for turn in turns2:
+            if all(isinstance(c, ContentToolResult) for c in turn.contents):
+                turn.role = tool_result_role
+
+        # If two consecutive turns have the same role (i.e., assistant), collapse them into one
+        final_turns: list[Turn[CompletionT]] = []
+        for x in turns2:
+            if not final_turns:
+                final_turns.append(x)
+                continue
+            if x.role != final_turns[-1].role:
+                final_turns.append(x)
+            else:
+                final_turns[-1].contents.extend(x.contents)
+
+        return final_turns
 
     def get_last_turn(
         self,
@@ -609,6 +646,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         port: int = 0,
         host: str = "127.0.0.1",
         launch_browser: bool = True,
+        bookmark_store: Literal["url", "server", "disable"] = "url",
         bg_thread: Optional[bool] = None,
         echo: Optional[EchoOptions] = None,
         content: Literal["text", "all"] = "all",
@@ -627,6 +665,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             The host to run the app on (the default is "127.0.0.1").
         launch_browser
             Whether to launch a browser window.
+        bookmark_store
+            One of the following (default is "url"):
+              - `"url"`: Store bookmarks in the URL (default).
+              - `"server"`: Store bookmarks on the server (requires a server-side
+                storage backend).
+              - `"disable"`: Disable bookmarking.
         bg_thread
             Whether to run the app in a background thread. If `None`, the app will
             run in a background thread if the current environment is a notebook.
@@ -648,23 +692,36 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             from shiny import App, run_app, ui
         except ImportError:
             raise ImportError(
-                "The `shiny` package is required for the `browser` method. "
+                "The `shiny` package is required for the `app()` method. "
                 "Install it with `pip install shiny`."
             )
 
-        app_ui = ui.page_fillable(
-            ui.chat_ui("chat"),
-            fillable_mobile=True,
-        )
+        try:
+            from shinychat import (
+                Chat,
+                chat_ui,
+                message_content,  # pyright: ignore[reportAttributeAccessIssue]
+            )
+        except ImportError:
+            raise ImportError(
+                "The `shinychat` package is required for the `app()` method. "
+                "Install it with `pip install shinychat`."
+            )
+
+        messages = [
+            message_content(x) for x in self.get_turns(tool_result_role="assistant")
+        ]
+
+        def app_ui(x):
+            return ui.page_fillable(
+                chat_ui("chat", messages=messages),
+                fillable_mobile=True,
+            )
 
         def server(input):  # noqa: A002
-            chat = ui.Chat(
-                "chat",
-                messages=[
-                    {"role": turn.role, "content": turn.text}
-                    for turn in self.get_turns()
-                ],
-            )
+            chat = Chat("chat")
+
+            chat.enable_bookmarking(self)
 
             @chat.on_user_submit
             async def _(user_input: str):
@@ -689,7 +746,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         )
                     )
 
-        app = App(app_ui, server)
+        app = App(app_ui, server, bookmark_store=bookmark_store)
 
         def _run_app():
             run_app(app, launch_browser=launch_browser, port=port, host=host)

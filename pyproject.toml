@@ -48,6 +48,7 @@ dev = [
     "matplotlib",
     "Pillow",
     "shiny",
+    "shinychat",
     "openai",
     "anthropic[bedrock]",
     "google-genai>=1.14.0",
