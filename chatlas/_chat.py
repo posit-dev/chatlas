@@ -250,7 +250,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if all(isinstance(c, ContentToolResult) for c in turn.contents):
                 turn.role = tool_result_role
 
-        # If two consequitive turns have the same role (i.e., assistant), collapse them into one
+        # If two consecutive turns have the same role (i.e., assistant), collapse them into one
         final_turns: list[Turn[CompletionT]] = []
         for x in turns2:
             if not final_turns:
