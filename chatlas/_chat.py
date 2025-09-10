@@ -691,7 +691,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             from shiny import App, run_app, ui
         except ImportError:
             raise ImportError(
-                "The `shiny` package is required for the `browser` method. "
+                "The `shiny` package is required for the `app()` method. "
                 "Install it with `pip install shiny`."
             )
 
@@ -699,7 +699,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             from shinychat import Chat, chat_ui, message_content
         except ImportError:
             raise ImportError(
-                "The `shinychat` package is required for the `browser` method. "
+                "The `shinychat` package is required for the `app()` method. "
                 "Install it with `pip install shinychat`."
             )
 
