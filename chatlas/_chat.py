@@ -662,13 +662,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         messages = [message_content(x) for x in self.get_turns()]
 
-        app_ui = ui.page_fillable(
-            chat_ui("chat", messages=messages),
-            fillable_mobile=True,
-        )
+        def app_ui(x):
+            return ui.page_fillable(
+                chat_ui("chat", messages=messages),
+                fillable_mobile=True,
+            )
 
         def server(input):  # noqa: A002
             chat = Chat("chat")
+
+            chat.enable_bookmarking(self)
 
             @chat.on_user_submit
             async def _(user_input: str):
@@ -693,7 +696,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         )
                     )
 
-        app = App(app_ui, server)
+        app = App(app_ui, server, bookmark_store="url")
 
         def _run_app():
             run_app(app, launch_browser=launch_browser, port=port, host=host)
