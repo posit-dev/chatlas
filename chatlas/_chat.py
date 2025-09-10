@@ -653,7 +653,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         try:
-            from shinychat import message_content
+            from shinychat import Chat, chat_ui, message_content
         except ImportError:
             raise ImportError(
                 "The `shinychat` package is required for the `browser` method. "
@@ -663,12 +663,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         messages = [message_content(x) for x in self.get_turns()]
 
         app_ui = ui.page_fillable(
-            ui.chat_ui("chat", messages=messages),
+            chat_ui("chat", messages=messages),
             fillable_mobile=True,
         )
 
         def server(input):  # noqa: A002
-            chat = ui.Chat("chat")
+            chat = Chat("chat")
 
             @chat.on_user_submit
             async def _(user_input: str):
