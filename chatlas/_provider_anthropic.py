@@ -36,7 +36,6 @@ from ._turn import Turn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
-    import anthropic
     from anthropic.types import (
         Message,
         MessageParam,
@@ -649,6 +648,8 @@ class AnthropicProvider(
         conversations: list[list[Turn]],
         data_model: Optional[type[BaseModel]] = None,
     ):
+        from anthropic import NotGiven
+
         requests: list["BatchRequest"] = []
 
         for i, turns in enumerate(conversations):
@@ -668,9 +669,9 @@ class AnthropicProvider(
             # If data_model, tools/tool_choice should be present
             tools = kwargs.get("tools")
             tool_choice = kwargs.get("tool_choice")
-            if tools and not isinstance(tools, anthropic.NotGiven):
+            if tools and not isinstance(tools, NotGiven):
                 params["tools"] = tools
-            if tool_choice and not isinstance(tool_choice, anthropic.NotGiven):
+            if tool_choice and not isinstance(tool_choice, NotGiven):
                 params["tool_choice"] = tool_choice
 
             requests.append({"custom_id": f"request-{i}", "params": params})
