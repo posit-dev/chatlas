@@ -210,6 +210,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         *,
         include_system_prompt: bool = False,
+        tool_result_role: Literal["assistant", "user"] = "user",
     ) -> list[Turn[CompletionT]]:
         """
         Get all the turns (i.e., message contents) in the chat.
@@ -218,14 +219,49 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         include_system_prompt
             Whether to include the system prompt in the turns.
+        tool_result_role
+            The role to assign to tool results in the chat history. By default,
+            tool results are assigned the "user" role, since they represent
+            information provided to the assistant. However, in some contexts
+            (e.g., for display purposes) it may be more appropriate to assign
+            them the "assistant" role. In the case of "assistant", sequential
+            turns with the "assistant" role are collapsed into a single turn.
         """
 
         if not self._turns:
             return self._turns
 
         if not include_system_prompt and self._turns[0].role == "system":
-            return self._turns[1:]
-        return self._turns
+            turns = self._turns[1:]
+        else:
+            turns = self._turns
+
+        if tool_result_role == "user":
+            return turns
+
+        if tool_result_role != "assistant":
+            raise ValueError(
+                f"Expected `tool_result_role` to be one of 'user' or 'assistant', not '{tool_result_role}'"
+            )
+
+        # If a turn is purely a tool result, change its role
+        turns2 = copy.deepcopy(turns)
+        for turn in turns2:
+            if all(isinstance(c, ContentToolResult) for c in turn.contents):
+                turn.role = tool_result_role
+
+        # If two consequitive turns have the same role (i.e., assistant), collapse them into one
+        final_turns: list[Turn[CompletionT]] = []
+        for x in turns2:
+            if not final_turns:
+                final_turns.append(x)
+                continue
+            if x.role != final_turns[-1].role:
+                final_turns.append(x)
+            else:
+                final_turns[-1].contents.extend(x.contents)
+
+        return final_turns
 
     def get_last_turn(
         self,
@@ -609,6 +645,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         port: int = 0,
         host: str = "127.0.0.1",
         launch_browser: bool = True,
+        bookmark_store: Literal["url", "server", "disable"] = "url",
         bg_thread: Optional[bool] = None,
         echo: Optional[EchoOptions] = None,
         content: Literal["text", "all"] = "all",
@@ -627,6 +664,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             The host to run the app on (the default is "127.0.0.1").
         launch_browser
             Whether to launch a browser window.
+        bookmark_store
+            One of the following (default is "url"):
+              - `"url"`: Store bookmarks in the URL (default).
+              - `"server"`: Store bookmarks on the server (requires a server-side
+                storage backend).
+              - `"disable"`: Disable bookmarking.
         bg_thread
             Whether to run the app in a background thread. If `None`, the app will
             run in a background thread if the current environment is a notebook.
@@ -660,7 +703,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Install it with `pip install shinychat`."
             )
 
-        messages = [message_content(x) for x in self.get_turns()]
+        messages = [
+            message_content(x) for x in self.get_turns(tool_result_role="assistant")
+        ]
 
         def app_ui(x):
             return ui.page_fillable(
@@ -696,7 +741,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         )
                     )
 
-        app = App(app_ui, server, bookmark_store="url")
+        app = App(app_ui, server, bookmark_store=bookmark_store)
 
         def _run_app():
             run_app(app, launch_browser=launch_browser, port=port, host=host)
