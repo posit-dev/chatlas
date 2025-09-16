@@ -1,5 +1,7 @@
 from typing import Any, Optional, Union
+from unittest.mock import Mock
 
+import orjson
 import pytest
 
 from chatlas import ChatOpenAI
@@ -403,3 +405,93 @@ def test_content_tool_request_serializable():
     assert parsed.tool is not None
     assert parsed.tool.name == "add"
     assert parsed.tool.description == "Add two numbers"
+
+
+def test_content_tool_result_pandas_dataframe():
+    """Test ContentToolResult with pandas DataFrame using orient='records'"""
+    pandas = pytest.importorskip("pandas")
+
+    # Create a simple pandas DataFrame
+    df = pandas.DataFrame(
+        {"name": ["Alice", "Bob"], "age": [25, 30], "city": ["New York", "London"]}
+    )
+
+    # Create ContentToolResult with DataFrame value
+    result = ContentToolResult(value=df).get_model_value()
+    expected = df.to_json(orient="records")
+    assert result == expected
+
+    parsed = orjson.loads(str(result))
+    assert isinstance(parsed, list)
+    assert len(parsed) == 2
+    assert parsed[0] == {"name": "Alice", "age": 25, "city": "New York"}
+    assert parsed[1] == {"name": "Bob", "age": 30, "city": "London"}
+
+
+def test_content_tool_result_object_with_to_pandas():
+    """Test ContentToolResult with objects that have .to_pandas() method"""
+    pandas = pytest.importorskip("pandas")
+
+    # Create mock object with to_pandas method (like Polars, PyArrow)
+    mock_df_lib = Mock()
+    pandas_df = pandas.DataFrame({"x": [1, 2, 3], "y": ["a", "b", "c"]})
+    mock_df_lib.to_pandas.return_value = pandas_df
+
+    result = ContentToolResult(value=mock_df_lib).get_model_value()
+    mock_df_lib.to_pandas.assert_called_once()
+    expected = pandas_df.to_json(orient="records")
+    assert result == expected
+
+
+def test_content_tool_result_narwhals_dataframe():
+    """Test ContentToolResult with narwhals DataFrame"""
+    narwhals = pytest.importorskip("narwhals")
+    pandas = pytest.importorskip("pandas")
+
+    pandas_df = pandas.DataFrame({"a": [1, 2], "b": ["x", "y"]})
+    nw_df = narwhals.from_native(pandas_df)
+    result = ContentToolResult(value=nw_df).get_model_value()
+    expected = pandas_df.to_json(orient="records")
+    assert result == expected
+
+
+def test_content_tool_result_object_with_to_dict():
+    """Test ContentToolResult with objects that have to_dict method"""
+    # Mock object with to_dict method but no to_pandas or to_json
+    mock_obj = Mock(spec=["to_dict"])
+    mock_obj.to_dict.return_value = {"key": "value"}
+    result = ContentToolResult(value=mock_obj).get_model_value()
+    mock_obj.to_dict.assert_called_once()
+    # Result should be JSON string representation (orjson format)
+    assert result == '{"key":"value"}'
+
+
+def test_content_tool_result_string_passthrough():
+    """Test ContentToolResult with string values (special case - passed through as-is)"""
+    result = ContentToolResult(value="plain string").get_model_value()
+    assert result == "plain string"
+
+
+def test_content_tool_result_fallback_serialization():
+    """Test ContentToolResult fallback for objects without special methods"""
+    # Regular object without to_json, to_pandas, or to_dict (non-string to avoid the string special case)
+    result = ContentToolResult(value={"key": "value"}).get_model_value()
+    assert result == '{"key":"value"}'
+
+
+def test_content_tool_result_explicit_json_mode():
+    """Test ContentToolResult with explicit JSON mode forces _to_json for non-strings"""
+    # Test with non-string object and explicit JSON mode
+    result = ContentToolResult(
+        value={"key": "value"},
+        model_format="json",
+    ).get_model_value()
+    # With explicit JSON mode, objects get JSON-encoded
+    assert result == '{"key":"value"}'
+    # Test that strings still get special treatment even in JSON mode
+    string_result = ContentToolResult(
+        value="plain string",
+        model_format="json",
+    ).get_model_value()
+    # Strings are still returned as-is even in JSON mode (current behavior)
+    assert string_result == "plain string"
