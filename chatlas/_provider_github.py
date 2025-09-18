@@ -141,7 +141,7 @@ def ChatGithub(
 
 class GitHubProvider(OpenAIProvider):
     def __init__(self, base_url: str, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(base_url=base_url, **kwargs)
         self._base_url = base_url
 
     def list_models(self) -> list[ModelInfo]:
@@ -190,7 +190,7 @@ def list_models_gh_azure(base_url: str = "https://models.inference.ai.azure.com"
     for m in models:
         info: ModelInfo = {
             "id": m["name"],
-            "provider": m["publisher"]
+            "provider": m["publisher"],
         }
         res.append(info)
 
