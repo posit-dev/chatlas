@@ -7,6 +7,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [UNRELEASED]
+
+### Changes
+
+* `ContentToolResult`'s `.get_model_value()` method now uses `.to_json(orient="record")` (instead of `.to_json()`) when available. As a result
+, if a tool call returns a Pandas `DataFrame`, the model will receive a more sensible  
+
 ## [0.13.1] - 2025-09-18
 
 ### Bug fixes
