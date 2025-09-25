@@ -807,6 +807,39 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             self.chat(user_input, echo=echo, stream=stream, kwargs=kwargs)
             print("")
 
+    def to_solver(self):
+        """Return an InspectAI solver that proxies prompts through this chat."""
+
+        try:
+            from inspect_ai.model import ChatMessageAssistant, ModelOutput
+            from inspect_ai.solver import solver
+        except ImportError as exc:  # pragma: no cover - optional dependency
+            raise ImportError(
+                "Chat.to_solver() requires the optional dependency `inspect-ai`. "
+                "Install it with `pip install inspect-ai`."
+            ) from exc
+
+        chat_instance = self
+
+        @solver
+        def _solver(_chat: "Chat"):
+            async def solve(state, generate):
+                user_prompt = getattr(state.user_prompt, "text", None)
+                if user_prompt is None:
+                    user_prompt = str(state.user_prompt)
+
+                response = await wrap_async(chat_instance.chat)(user_prompt)
+                content = response if isinstance(response, str) else str(response)
+
+                assistant_message = ChatMessageAssistant(content=content)
+                state.messages.append(assistant_message)
+                state.output = ModelOutput(completion=content)
+                return state
+
+            return solve
+
+        return _solver(chat_instance)
+
     def chat(
         self,
         *args: Content | str,
@@ -1882,7 +1915,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "Get the current weather given a latitude and longitude."
 
             lat_lng = f"latitude={latitude}&longitude={longitude}"
-            url = f"https://api.open-meteo.com/v1/forecast?{lat_lng}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+            url = (
+                "https://api.open-meteo.com/v1/forecast?"
+                f"{lat_lng}&current=temperature_2m,wind_speed_10m"
+                "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+            )
             response = requests.get(url)
             json = response.json()
             if chat.current_display:

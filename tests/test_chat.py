@@ -20,6 +20,15 @@ def test_simple_batch_chat():
     assert str(response) == "2"
 
 
+def test_chat_to_solver_creates_solver():
+    pytest.importorskip("inspect_ai")
+
+    chat = ChatOpenAI()
+    solver = chat.to_solver()
+
+    assert callable(solver)
+
+
 @pytest.mark.asyncio
 async def test_simple_async_batch_chat():
     chat = ChatOpenAI()
