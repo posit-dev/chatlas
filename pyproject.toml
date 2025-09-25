@@ -4,7 +4,7 @@ description = "A simple and consistent interface for chatting with LLMs"
 license = "MIT"
 dynamic = ["version"]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
   "requests",
   "pydantic>=2.0",
