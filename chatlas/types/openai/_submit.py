@@ -108,61 +108,61 @@ class SubmitInputArgs(TypedDict, total=False):
     audio: Union[
         openai.types.chat.chat_completion_audio_param.ChatCompletionAudioParam,
         None,
-        openai.NotGiven,
+        openai.Omit,
     ]
-    frequency_penalty: Union[float, None, openai.NotGiven]
+    frequency_penalty: Union[float, None, openai.Omit]
     function_call: Union[
         Literal["none", "auto"],
         openai.types.chat.chat_completion_function_call_option_param.ChatCompletionFunctionCallOptionParam,
-        openai.NotGiven,
+        openai.Omit,
     ]
     functions: Union[
-        Iterable[openai.types.chat.completion_create_params.Function], openai.NotGiven
+        Iterable[openai.types.chat.completion_create_params.Function], openai.Omit
     ]
-    logit_bias: Union[dict[str, int], None, openai.NotGiven]
-    logprobs: Union[bool, None, openai.NotGiven]
-    max_completion_tokens: Union[int, None, openai.NotGiven]
-    max_tokens: Union[int, None, openai.NotGiven]
-    metadata: Union[dict[str, str], None, openai.NotGiven]
-    modalities: Union[list[Literal["text", "audio"]], None, openai.NotGiven]
-    n: Union[int, None, openai.NotGiven]
-    parallel_tool_calls: bool | openai.NotGiven
+    logit_bias: Union[dict[str, int], None, openai.Omit]
+    logprobs: Union[bool, None, openai.Omit]
+    max_completion_tokens: Union[int, None, openai.Omit]
+    max_tokens: Union[int, None, openai.Omit]
+    metadata: Union[dict[str, str], None, openai.Omit]
+    modalities: Union[list[Literal["text", "audio"]], None, openai.Omit]
+    n: Union[int, None, openai.Omit]
+    parallel_tool_calls: bool | openai.Omit
     prediction: Union[
         openai.types.chat.chat_completion_prediction_content_param.ChatCompletionPredictionContentParam,
         None,
-        openai.NotGiven,
+        openai.Omit,
     ]
-    presence_penalty: Union[float, None, openai.NotGiven]
-    prompt_cache_key: str | openai.NotGiven
+    presence_penalty: Union[float, None, openai.Omit]
+    prompt_cache_key: str | openai.Omit
     reasoning_effort: Union[
-        Literal["minimal", "low", "medium", "high"], None, openai.NotGiven
+        Literal["minimal", "low", "medium", "high"], None, openai.Omit
     ]
     response_format: Union[
         openai.types.shared_params.response_format_text.ResponseFormatText,
         openai.types.shared_params.response_format_json_schema.ResponseFormatJSONSchema,
         openai.types.shared_params.response_format_json_object.ResponseFormatJSONObject,
-        openai.NotGiven,
+        openai.Omit,
     ]
-    safety_identifier: str | openai.NotGiven
-    seed: Union[int, None, openai.NotGiven]
+    safety_identifier: str | openai.Omit
+    seed: Union[int, None, openai.Omit]
     service_tier: Union[
-        Literal["auto", "default", "flex", "scale", "priority"], None, openai.NotGiven
+        Literal["auto", "default", "flex", "scale", "priority"], None, openai.Omit
     ]
-    stop: Union[str, None, Sequence[str], openai.NotGiven]
-    store: Union[bool, None, openai.NotGiven]
-    stream: Union[Literal[False], None, Literal[True], openai.NotGiven]
+    stop: Union[str, None, Sequence[str], openai.Omit]
+    store: Union[bool, None, openai.Omit]
+    stream: Union[Literal[False], None, Literal[True], openai.Omit]
     stream_options: Union[
         openai.types.chat.chat_completion_stream_options_param.ChatCompletionStreamOptionsParam,
         None,
-        openai.NotGiven,
+        openai.Omit,
     ]
-    temperature: Union[float, None, openai.NotGiven]
+    temperature: Union[float, None, openai.Omit]
     tool_choice: Union[
         Literal["none", "auto", "required"],
         openai.types.chat.chat_completion_allowed_tool_choice_param.ChatCompletionAllowedToolChoiceParam,
         openai.types.chat.chat_completion_named_tool_choice_param.ChatCompletionNamedToolChoiceParam,
         openai.types.chat.chat_completion_named_tool_choice_custom_param.ChatCompletionNamedToolChoiceCustomParam,
-        openai.NotGiven,
+        openai.Omit,
     ]
     tools: Union[
         Iterable[
@@ -171,14 +171,14 @@ class SubmitInputArgs(TypedDict, total=False):
                 openai.types.chat.chat_completion_custom_tool_param.ChatCompletionCustomToolParam,
             ]
         ],
-        openai.NotGiven,
+        openai.Omit,
     ]
-    top_logprobs: Union[int, None, openai.NotGiven]
-    top_p: Union[float, None, openai.NotGiven]
-    user: str | openai.NotGiven
-    verbosity: Union[Literal["low", "medium", "high"], None, openai.NotGiven]
+    top_logprobs: Union[int, None, openai.Omit]
+    top_p: Union[float, None, openai.Omit]
+    user: str | openai.Omit
+    verbosity: Union[Literal["low", "medium", "high"], None, openai.Omit]
     web_search_options: (
-        openai.types.chat.completion_create_params.WebSearchOptions | openai.NotGiven
+        openai.types.chat.completion_create_params.WebSearchOptions | openai.Omit
     )
     extra_headers: Optional[Mapping[str, Union[str, openai.Omit]]]
     extra_query: Optional[Mapping[str, object]]
