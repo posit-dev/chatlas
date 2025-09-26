@@ -884,7 +884,13 @@ class OpenAIAzureProvider(OpenAIProvider):
         model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
     ):
-        super().__init__(name=name, model=deployment_id)
+        super().__init__(
+            name=name,
+            model=deployment_id,
+            # The OpenAI() constructor will fail if no API key is present.
+            # However, a dummy value is fine -- AzureOpenAI() handles the auth.
+            api_key=api_key or "not-used",
+        )
 
         self._seed = seed
 
