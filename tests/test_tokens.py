@@ -70,7 +70,7 @@ def test_token_count_method():
     chat = ChatAnthropic(model="claude-3-5-sonnet-20241022")
     assert chat.token_count("What is 1 + 1?") == 16
 
-    chat = ChatGoogle(model="gemini-1.5-flash")
+    chat = ChatGoogle(model="gemini-2.5-flash")
     assert chat.token_count("What is 1 + 1?") == 9
 
 

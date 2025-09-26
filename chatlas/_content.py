@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import inspect
+import warnings
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast
 
 import orjson
 from pydantic import BaseModel, ConfigDict
@@ -465,8 +467,36 @@ class ContentToolResult(Content):
 
     @staticmethod
     def _to_json(value: Any) -> object:
+        if hasattr(value, "to_pandas") and callable(value.to_pandas):
+            # Many (most?) df libs (polars, pyarrow, ...) have a .to_pandas()
+            # method, and pandas has a .to_json() method
+            value = value.to_pandas()
+
         if hasattr(value, "to_json") and callable(value.to_json):
-            return value.to_json()
+            # pandas defaults to "columns", which is not ideal for LLMs
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_json.html
+            sig = inspect.signature(value.to_json)
+            if "orient" in list(sig.parameters.keys()):
+                return value.to_json(orient="records")
+            else:
+                return value.to_json()
+
+        # Support for df libs (beyond those with a .to_pandas() method)
+        if hasattr(value, "__narwhals_dataframe__"):
+            try:
+                import narwhals
+
+                val = cast(narwhals.DataFrame, narwhals.from_native(value))
+                return val.to_pandas().to_json(orient="records")
+            except ImportError:
+                warnings.warn(
+                    f"Tool result object of type {type(value)} appears to be a "
+                    "narwhals-compatible DataFrame. If you run into issues with "
+                    "the LLM not understanding this value, try installing narwhals: "
+                    "`pip install narwhals`.",
+                    ImportWarning,
+                    stacklevel=2,
+                )
 
         if hasattr(value, "to_dict") and callable(value.to_dict):
             value = value.to_dict()
