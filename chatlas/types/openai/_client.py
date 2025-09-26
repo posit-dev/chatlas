@@ -16,7 +16,7 @@ class ChatClientArgs(TypedDict, total=False):
     webhook_secret: str | None
     base_url: str | httpx.URL | None
     websocket_base_url: str | httpx.URL | None
-    timeout: Union[float, openai.Timeout, None, openai.NotGiven]
+    timeout: float | openai.Timeout | None | openai.NotGiven
     max_retries: int
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]

@@ -9,10 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
-### Changes
+### Improvements
 
-* `ContentToolResult`'s `.get_model_value()` method now uses `.to_json(orient="record")` (instead of `.to_json()`) when available. As a result
-, if a tool call returns a Pandas `DataFrame`, the model will receive a more sensible  
+* `ContentToolResult`'s `.get_model_value()` method now calls `.to_json(orient="record")` (instead of `.to_json()`) when relevant. As a result, if a tool call returns a Pandas `DataFrame`, the model will receive a more understandable data format. (#183)
+
+### Bug fixes
+
+* `ChatAzureOpenAI()` and `ChatDatabricks()` now work as expected when a `OPENAI_API_KEY` environment variable isn't present. (#185)
 
 ## [0.13.1] - 2025-09-18
 

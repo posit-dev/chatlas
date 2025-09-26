@@ -47,26 +47,24 @@ class SubmitInputArgs(TypedDict, total=False):
         ],
         str,
     ]
-    service_tier: Union[Literal["auto", "standard_only"], anthropic.NotGiven]
-    stop_sequences: Union[Sequence[str], anthropic.NotGiven]
-    stream: Union[Literal[False], Literal[True], anthropic.NotGiven]
+    service_tier: Union[Literal["auto", "standard_only"], anthropic.Omit]
+    stop_sequences: Union[Sequence[str], anthropic.Omit]
+    stream: Union[Literal[False], Literal[True], anthropic.Omit]
     system: Union[
-        str,
-        Iterable[anthropic.types.text_block_param.TextBlockParam],
-        anthropic.NotGiven,
+        str, Iterable[anthropic.types.text_block_param.TextBlockParam], anthropic.Omit
     ]
-    temperature: float | anthropic.NotGiven
+    temperature: float | anthropic.Omit
     thinking: Union[
         anthropic.types.thinking_config_enabled_param.ThinkingConfigEnabledParam,
         anthropic.types.thinking_config_disabled_param.ThinkingConfigDisabledParam,
-        anthropic.NotGiven,
+        anthropic.Omit,
     ]
     tool_choice: Union[
         anthropic.types.tool_choice_auto_param.ToolChoiceAutoParam,
         anthropic.types.tool_choice_any_param.ToolChoiceAnyParam,
         anthropic.types.tool_choice_tool_param.ToolChoiceToolParam,
         anthropic.types.tool_choice_none_param.ToolChoiceNoneParam,
-        anthropic.NotGiven,
+        anthropic.Omit,
     ]
     tools: Union[
         Iterable[
@@ -79,10 +77,10 @@ class SubmitInputArgs(TypedDict, total=False):
                 anthropic.types.web_search_tool_20250305_param.WebSearchTool20250305Param,
             ]
         ],
-        anthropic.NotGiven,
+        anthropic.Omit,
     ]
-    top_k: int | anthropic.NotGiven
-    top_p: float | anthropic.NotGiven
+    top_k: int | anthropic.Omit
+    top_p: float | anthropic.Omit
     extra_headers: Optional[Mapping[str, Union[str, anthropic.Omit]]]
     extra_query: Optional[Mapping[str, object]]
     extra_body: object | None
