@@ -106,7 +106,13 @@ class DatabricksProvider(OpenAIProvider):
         import httpx
         from openai import AsyncOpenAI
 
-        super().__init__(name=name, model=model)
+        super().__init__(
+            name=name,
+            model=model,
+            # The OpenAI() constructor will fail if no API key is present.
+            # However, a dummy value is fine -- WorkspaceClient() handles the auth.
+            api_key="not-used",
+        )
 
         self._seed = None
 

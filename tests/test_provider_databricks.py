@@ -1,4 +1,5 @@
 import pytest
+
 from chatlas import ChatDatabricks
 
 from .conftest import assert_turns_existing, assert_turns_system
@@ -82,3 +83,12 @@ def test_anthropic_empty_response():
 # def test_openai_pdf():
 #     chat_fun = ChatDatabricks
 #     assert_pdf_local(chat_fun)
+
+
+def test_connect_without_openai_key(monkeypatch):
+    # Ensure OPENAI_API_KEY is not set
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    # This should not raise an error
+    chat = ChatDatabricks()
+    assert chat is not None
