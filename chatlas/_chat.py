@@ -811,7 +811,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """Return an InspectAI solver that proxies prompts through this chat."""
 
         try:
-            from inspect_ai.model import ChatMessageAssistant, ModelOutput
+            from inspect_ai.model import (
+                ChatMessageAssistant,
+                ChatMessageSystem,
+                ChatMessageUser,
+                ModelOutput,
+            )
             from inspect_ai.solver import solver
         except ImportError as exc:  # pragma: no cover - optional dependency
             raise ImportError(
@@ -824,6 +829,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         @solver
         def _solver(_chat: "Chat"):
             async def solve(state, generate):
+                if not state.messages:
+                    if chat_instance.system_prompt:
+                        state.messages.append(
+                            ChatMessageSystem(content=chat_instance.system_prompt)
+                        )
+
+                    for turn in chat_instance.get_turns(include_system_prompt=False):
+                        if turn.role == "user":
+                            content = turn.text
+                            state.messages.append(ChatMessageUser(content=content))
+                        elif turn.role == "assistant":
+                            content = turn.text
+                            state.messages.append(ChatMessageAssistant(content=content))
+
                 user_prompt = getattr(state.user_prompt, "text", None)
                 if user_prompt is None:
                     user_prompt = str(state.user_prompt)

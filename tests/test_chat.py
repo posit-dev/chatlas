@@ -29,6 +29,27 @@ def test_chat_to_solver_creates_solver():
     assert callable(solver)
 
 
+def test_chat_to_solver_with_history():
+    pytest.importorskip("inspect_ai")
+
+    chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
+    # Add some conversation history
+    chat.set_turns(
+        [
+            Turn("user", "What is 2 + 2?"),
+            Turn("assistant", "4"),
+        ]
+    )
+
+    solver = chat.to_solver()
+
+    # Verify solver is created successfully with history
+    assert callable(solver)
+    # Verify the chat still has its history
+    assert len(chat.get_turns(include_system_prompt=False)) == 2
+    assert chat.system_prompt == "You are a helpful assistant."
+
+
 @pytest.mark.asyncio
 async def test_simple_async_batch_chat():
     chat = ChatOpenAI()
