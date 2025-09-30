@@ -828,8 +828,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 if user_prompt is None:
                     user_prompt = str(state.user_prompt)
 
-                response = await wrap_async(chat_instance.chat)(user_prompt)
-                content = response if isinstance(response, str) else str(response)
+                response = await chat_instance.chat_async(user_prompt)
+                content = await response.get_content()
 
                 assistant_message = ChatMessageAssistant(content=content)
                 state.messages.append(assistant_message)
