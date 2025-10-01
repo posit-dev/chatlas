@@ -2,8 +2,6 @@ import re
 import tempfile
 
 import pytest
-from pydantic import BaseModel
-
 from chatlas import (
     ChatOpenAI,
     ContentToolRequest,
@@ -12,6 +10,7 @@ from chatlas import (
     Turn,
 )
 from chatlas._chat import ToolFailureWarning
+from pydantic import BaseModel
 
 
 def test_simple_batch_chat():
@@ -48,6 +47,64 @@ def test_chat_to_solver_with_history():
     # Verify the chat still has its history
     assert len(chat.get_turns(include_system_prompt=False)) == 2
     assert chat.system_prompt == "You are a helpful assistant."
+
+
+def test_chat_to_solver_with_rich_content():
+    pytest.importorskip("inspect_ai")
+    from chatlas import content_image_url
+
+    chat = ChatOpenAI(system_prompt="You analyze images.")
+
+    # Create a turn with mixed content (text + image)
+    image_content = content_image_url("https://example.com/image.jpg")
+    chat.set_turns(
+        [
+            Turn("user", ["Describe this image", image_content]),
+            Turn("assistant", "This is a test image."),
+        ]
+    )
+
+    solver = chat.to_solver()
+
+    # Verify solver is created successfully with rich content
+    assert callable(solver)
+    # Verify the chat still has its history with mixed content
+    turns = chat.get_turns(include_system_prompt=False)
+    assert len(turns) == 2
+    assert len(turns[0].contents) == 2  # text + image
+    assert chat.system_prompt == "You analyze images."
+
+
+def test_chat_to_solver_with_tool_calls():
+    pytest.importorskip("inspect_ai")
+    from chatlas import ContentToolRequest, ContentToolResult
+
+    chat = ChatOpenAI()
+
+    # Create a turn with tool calls
+    tool_request = ContentToolRequest(
+        id="call_123", name="get_weather", arguments={"city": "NYC"}
+    )
+    tool_result = ContentToolResult(value="Sunny, 75°F", request=tool_request)
+
+    chat.set_turns(
+        [
+            Turn("user", "What's the weather in NYC?"),
+            Turn("assistant", [tool_request]),
+            Turn("user", [tool_result]),
+            Turn("assistant", "The weather in NYC is sunny and 75°F."),
+        ]
+    )
+
+    solver = chat.to_solver()
+
+    # Verify solver is created successfully with tool calls
+    assert callable(solver)
+    # Verify the chat still has its history with tool calls
+    turns = chat.get_turns(include_system_prompt=False)
+    assert len(turns) == 4
+    assert isinstance(turns[1].contents[0], ContentToolRequest)
+    assert isinstance(turns[2].contents[0], ContentToolResult)
 
 
 @pytest.mark.asyncio

@@ -22,6 +22,7 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
+    cast,
     overload,
 )
 
@@ -808,9 +809,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             print("")
 
     def to_solver(self):
-        """Return an InspectAI solver that proxies prompts through this chat."""
+        """
+        Return an InspectAI solver that proxies prompts through this chat.
+
+        This method creates an InspectAI solver that uses this Chat instance to
+        generate responses. The solver automatically translates the chat's
+        conversation history (including system prompt, previous turns, and rich
+        content) into InspectAI's message format.
+
+        Returns
+        -------
+        Solver
+            An InspectAI solver function that can be used with InspectAI's
+            evaluation framework.
+        """
 
         try:
+            from inspect_ai._util.content import Content as InspectContent
+            from inspect_ai._util.content import ContentImage as InspectContentImage
+            from inspect_ai._util.content import ContentText as InspectContentText
             from inspect_ai.model import (
                 ChatMessageAssistant,
                 ChatMessageSystem,
@@ -818,38 +835,127 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 ModelOutput,
             )
             from inspect_ai.solver import solver
+            from inspect_ai.tool import ToolCall
         except ImportError as exc:  # pragma: no cover - optional dependency
             raise ImportError(
                 "Chat.to_solver() requires the optional dependency `inspect-ai`. "
                 "Install it with `pip install inspect-ai`."
             ) from exc
 
+        from ._content import (
+            ContentImageInline,
+            ContentImageRemote,
+            ContentText,
+            ContentToolRequest,
+            ContentToolResult,
+        )
+
+        def translate_content(
+            content: Content,
+        ) -> InspectContentText | InspectContentImage:
+            """Translate chatlas Content to InspectAI content."""
+            if isinstance(content, ContentText):
+                return InspectContentText(text=content.text)
+            elif isinstance(content, (ContentImageRemote, ContentImageInline)):
+                if isinstance(content, ContentImageRemote):
+                    return InspectContentImage(image=content.url, detail=content.detail)
+                else:  # ContentImageInline
+                    # ContentImageInline.data is base64 string, should not be None
+                    data = content.data if content.data else ""
+                    return InspectContentImage(image=data, detail="auto")
+            elif isinstance(content, (ContentToolRequest, ContentToolResult)):
+                # Tool calls are handled separately via tool_calls parameter
+                return InspectContentText(text=str(content))
+            else:
+                # Fallback for other content types (JSON, PDF, etc.)
+                return InspectContentText(text=str(content))
+
+        def translate_turn_content(
+            turn: Turn,
+        ) -> str | list[InspectContentText | InspectContentImage]:
+            """Translate all content in a turn to InspectAI format."""
+            if len(turn.contents) == 0:
+                return ""
+
+            # Check if turn has only text content
+            if len(turn.contents) == 1 and isinstance(turn.contents[0], ContentText):
+                return turn.contents[0].text
+
+            # Multiple contents or non-text content - return list
+            translated: list[InspectContentText | InspectContentImage] = []
+            for content in turn.contents:
+                result = translate_content(content)
+                translated.append(result)
+
+            return translated
+
+        def extract_tool_calls(turn: Turn) -> list[ToolCall] | None:
+            """Extract tool calls from assistant turn."""
+            tool_requests = [
+                c for c in turn.contents if isinstance(c, ContentToolRequest)
+            ]
+            if not tool_requests:
+                return None
+
+            tool_calls = []
+            for req in tool_requests:
+                args = (
+                    req.arguments
+                    if isinstance(req.arguments, dict)
+                    else {"value": req.arguments}
+                )
+                tool_calls.append(
+                    ToolCall(id=req.id, function=req.name, arguments=args)
+                )
+
+            return tool_calls
+
         chat_instance = self
 
         @solver
         def _solver(_chat: "Chat"):
             async def solve(state, generate):
+
                 if not state.messages:
+                    # Add system prompt if it exists
                     if chat_instance.system_prompt:
                         state.messages.append(
                             ChatMessageSystem(content=chat_instance.system_prompt)
                         )
 
                     for turn in chat_instance.get_turns(include_system_prompt=False):
-                        if turn.role == "user":
-                            content = turn.text
-                            state.messages.append(ChatMessageUser(content=content))
-                        elif turn.role == "assistant":
-                            content = turn.text
-                            state.messages.append(ChatMessageAssistant(content=content))
+                        content = translate_turn_content(turn)
 
+                        if turn.role == "user":
+                            msg_content = (
+                                content
+                                if isinstance(content, str)
+                                else cast(list[InspectContent], content)
+                            )
+                            state.messages.append(ChatMessageUser(content=msg_content))
+                        elif turn.role == "assistant":
+                            # Check for tool calls in assistant turn
+                            tool_calls = extract_tool_calls(turn)
+                            msg_content = (
+                                content
+                                if isinstance(content, str)
+                                else cast(list[InspectContent], content)
+                            )
+                            state.messages.append(
+                                ChatMessageAssistant(
+                                    content=msg_content, tool_calls=tool_calls
+                                )
+                            )
+
+                # Get the user prompt from the current sample
                 user_prompt = getattr(state.user_prompt, "text", None)
                 if user_prompt is None:
                     user_prompt = str(state.user_prompt)
 
-                response = await chat_instance.chat_async(user_prompt)
+                response = await chat_instance.chat_async(user_prompt, echo="none")
                 content = await response.get_content()
 
+                # Add the response to InspectAI's state
                 assistant_message = ChatMessageAssistant(content=content)
                 state.messages.append(assistant_message)
                 state.output = ModelOutput(completion=content)
