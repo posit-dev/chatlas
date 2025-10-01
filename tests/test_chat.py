@@ -32,7 +32,6 @@ def test_chat_to_solver_with_history():
     pytest.importorskip("inspect_ai")
 
     chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
-    # Add some conversation history
     chat.set_turns(
         [
             Turn("user", "What is 2 + 2?"),
@@ -42,9 +41,7 @@ def test_chat_to_solver_with_history():
 
     solver = chat.to_solver()
 
-    # Verify solver is created successfully with history
     assert callable(solver)
-    # Verify the chat still has its history
     assert len(chat.get_turns(include_system_prompt=False)) == 2
     assert chat.system_prompt == "You are a helpful assistant."
 
@@ -66,9 +63,7 @@ def test_chat_to_solver_with_rich_content():
 
     solver = chat.to_solver()
 
-    # Verify solver is created successfully with rich content
     assert callable(solver)
-    # Verify the chat still has its history with mixed content
     turns = chat.get_turns(include_system_prompt=False)
     assert len(turns) == 2
     assert len(turns[0].contents) == 2  # text + image
@@ -98,9 +93,7 @@ def test_chat_to_solver_with_tool_calls():
 
     solver = chat.to_solver()
 
-    # Verify solver is created successfully with tool calls
     assert callable(solver)
-    # Verify the chat still has its history with tool calls
     turns = chat.get_turns(include_system_prompt=False)
     assert len(turns) == 4
     assert isinstance(turns[1].contents[0], ContentToolRequest)
