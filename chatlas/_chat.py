@@ -22,7 +22,6 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
-    cast,
     overload,
 )
 
@@ -31,7 +30,10 @@ from pydantic import BaseModel
 from ._callbacks import CallbackManager
 from ._content import (
     Content,
+    ContentImageInline,
+    ContentImageRemote,
     ContentJson,
+    ContentPDF,
     ContentText,
     ContentToolRequest,
     ContentToolResult,
@@ -825,103 +827,163 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         try:
-            from inspect_ai._util.content import Content as InspectContent
-            from inspect_ai._util.content import ContentImage as InspectContentImage
-            from inspect_ai._util.content import ContentText as InspectContentText
-            from inspect_ai.model import (
-                ChatMessageAssistant,
-                ChatMessageSystem,
-                ChatMessageUser,
-                ModelOutput,
-            )
-            from inspect_ai.solver import solver
-            from inspect_ai.tool import ToolCall
+            import inspect_ai.model as imodel
+            import inspect_ai.solver as isolver
+            import inspect_ai.tool as itool
         except ImportError as exc:  # pragma: no cover - optional dependency
             raise ImportError(
                 "Chat.to_solver() requires the optional dependency `inspect-ai`. "
                 "Install it with `pip install inspect-ai`."
             ) from exc
 
-        from ._content import (
-            ContentImageInline,
-            ContentImageRemote,
-            ContentText,
-            ContentToolRequest,
-        )
+        def turn_as_messages(turn: Turn) -> list[imodel.ChatMessage]:
+            """Translate a chatlas Turn into an InspectAI ChatMessage."""
+            if turn.role == "system":
+                return [imodel.ChatMessageSystem(content=turn.text)]
+            if turn.role == "user":
+                tool_results: list[ContentToolResult] = []
+                other_contents: list[itool.Content] = []
+                for x in turn.contents:
+                    if isinstance(x, ContentToolResult):
+                        tool_results.append(x)
+                    else:
+                        other_contents.append(content_to_inspect(x))
 
-        def translate_content(
-            content: Content,
-        ) -> InspectContentText | InspectContentImage:
-            if isinstance(content, ContentText):
-                return InspectContentText(text=content.text)
-            elif isinstance(content, ContentImageRemote):
-                return InspectContentImage(image=content.url, detail=content.detail)
-            elif isinstance(content, ContentImageInline):
-                return InspectContentImage(image=content.data or "", detail="auto")
-            else:
-                return InspectContentText(text=str(content))
-
-        def translate_turn_content(
-            turn: Turn,
-        ) -> str | list[InspectContentText | InspectContentImage]:
-            if not turn.contents:
-                return ""
-            if len(turn.contents) == 1 and isinstance(turn.contents[0], ContentText):
-                return turn.contents[0].text
-            return [translate_content(c) for c in turn.contents]
-
-        def extract_tool_calls(turn: Turn) -> list[ToolCall] | None:
-            tool_requests = [
-                c for c in turn.contents if isinstance(c, ContentToolRequest)
-            ]
-            if not tool_requests:
-                return None
-            return [
-                ToolCall(
-                    id=req.id,
-                    function=req.name,
-                    arguments=req.arguments if isinstance(req.arguments, dict) else {"value": req.arguments}
-                )
-                for req in tool_requests
-            ]
-
-        chat_instance = self
-
-        @solver
-        def _solver(_chat: "Chat"):
-            async def solve(state, generate):
-                if not state.messages:
-                    if chat_instance.system_prompt:
-                        state.messages.append(
-                            ChatMessageSystem(content=chat_instance.system_prompt)
+                res: list[imodel.ChatMessage] = []
+                for x in tool_results:
+                    res.append(
+                        imodel.ChatMessageTool(
+                            tool_call_id=x.id,
+                            content=str(x.get_model_value()),
+                            function=x.name,
                         )
-                    for turn in chat_instance.get_turns(include_system_prompt=False):
-                        content = translate_turn_content(turn)
-                        msg_content = (
-                            content
-                            if isinstance(content, str)
-                            else cast(list[InspectContent], content)
-                        )
-                        if turn.role == "user":
-                            state.messages.append(ChatMessageUser(content=msg_content))
-                        elif turn.role == "assistant":
-                            state.messages.append(
-                                ChatMessageAssistant(
-                                    content=msg_content,
-                                    tool_calls=extract_tool_calls(turn)
-                                )
+                    )
+                if other_contents:
+                    res.append(imodel.ChatMessageUser(content=other_contents))
+                return res
+            if turn.role == "assistant":
+                tool_calls: list[itool.ToolCall] = []
+                other_contents: list[itool.Content] = []
+                for x in turn.contents:
+                    if isinstance(x, ContentToolRequest):
+                        tool_calls.append(
+                            itool.ToolCall(
+                                id=x.id,
+                                function=x.name,
+                                arguments=x.arguments if isinstance(x.arguments, dict) else {"value": x.arguments},
                             )
+                        )
+                    else:
+                        other_contents.append(content_to_inspect(x))
 
-                user_prompt = getattr(state.user_prompt, "text", None) or str(state.user_prompt)
-                response = await chat_instance.chat_async(user_prompt, echo="none")
-                content = await response.get_content()
-                state.messages.append(ChatMessageAssistant(content=content))
-                state.output = ModelOutput(completion=content)
+                return [
+                    imodel.ChatMessageAssistant(
+                        content=other_contents,
+                        tool_calls=tool_calls,
+                        model=model,
+                    )
+                ]
+
+            raise ValueError(f"Unknown turn role: {turn.role}")
+
+        def content_to_inspect(content: Content) -> itool.Content:
+            """Translate chatlas Content into InspectAI Content."""
+            if isinstance(content, ContentText):
+                return itool.ContentText(text=content.text)
+            elif isinstance(content, ContentImageRemote):
+                return itool.ContentImage(image=content.url, detail=content.detail)
+            elif isinstance(content, ContentImageInline):
+                return itool.ContentImage(image=content.data or "", detail="auto")
+            elif isinstance(content, ContentPDF):
+                return itool.ContentDocument(
+                    document=content.data.decode("utf-8"),
+                    mime_type="application/pdf",
+                )
+            elif isinstance(content, ContentJson):
+                return itool.ContentData(data=content.value)
+            elif isinstance(content, (ContentToolRequest, ContentToolResult)):
+                raise ValueError(
+                    f"Content of type {type(content)} cannot be directly translated to InspectAI content"
+                )
+            else:
+                raise ValueError(
+                    f"Don't know how to translate chatlas content type of {type(content)} to InspectAI content"
+                )
+
+        def content_to_chatlas(content: str | itool.Content) -> Content:
+            """Translate InspectAI Content into chatlas Content."""
+            if isinstance(content, str):
+                return ContentText(text=content)
+            if isinstance(content, itool.ContentText):
+                return ContentText(text=content.text)
+            if isinstance(content, itool.ContentImage):
+                if content.image.startswith("http://") or content.image.startswith(
+                    "https://"
+                ):
+                    return ContentImageRemote(url=content.image, detail=content.detail)
+                else:
+                    # derive content_type from base64 data
+                    # e.g., data:image/png;base64,....
+                    content_type = content.image.split(":")[1].split(";")[0]
+                    return ContentImageInline(
+                        data=content.image,
+                        image_content_type=content_type,  # type: ignore
+                    )
+            if isinstance(content, itool.ContentDocument):
+                if content.mime_type == "application/pdf":
+                    return ContentPDF(data=content.document.encode("utf-8"))
+                else:
+                    return ContentText(text=content.document)
+            if isinstance(content, itool.ContentData):
+                return ContentJson(value=content.data)
+            raise ValueError(
+                f"Inspect AI content of type {type(content)} is not currently supported by chatlas"
+            )
+
+        # Create a copy of the chat to avoid modifying its state
+        # when inspect uses the solver
+        chat_instance = copy.deepcopy(self)
+        model = self.provider.model
+
+        @isolver.solver("chatlas_solver")
+        def _solver():
+            async def solve(state: isolver.TaskState, generate: isolver.Generate):
+                if not state.messages:
+                    for turn in chat_instance.get_turns():
+                        state.messages.append(*turn_as_messages(turn))
+
+                user_content = state.user_prompt.content
+                if isinstance(user_content, str):
+                    input_content = [user_content]
+                else:
+                    input_content = [content_to_chatlas(x) for x in user_content]
+
+                await chat_instance.chat_async(
+                    *input_content,
+                    echo="none",
+                )
+                last_turn = chat_instance.get_last_turn(role="assistant")
+                if last_turn is None:
+                    raise ValueError("No assistant turn found after chat completion")
+                state.messages.append(*turn_as_messages(last_turn))
+                tokens = last_turn.tokens or (0, 0, 0)
+                state.output = imodel.ModelOutput(
+                    model=model,
+                    # TODO: add choices?
+                    # choices=<choices>,
+                    completion=last_turn.text,
+                    usage=imodel.ModelUsage(
+                        input_tokens=tokens[0],
+                        output_tokens=tokens[1],
+                        total_tokens=tokens[0] + tokens[1],
+                        input_tokens_cache_read=tokens[2],
+                    ),
+                )
                 return state
 
             return solve
 
-        return _solver(chat_instance)
+        return _solver()
 
     def chat(
         self,
