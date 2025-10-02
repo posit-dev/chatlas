@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ._content import Content
+from ._content import (Content, ContentImageInline, ContentImageRemote,
+                       ContentJson, ContentPDF, ContentText,
+                       ContentToolRequest, ContentToolResult)
 from ._turn import Turn
 
 try:
@@ -46,8 +48,6 @@ def turn_as_messages(turn: Turn, model: str | None = None) -> list:
             "InspectAI integration requires the optional dependency `inspect-ai`. "
             "Install it with `pip install inspect-ai`."
         )
-
-    from ._content import ContentToolRequest, ContentToolResult
 
     if turn.role == "system":
         return [imodel.ChatMessageSystem(content=turn.text)]
@@ -131,16 +131,6 @@ def content_to_inspect(content: Content) -> itool.Content:
             "Install it with `pip install inspect-ai`."
         )
 
-    from ._content import (
-        ContentImageInline,
-        ContentImageRemote,
-        ContentJson,
-        ContentPDF,
-        ContentText,
-        ContentToolRequest,
-        ContentToolResult,
-    )
-
     if isinstance(content, ContentText):
         return itool.ContentText(text=content.text)
     elif isinstance(content, ContentImageRemote):
@@ -190,14 +180,6 @@ def content_to_chatlas(content: str | itool.Content) -> Content:
             "InspectAI integration requires the optional dependency `inspect-ai`. "
             "Install it with `pip install inspect-ai`."
         )
-
-    from ._content import (
-        ContentImageInline,
-        ContentImageRemote,
-        ContentJson,
-        ContentPDF,
-        ContentText,
-    )
 
     if isinstance(content, str):
         return ContentText(text=content)
