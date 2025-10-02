@@ -804,6 +804,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Examples
         --------
         ```python
+        # eval_chat.py
         from chatlas import ChatOpenAI
         from inspect_ai import Task, eval
         from inspect_ai.dataset import Sample
@@ -826,6 +827,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         # Run evaluation
         eval(task, model="openai/gpt-5-nano-2025-08-07")
+
+        # run `python eval_chat.py` to run the evaluation
+        # run `inspect view` in terminal to see results
         ```
         """
 
