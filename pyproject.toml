@@ -48,7 +48,11 @@ dev = [
     "matplotlib",
     "Pillow",
     "shiny",
+    "htmltools",
     "shinychat",
+    "narwhals",
+    "pandas",
+    "polars",
     "openai",
     "anthropic[bedrock]",
     "google-genai>=1.14.0",
@@ -58,7 +62,6 @@ dev = [
     "snowflake-ml-python>=1.8.4",
     # torch (a dependency of snowflake-ml-python) is not yet compatible with Python >3.11
     "torch;python_version<='3.11'",
-    "htmltools",
     "tenacity"
 ]
 docs = [
