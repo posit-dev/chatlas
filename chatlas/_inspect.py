@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from ._content import Content
-    from ._turn import Turn
+from ._content import Content
+from ._turn import Turn
 
 try:
     import inspect_ai.model as imodel
@@ -13,12 +12,10 @@ try:
     INSPECT_AVAILABLE = True
 except ImportError:
     INSPECT_AVAILABLE = False
-    if not TYPE_CHECKING:
-        imodel = None
-        itool = None
-    else:
-        import inspect_ai.model as imodel
-        import inspect_ai.tool as itool
+
+if TYPE_CHECKING:
+    import inspect_ai.model as imodel
+    import inspect_ai.tool as itool
 
 
 def turn_as_messages(turn: Turn, model: str | None = None) -> list:
