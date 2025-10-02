@@ -8,47 +8,22 @@ import traceback
 import warnings
 from pathlib import Path
 from threading import Thread
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    AsyncGenerator,
-    AsyncIterator,
-    Awaitable,
-    Callable,
-    Generator,
-    Generic,
-    Iterator,
-    Literal,
-    Optional,
-    Sequence,
-    TypeVar,
-    overload,
-)
+from typing import (TYPE_CHECKING, Any, AsyncGenerator, AsyncIterator,
+                    Awaitable, Callable, Generator, Generic, Iterator, Literal,
+                    Optional, Sequence, TypeVar, overload)
 
 from pydantic import BaseModel
 
 from ._callbacks import CallbackManager
-from ._content import (
-    Content,
-    ContentImageInline,
-    ContentImageRemote,
-    ContentJson,
-    ContentPDF,
-    ContentText,
-    ContentToolRequest,
-    ContentToolResult,
-    ToolInfo,
-)
-from ._display import (
-    EchoDisplayOptions,
-    IPyMarkdownDisplay,
-    LiveMarkdownDisplay,
-    MarkdownDisplay,
-    MockMarkdownDisplay,
-)
+from ._content import (Content, ContentJson, ContentText, ContentToolRequest,
+                       ContentToolResult, ToolInfo)
+from ._display import (EchoDisplayOptions, IPyMarkdownDisplay,
+                       LiveMarkdownDisplay, MarkdownDisplay,
+                       MockMarkdownDisplay)
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
-from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
+from ._provider import (ModelInfo, Provider, StandardModelParams,
+                        SubmitInputArgsT)
 from ._tokens import compute_cost, get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
@@ -700,11 +675,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         try:
-            from shinychat import (
-                Chat,
-                chat_ui,
-                message_content,  # pyright: ignore[reportAttributeAccessIssue]
-            )
+            from shinychat import \
+                message_content  # pyright: ignore[reportAttributeAccessIssue]
+            from shinychat import Chat, chat_ui
         except ImportError:
             raise ImportError(
                 "The `shinychat` package is required for the `app()` method. "
@@ -824,121 +797,48 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Solver
             An InspectAI solver function that can be used with InspectAI's
             evaluation framework.
+
+        For more information on InspectAI solvers, see the
+        [Solvers documentation](https://inspect.ai-safety-institute.org.uk/solvers.html).
+
+        Examples
+        --------
+        ```python
+        from chatlas import ChatOpenAI
+        from inspect_ai import Task, eval
+        from inspect_ai.dataset import Sample
+        from inspect_ai.scorer import model_graded_fact
+
+        chat = ChatOpenAI(
+            system_prompt="You are a helpful assistant. Be concise.",
+            model="gpt-5-nano-2025-08-07",
+        )
+
+        # Convert to InspectAI solver
+        solver = chat.to_solver()
+
+        # InspectAI evaluation task
+        task = Task(
+            dataset=[Sample(input="What is 2+2?", target="4")],
+            solver=solver,
+            scorer=model_graded_fact()
+        )
+
+        # Run evaluation
+        eval(task, model="openai/gpt-5-nano-2025-08-07")
+        ```
         """
 
         try:
             import inspect_ai.model as imodel
             import inspect_ai.solver as isolver
-            import inspect_ai.tool as itool
         except ImportError as exc:  # pragma: no cover - optional dependency
             raise ImportError(
                 "Chat.to_solver() requires the optional dependency `inspect-ai`. "
                 "Install it with `pip install inspect-ai`."
             ) from exc
 
-        def turn_as_messages(turn: Turn) -> list[imodel.ChatMessage]:
-            """Translate a chatlas Turn into an InspectAI ChatMessage."""
-            if turn.role == "system":
-                return [imodel.ChatMessageSystem(content=turn.text)]
-            if turn.role == "user":
-                tool_results: list[ContentToolResult] = []
-                other_contents: list[itool.Content] = []
-                for x in turn.contents:
-                    if isinstance(x, ContentToolResult):
-                        tool_results.append(x)
-                    else:
-                        other_contents.append(content_to_inspect(x))
-
-                res: list[imodel.ChatMessage] = []
-                for x in tool_results:
-                    res.append(
-                        imodel.ChatMessageTool(
-                            tool_call_id=x.id,
-                            content=str(x.get_model_value()),
-                            function=x.name,
-                        )
-                    )
-                if other_contents:
-                    res.append(imodel.ChatMessageUser(content=other_contents))
-                return res
-            if turn.role == "assistant":
-                tool_calls: list[itool.ToolCall] = []
-                other_contents: list[itool.Content] = []
-                for x in turn.contents:
-                    if isinstance(x, ContentToolRequest):
-                        tool_calls.append(
-                            itool.ToolCall(
-                                id=x.id,
-                                function=x.name,
-                                arguments=x.arguments if isinstance(x.arguments, dict) else {"value": x.arguments},
-                            )
-                        )
-                    else:
-                        other_contents.append(content_to_inspect(x))
-
-                return [
-                    imodel.ChatMessageAssistant(
-                        content=other_contents,
-                        tool_calls=tool_calls,
-                        model=model,
-                    )
-                ]
-
-            raise ValueError(f"Unknown turn role: {turn.role}")
-
-        def content_to_inspect(content: Content) -> itool.Content:
-            """Translate chatlas Content into InspectAI Content."""
-            if isinstance(content, ContentText):
-                return itool.ContentText(text=content.text)
-            elif isinstance(content, ContentImageRemote):
-                return itool.ContentImage(image=content.url, detail=content.detail)
-            elif isinstance(content, ContentImageInline):
-                return itool.ContentImage(image=content.data or "", detail="auto")
-            elif isinstance(content, ContentPDF):
-                return itool.ContentDocument(
-                    document=content.data.decode("utf-8"),
-                    mime_type="application/pdf",
-                )
-            elif isinstance(content, ContentJson):
-                return itool.ContentData(data=content.value)
-            elif isinstance(content, (ContentToolRequest, ContentToolResult)):
-                raise ValueError(
-                    f"Content of type {type(content)} cannot be directly translated to InspectAI content"
-                )
-            else:
-                raise ValueError(
-                    f"Don't know how to translate chatlas content type of {type(content)} to InspectAI content"
-                )
-
-        def content_to_chatlas(content: str | itool.Content) -> Content:
-            """Translate InspectAI Content into chatlas Content."""
-            if isinstance(content, str):
-                return ContentText(text=content)
-            if isinstance(content, itool.ContentText):
-                return ContentText(text=content.text)
-            if isinstance(content, itool.ContentImage):
-                if content.image.startswith("http://") or content.image.startswith(
-                    "https://"
-                ):
-                    return ContentImageRemote(url=content.image, detail=content.detail)
-                else:
-                    # derive content_type from base64 data
-                    # e.g., data:image/png;base64,....
-                    content_type = content.image.split(":")[1].split(";")[0]
-                    return ContentImageInline(
-                        data=content.image,
-                        image_content_type=content_type,  # type: ignore
-                    )
-            if isinstance(content, itool.ContentDocument):
-                if content.mime_type == "application/pdf":
-                    return ContentPDF(data=content.document.encode("utf-8"))
-                else:
-                    return ContentText(text=content.document)
-            if isinstance(content, itool.ContentData):
-                return ContentJson(value=content.data)
-            raise ValueError(
-                f"Inspect AI content of type {type(content)} is not currently supported by chatlas"
-            )
+        from ._inspect import content_to_chatlas, turn_as_messages
 
         # Create a copy of the chat to avoid modifying its state
         # when inspect uses the solver
@@ -950,7 +850,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             async def solve(state: isolver.TaskState, generate: isolver.Generate):
                 if not state.messages:
                     for turn in chat_instance.get_turns():
-                        state.messages.append(*turn_as_messages(turn))
+                        state.messages.append(*turn_as_messages(turn, model=model))
 
                 user_content = state.user_prompt.content
                 if isinstance(user_content, str):
@@ -965,7 +865,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 last_turn = chat_instance.get_last_turn(role="assistant")
                 if last_turn is None:
                     raise ValueError("No assistant turn found after chat completion")
-                state.messages.append(*turn_as_messages(last_turn))
+                state.messages.append(*turn_as_messages(last_turn, model=model))
                 tokens = last_turn.tokens or (0, 0, 0)
                 state.output = imodel.ModelOutput(
                     model=model,

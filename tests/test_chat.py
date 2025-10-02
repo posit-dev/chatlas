@@ -100,6 +100,76 @@ def test_chat_to_solver_with_tool_calls():
     assert isinstance(turns[2].contents[0], ContentToolResult)
 
 
+def test_chat_to_solver_without_inspect_ai():
+    import sys
+    from unittest.mock import patch
+
+    chat = ChatOpenAI()
+
+    # Mock inspect_ai as not installed in sys.modules
+    with patch.dict(sys.modules, {"inspect_ai": None, "inspect_ai.model": None}):
+        with pytest.raises(ImportError, match="requires the optional dependency"):
+            chat.to_solver()
+
+
+@pytest.mark.asyncio
+async def test_chat_to_solver_with_pdf_content():
+    pytest.importorskip("inspect_ai")
+    from chatlas._content import ContentPDF
+
+    chat = ChatOpenAI(system_prompt="You analyze documents.")
+
+    pdf_content = ContentPDF(data=b"Mock PDF data")
+    chat.set_turns(
+        [
+            Turn("user", ["Analyze this document", pdf_content]),
+            Turn("assistant", "This appears to be a PDF document."),
+        ]
+    )
+
+    solver = chat.to_solver()
+    assert callable(solver)
+
+    turns = chat.get_turns(include_system_prompt=False)
+    assert len(turns) == 2
+    assert any(isinstance(c, ContentPDF) for c in turns[0].contents)
+
+
+@pytest.mark.asyncio
+async def test_chat_to_solver_with_json_content():
+    pytest.importorskip("inspect_ai")
+    from chatlas._content import ContentJson
+
+    chat = ChatOpenAI()
+
+    json_content = ContentJson(value={"key": "value", "number": 42})
+    chat.set_turns(
+        [
+            Turn("user", "Process this data"),
+            Turn("assistant", [json_content]),
+        ]
+    )
+
+    solver = chat.to_solver()
+    assert callable(solver)
+
+    turns = chat.get_turns(include_system_prompt=False)
+    assert len(turns) == 2
+    assert any(isinstance(c, ContentJson) for c in turns[1].contents)
+
+
+def test_chat_to_solver_deepcopy_isolation():
+    pytest.importorskip("inspect_ai")
+
+    chat = ChatOpenAI()
+    initial_turns_count = len(chat.get_turns())
+
+    solver = chat.to_solver()
+
+    assert len(chat.get_turns()) == initial_turns_count
+    assert callable(solver)
+
+
 @pytest.mark.asyncio
 async def test_simple_async_batch_chat():
     chat = ChatOpenAI()
