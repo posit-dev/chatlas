@@ -1,6 +1,28 @@
-"""Tests for InspectAI integration helpers."""
-
 import pytest
+
+from chatlas._content import (
+    ContentToolRequest,
+    ContentText,
+    ContentImageRemote,
+    ContentJson,
+)
+from chatlas._inspect import (
+    content_to_inspect,
+    content_to_chatlas,
+    turn_as_messages,
+)
+from chatlas._turn import Turn
+
+from inspect_ai.model import (
+    ChatMessageSystem,
+    ChatMessageUser,
+    ChatMessageAssistant,
+)
+from inspect_ai.tool import (
+    ContentText as IContentText,
+    ContentImage,
+    ContentData,
+)
 
 
 def test_inspect_helpers_require_inspect_ai():
@@ -8,13 +30,6 @@ def test_inspect_helpers_require_inspect_ai():
 
     # If inspect_ai is actually not available, test the error
     if not INSPECT_AVAILABLE:
-        from chatlas._inspect import (
-            content_to_chatlas,
-            content_to_inspect,
-            turn_as_messages,
-        )
-        from chatlas._turn import Turn
-
         with pytest.raises(ImportError, match="requires the optional dependency"):
             turn_as_messages(Turn("user", "test"))
 
@@ -29,9 +44,6 @@ def test_inspect_helpers_require_inspect_ai():
 
 def test_turn_as_messages_system():
     pytest.importorskip("inspect_ai")
-    from chatlas._inspect import turn_as_messages
-    from chatlas._turn import Turn
-    from inspect_ai.model import ChatMessageSystem
 
     turn = Turn("system", "You are a helpful assistant.")
     messages = turn_as_messages(turn)
@@ -43,9 +55,6 @@ def test_turn_as_messages_system():
 
 def test_turn_as_messages_user():
     pytest.importorskip("inspect_ai")
-    from chatlas._inspect import turn_as_messages
-    from chatlas._turn import Turn
-    from inspect_ai.model import ChatMessageUser
 
     turn = Turn("user", "Hello!")
     messages = turn_as_messages(turn)
@@ -56,9 +65,6 @@ def test_turn_as_messages_user():
 
 def test_turn_as_messages_assistant():
     pytest.importorskip("inspect_ai")
-    from chatlas._inspect import turn_as_messages
-    from chatlas._turn import Turn
-    from inspect_ai.model import ChatMessageAssistant
 
     turn = Turn("assistant", "Hi there!")
     messages = turn_as_messages(turn, model="gpt-4")
@@ -70,9 +76,6 @@ def test_turn_as_messages_assistant():
 
 def test_content_to_inspect_text():
     pytest.importorskip("inspect_ai")
-    from chatlas._content import ContentText
-    from chatlas._inspect import content_to_inspect
-    from inspect_ai.tool import ContentText as IContentText
 
     content = ContentText(text="Hello world")
     inspect_content = content_to_inspect(content)
@@ -83,9 +86,6 @@ def test_content_to_inspect_text():
 
 def test_content_to_inspect_image_remote():
     pytest.importorskip("inspect_ai")
-    from chatlas._content import ContentImageRemote
-    from chatlas._inspect import content_to_inspect
-    from inspect_ai.tool import ContentImage
 
     content = ContentImageRemote(url="https://example.com/image.jpg", detail="high")
     inspect_content = content_to_inspect(content)
@@ -97,9 +97,6 @@ def test_content_to_inspect_image_remote():
 
 def test_content_to_inspect_json():
     pytest.importorskip("inspect_ai")
-    from chatlas._content import ContentJson
-    from chatlas._inspect import content_to_inspect
-    from inspect_ai.tool import ContentData
 
     content = ContentJson(value={"key": "value", "number": 42})
     inspect_content = content_to_inspect(content)
@@ -111,9 +108,6 @@ def test_content_to_inspect_json():
 def test_content_to_chatlas_string():
     pytest.importorskip("inspect_ai")
 
-    from chatlas._content import ContentText
-    from chatlas._inspect import content_to_chatlas
-
     result = content_to_chatlas("Hello world")
 
     assert isinstance(result, ContentText)
@@ -122,9 +116,6 @@ def test_content_to_chatlas_string():
 
 def test_content_to_chatlas_text():
     pytest.importorskip("inspect_ai")
-    from chatlas._content import ContentText
-    from chatlas._inspect import content_to_chatlas
-    from inspect_ai.tool import ContentText as IContentText
 
     inspect_content = IContentText(text="Test message")
     result = content_to_chatlas(inspect_content)
@@ -135,9 +126,6 @@ def test_content_to_chatlas_text():
 
 def test_content_to_chatlas_image_url():
     pytest.importorskip("inspect_ai")
-    from chatlas._content import ContentImageRemote
-    from chatlas._inspect import content_to_chatlas
-    from inspect_ai.tool import ContentImage
 
     inspect_content = ContentImage(image="https://example.com/test.jpg", detail="low")
     result = content_to_chatlas(inspect_content)
@@ -149,9 +137,6 @@ def test_content_to_chatlas_image_url():
 
 def test_content_to_chatlas_json():
     pytest.importorskip("inspect_ai")
-    from chatlas._content import ContentJson
-    from chatlas._inspect import content_to_chatlas
-    from inspect_ai.tool import ContentData
 
     inspect_content = ContentData(data={"test": "data", "value": 123})
     result = content_to_chatlas(inspect_content)
@@ -162,9 +147,6 @@ def test_content_to_chatlas_json():
 
 def test_content_to_inspect_tool_request_raises():
     pytest.importorskip("inspect_ai")
-
-    from chatlas._content import ContentToolRequest
-    from chatlas._inspect import content_to_inspect
 
     content = ContentToolRequest(id="call_123", name="test_tool", arguments={})
 

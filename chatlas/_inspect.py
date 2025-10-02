@@ -1,10 +1,15 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
-from ._content import (Content, ContentImageInline, ContentImageRemote,
-                       ContentJson, ContentPDF, ContentText,
-                       ContentToolRequest, ContentToolResult)
+from ._content import (
+    Content,
+    ContentImageInline,
+    ContentImageRemote,
+    ContentJson,
+    ContentPDF,
+    ContentText,
+    ContentToolRequest,
+    ContentToolResult,
+)
 from ._turn import Turn
 
 try:
@@ -14,10 +19,6 @@ try:
     INSPECT_AVAILABLE = True
 except ImportError:
     INSPECT_AVAILABLE = False
-
-if TYPE_CHECKING:
-    import inspect_ai.model as imodel
-    import inspect_ai.tool as itool
 
 
 def turn_as_messages(turn: Turn, model: str | None = None) -> list:
