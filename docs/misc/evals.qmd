@@ -1,0 +1,290 @@
+---
+title: Model evaluations
+callout-appearance: simple
+---
+
+## Why evaluate?
+
+As you build LLM apps, you'll quickly realize that getting a model to perform well isn't just about writing good prompts—it's about *verifying* that your prompts, tools, and system design actually works as intended. This is where **evaluations** (or "evals") come in.
+
+Think of evals like unit tests for your LLM apps. Just as you wouldn't ship code without tests, you shouldn't deploy an LLM app without verifying that it produces accurate, consistent results.
+
+### Common scenarios
+
+Here are some situations where evals are essential:
+
+- **Prompt engineering**: You've written a system prompt and want to verify it works across different types of questions
+- **Model comparison**: You want to compare GPT-5 vs Claude Sonnet 4.5 vs Gemini 2.5 to see which performs best for your use case
+- **Tool calling**: You've registered tools and need to verify the model uses them correctly
+- **Regression testing**: You want to ensure changes to your code don't break existing functionality
+- **Quality assurance**: Before deploying to production, you need confidence your model meets quality standards
+
+### The problem with manual testing
+
+Without evals, you're left manually testing your LLM:
+
+```python
+from chatlas import ChatOpenAI
+
+chat = ChatOpenAI(system_prompt="You are a math tutor.")
+
+# Manually check each response
+chat.chat("What is 15 * 23?")  # Did it get this right?
+chat.chat("What is the square root of 144?")  # How about this?
+chat.chat("Solve for x: 2x + 5 = 13")  # And this?
+```
+
+This approach:
+
+- ❌ Doesn't scale beyond a few examples
+- ❌ Requires manual verification of each answer
+- ❌ Makes it hard to compare models systematically
+- ❌ Provides no quantitative metrics
+- ❌ Can't be automated in CI/CD pipelines
+
+
+## Enter Inspect AI
+
+[Inspect AI](https://inspect.ai-safety-institute.org.uk/) is a framework specifically designed for evaluating LLM applications. It provides:
+
+- 📊 **Datasets**: Organize test cases with inputs and expected outputs
+- 🤖 **Solvers**: Wrap your chatbot logic to work with Inspect's evaluation framework
+- ✅ **Scorers**: Automatically grade model responses against expected answers
+- 📈 **Metrics**: Get quantitative results (accuracy, stderr)
+- 🎯 **Reproducibility**: Run the same evaluation multiple times with confidence
+
+### Key concepts
+
+Here's a quick primer on the main Inspect AI concepts:
+
+**Sample**: A single test case with an input question and expected answer (target).
+```python
+Sample(
+    input="What is 2 + 2?",
+    target="4",
+    id="simple_math_1"
+)
+```
+
+**Dataset**: A collection of samples to evaluate.
+```python
+dataset=[
+    Sample(input="What is 2 + 2?", target="4"),
+    Sample(input="What is 10 * 5?", target="50"),
+]
+```
+
+**Solver**: The "brain" that processes each sample's input and generates a response.
+
+**Scorer**: A function that grades the model's response against the expected target.
+```python
+scorer=model_graded_qa()  # Uses another LLM to grade responses
+```
+
+**Task**: Combines *dataset* + *solver* + *scorer* into a complete evaluation.
+```python
+task = Task(
+    dataset=my_samples,
+    solver=chat.to_solver(),
+    scorer=model_graded_qa()
+)
+```
+
+## Using chatlas with Inspect AI
+
+chatlas makes it incredibly easy to use your existing chat instances with Inspect AI through the [`.to_solver()`](../reference/Chat.qmd#to_solver) method.
+
+### Installation
+
+First, install the optional `inspect-ai` dependency:
+
+```bash
+pip install inspect-ai
+```
+
+### Basic example
+
+Let's create a simple evaluation to test a math tutor:
+
+```python
+from chatlas import ChatOpenAI
+from inspect_ai import Task, eval
+from inspect_ai.dataset import Sample
+from inspect_ai.model import get_model
+from inspect_ai.scorer import model_graded_qa
+
+# Create your chat instance (with system prompt, tools, etc.)
+chat = ChatOpenAI(
+    model="gpt-5-nano-2025-08-07",
+    system_prompt="You are a helpful math tutor. Provide clear, accurate answers.",
+)
+
+# Convert to an Inspect AI solver
+solver = chat.to_solver()
+
+# Create an evaluation task
+task = Task(
+    dataset=[
+        Sample(
+            input="What is 15 * 23?",
+            target="345",
+            id="multiplication_1"
+        ),
+        Sample(
+            input="What is the square root of 144?",
+            target="12",
+            id="sqrt_1"
+        ),
+        Sample(
+            input="If a train travels 60 mph for 2.5 hours, how far does it go?",
+            target="150 miles",
+            id="word_problem_1"
+        ),
+    ],
+    solver=solver,
+    scorer=model_graded_qa(model=get_model("openai/gpt-5-nano-2025-08-07")),
+    model=get_model("openai/gpt-5-nano-2025-08-07"),
+)
+
+# Run the evaluation
+results = eval(task)
+```
+
+When you run this, Inspect will:
+
+1. Feed each sample's input to your chatlas solver
+2. Collect the model's response
+3. Grade the response using the scorer
+4. Generate a report with accuracy metrics
+
+### Viewing results
+
+After running an evaluation, you can view detailed results using Inspect's viewer:
+
+```bash
+inspect view
+```
+
+This opens a web interface showing:
+- Overall accuracy and metrics
+- Individual sample results
+- Response comparisons
+- Token usage statistics
+
+### Example with conversation context
+
+One of chatlas's strengths is retaining conversation history. You can leverage this in evaluations by setting up conversation context before running the eval:
+
+```python
+from chatlas import ChatOpenAI, Turn
+from inspect_ai import Task, eval
+from inspect_ai.dataset import Sample
+from inspect_ai.model import get_model
+from inspect_ai.scorer import model_graded_qa
+
+# Create chat with conversation history
+chat = ChatOpenAI(
+    model="gpt-5-nano-2025-08-07",
+    system_prompt="You are a helpful assistant with knowledge of world geography.",
+)
+
+# Set up conversation context
+chat.set_turns([
+    Turn("user", "What is the capital of France?"),
+    Turn("assistant", "The capital of France is Paris."),
+])
+
+# Now test follow-up questions that depend on this context
+task = Task(
+    dataset=[
+        Sample(
+            input="What river flows through that city?",
+            target="The Seine river flows through Paris.",
+            id="followup_1",
+        ),
+        Sample(
+            input="What is the population of that capital?",
+            target="Paris has a population of approximately 2.1 million people.",
+            id="followup_2",
+        ),
+    ],
+    solver=chat.to_solver(),
+    scorer=model_graded_qa(model=get_model("openai/gpt-5-nano-2025-08-07")),
+    model=get_model("openai/gpt-5-nano-2025-08-07"),
+)
+
+results = eval(task)
+```
+
+This is powerful for testing whether your model correctly maintains context across turns.
+
+### Example with tool calling
+
+If you've registered tools with your chat instance, they'll automatically work in evaluations:
+
+```python
+from chatlas import ChatOpenAI
+from inspect_ai import Task, eval
+from inspect_ai.dataset import Sample
+from inspect_ai.model import get_model
+from inspect_ai.scorer import model_graded_qa
+import datetime
+
+# Create chat and register a tool
+chat = ChatOpenAI(
+    model="gpt-5-nano-2025-08-07",
+    system_prompt="You are an assistant that can use tools to answer questions.",
+)
+
+def get_current_date():
+    """Get the current date in YYYY-MM-DD format."""
+    return datetime.datetime.now().strftime("%Y-%m-%d")
+
+chat.register_tool(get_current_date)
+
+# Evaluate whether the model uses the tool correctly
+task = Task(
+    dataset=[
+        Sample(
+            input="What is today's date?",
+            target="The current date should be in YYYY-MM-DD format and should be October 2, 2025 or later.",
+            id="date_tool_1",
+        ),
+    ],
+    solver=chat.to_solver(),
+    scorer=model_graded_qa(
+        model=get_model("openai/gpt-5-nano-2025-08-07"),
+        partial_credit=True,
+    ),
+    model=get_model("openai/gpt-5-nano-2025-08-07"),
+)
+
+results = eval(task)
+```
+
+The solver automatically handles the tool calling loop, just like it does in normal `.chat()` calls.
+
+## Best practices
+
+When building evals with chatlas and Inspect AI:
+
+1. **Start small**: Begin with 5-10 high-quality test cases, then expand
+2. **Use diverse samples**: Cover edge cases, common queries, and error conditions
+3. **Be specific with targets**: Vague expected answers make scoring difficult
+4. **Test incrementally**: Run evals as you develop, not just at the end
+5. **Version your evals**: Keep your eval datasets in version control alongside your code
+6. **Use appropriate scorers**: `model_graded_qa()` is flexible but may be slow; consider exact match for simple cases
+
+::: {.callout-tip}
+### Running evals in CI/CD
+
+You can run Inspect evaluations in your continuous integration pipeline to catch regressions:
+
+```bash
+# In your CI script
+pip install chatlas inspect-ai
+python run_evals.py
+```
+
+If accuracy drops below a threshold, fail the build!
+:::
