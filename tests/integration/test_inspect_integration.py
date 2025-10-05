@@ -1,4 +1,9 @@
 import datetime
+
+import pytest
+
+pytest.importorskip("inspect_ai")
+
 from chatlas import ChatOpenAI, Turn
 from inspect_ai import Task
 from inspect_ai import eval as inspect_eval

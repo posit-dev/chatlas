@@ -1,4 +1,7 @@
 import pytest
+
+pytest.importorskip("inspect_ai")
+
 from chatlas._content import (
     ContentImageRemote,
     ContentJson,
