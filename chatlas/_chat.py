@@ -8,22 +8,44 @@ import traceback
 import warnings
 from pathlib import Path
 from threading import Thread
-from typing import (TYPE_CHECKING, Any, AsyncGenerator, AsyncIterator,
-                    Awaitable, Callable, Generator, Generic, Iterator, Literal,
-                    Optional, Sequence, TypeVar, overload)
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    AsyncGenerator,
+    AsyncIterator,
+    Awaitable,
+    Callable,
+    Generator,
+    Generic,
+    Iterator,
+    Literal,
+    Optional,
+    Sequence,
+    TypeVar,
+    overload,
+)
 
 from pydantic import BaseModel
 
 from ._callbacks import CallbackManager
-from ._content import (Content, ContentJson, ContentText, ContentToolRequest,
-                       ContentToolResult, ToolInfo)
-from ._display import (EchoDisplayOptions, IPyMarkdownDisplay,
-                       LiveMarkdownDisplay, MarkdownDisplay,
-                       MockMarkdownDisplay)
+from ._content import (
+    Content,
+    ContentJson,
+    ContentText,
+    ContentToolRequest,
+    ContentToolResult,
+    ToolInfo,
+)
+from ._display import (
+    EchoDisplayOptions,
+    IPyMarkdownDisplay,
+    LiveMarkdownDisplay,
+    MarkdownDisplay,
+    MockMarkdownDisplay,
+)
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
-from ._provider import (ModelInfo, Provider, StandardModelParams,
-                        SubmitInputArgsT)
+from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
 from ._tokens import compute_cost, get_token_pricing
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
@@ -675,9 +697,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         try:
-            from shinychat import \
-                message_content  # pyright: ignore[reportAttributeAccessIssue]
-            from shinychat import Chat, chat_ui
+            from shinychat import (
+                Chat,
+                chat_ui,
+                message_content,  # pyright: ignore[reportAttributeAccessIssue]
+            )
         except ImportError:
             raise ImportError(
                 "The `shinychat` package is required for the `app()` method. "
