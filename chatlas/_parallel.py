@@ -80,30 +80,31 @@ async def parallel_chat(
     Basic usage with multiple prompts:
 
     ```python
-    from chatlas import ChatOpenAI, parallel_chat
+    import asyncio
+    import chatlas as ctl
 
-    chat = ChatOpenAI()
 
+    chat = ctl.ChatOpenAI()
     countries = ["Canada", "New Zealand", "Jamaica", "United States"]
     prompts = [f"What's the capital of {country}?" for country in countries]
 
-    chats = parallel_chat(chat, prompts)
-    for c in chats:
-        print(c.last_turn().text)
+    # NOTE: if running from a script, you'd need to wrap this in an async function
+    # and call asyncio.run(main())
+    chats = await ctl.parallel_chat(chat, prompts)
     ```
 
     Using with interpolation:
 
     ```python
-    from chatlas import ChatOpenAI, parallel_chat, interpolate
+    import chatlas as ctl
 
-    chat = ChatOpenAI()
+    chat = ctl.ChatOpenAI()
     template = "What's the capital of {{ country }}?"
 
     countries = ["Canada", "New Zealand", "Jamaica"]
-    prompts = [interpolate(template, variables={"country": c}) for c in countries]
+    prompts = [ctl.interpolate(template, variables={"country": c}) for c in countries]
 
-    chats = parallel_chat(chat, prompts, max_active=5)
+    chats = await ctl.parallel_chat(chat, prompts, max_active=5)
     ```
 
     See Also
@@ -194,14 +195,16 @@ async def parallel_chat_text(
     Examples
     --------
     ```python
-    from chatlas import ChatOpenAI, parallel_chat_text
+    import chatlas as ctl
 
-    chat = ChatOpenAI()
+    chat = ctl.ChatOpenAI()
 
     countries = ["Canada", "New Zealand", "Jamaica", "United States"]
     prompts = [f"What's the capital of {country}?" for country in countries]
 
-    responses = parallel_chat_text(chat, prompts)
+    # NOTE: if running from a script, you'd need to wrap this in an async function
+    # and call asyncio.run(main())
+    responses = await ctl.parallel_chat_text(chat, prompts)
     for country, response in zip(countries, responses):
         print(f"{country}: {response}")
     ```
@@ -264,7 +267,7 @@ async def parallel_chat_structured(
     Extract structured data from multiple prompts:
 
     ```python
-    from chatlas import ChatOpenAI, parallel_chat_structured
+    import chatlas as ctl
     from pydantic import BaseModel
 
 
@@ -273,7 +276,7 @@ async def parallel_chat_structured(
         age: int
 
 
-    chat = ChatOpenAI()
+    chat = ctl.ChatOpenAI()
 
     prompts = [
         "I go by Alex. 42 years on this planet and counting.",
@@ -282,7 +285,9 @@ async def parallel_chat_structured(
         "Fatima here. Just celebrated my 35th birthday last week.",
     ]
 
-    people = parallel_chat_structured(chat, prompts, Person)
+    # NOTE: if running from a script, you'd need to wrap this in an async function
+    # and call asyncio.run(main())
+    people = await ctl.parallel_chat_structured(chat, prompts, Person)
     for person in people:
         print(f"{person.name} is {person.age} years old")
     ```
