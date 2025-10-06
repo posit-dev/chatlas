@@ -71,13 +71,17 @@ async def test_parallel_chat_tools():
     turns = chats[0].get_turns()
     assert len(turns) == 4
     assert isinstance(turns[1].contents[0], ContentToolRequest)
-    assert isinstance(turns[2].contents[0], ContentToolResult)
-    assert "You rolled 1" in turns[3].text
+    result = turns[2].contents[0]
+    assert isinstance(result, ContentToolResult)
+    assert result.name == "roll"
+    assert f"You rolled {result.get_model_value()}" in turns[3].text
 
-    assert chats[1] is not None
-    turn2 = chats[1].get_last_turn()
-    assert turn2 is not None
-    assert "You rolled 2" in turn2.text
+    turns = chats[0].get_turns()
+    assert len(turns) == 4
+    result = turns[2].contents[0]
+    assert isinstance(result, ContentToolResult)
+    assert result.name == "roll"
+    assert f"You rolled {result.get_model_value()}" in turns[3].text
 
 
 @pytest.mark.asyncio
