@@ -1061,6 +1061,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModelT],
         echo: EchoOptions = "none",
         stream: bool = False,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> BaseModelT:
         """
         Extract structured data.
@@ -1081,6 +1082,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
               - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
+        kwargs
+            Additional keyword arguments to pass to the method used for requesting
+            the response.
 
         Returns
         -------
@@ -1092,6 +1096,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             data_model=data_model,
             echo=echo,
             stream=stream,
+            kwargs=kwargs,
         )
         return data_model.model_validate(dat)
 
@@ -1124,6 +1129,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> dict[str, Any]:
         display = self._markdown_display(echo=echo)
 
@@ -1133,6 +1139,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 data_model=data_model,
                 echo=echo,
                 stream=stream,
+                kwargs=kwargs,
             )
         )
 
@@ -1151,6 +1158,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModelT],
         echo: EchoOptions = "none",
         stream: bool = False,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> BaseModelT:
         """
         Extract structured data from the given input asynchronously.
@@ -1172,6 +1180,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
             Defaults to `True` if `echo` is not "none".
+        kwargs
+            Additional keyword arguments to pass to the method used for requesting
+            the response.
 
         Returns
         -------
@@ -1183,6 +1194,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             data_model=data_model,
             echo=echo,
             stream=stream,
+            kwargs=kwargs,
         )
         return data_model.model_validate(dat)
 
@@ -1192,6 +1204,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> dict[str, Any]:
         """
         Deprecated: use `.chat_structured_async()` instead.
@@ -1207,6 +1220,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             data_model=data_model,
             echo=echo,
             stream=stream,
+            kwargs=kwargs,
         )
 
     async def _submit_and_extract_data_async(
@@ -1215,6 +1229,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> dict[str, Any]:
         display = self._markdown_display(echo=echo)
 
@@ -1224,6 +1239,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 data_model=data_model,
                 echo=echo,
                 stream=stream,
+                kwargs=kwargs,
             )
         )
 
