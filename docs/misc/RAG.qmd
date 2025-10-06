@@ -56,7 +56,7 @@ And, as we'll see, there are several moving parts to consider when implementing 
 
 Obviously, in order to retrieve trusted content, we first need some content to retrieve.
 Typically content is retrieved from a **knowledge store** -- essentially a database that stores documents in a way that allows for efficient retrieval based on semantic similarity.
-A knowledge store also often takes the form of a **vector store** or **embedding index** because of it's efficiency in storing and retrieving content based on semantic similarity.
+A knowledge store also often takes the form of a **vector store** or **embedding index** because of its efficiency in storing and retrieving content based on semantic similarity.
 This approach requires embedding the content into numerical vectors, which can be done using various machine learning models.
 
 ### Create store {#create-store}
