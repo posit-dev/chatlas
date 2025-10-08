@@ -827,10 +827,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Examples
         --------
+         First, put this code in a python script, perhaps named `eval_chat.py`
+         
         ```python
-        # eval_chat.py
         from chatlas import ChatOpenAI
-        from inspect_ai import Task, eval
+        import inspect_ai as iai
         from inspect_ai.dataset import Sample
         from inspect_ai.scorer import model_graded_fact
 
@@ -843,17 +844,23 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         solver = chat.to_solver()
 
         # InspectAI evaluation task
-        task = Task(
+        task = iai.Task(
             dataset=[Sample(input="What is 2+2?", target="4")],
             solver=solver,
             scorer=model_graded_fact()
         )
 
-        # Run evaluation
-        eval(task, model="openai/gpt-5-nano-2025-08-07")
+        iai.eval(task, model="openai/gpt-5-nano-2025-08-07")
+        # Or, if running interactively in Jupyter/Positron
+        # await iai.eval_async(task, model="openai/gpt-5-nano-2025-08-07")
 
-        # run `python eval_chat.py` to run the evaluation
-        # run `inspect view` in terminal to see results
+         ```
+
+         Now, from a terminal, run the evaluation and view the results
+
+        ```bash
+        python eval_chat.py
+        inspect view
         ```
         """
 
