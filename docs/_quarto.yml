@@ -100,6 +100,7 @@ website:
             - misc/RAG.qmd
             - misc/mcp-tools.qmd
             - misc/vocabulary.qmd
+            - misc/evals.qmd
 
 
 format:

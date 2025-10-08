@@ -807,6 +807,119 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             self.chat(user_input, echo=echo, stream=stream, kwargs=kwargs)
             print("")
 
+    def to_solver(self):
+        """
+        Return an InspectAI solver that proxies prompts through this chat.
+
+        This method creates an InspectAI solver that uses this Chat instance to
+        generate responses. The solver automatically translates the chat's
+        conversation history (including system prompt, previous turns, and rich
+        content) into InspectAI's message format.
+
+        Returns
+        -------
+        Solver
+            An InspectAI solver function that can be used with InspectAI's
+            evaluation framework.
+
+        For more information on InspectAI solvers, see the
+        [Solvers documentation](https://inspect.ai-safety-institute.org.uk/solvers.html).
+
+        Examples
+        --------
+         First, put this code in a python script, perhaps named `eval_chat.py`
+         
+        ```python
+        from chatlas import ChatOpenAI
+        import inspect_ai as iai
+        from inspect_ai.dataset import Sample
+        from inspect_ai.scorer import model_graded_fact
+
+        chat = ChatOpenAI(
+            system_prompt="You are a helpful assistant. Be concise.",
+            model="gpt-5-nano-2025-08-07",
+        )
+
+        # Convert to InspectAI solver
+        solver = chat.to_solver()
+
+        # InspectAI evaluation task
+        task = iai.Task(
+            dataset=[Sample(input="What is 2+2?", target="4")],
+            solver=solver,
+            scorer=model_graded_fact()
+        )
+
+        iai.eval(task, model="openai/gpt-5-nano-2025-08-07")
+        # Or, if running interactively in Jupyter/Positron
+        # await iai.eval_async(task, model="openai/gpt-5-nano-2025-08-07")
+
+         ```
+
+         Now, from a terminal, run the evaluation and view the results
+
+        ```bash
+        python eval_chat.py
+        inspect view
+        ```
+        """
+
+        try:
+            import inspect_ai.model as imodel
+            import inspect_ai.solver as isolver
+        except ImportError as exc:  # pragma: no cover - optional dependency
+            raise ImportError(
+                "Chat.to_solver() requires the optional dependency `inspect-ai`. "
+                "Install it with `pip install inspect-ai`."
+            ) from exc
+
+        from ._inspect import content_to_chatlas, turn_as_messages
+
+        # Create a copy of the chat to avoid modifying its state
+        # when inspect uses the solver
+        chat_instance = copy.deepcopy(self)
+        model = self.provider.model
+
+        @isolver.solver("chatlas_solver")
+        def _solver():
+            async def solve(state: isolver.TaskState, generate: isolver.Generate):
+                if not state.messages:
+                    for turn in chat_instance.get_turns():
+                        state.messages.append(*turn_as_messages(turn, model=model))
+
+                user_content = state.user_prompt.content
+                if isinstance(user_content, str):
+                    input_content = [user_content]
+                else:
+                    input_content = [content_to_chatlas(x) for x in user_content]
+
+                await chat_instance.chat_async(
+                    *input_content,
+                    echo="none",
+                )
+                last_turn = chat_instance.get_last_turn(role="assistant")
+                if last_turn is None:
+                    raise ValueError("No assistant turn found after chat completion")
+                state.messages.append(*turn_as_messages(last_turn, model=model))
+                tokens = last_turn.tokens or (0, 0, 0)
+                state.output = imodel.ModelOutput(
+                    model=model,
+                    # TODO: add choices?
+                    # choices=<choices>,
+                    completion=last_turn.text,
+                    usage=imodel.ModelUsage(
+                        input_tokens=tokens[0],
+                        output_tokens=tokens[1],
+                        total_tokens=tokens[0] + tokens[1],
+                        input_tokens_cache_read=tokens[2],
+                    ),
+                )
+                return state
+
+            return solve
+
+        return _solver()
+
     def chat(
         self,
         *args: Content | str,
@@ -1882,7 +1995,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "Get the current weather given a latitude and longitude."
 
             lat_lng = f"latitude={latitude}&longitude={longitude}"
-            url = f"https://api.open-meteo.com/v1/forecast?{lat_lng}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+            url = (
+                "https://api.open-meteo.com/v1/forecast?"
+                f"{lat_lng}&current=temperature_2m,wind_speed_10m"
+                "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+            )
             response = requests.get(url)
             json = response.json()
             if chat.current_display:
