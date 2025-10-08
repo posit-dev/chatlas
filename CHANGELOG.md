@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### New features
 
+* Added new functions: `parallel_chat()`, `parallel_chat_text()`, and `parallel_chat_structured()`. These functions make it easy to submit multiple prompts at once with some basic rate limiting toggles. (#188)
 
 ## [0.13.2] - 2025-10-02
 
