@@ -3,7 +3,7 @@
 # ---------------------------------------------------------
 
 
-from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
+from typing import Iterable, Literal, Mapping, Optional, Sequence, TypedDict, Union
 
 import anthropic
 import anthropic.types.message_param
@@ -31,9 +31,13 @@ class SubmitInputArgs(TypedDict, total=False):
             "claude-3-7-sonnet-20250219",
             "claude-3-5-haiku-latest",
             "claude-3-5-haiku-20241022",
+            "claude-haiku-4-5",
+            "claude-haiku-4-5-20251001",
             "claude-sonnet-4-20250514",
             "claude-sonnet-4-0",
             "claude-4-sonnet-20250514",
+            "claude-sonnet-4-5",
+            "claude-sonnet-4-5-20250929",
             "claude-3-5-sonnet-latest",
             "claude-3-5-sonnet-20241022",
             "claude-3-5-sonnet-20240620",
@@ -47,26 +51,24 @@ class SubmitInputArgs(TypedDict, total=False):
         ],
         str,
     ]
-    service_tier: Union[Literal["auto", "standard_only"], anthropic.NotGiven]
-    stop_sequences: Union[list[str], anthropic.NotGiven]
-    stream: Union[Literal[False], Literal[True], anthropic.NotGiven]
+    service_tier: Union[Literal["auto", "standard_only"], anthropic.Omit]
+    stop_sequences: Union[Sequence[str], anthropic.Omit]
+    stream: Union[Literal[False], Literal[True], anthropic.Omit]
     system: Union[
-        str,
-        Iterable[anthropic.types.text_block_param.TextBlockParam],
-        anthropic.NotGiven,
+        str, Iterable[anthropic.types.text_block_param.TextBlockParam], anthropic.Omit
     ]
-    temperature: float | anthropic.NotGiven
+    temperature: float | anthropic.Omit
     thinking: Union[
         anthropic.types.thinking_config_enabled_param.ThinkingConfigEnabledParam,
         anthropic.types.thinking_config_disabled_param.ThinkingConfigDisabledParam,
-        anthropic.NotGiven,
+        anthropic.Omit,
     ]
     tool_choice: Union[
         anthropic.types.tool_choice_auto_param.ToolChoiceAutoParam,
         anthropic.types.tool_choice_any_param.ToolChoiceAnyParam,
         anthropic.types.tool_choice_tool_param.ToolChoiceToolParam,
         anthropic.types.tool_choice_none_param.ToolChoiceNoneParam,
-        anthropic.NotGiven,
+        anthropic.Omit,
     ]
     tools: Union[
         Iterable[
@@ -79,10 +81,10 @@ class SubmitInputArgs(TypedDict, total=False):
                 anthropic.types.web_search_tool_20250305_param.WebSearchTool20250305Param,
             ]
         ],
-        anthropic.NotGiven,
+        anthropic.Omit,
     ]
-    top_k: int | anthropic.NotGiven
-    top_p: float | anthropic.NotGiven
+    top_k: int | anthropic.Omit
+    top_p: float | anthropic.Omit
     extra_headers: Optional[Mapping[str, Union[str, anthropic.Omit]]]
     extra_query: Optional[Mapping[str, object]]
     extra_body: object | None
