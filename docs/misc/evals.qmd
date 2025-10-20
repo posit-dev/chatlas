@@ -1,27 +1,11 @@
 ---
-title: Model evaluations
+title: Evals
 callout-appearance: simple
 ---
 
-## Why evaluate?
+As your chat app moves from prototype to production, it's essential to ensure it continues to behave as expected. That is, if you change the model, prompts, tools, or any other part of your app, how can you be sure you aren't degrading the user experience? This is where **evaluations** (aka "evals") come in.
 
-As you build LLM apps, you'll quickly realize that getting a model to perform well isn't just about writing good prompts—it's about *verifying* that your prompts, tools, and system design actually works as intended. This is where **evaluations** (or "evals") come in.
-
-Think of evals like unit tests for your LLM apps. Just as you wouldn't ship code without tests, you shouldn't deploy an LLM app without verifying that it produces accurate, consistent results.
-
-### Common scenarios
-
-Here are some situations where evals are essential:
-
-- **Prompt engineering**: You've written a system prompt and want to verify it works across different types of questions
-- **Model comparison**: You want to compare GPT-5 vs Claude Sonnet 4.5 vs Gemini 2.5 to see which performs best for your use case
-- **Tool calling**: You've registered tools and need to verify the model uses them correctly
-- **Regression testing**: You want to ensure changes to your code don't break existing functionality
-- **Quality assurance**: Before deploying to production, you need confidence your model meets quality standards
-
-### The problem with manual testing
-
-Without evals, you're left manually testing your LLM:
+Without evals, testing your chat app is often a manual, vibes-based, process:
 
 ```python
 from chatlas import ChatOpenAI
@@ -30,211 +14,136 @@ chat = ChatOpenAI(system_prompt="You are a math tutor.")
 
 # Manually check each response
 chat.chat("What is 15 * 23?")  # Did it get this right?
-chat.chat("What is the square root of 144?")  # How about this?
-chat.chat("Solve for x: 2x + 5 = 13")  # And this?
+chat.chat("What is the meaning of life?")  # Did it give a good answer?
 ```
 
 This approach:
 
 - ❌ Doesn't scale beyond a few examples
 - ❌ Requires manual verification of each answer
-- ❌ Makes it hard to compare models systematically
-- ❌ Provides no quantitative metrics
-- ❌ Can't be automated in CI/CD pipelines
 
+Which makes it difficult/impossible to:
 
-## Enter Inspect AI
+- ❌ Catch regressions when changing models, prompts, tools, etc
+- ❌ Quantify how well you're meeting requirements
+- ❌ Continuously deploy improvements with confidence
 
-[Inspect AI](https://inspect.ai-safety-institute.org.uk/) is a framework specifically designed for evaluating LLM applications. It provides:
+Evals help address these problems by providing a structured way to define expectations and quantitatively measure how well your chat app meets them. Here, we'll explore how to evaluate your `chat` app using the [Inspect AI](https://inspect.aisi.org.uk/) framework, which integrates seamlessly with chatlas.
 
-- 📊 **Datasets**: Organize test cases with inputs and expected outputs
-- 🤖 **Solvers**: Wrap your chatbot logic to work with Inspect's evaluation framework
-- ✅ **Scorers**: Automatically grade model responses against expected answers
-- 📈 **Metrics**: Get quantitative results (accuracy, stderr)
-- 🎯 **Reproducibility**: Run the same evaluation multiple times with confidence
+::: callout-note
+## Prerequisites
 
-### Key concepts
-
-Here's a quick primer on the main Inspect AI concepts:
-
-**Sample**: A single test case with an input question and expected answer (target).
-```python
-Sample(
-    input="What is 2 + 2?",
-    target="4",
-    id="simple_math_1"
-)
-```
-
-**Dataset**: A collection of samples to evaluate.
-```python
-dataset=[
-    Sample(input="What is 2 + 2?", target="4"),
-    Sample(input="What is 10 * 5?", target="50"),
-]
-```
-
-**Solver**: The "brain" that processes each sample's input and generates a response.
-
-**Scorer**: A function that grades the model's response against the expected target.
-```python
-scorer=model_graded_qa()  # Uses another LLM to grade responses
-```
-
-**Task**: Combines *dataset* + *solver* + *scorer* into a complete evaluation.
-```python
-task = Task(
-    dataset=my_samples,
-    solver=chat.to_solver(),
-    scorer=model_graded_qa()
-)
-```
-
-## Using chatlas with Inspect AI
-
-chatlas makes it incredibly easy to use your existing chat instances with Inspect AI through the [`.to_solver()`](../reference/Chat.qmd#to_solver) method.
-
-### Installation
-
-First, install the optional `inspect-ai` dependency:
+To use Inspect AI, you'll need [`inspect-ai`](https://pypistats.org/packages/inspect-ai), which comes with the `eval` extra:
 
 ```bash
-pip install inspect-ai
+pip install 'chatlas[eval]'
 ```
+:::
 
-### Basic example
+## Get started
 
-Let's create a simple evaluation to test a math tutor:
+[Inspect AI](https://inspect.aisi.org.uk/) is a "batteries-included" framework specifically designed for evaluating LLM applications. Its main components include: **datasets** (i.e., test cases), **solvers** (i.e., your `chat` instance), and **scorers** (i.e., the grading logic). These components come together into a `Task`, which can produce evaluation result(s).
 
-```python
+### Create a Task
+
+To create a `Task`, you'll need to:
+
+* Collect a `dataset` of representative `input` and `target` reponses.
+* Translate your `chat` instance into a `solver` via the [`.to_solver()`](../reference/Chat.qmd#to_solver) method.
+* Choose a `scorer` to grade the responses.
+
+Later on, we'll discuss how to generate good datasets and scorers, but here's a starting template for creating a simple eval:
+
+
+```{.python filename="my_eval.py"}
 from chatlas import ChatOpenAI
-from inspect_ai import Task, eval
-from inspect_ai.dataset import Sample
-from inspect_ai.model import get_model
+from inspect_ai import Task, task
+from inspect_ai.dataset import csv_dataset
 from inspect_ai.scorer import model_graded_qa
 
-# Create your chat instance (with system prompt, tools, etc.)
-chat = ChatOpenAI(
-    model="gpt-5-nano-2025-08-07",
-    system_prompt="You are a helpful math tutor. Provide clear, accurate answers.",
-)
+chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
 
-# Convert to an Inspect AI solver
-solver = chat.to_solver()
-
-# Create an evaluation task
-task = Task(
-    dataset=[
-        Sample(
-            input="What is 15 * 23?",
-            target="345",
-            id="multiplication_1"
-        ),
-        Sample(
-            input="What is the square root of 144?",
-            target="12",
-            id="sqrt_1"
-        ),
-        Sample(
-            input="If a train travels 60 mph for 2.5 hours, how far does it go?",
-            target="150 miles",
-            id="word_problem_1"
-        ),
-    ],
-    solver=solver,
-    scorer=model_graded_qa(model=get_model("openai/gpt-5-nano-2025-08-07")),
-    model=get_model("openai/gpt-5-nano-2025-08-07"),
-)
-
-# Run the evaluation
-results = eval(task)
+@task
+def my_eval():
+    return Task(
+        dataset=csv_dataset("my_eval_dataset.csv"),
+        solver=chat.to_solver(),
+        scorer=model_graded_qa(model="openai/gpt-4o-mini")
+    )
 ```
 
-When you run this, Inspect will:
+```{.markdown filename="my_eval_dataset.csv"}
+input,           target
+What is 2 + 2?,  4
+What is 10 * 5?, 50
+```
 
-1. Feed each sample's input to your chatlas solver
-2. Collect the model's response
-3. Grade the response using the scorer
-4. Generate a report with accuracy metrics
+### Get results
 
-### Viewing results
+Once you have a script with one or more `@task`-decorated functions (see above), you can run them via the `inspect` CLI:
 
-After running an evaluation, you can view detailed results using Inspect's viewer:
+```bash
+inspect eval my_eval.py
+```
+
+This runs all tasks in `my_eval.py`, passing a `grader_model` as a parameter to the task function. Once complete, you can interactively view the results with:
 
 ```bash
 inspect view
 ```
 
-This opens a web interface showing:
-- Overall accuracy and metrics
-- Individual sample results
-- Response comparisons
-- Token usage statistics
+<!-- TODO: insert screenshot of viewer -->
 
-### Example with conversation context
+To learn more about running and viewing, see the Inspect AI docs on [eval options](https://inspect.aisi.org.uk/options.html) and the [log viewer](https://inspect.aisi.org.uk/logger.html).
 
-One of chatlas's strengths is retaining conversation history. You can leverage this in evaluations by setting up conversation context before running the eval:
+::: callout-tip
+### VSCode
 
-```python
-from chatlas import ChatOpenAI, Turn
-from inspect_ai import Task, eval
-from inspect_ai.dataset import Sample
-from inspect_ai.model import get_model
-from inspect_ai.scorer import model_graded_qa
+Inspect also provides a [VS Code extension](https://inspect.aisi.org.uk/vscode.html) for running and viewing evals directly within the editor.
+:::
 
-# Create chat with conversation history
-chat = ChatOpenAI(
-    model="gpt-5-nano-2025-08-07",
-    system_prompt="You are a helpful assistant with knowledge of world geography.",
-)
+## Understanding solvers 
 
-# Set up conversation context
+The [`.to_solver()`](../reference/Chat.qmd#to_solver) method translates your `chat` instance into an Inspect `solver`. Think of it as "wrapping" your `chat` app so that it can be used generate responses for an Inspect eval. More specifically, think `chat.to_solver()` as creating a new object (the `solver`) that, when given an `input` from the eval `dataset`, will internally call your `chat` instance to generate a response. This `solver` captures important state from your `chat` instance, such as model, system prompt, conversation history, registered tools, model parameters, etc.
+
+This hopefully provides some intuition about how to set up your evals, but let's also walk through a few important situations below.
+
+### Conversation history
+
+For evals that depend on conversation history, use the [`.set_turns()`](../reference/Chat.qmd#set_turns) method to pre-populate the chat history before converting it to a solver. For example:
+
+```{.python filename="my_eval.py"}
+chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
+
+# Could also use .chat() to build up history, but this is 
+# faster, cheaper, and deterministic
 chat.set_turns([
-    Turn("user", "What is the capital of France?"),
-    Turn("assistant", "The capital of France is Paris."),
+    Turn("user", "My name is Gregg."),
+    Turn("assistant", "Hello Gregg! How can I assist you today?"),
 ])
 
-# Now test follow-up questions that depend on this context
-task = Task(
-    dataset=[
-        Sample(
-            input="What river flows through that city?",
-            target="The Seine river flows through Paris.",
-            id="followup_1",
-        ),
-        Sample(
-            input="What is the population of that capital?",
-            target="Paris has a population of approximately 2.1 million people.",
-            id="followup_2",
-        ),
-    ],
-    solver=chat.to_solver(),
-    scorer=model_graded_qa(model=get_model("openai/gpt-5-nano-2025-08-07")),
-    model=get_model("openai/gpt-5-nano-2025-08-07"),
-)
-
-results = eval(task)
+@task
+def my_eval():
+    return Task(
+        dataset=csv_dataset("my_eval_dataset.csv"),
+        solver=chat.to_solver(),
+        scorer=model_graded_qa(model="openai/gpt-4o-mini")
+    )
 ```
 
-This is powerful for testing whether your model correctly maintains context across turns.
+This way, the `dataset` doesn't need to include the full conversation history for each `input` prompt; the `solver` will already provide the relevant background context.
 
-### Example with tool calling
+```{.markdown filename="my_eval_dataset.csv"}
+input,            target
+What is my name?, Your name is Gregg -- how can I help you today?
+```
 
-If you've registered tools with your chat instance, they'll automatically work in evaluations:
+### Tool calling
 
-```python
-from chatlas import ChatOpenAI
-from inspect_ai import Task, eval
-from inspect_ai.dataset import Sample
-from inspect_ai.model import get_model
-from inspect_ai.scorer import model_graded_qa
-import datetime
+In addition to preserving conversation history, [`.to_solver()`](../reference/Chat.qmd#to_solver) will also preserve any registered tools on your `chat` instance. This means that if your `chat` app uses tools, you can still convert it to a `solver` for evals.
 
-# Create chat and register a tool
-chat = ChatOpenAI(
-    model="gpt-5-nano-2025-08-07",
-    system_prompt="You are an assistant that can use tools to answer questions.",
-)
+```{.python filename="my_eval.py"}
+chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
 
 def get_current_date():
     """Get the current date in YYYY-MM-DD format."""
@@ -242,49 +151,125 @@ def get_current_date():
 
 chat.register_tool(get_current_date)
 
-# Evaluate whether the model uses the tool correctly
-task = Task(
-    dataset=[
-        Sample(
-            input="What is today's date?",
-            target="The current date should be in YYYY-MM-DD format and should be October 2, 2025 or later.",
-            id="date_tool_1",
-        ),
-    ],
-    solver=chat.to_solver(),
-    scorer=model_graded_qa(
-        model=get_model("openai/gpt-5-nano-2025-08-07"),
-        partial_credit=True,
-    ),
-    model=get_model("openai/gpt-5-nano-2025-08-07"),
-)
-
-results = eval(task)
+@task
+def my_eval():
+    return Task(
+        dataset=csv_dataset("my_eval_dataset.csv"),
+        solver=chat.to_solver(),
+        scorer=model_graded_qa(model="openai/gpt-4o-mini")
+    )
 ```
 
-The solver automatically handles the tool calling loop, just like it does in normal `.chat()` calls.
-
-## Best practices
-
-When building evals with chatlas and Inspect AI:
-
-1. **Start small**: Begin with 5-10 high-quality test cases, then expand
-2. **Use diverse samples**: Cover edge cases, common queries, and error conditions
-3. **Be specific with targets**: Vague expected answers make scoring difficult
-4. **Test incrementally**: Run evals as you develop, not just at the end
-5. **Version your evals**: Keep your eval datasets in version control alongside your code
-6. **Use appropriate scorers**: `model_graded_qa()` is flexible but may be slow; consider exact match for simple cases
-
-::: {.callout-tip}
-### Running evals in CI/CD
-
-You can run Inspect evaluations in your continuous integration pipeline to catch regressions:
-
-```bash
-# In your CI script
-pip install chatlas inspect-ai
-python run_evals.py
+```{.markdown filename="my_eval_dataset.csv"}
+input,            target
+What is today's date?, The current date should be in YYYY-MM-DD format and should be October 2, 2025 or later.
 ```
 
-If accuracy drops below a threshold, fail the build!
+::: callout-note
+### What's in a `target`?
+
+Depending on the scorer you choose, the `target` column in your dataset may represent different things. For example, with `model_graded_qa()`, the `target` provides grading guidance that the grader model will use to determine if the `solver`'s response is satisfactory. This could include specific criteria, desired answer formats, or other instructions. We'll discuss this more in the [Scorers](#scorers) section below.
 :::
+
+## Understanding scorers
+
+A scorer assigns a grade to the `solver`'s response (i.e., `output`) using the relevant `input`+`target`. Inspect comes with many [built-in scorers](https://inspect.aisi.org.uk/scorers.html), ranging from simple exact matching to more complex LLM-based grading. 
+
+In many cases, you'll want some of the more advanced LLM-based options like [`model_graded_qa()`](https://inspect.aisi.org.uk/reference/inspect_ai.scorer.html#model_graded_qa) and [`model_graded_fact()`](https://inspect.aisi.org.uk/reference/inspect_ai.scorer.html#model_graded_fact), since they can handle a wide range of `input`, `output`, and grading criteria. These scorers use another LLM (an entirely different one from the solver) to produce a fail/pass grade based on the `input`'s `target` and the solver's response. This is a good place to start (0-1 response), but you can also enable `partial_credit` to get 0.5 score for partially correct answers.[^partial-credit]
+
+[^partial-credit]: One place where `partial_credit` can be useful is when evaluating code generation tasks. For example, if the solver generates code that is mostly correct but has a small bug, you might want to give it partial credit rather than marking it as entirely incorrect.
+
+The main difference between these two graders is their intended use cases: `model_graded_fact()` is specifically for fact-based questions whereas `model_graded_qa()` is more general-purpose. In practice, this means that, for `model_graded_fact()`, `target` should contain the correct answer(s), whereas with `model_graded_qa()`, `target` should contain grading criteria and/or guidance. To understand better what the scorer actually sees in each case, it can help to actually look at the prompts they receive under the hood.
+
+::: {.callout-tip collapse="true"}
+### Show me the prompts!
+
+Below are the prompt templates used by `model_graded_qa()` and `model_graded_fact()`.
+Recall that `input` and `target` come from your eval `dataset`, and `output` is the `solver`'s response.
+
+::: {.panel .panel-tabset}
+
+### model_graded_qa
+
+```markdown
+You are assessing a submitted answer on a given task based on a criterion. 
+Here is the data:
+
+[BEGIN DATA]
+************
+[Task]: {input}
+************
+[Submission]: {output}
+************
+[Criterion]: {target}
+************
+[END DATA]
+
+Does the submission meet the criterion?
+
+{instructions}
+```
+:::
+
+
+### model_graded_fact
+
+```markdown
+You are comparing a submitted answer to an expert answer on a given question. 
+Here is the data:
+
+[BEGIN DATA]
+************
+[Question]: {input}
+************
+[Expert]: {target}
+************
+[Submission]: {output}
+************
+[END DATA]
+
+Compare the factual content of the submitted answer with the expert answer. Ignore any differences in style, grammar, or punctuation.
+
+Does the submission contain the content in the expert answer?
+
+{instructions}
+```
+
+And the default `instructions` are:
+
+```
+After assessing the submitted answer, reply with 'GRADE: $LETTER' (without quotes) where LETTER is one of C{partial_letter}I.  Please choose ONE option for the grade: either "C" for correct answers, {partial_prompt}or "I" for incorrect answers.
+
+For example, after reviewing a correct answer you might write 'GRADE: C' or after reviewing an incorrect answer you might write 'GRADE: I'.
+
+First, write out in a step by step manner your reasoning about the criterion to be sure that your conclusion is correct. Avoid simply stating the correct answers at the outset. Then, end with your answer formatted as 'GRADE: $LETTER' (without quotes) where LETTER is one of C{partial_letter}I.
+```
+:::
+
+
+To learn more about scorers, see the [Inspect AI docs](https://inspect.aisi.org.uk/scorers.html) for details.
+
+
+## Collecting datasets
+
+In Inspect, a `dataset` can be represented as a data frame with columns, minimally, `input` and `target`. A "sample" is a row of a dataset. `input` defines questions inputted by end users and `target` defines the target answer and/or grading guidance for it. What sorts of input prompts should you include, though?
+
+In short, inputs should be **natural**. Rather than "setting up" the model with exactly the right context and phrasing, "[i]t's important that the dataset... represents the types of interactions that your AI will have in production" [@husain2024judge].
+
+If your system is going to answer a set of questions similar to some set that already exists -- support tickets, for example -- use the actual tickets themselves rather than writing your own from scratch. In this case, refrain from correcting spelling errors, removing unneeded context, or doing any "sanitizing" before providing the system with the input; you want the distribution of inputs to resemble what the system will encounter in the wild as closely as possible.
+
+If there is no existing resource of input prompts to pull from, still try to avoid this sort of unrealistic set-up. I'll specifically call out multiple choice questions here -- while multiple choice responses are easy to grade automatically, your inputs should only provide a system with multiple choices to select from if the production system will also have access to multiple choices [@press2024benchmarks]. If you're writing your own questions, I encourage you to read the ["Dimensions for Structuring Your Dataset" section](https://hamel.dev/blog/posts/llm-judge/#dimensions-for-structuring-your-dataset) from @husain2024judge, which provides a few axes to keep in mind when thinking about how to generate data that resembles what your system will ultimately see:
+
+> You want to define dimensions that make sense for your use case. For example, here are ones that I often use for B2C applications:
+>
+> Features: Specific functionalities of your AI product.
+>
+> Scenarios: Situations or problems the AI may encounter and needs to handle.
+>
+> Personas: Representative user profiles with distinct characteristics and needs.
+
+The other part of the "how" is the mechanics. You probably don't want to paste in a bunch of questions into a call to `tibble()`, escape a bunch of quotes, etc. Instead, here's how I've written evals:
+
+-   Consider what metadata you want to keep track of along with your `input` and `target`. Do you want to tag questions with categories? Include a source URL? This isn't stuff that will actually be integrated into the eval, but that will be carried along throughout the evaluation to aid you with analysis down the line.
+-   Prompt a model (Claude 4 Sonnet is quite good at this) to make you a Shiny app that will help you generate samples quickly (and, hopefully, joyfully). The app might provide you with a free text box to paste in the `input` and another for the `target`, fields for whatever metadata you'd like to carry along, and a "Submit" button. When you click "Submit", the app should write the inputted values into a `.yaml` file in some directory and "clear" the app so that you can then add a new sample. Here's a [sample prompt](https://github.com/simonpcouch/choreseval/blob/main/data-raw/sample-generator-prompt.txt) that I used to help me write an eval dataset recently.
+-   Then, once you've created a sufficient number of samples (30 is a good place to start), read all of the yaml files in that directory into R, bind rows, and you've got a dataset. Here's a [sample script](https://github.com/simonpcouch/choreseval/blob/51694ad44f09fdef234f7348f4409c494c585bd3/data-raw/chores-dataset.R) that does this for the eval linked in the previous bullet.

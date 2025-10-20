@@ -67,6 +67,7 @@ website:
       align: left
       contents:
         - index.qmd
+        - misc/vocabulary.qmd
         - section: "Get started"
           contents:
             - get-started/models.qmd
@@ -99,7 +100,6 @@ website:
           contents:
             - misc/RAG.qmd
             - misc/mcp-tools.qmd
-            - misc/vocabulary.qmd
             - misc/evals.qmd
 
 
