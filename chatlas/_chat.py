@@ -4,6 +4,7 @@ import copy
 import inspect
 import os
 import sys
+import time
 import traceback
 import warnings
 from pathlib import Path
@@ -868,9 +869,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         @isolver.solver("chatlas_solver")
         def _solver():
             async def solve(state: InspectTaskState, generate):
+                start_time = time.perf_counter()
                 if not state.messages:
                     for turn in chat_instance.get_turns():
-                        state.messages.append(*turn_as_messages(turn, model=model))
+                        state.messages.extend(turn_as_messages(turn, turn.role, model))
 
                 user_content = state.user_prompt.content
                 if isinstance(user_content, str):
@@ -885,19 +887,27 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 last_turn = chat_instance.get_last_turn(role="assistant")
                 if last_turn is None:
                     raise ValueError("No assistant turn found after chat completion")
-                state.messages.append(*turn_as_messages(last_turn, model=model))
-                tokens = last_turn.tokens or (0, 0, 0)
-                state.output = imodel.ModelOutput(
-                    model=model,
-                    # TODO: add choices?
-                    # choices=<choices>,
-                    completion=last_turn.text,
-                    usage=imodel.ModelUsage(
+
+                last_turn_message = turn_as_messages(last_turn, "assistant", model)[0]
+                state.messages.append(last_turn_message)
+
+                tokens = last_turn.tokens
+                if tokens is None:
+                    usage = None
+                else:
+                    usage = imodel.ModelUsage(
                         input_tokens=tokens[0],
                         output_tokens=tokens[1],
                         total_tokens=tokens[0] + tokens[1],
                         input_tokens_cache_read=tokens[2],
-                    ),
+                    )
+
+                state.output = imodel.ModelOutput(
+                    model=model,
+                    choices=[imodel.ChatCompletionChoice(message=last_turn_message)],
+                    completion=last_turn.text,
+                    usage=usage,
+                    time=time.perf_counter() - start_time,
                 )
                 return state
 

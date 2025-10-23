@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, overload
 
 from ._content import (
     Content,
@@ -19,8 +19,34 @@ if TYPE_CHECKING:
     import inspect_ai.solver as isolver
     import inspect_ai.tool as itool
 
+Role = Literal["system", "user", "assistant"]
 
-def turn_as_messages(turn: Turn, model: str | None = None) -> list:
+
+@overload
+def turn_as_messages(
+    turn: Turn, role: Literal["system"], model: str | None = None
+) -> list[imodel.ChatMessageSystem]: ...
+
+
+@overload
+def turn_as_messages(
+    turn: Turn, role: Literal["user"], model: str | None = None
+) -> list[imodel.ChatMessage]: ...
+
+
+@overload
+def turn_as_messages(
+    turn: Turn, role: Literal["assistant"], model: str | None = None
+) -> list[imodel.ChatMessageAssistant]: ...
+
+
+def turn_as_messages(
+    turn: Turn, role: Role, model: str | None = None
+) -> (
+    list[imodel.ChatMessageSystem]
+    | list[imodel.ChatMessage]
+    | list[imodel.ChatMessageAssistant]
+):
     """
     Translate a chatlas Turn into InspectAI ChatMessages.
 
