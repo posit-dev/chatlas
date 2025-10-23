@@ -809,69 +809,59 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def to_solver(self):
         """
-        Return an InspectAI solver that proxies prompts through this chat.
+        Create an InspectAI solver from this chat.
 
-        This method creates an InspectAI solver that uses this Chat instance to
-        generate responses. The solver automatically translates the chat's
-        conversation history (including system prompt, previous turns, and rich
-        content) into InspectAI's message format.
+        Translates this Chat instance into an InspectAI solver function that can
+        be used with InspectAI's evaluation framework. This solver will capture
+        (and translate) important state from the chat, including the model,
+        system prompt, previous turns, registered tools, model parameters, etc.
 
         Returns
         -------
-        Solver
-            An InspectAI solver function that can be used with InspectAI's
-            evaluation framework.
-
-        For more information on InspectAI solvers, see the
-        [Solvers documentation](https://inspect.ai-safety-institute.org.uk/solvers.html).
+        An [InspectAI solver](https://inspect.ai-safety-institute.org.uk/solvers.html)
+        function that can be used with InspectAI's evaluation framework.
 
         Examples
         --------
-         First, put this code in a python script, perhaps named `eval_chat.py`
-         
-        ```python
+        First, put this code in a python script, perhaps named `eval_chat.py`
+
+        ```{.python filename="eval_chat.py"}
         from chatlas import ChatOpenAI
-        import inspect_ai as iai
-        from inspect_ai.dataset import Sample
-        from inspect_ai.scorer import model_graded_fact
+        from inspect_ai import Task, task
+        from inspect_ai.dataset import csv_dataset
+        from inspect_ai.scorer import model_graded_qa
 
-        chat = ChatOpenAI(
-            system_prompt="You are a helpful assistant. Be concise.",
-            model="gpt-5-nano-2025-08-07",
-        )
+        chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
 
-        # Convert to InspectAI solver
-        solver = chat.to_solver()
+        @task
+        def my_eval(grader_model: str = "openai/gpt-4o"):
+            return Task(
+                dataset=csv_dataset("my_eval_dataset.csv"),
+                solver=chat.to_solver(),
+                scorer=model_graded_qa(model=grader_model)
+            )
+        ```
 
-        # InspectAI evaluation task
-        task = iai.Task(
-            dataset=[Sample(input="What is 2+2?", target="4")],
-            solver=solver,
-            scorer=model_graded_fact()
-        )
-
-        iai.eval(task, model="openai/gpt-5-nano-2025-08-07")
-        # Or, if running interactively in Jupyter/Positron
-        # await iai.eval_async(task, model="openai/gpt-5-nano-2025-08-07")
-
-         ```
-
-         Now, from a terminal, run the evaluation and view the results
+        Then run the evaluation with InspectAI's CLI:
 
         ```bash
-        python eval_chat.py
-        inspect view
+        inspect eval eval_chat.py -T --grader-model openai/gpt-4o
         ```
+
+        Note
+        ----
+        Learn more about this method and InspectAI's evaluation framework
+        in the [Chatlas documentation](https://posit-dev.github.io/chatlas/misc/evals.html).
         """
 
         try:
             import inspect_ai.model as imodel
             import inspect_ai.solver as isolver
-        except ImportError as exc:  # pragma: no cover - optional dependency
+        except ImportError as e:  # pragma: no cover - optional dependency
             raise ImportError(
                 "Chat.to_solver() requires the optional dependency `inspect-ai`. "
                 "Install it with `pip install inspect-ai`."
-            ) from exc
+            ) from e
 
         from ._inspect import content_to_chatlas, turn_as_messages
 
