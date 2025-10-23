@@ -53,6 +53,8 @@ from ._typing_extensions import TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 if TYPE_CHECKING:
+    from inspect_ai.solver import TaskState as InspectTaskState
+
     from ._content import ToolAnnotations
 
 
@@ -854,16 +856,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         in the [Chatlas documentation](https://posit-dev.github.io/chatlas/misc/evals.html).
         """
 
-        try:
-            import inspect_ai.model as imodel
-            import inspect_ai.solver as isolver
-        except ImportError as e:  # pragma: no cover - optional dependency
-            raise ImportError(
-                "Chat.to_solver() requires the optional dependency `inspect-ai`. "
-                "Install it with `pip install inspect-ai`."
-            ) from e
+        from ._inspect import content_to_chatlas, try_import_inspect, turn_as_messages
 
-        from ._inspect import content_to_chatlas, turn_as_messages
+        (imodel, isolver, _) = try_import_inspect()
 
         # Create a copy of the chat to avoid modifying its state
         # when inspect uses the solver
@@ -872,7 +867,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         @isolver.solver("chatlas_solver")
         def _solver():
-            async def solve(state: isolver.TaskState, generate: isolver.Generate):
+            async def solve(state: InspectTaskState, generate):
                 if not state.messages:
                     for turn in chat_instance.get_turns():
                         state.messages.append(*turn_as_messages(turn, model=model))

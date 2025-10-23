@@ -108,7 +108,7 @@ def test_chat_to_solver_without_inspect_ai():
 
     # Mock inspect_ai as not installed in sys.modules
     with patch.dict(sys.modules, {"inspect_ai": None, "inspect_ai.model": None}):
-        with pytest.raises(ImportError, match="requires the optional dependency"):
+        with pytest.raises(ImportError, match="pip install inspect-a"):
             chat.to_solver()
 
 

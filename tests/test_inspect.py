@@ -2,6 +2,16 @@ import pytest
 
 pytest.importorskip("inspect_ai")
 
+from inspect_ai.model import (
+    ChatMessageAssistant,
+    ChatMessageSystem,
+    ChatMessageTool,
+    ChatMessageUser,
+)
+from inspect_ai.tool import ContentData, ContentImage
+from inspect_ai.tool import ContentText as IContentText
+from inspect_ai.tool import ToolCall
+
 from chatlas._content import (
     ContentImageRemote,
     ContentJson,
@@ -11,31 +21,19 @@ from chatlas._content import (
 )
 from chatlas._inspect import content_to_chatlas, content_to_inspect, turn_as_messages
 from chatlas._turn import Turn
-from inspect_ai.model import (
-    ChatMessageAssistant,
-    ChatMessageSystem,
-    ChatMessageTool,
-    ChatMessageUser,
-)
-from inspect_ai.tool import ContentData, ContentImage, ToolCall
-from inspect_ai.tool import ContentText as IContentText
 
 
 def test_inspect_helpers_require_inspect_ai():
-    from chatlas._inspect import INSPECT_AVAILABLE
+    with pytest.raises(ImportError, match="requires the optional dependency"):
+        turn_as_messages(Turn("user", "test"))
 
-    # If inspect_ai is actually not available, test the error
-    if not INSPECT_AVAILABLE:
-        with pytest.raises(ImportError, match="requires the optional dependency"):
-            turn_as_messages(Turn("user", "test"))
+    with pytest.raises(ImportError, match="requires the optional dependency"):
+        from chatlas._content import ContentText
 
-        with pytest.raises(ImportError, match="requires the optional dependency"):
-            from chatlas._content import ContentText
+        content_to_inspect(ContentText(text="test"))
 
-            content_to_inspect(ContentText(text="test"))
-
-        with pytest.raises(ImportError, match="requires the optional dependency"):
-            content_to_chatlas("test")
+    with pytest.raises(ImportError, match="requires the optional dependency"):
+        content_to_chatlas("test")
 
 
 def test_turn_as_messages_system():

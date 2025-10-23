@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ._content import (
     Content,
     ContentImageInline,
@@ -12,13 +14,10 @@ from ._content import (
 )
 from ._turn import Turn
 
-try:
+if TYPE_CHECKING:
     import inspect_ai.model as imodel
+    import inspect_ai.solver as isolver
     import inspect_ai.tool as itool
-
-    INSPECT_AVAILABLE = True
-except ImportError:
-    INSPECT_AVAILABLE = False
 
 
 def turn_as_messages(turn: Turn, model: str | None = None) -> list:
@@ -44,11 +43,7 @@ def turn_as_messages(turn: Turn, model: str | None = None) -> list:
     ValueError
         If the turn has an unknown role
     """
-    if not INSPECT_AVAILABLE:
-        raise ImportError(
-            "InspectAI integration requires the optional dependency `inspect-ai`. "
-            "Install it with `pip install inspect-ai`."
-        )
+    (imodel, _, itool) = try_import_inspect()
 
     if turn.role == "system":
         return [imodel.ChatMessageSystem(content=turn.text)]
@@ -126,11 +121,7 @@ def content_to_inspect(content: Content) -> itool.Content:
     ValueError
         If the content type cannot be translated
     """
-    if not INSPECT_AVAILABLE:
-        raise ImportError(
-            "InspectAI integration requires the optional dependency `inspect-ai`. "
-            "Install it with `pip install inspect-ai`."
-        )
+    (_, _, itool) = try_import_inspect()
 
     if isinstance(content, ContentText):
         return itool.ContentText(text=content.text)
@@ -176,11 +167,7 @@ def content_to_chatlas(content: str | itool.Content) -> Content:
     ValueError
         If the content type is not supported
     """
-    if not INSPECT_AVAILABLE:
-        raise ImportError(
-            "InspectAI integration requires the optional dependency `inspect-ai`. "
-            "Install it with `pip install inspect-ai`."
-        )
+    (_, _, itool) = try_import_inspect()
 
     if isinstance(content, str):
         return ContentText(text=content)
@@ -207,3 +194,17 @@ def content_to_chatlas(content: str | itool.Content) -> Content:
     raise ValueError(
         f"Inspect AI content of type {type(content)} is not currently supported by chatlas"
     )
+
+
+def try_import_inspect() -> "tuple[imodel, isolver, itool]":  # pyright: ignore[reportInvalidTypeForm]
+    try:
+        import inspect_ai.model as imodel
+        import inspect_ai.solver as isolver
+        import inspect_ai.tool as itool
+
+        return imodel, isolver, itool  # pyright: ignore[reportReturnType]
+    except ImportError as e:
+        raise ImportError(
+            "This functionality requires `inspect-ai`. "
+            "Install it with `pip install inspect-ai`."
+        ) from e
