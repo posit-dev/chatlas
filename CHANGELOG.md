@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+
+
+## [0.13.2] - 2025-10-02
+
 ### Improvements
 
 * `ContentToolResult`'s `.get_model_value()` method now calls `.to_json(orient="record")` (instead of `.to_json()`) when relevant. As a result, if a tool call returns a Pandas `DataFrame` (or similar), the model now receives a less confusing (and smaller) JSON format. (#183)
