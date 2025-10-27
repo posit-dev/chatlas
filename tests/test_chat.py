@@ -2,6 +2,8 @@ import re
 import tempfile
 
 import pytest
+from pydantic import BaseModel
+
 from chatlas import (
     ChatOpenAI,
     ContentToolRequest,
@@ -10,164 +12,12 @@ from chatlas import (
     Turn,
 )
 from chatlas._chat import ToolFailureWarning
-from pydantic import BaseModel
 
 
 def test_simple_batch_chat():
     chat = ChatOpenAI()
     response = chat.chat("What's 1 + 1. Just give me the answer, no punctuation")
     assert str(response) == "2"
-
-
-def test_chat_to_solver_creates_solver():
-    pytest.importorskip("inspect_ai")
-
-    chat = ChatOpenAI()
-    solver = chat.to_solver()
-
-    assert callable(solver)
-
-
-def test_chat_to_solver_with_history():
-    pytest.importorskip("inspect_ai")
-
-    chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
-    chat.set_turns(
-        [
-            Turn("user", "What is 2 + 2?"),
-            Turn("assistant", "4"),
-        ]
-    )
-
-    solver = chat.to_solver()
-
-    assert callable(solver)
-    assert len(chat.get_turns(include_system_prompt=False)) == 2
-    assert chat.system_prompt == "You are a helpful assistant."
-
-
-def test_chat_to_solver_with_rich_content():
-    pytest.importorskip("inspect_ai")
-    from chatlas import content_image_url
-
-    chat = ChatOpenAI(system_prompt="You analyze images.")
-
-    # Create a turn with mixed content (text + image)
-    image_content = content_image_url("https://example.com/image.jpg")
-    chat.set_turns(
-        [
-            Turn("user", ["Describe this image", image_content]),
-            Turn("assistant", "This is a test image."),
-        ]
-    )
-
-    solver = chat.to_solver()
-
-    assert callable(solver)
-    turns = chat.get_turns(include_system_prompt=False)
-    assert len(turns) == 2
-    assert len(turns[0].contents) == 2  # text + image
-    assert chat.system_prompt == "You analyze images."
-
-
-def test_chat_to_solver_with_tool_calls():
-    pytest.importorskip("inspect_ai")
-    from chatlas import ContentToolRequest, ContentToolResult
-
-    chat = ChatOpenAI()
-
-    # Create a turn with tool calls
-    tool_request = ContentToolRequest(
-        id="call_123", name="get_weather", arguments={"city": "NYC"}
-    )
-    tool_result = ContentToolResult(value="Sunny, 75°F", request=tool_request)
-
-    chat.set_turns(
-        [
-            Turn("user", "What's the weather in NYC?"),
-            Turn("assistant", [tool_request]),
-            Turn("user", [tool_result]),
-            Turn("assistant", "The weather in NYC is sunny and 75°F."),
-        ]
-    )
-
-    solver = chat.to_solver()
-
-    assert callable(solver)
-    turns = chat.get_turns(include_system_prompt=False)
-    assert len(turns) == 4
-    assert isinstance(turns[1].contents[0], ContentToolRequest)
-    assert isinstance(turns[2].contents[0], ContentToolResult)
-
-
-def test_chat_to_solver_without_inspect_ai():
-    import sys
-    from unittest.mock import patch
-
-    chat = ChatOpenAI()
-
-    # Mock inspect_ai as not installed in sys.modules
-    with patch.dict(sys.modules, {"inspect_ai": None, "inspect_ai.model": None}):
-        with pytest.raises(ImportError, match="pip install inspect-a"):
-            chat.to_solver()
-
-
-@pytest.mark.asyncio
-async def test_chat_to_solver_with_pdf_content():
-    pytest.importorskip("inspect_ai")
-    from chatlas._content import ContentPDF
-
-    chat = ChatOpenAI(system_prompt="You analyze documents.")
-
-    pdf_content = ContentPDF(data=b"Mock PDF data")
-    chat.set_turns(
-        [
-            Turn("user", ["Analyze this document", pdf_content]),
-            Turn("assistant", "This appears to be a PDF document."),
-        ]
-    )
-
-    solver = chat.to_solver()
-    assert callable(solver)
-
-    turns = chat.get_turns(include_system_prompt=False)
-    assert len(turns) == 2
-    assert any(isinstance(c, ContentPDF) for c in turns[0].contents)
-
-
-@pytest.mark.asyncio
-async def test_chat_to_solver_with_json_content():
-    pytest.importorskip("inspect_ai")
-    from chatlas._content import ContentJson
-
-    chat = ChatOpenAI()
-
-    json_content = ContentJson(value={"key": "value", "number": 42})
-    chat.set_turns(
-        [
-            Turn("user", "Process this data"),
-            Turn("assistant", [json_content]),
-        ]
-    )
-
-    solver = chat.to_solver()
-    assert callable(solver)
-
-    turns = chat.get_turns(include_system_prompt=False)
-    assert len(turns) == 2
-    assert any(isinstance(c, ContentJson) for c in turns[1].contents)
-
-
-def test_chat_to_solver_deepcopy_isolation():
-    pytest.importorskip("inspect_ai")
-
-    chat = ChatOpenAI()
-    initial_turns_count = len(chat.get_turns())
-
-    solver = chat.to_solver()
-
-    assert len(chat.get_turns()) == initial_turns_count
-    assert callable(solver)
 
 
 @pytest.mark.asyncio

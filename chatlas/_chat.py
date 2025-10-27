@@ -23,7 +23,6 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
-    cast,
     overload,
 )
 
@@ -56,7 +55,6 @@ from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 if TYPE_CHECKING:
     from inspect_ai.model import ChatMessage as InspectChatMessage
-    from inspect_ai.model import ChatMessageAssistant as InspectChatMessageAssistant
     from inspect_ai.solver import TaskState as InspectTaskState
 
     from ._content import ToolAnnotations
@@ -888,6 +886,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             inspect_content_as_chatlas,
             inspect_messages_as_turns,
             try_import_inspect,
+            turn_as_inspect_messages,
         )
 
         (imodel, isolver, _) = try_import_inspect()
@@ -928,18 +927,23 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 # we translate the message state back to the chat instance.
                 # N.B., state.message can include non-trivial dataset of sample input
                 # (e.g., `Sample(input=[ChatMessage, ...])`)
-                system_prompts: list["InspectChatMessage"] = []
-                other_prompts: list["InspectChatMessage"] = []
-                for x in state.messages:
-                    if x.role == "system":
-                        system_prompts.append(x)
+                system_messages: list["InspectChatMessage"] = []
+                other_messages: list["InspectChatMessage"] = []
+                user_prompt: "InspectChatMessage | None" = None
+                for x in reversed(state.messages):
+                    if x.role == "user" and user_prompt is None:
+                        user_prompt = x
+                    elif x.role == "system":
+                        system_messages.append(x)
                     else:
-                        other_prompts.append(x)
+                        other_messages.append(x)
+
+                other_messages.reverse()
 
                 # Set the system prompt on the chat instance
-                if len(system_prompts) == 1:
-                    chat_instance.system_prompt = str(system_prompts[0])
-                elif len(system_prompts) > 1:
+                if len(system_messages) == 1:
+                    chat_instance.system_prompt = str(system_messages[0])
+                elif len(system_messages) > 1:
                     raise ValueError(
                         "Multiple system prompts detected in `.to_solver()`, but chatlas only "
                         "supports a single system prompt. This usually indicates that the system "
@@ -949,26 +953,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     )
 
                 # Now, set the other messages as turns on the chat instance
-                chat_instance.set_turns(inspect_messages_as_turns(other_prompts))
+                chat_instance.set_turns(inspect_messages_as_turns(other_messages))
 
-                # TODO: inspect docs mention this is always the _first_? user message??
-                user_content = state.user_prompt.content
-                if isinstance(user_content, str):
-                    input_content = [user_content]
-                else:
-                    input_content = [
-                        inspect_content_as_chatlas(x) for x in user_content
-                    ]
+                if user_prompt is None:
+                    raise ValueError("No user prompt found in InspectAI state messages")
+
+                input_content = [inspect_content_as_chatlas(x) for x in user_prompt.content]
 
                 await chat_instance.chat_async(*input_content, echo="none")
                 last_turn = chat_instance.get_last_turn(role="assistant")
                 if last_turn is None:
                     raise ValueError("No assistant turn found after chat completion")
 
-                last_turn_message = cast(
-                    "InspectChatMessageAssistant",
-                    last_turn.to_inspect_messages(model)[0],
-                )
+                last_turn_message = turn_as_inspect_messages(
+                    last_turn, "assistant", model
+                )[0]
                 state.messages.append(last_turn_message)
 
                 tokens = last_turn.tokens

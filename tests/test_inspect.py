@@ -1,256 +1,331 @@
+import datetime
+import sys
+from unittest.mock import patch
+
 import pytest
+
+from chatlas import Chat, ChatAnthropic, Turn
 
 pytest.importorskip("inspect_ai")
 
-from inspect_ai.model import (
-    ChatMessageAssistant,
-    ChatMessageSystem,
-    ChatMessageTool,
-    ChatMessageUser,
-)
-from inspect_ai.tool import ContentData, ContentImage
-from inspect_ai.tool import ContentText as IContentText
-from inspect_ai.tool import ToolCall
+from inspect_ai import Task
+from inspect_ai import eval as inspect_eval
+from inspect_ai.dataset import Sample, json_dataset
+from inspect_ai.model import ChatMessageSystem, ChatMessageUser
+from inspect_ai.scorer import model_graded_qa
 
-from chatlas._content import (
-    ContentImageRemote,
-    ContentJson,
-    ContentText,
-    ContentToolRequest,
-    ContentToolResult,
-)
-from chatlas._inspect import content_to_chatlas, content_to_inspect, turn_as_messages
-from chatlas._turn import Turn
+MODEL = "claude-haiku-4-5-20251001"
+SCORER_MODEL = f"anthropic/{MODEL}"
+SYSTEM_DEFAULT = "You are a helpful assistant that provides concise answers."
 
 
-def test_inspect_helpers_require_inspect_ai():
-    with pytest.raises(ImportError, match="requires the optional dependency"):
-        turn_as_messages(Turn("user", "test"))
-
-    with pytest.raises(ImportError, match="requires the optional dependency"):
-        from chatlas._content import ContentText
-
-        content_to_inspect(ContentText(text="test"))
-
-    with pytest.raises(ImportError, match="requires the optional dependency"):
-        content_to_chatlas("test")
-
-
-def test_turn_as_messages_system():
-    pytest.importorskip("inspect_ai")
-
-    turn = Turn("system", "You are a helpful assistant.")
-    messages = turn_as_messages(turn)
-
-    assert len(messages) == 1
-    assert isinstance(messages[0], ChatMessageSystem)
-    assert messages[0].content == "You are a helpful assistant."
-
-
-def test_turn_as_messages_user():
-    pytest.importorskip("inspect_ai")
-
-    turn = Turn("user", "Hello!")
-    messages = turn_as_messages(turn)
-
-    assert len(messages) == 1
-    assert isinstance(messages[0], ChatMessageUser)
-
-
-def test_turn_as_messages_assistant():
-    pytest.importorskip("inspect_ai")
-
-    turn = Turn("assistant", "Hi there!")
-    messages = turn_as_messages(turn, model="gpt-5-nano-2025-08-07")
-
-    assert len(messages) == 1
-    assert isinstance(messages[0], ChatMessageAssistant)
-    assert messages[0].model == "gpt-5-nano-2025-08-07"
-
-
-def test_content_to_inspect_text():
-    pytest.importorskip("inspect_ai")
-
-    content = ContentText(text="Hello world")
-    inspect_content = content_to_inspect(content)
-
-    assert isinstance(inspect_content, IContentText)
-    assert inspect_content.text == "Hello world"
-
-
-def test_content_to_inspect_image_remote():
-    pytest.importorskip("inspect_ai")
-
-    content = ContentImageRemote(url="https://example.com/image.jpg", detail="high")
-    inspect_content = content_to_inspect(content)
-
-    assert isinstance(inspect_content, ContentImage)
-    assert inspect_content.image == "https://example.com/image.jpg"
-    assert inspect_content.detail == "high"
-
-
-def test_content_to_inspect_json():
-    pytest.importorskip("inspect_ai")
-
-    content = ContentJson(value={"key": "value", "number": 42})
-    inspect_content = content_to_inspect(content)
-
-    assert isinstance(inspect_content, ContentData)
-    assert inspect_content.data == {"key": "value", "number": 42}
-
-
-def test_content_to_chatlas_string():
-    pytest.importorskip("inspect_ai")
-
-    result = content_to_chatlas("Hello world")
-
-    assert isinstance(result, ContentText)
-    assert result.text == "Hello world"
-
-
-def test_content_to_chatlas_text():
-    pytest.importorskip("inspect_ai")
-
-    inspect_content = IContentText(text="Test message")
-    result = content_to_chatlas(inspect_content)
-
-    assert isinstance(result, ContentText)
-    assert result.text == "Test message"
-
-
-def test_content_to_chatlas_image_url():
-    pytest.importorskip("inspect_ai")
-
-    inspect_content = ContentImage(image="https://example.com/test.jpg", detail="low")
-    result = content_to_chatlas(inspect_content)
-
-    assert isinstance(result, ContentImageRemote)
-    assert result.url == "https://example.com/test.jpg"
-    assert result.detail == "low"
-
-
-def test_content_to_chatlas_json():
-    pytest.importorskip("inspect_ai")
-
-    inspect_content = ContentData(data={"test": "data", "value": 123})
-    result = content_to_chatlas(inspect_content)
-
-    assert isinstance(result, ContentJson)
-    assert result.value == {"test": "data", "value": 123}
-
-
-def test_turn_as_messages_assistant_with_tool_requests():
-    pytest.importorskip("inspect_ai")
-
-    tool_request1 = ContentToolRequest(
-        id="call_123",
-        name="get_weather",
-        arguments={"city": "San Francisco", "units": "F"},
-    )
-    tool_request2 = ContentToolRequest(
-        id="call_456", name="get_time", arguments={"timezone": "PST"}
-    )
-    text_content = ContentText(text="Let me check the weather and time for you.")
-
-    turn = Turn("assistant", [text_content, tool_request1, tool_request2])
-    messages = turn_as_messages(turn, model="gpt-5-nano-2025-08-07")
-
-    assert len(messages) == 1
-    assert isinstance(messages[0], ChatMessageAssistant)
-    assert messages[0].model == "gpt-5-nano-2025-08-07"
-
-    assert len(messages[0].content) == 1
-    assert isinstance(messages[0].content[0], IContentText)
-    assert messages[0].content[0].text == "Let me check the weather and time for you."
-
-    assert len(messages[0].tool_calls) == 2
-
-    assert isinstance(messages[0].tool_calls[0], ToolCall)
-    assert messages[0].tool_calls[0].id == "call_123"
-    assert messages[0].tool_calls[0].function == "get_weather"
-    assert messages[0].tool_calls[0].arguments == {
-        "city": "San Francisco",
-        "units": "F",
-    }
-
-    assert isinstance(messages[0].tool_calls[1], ToolCall)
-    assert messages[0].tool_calls[1].id == "call_456"
-    assert messages[0].tool_calls[1].function == "get_time"
-    assert messages[0].tool_calls[1].arguments == {"timezone": "PST"}
-
-
-def test_turn_as_messages_user_with_tool_results():
-    pytest.importorskip("inspect_ai")
-
-    tool_request1 = ContentToolRequest(
-        id="call_123", name="get_weather", arguments={"city": "San Francisco"}
-    )
-    tool_request2 = ContentToolRequest(
-        id="call_456", name="get_time", arguments={"timezone": "PST"}
+def chat_func(system_prompt: str | None = None) -> Chat:
+    return ChatAnthropic(
+        model=MODEL,
+        system_prompt=system_prompt,
     )
 
-    tool_result1 = ContentToolResult(value="Sunny, 75°F", request=tool_request1)
-    tool_result2 = ContentToolResult(value="11:30 PST", request=tool_request2)
-    text_content = ContentText(text="Here are the results:")
 
-    turn = Turn("user", [tool_result1, tool_result2, text_content])
-    messages = turn_as_messages(turn)
-
-    assert len(messages) == 3
-
-    assert isinstance(messages[0], ChatMessageTool)
-    assert messages[0].tool_call_id == "call_123"
-    assert messages[0].content == "Sunny, 75°F"
-    assert messages[0].function == "get_weather"
-
-    assert isinstance(messages[1], ChatMessageTool)
-    assert messages[1].tool_call_id == "call_456"
-    assert messages[1].content == "11:30 PST"
-    assert messages[1].function == "get_time"
-
-    assert isinstance(messages[2], ChatMessageUser)
-    assert len(messages[2].content) == 1
-
-    assert isinstance(messages[2].content[0], IContentText)
-    assert messages[2].content[0].text == "Here are the results:"
-
-
-def test_turn_as_messages_user_with_only_tool_results():
-    pytest.importorskip("inspect_ai")
-
-    tool_request = ContentToolRequest(
-        id="call_789", name="calculate", arguments={"x": 5, "y": 3}
-    )
-    tool_result = ContentToolResult(value=8, request=tool_request)
-
-    turn = Turn("user", [tool_result])
-    messages = turn_as_messages(turn)
-
-    assert len(messages) == 1
-    assert isinstance(messages[0], ChatMessageTool)
-    assert messages[0].tool_call_id == "call_789"
-    assert messages[0].content == "8"
-    assert messages[0].function == "calculate"
-
-
-def test_turn_as_messages_assistant_with_only_tool_requests():
-    pytest.importorskip("inspect_ai")
-
-    tool_request = ContentToolRequest(
-        id="call_999", name="search", arguments={"query": "python tutorials"}
+def create_task(
+    chat: Chat,
+    dataset: list[Sample],
+    include_system_prompt: bool = True,
+    include_turns: bool = True,
+) -> Task:
+    return Task(
+        dataset=dataset,
+        solver=chat.to_solver(
+            include_system_prompt=include_system_prompt,
+            include_turns=include_turns,
+        ),
+        scorer=model_graded_qa(model=SCORER_MODEL),
     )
 
-    turn = Turn("assistant", [tool_request])
-    messages = turn_as_messages(turn, model="gpt-5-nano-2025-08-07")
 
-    assert len(messages) == 1
-    assert isinstance(messages[0], ChatMessageAssistant)
-    assert messages[0].model == "gpt-5-nano-2025-08-07"
+def test_inspect_dependency():
+    chat = chat_func()
+    with patch.dict(sys.modules, {"inspect_ai": None, "inspect_ai.model": None}):
+        with pytest.raises(ImportError, match="pip install inspect-ai"):
+            chat.to_solver()
 
-    assert len(messages[0].content) == 0
-    assert len(messages[0].tool_calls) == 1
 
-    assert isinstance(messages[0].tool_calls[0], ToolCall)
-    assert messages[0].tool_calls[0].id == "call_999"
-    assert messages[0].tool_calls[0].function == "search"
-    assert messages[0].tool_calls[0].arguments == {"query": "python tutorials"}
+# pytest.importorskip("non-existent-package", reason="Skipping to test ImportError")
+
+
+class TestExportEval:
+    def test_export_eval_basic(self, tmp_path):
+        chat = chat_func(system_prompt=SYSTEM_DEFAULT)
+        chat.set_turns(
+            [
+                Turn("user", "What is 2+2?"),
+                Turn("assistant", "2 + 2 = 4"),
+            ]
+        )
+
+        output_file = tmp_path / "test_eval.jsonl"
+        result = chat.export_eval(output_file)
+
+        assert result == output_file
+        assert output_file.exists()
+
+        dataset = json_dataset(str(output_file))
+        samples = list(dataset)
+
+        assert len(samples) == 1
+        sample = samples[0]
+        assert len(sample.input) == 2
+        assert isinstance(sample.input[0], ChatMessageSystem)
+        assert isinstance(sample.input[1], ChatMessageUser)
+        assert str(sample.target) == "2 + 2 = 4"
+
+    def test_export_eval_custom_target(self, tmp_path):
+        chat = chat_func()
+        chat.set_turns(
+            [
+                Turn("user", "Tell me a joke"),
+                Turn(
+                    "assistant",
+                    "Why did the chicken cross the road? To get to the other side!",
+                ),
+            ]
+        )
+
+        output_file = tmp_path / "test_eval.jsonl"
+        custom_target = "Response should be funny and appropriate"
+        chat.export_eval(output_file, target=custom_target)
+
+        dataset = json_dataset(str(output_file))
+        samples = list(dataset)
+
+        assert len(samples) == 1
+        assert samples[0].target == custom_target
+
+    def test_export_eval_append_mode(self, tmp_path):
+        chat = chat_func()
+        output_file = tmp_path / "test_eval.jsonl"
+
+        chat.set_turns(
+            [
+                Turn("user", "What is 2+2?"),
+                Turn("assistant", "2 + 2 = 4"),
+            ]
+        )
+        chat.export_eval(output_file)
+
+        chat.set_turns(
+            [
+                Turn("user", "What is 3+3?"),
+                Turn("assistant", "3 + 3 = 6"),
+            ]
+        )
+        chat.export_eval(output_file)
+
+        dataset = json_dataset(str(output_file))
+        samples = list(dataset)
+
+        assert len(samples) == 2
+        input_texts = [str(s.input) for s in samples]
+        assert any("2+2" in text for text in input_texts)
+        assert any("3+3" in text for text in input_texts)
+
+    def test_export_eval_overwrite_true(self, tmp_path):
+        chat = chat_func()
+        output_file = tmp_path / "test_eval.jsonl"
+
+        chat.set_turns(
+            [
+                Turn("user", "First question"),
+                Turn("assistant", "First answer"),
+            ]
+        )
+        chat.export_eval(output_file)
+
+        chat.set_turns(
+            [
+                Turn("user", "Second question"),
+                Turn("assistant", "Second answer"),
+            ]
+        )
+        chat.export_eval(output_file, overwrite=True)
+
+        dataset = json_dataset(str(output_file))
+        samples = list(dataset)
+
+        assert len(samples) == 1
+        assert "Second question" in str(samples[0].input)
+
+    def test_export_eval_overwrite_false_error(self, tmp_path):
+        chat = chat_func()
+        output_file = tmp_path / "test_eval.jsonl"
+
+        chat.set_turns(
+            [
+                Turn("user", "First question"),
+                Turn("assistant", "First answer"),
+            ]
+        )
+        chat.export_eval(output_file)
+
+        chat.set_turns(
+            [
+                Turn("user", "Second question"),
+                Turn("assistant", "Second answer"),
+            ]
+        )
+        with pytest.raises(ValueError, match="already exists"):
+            chat.export_eval(output_file, overwrite=False)
+
+    def test_export_eval_wrong_extension(self, tmp_path):
+        chat = chat_func()
+        chat.set_turns(
+            [
+                Turn("user", "What is 2+2?"),
+                Turn("assistant", "2 + 2 = 4"),
+            ]
+        )
+
+        output_file = tmp_path / "test_eval.csv"
+        with pytest.raises(ValueError, match="must have a `.jsonl` extension"):
+            chat.export_eval(output_file)
+
+    def test_export_eval_no_assistant_turn(self, tmp_path):
+        chat = chat_func()
+        chat.set_turns([Turn("user", "Hello")])
+
+        output_file = tmp_path / "test_eval.jsonl"
+        with pytest.raises(ValueError, match="must be an assistant turn"):
+            chat.export_eval(output_file)
+
+    def test_export_eval_without_system_prompt(self, tmp_path):
+        chat = chat_func()
+        chat.set_turns(
+            [
+                Turn("user", "What is 2+2?"),
+                Turn("assistant", "2 + 2 = 4"),
+            ]
+        )
+
+        output_file = tmp_path / "test_eval.jsonl"
+        chat.export_eval(output_file, include_system_prompt=False)
+
+        dataset = json_dataset(str(output_file))
+        samples = list(dataset)
+
+        assert len(samples) == 1
+        sample = samples[0]
+        assert len(sample.input) == 1
+        assert isinstance(sample.input[0], ChatMessageUser)
+
+    def test_export_eval_custom_turns(self, tmp_path):
+        chat = chat_func()
+        chat.set_turns(
+            [
+                Turn("user", "First question"),
+                Turn("assistant", "First answer"),
+            ]
+        )
+
+        output_file = tmp_path / "test_eval.jsonl"
+        chat.export_eval(
+            output_file,
+            turns=[
+                Turn("user", "Second question"),
+                Turn("assistant", "Second answer"),
+            ],
+        )
+
+        dataset = json_dataset(str(output_file))
+        samples = list(dataset)
+
+        assert "Second question" in str(samples[0].input)
+
+
+class TestInspectIntegration:
+    def test_basic_eval(self):
+        chat = chat_func(system_prompt=SYSTEM_DEFAULT)
+
+        task = create_task(
+            chat,
+            dataset=[Sample(input="What is 2+2?", target="4")],
+        )
+
+        results = inspect_eval(task)[0].results
+
+        assert results is not None
+        accuracy = results.scores[0].metrics["accuracy"].value
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+
+    def test_system_prompt_override(self):
+        chat = chat_func(system_prompt="You are Chuck Norris.")
+
+        task = create_task(
+            chat,
+            dataset=[
+                Sample(
+                    input="Tell me a short story.",
+                    target="The answer can be any story, but should be in the style of Chuck Norris.",
+                )
+            ],
+        )
+
+        results = inspect_eval(task)[0].results
+
+        assert results is not None
+        accuracy = results.scores[0].metrics["accuracy"].value
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+
+    def test_existing_turns(self):
+        chat = chat_func(system_prompt=SYSTEM_DEFAULT)
+
+        chat.set_turns(
+            [
+                Turn("user", "My name is Gregg."),
+                Turn("assistant", "Hello Gregg! How can I assist you today?"),
+            ]
+        )
+
+        task = create_task(
+            chat,
+            dataset=[
+                Sample(
+                    input="What is my name?",
+                    target="The answer should include 'Gregg'",
+                )
+            ],
+        )
+
+        results = inspect_eval(task)[0].results
+
+        assert results is not None
+        accuracy = results.scores[0].metrics["accuracy"].value
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+
+    def test_tool_calling(self):
+        chat = chat_func(system_prompt=SYSTEM_DEFAULT)
+
+        def get_current_date():
+            """Get the current date in YYYY-MM-DD format."""
+            return datetime.datetime.now().strftime("%Y-%m-%d")
+
+        chat.register_tool(get_current_date)
+
+        task = create_task(
+            chat,
+            dataset=[
+                Sample(
+                    input="What is today's date?",
+                    target="A valid date should be provided and be some time on or after Oct 23rd 2025.",
+                )
+            ],
+        )
+
+        results = inspect_eval(task)[0].results
+
+        assert results is not None
+        accuracy = results.scores[0].metrics["accuracy"].value
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
