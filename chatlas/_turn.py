@@ -128,6 +128,19 @@ class Turn(BaseModel, Generic[CompletionT]):
             res += "\n" + content.__repr__(indent=indent + 2)
         return res + "\n"
 
+    def to_inspect_messages(self, model: Optional[str] = None):
+        """
+        Transform this turn into a list of Inspect AI `ChatMessage` objects.
+
+        Most users will not need to call this method directly. See the
+        `.export_eval()` method on `Chat` for a higher level interface to
+        exporting chat history for evaluation purposes.
+        """
+        from ._inspect import try_import_inspect, turn_as_inspect_messages
+
+        try_import_inspect()
+        return turn_as_inspect_messages(self, self.role, model=model)
+
 
 def user_turn(*args: Content | str) -> Turn:
     if len(args) == 0:

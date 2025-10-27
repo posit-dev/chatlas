@@ -49,11 +49,21 @@ pip install 'chatlas[eval]'
 To create a `Task`, you'll need to:
 
 * Collect a `dataset` of representative `input` and `target` reponses.
+    * These are the test cases that your `chat` app should be able to handle.
 * Translate your `chat` instance into a `solver` via the [`.to_solver()`](../reference/Chat.qmd#to_solver) method.
+    * When the eval [runs](#get-results), this `solver` generates responses for each `input` in the `dataset` (using the logic defined in your `chat` app).
 * Choose a `scorer` to grade the responses.
+    * The `scorer` compares the `solver`'s responses to the `target` answers in the `dataset` and assign scores based on correctness, relevance, or other criteria.
 
-Later on, we'll discuss how to generate good datasets and scorers, but here's a starting template for creating a simple eval:
+In the simplest case of single-turn Q&A, you could keep the `dataset` in a CSV file with `input` and `target` columns.
 
+```{.markdown filename="my_eval_dataset.csv"}
+input,           target
+What is 2 + 2?,  4
+What is 10 * 5?, 50
+```
+
+Now, we can define a `Task` that uses this dataset, our `chat` app as the `solver`, and a built-in LLM-based grader as the `scorer`:
 
 ```{.python filename="my_eval.py"}
 from chatlas import ChatOpenAI
@@ -61,7 +71,7 @@ from inspect_ai import Task, task
 from inspect_ai.dataset import csv_dataset
 from inspect_ai.scorer import model_graded_qa
 
-chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
+chat = ChatOpenAI()
 
 @task
 def my_eval():
@@ -72,11 +82,7 @@ def my_eval():
     )
 ```
 
-```{.markdown filename="my_eval_dataset.csv"}
-input,           target
-What is 2 + 2?,  4
-What is 10 * 5?, 50
-```
+This gives us everything we need to run this basic eval and get results. Later on, we'll dive deeper into each of these components (datasets, solvers, and scorers) to help you build more sophisticated evals.
 
 ### Get results
 
@@ -102,74 +108,93 @@ To learn more about running and viewing, see the Inspect AI docs on [eval option
 Inspect also provides a [VS Code extension](https://inspect.aisi.org.uk/vscode.html) for running and viewing evals directly within the editor.
 :::
 
-## Understanding solvers 
+### Collecting datasets
 
-The [`.to_solver()`](../reference/Chat.qmd#to_solver) method translates your `chat` instance into an Inspect `solver`. Think of it as "wrapping" your `chat` app so that it can be used generate responses for an Inspect eval. More specifically, think `chat.to_solver()` as creating a new object (the `solver`) that, when given an `input` from the eval `dataset`, will internally call your `chat` instance to generate a response. This `solver` captures important state from your `chat` instance, such as model, system prompt, conversation history, registered tools, model parameters, etc.
+In the starting example above, we used a simple CSV file for the eval `dataset`. This works great in the simplest case (a single text-based `input` and `target` combo), but if your evals need:
 
-This hopefully provides some intuition about how to set up your evals, but let's also walk through a few important situations below.
+-   Multi-turn `input`
+-   Complex input/output types (e.g., images, etc)
+-   Structured data
 
-### Conversation history
+Then you'll need a more sophisticated approach to managing your `dataset` than copying and pasting into a spreadsheet.
 
-For evals that depend on conversation history, use the [`.set_turns()`](../reference/Chat.qmd#set_turns) method to pre-populate the chat history before converting it to a solver. For example:
+Fortunately, chatlas makes it easy to export non-trivial chat history as an Inspect-compatible format. Just [chat](../get-started/chat.qmd) as normal, then call [`.export_eval()`](../reference/Chat.qmd#export_eval) to save the history as a JSON file that Inspect can use as a `dataset` sample. By default, the last (assistant) turn will be used as the `target`, and all prior turns as the `input`. However, if you want to 
+customize the `target` responses for [grading](#understanding-scorers), you can do that too:
 
-```{.python filename="my_eval.py"}
+```python
+from chatlas import ChatOpenAI
+
 chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
 
-# Could also use .chat() to build up history, but this is 
-# faster, cheaper, and deterministic
-chat.set_turns([
-    Turn("user", "My name is Gregg."),
-    Turn("assistant", "Hello Gregg! How can I assist you today?"),
-])
+# Build up some chat history
+chat.chat("My first name is Alice.")
+chat.chat("My last name is Smith.")
+chat.chat("What is my full name?")
 
-@task
-def my_eval():
-    return Task(
-        dataset=csv_dataset("my_eval_dataset.csv"),
-        solver=chat.to_solver(),
-        scorer=model_graded_qa(model="openai/gpt-4o-mini")
-    )
-```
-
-This way, the `dataset` doesn't need to include the full conversation history for each `input` prompt; the `solver` will already provide the relevant background context.
-
-```{.markdown filename="my_eval_dataset.csv"}
-input,            target
-What is my name?, Your name is Gregg -- how can I help you today?
-```
-
-### Tool calling
-
-In addition to preserving conversation history, [`.to_solver()`](../reference/Chat.qmd#to_solver) will also preserve any registered tools on your `chat` instance. This means that if your `chat` app uses tools, you can still convert it to a `solver` for evals.
-
-```{.python filename="my_eval.py"}
-chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
-
-def get_current_date():
-    """Get the current date in YYYY-MM-DD format."""
-    return datetime.datetime.now().strftime("%Y-%m-%d")
-
-chat.register_tool(get_current_date)
-
-@task
-def my_eval():
-    return Task(
-        dataset=csv_dataset("my_eval_dataset.csv"),
-        solver=chat.to_solver(),
-        scorer=model_graded_qa(model="openai/gpt-4o-mini")
-    )
-```
-
-```{.markdown filename="my_eval_dataset.csv"}
-input,            target
-What is today's date?, The current date should be in YYYY-MM-DD format and should be October 2, 2025 or later.
+# Export the chat history as an Inspect eval dataset
+chat.export_eval(
+    "my_eval_dataset.jsonl",
+    target="Response should include the user's full name, 'Alice Smith'."
+)
 ```
 
 ::: callout-note
-### What's in a `target`?
+### What goes in a `target`?
 
 Depending on the scorer you choose, the `target` column in your dataset may represent different things. For example, with `model_graded_qa()`, the `target` provides grading guidance that the grader model will use to determine if the `solver`'s response is satisfactory. This could include specific criteria, desired answer formats, or other instructions. We'll discuss this more in the [Scorers](#scorers) section below.
 :::
+
+This saves one `dataset` _sample_ per line in a JSONL file. Using JSONL format, where each line represents a sample, is useful for building up `dataset` samples incrementally over time. For example, let's add another test case to the same eval dataset:
+
+```python
+chat.chat("I live in New York City.")
+chat.chat("Where do I live?")
+
+chat.export_eval(
+    "my_eval_dataset.jsonl",
+    target="Response should mention that the user lives in New York City.",
+)
+```
+
+Since our data is now is in JSONL format, before running the eval, we'll want to tweak our `Task` definition to load the JSONL dataset:
+
+```python
+from inspect_ai.dataset import jsonl_dataset
+
+Task(dataset=jsonl_dataset("my_eval_dataset.jsonl"), ...)
+```
+
+Now that you have the basics of collecting eval datasets, let's dive deeper into the other components of an eval: **solvers** and **scorers**.
+
+
+## Understanding solvers 
+
+The [`.to_solver()`](../reference/Chat.qmd#to_solver) method translates your `chat` instance into an Inspect `solver`. In other words, this method allows Inspect to use your `chat` app to generate responses for evals. Part of how this works is by translating all important `chat` state to Inspect, such as the model, system prompt, conversation history, registered tools, model parameters, etc. 
+
+If you've used `.export_eval()` to [collect your `dataset`](#collecting-datasets), the system prompt and conversation history are already included in the eval `dataset` samples. For this reason, `.to_solver()` defaults to **not** including them; otherwise, you can easily end up with duplicated context in the eval. However, if your eval `dataset` does not include this information, you can still include it via the `include_system_prompt` and `include_turns` parameters to `.to_solver()`.
+  
+Having the system prompt and conversation history included in your `dataset` is convenient -- it means you don't have to manually manage this context in your eval script. Just make sure to include other relevant state for your `chat`, like the model, model parameters, tools, etc.
+
+```{.python filename="my_eval.py"}
+from chatlas import ChatOpenAI
+from inspect_ai import Task, task
+from inspect_ai.dataset import jsonl_dataset
+from inspect_ai.scorer import model_graded_qa
+
+# No system prompt needed since dataset already includes it
+chat = ChatOpenAI(model="openai/gpt-4.1")
+chat.set_model_params(temperature=0.2)
+chat.register_tool(my_custom_tool)
+
+@task
+def my_eval():
+    return Task(
+        dataset=jsonl_dataset("my_eval_dataset.jsonl"),
+        solver=chat.to_solver(),
+        scorer=model_graded_qa(model="openai/gpt-4o-mini")
+    )
+```
+
 
 ## Understanding scorers
 
@@ -250,15 +275,15 @@ First, write out in a step by step manner your reasoning about the criterion to 
 To learn more about scorers, see the [Inspect AI docs](https://inspect.aisi.org.uk/scorers.html) for details.
 
 
-## Collecting datasets
+## Good datasets
 
-In Inspect, a `dataset` can be represented as a data frame with columns, minimally, `input` and `target`. A "sample" is a row of a dataset. `input` defines questions inputted by end users and `target` defines the target answer and/or grading guidance for it. What sorts of input prompts should you include, though?
+We've already covered the _how_ of [Collecting datasets](#collecting-datasets), but what sorts of inputs and targets should you include in your eval dataset?
 
-In short, inputs should be **natural**. Rather than "setting up" the model with exactly the right context and phrasing, "[i]t's important that the dataset... represents the types of interactions that your AI will have in production" [@husain2024judge].
+In short, inputs should be **natural**. Rather than "setting up" the model with exactly the right context and phrasing, "[i]t's important that the dataset... represents the types of interactions that your AI will have in production" ([Husain 2024](https://hamel.dev/blog/posts/llm-judge/index.html)).
 
 If your system is going to answer a set of questions similar to some set that already exists -- support tickets, for example -- use the actual tickets themselves rather than writing your own from scratch. In this case, refrain from correcting spelling errors, removing unneeded context, or doing any "sanitizing" before providing the system with the input; you want the distribution of inputs to resemble what the system will encounter in the wild as closely as possible.
 
-If there is no existing resource of input prompts to pull from, still try to avoid this sort of unrealistic set-up. I'll specifically call out multiple choice questions here -- while multiple choice responses are easy to grade automatically, your inputs should only provide a system with multiple choices to select from if the production system will also have access to multiple choices [@press2024benchmarks]. If you're writing your own questions, I encourage you to read the ["Dimensions for Structuring Your Dataset" section](https://hamel.dev/blog/posts/llm-judge/#dimensions-for-structuring-your-dataset) from @husain2024judge, which provides a few axes to keep in mind when thinking about how to generate data that resembles what your system will ultimately see:
+If there is no existing resource of input prompts to pull from, still try to avoid this sort of unrealistic set-up. I'll specifically call out multiple choice questions here -- while multiple choice responses are easy to grade automatically, your inputs should only provide a system with multiple choices to select from if the production system will also have access to multiple choices [@press2024benchmarks]. If you're writing your own questions, I encourage you to read this ["Dimensions for Structuring Your Dataset"](https://hamel.dev/blog/posts/llm-judge/#dimensions-for-structuring-your-dataset) from Hamel Husain, which provides a few axes to keep in mind when thinking about how to generate data that resembles what your system will ultimately see:
 
 > You want to define dimensions that make sense for your use case. For example, here are ones that I often use for B2C applications:
 >
@@ -267,9 +292,3 @@ If there is no existing resource of input prompts to pull from, still try to avo
 > Scenarios: Situations or problems the AI may encounter and needs to handle.
 >
 > Personas: Representative user profiles with distinct characteristics and needs.
-
-The other part of the "how" is the mechanics. You probably don't want to paste in a bunch of questions into a call to `tibble()`, escape a bunch of quotes, etc. Instead, here's how I've written evals:
-
--   Consider what metadata you want to keep track of along with your `input` and `target`. Do you want to tag questions with categories? Include a source URL? This isn't stuff that will actually be integrated into the eval, but that will be carried along throughout the evaluation to aid you with analysis down the line.
--   Prompt a model (Claude 4 Sonnet is quite good at this) to make you a Shiny app that will help you generate samples quickly (and, hopefully, joyfully). The app might provide you with a free text box to paste in the `input` and another for the `target`, fields for whatever metadata you'd like to carry along, and a "Submit" button. When you click "Submit", the app should write the inputted values into a `.yaml` file in some directory and "clear" the app so that you can then add a new sample. Here's a [sample prompt](https://github.com/simonpcouch/choreseval/blob/main/data-raw/sample-generator-prompt.txt) that I used to help me write an eval dataset recently.
--   Then, once you've created a sufficient number of samples (30 is a good place to start), read all of the yaml files in that directory into R, bind rows, and you've got a dataset. Here's a [sample script](https://github.com/simonpcouch/choreseval/blob/51694ad44f09fdef234f7348f4409c494c585bd3/data-raw/chores-dataset.R) that does this for the eval linked in the previous bullet.

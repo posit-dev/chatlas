@@ -23,6 +23,7 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
+    cast,
     overload,
 )
 
@@ -54,6 +55,8 @@ from ._typing_extensions import TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 if TYPE_CHECKING:
+    from inspect_ai.model import ChatMessage as InspectChatMessage
+    from inspect_ai.model import ChatMessageAssistant as InspectChatMessageAssistant
     from inspect_ai.solver import TaskState as InspectTaskState
 
     from ._content import ToolAnnotations
@@ -810,7 +813,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             self.chat(user_input, echo=echo, stream=stream, kwargs=kwargs)
             print("")
 
-    def to_solver(self):
+    def to_solver(
+        self,
+        *,
+        include_system_prompt: bool = False,
+        include_turns: bool = False,
+    ):
         """
         Create an InspectAI solver from this chat.
 
@@ -818,6 +826,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         be used with InspectAI's evaluation framework. This solver will capture
         (and translate) important state from the chat, including the model,
         system prompt, previous turns, registered tools, model parameters, etc.
+
+        Parameters
+        ----------
+        include_system_prompt
+            Whether to include the system prompt in the solver's starting
+            messages.
+        include_turns
+            Whether to include the chat's existing turns in the solver's
+            starting messages.
+
+        Note
+        ----
+        Both `include_system_prompt` and `include_turns` default to `False` since
+        `.export_eval()` captures this information already. Therefore,
+        including them here would lead to duplication of context in the
+        evaluation. However, in some cases you may want to include them, for
+        example if you are manually constructing an evaluation dataset that
+        does not include this information. Or, if you want to always have the
+        same starting context regardless of the evaluation dataset.
 
         Returns
         -------
@@ -857,38 +884,91 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         in the [Chatlas documentation](https://posit-dev.github.io/chatlas/misc/evals.html).
         """
 
-        from ._inspect import content_to_chatlas, try_import_inspect, turn_as_messages
+        from ._inspect import (
+            inspect_content_as_chatlas,
+            inspect_messages_as_turns,
+            try_import_inspect,
+        )
 
         (imodel, isolver, _) = try_import_inspect()
 
         # Create a copy of the chat to avoid modifying its state
-        # when inspect uses the solver
+        # when inspect runs the solver
         chat_instance = copy.deepcopy(self)
         model = self.provider.model
 
-        @isolver.solver("chatlas_solver")
+        # Remove existing turns if requested
+        if not include_turns:
+            chat_instance.set_turns([])
+
+        # Prepare the starting messages from the chat instance
+        starting_turns = chat_instance.get_turns(
+            include_system_prompt=include_system_prompt
+        )
+
+        # Translate starting turns to Inspect messages
+        starting_messages: list["InspectChatMessage"] = []
+        for turn in starting_turns:
+            starting_messages.extend(turn.to_inspect_messages(model))
+
+        # Since Inspect preserves state, across solves, prepend starting messages only once
+        has_starting_messages = False
+
+        @isolver.solver(f"chatlas_{self.provider.name}_{model}")
         def _solver():
             async def solve(state: InspectTaskState, generate):
+                nonlocal has_starting_messages
                 start_time = time.perf_counter()
-                if not state.messages:
-                    for turn in chat_instance.get_turns():
-                        state.messages.extend(turn_as_messages(turn, turn.role, model))
 
+                if not has_starting_messages:
+                    state.messages = starting_messages + state.messages
+                    has_starting_messages = True
+
+                # Now that we've translated the starting messages to Inspect,
+                # we translate the message state back to the chat instance.
+                # N.B., state.message can include non-trivial dataset of sample input
+                # (e.g., `Sample(input=[ChatMessage, ...])`)
+                system_prompts: list["InspectChatMessage"] = []
+                other_prompts: list["InspectChatMessage"] = []
+                for x in state.messages:
+                    if x.role == "system":
+                        system_prompts.append(x)
+                    else:
+                        other_prompts.append(x)
+
+                # Set the system prompt on the chat instance
+                if len(system_prompts) == 1:
+                    chat_instance.system_prompt = str(system_prompts[0])
+                elif len(system_prompts) > 1:
+                    raise ValueError(
+                        "Multiple system prompts detected in `.to_solver()`, but chatlas only "
+                        "supports a single system prompt. This usually indicates that the system "
+                        "prompt is mistakenly included in both the eval dataset (via `.export_eval()`) "
+                        "and on the chat instance. Consider dropping the system prompt from "
+                        "the chat instance by setting `.to_solver(include_system_prompt=False)`."
+                    )
+
+                # Now, set the other messages as turns on the chat instance
+                chat_instance.set_turns(inspect_messages_as_turns(other_prompts))
+
+                # TODO: inspect docs mention this is always the _first_? user message??
                 user_content = state.user_prompt.content
                 if isinstance(user_content, str):
                     input_content = [user_content]
                 else:
-                    input_content = [content_to_chatlas(x) for x in user_content]
+                    input_content = [
+                        inspect_content_as_chatlas(x) for x in user_content
+                    ]
 
-                await chat_instance.chat_async(
-                    *input_content,
-                    echo="none",
-                )
+                await chat_instance.chat_async(*input_content, echo="none")
                 last_turn = chat_instance.get_last_turn(role="assistant")
                 if last_turn is None:
                     raise ValueError("No assistant turn found after chat completion")
 
-                last_turn_message = turn_as_messages(last_turn, "assistant", model)[0]
+                last_turn_message = cast(
+                    "InspectChatMessageAssistant",
+                    last_turn.to_inspect_messages(model)[0],
+                )
                 state.messages.append(last_turn_message)
 
                 tokens = last_turn.tokens
@@ -2141,6 +2221,142 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         </body>
         </html>
         """
+
+    def export_eval(
+        self,
+        filename: str | Path,
+        *,
+        target: Optional[str] = None,
+        include_system_prompt: bool = True,
+        turns: Optional[list[Turn]] = None,
+        overwrite: Literal["append", True, False] = "append",
+        **kwargs: Any,
+    ):
+        """
+        Create an Inspect AI eval dataset sample from the current chat.
+
+        Creates an Inspect AI eval
+        [Sample](https://inspect.aisi.org.uk/reference/inspect_ai.dataset.html#sample)
+        from the current chat and appends it to a JSONL file. In Inspect, a eval
+        dataset is a collection of Samples, where each Sample represents a
+        single `input` (i.e., user prompt) and the expected `target` (i.e., the
+        target answer and/or grading guidance for it). Note that each `input` of
+        a particular sample can contain a series of messages (from both the user
+        and assistant).
+
+        Note
+        ----
+        Each call to this method appends a single Sample as a new line in the
+        specified JSONL file. If the file does not exist, it will be created.
+
+        Parameters
+        ----------
+        filename
+            The filename to export the chat to. Currently this must
+            be a `.jsonl` file.
+        target
+            The target output for the eval sample. By default, this is
+            taken to be the content of the last assistant turn.
+        include_system_prompt
+            Whether to include the system prompt (if any) as the
+            first turn in the eval sample.
+        turns
+            The input turns for the eval sample. By default, this is
+            taken to be all turns except the last (assistant) turn.
+            Note that system prompts are not allowed here, but controlled
+            separately via the `include_system_prompt` parameter.
+        overwrite
+            Behavior when the file already exists:
+              - `"append"` (default): Append to the existing file.
+              - `True`: Overwrite the existing file.
+              - `False`: Raise an error if the file already exists.
+        kwargs
+            Additional keyword arguments to pass to the `Sample()` constructor.
+            This is primarily useful for setting an ID or metadata on the sample.
+
+        Examples
+        --------
+
+        Step 1: export the chat to an eval JSONL file
+
+        ```python
+        from chatlas import ChatOpenAI
+
+        chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
+        chat.chat("Hello, how are you?")
+
+        chat.export_eval("my_eval_1.jsonl")
+        ```
+
+        Step 2: load the eval JSONL file into an Inspect AI eval task
+
+        ```python
+        from chatlas import ChatOpenAI
+        from inspect_ai import Task, task
+        from inspect_ai.dataset import json_dataset
+        from inspect_ai.scorer import model_graded_qa
+
+        # No need to load in system prompt -- it's included in the eval JSONL file by default
+        chat = ChatOpenAI()
+
+
+        @task
+        def my_eval():
+            return Task(
+                dataset=json_dataset("my_eval.jsonl"),
+                solver=chat.to_solver(),
+                scorer=model_graded_qa(model="openai/gpt-4o-mini"),
+            )
+        ```
+        """
+
+        if isinstance(filename, str):
+            filename = Path(filename)
+
+        filename = filename.resolve()
+        if filename.exists() and overwrite is False:
+            raise ValueError(
+                f"File {filename} already exists. Set `overwrite=True` to overwrite or `overwrite='append'` to append."
+            )
+
+        if filename.suffix not in {".jsonl"}:
+            raise ValueError("The filename must have a `.jsonl` extension.")
+
+        if turns is None:
+            turns = self.get_turns(include_system_prompt=False)
+
+        if any(x.role == "system" for x in turns):
+            raise ValueError("System prompts are not allowed in eval input turns.")
+
+        if not any(x.role == "user" for x in turns):
+            raise ValueError("At least one user turn is required in eval input turns.")
+
+        if include_system_prompt:
+            system_turn = self.get_last_turn(role="system")
+            if system_turn:
+                turns = [system_turn] + turns
+
+        input_turns, target_turn = turns[:-1], turns[-1]
+        if target_turn.role != "assistant":
+            raise ValueError("The last turn must be an assistant turn.")
+
+        if target is None:
+            target = str(target_turn)
+
+        input_messages = []
+        for x in input_turns:
+            input_messages.extend(x.to_inspect_messages())
+
+        from inspect_ai.dataset import Sample
+
+        sample = Sample(input=input_messages, target=target, **kwargs)
+        sample_json = sample.model_dump_json(exclude_none=True)
+
+        mode = "a" if overwrite == "append" and filename.exists() else "w"
+        with open(filename, mode) as f:
+            f.write(sample_json + "\n")
+
+        return filename
 
     @overload
     def _chat_impl(
