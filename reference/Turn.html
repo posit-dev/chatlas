@@ -627,6 +627,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#chatlas.Turn.to_inspect_messages" id="toc-chatlas.Turn.to_inspect_messages" class="nav-link" data-scroll-target="#chatlas.Turn.to_inspect_messages">to_inspect_messages</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/Turn.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
@@ -713,8 +717,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
+</section>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#chatlas.Turn.to_inspect_messages">to_inspect_messages</a></td>
+<td>Transform this turn into a list of Inspect AI <code>ChatMessage</code> objects.</td>
+</tr>
+</tbody>
+</table>
+<section id="chatlas.Turn.to_inspect_messages" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Turn.to_inspect_messages">to_inspect_messages</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>Turn.to_inspect_messages(model<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Transform this turn into a list of Inspect AI <code>ChatMessage</code> objects.</p>
+<p>Most users will not need to call this method directly. See the <code>.export_eval()</code> method on <code>Chat</code> for a higher level interface to exporting chat history for evaluation purposes.</p>
 
 
+</section>
 </section>
 </section>
 

@@ -60,6 +60,8 @@ chatlas.Chat.current_display py:attribute 1 reference/Chat.html#chatlas.Chat.cur
 chatlas._chat.Chat.current_display py:attribute 1 reference/Chat.html#chatlas.Chat.current_display chatlas.Chat.current_display
 chatlas.Chat.export py:function 1 reference/Chat.html#chatlas.Chat.export -
 chatlas._chat.Chat.export py:function 1 reference/Chat.html#chatlas.Chat.export chatlas.Chat.export
+chatlas.Chat.export_eval py:function 1 reference/Chat.html#chatlas.Chat.export_eval -
+chatlas._chat.Chat.export_eval py:function 1 reference/Chat.html#chatlas.Chat.export_eval chatlas.Chat.export_eval
 chatlas.Chat.extract_data py:function 1 reference/Chat.html#chatlas.Chat.extract_data -
 chatlas._chat.Chat.extract_data py:function 1 reference/Chat.html#chatlas.Chat.extract_data chatlas.Chat.extract_data
 chatlas.Chat.extract_data_async py:function 1 reference/Chat.html#chatlas.Chat.extract_data_async -
@@ -100,6 +102,8 @@ chatlas.Chat.stream_async py:function 1 reference/Chat.html#chatlas.Chat.stream_
 chatlas._chat.Chat.stream_async py:function 1 reference/Chat.html#chatlas.Chat.stream_async chatlas.Chat.stream_async
 chatlas.Chat.system_prompt py:attribute 1 reference/Chat.html#chatlas.Chat.system_prompt -
 chatlas._chat.Chat.system_prompt py:attribute 1 reference/Chat.html#chatlas.Chat.system_prompt chatlas.Chat.system_prompt
+chatlas.Chat.to_solver py:function 1 reference/Chat.html#chatlas.Chat.to_solver -
+chatlas._chat.Chat.to_solver py:function 1 reference/Chat.html#chatlas.Chat.to_solver chatlas.Chat.to_solver
 chatlas.Chat.token_count py:function 1 reference/Chat.html#chatlas.Chat.token_count -
 chatlas._chat.Chat.token_count py:function 1 reference/Chat.html#chatlas.Chat.token_count chatlas.Chat.token_count
 chatlas.Chat.token_count_async py:function 1 reference/Chat.html#chatlas.Chat.token_count_async -
@@ -136,6 +140,8 @@ chatlas.interpolate py:function 1 reference/interpolate.html#chatlas.interpolate
 chatlas._interpolate.interpolate py:function 1 reference/interpolate.html#chatlas.interpolate chatlas.interpolate
 chatlas.interpolate_file py:function 1 reference/interpolate_file.html#chatlas.interpolate_file -
 chatlas._interpolate.interpolate_file py:function 1 reference/interpolate_file.html#chatlas.interpolate_file chatlas.interpolate_file
+chatlas.Turn.to_inspect_messages py:function 1 reference/Turn.html#chatlas.Turn.to_inspect_messages -
+chatlas._turn.Turn.to_inspect_messages py:function 1 reference/Turn.html#chatlas.Turn.to_inspect_messages chatlas.Turn.to_inspect_messages
 chatlas.Turn py:class 1 reference/Turn.html#chatlas.Turn -
 chatlas._turn.Turn py:class 1 reference/Turn.html#chatlas.Turn chatlas.Turn
 chatlas.token_usage py:function 1 reference/token_usage.html#chatlas.token_usage -
