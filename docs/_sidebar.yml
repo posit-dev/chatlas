@@ -7,13 +7,19 @@ website:
       - reference/ChatAuto.qmd
       - reference/ChatAzureOpenAI.qmd
       - reference/ChatBedrockAnthropic.qmd
+      - reference/ChatCloudflare.qmd
       - reference/ChatDatabricks.qmd
+      - reference/ChatDeepSeek.qmd
       - reference/ChatGithub.qmd
       - reference/ChatGoogle.qmd
       - reference/ChatGroq.qmd
+      - reference/ChatHuggingFace.qmd
+      - reference/ChatMistral.qmd
       - reference/ChatOllama.qmd
       - reference/ChatOpenAI.qmd
+      - reference/ChatOpenRouter.qmd
       - reference/ChatPerplexity.qmd
+      - reference/ChatPortkey.qmd
       - reference/ChatSnowflake.qmd
       - reference/ChatVertex.qmd
       section: Chat model providers
@@ -30,13 +36,19 @@ website:
       - reference/content_pdf_url.qmd
       section: PDF input
     - contents:
-      - reference/interpolate.qmd
-      - reference/interpolate_file.qmd
-      section: Prompt interpolation
-    - contents:
       - reference/Tool.qmd
       - reference/ToolRejectError.qmd
       section: Tool calling
+    - contents:
+      - reference/batch_chat.qmd
+      - reference/batch_chat_text.qmd
+      - reference/batch_chat_structured.qmd
+      - reference/batch_chat_completed.qmd
+      section: Batch chat
+    - contents:
+      - reference/interpolate.qmd
+      - reference/interpolate_file.qmd
+      section: Prompt interpolation
     - contents:
       - reference/Turn.qmd
       section: Turns
@@ -62,6 +74,8 @@ website:
       - reference/types.MISSING.qmd
       - reference/types.SubmitInputArgsT.qmd
       - reference/types.TokenUsage.qmd
+      - reference/types.ToolAnnotations.qmd
+      - reference/types.ToolInfo.qmd
       section: User-facing types
     id: reference
   - id: dummy-sidebar

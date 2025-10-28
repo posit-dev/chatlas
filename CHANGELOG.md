@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### New features
+
+* Added support systematic evaluation via [Inspect AI](https://inspect.aisi.org.uk/). This includes:
+    * A new `.export_eval()` method for exporting conversation history as an Inspect eval dataset sample. This supports multi-turn conversations, tool calls, images, PDFs, and structured data.
+    * A new `.to_solver()` method for translating chat instances into Inspect solvers that can be used with Inspect's evaluation framework.
+    * A new `Turn.to_inspect_messages()` method for converting turns to Inspect's message format.
+    * Comprehensive documentation in the [Evals guide](https://posit-dev.github.io/chatlas/misc/evals.html).
+
 
 
 ## [0.13.2] - 2025-10-02
