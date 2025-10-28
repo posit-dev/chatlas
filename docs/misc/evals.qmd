@@ -48,7 +48,7 @@ pip install 'chatlas[eval]'
 
 To create a `Task`, you'll need to:
 
-* Collect a `dataset` of representative `input` and `target` reponses.
+* Collect a `dataset` of representative `input` and `target` responses.
     * These are the test cases that your `chat` app should be able to handle.
 * Translate your `chat` instance into a `solver` via the [`.to_solver()`](../reference/Chat.qmd#to_solver) method.
     * When the eval [runs](#get-results), this `solver` generates responses for each `input` in the `dataset` (using the logic defined in your `chat` app).
@@ -118,8 +118,7 @@ In the starting example above, we used a simple CSV file for the eval `dataset`.
 
 Then you'll need a more sophisticated approach to managing your `dataset` than copying and pasting into a spreadsheet.
 
-Fortunately, chatlas makes it easy to export non-trivial chat history as an Inspect-compatible format. Just [chat](../get-started/chat.qmd) as normal, then call [`.export_eval()`](../reference/Chat.qmd#export_eval) to save the history as a JSON file that Inspect can use as a `dataset` sample. By default, the last (assistant) turn will be used as the `target`, and all prior turns as the `input`. However, if you want to 
-customize the `target` responses for [grading](#understanding-scorers), you can do that too:
+Fortunately, chatlas makes it easy to export non-trivial chat history as an Inspect-compatible format. Just [chat](../get-started/chat.qmd) as normal, then call [`.export_eval()`](../reference/Chat.qmd#export_eval) to save the history as a JSON file that Inspect can use as a `dataset` sample. By default, the last (assistant) turn will be used as the `target`, and all prior turns as the `input`. However, if you want to customize the `target` responses for [grading](#understanding-scorers), you can do that too:
 
 ```python
 from chatlas import ChatOpenAI

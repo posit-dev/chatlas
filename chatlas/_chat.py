@@ -2232,7 +2232,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         **kwargs: Any,
     ):
         """
-        Create an Inspect AI eval dataset sample from the current chat.
+        Creates an Inspect AI eval dataset sample from the current chat.
 
         Creates an Inspect AI eval
         [Sample](https://inspect.aisi.org.uk/reference/inspect_ai.dataset.html#sample)
