@@ -2344,7 +2344,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         input_messages = []
         for x in input_turns:
-            input_messages.extend(x.to_inspect_messages())
+            input_messages.extend(x.to_inspect_messages(self.provider.model))
 
         from inspect_ai.dataset import Sample
 
