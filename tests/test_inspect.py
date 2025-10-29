@@ -252,124 +252,121 @@ class TestExportEval:
         assert "Second question" in str(samples[0].input)
 
 
-#class TestInspectIntegration:
-#    def test_basic_eval(self):
-#        chat = chat_func(system_prompt=SYSTEM_DEFAULT)
-#
-#        task = create_task(
-#            chat,
-#            dataset=[Sample(input="What is 2+2?", target="4")],
-#        )
-#
-#        results = inspect_eval(task)[0].results
-#
-#        assert results is not None
-#        accuracy = results.scores[0].metrics["accuracy"].value
-#        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
-#
-#    def test_system_prompt_override(self):
-#        chat = chat_func(system_prompt="You are Chuck Norris.")
-#
-#        task = create_task(
-#            chat,
-#            dataset=[
-#                Sample(
-#                    input="Tell me a short story.",
-#                    target="The answer can be any story, but should be in the style of Chuck Norris.",
-#                )
-#            ],
-#        )
-#
-#        results = inspect_eval(task)[0].results
-#
-#        assert results is not None
-#        accuracy = results.scores[0].metrics["accuracy"].value
-#        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
-#
-#    def test_existing_turns(self):
-#        chat = chat_func(system_prompt=SYSTEM_DEFAULT)
-#
-#        chat.set_turns(
-#            [
-#                Turn("user", "My name is Gregg."),
-#                Turn("assistant", "Hello Gregg! How can I assist you today?"),
-#            ]
-#        )
-#
-#        task = create_task(
-#            chat,
-#            dataset=[
-#                Sample(
-#                    input="What is my name?",
-#                    target="The answer should include 'Gregg'",
-#                )
-#            ],
-#        )
-#
-#        results = inspect_eval(task)[0].results
-#
-#        assert results is not None
-#        accuracy = results.scores[0].metrics["accuracy"].value
-#        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
-#
-#    def test_tool_calling(self):
-#        chat = chat_func(system_prompt=SYSTEM_DEFAULT)
-#
-#        def get_current_date():
-#            """Get the current date in YYYY-MM-DD format."""
-#            return datetime.datetime.now().strftime("%Y-%m-%d")
-#
-#        chat.register_tool(get_current_date)
-#
-#        task = create_task(
-#            chat,
-#            dataset=[
-#                Sample(
-#                    input="What is today's date?",
-#                    target="A valid date should be provided and be some time on or after Oct 23rd 2025.",
-#                )
-#            ],
-#        )
-#
-#        results = inspect_eval(task)[0].results
-#
-#        assert results is not None
-#        accuracy = results.scores[0].metrics["accuracy"].value
-#        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
-#
-#    def test_multiple_samples_state_management(self):
-#        """Test that solver has independent state across multiple samples."""
-#
-#        chat = chat_func(
-#            system_prompt="""
-#        A user is going to simply add ingredients to a shopping list. 
-#        Your task is to simply report all known ingredients when one is added.
-#        """
-#        )
-#
-#        task = create_task(
-#            chat,
-#            dataset=[
-#                Sample(
-#                    input="Add apples",
-#                    target="The shopping list should contain only apples",
-#                ),
-#                Sample(
-#                    input="Add bananas",
-#                    target="The shopping list should contain only bananas",
-#                ),
-#                Sample(
-#                    input="Add oranges",
-#                    target="The shopping list should contain only oranges",
-#                ),
-#            ],
-#        )
-#
-#        results = inspect_eval(task)[0].results
-#
-#        assert results is not None
-#        accuracy = results.scores[0].metrics["accuracy"].value
-#        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+class TestInspectIntegration:
+    def test_basic_eval(self):
+        chat = chat_func(system_prompt=SYSTEM_DEFAULT)
+
+        task = create_task(
+            chat,
+            dataset=[Sample(input="What is 2+2?", target="4")],
+        )
+
+        results = inspect_eval(task)[0].results
+
+        assert results is not None
+        accuracy = results.scores[0].metrics["accuracy"].value
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+
+    def test_system_prompt_override(self):
+        chat = chat_func(system_prompt="You are Chuck Norris.")
+
+        task = create_task(
+            chat,
+            dataset=[
+                Sample(
+                    input="Tell me a short story.",
+                    target="The answer can be any story, but should be in the style of Chuck Norris.",
+                )
+            ],
+        )
+
+        results = inspect_eval(task)[0].results
+
+        assert results is not None
+        accuracy = results.scores[0].metrics["accuracy"].value
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+
+    def test_existing_turns(self):
+        chat = chat_func(system_prompt=SYSTEM_DEFAULT)
+
+        chat.set_turns(
+            [
+                Turn("user", "My name is Gregg."),
+                Turn("assistant", "Hello Gregg! How can I assist you today?"),
+            ]
+        )
+
+        task = create_task(
+            chat,
+            dataset=[
+                Sample(
+                    input="What is my name?",
+                    target="The answer should include 'Gregg'",
+                )
+            ],
+        )
+
+        results = inspect_eval(task)[0].results
+
+        assert results is not None
+        accuracy = results.scores[0].metrics["accuracy"].value
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+
+    def test_tool_calling(self):
+        chat = chat_func(system_prompt=SYSTEM_DEFAULT)
+
+        def get_current_date():
+            """Get the current date in YYYY-MM-DD format."""
+            return datetime.datetime.now().strftime("%Y-%m-%d")
+
+        chat.register_tool(get_current_date)
+
+        task = create_task(
+            chat,
+            dataset=[
+                Sample(
+                    input="What is today's date?",
+                    target="A valid date should be provided and be some time on or after Oct 23rd 2025.",
+                )
+            ],
+        )
+
+        results = inspect_eval(task)[0].results
+
+        assert results is not None
+        accuracy = results.scores[0].metrics["accuracy"].value
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+
+    def test_multiple_samples_state_management(self):
+        """Test that solver has independent state across multiple samples."""
+
+        chat = chat_func(
+            system_prompt="""
+        The user is building a shopping list.
+        Your task is to simply report all known ingredients on every response.
+        Be very terse, no punctuation.
+        """
+        )
+
+        task = create_task(
+            chat,
+            dataset=[
+                Sample(
+                    input="Add apples",
+                    target="The response should contain only apples, no other fruit",
+                ),
+                Sample(
+                    input="Add bananas",
+                    target="The response should contain bananas, no other fruit",
+                )
+            ],
+        )
+
+        results = inspect_eval(task)[0].results
+
+        assert results is not None
+        accuracy = results.scores[0].metrics["accuracy"].value
+        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
 
 class TestContentTranslation:
