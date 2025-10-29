@@ -30,7 +30,7 @@ from ._provider import (
     StandardModelParamNames,
     StandardModelParams,
 )
-from ._tokens import get_token_pricing, tokens_log
+from ._tokens import get_token_pricing
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, user_turn
 from ._utils import split_http_client_kwargs
@@ -411,6 +411,17 @@ class AnthropicProvider(
     def value_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
 
+    def value_tokens(self, completion):
+        usage = completion.usage
+        # N.B. Currently, Anthropic doesn't cache by default and we currently do not support
+        # manual caching in chatlas. Note also that this only tracks reads, NOT writes, which
+        # have their own cost. To track that properly, we would need another caching category and per-token cost.
+        return (
+            completion.usage.input_tokens,
+            completion.usage.output_tokens,
+            usage.cache_read_input_tokens if usage.cache_read_input_tokens else 0,
+        )
+
     def token_count(
         self,
         *args: Content | str,
@@ -619,23 +630,9 @@ class AnthropicProvider(
                         )
                     )
 
-        usage = completion.usage
-        # N.B. Currently, Anthropic doesn't cache by default and we currently do not support
-        # manual caching in chatlas. Note also that this only tracks reads, NOT writes, which
-        # have their own cost. To track that properly, we would need another caching category and per-token cost.
-
-        tokens = (
-            completion.usage.input_tokens,
-            completion.usage.output_tokens,
-            usage.cache_read_input_tokens if usage.cache_read_input_tokens else 0,
-        )
-
-        tokens_log(self, tokens)
-
         return Turn(
             "assistant",
             contents,
-            tokens=tokens,
             finish_reason=completion.stop_reason,
             completion=completion,
         )

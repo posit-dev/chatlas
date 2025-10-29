@@ -342,8 +342,9 @@ class TestInspectIntegration:
 
         chat = chat_func(
             system_prompt="""
-        A user is going to simply add ingredients to a shopping list. 
-        Your task is to simply report all known ingredients when one is added.
+        The user is building a shopping list.
+        Your task is to simply report all known ingredients on every response.
+        Be very terse, no punctuation.
         """
         )
 
@@ -352,16 +353,12 @@ class TestInspectIntegration:
             dataset=[
                 Sample(
                     input="Add apples",
-                    target="The shopping list should contain only apples",
+                    target="The response should contain only apples, no other fruit",
                 ),
                 Sample(
                     input="Add bananas",
-                    target="The shopping list should contain only bananas",
-                ),
-                Sample(
-                    input="Add oranges",
-                    target="The shopping list should contain only oranges",
-                ),
+                    target="The response should contain bananas, no other fruit",
+                )
             ],
         )
 

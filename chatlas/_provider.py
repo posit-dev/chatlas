@@ -250,6 +250,12 @@ class Provider(
     ) -> Turn: ...
 
     @abstractmethod
+    def value_tokens(
+        self,
+        completion: ChatCompletionT,
+    ) -> tuple[int, int, int] | None: ...
+
+    @abstractmethod
     def token_count(
         self,
         *args: Content | str,

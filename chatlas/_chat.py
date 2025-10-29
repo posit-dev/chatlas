@@ -47,7 +47,7 @@ from ._display import (
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
-from ._tokens import compute_cost, get_token_pricing
+from ._tokens import compute_cost, get_token_pricing, tokens_log
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict, TypeGuard
@@ -958,7 +958,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 if user_prompt is None:
                     raise ValueError("No user prompt found in InspectAI state messages")
 
-                input_content = [inspect_content_as_chatlas(x) for x in user_prompt.content]
+                input_content = [
+                    inspect_content_as_chatlas(x) for x in user_prompt.content
+                ]
 
                 await chat_instance.chat_async(*input_content, echo="none")
                 last_turn = chat_instance.get_last_turn(role="assistant")
@@ -2560,6 +2562,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
+        if turn.tokens is None and turn.completion:
+            turn.tokens = self.provider.value_tokens(turn.completion)
+        if turn.tokens is not None:
+            tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
 
     async def _submit_turns_async(
@@ -2622,6 +2628,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
+        if turn.tokens is None and turn.completion:
+            turn.tokens = self.provider.value_tokens(turn.completion)
+        if turn.tokens is not None:
+            tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
 
     def _invoke_tool(self, request: ContentToolRequest):
