@@ -384,7 +384,13 @@ class OpenAIProvider(
     def value_tokens(self, completion):
         usage = completion.usage
         if usage is None:
-            return None
+            # For some reason ChatGroq() includes tokens under completion.x_groq
+            # Groq does not support caching, so we set cached_tokens to 0
+            if hasattr(completion, "x_groq"):
+                usage = completion.x_groq["usage"]  # type: ignore
+                return usage["prompt_tokens"], usage["completion_tokens"], 0
+            else:
+                return None
 
         if usage.prompt_tokens_details is not None:
             cached_tokens = (
@@ -395,19 +401,11 @@ class OpenAIProvider(
         else:
             cached_tokens = 0
 
-        tokens = (
+        return (
             usage.prompt_tokens - cached_tokens,
             usage.completion_tokens,
             cached_tokens,
         )
-
-        # For some reason ChatGroq() includes tokens under completion.x_groq
-        # Groq does not support caching, so we set cached_tokens to 0
-        if usage is None and hasattr(completion, "x_groq"):
-            usage = completion.x_groq["usage"]  # type: ignore
-            tokens = usage["prompt_tokens"], usage["completion_tokens"], 0
-
-        return tokens
 
     def token_count(
         self,
