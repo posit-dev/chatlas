@@ -7,7 +7,8 @@ from typing import TYPE_CHECKING, Optional
 import orjson
 
 from ._chat import Chat
-from ._provider_openai import ModelInfo, OpenAIProvider
+from ._provider import ModelInfo
+from ._provider_openai import OpenAIProvider
 from ._utils import MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:

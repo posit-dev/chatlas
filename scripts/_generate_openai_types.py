@@ -3,6 +3,7 @@ from pathlib import Path
 from _utils import generate_typeddict_code, write_code_to_file
 from openai import AsyncAzureOpenAI, AsyncOpenAI
 from openai.resources.chat import Completions
+from openai.resources.responses import Responses
 
 types_dir = Path(__file__).parent.parent / "chatlas" / "types"
 provider_dir = types_dir / "openai"
@@ -16,8 +17,14 @@ create_args = generate_typeddict_code(
     excluded_fields={"self"},
 )
 
+responses_create_args = generate_typeddict_code(
+    Responses.create,
+    "ResponsesSubmitInputArgs",
+    excluded_fields={"self"},
+)
+
 write_code_to_file(
-    create_args,
+    create_args + "\n\n" + responses_create_args,
     provider_dir / "_submit.py",
 )
 
@@ -64,12 +71,13 @@ write_code_to_file(
 init = """
 from ._client import ChatClientArgs
 from ._client_azure import ChatAzureClientArgs
-from ._submit import SubmitInputArgs
+from ._submit import SubmitInputArgs, ResponsesSubmitInputArgs
 
 __all__ = (
     "ChatClientArgs",
     "ChatAzureClientArgs",
     "SubmitInputArgs",
+    "ResponsesSubmitInputArgs",
 )
 """
 

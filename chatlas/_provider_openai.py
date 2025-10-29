@@ -1,24 +1,24 @@
 from __future__ import annotations
 
 import base64
-import json
-import os
-import re
-import tempfile
 import warnings
-from datetime import datetime
-from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import orjson
-from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI
-from openai.types.batch import Batch
-from openai.types.chat import ChatCompletion, ChatCompletionChunk
+from openai.types.chat import (
+    ChatCompletion,
+    ChatCompletionAssistantMessageParam,
+    ChatCompletionChunk,
+    ChatCompletionMessageToolCallParam,
+    ChatCompletionSystemMessageParam,
+    ChatCompletionToolMessageParam,
+    ChatCompletionUserMessageParam,
+)
 from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
     Content,
-    ContentImage,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -31,17 +31,11 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import (
-    BatchStatus,
-    ModelInfo,
-    Provider,
-    StandardModelParamNames,
-    StandardModelParams,
-)
-from ._tokens import get_token_pricing
+from ._provider import StandardModelParamNames, StandardModelParams
+from ._provider_openai_generic import BatchResult, GenericOpenAIProvider
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, user_turn
-from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
+from ._turn import Turn
+from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
     from openai.types.chat import ChatCompletionMessageParam
@@ -53,7 +47,8 @@ if TYPE_CHECKING:
     )
     from openai.types.chat_model import ChatModel
 
-    from .types.openai import ChatAzureClientArgs, ChatClientArgs, SubmitInputArgs
+    from .types.openai import ChatClientArgs, SubmitInputArgs
+
 
 # The dictionary form of ChatCompletion (TODO: stronger typing)?
 ChatCompletionDict = dict[str, Any]
@@ -176,99 +171,14 @@ def ChatOpenAI(
     )
 
 
-# Seems there is no native typing support for `files.content()` results
-# so mock them based on the docs here
-# https://platform.openai.com/docs/guides/batch#5-retrieve-the-results
-class BatchResult(BaseModel):
-    id: str
-    custom_id: str
-    response: BatchResultResponse
-
-
-class BatchResultResponse(BaseModel):
-    status_code: int
-    request_id: str
-    body: ChatCompletionDict
-
-
 class OpenAIProvider(
-    Provider[ChatCompletion, ChatCompletionChunk, ChatCompletionDict, "SubmitInputArgs"]
+    GenericOpenAIProvider[
+        ChatCompletion,
+        ChatCompletionChunk,
+        ChatCompletionDict,
+        "SubmitInputArgs",
+    ]
 ):
-    def __init__(
-        self,
-        *,
-        api_key: Optional[str] = None,
-        model: str,
-        base_url: str = "https://api.openai.com/v1",
-        seed: Optional[int] = None,
-        name: str = "OpenAI",
-        kwargs: Optional["ChatClientArgs"] = None,
-    ):
-        super().__init__(name=name, model=model)
-
-        self._seed = seed
-
-        kwargs_full: "ChatClientArgs" = {
-            "api_key": api_key,
-            "base_url": base_url,
-            **(kwargs or {}),
-        }
-
-        # Avoid passing the wrong sync/async client to the OpenAI constructor.
-        sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
-
-        # TODO: worth bringing in AsyncOpenAI types?
-        self._client = OpenAI(**sync_kwargs)  # type: ignore
-        self._async_client = AsyncOpenAI(**async_kwargs)
-
-    def list_models(self):
-        models = self._client.models.list()
-
-        res: list[ModelInfo] = []
-        for m in models:
-            pricing = get_token_pricing(self.name, m.id) or {}
-            info: ModelInfo = {
-                "id": m.id,
-                "owned_by": m.owned_by,
-                "input": pricing.get("input"),
-                "output": pricing.get("output"),
-                "cached_input": pricing.get("cached_input"),
-            }
-            # DeepSeek compatibility
-            if m.created is not None:
-                info["created_at"] = datetime.fromtimestamp(m.created).date()
-            res.append(info)
-
-        # More recent models first
-        res.sort(
-            key=lambda x: x.get("created_at", 0),
-            reverse=True,
-        )
-
-        return res
-
-    @overload
-    def chat_perform(
-        self,
-        *,
-        stream: Literal[False],
-        turns: list[Turn],
-        tools: dict[str, Tool],
-        data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
-    ): ...
-
-    @overload
-    def chat_perform(
-        self,
-        *,
-        stream: Literal[True],
-        turns: list[Turn],
-        tools: dict[str, Tool],
-        data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
-    ): ...
-
     def chat_perform(
         self,
         *,
@@ -280,28 +190,6 @@ class OpenAIProvider(
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return self._client.chat.completions.create(**kwargs)  # type: ignore
-
-    @overload
-    async def chat_perform_async(
-        self,
-        *,
-        stream: Literal[False],
-        turns: list[Turn],
-        tools: dict[str, Tool],
-        data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
-    ): ...
-
-    @overload
-    async def chat_perform_async(
-        self,
-        *,
-        stream: Literal[True],
-        turns: list[Turn],
-        tools: dict[str, Tool],
-        data_model: Optional[type[BaseModel]] = None,
-        kwargs: Optional["SubmitInputArgs"] = None,
-    ): ...
 
     async def chat_perform_async(
         self,
@@ -327,7 +215,7 @@ class OpenAIProvider(
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
-            "messages": self._as_message_param(turns),
+            "messages": self._turns_as_inputs(turns),
             "model": self.model,
             **(kwargs or {}),
         }
@@ -372,14 +260,14 @@ class OpenAIProvider(
             return chunkd
         return merge_dicts(completion, chunkd)
 
-    def stream_turn(self, completion, has_data_model) -> Turn:
-        delta = completion["choices"][0].pop("delta")  # type: ignore
-        completion["choices"][0]["message"] = delta  # type: ignore
+    def stream_turn(self, completion, has_data_model):
+        delta = completion["choices"][0].pop("delta")
+        completion["choices"][0]["message"] = delta
         completion = ChatCompletion.construct(**completion)
-        return self._as_turn(completion, has_data_model)
+        return self._response_as_turn(completion, has_data_model)
 
-    def value_turn(self, completion, has_data_model) -> Turn:
-        return self._as_turn(completion, has_data_model)
+    def value_turn(self, completion, has_data_model):
+        return self._response_as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):
         usage = completion.usage
@@ -407,67 +295,8 @@ class OpenAIProvider(
             cached_tokens,
         )
 
-    def token_count(
-        self,
-        *args: Content | str,
-        tools: dict[str, Tool],
-        data_model: Optional[type[BaseModel]],
-    ) -> int:
-        try:
-            import tiktoken
-        except ImportError:
-            raise ImportError(
-                "The tiktoken package is required for token counting. "
-                "Please install it with `pip install tiktoken`."
-            )
-
-        encoding = tiktoken.encoding_for_model(self._model)
-
-        turn = user_turn(*args)
-
-        # Count the tokens in image contents
-        image_tokens = sum(
-            self._image_token_count(x)
-            for x in turn.contents
-            if isinstance(x, ContentImage)
-        )
-
-        # For other contents, get the token count from the actual message param
-        other_contents = [x for x in turn.contents if not isinstance(x, ContentImage)]
-        other_full = self._as_message_param([Turn("user", other_contents)])
-        other_tokens = len(encoding.encode(str(other_full)))
-
-        return other_tokens + image_tokens
-
-    async def token_count_async(
-        self,
-        *args: Content | str,
-        tools: dict[str, Tool],
-        data_model: Optional[type[BaseModel]],
-    ) -> int:
-        return self.token_count(*args, tools=tools, data_model=data_model)
-
     @staticmethod
-    def _image_token_count(image: ContentImage) -> int:
-        if isinstance(image, ContentImageRemote) and image.detail == "low":
-            return 85
-        else:
-            # This is just the max token count for an image The highest possible
-            # resolution is 768 x 2048, and 8 tiles of size 512px can fit inside
-            # TODO: this is obviously a very conservative estimate and could be improved
-            # https://platform.openai.com/docs/guides/vision/calculating-costs
-            return 170 * 8 + 85
-
-    @staticmethod
-    def _as_message_param(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
-        from openai.types.chat import (
-            ChatCompletionAssistantMessageParam,
-            ChatCompletionMessageToolCallParam,
-            ChatCompletionSystemMessageParam,
-            ChatCompletionToolMessageParam,
-            ChatCompletionUserMessageParam,
-        )
-
+    def _turns_as_inputs(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
         res: list["ChatCompletionMessageParam"] = []
         for turn in turns:
             if turn.role == "system":
@@ -586,8 +415,9 @@ class OpenAIProvider(
 
         return res
 
-    def _as_turn(
-        self, completion: "ChatCompletion", has_data_model: bool
+    @staticmethod
+    def _response_as_turn(
+        completion: "ChatCompletion", has_data_model: bool
     ) -> Turn[ChatCompletion]:
         message = completion.choices[0].message
 
@@ -611,19 +441,7 @@ class OpenAIProvider(
                 func = call.function
                 if func is None:
                     continue
-
-                args = {}
-                try:
-                    args = orjson.loads(func.arguments) if func.arguments else {}
-                except orjson.JSONDecodeError:
-                    raise ValueError(
-                        f"The model's completion included a tool request ({func.name}) "
-                        "with invalid JSON for input arguments: '{func.arguments}'"
-                        "This can happen if the model hallucinates parameters not defined by "
-                        "your function schema. Try revising your tool description and system "
-                        "prompt to be more specific about the expected input arguments to this function."
-                    )
-
+                args = load_tool_request_args(func.arguments, func.name)
                 contents.append(
                     ContentToolRequest(
                         id=call.id,
@@ -679,100 +497,6 @@ class OpenAIProvider(
             "stop_sequences",
         }
 
-    def has_batch_support(self) -> bool:
-        return True
-
-    def batch_submit(
-        self,
-        conversations: list[list[Turn]],
-        data_model: Optional[type[BaseModel]] = None,
-    ):
-        # First put the requests in a file
-        # https://platform.openai.com/docs/api-reference/batch/request-input
-        # https://platform.openai.com/docs/api-reference/batch
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
-            temp_path = f.name
-
-            for i, turns in enumerate(conversations):
-                kwargs = self._chat_perform_args(
-                    stream=False,
-                    turns=turns,
-                    tools={},
-                    data_model=data_model,
-                )
-
-                body = {
-                    "messages": kwargs.get("messages", []),
-                    "model": self.model,
-                }
-
-                if "response_format" in kwargs:
-                    body["response_format"] = kwargs["response_format"]
-
-                request = {
-                    "custom_id": f"request-{i}",
-                    "method": "POST",
-                    "url": "/v1/chat/completions",
-                    "body": body,
-                }
-
-                f.write(orjson.dumps(request).decode() + "\n")
-
-        try:
-            with open(temp_path, "rb") as f:
-                file_response = self._client.files.create(file=f, purpose="batch")
-
-            batch = self._client.batches.create(
-                input_file_id=file_response.id,
-                endpoint="/v1/chat/completions",
-                completion_window="24h",
-            )
-
-            return batch.model_dump()
-        finally:
-            os.unlink(temp_path)
-
-    def batch_poll(self, batch):
-        batch = Batch.model_validate(batch)
-        b = self._client.batches.retrieve(batch.id)
-        return b.model_dump()
-
-    def batch_status(self, batch):
-        batch = Batch.model_validate(batch)
-        counts = batch.request_counts
-        total, completed, failed = 0, 0, 0
-        if counts is not None:
-            total = counts.total
-            completed = counts.completed
-            failed = counts.failed
-
-        return BatchStatus(
-            working=batch.status not in ["completed", "failed", "cancelled"],
-            n_processing=total - completed - failed,
-            n_succeeded=completed,
-            n_failed=failed,
-        )
-
-    def batch_retrieve(self, batch):
-        batch = Batch.model_validate(batch)
-        if batch.output_file_id is None:
-            raise ValueError("Batch has no output file")
-
-        # Download and parse JSONL results
-        response = self._client.files.content(batch.output_file_id)
-        results: list[dict[str, Any]] = []
-        for line in response.text.splitlines():
-            results.append(json.loads(line))
-
-        # Sort by custom_id to maintain order
-        def extract_id(x: str):
-            match = re.search(r"-(\d+)$", x)
-            return int(match.group(1)) if match else 0
-
-        results.sort(key=lambda x: int(extract_id(x.get("custom_id", ""))))
-
-        return results
-
     def batch_result_turn(
         self,
         result,
@@ -785,135 +509,24 @@ class OpenAIProvider(
             return None
 
         completion = ChatCompletion.construct(**response.body)
-        return self._as_turn(completion, has_data_model)
+        return self._response_as_turn(completion, has_data_model)
+
+    @staticmethod
+    def _batch_endpoint():
+        return "/v1/chat/completions"
 
 
-# -------------------------------------------------------------------------------------
-# Azure OpenAI Chat
-# -------------------------------------------------------------------------------------
-
-
-def ChatAzureOpenAI(
-    *,
-    endpoint: str,
-    deployment_id: str,
-    api_version: str,
-    api_key: Optional[str] = None,
-    system_prompt: Optional[str] = None,
-    seed: int | None | MISSING_TYPE = MISSING,
-    kwargs: Optional["ChatAzureClientArgs"] = None,
-) -> Chat["SubmitInputArgs", ChatCompletion]:
-    """
-    Chat with a model hosted on Azure OpenAI.
-
-    The [Azure OpenAI server](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
-    hosts a number of open source models as well as proprietary models
-    from OpenAI.
-
-    Examples
-    --------
-    ```python
-    import os
-    from chatlas import ChatAzureOpenAI
-
-    chat = ChatAzureOpenAI(
-        endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-        deployment_id="REPLACE_WITH_YOUR_DEPLOYMENT_ID",
-        api_version="YYYY-MM-DD",
-        api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-    )
-
-    chat.chat("What is the capital of France?")
-    ```
-
-    Parameters
-    ----------
-    endpoint
-        Azure OpenAI endpoint url with protocol and hostname, i.e.
-        `https://{your-resource-name}.openai.azure.com`. Defaults to using the
-        value of the `AZURE_OPENAI_ENDPOINT` envinronment variable.
-    deployment_id
-        Deployment id for the model you want to use.
-    api_version
-        The API version to use.
-    api_key
-        The API key to use for authentication. You generally should not supply
-        this directly, but instead set the `AZURE_OPENAI_API_KEY` environment
-        variable.
-    system_prompt
-        A system prompt to set the behavior of the assistant.
-    seed
-        Optional integer seed that ChatGPT uses to try and make output more
-        reproducible.
-    kwargs
-        Additional arguments to pass to the `openai.AzureOpenAI()` client constructor.
-
-    Returns
-    -------
-    Chat
-        A Chat object.
-    """
-
-    if isinstance(seed, MISSING_TYPE):
-        seed = 1014 if is_testing() else None
-
-    return Chat(
-        provider=OpenAIAzureProvider(
-            endpoint=endpoint,
-            deployment_id=deployment_id,
-            api_version=api_version,
-            api_key=api_key,
-            seed=seed,
-            kwargs=kwargs,
-        ),
-        system_prompt=system_prompt,
-    )
-
-
-class OpenAIAzureProvider(OpenAIProvider):
-    def __init__(
-        self,
-        *,
-        endpoint: Optional[str] = None,
-        deployment_id: str,
-        api_version: Optional[str] = None,
-        api_key: Optional[str] = None,
-        seed: int | None = None,
-        name: str = "Azure/OpenAI",
-        model: Optional[str] = "UnusedValue",
-        kwargs: Optional["ChatAzureClientArgs"] = None,
-    ):
-        super().__init__(
-            name=name,
-            model=deployment_id,
-            # The OpenAI() constructor will fail if no API key is present.
-            # However, a dummy value is fine -- AzureOpenAI() handles the auth.
-            api_key=api_key or "not-used",
+def load_tool_request_args(args: str, name: str) -> dict[str, Any]:
+    """Load tool request arguments from a JSON string."""
+    res = {}
+    try:
+        res = orjson.loads(args) if args else {}
+    except orjson.JSONDecodeError:
+        raise ValueError(
+            f"The model's completion included a tool request ({name}) "
+            "with invalid JSON for input arguments: '{args}'"
+            "This can happen if the model hallucinates parameters not defined by "
+            "your function schema. Try revising your tool description and system "
+            "prompt to be more specific about the expected input arguments to this function."
         )
-
-        self._seed = seed
-
-        kwargs_full: "ChatAzureClientArgs" = {
-            "azure_endpoint": endpoint,
-            "azure_deployment": deployment_id,
-            "api_version": api_version,
-            "api_key": api_key,
-            **(kwargs or {}),
-        }
-
-        sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
-
-        self._client = AzureOpenAI(**sync_kwargs)  # type: ignore
-        self._async_client = AsyncAzureOpenAI(**async_kwargs)  # type: ignore
-
-
-class InvalidJSONParameterWarning(RuntimeWarning):
-    """
-    Warning for when a tool request includes invalid JSON for input arguments.
-
-    This is a subclass of `RuntimeWarning` and is used to indicate that a tool
-    request included invalid JSON for input arguments. This can happen if the
-    model hallucinates parameters not defined by your function schema.
-    """
-
-    pass
+    return res

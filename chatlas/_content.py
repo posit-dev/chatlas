@@ -125,6 +125,7 @@ ContentTypeEnum = Literal[
     "tool_result_resource",
     "json",
     "pdf",
+    "thinking",
 ]
 """
 A discriminated union of all content types.
@@ -682,6 +683,40 @@ class ContentPDF(Content):
         return " " * indent + f"<ContentPDF size={len(self.data)}>"
 
 
+class ContentThinking(Content):
+    """
+    Thinking/reasoning content
+
+    This content type represents reasoning traces from models that support
+    extended thinking (like OpenAI's o-series models). The thinking content
+    is not meant to be sent back to the model but is useful for debugging
+    and understanding the model's reasoning process.
+
+    Parameters
+    ----------
+    thinking
+        The thinking/reasoning text from the model.
+    extra
+        Additional metadata associated with the thinking content (e.g.,
+        encrypted content, status information).
+    """
+
+    thinking: str
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "thinking"
+
+    def __str__(self):
+        return f"<thinking>\n{self.thinking}\n</thinking>\n"
+
+    def _repr_markdown_(self):
+        return self.__str__()
+
+    def __repr__(self, indent: int = 0):
+        preview = self.thinking[:50] + "..." if len(self.thinking) > 50 else self.thinking
+        return " " * indent + f"<ContentThinking thinking='{preview}'>"
+
+
 ContentUnion = Union[
     ContentText,
     ContentImageRemote,
@@ -692,6 +727,7 @@ ContentUnion = Union[
     ContentToolResultResource,
     ContentJson,
     ContentPDF,
+    ContentThinking,
 ]
 
 
@@ -724,6 +760,8 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentJson.model_validate(data)
     elif ct == "pdf":
         return ContentPDF.model_validate(data)
+    elif ct == "thinking":
+        return ContentThinking.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
 

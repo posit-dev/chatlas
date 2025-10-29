@@ -7,7 +7,8 @@ import requests
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._provider_openai import ModelInfo, OpenAIProvider
+from ._provider import ModelInfo
+from ._provider_openai import OpenAIProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
