@@ -5,7 +5,8 @@
 
 from ._client import ChatClientArgs
 from ._client_azure import ChatAzureClientArgs
-from ._submit import ResponsesSubmitInputArgs, SubmitInputArgs
+from ._submit import SubmitInputArgs
+from ._submit_responses import SubmitInputArgs as ResponsesSubmitInputArgs
 
 __all__ = (
     "ChatClientArgs",

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import warnings
-from typing import TYPE_CHECKING, Any, Literal, Optional, cast
+from typing import TYPE_CHECKING, Literal, Optional, cast
 
 import orjson
 from openai.types.responses import Response, ResponseStreamEvent
@@ -242,8 +242,7 @@ class OpenAIProvider(
         if self._is_reasoning_model():
             include.append("reasoning.encrypted_content")
 
-        # TODO: make this opt-in somehow?
-        if True:
+        if "log_probs" in kwargs_full:
             include.append("message.output_text.logprobs")
 
         if include:
@@ -347,25 +346,24 @@ class OpenAIProvider(
             res.extend([as_input_param(x, turn.role) for x in turn.contents])
         return res
 
-    def translate_model_params(self, params: StandardModelParams) -> Any:
-        res: dict[str, Any] = {}
+    def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
+        res: "SubmitInputArgs" = {}
         if "temperature" in params:
             res["temperature"] = params["temperature"]
 
         if "top_p" in params:
             res["top_p"] = params["top_p"]
 
-        if "top_k" in params:
-            res["top_logprobs"] = params["top_k"]
-
-        if "frequency_penalty" in params:
-            res["frequency_penalty"] = params["frequency_penalty"]
-
         if "max_tokens" in params:
-            res["max_tokens"] = params["max_tokens"]
+            res["max_output_tokens"] = params["max_tokens"]
 
         if "log_probs" in params:
-            res["logprobs"] = params["log_probs"]
+            # This isn't a formal submit argument, but we use it internally to
+            # determine whether to include `message.output_text.logprobs`
+            res["log_probs"] = params["log_probs"]  # type: ignore
+
+        if "top_k" in params:
+            res["top_logprobs"] = params["top_k"]
 
         return res
 
@@ -374,7 +372,6 @@ class OpenAIProvider(
             "temperature",
             "top_p",
             "top_k",
-            "frequency_penalty",
             "max_tokens",
             "log_probs",
         }
@@ -454,7 +451,7 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
             "type": "function_call",
             "call_id": content.id,
             "name": content.name,
-            "arguments": "content.arguments",
+            "arguments": orjson.dumps(content.arguments).decode("utf-8"),
         }
     else:
         raise ValueError(f"Unsupported content type: {type(content)}")
