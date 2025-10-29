@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Optional
 
 from openai import AsyncAzureOpenAI, AzureOpenAI
@@ -5,6 +7,7 @@ from openai.types.chat import ChatCompletion
 
 from ._chat import Chat
 from ._provider_openai import OpenAIProvider
+from ._provider_openai_completions import OpenAICompletionsProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -89,6 +92,76 @@ def ChatAzureOpenAI(
 
 
 class OpenAIAzureProvider(OpenAIProvider):
+    def __init__(
+        self,
+        *,
+        endpoint: Optional[str] = None,
+        deployment_id: str,
+        api_version: Optional[str] = None,
+        api_key: Optional[str] = None,
+        seed: int | None = None,
+        name: str = "Azure/OpenAI",
+        model: Optional[str] = "UnusedValue",
+        kwargs: Optional["ChatAzureClientArgs"] = None,
+    ):
+        super().__init__(
+            name=name,
+            model=deployment_id,
+            # The OpenAI() constructor will fail if no API key is present.
+            # However, a dummy value is fine -- AzureOpenAI() handles the auth.
+            api_key=api_key or "not-used",
+        )
+
+        self._seed = seed
+
+        kwargs_full: "ChatAzureClientArgs" = {
+            "azure_endpoint": endpoint,
+            "azure_deployment": deployment_id,
+            "api_version": api_version,
+            "api_key": api_key,
+            **(kwargs or {}),
+        }
+
+        sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
+
+        self._client = AzureOpenAI(**sync_kwargs)  # type: ignore
+        self._async_client = AsyncAzureOpenAI(**async_kwargs)  # type: ignore
+
+
+def ChatAzureOpenAICompletions(
+    *,
+    endpoint: str,
+    deployment_id: str,
+    api_version: str,
+    api_key: Optional[str] = None,
+    system_prompt: Optional[str] = None,
+    seed: int | None | MISSING_TYPE = MISSING,
+    kwargs: Optional["ChatAzureClientArgs"] = None,
+) -> Chat["SubmitInputArgs", ChatCompletion]:
+    """
+    Chat with a model hosted on Azure OpenAI.
+
+    This function mostly exists for historical reasons; new code should
+    prefer `ChatAzureOpenAI()`, which uses the newer Responses API.
+    """
+
+    if isinstance(seed, MISSING_TYPE):
+        seed = 1014 if is_testing() else None
+
+    return Chat(
+        provider=OpenAIAzureCompletionsProvider(
+            endpoint=endpoint,
+            deployment_id=deployment_id,
+            api_version=api_version,
+            api_key=api_key,
+            seed=seed,
+            kwargs=kwargs,
+        ),
+        system_prompt=system_prompt,
+    )
+
+
+class OpenAIAzureCompletionsProvider(OpenAICompletionsProvider):
     def __init__(
         self,
         *,

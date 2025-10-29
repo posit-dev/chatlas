@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._provider_openai import OpenAIProvider
+from ._provider_openai_completions import OpenAICompletionsProvider
 
 if TYPE_CHECKING:
     from openai.types.chat import ChatCompletion
@@ -137,7 +137,7 @@ def ChatHuggingFace(
     )
 
 
-class HuggingFaceProvider(OpenAIProvider):
+class HuggingFaceProvider(OpenAICompletionsProvider):
     def __init__(
         self,
         *,

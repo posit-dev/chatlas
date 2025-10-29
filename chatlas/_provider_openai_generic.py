@@ -47,7 +47,7 @@ class BatchResultResponse(BaseModel):
     body: dict[str, Any]
 
 
-class GenericOpenAIProvider(
+class OpenAIAbstractProvider(
     Provider[
         ChatCompletionT,
         ChatCompletionChunkT,
@@ -62,8 +62,11 @@ class GenericOpenAIProvider(
     ],
 ):
     """
-    Generic OpenAI provider with logic shared across both the /chat/completions
+    Abstract OpenAI provider with logic shared across both the /chat/completions
     and /responses APIs.
+
+    Note that this is an abstract class and should not be used directly. It's
+    intended to be subclassed by specific OpenAI provider implementations.
     """
 
     def __init__(

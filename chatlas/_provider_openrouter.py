@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._provider_openai import OpenAIProvider
+from ._provider_openai_completions import OpenAICompletionsProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
-    from ._provider_openai import ChatCompletion
+    from ._provider_openai_completions import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
@@ -126,7 +126,7 @@ def ChatOpenRouter(
     kwargs2 = add_default_headers(kwargs or {})
 
     return Chat(
-        provider=OpenAIProvider(
+        provider=OpenAICompletionsProvider(
             api_key=api_key,
             model=model,
             base_url=base_url,

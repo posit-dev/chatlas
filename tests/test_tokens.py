@@ -3,7 +3,8 @@ from typing import Optional
 from pydantic import BaseModel
 
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
-from chatlas._provider_openai import OpenAIAzureProvider, OpenAIProvider
+from chatlas._provider_openai import OpenAIProvider
+from chatlas._provider_openai_azure import OpenAIAzureProvider
 from chatlas._tokens import (
     compute_cost,
     get_token_pricing,

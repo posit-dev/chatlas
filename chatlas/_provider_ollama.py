@@ -8,11 +8,11 @@ import orjson
 
 from ._chat import Chat
 from ._provider import ModelInfo
-from ._provider_openai import OpenAIProvider
+from ._provider_openai_completions import OpenAICompletionsProvider
 from ._utils import MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
-    from ._provider_openai import ChatCompletion
+    from ._provider_openai_completions import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
@@ -112,7 +112,7 @@ def ChatOllama(
     )
 
 
-class OllamaProvider(OpenAIProvider):
+class OllamaProvider(OpenAICompletionsProvider):
     def __init__(self, *, api_key, model, base_url, seed, name, kwargs):
         super().__init__(
             api_key=api_key,

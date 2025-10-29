@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from chatlas import ChatOpenAI
+from chatlas import ChatOpenAICompletions as ChatOpenAI
 
 from .conftest import (
     assert_data_extraction,
