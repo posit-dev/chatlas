@@ -352,7 +352,16 @@ class GoogleProvider(
         return self._as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):
-        usage = completion.usage_metadata
+        if isinstance(completion, dict):
+            # Currently value_turn() attached a dict completion
+            from google.genai.types import GenerateContentResponseUsageMetadata
+
+            usage = GenerateContentResponseUsageMetadata.model_validate(
+                completion.get("usage_metadata", {})
+            )
+        else:
+            usage = completion.usage_metadata
+
         if usage is None:
             return None
         cached = usage.cached_content_token_count or 0

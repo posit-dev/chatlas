@@ -388,9 +388,14 @@ class AnthropicProvider(
                 this_content.text += chunk.delta.text
             elif chunk.delta.type == "input_json_delta":
                 this_content = cast("ToolUseBlock", this_content)
+                json_delta = chunk.delta.partial_json
+                # For some reason Anthropic recently changed .input's type from
+                # object to dict, but it doesn't seem to contain anything
+                # useful. Maybe there is a better way to get at this streaming info,
+                # but for now, we'll just accumulate the JSON string delta.
                 if not isinstance(this_content.input, str):
-                    this_content.input = ""
-                this_content.input += chunk.delta.partial_json
+                    this_content.input = ""  # type: ignore
+                this_content.input += json_delta  # type: ignore
         elif chunk.type == "content_block_stop":
             this_content = completion.content[chunk.index]
             if this_content.type == "tool_use" and isinstance(this_content.input, str):
@@ -553,7 +558,7 @@ class AnthropicProvider(
                 "type": "tool_use",
                 "id": content.id,
                 "name": content.name,
-                "input": content.arguments,
+                "input": cast(dict, content.arguments),
             }
         elif isinstance(content, ContentToolResult):
             res: ToolResultBlockParam = {
@@ -601,7 +606,11 @@ class AnthropicProvider(
             res["description"] = fn["description"]
 
         if "parameters" in fn:
-            res["input_schema"]["properties"] = fn["parameters"]["properties"]
+            props = fn["parameters"]["properties"]
+            res["input_schema"] = {
+                **res["input_schema"],
+                "properties": props,
+            }
 
         return res
 
@@ -620,7 +629,9 @@ class AnthropicProvider(
                         raise ValueError(
                             "Expected data extraction tool to return a 'data' field."
                         )
-                    contents.append(ContentJson(value=content.input["data"]))
+                    else:
+                        d = cast(dict, content.input["data"])
+                        contents.append(ContentJson(value=d))
                 else:
                     contents.append(
                         ContentToolRequest(
