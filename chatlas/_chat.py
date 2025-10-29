@@ -47,7 +47,7 @@ from ._display import (
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
-from ._tokens import compute_cost, get_token_pricing
+from ._tokens import compute_cost, get_token_pricing, tokens_log
 from ._tools import Tool, ToolRejectError
 from ._turn import Turn, user_turn
 from ._typing_extensions import TypedDict, TypeGuard
@@ -2537,12 +2537,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 result,
                 has_data_model=data_model is not None,
             )
-
             if echo == "all":
                 emit_other_contents(turn, emit)
 
         else:
-            response = self.provider.chat_perform(
+            result = self.provider.chat_perform(
                 stream=False,
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
@@ -2551,7 +2550,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
             turn = self.provider.value_turn(
-                response, has_data_model=data_model is not None
+                result, has_data_model=data_model is not None
             )
             if turn.text:
                 emit(turn.text)
@@ -2560,6 +2559,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
+        if turn.tokens is None:
+            turn.tokens = self.provider.value_tokens(result)
+        if turn.tokens is not None:
+            tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
 
     async def _submit_turns_async(
@@ -2604,7 +2607,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 emit_other_contents(turn, emit)
 
         else:
-            response = await self.provider.chat_perform_async(
+            result = await self.provider.chat_perform_async(
                 stream=False,
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
@@ -2613,7 +2616,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
             turn = self.provider.value_turn(
-                response, has_data_model=data_model is not None
+                result, has_data_model=data_model is not None
             )
             if turn.text:
                 emit(turn.text)
@@ -2622,6 +2625,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
+        if turn.tokens is None:
+            turn.tokens = self.provider.value_tokens(result)
+        if turn.tokens is not None:
+            tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
 
     def _invoke_tool(self, request: ContentToolRequest):

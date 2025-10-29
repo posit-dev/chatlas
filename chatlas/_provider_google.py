@@ -22,7 +22,7 @@ from ._content import (
 from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
-from ._tokens import get_token_pricing, tokens_log
+from ._tokens import get_token_pricing
 from ._tools import Tool
 from ._turn import Turn, user_turn
 
@@ -228,6 +228,7 @@ class GoogleProvider(
 
     def chat_perform(
         self,
+        *,
         stream: bool,
         turns: list[Turn],
         tools: dict[str, Tool],
@@ -264,6 +265,7 @@ class GoogleProvider(
 
     async def chat_perform_async(
         self,
+        *,
         stream: bool,
         turns: list[Turn],
         tools: dict[str, Tool],
@@ -348,6 +350,17 @@ class GoogleProvider(
     def value_turn(self, completion, has_data_model) -> Turn:
         completion = cast("GenerateContentResponseDict", completion.model_dump())
         return self._as_turn(completion, has_data_model)
+
+    def value_tokens(self, completion):
+        usage = completion.get("usage_metadata")
+        if usage is None:
+            return None
+        cached = usage.get("cached_content_token_count") or 0
+        return (
+            (usage.get("prompt_token_count") or 0) - cached,
+            usage.get("candidates_token_count") or 0,
+            usage.get("cached_content_token_count") or 0,
+        )
 
     def token_count(
         self,
@@ -528,25 +541,12 @@ class GoogleProvider(
                         )
                     )
 
-        usage = message.get("usage_metadata")
-        tokens = (0, 0, 0)
-        if usage:
-            cached = usage.get("cached_content_token_count") or 0
-            tokens = (
-                (usage.get("prompt_token_count") or 0) - cached,
-                usage.get("candidates_token_count") or 0,
-                usage.get("cached_content_token_count") or 0,
-            )
-
-        tokens_log(self, tokens)
-
         if isinstance(finish_reason, FinishReason):
             finish_reason = finish_reason.name
 
         return Turn(
             "assistant",
             contents,
-            tokens=tokens,
             finish_reason=finish_reason,
             completion=message,
         )

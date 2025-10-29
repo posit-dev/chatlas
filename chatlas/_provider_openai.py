@@ -13,6 +13,7 @@ import orjson
 from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI
 from openai.types.batch import Batch
 from openai.types.chat import ChatCompletion, ChatCompletionChunk
+from openai.types.completion_usage import CompletionUsage
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -38,7 +39,7 @@ from ._provider import (
     StandardModelParamNames,
     StandardModelParams,
 )
-from ._tokens import get_token_pricing, tokens_log
+from ._tokens import get_token_pricing
 from ._tools import Tool, basemodel_to_param_schema
 from ._turn import Turn, user_turn
 from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
@@ -381,6 +382,35 @@ class OpenAIProvider(
     def value_turn(self, completion, has_data_model) -> Turn:
         return self._as_turn(completion, has_data_model)
 
+    def value_tokens(self, completion):
+        usage = completion.get("usage", None)
+        if usage is None:
+            return None
+        usage = CompletionUsage.construct(**usage)
+
+        if usage.prompt_tokens_details is not None:
+            cached_tokens = (
+                usage.prompt_tokens_details.cached_tokens
+                if usage.prompt_tokens_details.cached_tokens
+                else 0
+            )
+        else:
+            cached_tokens = 0
+
+        tokens = (
+            usage.prompt_tokens - cached_tokens,
+            usage.completion_tokens,
+            cached_tokens,
+        )
+
+        # For some reason ChatGroq() includes tokens under completion.x_groq
+        # Groq does not support caching, so we set cached_tokens to 0
+        if usage is None and hasattr(completion, "x_groq"):
+            usage = completion.x_groq["usage"]  # type: ignore
+            tokens = usage["prompt_tokens"], usage["completion_tokens"], 0
+
+        return tokens
+
     def token_count(
         self,
         *args: Content | str,
@@ -606,36 +636,9 @@ class OpenAIProvider(
                     )
                 )
 
-        usage = completion.usage
-        if usage is None:
-            tokens = (0, 0, 0)
-        else:
-            if usage.prompt_tokens_details is not None:
-                cached_tokens = (
-                    usage.prompt_tokens_details.cached_tokens
-                    if usage.prompt_tokens_details.cached_tokens
-                    else 0
-                )
-            else:
-                cached_tokens = 0
-            tokens = (
-                usage.prompt_tokens - cached_tokens,
-                usage.completion_tokens,
-                cached_tokens,
-            )
-
-        # For some reason ChatGroq() includes tokens under completion.x_groq
-        # Groq does not support caching, so we set cached_tokens to 0
-        if usage is None and hasattr(completion, "x_groq"):
-            usage = completion.x_groq["usage"]  # type: ignore
-            tokens = usage["prompt_tokens"], usage["completion_tokens"], 0
-
-        tokens_log(self, tokens)
-
         return Turn(
             "assistant",
             contents,
-            tokens=tokens,
             finish_reason=completion.choices[0].finish_reason,
             completion=completion,
         )
