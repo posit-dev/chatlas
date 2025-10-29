@@ -441,13 +441,8 @@ class SnowflakeProvider(
         return self._as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):
-        import snowflake.core.cortex.inference_service._generated.models as models
-
-        completion_dict = completion.model_dump()
-        usage = models.NonStreamingCompleteResponse.model_construct(
-            **completion_dict
-        ).usage
         # Snowflake does not currently appear to support caching, so we set cached tokens to 0
+        usage = completion.usage
         if usage is None:
             return None
 

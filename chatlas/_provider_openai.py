@@ -13,7 +13,6 @@ import orjson
 from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI
 from openai.types.batch import Batch
 from openai.types.chat import ChatCompletion, ChatCompletionChunk
-from openai.types.completion_usage import CompletionUsage
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -383,10 +382,9 @@ class OpenAIProvider(
         return self._as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):
-        usage = completion.get("usage", None)
+        usage = completion.usage
         if usage is None:
             return None
-        usage = CompletionUsage.construct(**usage)
 
         if usage.prompt_tokens_details is not None:
             cached_tokens = (

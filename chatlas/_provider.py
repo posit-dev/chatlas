@@ -252,7 +252,7 @@ class Provider(
     @abstractmethod
     def value_tokens(
         self,
-        completion: ChatCompletionDictT,
+        completion: ChatCompletionT,
     ) -> tuple[int, int, int] | None: ...
 
     @abstractmethod

@@ -352,14 +352,14 @@ class GoogleProvider(
         return self._as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):
-        usage = completion.get("usage_metadata")
+        usage = completion.usage_metadata
         if usage is None:
             return None
-        cached = usage.get("cached_content_token_count") or 0
+        cached = usage.cached_content_token_count or 0
         return (
-            (usage.get("prompt_token_count") or 0) - cached,
-            usage.get("candidates_token_count") or 0,
-            usage.get("cached_content_token_count") or 0,
+            (usage.prompt_token_count or 0) - cached,
+            usage.candidates_token_count or 0,
+            usage.cached_content_token_count or 0,
         )
 
     def token_count(

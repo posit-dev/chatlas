@@ -958,7 +958,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 if user_prompt is None:
                     raise ValueError("No user prompt found in InspectAI state messages")
 
-                input_content = [inspect_content_as_chatlas(x) for x in user_prompt.content]
+                input_content = [
+                    inspect_content_as_chatlas(x) for x in user_prompt.content
+                ]
 
                 await chat_instance.chat_async(*input_content, echo="none")
                 last_turn = chat_instance.get_last_turn(role="assistant")
@@ -2537,11 +2539,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 result,
                 has_data_model=data_model is not None,
             )
+
             if echo == "all":
                 emit_other_contents(turn, emit)
 
         else:
-            result = self.provider.chat_perform(
+            response = self.provider.chat_perform(
                 stream=False,
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
@@ -2550,7 +2553,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
             turn = self.provider.value_turn(
-                result, has_data_model=data_model is not None
+                response, has_data_model=data_model is not None
             )
             if turn.text:
                 emit(turn.text)
@@ -2559,8 +2562,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
-        if turn.tokens is None:
-            turn.tokens = self.provider.value_tokens(result)
+        if turn.tokens is None and turn.completion:
+            turn.tokens = self.provider.value_tokens(turn.completion)
         if turn.tokens is not None:
             tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
@@ -2607,7 +2610,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 emit_other_contents(turn, emit)
 
         else:
-            result = await self.provider.chat_perform_async(
+            response = await self.provider.chat_perform_async(
                 stream=False,
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
@@ -2616,7 +2619,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
             turn = self.provider.value_turn(
-                result, has_data_model=data_model is not None
+                response, has_data_model=data_model is not None
             )
             if turn.text:
                 emit(turn.text)
@@ -2625,8 +2628,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
-        if turn.tokens is None:
-            turn.tokens = self.provider.value_tokens(result)
+        if turn.tokens is None and turn.completion:
+            turn.tokens = self.provider.value_tokens(turn.completion)
         if turn.tokens is not None:
             tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
