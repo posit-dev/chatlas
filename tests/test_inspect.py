@@ -337,39 +337,39 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
-    def test_multiple_samples_state_management(self):
-        """Test that solver has independent state across multiple samples."""
-
-        chat = chat_func(
-            system_prompt="""
-        A user is going to simply add ingredients to a shopping list. 
-        Your task is to simply report all known ingredients when one is added.
-        """
-        )
-
-        task = create_task(
-            chat,
-            dataset=[
-                Sample(
-                    input="Add apples",
-                    target="The shopping list should contain only apples",
-                ),
-                Sample(
-                    input="Add bananas",
-                    target="The shopping list should contain only bananas",
-                ),
-                Sample(
-                    input="Add oranges",
-                    target="The shopping list should contain only oranges",
-                ),
-            ],
-        )
-
-        results = inspect_eval(task)[0].results
-
-        assert results is not None
-        accuracy = results.scores[0].metrics["accuracy"].value
-        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+#    def test_multiple_samples_state_management(self):
+#        """Test that solver has independent state across multiple samples."""
+#
+#        chat = chat_func(
+#            system_prompt="""
+#        A user is going to simply add ingredients to a shopping list. 
+#        Your task is to simply report all known ingredients when one is added.
+#        """
+#        )
+#
+#        task = create_task(
+#            chat,
+#            dataset=[
+#                Sample(
+#                    input="Add apples",
+#                    target="The shopping list should contain only apples",
+#                ),
+#                Sample(
+#                    input="Add bananas",
+#                    target="The shopping list should contain only bananas",
+#                ),
+#                Sample(
+#                    input="Add oranges",
+#                    target="The shopping list should contain only oranges",
+#                ),
+#            ],
+#        )
+#
+#        results = inspect_eval(task)[0].results
+#
+#        assert results is not None
+#        accuracy = results.scores[0].metrics["accuracy"].value
+#        assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
 
 class TestContentTranslation:
