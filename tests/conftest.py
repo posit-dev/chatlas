@@ -53,21 +53,21 @@ def assert_turns_system(chat_fun: ChatFun):
 
 
 def assert_turns_existing(chat_fun: ChatFun):
-    chat = chat_fun(system_prompt="Return very minimal output; no punctuation.")
+    chat = chat_fun()
     chat.set_turns(
         [
-            Turn("user", "List the names of any 8 of Santa's 9 reindeer."),
+            Turn("user", "My name is Steve"),
             Turn(
                 "assistant",
-                "Dasher, Dancer, Vixen, Comet, Cupid, Donner, Blitzen, and Rudolph.",
+                "Hello Steve, how can I help you today?",
             ),
         ]
     )
 
     assert len(chat.get_turns()) == 2
 
-    response = chat.chat("Who is the remaining one? Just give the name")
-    assert "Prancer" in str(response)
+    response = chat.chat("What is my name?")
+    assert "steve" in str(response).lower()
     assert len(chat.get_turns()) == 4
 
 
@@ -82,7 +82,7 @@ def assert_tools_simple(chat_fun: ChatFun, stream: bool = True):
 
     chat.register_tool(get_date)
 
-    response = chat.chat("What's the current date in Y-M-D format?", stream=stream)
+    response = chat.chat("What's the current date in YYYY-MM-DD format?", stream=stream)
     assert "2024-01-01" in str(response)
 
     response = chat.chat("What month is it? Provide the full name.", stream=stream)
@@ -100,7 +100,7 @@ def assert_tools_simple_stream_content(chat_fun: ChatFun):
 
     chat.register_tool(get_date, annotations=ToolAnnotations(title="Get Date"))
 
-    response = chat.stream("What's the current date in Y-M-D format?", content="all")
+    response = chat.stream("What's the current date in YYYY-MM-DD format?", content="all")
     chunks = [chunk for chunk in response]
 
     # Emits a request with tool annotations
@@ -135,7 +135,7 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
     chat.register_tool(get_current_date)
 
     response = await chat.chat_async(
-        "What's the current date in Y-M-D format?", stream=stream
+        "What's the current date in YYYY-MM-DD format?", stream=stream
     )
     assert "2024-01-01" in await response.get_content()
 
@@ -152,7 +152,7 @@ async def assert_tools_async(chat_fun: ChatFun, stream: bool = True):
     chat.register_tool(get_current_date2)
 
     response = await chat.chat_async(
-        "What's the current date in Y-M-D format?", stream=stream
+        "What's the current date in YYYY-MM-DD format?", stream=stream
     )
     assert "2024-01-01" in await response.get_content()
 
