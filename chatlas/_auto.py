@@ -17,7 +17,8 @@ from ._provider_groq import ChatGroq
 from ._provider_huggingface import ChatHuggingFace
 from ._provider_mistral import ChatMistral
 from ._provider_ollama import ChatOllama
-from ._provider_openai_azure import ChatAzureOpenAI
+from ._provider_openai import ChatOpenAI
+from ._provider_openai_azure import ChatAzureOpenAI, ChatAzureOpenAICompletions
 from ._provider_openai_completions import ChatOpenAICompletions
 from ._provider_openrouter import ChatOpenRouter
 from ._provider_perplexity import ChatPerplexity
@@ -38,7 +39,9 @@ AutoProviders = Literal[
     "mistral",
     "ollama",
     "openai",
+    "openai-completions",
     "azure-openai",
+    "azure-openai-completions",
     "open-router",
     "perplexity",
     "portkey",
@@ -58,8 +61,10 @@ _provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
     "hugging-face": ChatHuggingFace,
     "mistral": ChatMistral,
     "ollama": ChatOllama,
-    "openai": ChatOpenAICompletions,
+    "openai": ChatOpenAI,
+    "openai-completions": ChatOpenAICompletions,
     "azure-openai": ChatAzureOpenAI,
+    "azure-openai-completions": ChatAzureOpenAICompletions,
     "open-router": ChatOpenRouter,
     "perplexity": ChatPerplexity,
     "portkey": ChatPortkey,
