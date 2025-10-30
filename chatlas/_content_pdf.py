@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import tempfile
 from pathlib import Path
 
@@ -35,7 +36,7 @@ def content_pdf_file(path: str | Path) -> ContentPDF:
         path = Path(path)
 
     if not path.is_file():
-        raise ValueError(f"PDF file not found: {path}")
+        raise FileNotFoundError(f"PDF file not found: {path}")
 
     if path.suffix.lower() != ".pdf":
         raise ValueError(f"File is not a PDF: {path}")
@@ -68,7 +69,10 @@ def content_pdf_url(url: str) -> ContentPDF:
         content_type, base64_data = parse_data_url(url)
         if content_type != "application/pdf":
             raise ValueError(f"Unsupported PDF content type: {content_type}")
-        return ContentPDF(data=base64_data.encode("utf-8"), filename=unique_pdf_name())
+        return ContentPDF(
+            data=base64.b64decode(base64_data),
+            filename=unique_pdf_name(),
+        )
     # TODO: need separate ContentPDFRemote type so we can use file upload
     # apis where they exist. Might need some kind of mutable state so can
     # record point to uploaded file.
