@@ -368,6 +368,106 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
+    def test_multiple_tools_multiple_samples(self):
+        def get_weather():
+            """Get current weather data for various cities."""
+            return {
+                "New York": {
+                    "temp": 72,
+                    "condition": "Sunny",
+                    "humidity": 65,
+                },
+                "London": {
+                    "temp": 58,
+                    "condition": "Rainy",
+                    "humidity": 85,
+                },
+                "Tokyo": {
+                    "temp": 68,
+                    "condition": "Cloudy",
+                    "humidity": 70,
+                },
+                "Sydney": {
+                    "temp": 82,
+                    "condition": "Sunny",
+                    "humidity": 60,
+                },
+                "Paris": {
+                    "temp": 61,
+                    "condition": "Partly Cloudy",
+                    "humidity": 72,
+                },
+            }
+
+        def calculate_average(temperatures: list[float]) -> float:
+            """Calculate the average temperature."""
+
+            if not temperatures:
+                raise ValueError("No temperatures provided")
+            return sum(temperatures) / len(temperatures)
+
+        def compare_values(
+            value1: float,
+            value2: float,
+            label1: str,
+            label2: str,
+        ) -> str:
+            """Compare two numeric values."""
+
+            if value1 > value2:
+                return f"{label1} ({value1}) is greater than {label2} ({value2})"
+            if value2 > value1:
+                return f"{label2} ({value2}) is greater than {label1} ({value1})"
+            return f"{label1} and {label2} are equal ({value1})"
+
+        chat = chat_func(
+            system_prompt=(
+                "You are a helpful assistant with access to weather tools. "
+                "Use the tools systematically to answer questions accurately. "
+                "Make multiple tool calls as needed."
+            ),
+        )
+        chat.register_tool(get_weather)
+        chat.register_tool(calculate_average)
+        chat.register_tool(compare_values)
+
+        task = create_task(
+            chat,
+            dataset=[
+                Sample(
+                    input=(
+                        "Using the available tools, get the weather data, "
+                        "calculate the average temperature across all cities, "
+                        "and compare the average temperature to London's "
+                        "temperature. Tell me if the average is higher or "
+                        "lower than London's temperature."
+                    ),
+                    target=(
+                        "Average across cities is about 68.2°F. "
+                        "London's temperature is 58°F. "
+                        "Average (68.2°F) is about 10°F higher than London's "
+                        "value (58°F)."
+                    ),
+                ),
+                Sample(
+                    input=(
+                        "Get the weather information and determine which city "
+                        "has the highest humidity. Then compare that city's "
+                        "temperature to Tokyo's temperature."
+                    ),
+                    target=(
+                        "London has the highest humidity at 85%. "
+                        "London's temperature is 58°F, while Tokyo's temperature "
+                        "is 68°F. Tokyo is warmer than London by 10 degrees."
+                    ),
+                ),
+            ],
+        )
+
+        # Just want to make sure this runs without error
+        results = inspect_eval(task)[0].results
+        assert results is not None
+
 
 class TestContentTranslation:
     """Test translation between chatlas and Inspect content types."""
