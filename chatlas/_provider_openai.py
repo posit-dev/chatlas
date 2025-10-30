@@ -244,6 +244,8 @@ class OpenAIProvider(
 
         if "log_probs" in kwargs_full:
             include.append("message.output_text.logprobs")
+            # Remove from kwargs since it's not a formal argument
+            kwargs_full.pop("log_probs")
 
         if include:
             kwargs_full["include"] = include
