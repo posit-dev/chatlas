@@ -1,6 +1,8 @@
-import os
+from __future__ import annotations
+
+import base64
 import tempfile
-from typing import Union
+from pathlib import Path
 
 import requests
 
@@ -12,7 +14,7 @@ __all__ = (
 )
 
 
-def content_pdf_file(path: Union[str, os.PathLike]) -> ContentPDF:
+def content_pdf_file(path: str | Path) -> ContentPDF:
     """
     Prepare a local PDF for input to a chat.
 
@@ -30,13 +32,19 @@ def content_pdf_file(path: Union[str, os.PathLike]) -> ContentPDF:
         Content suitable for a [](`~chatlas.Turn`) object.
     """
 
-    if not os.path.isfile(path):
+    if isinstance(path, str):
+        path = Path(path)
+
+    if not path.is_file():
         raise FileNotFoundError(f"PDF file not found: {path}")
+
+    if path.suffix.lower() != ".pdf":
+        raise ValueError(f"File is not a PDF: {path}")
 
     with open(path, "rb") as f:
         data = f.read()
 
-    return ContentPDF(data=data)
+    return ContentPDF(data=data, filename=path.name)
 
 
 def content_pdf_url(url: str) -> ContentPDF:
@@ -61,12 +69,15 @@ def content_pdf_url(url: str) -> ContentPDF:
         content_type, base64_data = parse_data_url(url)
         if content_type != "application/pdf":
             raise ValueError(f"Unsupported PDF content type: {content_type}")
-        return ContentPDF(data=base64_data.encode("utf-8"))
+        return ContentPDF(
+            data=base64.b64decode(base64_data),
+            filename=unique_pdf_name(),
+        )
     # TODO: need separate ContentPDFRemote type so we can use file upload
     # apis where they exist. Might need some kind of mutable state so can
     # record point to uploaded file.
     data = download_pdf_bytes(url)
-    return ContentPDF(data=data)
+    return ContentPDF(data=data, filename=unique_pdf_name())
 
 
 def parse_data_url(url: str) -> tuple[str, str]:
@@ -92,3 +103,17 @@ def download_pdf_bytes(url):
 
         except Exception as e:
             raise e
+
+
+def make_pdf_namer():
+    cur_pdf_id = 0
+
+    def unique_pdf_name():
+        nonlocal cur_pdf_id
+        cur_pdf_id += 1
+        return f"file_{cur_pdf_id:03d}.pdf"
+
+    return unique_pdf_name
+
+
+unique_pdf_name = make_pdf_namer()

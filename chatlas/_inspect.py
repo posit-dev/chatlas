@@ -170,6 +170,7 @@ def chatlas_content_as_inspect(content: ContentUnion) -> InspectContent:
         return itool.ContentDocument(
             document=content.data.decode("utf-8"),
             mime_type="application/pdf",
+            filename=content.filename,
         )
     elif isinstance(content, ContentJson):
         return itool.ContentData(data=content.value)
@@ -206,7 +207,10 @@ def inspect_content_as_chatlas(content: str | InspectContent) -> Content:
             )
     if isinstance(content, itool.ContentDocument):
         if content.mime_type == "application/pdf":
-            return ContentPDF(data=content.document.encode("utf-8"))
+            return ContentPDF(
+                data=content.document.encode("utf-8"),
+                filename=content.filename,
+            )
         else:
             return ContentText(text=content.document)
     if isinstance(content, itool.ContentData):

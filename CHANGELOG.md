@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `Provider` implementations now require an additional `.value_tokens()` method. Previously, it was assumed that token info was logged and attached to the `Turn` as part of the `.value_turn()` method. The logging and attaching is now handled automatically. (#194)
 
+### Improvements
+
+* `content_pdf_file()` and `content_pdf_url()` now include relevant `filename` information. (#199)
+
 ### Bug fixes
 
 * `.set_model_params()` now works correctly for `.*_async()` methods. (#198)
