@@ -403,13 +403,8 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
         else:
             return as_message({"type": "input_text", "text": content.text}, role)
     elif isinstance(content, ContentJson):
-        return as_message(
-            {
-                "type": "input_text",
-                "text": orjson.dumps(content.value).decode("utf-8"),
-            },
-            role,
-        )
+        text = orjson.dumps(content.value).decode("utf-8")
+        return as_input_param(ContentText(text=text), role)
     elif isinstance(content, ContentImageRemote):
         return as_message(
             {
