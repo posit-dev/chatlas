@@ -195,19 +195,11 @@ class OpenAIAbstractProvider(
                     data_model=data_model,
                 )
 
-                body = {
-                    "messages": kwargs.get("messages", []),
-                    "model": self.model,
-                }
-
-                if "response_format" in kwargs:
-                    body["response_format"] = kwargs["response_format"]
-
                 request = {
                     "custom_id": f"request-{i}",
                     "method": "POST",
                     "url": self._batch_endpoint(),
-                    "body": body,
+                    "body": kwargs,
                 }
 
                 f.write(orjson.dumps(request).decode() + "\n")
