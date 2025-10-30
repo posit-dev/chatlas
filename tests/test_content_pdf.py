@@ -8,3 +8,5 @@ def test_can_create_pdf_from_local_file():
     apples = Path(__file__).parent / "apples.pdf"
     obj = content_pdf_file(apples)
     assert isinstance(obj, ContentPDF)
+    assert obj.filename == "apples.pdf"
+    assert isinstance(obj.data, bytes)

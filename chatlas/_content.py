@@ -670,17 +670,21 @@ class ContentPDF(Content):
     """
 
     data: bytes
+    filename: str
 
     content_type: ContentTypeEnum = "pdf"
 
     def __str__(self):
-        return "<PDF document>"
+        return f"<PDF document file={self.filename} size={len(self.data)} bytes>"
 
     def _repr_markdown_(self):
         return self.__str__()
 
     def __repr__(self, indent: int = 0):
-        return " " * indent + f"<ContentPDF size={len(self.data)}>"
+        return (
+            " " * indent
+            + f"<ContentPDF file={self.filename} size={len(self.data)} bytes>"
+        )
 
 
 class ContentThinking(Content):

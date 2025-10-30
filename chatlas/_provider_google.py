@@ -450,6 +450,8 @@ class GoogleProvider(
                 inline_data=Blob(
                     data=content.data,
                     mime_type="application/pdf",
+                    # Not supported?
+                    # display_name=content.filename,
                 )
             )
         elif isinstance(content, ContentImageInline) and content.data:

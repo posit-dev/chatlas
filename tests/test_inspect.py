@@ -358,7 +358,7 @@ class TestInspectIntegration:
                 Sample(
                     input="Add bananas",
                     target="The response should contain bananas, no other fruit",
-                )
+                ),
             ],
         )
 
@@ -421,12 +421,13 @@ class TestContentTranslation:
         assert recovered.image_content_type == original.image_content_type
 
     def test_pdf_translation(self):
-        original = ContentPDF(data=b"fake pdf content")
+        original = ContentPDF(data=b"fake pdf content", filename="document.pdf")
         inspect_content = chatlas_content_as_inspect(original)
         recovered = inspect_content_as_chatlas(inspect_content)
 
         assert isinstance(recovered, ContentPDF)
         assert recovered.data == original.data
+        assert recovered.filename == original.filename
 
     def test_json_content_translation(self):
         original = ContentJson(value={"key": "value", "number": 42})
@@ -495,7 +496,7 @@ class TestExportEvalWithComplexContent:
                     "user",
                     [
                         "Summarize this PDF:",
-                        ContentPDF(data=b"fake pdf content"),
+                        ContentPDF(data=b"fake pdf content", filename="document.pdf"),
                     ],
                 ),
                 Turn("assistant", "This is a summary."),
