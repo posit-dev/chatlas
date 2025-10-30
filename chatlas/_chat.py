@@ -2507,16 +2507,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             emit_user_contents(user_turn, emit)
 
         # Start collecting additional keyword args (from model parameters)
-        all_kwargs = self.provider.translate_model_params(
-            params=self._standard_model_params,
-        )
-
-        # Add any additional kwargs provided by the user
-        if self._submit_input_kwargs:
-            all_kwargs.update(self._submit_input_kwargs)
-
-        if kwargs:
-            all_kwargs.update(kwargs)
+        all_kwargs = self._collect_all_kwargs(kwargs)
 
         if stream:
             response = self.provider.chat_perform(
@@ -2584,13 +2575,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if echo == "all":
             emit_user_contents(user_turn, emit)
 
+        # Start collecting additional keyword args (from model parameters)
+        all_kwargs = self._collect_all_kwargs(kwargs)
+
         if stream:
             response = await self.provider.chat_perform_async(
                 stream=True,
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
                 data_model=data_model,
-                kwargs=kwargs,
+                kwargs=all_kwargs,
             )
 
             result = None
@@ -2615,7 +2609,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
                 data_model=data_model,
-                kwargs=kwargs,
+                kwargs=all_kwargs,
             )
 
             turn = self.provider.value_turn(
@@ -2633,6 +2627,24 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if turn.tokens is not None:
             tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
+
+    def _collect_all_kwargs(
+        self,
+        kwargs: Optional[SubmitInputArgsT],
+    ) -> SubmitInputArgsT:
+        # Start collecting additional keyword args (from model parameters)
+        all_kwargs = self.provider.translate_model_params(
+            params=self._standard_model_params,
+        )
+
+        # Add any additional kwargs provided by the user
+        if self._submit_input_kwargs:
+            all_kwargs.update(self._submit_input_kwargs)
+
+        if kwargs:
+            all_kwargs.update(kwargs)
+
+        return all_kwargs
 
     def _invoke_tool(self, request: ContentToolRequest):
         tool = self._tools.get(request.name)
