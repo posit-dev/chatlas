@@ -429,8 +429,7 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
         return as_message(
             {
                 "type": "input_file",
-                # TODO: populate filename if we have it
-                "filename": "",
+                "filename": content.filename,
                 "file_data": f"data:application/pdf;base64,{base64.b64encode(content.data).decode('utf-8')}",
             },
             role,

@@ -273,7 +273,7 @@ class OpenAICompletionsProvider(
                             {
                                 "type": "file",
                                 "file": {
-                                    "filename": "",
+                                    "filename": x.filename,
                                     "file_data": (
                                         "data:application/pdf;base64,"
                                         f"{base64.b64encode(x.data).decode('utf-8')}"
