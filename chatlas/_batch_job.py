@@ -229,6 +229,8 @@ class BatchJob:
             turn = self.provider.batch_result_turn(
                 result, has_data_model=self.data_model is not None
             )
+            if turn and turn.tokens is None and turn.completion:
+                turn.tokens = self.provider.value_tokens(turn.completion)
             turns.append(turn)
 
         return turns
