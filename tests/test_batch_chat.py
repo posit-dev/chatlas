@@ -1,9 +1,8 @@
 import tempfile
 
 import pytest
-from pydantic import BaseModel
-
-from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI
+from chatlas import ChatAnthropic, ChatGoogle
+from chatlas import ChatOpenAICompletions as ChatOpenAI
 from chatlas._batch_chat import (
     BatchJob,
     batch_chat,
@@ -12,6 +11,7 @@ from chatlas._batch_chat import (
     batch_chat_text,
 )
 from chatlas._provider import BatchStatus
+from pydantic import BaseModel
 
 
 class CountryCapital(BaseModel):
