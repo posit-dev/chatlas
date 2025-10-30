@@ -958,7 +958,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 input_content = [inspect_content_as_chatlas(x) for x in input_content]
 
                 # Generate the response (this can generate multiple turns!)
-                await chat_instance.chat_async(*input_content, echo="all")
+                await chat_instance.chat_async(*input_content, echo="none")
 
                 # Map change in chatlas Turn state back to Inspect message.state
                 turns = chat_instance.get_turns(include_system_prompt=False)
