@@ -79,9 +79,10 @@ def test_openai_images():
 @pytest.mark.asyncio
 async def test_openai_logprobs():
     chat = ChatOpenAI()
+    chat.set_model_params(log_probs=True)
 
     pieces = []
-    async for x in await chat.stream_async("Hi", kwargs={"logprobs": True}):
+    async for x in await chat.stream_async("Hi"):
         pieces.append(x)
 
     turn = chat.get_last_turn()

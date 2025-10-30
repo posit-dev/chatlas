@@ -1,9 +1,10 @@
 import httpx
 import pytest
-
 from chatlas import ChatOpenAI
+from openai.types.responses import ResponseOutputMessage, ResponseOutputText
 
 from .conftest import (
+    assert_data_extraction,
     assert_images_inline,
     assert_images_remote,
     assert_list_models,
@@ -63,9 +64,8 @@ async def test_openai_tool_variations_async():
     await assert_tools_async(ChatOpenAI)
 
 
-# TODO: fix me
-# def test_data_extraction():
-#    assert_data_extraction(ChatOpenAI)
+def test_data_extraction():
+    assert_data_extraction(ChatOpenAI)
 
 
 def test_openai_images():
@@ -74,9 +74,29 @@ def test_openai_images():
     assert_images_remote(chat_fun)
 
 
+@pytest.mark.asyncio
+async def test_openai_logprobs():
+    chat = ChatOpenAI()
+    chat.set_model_params(log_probs=True)
+
+    pieces = []
+    async for x in await chat.stream_async("Hi"):
+        pieces.append(x)
+
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert turn.completion is not None
+    output = turn.completion.output[0]
+    assert isinstance(output, ResponseOutputMessage)
+    content = output.content[0]
+    assert isinstance(content, ResponseOutputText)
+    logprobs = content.logprobs
+    assert logprobs is not None
+    assert len(logprobs) == len(pieces)
+
+
 def test_openai_pdf():
-    chat_fun = ChatOpenAI
-    assert_pdf_local(chat_fun)
+    assert_pdf_local(ChatOpenAI)
 
 
 def test_openai_custom_http_client():
@@ -85,24 +105,3 @@ def test_openai_custom_http_client():
 
 def test_openai_list_models():
     assert_list_models(ChatOpenAI)
-
-
-#
-#
-# @pytest.mark.asyncio
-# async def test_openai_logprobs():
-#    chat = ChatOpenAI()
-#
-#    pieces = []
-#    async for x in await chat.stream_async("Hi", kwargs={"logprobs": True}):
-#        pieces.append(x)
-#
-#    turn = chat.get_last_turn()
-#    assert turn is not None
-#    assert turn.completion is not None
-#    assert turn.completion.choices[0].logprobs is not None
-#    logprobs = turn.completion.choices[0].logprobs.content
-#    assert logprobs is not None
-#    assert len(logprobs) == len(pieces)
-#
-#
