@@ -181,9 +181,13 @@ from inspect_ai.dataset import jsonl_dataset
 from inspect_ai.scorer import model_graded_qa
 
 # No system prompt needed since dataset already includes it
-chat = ChatOpenAI(model="openai/gpt-4.1")
-chat.set_model_params(temperature=0.2)
+chat = ChatOpenAI(model="gpt-4.1")
+
+# Register any tools
 chat.register_tool(my_custom_tool)
+
+# Other chat state like model parameters
+chat.set_model_params(temperature=0.2)
 
 @task
 def my_eval():
