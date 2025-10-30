@@ -886,47 +886,38 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             inspect_content_as_chatlas,
             inspect_messages_as_turns,
             try_import_inspect,
-            turn_as_inspect_messages,
         )
 
         (imodel, isolver, _) = try_import_inspect()
 
-        # Create a copy of the chat to avoid modifying its state
-        # when inspect runs the solver
-        chat_instance = copy.deepcopy(self)
         model = self.provider.model
-
-        # Remove existing turns if requested
-        if not include_turns:
-            chat_instance.set_turns([])
-
-        # Prepare the starting messages from the chat instance
-        starting_turns = chat_instance.get_turns(
-            include_system_prompt=include_system_prompt
-        )
-
-        # Translate starting turns to Inspect messages
-        starting_messages: list["InspectChatMessage"] = []
-        for turn in starting_turns:
-            starting_messages.extend(turn.to_inspect_messages(model))
-
-        # Since Inspect preserves state, across solves, prepend starting messages only once
-        has_starting_messages = False
 
         @isolver.solver(f"chatlas_{self.provider.name}_{model}")
         def _solver():
             async def solve(state: InspectTaskState, generate):
-                nonlocal has_starting_messages
                 start_time = time.perf_counter()
 
-                if not has_starting_messages:
-                    state.messages = starting_messages + state.messages
-                    has_starting_messages = True
+                # Fork the chat to avoid mutating the original
+                chat_instance = copy.deepcopy(self)
 
-                # Now that we've translated the starting messages to Inspect,
-                # we translate the message state back to the chat instance.
-                # N.B., state.message can include non-trivial dataset of sample input
-                # (e.g., `Sample(input=[ChatMessage, ...])`)
+                # Ignore initial turns (by default)
+                if not include_turns:
+                    chat_instance.set_turns([])
+
+                # Map initial chatlas turns to Inspect message state
+                initial_turns = chat_instance.get_turns(
+                    include_system_prompt=include_system_prompt
+                )
+                initial_messages: list["InspectChatMessage"] = []
+                for turn in initial_turns:
+                    initial_messages.extend(turn.to_inspect_messages(model))
+
+                # N.B. at this point, state.messages can include non-trivial
+                # input (e.g., System messages, etc) from the eval dataset
+                state.messages = initial_messages + state.messages
+
+                # Separate out system/user/other messages in order to
+                # map them appropriately to chatlas state
                 system_messages: list["InspectChatMessage"] = []
                 other_messages: list["InspectChatMessage"] = []
                 user_prompt: "InspectChatMessage | None" = None
@@ -940,6 +931,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
                 other_messages.reverse()
 
+                # Sanity check
+                if user_prompt is None:
+                    raise ValueError("No user prompt found in InspectAI state messages")
+
                 # Set the system prompt on the chat instance
                 if len(system_messages) == 1:
                     chat_instance.system_prompt = str(system_messages[0])
@@ -952,26 +947,27 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         "the chat instance by setting `.to_solver(include_system_prompt=False)`."
                     )
 
-                # Now, set the other messages as turns on the chat instance
-                chat_instance.set_turns(inspect_messages_as_turns(other_messages))
+                # Map Inspect message state back to chatlas state
+                initial_turns = inspect_messages_as_turns(other_messages)
+                chat_instance.set_turns(initial_turns)
 
-                if user_prompt is None:
-                    raise ValueError("No user prompt found in InspectAI state messages")
+                # Map Inspect dataset input to chatlas input content
+                input_content = user_prompt.content
+                if isinstance(input_content, str):
+                    input_content = [input_content]
+                input_content = [inspect_content_as_chatlas(x) for x in input_content]
 
-                input_content = [
-                    inspect_content_as_chatlas(x) for x in user_prompt.content
-                ]
+                # Generate the response (this can generate multiple turns!)
+                await chat_instance.chat_async(*input_content, echo="all")
 
-                await chat_instance.chat_async(*input_content, echo="none")
-                last_turn = chat_instance.get_last_turn(role="assistant")
-                if last_turn is None:
-                    raise ValueError("No assistant turn found after chat completion")
+                # Map change in chatlas Turn state back to Inspect message.state
+                turns = chat_instance.get_turns(include_system_prompt=False)
+                # Don't subtract 1 to skip the user prompt (already in state.messages)
+                new_turns = turns[len(initial_turns) :]  # noqa: E203
+                for turn in new_turns:
+                    state.messages.extend(turn.to_inspect_messages(model))
 
-                last_turn_message = turn_as_inspect_messages(
-                    last_turn, "assistant", model
-                )[0]
-                state.messages.append(last_turn_message)
-
+                last_turn = new_turns[-1]
                 tokens = last_turn.tokens
                 if tokens is None:
                     usage = None
@@ -983,9 +979,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         input_tokens_cache_read=tokens[2],
                     )
 
+                last_message = state.messages[-1]
+                if not isinstance(last_message, imodel.ChatMessageAssistant):
+                    raise ValueError(
+                        "Expected the last message in InspectAI state to be an assistant message"
+                    )
+
                 state.output = imodel.ModelOutput(
                     model=model,
-                    choices=[imodel.ChatCompletionChoice(message=last_turn_message)],
+                    choices=[imodel.ChatCompletionChoice(message=last_message)],
                     completion=last_turn.text,
                     usage=usage,
                     time=time.perf_counter() - start_time,
