@@ -1,9 +1,8 @@
 import os
 import warnings
 
-import pytest
-
 import chatlas
+import pytest
 from chatlas import Chat, ChatAuto
 from chatlas._auto import _provider_chat_model_map
 from chatlas._provider_anthropic import AnthropicBedrockProvider, AnthropicProvider
@@ -176,6 +175,10 @@ def chat_to_kebab_case(s):
         return "openai"
     elif s == "ChatAzureOpenAI":
         return "azure-openai"
+    elif s == "ChatOpenAICompletions":
+        return "openai-completions"
+    elif s == "ChatAzureOpenAICompletions":
+        return "azure-openai-completions"
 
     # Remove 'Chat' prefix if present
     if s.startswith("Chat"):
@@ -228,26 +231,11 @@ def test_provider_instances(monkeypatch):
 def test_kwargs_priority_over_env_args(monkeypatch):
     """Test that direct kwargs override CHATLAS_CHAT_ARGS."""
     monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "openai")
-    monkeypatch.setenv("CHATLAS_CHAT_ARGS", '{"seed": 12}')
+    monkeypatch.setenv("CHATLAS_CHAT_ARGS", '{"base_url": "foo"}')
 
-    chatlas.ChatOpenAI()
-
-    chat = ChatAuto(seed=42)
+    chat = ChatAuto(base_url="bar")
     assert isinstance(chat.provider, OpenAIProvider)
-    assert chat.provider._seed == 42
-
-
-def test_env_args_ignored_when_kwargs_provided(monkeypatch):
-    """Test that CHATLAS_CHAT_ARGS is ignored when any kwargs are provided."""
-    monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "openai")
-    monkeypatch.setenv("CHATLAS_CHAT_ARGS", '{"seed": -1}')
-
-    # Even providing one kwarg should ignore the entire env args
-    chat = ChatAuto(base_url="https://api.example.com")
-    assert isinstance(chat, Chat)
-    assert isinstance(chat.provider, OpenAIProvider)
-    assert str(chat.provider._client.base_url).startswith("https://api.example.com")
-    assert chat.provider._seed != -1
+    assert str(chat.provider._client.base_url).startswith("bar")
 
 
 def test_system_prompt_parameter_priority():

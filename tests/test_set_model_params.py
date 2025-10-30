@@ -1,7 +1,7 @@
 """Tests for the set_model_params() feature."""
 
 import pytest
-from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI
+from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAICompletions as ChatOpenAI
 from chatlas._provider import StandardModelParams
 from chatlas._utils import MISSING
 
