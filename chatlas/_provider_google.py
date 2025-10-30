@@ -449,6 +449,7 @@ class GoogleProvider(
             return Part(
                 inline_data=Blob(
                     data=content.data,
+                    display_name=content.filename,
                     mime_type="application/pdf",
                 )
             )
