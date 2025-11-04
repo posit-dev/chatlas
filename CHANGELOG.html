@@ -252,18 +252,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <section id="new-features" class="level3">
 <h3 class="anchored" data-anchor-id="new-features">New features</h3>
 <ul>
-<li>Added support systematic evaluation via <a href="https://inspect.aisi.org.uk/">Inspect AI</a>. This includes:
+<li>Added support for systematic evaluation via <a href="https://inspect.aisi.org.uk/">Inspect AI</a>. This includes:
 <ul>
 <li>A new <code>.export_eval()</code> method for exporting conversation history as an Inspect eval dataset sample. This supports multi-turn conversations, tool calls, images, PDFs, and structured data.</li>
 <li>A new <code>.to_solver()</code> method for translating chat instances into Inspect solvers that can be used with Inspect’s evaluation framework.</li>
 <li>A new <code>Turn.to_inspect_messages()</code> method for converting turns to Inspect’s message format.</li>
 <li>Comprehensive documentation in the <a href="https://posit-dev.github.io/chatlas/misc/evals.html">Evals guide</a>.</li>
 </ul></li>
+<li><code>ChatOpenAI()</code> (and <code>ChatAzureOpenAI()</code>) gain access to latest models, built-in tools, etc. as a result of moving to the new <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>. (#192)</li>
+<li>Added rudimentary support for a new <code>ContentThinking</code> type. (#192)</li>
 </ul>
 </section>
 <section id="changes" class="level3">
 <h3 class="anchored" data-anchor-id="changes">Changes</h3>
 <ul>
+<li><code>ChatOpenAI()</code> (and <code>ChatAzureOpenAI()</code>) move from OpenAI’s Completions API to <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>. If this happens to break behavior, change <code>ChatOpenAI()</code> -&gt; <code>ChatOpenAICompletions()</code> (or <code>ChatAzureOpenAI()</code> -&gt; <code>ChatAzureOpenAICompletions()</code>). (#192)</li>
 <li><code>Provider</code> implementations now require an additional <code>.value_tokens()</code> method. Previously, it was assumed that token info was logged and attached to the <code>Turn</code> as part of the <code>.value_turn()</code> method. The logging and attaching is now handled automatically. (#194)</li>
 </ul>
 </section>

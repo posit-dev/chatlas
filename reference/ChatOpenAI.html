@@ -647,11 +647,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span><span class="st">'https://api.openai.com/v1'</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    seed<span class="op">=</span>MISSING,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Chat with an OpenAI model.</p>
-<p><a href="https://openai.com/">OpenAI</a> provides a number of chat based models under the <a href="https://chatgpt.com">ChatGPT</a> moniker.</p>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Chat with an OpenAI model using the responses API.</p>
+<p><a href="https://openai.com/">OpenAI</a> provides a number of chat-based models, mostly under the <a href="https://chat.openai.com/">ChatGPT</a> brand.</p>
 <section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
 <h2 class="doc-section doc-section-prerequisites anchored" data-anchor-id="prerequisites">Prerequisites</h2>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -696,7 +695,7 @@ API key
 </tr>
 <tr class="even">
 <td>model</td>
-<td>'Optional[ChatModel | str]'</td>
+<td>'Optional[ResponsesModel | str]'</td>
 <td>The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.</td>
 <td><code>None</code></td>
 </tr>
@@ -713,12 +712,6 @@ API key
 <td><code>'https://api.openai.com/v1'</code></td>
 </tr>
 <tr class="odd">
-<td>seed</td>
-<td><a href="https://docs.python.org/3/library/functions.html#int">int</a> | None | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a></td>
-<td>Optional integer seed that ChatGPT uses to try and make output more reproducible.</td>
-<td><code>MISSING</code></td>
-</tr>
-<tr class="even">
 <td>kwargs</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['ChatClientArgs']</td>
 <td>Additional arguments to pass to the <code>openai.OpenAI()</code> client constructor.</td>
@@ -748,6 +741,7 @@ API key
 </section>
 <section id="note" class="level2 doc-section doc-section-note">
 <h2 class="doc-section doc-section-note anchored" data-anchor-id="note">Note</h2>
+<p>The responses API does not support the <code>seed</code> parameter. If you need reproducible output, use <a href="https://posit-dev.github.io/chatlas/reference/ChatOpenAI.html#chatlas.ChatOpenAI"><code>ChatOpenAI</code></a> instead.</p>
 <p>Pasting an API key into a chat constructor (e.g., <code>ChatOpenAI(api_key="...")</code>) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.</p>
 <p>Instead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a <code>.env</code> file to store your credentials, and then use the <code>python-dotenv</code> package to load them into your environment.</p>
 <pre class="shell"><code>pip install python-dotenv</code></pre>

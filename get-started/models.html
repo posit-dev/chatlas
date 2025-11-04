@@ -525,7 +525,10 @@ Other providers
 <div class="callout-body-container callout-body">
 <p>To use chatlas with a provider not listed in the table above, you have two options:</p>
 <ol type="1">
-<li>If the model provider is OpenAI compatible (i.e., it can be used with the <a href="https://github.com/openai/openai-python?tab=readme-ov-file#configuring-the-http-client"><code>openai</code> Python SDK</a>), use <code>ChatOpenAI()</code> with the appropriate <code>base_url</code> and <code>api_key</code>.</li>
+<li>If the model provider is “OpenAI compatible” (i.e., it can be used with the <a href="https://github.com/openai/openai-python#readme"><code>openai</code> Python SDK</a>), use <code>ChatOpenAI()</code> with the appropriate <code>base_url</code> and <code>api_key</code>.
+<ul>
+<li>When providers say they are “OpenAI compatible”, they usually mean compatible with the <a href="https://github.com/openai/openai-python?tab=readme-ov-file#usage">Completions API</a>. In this case, use <a href="../reference/ChatOpenAICompletions.qmd"><code>ChatOpenAICompletions()</code></a> instead of <code>ChatOpenAI()</code> (the latter uses the newer Responses API).</li>
+</ul></li>
 <li>If you’re motivated, implement a new provider by subclassing <a href="https://github.com/posit-dev/chatlas/blob/main/chatlas/_provider.py"><code>Provider</code></a> and implementing the required methods.</li>
 </ol>
 </div>
@@ -1072,7 +1075,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>
   </div>
 </footer>
-<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","openEffect":"zoom","selector":".lightbox","loop":false});
+<script>var lightboxQuarto = GLightbox({"selector":".lightbox","openEffect":"zoom","loop":false,"descPosition":"bottom","closeEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
