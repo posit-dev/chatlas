@@ -35,6 +35,8 @@ if TYPE_CHECKING:
     )
     from openai.types.responses.easy_input_message_param import EasyInputMessageParam
     from openai.types.responses.tool_param import ToolParam
+    from openai.types.shared.reasoning_effort import ReasoningEffort
+    from openai.types.shared_params.reasoning import Reasoning
     from openai.types.shared_params.responses_model import ResponsesModel
 
     from .types.openai import ChatClientArgs
@@ -47,8 +49,9 @@ def ChatOpenAI(
     *,
     system_prompt: Optional[str] = None,
     model: "Optional[ResponsesModel | str]" = None,
-    api_key: Optional[str] = None,
     base_url: str = "https://api.openai.com/v1",
+    reasoning: "Optional[ReasoningEffort | Reasoning]" = None,
+    api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Response]:
     """
@@ -87,12 +90,15 @@ def ChatOpenAI(
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
         choosing a model for all but the most casual use.
+    base_url
+        The base URL to the endpoint; the default uses OpenAI.
+    reasoning
+        The reasoning effort to use (for reasoning-capable models like the o and
+        gpt-5 series).
     api_key
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `OPENAI_API_KEY` environment
         variable.
-    base_url
-        The base URL to the endpoint; the default uses OpenAI.
     kwargs
         Additional arguments to pass to the `openai.OpenAI()` client
         constructor.
@@ -146,6 +152,14 @@ def ChatOpenAI(
     if model is None:
         model = log_model_default("gpt-4.1")
 
+    kwargs_chat: "SubmitInputArgs" = {}
+    if reasoning is not None:
+        if not is_reasoning_model(model):
+            warnings.warn(f"Model {model} is not reasoning-capable", UserWarning)
+        if isinstance(reasoning, str):
+            reasoning = {"effort": reasoning, "summary": "auto"}
+        kwargs_chat = {"reasoning": reasoning}
+
     return Chat(
         provider=OpenAIProvider(
             api_key=api_key,
@@ -154,6 +168,7 @@ def ChatOpenAI(
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+        kwargs_chat=kwargs_chat,
     )
 
 
@@ -239,7 +254,7 @@ class OpenAIProvider(
 
         # Request reasoning content for reasoning models
         include = []
-        if self._is_reasoning(self.model):
+        if is_reasoning_model(self.model):
             include.append("reasoning.encrypted_content")
 
         if "log_probs" in kwargs_full:
@@ -254,7 +269,14 @@ class OpenAIProvider(
 
     def stream_text(self, chunk):
         if chunk.type == "response.output_text.delta":
+            # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/delta
             return chunk.delta
+        if chunk.type == "response.reasoning_summary_text.delta":
+            # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/delta
+            return chunk.delta
+        if chunk.type == "response.reasoning_summary_text.done":
+            # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/done
+            return "\n\n"
         return None
 
     def stream_merge_chunks(self, completion, chunk):
@@ -336,11 +358,6 @@ class OpenAIProvider(
             contents,
             completion=completion,
         )
-
-    @staticmethod
-    def _is_reasoning(model: str) -> bool:
-        # https://platform.openai.com/docs/models/compare
-        return model.startswith("o") or model.startswith("gpt-5")
 
     @staticmethod
     def _turns_as_inputs(turns: list[Turn]) -> "list[ResponseInputItemParam]":
@@ -456,3 +473,8 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
 
 def as_message(x: "ResponseInputContentParam", role: Role) -> "EasyInputMessageParam":
     return {"role": role, "content": [x]}
+
+
+def is_reasoning_model(model: str) -> bool:
+    # https://platform.openai.com/docs/models/compare
+    return model.startswith("o") or model.startswith("gpt-5")
