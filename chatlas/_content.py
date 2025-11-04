@@ -305,7 +305,7 @@ class ContentToolRequest(Content):
             return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
         return str(self.arguments)
 
-    def __repr_html__(self) -> str:
+    def _repr_html_(self) -> str:
         return str(self.tagify())
 
     def tagify(self):
@@ -504,7 +504,7 @@ class ContentToolResult(Content):
 
         return orjson.dumps(value).decode("utf-8")
 
-    def __repr_html__(self):
+    def _repr_html_(self):
         return str(self.tagify())
 
     def tagify(self):
