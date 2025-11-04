@@ -149,8 +149,6 @@ def ChatOpenAI(
             api_key=api_key,
             model=model,
             base_url=base_url,
-            # Note: We don't pass seed to the parent since the responses API doesn't support it
-            seed=None,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,

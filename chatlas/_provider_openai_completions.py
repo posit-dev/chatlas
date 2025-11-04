@@ -98,16 +98,18 @@ class OpenAICompletionsProvider(
     def __init__(
         self,
         *,
-        api_key: str | None,
+        api_key: str | None = None,
         model: str,
-        base_url: str,
-        seed: int | None,
-        kwargs: Optional["ChatClientArgs"],
+        base_url: str = "https://api.openai.com/v1",
+        name: str = "OpenAI",
+        seed: int | None = None,
+        kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(
             api_key=api_key,
             model=model,
             base_url=base_url,
+            name=name,
             kwargs=kwargs,
         )
         self._seed = seed

@@ -21,7 +21,6 @@ def ChatAzureOpenAI(
     api_version: str,
     api_key: Optional[str] = None,
     system_prompt: Optional[str] = None,
-    seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatAzureClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
@@ -63,9 +62,6 @@ def ChatAzureOpenAI(
         variable.
     system_prompt
         A system prompt to set the behavior of the assistant.
-    seed
-        Optional integer seed that ChatGPT uses to try and make output more
-        reproducible.
     kwargs
         Additional arguments to pass to the `openai.AzureOpenAI()` client constructor.
 
@@ -75,16 +71,12 @@ def ChatAzureOpenAI(
         A Chat object.
     """
 
-    if isinstance(seed, MISSING_TYPE):
-        seed = 1014 if is_testing() else None
-
     return Chat(
         provider=OpenAIAzureProvider(
             endpoint=endpoint,
             deployment_id=deployment_id,
             api_version=api_version,
             api_key=api_key,
-            seed=seed,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -99,7 +91,6 @@ class OpenAIAzureProvider(OpenAIProvider):
         deployment_id: str,
         api_version: Optional[str] = None,
         api_key: Optional[str] = None,
-        seed: int | None = None,
         name: str = "Azure/OpenAI",
         model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
@@ -111,8 +102,6 @@ class OpenAIAzureProvider(OpenAIProvider):
             # However, a dummy value is fine -- AzureOpenAI() handles the auth.
             api_key=api_key or "not-used",
         )
-
-        self._seed = seed
 
         kwargs_full: "ChatAzureClientArgs" = {
             "azure_endpoint": endpoint,
@@ -177,12 +166,11 @@ class OpenAIAzureCompletionsProvider(OpenAICompletionsProvider):
         super().__init__(
             name=name,
             model=deployment_id,
+            seed=seed,
             # The OpenAI() constructor will fail if no API key is present.
             # However, a dummy value is fine -- AzureOpenAI() handles the auth.
             api_key=api_key or "not-used",
         )
-
-        self._seed = seed
 
         kwargs_full: "ChatAzureClientArgs" = {
             "azure_endpoint": endpoint,
