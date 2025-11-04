@@ -511,7 +511,8 @@ class SnowflakeProvider(
                         }
                     )
                 elif isinstance(x, ContentJson):
-                    req.content = req.content or "<structured data/>"
+                    text = orjson.dumps(x.value).decode("utf-8")
+                    req.content = req.content or text
 
             res.append(req)
         return res

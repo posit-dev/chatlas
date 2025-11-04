@@ -526,7 +526,8 @@ class AnthropicProvider(
         if isinstance(content, ContentText):
             return {"text": content.text, "type": "text"}
         elif isinstance(content, ContentJson):
-            return {"text": "<structured data/>", "type": "text"}
+            text = orjson.dumps(content.value).decode("utf-8")
+            return {"text": text, "type": "text"}
         elif isinstance(content, ContentPDF):
             return {
                 "type": "document",

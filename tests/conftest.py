@@ -221,6 +221,13 @@ def assert_data_extraction(chat_fun: ChatFun):
     assert data2.author == "Hadley Wickham"
     assert data2.title.lower() == "apples are tasty"
 
+    class Person(BaseModel):
+        name: str
+        age: int
+    data = chat.chat_structured("Generate the name and age of a random person.", data_model=Person)
+    response = chat.chat("What is the name of the person?")
+    assert data.name in str(response)
+
 
 def assert_images_inline(chat_fun: ChatFun, stream: bool = True):
     img = Image.new("RGB", (60, 30), color="red")

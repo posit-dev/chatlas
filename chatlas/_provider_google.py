@@ -442,7 +442,8 @@ class GoogleProvider(
         if isinstance(content, ContentText):
             return Part.from_text(text=content.text)
         elif isinstance(content, ContentJson):
-            return Part.from_text(text="<structured data/>")
+            text = orjson.dumps(content.value).decode("utf-8")
+            return Part.from_text(text=text)
         elif isinstance(content, ContentPDF):
             from google.genai.types import Blob
 
