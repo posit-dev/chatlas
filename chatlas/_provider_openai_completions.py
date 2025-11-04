@@ -66,7 +66,7 @@ def ChatOpenAICompletions(
     """
     Chat with an OpenAI model via the Completions API.
 
-    This function mostly exists for historical reasons; new code should
+    This function exists mainly for historical reasons; new code should
     prefer `ChatOpenAI()`, which uses the newer Responses API.
     """
     if isinstance(seed, MISSING_TYPE):

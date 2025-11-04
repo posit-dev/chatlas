@@ -141,7 +141,7 @@ def ChatAzureOpenAICompletions(
     """
     Chat with a model hosted on Azure OpenAI.
 
-    This function mostly exists for historical reasons; new code should
+    This function exists mainly for historical reasons; new code should
     prefer `ChatAzureOpenAI()`, which uses the newer Responses API.
     """
 

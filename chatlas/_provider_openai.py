@@ -239,7 +239,7 @@ class OpenAIProvider(
 
         # Request reasoning content for reasoning models
         include = []
-        if self._is_reasoning_model():
+        if self._is_reasoning(self.model):
             include.append("reasoning.encrypted_content")
 
         if "log_probs" in kwargs_full:
@@ -337,9 +337,10 @@ class OpenAIProvider(
             completion=completion,
         )
 
-    def _is_reasoning_model(self) -> bool:
+    @staticmethod
+    def _is_reasoning(model: str) -> bool:
         # https://platform.openai.com/docs/models/compare
-        return self.model.startswith("o") or self.model.startswith("gpt-5")
+        return model.startswith("o") or model.startswith("gpt-5")
 
     @staticmethod
     def _turns_as_inputs(turns: list[Turn]) -> "list[ResponseInputItemParam]":
