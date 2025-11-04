@@ -104,9 +104,6 @@ def ChatOpenAI(
 
     Note
     ----
-    The responses API does not support the `seed` parameter. If you need
-    reproducible output, use [](`~chatlas.ChatOpenAI`) instead.
-
     Pasting an API key into a chat constructor (e.g., `ChatOpenAI(api_key="...")`)
     is the simplest way to get started, and is fine for interactive use, but is
     problematic for code that may be shared with others.
@@ -140,6 +137,11 @@ def ChatOpenAI(
     ```shell
     export OPENAI_API_KEY=...
     ```
+
+    Note
+    ----
+    The responses API does not support the `seed` parameter. If you need
+    reproducible output, use [](`~chatlas.ChatOpenAICompletions`) instead.
     """
     if model is None:
         model = log_model_default("gpt-4.1")
