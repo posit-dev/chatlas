@@ -12,9 +12,9 @@ if do_test.lower() == "false":
 def chat_func(system_prompt: str = "Be as terse as possible; no punctuation"):
     return ChatAzureOpenAI(
         system_prompt=system_prompt,
-        endpoint="https://chatlas-testing.openai.azure.com",
-        deployment_id="gpt-4o-mini",
-        api_version="2024-08-01-preview",
+        endpoint="https://carso-mhl2zrqb-eastus2.cognitiveservices.azure.com/",
+        deployment_id="gpt-5-nano",
+        api_version="2025-03-01-preview",
     )
 
 
@@ -46,4 +46,3 @@ def test_connect_without_openai_key(monkeypatch):
     # This should not raise an error
     chat = chat_func()
     assert chat is not None
-
