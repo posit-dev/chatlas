@@ -691,10 +691,7 @@ class ContentThinking(Content):
     """
     Thinking/reasoning content
 
-    This content type represents reasoning traces from models that support
-    extended thinking (like OpenAI's o-series models). The thinking content
-    is not meant to be sent back to the model but is useful for debugging
-    and understanding the model's reasoning process.
+    Captures the model's internal reasoning process.
 
     Parameters
     ----------
@@ -717,8 +714,26 @@ class ContentThinking(Content):
         return self.__str__()
 
     def __repr__(self, indent: int = 0):
-        preview = self.thinking[:50] + "..." if len(self.thinking) > 50 else self.thinking
+        preview = (
+            self.thinking[:50] + "..." if len(self.thinking) > 50 else self.thinking
+        )
         return " " * indent + f"<ContentThinking thinking='{preview}'>"
+
+    def _repr_html_(self):
+        return str(self.tagify())
+
+    def tagify(self):
+        try:
+            from htmltools import HTML
+        except ImportError:
+            raise ImportError(
+                ".tagify() is only intended to be called by htmltools/shiny, ",
+                "but htmltools is not installed. ",
+            )
+
+        html = f"<details><summary>Thinking</summary>{self.thinking}</details>"
+
+        return HTML(html)
 
 
 ContentUnion = Union[
