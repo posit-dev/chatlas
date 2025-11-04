@@ -8,13 +8,13 @@ class TestContentToolRequestHTML:
     """Test HTML rendering for ContentToolRequest."""
 
     def test_content_tool_request_repr_html(self):
-        """Test __repr_html__ method."""
+        """Test _repr_html_ method."""
         request = ContentToolRequest(
             id="test-id", name="test_tool", arguments={"x": 1, "y": 2}
         )
 
         # Should return string representation of tagify()
-        html = request.__repr_html__()
+        html = request._repr_html_()
         assert isinstance(html, str)
         assert "test_tool" in html
 
@@ -23,7 +23,7 @@ class TestContentToolResultHTML:
     """Test HTML rendering improvements for ContentToolResult."""
 
     def test_content_tool_result_repr_html(self):
-        """Test __repr_html__ method."""
+        """Test _repr_html_ method."""
         # Create a request first
         request = ContentToolRequest(
             id="test-id", name="test_tool", arguments={"x": 1, "y": 2}
@@ -32,7 +32,7 @@ class TestContentToolResultHTML:
         result = ContentToolResult(value="test result", request=request)
 
         # Should return string representation of tagify()
-        html = result.__repr_html__()
+        html = result._repr_html_()
         assert isinstance(html, str)
         assert "test_tool" in html
 
