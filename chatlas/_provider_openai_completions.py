@@ -95,6 +95,23 @@ class OpenAICompletionsProvider(
         "SubmitInputArgs",
     ]
 ):
+    def __init__(
+        self,
+        *,
+        api_key: str | None,
+        model: str,
+        base_url: str,
+        seed: int | None,
+        kwargs: Optional["ChatClientArgs"],
+    ):
+        super().__init__(
+            api_key=api_key,
+            model=model,
+            base_url=base_url,
+            kwargs=kwargs,
+        )
+        self._seed = seed
+
     def chat_perform(
         self,
         *,

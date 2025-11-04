@@ -75,13 +75,10 @@ class OpenAIAbstractProvider(
         api_key: Optional[str] = None,
         model: str,
         base_url: str = "https://api.openai.com/v1",
-        seed: Optional[int] = None,
         name: str = "OpenAI",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)
-
-        self._seed = seed
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
