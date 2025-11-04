@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._provider_openai import OpenAIProvider
+from ._provider_openai_completions import OpenAICompletionsProvider
 
 if TYPE_CHECKING:
     from databricks.sdk import WorkspaceClient
 
-    from ._provider_openai import ChatCompletion
+    from ._provider_openai_completions import ChatCompletion
     from .types.openai import SubmitInputArgs
 
 
@@ -87,7 +87,7 @@ def ChatDatabricks(
     )
 
 
-class DatabricksProvider(OpenAIProvider):
+class DatabricksProvider(OpenAICompletionsProvider):
     def __init__(
         self,
         *,

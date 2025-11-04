@@ -3,7 +3,8 @@ from typing import Optional
 from pydantic import BaseModel
 
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
-from chatlas._provider_openai import OpenAIAzureProvider, OpenAIProvider
+from chatlas._provider_openai import OpenAIProvider
+from chatlas._provider_openai_azure import OpenAIAzureProvider
 from chatlas._tokens import (
     compute_cost,
     get_token_pricing,
@@ -66,7 +67,7 @@ def test_tokens_method():
 
 def test_token_count_method():
     chat = ChatOpenAI(model="gpt-4o-mini")
-    assert chat.token_count("What is 1 + 1?") == 31
+    assert chat.token_count("What is 1 + 1?") == 32
 
     chat = ChatAnthropic(model="claude-haiku-4-5-20251001")
     assert chat.token_count("What is 1 + 1?") == 16

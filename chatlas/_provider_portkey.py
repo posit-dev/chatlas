@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._provider_openai import OpenAIProvider
+from ._provider_openai_completions import OpenAICompletionsProvider
 from ._utils import drop_none
 
 if TYPE_CHECKING:
-    from ._provider_openai import ChatCompletion
+    from ._provider_openai_completions import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
@@ -96,7 +96,7 @@ def ChatPortkey(
     )
 
     return Chat(
-        provider=OpenAIProvider(
+        provider=OpenAICompletionsProvider(
             api_key=api_key,
             model=model,
             base_url=base_url,
@@ -123,7 +123,7 @@ def add_default_headers(
     return {"default_headers": default_headers, **kwargs}
 
 
-class PortkeyProvider(OpenAIProvider):
+class PortkeyProvider(OpenAICompletionsProvider):
     def list_models(self):
         raise NotImplementedError(
             ".list_models() is not yet implemented for Portkey. "

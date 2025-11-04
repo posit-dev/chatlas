@@ -125,6 +125,7 @@ ContentTypeEnum = Literal[
     "tool_result_resource",
     "json",
     "pdf",
+    "thinking",
 ]
 """
 A discriminated union of all content types.
@@ -686,6 +687,55 @@ class ContentPDF(Content):
         )
 
 
+class ContentThinking(Content):
+    """
+    Thinking/reasoning content
+
+    Captures the model's internal reasoning process.
+
+    Parameters
+    ----------
+    thinking
+        The thinking/reasoning text from the model.
+    extra
+        Additional metadata associated with the thinking content (e.g.,
+        encrypted content, status information).
+    """
+
+    thinking: str
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "thinking"
+
+    def __str__(self):
+        return f"<thinking>\n{self.thinking}\n</thinking>\n"
+
+    def _repr_markdown_(self):
+        return self.__str__()
+
+    def __repr__(self, indent: int = 0):
+        preview = (
+            self.thinking[:50] + "..." if len(self.thinking) > 50 else self.thinking
+        )
+        return " " * indent + f"<ContentThinking thinking='{preview}'>"
+
+    def _repr_html_(self):
+        return str(self.tagify())
+
+    def tagify(self):
+        try:
+            from htmltools import HTML
+        except ImportError:
+            raise ImportError(
+                ".tagify() is only intended to be called by htmltools/shiny, ",
+                "but htmltools is not installed. ",
+            )
+
+        html = f"<details><summary>Thinking</summary>{self.thinking}</details>"
+
+        return HTML(html)
+
+
 ContentUnion = Union[
     ContentText,
     ContentImageRemote,
@@ -696,6 +746,7 @@ ContentUnion = Union[
     ContentToolResultResource,
     ContentJson,
     ContentPDF,
+    ContentThinking,
 ]
 
 
@@ -728,6 +779,8 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentJson.model_validate(data)
     elif ct == "pdf":
         return ContentPDF.model_validate(data)
+    elif ct == "thinking":
+        return ContentThinking.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
 

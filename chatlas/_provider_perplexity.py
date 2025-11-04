@@ -5,11 +5,11 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._provider_openai import OpenAIProvider
+from ._provider_openai_completions import OpenAICompletionsProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
-    from ._provider_openai import ChatCompletion
+    from ._provider_openai_completions import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
 
@@ -138,7 +138,7 @@ def ChatPerplexity(
     )
 
 
-class PerplexityProvider(OpenAIProvider):
+class PerplexityProvider(OpenAICompletionsProvider):
     def list_models(self):
         raise NotImplementedError(
             ".list_models() is not yet implemented for Perplexity."

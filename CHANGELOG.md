@@ -11,14 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* Added support systematic evaluation via [Inspect AI](https://inspect.aisi.org.uk/). This includes:
+* Added support for systematic evaluation via [Inspect AI](https://inspect.aisi.org.uk/). This includes:
     * A new `.export_eval()` method for exporting conversation history as an Inspect eval dataset sample. This supports multi-turn conversations, tool calls, images, PDFs, and structured data.
     * A new `.to_solver()` method for translating chat instances into Inspect solvers that can be used with Inspect's evaluation framework.
     * A new `Turn.to_inspect_messages()` method for converting turns to Inspect's message format.
     * Comprehensive documentation in the [Evals guide](https://posit-dev.github.io/chatlas/misc/evals.html).
+* `ChatOpenAI()` (and `ChatAzureOpenAI()`) gain access to latest models, built-in tools, etc. as a result of moving to the new [Responses API](https://platform.openai.com/docs/api-reference/responses). (#192)
+* Added rudimentary support for a new `ContentThinking` type. (#192)
 
 ### Changes
 
+* `ChatOpenAI()` (and `ChatAzureOpenAI()`) move from OpenAI's Completions API to [Responses API](https://platform.openai.com/docs/api-reference/responses). If this happens to break behavior, change `ChatOpenAI()` -> `ChatOpenAICompletions()` (or `ChatAzureOpenAI()` -> `ChatAzureOpenAICompletions()`). (#192)
 * `Provider` implementations now require an additional `.value_tokens()` method. Previously, it was assumed that token info was logged and attached to the `Turn` as part of the `.value_turn()` method. The logging and attaching is now handled automatically. (#194)
 
 ### Improvements
