@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Literal, Optional
 
 from openai import AsyncAzureOpenAI, AzureOpenAI
 from openai.types.chat import ChatCompletion
@@ -21,6 +21,9 @@ def ChatAzureOpenAI(
     api_version: str,
     api_key: Optional[str] = None,
     system_prompt: Optional[str] = None,
+    service_tier: Optional[
+        Literal["auto", "default", "flex", "scale", "priority"]
+    ] = None,
     kwargs: Optional["ChatAzureClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
@@ -62,6 +65,13 @@ def ChatAzureOpenAI(
         variable.
     system_prompt
         A system prompt to set the behavior of the assistant.
+    service_tier
+        Request a specific service tier. Options:
+        - `"auto"` (default): uses the service tier configured in Project settings.
+        - `"default"`: standard pricing and performance.
+        - `"flex"`: slower and cheaper.
+        - `"scale"`: batch-like pricing for high-volume use.
+        - `"priority"`: faster and more expensive.
     kwargs
         Additional arguments to pass to the `openai.AzureOpenAI()` client constructor.
 
@@ -70,6 +80,10 @@ def ChatAzureOpenAI(
     Chat
         A Chat object.
     """
+
+    kwargs_chat: "SubmitInputArgs" = {}
+    if service_tier is not None:
+        kwargs_chat["service_tier"] = service_tier
 
     return Chat(
         provider=OpenAIAzureProvider(
@@ -80,6 +94,7 @@ def ChatAzureOpenAI(
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+        kwargs_chat=kwargs_chat,
     )
 
 
