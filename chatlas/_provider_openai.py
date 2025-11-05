@@ -276,6 +276,16 @@ class OpenAIProvider(
     def stream_merge_chunks(self, completion, chunk):
         if chunk.type == "response.completed":
             return chunk.response
+        elif chunk.type == "response.failed":
+            error = chunk.response.error
+            if error is None:
+                msg = "Request failed with an unknown error."
+            else:
+                msg = f"Request failed ({error.code}): {error.message}"
+            raise RuntimeError(msg)
+        elif chunk.type == "error":
+            raise RuntimeError(f"Request errored: {chunk.message}")
+
         # Since this value won't actually be used, we can lie about the type
         return cast(Response, None)
 
