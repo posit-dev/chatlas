@@ -108,7 +108,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         provider: Provider,
         system_prompt: Optional[str] = None,
-        kwargs: Optional[SubmitInputArgsT] = None,
+        kwargs_chat: Optional[SubmitInputArgsT] = None,
     ):
         """
         Create a new chat object.
@@ -119,13 +119,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A [](`~chatlas.Provider`) object.
         system_prompt
             A system prompt to set the behavior of the assistant.
-        kwargs
+        kwargs_chat
             Additional arguments to pass to the provider when submitting input.
+            These arguments persist across all chat interactions and will be
+            merged with any kwargs passed to individual methods like `chat()` or
+            `stream()`. They also take precedence over any parameters set via
+            `set_model_params()`.
         """
         self.provider = provider
         self._turns: list[Turn] = []
         self.system_prompt = system_prompt
-        self.kwargs = kwargs or {}
+        self.kwargs_chat: SubmitInputArgsT = kwargs_chat or {}
 
         self._tools: dict[str, Tool] = {}
         self._on_tool_request_callbacks = CallbackManager()
@@ -2631,8 +2635,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
 
         # Add any additional kwargs provided by the user
-        if self.kwargs:
-            all_kwargs.update(self.kwargs)
+        if self.kwargs_chat:
+            all_kwargs.update(self.kwargs_chat)
 
         if kwargs:
             all_kwargs.update(kwargs)

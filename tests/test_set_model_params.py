@@ -1,7 +1,9 @@
 """Tests for the set_model_params() feature."""
 
 import pytest
-from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAICompletions as ChatOpenAI
+
+from chatlas import ChatAnthropic, ChatGoogle
+from chatlas import ChatOpenAICompletions as ChatOpenAI
 from chatlas._provider import StandardModelParams
 from chatlas._utils import MISSING
 
@@ -356,24 +358,6 @@ def test_set_model_params_reset_specific_param():
     assert params["top_p"] == 0.95
 
 
-def test_model_params_kwargs_priority():
-    """Test that Chat kwargs override model_params."""
-    chat = ChatOpenAI()
-    chat.kwargs = {"temperature": 0.5, "seed": 42}
-
-    # Set model parameters
-    chat.set_model_params(temperature=0.1, max_tokens=100)
-
-    # Verify that kwargs are set correctly on the Chat object
-    assert chat.kwargs["temperature"] == 0.5
-    assert chat.kwargs["seed"] == 42
-
-    # Model params should still be stored
-    params = getattr(chat, "_standard_model_params", {})
-    assert params["temperature"] == 0.1
-    assert params["max_tokens"] == 100
-
-
 def test_is_present_function():
     """Test the is_present helper function used in set_model_params."""
     from chatlas._chat import is_present
@@ -543,82 +527,20 @@ def test_parameter_validation_edge_cases():
     assert params["seed"] == 999999999
 
 
-def test_chat_kwargs_initialization():
-    """Test initializing Chat with kwargs parameter."""
-    from chatlas import Chat
-    from chatlas._provider_openai_completions import OpenAICompletionsProvider
-
-    provider = OpenAICompletionsProvider(model="gpt-4o-mini", api_key="test")
-    chat = Chat(
-        provider=provider,
-        kwargs={"frequency_penalty": 0.1, "presence_penalty": 0.2},
-    )
-
-    # Verify kwargs are stored on the Chat object
-    assert chat.kwargs == {"frequency_penalty": 0.1, "presence_penalty": 0.2}
-
-
-def test_chat_kwargs_default():
-    """Test that Chat kwargs defaults to empty dict."""
-    chat = ChatOpenAI()
-
-    # Should default to empty dict
-    assert chat.kwargs == {}
-
-
-def test_chat_kwargs_mutability():
-    """Test that Chat kwargs can be modified after initialization."""
-    from chatlas import Chat
-    from chatlas._provider_openai_completions import OpenAICompletionsProvider
-
-    provider = OpenAICompletionsProvider(model="gpt-4o-mini", api_key="test")
-    chat = Chat(provider=provider, kwargs={"frequency_penalty": 0.1})
-
-    # Verify initial kwargs
-    assert chat.kwargs == {"frequency_penalty": 0.1}
-
-    # Modify kwargs directly
-    chat.kwargs["presence_penalty"] = 0.2
-    assert chat.kwargs == {"frequency_penalty": 0.1, "presence_penalty": 0.2}
-
-    # Replace kwargs entirely
-    chat.kwargs = {"seed": 42}
-    assert chat.kwargs == {"seed": 42}
-
-
-def test_chat_kwargs_replacement():
-    """Test that updating Chat kwargs replaces rather than merges."""
-    from chatlas import Chat
-    from chatlas._provider_openai_completions import OpenAICompletionsProvider
-
-    provider = OpenAICompletionsProvider(model="gpt-4o-mini", api_key="test")
-    chat = Chat(
-        provider=provider,
-        kwargs={"frequency_penalty": 0.1, "presence_penalty": 0.2},
-    )
-
-    # Replace kwargs entirely
-    chat.kwargs = {"seed": 42}
-
-    # Old keys should be gone
-    assert chat.kwargs == {"seed": 42}
-    assert "frequency_penalty" not in chat.kwargs
-    assert "presence_penalty" not in chat.kwargs
-
-
 def test_chat_kwargs_with_model_params():
     """Test that Chat kwargs work alongside set_model_params."""
-    from chatlas import Chat
-    from chatlas._provider_openai_completions import OpenAICompletionsProvider
-
-    provider = OpenAICompletionsProvider(model="gpt-4o-mini", api_key="test")
-    chat = Chat(provider=provider, kwargs={"frequency_penalty": 0.1})
+    chat = ChatOpenAI()
 
     # Set model parameters
     chat.set_model_params(temperature=0.7, max_tokens=100)
 
-    # Both should be stored independently
-    assert chat.kwargs == {"frequency_penalty": 0.1}
-    params = getattr(chat, "_standard_model_params", {})
-    assert params["temperature"] == 0.7
-    assert params["max_tokens"] == 100
+    # Set persistent chat kwargs
+    chat.chat_kwargs = {"frequency_penalty": 0.1, "presence_penalty": 0.2}
+
+    # Collect all kwargs for a chat call
+    kwargs = chat._collect_all_kwargs({"presence_penalty": 0.3})
+
+    assert kwargs.get("temperature") == 0.7
+    assert kwargs.get("max_tokens") == 100
+    assert kwargs.get("frequency_penalty") == 0.1
+    assert kwargs.get("presence_penalty") == 0.3  # Should override chat.chat_kwargs
