@@ -535,7 +535,7 @@ def test_chat_kwargs_with_model_params():
     chat.set_model_params(temperature=0.7, max_tokens=100)
 
     # Set persistent chat kwargs
-    chat.chat_kwargs = {"frequency_penalty": 0.1, "presence_penalty": 0.2}
+    chat.kwargs_chat = {"frequency_penalty": 0.1, "presence_penalty": 0.2}
 
     # Collect all kwargs for a chat call
     kwargs = chat._collect_all_kwargs({"presence_penalty": 0.3})
