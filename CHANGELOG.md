@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 
 * `.set_model_params()` now works correctly for `.*_async()` methods. (#198)
+* `.chat_structured()` results are now included correctly into the multi-turn conversation history. (#203)
 
 ## [0.13.2] - 2025-10-02
 

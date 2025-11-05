@@ -245,9 +245,8 @@ class OpenAICompletionsProvider(
                     if isinstance(x, ContentText):
                         content_parts.append({"type": "text", "text": x.text})
                     elif isinstance(x, ContentJson):
-                        content_parts.append(
-                            {"type": "text", "text": "<structured data/>"}
-                        )
+                        text = orjson.dumps(x.value).decode("utf-8")
+                        content_parts.append({"type": "text", "text": text})
                     elif isinstance(x, ContentToolRequest):
                         tool_calls.append(
                             {
@@ -286,7 +285,8 @@ class OpenAICompletionsProvider(
                     if isinstance(x, ContentText):
                         contents.append({"type": "text", "text": x.text})
                     elif isinstance(x, ContentJson):
-                        contents.append({"type": "text", "text": "<structured data/>"})
+                        text = orjson.dumps(x.value).decode("utf-8")
+                        contents.append({"type": "text", "text": text})
                     elif isinstance(x, ContentPDF):
                         contents.append(
                             {
