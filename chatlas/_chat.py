@@ -108,6 +108,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         provider: Provider,
         system_prompt: Optional[str] = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ):
         """
         Create a new chat object.
@@ -118,10 +119,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A [](`~chatlas.Provider`) object.
         system_prompt
             A system prompt to set the behavior of the assistant.
+        kwargs
+            Additional arguments to pass to the provider when submitting input.
         """
         self.provider = provider
         self._turns: list[Turn] = []
         self.system_prompt = system_prompt
+        self.kwargs = kwargs or {}
 
         self._tools: dict[str, Tool] = {}
         self._on_tool_request_callbacks = CallbackManager()
@@ -136,7 +140,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         # Chat input parameters from `set_model_params()`
         self._standard_model_params: StandardModelParams = {}
-        self._submit_input_kwargs: Optional[SubmitInputArgsT] = None
 
     def list_models(self) -> list[ModelInfo]:
         """
@@ -1454,7 +1457,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         max_tokens: int | None | MISSING_TYPE = MISSING,
         log_probs: bool | None | MISSING_TYPE = MISSING,
         stop_sequences: list[str] | None | MISSING_TYPE = MISSING,
-        kwargs: SubmitInputArgsT | None | MISSING_TYPE = MISSING,
     ):
         """
         Set common model parameters for the chat.
@@ -1488,10 +1490,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Include the log probabilities in the output?
         stop_sequences
             A character vector of tokens to stop generation on.
-        kwargs
-            Additional keyword arguments to use when submitting input to the
-            model. When calling this method repeatedly with different parameters,
-            only the parameters from the last call will be used.
         """
 
         params: StandardModelParams = {}
@@ -1556,13 +1554,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         # Update the standard model parameters
         self._standard_model_params.update(params)
-
-        # Update the submit input kwargs
-        if kwargs is None:
-            self._submit_input_kwargs = None
-
-        if is_present(kwargs):
-            self._submit_input_kwargs = kwargs
 
     async def register_mcp_tools_http_stream_async(
         self,
@@ -2640,8 +2631,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
 
         # Add any additional kwargs provided by the user
-        if self._submit_input_kwargs:
-            all_kwargs.update(self._submit_input_kwargs)
+        if self.kwargs:
+            all_kwargs.update(self.kwargs)
 
         if kwargs:
             all_kwargs.update(kwargs)
