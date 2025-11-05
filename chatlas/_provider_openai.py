@@ -48,6 +48,9 @@ def ChatOpenAI(
     model: "Optional[ResponsesModel | str]" = None,
     api_key: Optional[str] = None,
     base_url: str = "https://api.openai.com/v1",
+    service_tier: Optional[
+        Literal["auto", "default", "flex", "scale", "priority"]
+    ] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Response]:
     """
@@ -92,6 +95,13 @@ def ChatOpenAI(
         variable.
     base_url
         The base URL to the endpoint; the default uses OpenAI.
+    service_tier
+        Request a specific service tier. Options:
+        - `"auto"` (default): uses the service tier configured in Project settings.
+        - `"default"`: standard pricing and performance.
+        - `"flex"`: slower and cheaper.
+        - `"scale"`: batch-like pricing for high-volume use.
+        - `"priority"`: faster and more expensive.
     kwargs
         Additional arguments to pass to the `openai.OpenAI()` client
         constructor.
@@ -145,6 +155,10 @@ def ChatOpenAI(
     if model is None:
         model = log_model_default("gpt-4.1")
 
+    kwargs_chat: "SubmitInputArgs" = {}
+    if service_tier is not None:
+        kwargs_chat["service_tier"] = service_tier
+
     return Chat(
         provider=OpenAIProvider(
             api_key=api_key,
@@ -153,6 +167,7 @@ def ChatOpenAI(
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+        kwargs_chat=kwargs_chat,
     )
 
 

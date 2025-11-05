@@ -105,3 +105,8 @@ def test_openai_custom_http_client():
 
 def test_openai_list_models():
     assert_list_models(ChatOpenAI)
+
+
+def test_openai_service_tier():
+    chat = ChatOpenAI(service_tier="flex")
+    assert chat.kwargs_chat.get("service_tier") == "flex"
