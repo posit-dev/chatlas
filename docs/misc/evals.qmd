@@ -158,7 +158,7 @@ chat.export_eval(
 Since our data is now is in JSONL format, before running the eval, we'll want to tweak our `Task` definition to load the JSONL dataset:
 
 ```python
-from inspect_ai.dataset import jsonl_dataset
+from inspect_ai.dataset import json_dataset
 
 Task(dataset=jsonl_dataset("my_eval_dataset.jsonl"), ...)
 ```
@@ -177,7 +177,7 @@ Having the system prompt and conversation history included in your `dataset` is 
 ```{.python filename="my_eval.py"}
 from chatlas import ChatOpenAI
 from inspect_ai import Task, task
-from inspect_ai.dataset import jsonl_dataset
+from inspect_ai.dataset import json_dataset
 from inspect_ai.scorer import model_graded_qa
 
 # No system prompt needed since dataset already includes it
