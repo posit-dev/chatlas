@@ -2,7 +2,14 @@ import pytest
 
 from chatlas import ChatDatabricks
 
-from .conftest import assert_turns_existing, assert_turns_system
+from .conftest import (
+    assert_data_extraction,
+    assert_images_inline,
+    assert_tools_async,
+    assert_tools_simple,
+    assert_turns_existing,
+    assert_turns_system,
+)
 
 
 def test_openai_simple_request():
@@ -46,36 +53,25 @@ def test_anthropic_empty_response():
     assert "2" == str(resp).strip()
 
 
-# Note: Databricks models cannot yet handle "continuing past the first tool
-# call", which causes issues with how ellmer implements tool calling. Nor do
-# they support parallel tool calls.
-#
-# See: https://docs.databricks.com/en/machine-learning/model-serving/function-calling.html#limitations
-# def test_openai_tool_variations():
-#     chat_fun = ChatDatabricks
-#     assert_tools_simple(chat_fun)
-#     assert_tools_simple_stream_content(chat_fun)
-#     assert_tools_parallel(chat_fun)
-#     assert_tools_sequential(chat_fun, total_calls=6)
+def test_openai_tool_variations():
+    chat_fun = ChatDatabricks
+    assert_tools_simple(chat_fun)
 
 
-# @pytest.mark.asyncio
-# async def test_openai_tool_variations_async():
-#    await assert_tools_async(ChatDatabricks)
-
-# I think this is only broken for Anthropic models, but I also
-# don't know if I have access to non-Anthropic models on Databricks
-# at this point for testing.
-# def test_data_extraction():
-#    assert_data_extraction(ChatDatabricks)
+@pytest.mark.asyncio
+async def test_openai_tool_variations_async():
+    await assert_tools_async(ChatDatabricks)
 
 
-# Images don't seem to be supported yet
-#
-# def test_openai_images():
-#     chat_fun = ChatDatabricks
-#     assert_images_inline(chat_fun)
-#     assert_images_remote(chat_fun)
+def test_data_extraction():
+    assert_data_extraction(ChatDatabricks)
+
+
+def test_openai_images():
+    chat_fun = ChatDatabricks
+    assert_images_inline(chat_fun)
+    # Remote images don't seem to be supported yet
+    # assert_images_remote(chat_fun)
 
 
 # PDF doesn't seem to be supported yet
