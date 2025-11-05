@@ -14,6 +14,7 @@ from ._content import (
     ContentToolResult,
     ContentUnion,
 )
+from ._content_pdf import parse_data_url
 from ._turn import Turn
 
 if TYPE_CHECKING:
@@ -166,7 +167,9 @@ def chatlas_content_as_inspect(content: ContentUnion) -> InspectContent:
     elif isinstance(content, ContentImageRemote):
         return itool.ContentImage(image=content.url, detail=content.detail)
     elif isinstance(content, ContentImageInline):
-        return itool.ContentImage(image=content.data or "", detail="auto")
+        # Reconstruct the data URL from the base64 data and content type
+        data_url = f"data:{content.image_content_type};base64,{content.data or ''}"
+        return itool.ContentImage(image=data_url, detail="auto")
     elif isinstance(content, ContentPDF):
         return itool.ContentDocument(
             document=base64.b64encode(content.data).decode("ascii"),
@@ -199,11 +202,11 @@ def inspect_content_as_chatlas(content: str | InspectContent) -> Content:
         if content.image.startswith("http://") or content.image.startswith("https://"):
             return ContentImageRemote(url=content.image, detail=content.detail)
         else:
-            # derive content_type from base64 data
+            # Parse data URL to extract content type and base64 data
             # e.g., data:image/png;base64,....
-            content_type = content.image.split(":")[1].split(";")[0]
+            content_type, base64_data = parse_data_url(content.image)
             return ContentImageInline(
-                data=content.image,
+                data=base64_data,
                 image_content_type=content_type,  # type: ignore
             )
     if isinstance(content, itool.ContentDocument):
