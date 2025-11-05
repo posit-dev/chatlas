@@ -160,7 +160,7 @@ Since our data is now is in JSONL format, before running the eval, we'll want to
 ```python
 from inspect_ai.dataset import json_dataset
 
-Task(dataset=jsonl_dataset("my_eval_dataset.jsonl"), ...)
+Task(dataset=json_dataset("my_eval_dataset.jsonl"), ...)
 ```
 
 Now that you have the basics of collecting eval datasets, let's dive deeper into the other components of an eval: **solvers** and **scorers**.
