@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 from typing import TYPE_CHECKING, Literal, overload
 
 from ._content import (
@@ -168,7 +169,7 @@ def chatlas_content_as_inspect(content: ContentUnion) -> InspectContent:
         return itool.ContentImage(image=content.data or "", detail="auto")
     elif isinstance(content, ContentPDF):
         return itool.ContentDocument(
-            document=content.data.decode("utf-8"),
+            document=base64.b64encode(content.data).decode("ascii"),
             mime_type="application/pdf",
             filename=content.filename,
         )
@@ -208,7 +209,7 @@ def inspect_content_as_chatlas(content: str | InspectContent) -> Content:
     if isinstance(content, itool.ContentDocument):
         if content.mime_type == "application/pdf":
             return ContentPDF(
-                data=content.document.encode("utf-8"),
+                data=base64.b64decode(content.document),
                 filename=content.filename,
             )
         else:
