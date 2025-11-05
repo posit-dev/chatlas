@@ -510,7 +510,7 @@ class TestContentTranslation:
         original = ContentImageInline(
             image_content_type="image/png",
             data=(
-                "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAA"
+                "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAA"
                 "AAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
             ),
         )
@@ -519,6 +519,7 @@ class TestContentTranslation:
 
         assert isinstance(recovered, ContentImageInline)
         assert recovered.image_content_type == original.image_content_type
+        assert recovered.data == original.data
 
     def test_pdf_translation(self):
         original = ContentPDF(data=b"fake pdf content", filename="document.pdf")
