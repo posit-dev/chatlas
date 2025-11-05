@@ -553,7 +553,7 @@ What goes in a <code>target</code>?
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    target<span class="op">=</span><span class="st">"Response should mention that the user lives in New York City."</span>,</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Since our data is now is in JSONL format, before running the eval, we’ll want to tweak our <code>Task</code> definition to load the JSONL dataset:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai.dataset <span class="im">import</span> jsonl_dataset</span>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai.dataset <span class="im">import</span> json_dataset</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>Task(dataset<span class="op">=</span>jsonl_dataset(<span class="st">"my_eval_dataset.jsonl"</span>), ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now that you have the basics of collecting eval datasets, let’s dive deeper into the other components of an eval: <strong>solvers</strong> and <strong>scorers</strong>.</p>
@@ -570,7 +570,7 @@ What goes in a <code>target</code>?
 </div>
 <div class="sourceCode" id="cb10" data-filename="my_eval.py"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai <span class="im">import</span> Task, task</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai.dataset <span class="im">import</span> jsonl_dataset</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai.dataset <span class="im">import</span> json_dataset</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai.scorer <span class="im">import</span> model_graded_qa</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># No system prompt needed since dataset already includes it</span></span>

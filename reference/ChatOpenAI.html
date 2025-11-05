@@ -630,6 +630,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   <li><a href="#note" id="toc-note" class="nav-link" data-scroll-target="#note">Note</a></li>
+  <li><a href="#note-1" id="toc-note-1" class="nav-link" data-scroll-target="#note-1">Note</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatOpenAI.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
@@ -741,7 +742,6 @@ API key
 </section>
 <section id="note" class="level2 doc-section doc-section-note">
 <h2 class="doc-section doc-section-note anchored" data-anchor-id="note">Note</h2>
-<p>The responses API does not support the <code>seed</code> parameter. If you need reproducible output, use <a href="https://posit-dev.github.io/chatlas/reference/ChatOpenAI.html#chatlas.ChatOpenAI"><code>ChatOpenAI</code></a> instead.</p>
 <p>Pasting an API key into a chat constructor (e.g., <code>ChatOpenAI(api_key="...")</code>) is the simplest way to get started, and is fine for interactive use, but is problematic for code that may be shared with others.</p>
 <p>Instead, consider using environment variables or a configuration file to manage your credentials. One popular way to manage credentials is to use a <code>.env</code> file to store your credentials, and then use the <code>python-dotenv</code> package to load them into your environment.</p>
 <pre class="shell"><code>pip install python-dotenv</code></pre>
@@ -755,6 +755,10 @@ OPENAI_API_KEY=...</code></pre>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>chat.console()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Another, more general, solution is to load your environment variables into the shell before starting Python (maybe in a <code>.bashrc</code>, <code>.zshrc</code>, etc. file):</p>
 <pre class="shell"><code>export OPENAI_API_KEY=...</code></pre>
+</section>
+<section id="note-1" class="level2 doc-section doc-section-note">
+<h2 class="doc-section doc-section-note anchored" data-anchor-id="note-1">Note</h2>
+<p>The responses API does not support the <code>seed</code> parameter. If you need reproducible output, use <code>ChatOpenAICompletions</code> instead.</p>
 
 
 </section>
