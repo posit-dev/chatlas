@@ -44,6 +44,7 @@ if TYPE_CHECKING:
         ToolParam,
         ToolUseBlock,
     )
+    from anthropic.types.cache_control_ephemeral_param import CacheControlEphemeralParam
     from anthropic.types.document_block_param import DocumentBlockParam
     from anthropic.types.image_block_param import ImageBlockParam
     from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
@@ -73,6 +74,7 @@ def ChatAnthropic(
     model: "Optional[ModelParam]" = None,
     api_key: Optional[str] = None,
     max_tokens: int = 4096,
+    cache: Literal["5m", "1h", "none"] = "5m",
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
     """
@@ -100,6 +102,46 @@ def ChatAnthropic(
     `ChatAnthropic` requires the `anthropic` package: `pip install "chatlas[anthropic]"`.
     :::
 
+    Caching
+    -------
+
+    Caching with Claude is a bit more complicated than other providers but we
+    believe that on average it will save you both money and time, so we have
+    enabled it by default. With other providers, like OpenAI and Google,
+    you only pay for cache reads, which cost 10% of the normal price. With
+    Claude, you also pay for cache writes, which cost 125% of the normal price
+    for 5 minute caching and 200% of the normal price for 1 hour caching.
+
+    How does this affect the total cost of a conversation? Imagine the first
+    turn sends 1000 input tokens and receives 200 output tokens. The second
+    turn must first send both the input and output from the previous turn
+    (1200 tokens). It then sends a further 1000 tokens and receives 200 tokens
+    back.
+
+    To compare the prices of these two approaches we can ignore the cost of
+    output tokens, because they are the same for both. How much will the input
+    tokens cost? If we don't use caching, we send 1000 tokens in the first turn
+    and 2200 (1000 + 200 + 1000) tokens in the second turn for a total of 3200
+    tokens. If we use caching, we'll send (the equivalent of) 1000 * 1.25 = 1250
+    tokens in the first turn. In the second turn, 1000 of the input tokens will
+    be cached so the total cost is 1000 * 0.1 + (200 + 1000) * 1.25 = 1600
+    tokens. That makes a total of 2850 tokens, i.e. 11% fewer tokens,
+    decreasing the overall cost.
+
+    Obviously, the details will vary from conversation to conversation, but
+    if you have a large system prompt that you re-use many times you should
+    expect to see larger savings. You can see exactly how many input and
+    cache input tokens each turn uses, along with the total cost,
+    with `chat.get_tokens()`. If you don't see savings for your use case, you can
+    suppress caching with `cache="none"`.
+
+    Note: Claude will only cache longer prompts, with caching requiring at least
+    1024-4096 tokens, depending on the model. So don't be surprised if you
+    don't see any differences with caching if you have a short prompt.
+
+    See all the details at
+    <https://docs.claude.com/en/docs/build-with-claude/prompt-caching>.
+
     Examples
     --------
 
@@ -125,6 +167,10 @@ def ChatAnthropic(
         variable.
     max_tokens
         Maximum number of tokens to generate before stopping.
+    cache
+        How long to cache inputs? Defaults to "5m" (five minutes).
+        Set to "none" to disable caching or "1h" to cache for one hour.
+        See the Caching section for details.
     kwargs
         Additional arguments to pass to the `anthropic.Anthropic()` client
         constructor.
@@ -179,6 +225,7 @@ def ChatAnthropic(
             api_key=api_key,
             model=model,
             max_tokens=max_tokens,
+            cache=cache,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -195,6 +242,7 @@ class AnthropicProvider(
         model: str,
         api_key: Optional[str] = None,
         name: str = "Anthropic",
+        cache: Literal["5m", "1h", "none"] = "5m",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)
@@ -206,6 +254,7 @@ class AnthropicProvider(
                 "You can install it with 'pip install anthropic'."
             )
         self._max_tokens = max_tokens
+        self._cache: Literal["5m", "1h", "none"] = cache
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
@@ -365,7 +414,13 @@ class AnthropicProvider(
 
         if "system" not in kwargs_full:
             if len(turns) > 0 and turns[0].role == "system":
-                kwargs_full["system"] = turns[0].text
+                sys_param: "TextBlockParam" = {
+                    "type": "text",
+                    "text": turns[0].text,
+                }
+                if self._cache_control():
+                    sys_param["cache_control"] = self._cache_control()
+                kwargs_full["system"] = [sys_param]
 
         return kwargs_full
 
@@ -418,11 +473,16 @@ class AnthropicProvider(
 
     def value_tokens(self, completion):
         usage = completion.usage
-        # N.B. Currently, Anthropic doesn't cache by default and we currently do not support
-        # manual caching in chatlas. Note also that this only tracks reads, NOT writes, which
-        # have their own cost. To track that properly, we would need another caching category and per-token cost.
+        input_tokens = completion.usage.input_tokens
+
+        # Account for cache writes by adjusting input tokens
+        # Cache writes cost 125% for 5m and 200% for 1h
+        # https://docs.claude.com/en/docs/build-with-claude/prompt-caching
+        cache_input = usage.cache_creation_input_tokens or 0
+        cache_mult = 2.0 if self._cache == "1h" else 1.25
+
         return (
-            completion.usage.input_tokens,
+            input_tokens + int(cache_input * cache_mult),
             completion.usage.output_tokens,
             usage.cache_read_input_tokens if usage.cache_read_input_tokens else 0,
         )
@@ -510,13 +570,21 @@ class AnthropicProvider(
 
     def _as_message_params(self, turns: list[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
-        for turn in turns:
+        for i, turn in enumerate(turns):
             if turn.role == "system":
                 continue  # system prompt passed as separate arg
             if turn.role not in ["user", "assistant"]:
                 raise ValueError(f"Unknown role {turn.role}")
 
             content = [self._as_content_block(c) for c in turn.contents]
+
+            # Add cache control to the last content block in the last turn
+            # https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-automatic-prefix-checking-works
+            is_last_turn = i == len(turns) - 1
+            if is_last_turn and len(content) > 0:
+                if self._cache_control():
+                    content[-1]["cache_control"] = self._cache_control()
+
             role = "user" if turn.role == "user" else "assistant"
             messages.append({"role": role, "content": content})
         return messages
@@ -744,11 +812,20 @@ class AnthropicProvider(
         message = result.result.message
         return self._as_turn(message, has_data_model)
 
+    def _cache_control(self) -> "Optional[CacheControlEphemeralParam]":
+        if self._cache == "none":
+            return None
+        return {
+            "type": "ephemeral",
+            "ttl": self._cache,
+        }
+
 
 def ChatBedrockAnthropic(
     *,
     model: Optional[str] = None,
     max_tokens: int = 4096,
+    cache: Literal["5m", "1h", "none"] = "5m",
     aws_secret_key: Optional[str] = None,
     aws_access_key: Optional[str] = None,
     aws_region: Optional[str] = None,
@@ -804,6 +881,10 @@ def ChatBedrockAnthropic(
         The model to use for the chat.
     max_tokens
         Maximum number of tokens to generate before stopping.
+    cache
+        How long to cache inputs? Defaults to "5m" (five minutes).
+        Set to "none" to disable caching or "1h" to cache for one hour.
+        See the Caching section of `ChatAnthropic` for details.
     aws_secret_key
         The AWS secret key to use for authentication.
     aws_access_key
@@ -885,6 +966,7 @@ def ChatBedrockAnthropic(
         provider=AnthropicBedrockProvider(
             model=model,
             max_tokens=max_tokens,
+            cache=cache,
             aws_secret_key=aws_secret_key,
             aws_access_key=aws_access_key,
             aws_region=aws_region,
@@ -908,11 +990,17 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_profile: str | None,
         aws_session_token: str | None,
         max_tokens: int = 4096,
+        cache: Literal["5m", "1h", "none"] = "5m",
         base_url: str | None,
         name: str = "AWS/Bedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
-        super().__init__(name=name, model=model, max_tokens=max_tokens)
+        super().__init__(
+            name=name,
+            model=model,
+            max_tokens=max_tokens,
+            cache=cache,
+        )
 
         try:
             from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
