@@ -204,11 +204,17 @@ class OpenAIProvider(
             **(kwargs or {}),
         }
 
-        tool_schemas = [tool.schema for tool in tools.values()]
-        if tool_schemas:
-            # Convert completion tool format to responses format
-            responses_tools: list["ToolParam"] = []
-            for schema in tool_schemas:
+        from ._tools import ToolBuiltIn
+
+        # Handle tools - both regular and built-in
+        responses_tools: list["ToolParam"] = []
+        for tool in tools.values():
+            if isinstance(tool, ToolBuiltIn):
+                # For built-in tools, pass the definition through directly
+                responses_tools.append(tool.definition)  # type: ignore
+            else:
+                # Convert completion tool format to responses format
+                schema = tool.schema
                 func = schema["function"]
                 responses_tools.append(
                     {
@@ -219,8 +225,9 @@ class OpenAIProvider(
                         "strict": func.get("strict", True),
                     }
                 )
-            if responses_tools:
-                kwargs_full["tools"] = responses_tools
+
+        if responses_tools:
+            kwargs_full["tools"] = responses_tools
 
         # Add structured data extraction if present
         if data_model is not None:
@@ -323,6 +330,30 @@ class OpenAIProvider(
                             extra=output.model_dump(),
                         )
                     )
+
+            elif output.type == "image_generation_call":
+                # Handle image generation responses
+                # The output object should have 'output_format' and 'result' attributes
+                output_dict = output.model_dump()
+                output_format = output_dict.get("output_format", "png")
+                result = output_dict.get("result")
+
+                if result:
+                    # Map output format to MIME type
+                    mime_type_map = {
+                        "png": "image/png",
+                        "jpeg": "image/jpeg",
+                        "webp": "image/webp",
+                    }
+                    mime_type = mime_type_map.get(output_format, "image/png")
+
+                    contents.append(
+                        ContentImageInline(
+                            image_content_type=mime_type,  # type: ignore
+                            data=result,
+                        )
+                    )
+
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
 

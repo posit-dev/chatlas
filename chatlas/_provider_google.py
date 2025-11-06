@@ -307,17 +307,25 @@ class GoogleProvider(
             config.response_mime_type = "application/json"
 
         if tools:
-            config.tools = [
-                GoogleTool(
-                    function_declarations=[
+            from ._tools import ToolBuiltIn
+
+            function_declarations = []
+            for tool in tools.values():
+                if isinstance(tool, ToolBuiltIn):
+                    # For built-in tools, pass the raw definition through
+                    # This allows provider-specific tools like image generation
+                    # Note: Google's API expects these in a specific format
+                    continue  # Built-in tools are not yet fully supported for Google
+                else:
+                    function_declarations.append(
                         FunctionDeclaration.from_callable(
                             client=self._client._api_client,
                             callable=tool.func,
                         )
-                        for tool in tools.values()
-                    ]
-                )
-            ]
+                    )
+
+            if function_declarations:
+                config.tools = [GoogleTool(function_declarations=function_declarations)]
 
         kwargs_full["config"] = config
 
@@ -543,6 +551,20 @@ class GoogleProvider(
                                 # TODO: how to get the arguments?
                                 arguments={},
                             ),
+                        )
+                    )
+            inline_data = part.get("inlineData") or part.get("inline_data")
+            if inline_data:
+                # Handle image generation responses
+                mime_type = inline_data.get("mimeType") or inline_data.get("mime_type")
+                data = inline_data.get("data")
+                if mime_type and data:
+                    # Ensure data is a string (should be base64 encoded)
+                    data_str = data if isinstance(data, str) else str(data)
+                    contents.append(
+                        ContentImageInline(
+                            image_content_type=mime_type,  # type: ignore
+                            data=data_str,
                         )
                     )
 

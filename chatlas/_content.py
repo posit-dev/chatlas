@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict
 from ._typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    from ._tools import Tool
+    from ._tools import Tool, ToolBuiltIn
 
 
 class ToolAnnotations(TypedDict, total=False):
@@ -104,15 +104,28 @@ class ToolInfo(BaseModel):
     annotations: Optional[ToolAnnotations] = None
 
     @classmethod
-    def from_tool(cls, tool: "Tool") -> "ToolInfo":
-        """Create a ToolInfo from a Tool instance."""
-        func_schema = tool.schema["function"]
-        return cls(
-            name=tool.name,
-            description=func_schema.get("description", ""),
-            parameters=func_schema.get("parameters", {}),
-            annotations=tool.annotations,
-        )
+    def from_tool(cls, tool: "Tool | ToolBuiltIn") -> "ToolInfo":
+        """Create a ToolInfo from a Tool or ToolBuiltIn instance."""
+        from ._tools import ToolBuiltIn
+
+        if isinstance(tool, ToolBuiltIn):
+            # For built-in tools, extract info from the definition
+            defn = tool.definition
+            return cls(
+                name=tool.name,
+                description=defn.get("description", ""),
+                parameters=defn.get("parameters", {}),
+                annotations=None,
+            )
+        else:
+            # For regular tools, extract from schema
+            func_schema = tool.schema["function"]
+            return cls(
+                name=tool.name,
+                description=func_schema.get("description", ""),
+                parameters=func_schema.get("parameters", {}),
+                annotations=tool.annotations,
+            )
 
 
 ContentTypeEnum = Literal[
@@ -246,6 +259,22 @@ class ContentImageInline(ContentImage):
 
     def _repr_markdown_(self):
         return self.__str__()
+
+    def _repr_png_(self):
+        """Display PNG images directly in Jupyter notebooks."""
+        if self.image_content_type == "image/png" and self.data:
+            import base64
+
+            return base64.b64decode(self.data)
+        return None
+
+    def _repr_jpeg_(self):
+        """Display JPEG images directly in Jupyter notebooks."""
+        if self.image_content_type == "image/jpeg" and self.data:
+            import base64
+
+            return base64.b64decode(self.data)
+        return None
 
     def __repr__(self, indent: int = 0):
         n_bytes = len(self.data) if self.data else 0

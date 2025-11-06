@@ -148,7 +148,16 @@ class OpenAICompletionsProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        tool_schemas = [tool.schema for tool in tools.values()]
+        from ._tools import ToolBuiltIn
+
+        # Handle tools - both regular and built-in
+        tool_schemas = []
+        for tool in tools.values():
+            if isinstance(tool, ToolBuiltIn):
+                # For built-in tools, pass the definition through directly
+                tool_schemas.append(tool.definition)
+            else:
+                tool_schemas.append(tool.schema)
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
