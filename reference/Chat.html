@@ -677,7 +677,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="chatlas.Chat" class="level1">
 <h1>Chat</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Chat(provider, system_prompt<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Chat(provider, system_prompt<span class="op">=</span><span class="va">None</span>, kwargs_chat<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>A chat object that can be used to interact with a language model.</p>
 <p>A <code>Chat</code> is an sequence of sequence of user and assistant <a href="https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn"><code>Turn</code></a>s sent to a specific <a href="https://posit-dev.github.io/chatlas/reference/Provider.html#chatlas.Provider"><code>Provider</code></a>. A <code>Chat</code> takes care of managing the state associated with the chat; i.e.&nbsp;it records the messages that you send to the server, and the messages that you receive back. If you register a tool (i.e.&nbsp;an function that the assistant can call on your behalf), it also takes care of the tool loop.</p>
 <p>You should generally not create this object yourself, but instead call <a href="https://posit-dev.github.io/chatlas/reference/ChatOpenAI.html#chatlas.ChatOpenAI"><code>ChatOpenAI</code></a> or friends instead.</p>
@@ -2235,8 +2235,7 @@ Note
 <span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span>MISSING,</span>
 <span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>    log_probs<span class="op">=</span>MISSING,</span>
 <span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>    stop_sequences<span class="op">=</span>MISSING,</span>
-<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span>MISSING,</span>
-<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Set common model parameters for the chat.</p>
 <p>A unified interface for setting common model parameters across different providers. This method is useful for setting parameters that are commonly supported by most providers, such as temperature, top_p, etc.</p>
 <p>By default, if the parameter is not set (i.e., set to <code>MISSING</code>), the provider’s default value is used. If you want to reset a parameter to its default value, set it to <code>None</code>.</p>
@@ -2304,12 +2303,6 @@ Note
 <td>stop_sequences</td>
 <td><a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>] | None | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a></td>
 <td>A character vector of tokens to stop generation on.</td>
-<td><code>MISSING</code></td>
-</tr>
-<tr class="even">
-<td>kwargs</td>
-<td><a href="https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a> | None | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a></td>
-<td>Additional keyword arguments to use when submitting input to the model. When calling this method repeatedly with different parameters, only the parameters from the last call will be used.</td>
 <td><code>MISSING</code></td>
 </tr>
 </tbody>

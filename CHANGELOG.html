@@ -267,6 +267,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <h3 class="anchored" data-anchor-id="changes">Changes</h3>
 <ul>
 <li><code>ChatOpenAI()</code> (and <code>ChatAzureOpenAI()</code>) move from OpenAI’s Completions API to <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>. If this happens to break behavior, change <code>ChatOpenAI()</code> -&gt; <code>ChatOpenAICompletions()</code> (or <code>ChatAzureOpenAI()</code> -&gt; <code>ChatAzureOpenAICompletions()</code>). (#192)</li>
+<li>The <code>.set_model_params()</code> method no longer accepts <code>kwargs</code>. Instead, use the new <code>chat.kwargs_chat</code> attribute to set chat input parameters that persist across the chat session. (#212)</li>
 <li><code>Provider</code> implementations now require an additional <code>.value_tokens()</code> method. Previously, it was assumed that token info was logged and attached to the <code>Turn</code> as part of the <code>.value_turn()</code> method. The logging and attaching is now handled automatically. (#194)</li>
 </ul>
 </section>
@@ -280,6 +281,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <h3 class="anchored" data-anchor-id="bug-fixes">Bug fixes</h3>
 <ul>
 <li><code>.set_model_params()</code> now works correctly for <code>.*_async()</code> methods. (#198)</li>
+<li><code>.chat_structured()</code> results are now included correctly into the multi-turn conversation history. (#203)</li>
 </ul>
 </section>
 </section>

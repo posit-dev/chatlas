@@ -555,7 +555,7 @@ What goes in a <code>target</code>?
 <p>Since our data is now is in JSONL format, before running the eval, we’ll want to tweak our <code>Task</code> definition to load the JSONL dataset:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai.dataset <span class="im">import</span> json_dataset</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>Task(dataset<span class="op">=</span>jsonl_dataset(<span class="st">"my_eval_dataset.jsonl"</span>), ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>Task(dataset<span class="op">=</span>json_dataset(<span class="st">"my_eval_dataset.jsonl"</span>), ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now that you have the basics of collecting eval datasets, let’s dive deeper into the other components of an eval: <strong>solvers</strong> and <strong>scorers</strong>.</p>
 </section>
 </section>
