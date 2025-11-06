@@ -445,8 +445,11 @@ class AnthropicProvider(
         return kwargs_full
 
     def stream_text(self, chunk) -> Optional[str]:
-        if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":
-            return chunk.delta.text
+        if chunk.type == "content_block_delta":
+            if chunk.delta.type == "text_delta":
+                return chunk.delta.text
+            if chunk.delta.type == "thinking_delta":
+                return chunk.delta.thinking
         return None
 
     def stream_merge_chunks(self, completion, chunk):
