@@ -22,8 +22,16 @@ from .conftest import (
 )
 
 
+def chat_func(system_prompt: str = "", **kwargs):
+    return ChatAnthropic(
+        system_prompt=system_prompt,
+        model="claude-haiku-4-5-20251001",
+        **kwargs,
+    )
+
+
 def test_anthropic_simple_request():
-    chat = ChatAnthropic(
+    chat = chat_func(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -35,7 +43,7 @@ def test_anthropic_simple_request():
 
 @pytest.mark.asyncio
 async def test_anthropic_simple_streaming_request():
-    chat = ChatAnthropic(
+    chat = chat_func(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -49,55 +57,44 @@ async def test_anthropic_simple_streaming_request():
 
 
 def test_anthropic_respects_turns_interface():
-    chat_fun = ChatAnthropic
-    assert_turns_system(chat_fun)
-    assert_turns_existing(chat_fun)
+    assert_turns_system(chat_func)
+    assert_turns_existing(chat_func)
 
 
 @retry_api_call
 def test_anthropic_tool_variations():
-    chat_fun = ChatAnthropic
-    assert_tools_simple(chat_fun)
-    assert_tools_simple_stream_content(chat_fun)
-    assert_tools_sequential(chat_fun, total_calls=6)
+    assert_tools_simple(chat_func)
+    assert_tools_simple_stream_content(chat_func)
+    assert_tools_sequential(chat_func, total_calls=6)
 
 
 @retry_api_call
 def test_anthropic_tool_variations_parallel():
-    # For some reason, at the time of writing, Claude 3.7 doesn't
-    # respond with multiple tools at once for this test (but it does)
-    # answer the question correctly with sequential tools.
-    def chat_fun(**kwargs):
-        return ChatAnthropic(model="claude-3-5-sonnet-latest", **kwargs)
-
-    assert_tools_parallel(chat_fun)
+    assert_tools_parallel(chat_func)
 
 
 @pytest.mark.asyncio
 @retry_api_call
 async def test_anthropic_tool_variations_async():
-    await assert_tools_async(ChatAnthropic)
+    await assert_tools_async(chat_func)
 
 
 def test_data_extraction():
-    assert_data_extraction(ChatAnthropic)
+    assert_data_extraction(chat_func)
 
 
 @retry_api_call
 def test_anthropic_images():
-    chat_fun = ChatAnthropic
-
-    assert_images_inline(chat_fun)
-    assert_images_remote(chat_fun)
+    assert_images_inline(chat_func)
+    assert_images_remote(chat_func)
 
 
 def test_anthropic_pdfs():
-    chat_fun = ChatAnthropic
-    assert_pdf_local(chat_fun)
+    assert_pdf_local(chat_func)
 
 
 def test_anthropic_empty_response():
-    chat = ChatAnthropic()
+    chat = chat_func()
     chat.chat("Respond with only two blank lines")
     resp = chat.chat("What's 1+1? Just give me the number")
     assert "2" == str(resp).strip()
@@ -114,7 +111,7 @@ def test_anthropic_image_tool(test_images_dir):
             mime_type="image/png",
         )
 
-    chat = ChatAnthropic()
+    chat = chat_func()
     chat.register_tool(get_picture)
 
     res = chat.chat(
@@ -127,8 +124,8 @@ def test_anthropic_image_tool(test_images_dir):
 
 
 def test_anthropic_custom_http_client():
-    ChatAnthropic(kwargs={"http_client": httpx.AsyncClient()})
+    chat_func(kwargs={"http_client": httpx.AsyncClient()})
 
 
 def test_anthropic_list_models():
-    assert_list_models(ChatAnthropic)
+    assert_list_models(chat_func)

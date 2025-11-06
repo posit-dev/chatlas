@@ -1,7 +1,10 @@
 from typing import Optional
 
+from pydantic import BaseModel
+
 from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
-from chatlas._provider_openai import OpenAIAzureProvider, OpenAIProvider
+from chatlas._provider_openai import OpenAIProvider
+from chatlas._provider_openai_azure import OpenAIAzureProvider
 from chatlas._tokens import (
     compute_cost,
     get_token_pricing,
@@ -9,7 +12,6 @@ from chatlas._tokens import (
     tokens_log,
     tokens_reset,
 )
-from pydantic import BaseModel
 
 
 def test_tokens_method():
@@ -65,9 +67,9 @@ def test_tokens_method():
 
 def test_token_count_method():
     chat = ChatOpenAI(model="gpt-4o-mini")
-    assert chat.token_count("What is 1 + 1?") == 31
+    assert chat.token_count("What is 1 + 1?") == 32
 
-    chat = ChatAnthropic(model="claude-3-5-sonnet-20241022")
+    chat = ChatAnthropic(model="claude-haiku-4-5-20251001")
     assert chat.token_count("What is 1 + 1?") == 16
 
     chat = ChatGoogle(model="gemini-2.5-flash")
@@ -143,8 +145,9 @@ class TokenPricePydantic(BaseModel):
     provider: str
     model: str
     cached_input: Optional[float] = None  # Not all models have cached input
-    input: float
+    input: Optional[float] = None
     output: Optional[float] = None  # Made optional for embedding models
+    variant: Optional[str] = None
 
 
 def test_prices_json_validates_against_typeddict():

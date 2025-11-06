@@ -56,7 +56,7 @@ website:
       - text: Reference
         href: reference/index.qmd
       - text: Changelog
-        href: changelog.html
+        href: /changelog.html
       - icon: github
         href: https://github.com/posit-dev/chatlas
         aria-label: GitHub repository
@@ -67,6 +67,7 @@ website:
       align: left
       contents:
         - index.qmd
+        - misc/vocabulary.qmd
         - section: "Get started"
           contents:
             - get-started/models.qmd
@@ -99,7 +100,7 @@ website:
           contents:
             - misc/RAG.qmd
             - misc/mcp-tools.qmd
-            - misc/vocabulary.qmd
+            - misc/evals.qmd
 
 
 format:
