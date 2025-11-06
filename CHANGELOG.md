@@ -12,18 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 
 * Added new family of functions (`parallel_chat()`, `parallel_chat_text()`, and `parallel_chat_structured()`) for submitting multiple prompts at once with some basic rate limiting toggles. (#188)
+* `ChatOpenAI()` and `ChatAzureOpenAI()` gain access to latest models, built-in tools, image generation, etc. as a result of moving to the new [Responses API](https://platform.openai.com/docs/api-reference/responses). (#192)
+* `ChatOpenAI()`, `ChatAnthropic()`, and `ChatGoogle()` gain a new `reasoning` parameter to easily opt-into, and fully customize, reasoning capabilities. (#202) 
+    * A new `ContentThinking` content type was added and captures the "thinking" portion of a reasoning model. (#192)
+* `ChatAnthropic()` and `ChatBedrockAnthropic()` gain new `cache` parameter to control caching. By default it is set to "5m". This should (on average) reduce the cost of your chats. (#215)
 * Added support for systematic evaluation via [Inspect AI](https://inspect.aisi.org.uk/). This includes:
     * A new `.export_eval()` method for exporting conversation history as an Inspect eval dataset sample. This supports multi-turn conversations, tool calls, images, PDFs, and structured data.
     * A new `.to_solver()` method for translating chat instances into Inspect solvers that can be used with Inspect's evaluation framework.
     * A new `Turn.to_inspect_messages()` method for converting turns to Inspect's message format.
     * Comprehensive documentation in the [Evals guide](https://posit-dev.github.io/chatlas/misc/evals.html).
-* `ChatOpenAI()` (and `ChatAzureOpenAI()`) gain access to latest models, built-in tools, etc. as a result of moving to the new [Responses API](https://platform.openai.com/docs/api-reference/responses). (#192)
-* Added rudimentary support for a new `ContentThinking` type. (#192)
-* `ChatAnthropic()` and `ChatBedrockAnthropic()` gain new `cache` parameter to control caching. By default it is set to "5m". This should (on average) reduce the cost of your chats. (#215)
 
 ### Changes
 
-* `ChatOpenAI()` (and `ChatAzureOpenAI()`) move from OpenAI's Completions API to [Responses API](https://platform.openai.com/docs/api-reference/responses). If this happens to break behavior, change `ChatOpenAI()` -> `ChatOpenAICompletions()` (or `ChatAzureOpenAI()` -> `ChatAzureOpenAICompletions()`). (#192)
+* `ChatOpenAI()` and `ChatAzureOpenAI()` move from OpenAI's Completions API to [Responses API](https://platform.openai.com/docs/api-reference/responses). If this happens to break behavior, change `ChatOpenAI()` -> `ChatOpenAICompletions()` (or `ChatAzureOpenAI()` -> `ChatAzureOpenAICompletions()`). (#192)
 * The `.set_model_params()` method no longer accepts `kwargs`. Instead, use the new `chat.kwargs_chat` attribute to set chat input parameters that persist across the chat session. (#212)
 * `Provider` implementations now require an additional `.value_tokens()` method. Previously, it was assumed that token info was logged and attached to the `Turn` as part of the `.value_turn()` method. The logging and attaching is now handled automatically. (#194)
 
