@@ -6,7 +6,7 @@ import asyncio
 import copy
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, Optional, TypeVar, cast
 
 from pydantic import BaseModel
 
@@ -34,8 +34,9 @@ async def parallel_chat(
     *,
     max_active: int = 10,
     rpm: int = 500,
+    on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: Optional[dict[str, Any]] = None,
-) -> list[ChatT]:
+) -> list[ChatT | Exception]:
     """
     Submit multiple chat prompts in parallel.
 
@@ -62,6 +63,12 @@ async def parallel_chat(
         the `max_tokens` parameter (defaults to 4096). If your usage tier
         limits you to 16,000 OTPM, you should either set `max_active = 4`
         (16,000 / 4096) or reduce `max_tokens` via `set_model_params()`.
+    on_error
+        What to do when a request fails. One of:
+          * `"return"` (the default): stop processing new requests,
+             wait for in-flight requests to finish, then return.
+          * `"continue"`: keep going, performing every request.
+          * `"stop"`: stop processing and throw an error.
     rpm
         Maximum number of requests per minute. Default is 500.
     kwargs
@@ -114,6 +121,7 @@ async def parallel_chat(
         prompts,
         max_active=max_active,
         rpm=rpm,
+        on_error=on_error,
         kwargs=kwargs,
     )
 
@@ -124,8 +132,9 @@ async def parallel_chat_text(
     *,
     max_active: int = 10,
     rpm: int = 500,
+    on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: Optional[dict[str, Any]] = None,
-) -> list[str]:
+) -> list[str | None]:
     """
     Submit multiple chat prompts in parallel and return text responses.
 
@@ -173,13 +182,24 @@ async def parallel_chat_text(
     * :func:`~chatlas.parallel_chat_structured` : Extract structured data
     """
     chats = await parallel_chat(
-        chat, prompts, max_active=max_active, rpm=rpm, kwargs=kwargs
+        chat,
+        prompts,
+        max_active=max_active,
+        rpm=rpm,
+        on_error=on_error,
+        kwargs=kwargs,
     )
-    texts: list[str] = []
+    texts: list[str | None] = []
     for x in chats:
-        last_turn = x.get_last_turn()
-        assert last_turn is not None
-        texts.append(last_turn.text)
+        if isinstance(x, Exception):
+            texts.append(None)
+            continue
+        last_turn = x.get_last_turn(role="assistant")
+        if last_turn is None:
+            # Chat was skipped due to error handling
+            texts.append(None)
+        else:
+            texts.append(last_turn.text)
     return texts
 
 
@@ -190,8 +210,9 @@ async def parallel_chat_structured(
     *,
     max_active: int = 10,
     rpm: int = 500,
+    on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: Optional[dict[str, Any]] = None,
-) -> list[BaseModelT]:
+) -> list[BaseModelT | Exception]:
     """
     Submit multiple chat prompts in parallel and extract structured data.
 
@@ -262,18 +283,25 @@ async def parallel_chat_structured(
     chats = await _parallel_chat_impl(
         chat,
         prompts,
+        data_model=data_model,
         max_active=max_active,
         rpm=rpm,
+        on_error=on_error,
         kwargs=kwargs,
-        data_model=data_model,
     )
 
-    results: list[BaseModelT] = []
+    results: list[BaseModelT | Exception] = []
     for x in chats:
+        if isinstance(x, Exception):
+            results.append(x)
+            continue
         turn = x.get_last_turn(role="assistant")
-        assert turn is not None
-        dat = Chat._extract_turn_json(turn)
-        results.append(data_model.model_validate(dat))
+        if turn is None:
+            # Chat was skipped due to error handling
+            results.append(RuntimeError("Chat was skipped due to error handling"))
+        else:
+            dat = Chat._extract_turn_json(turn)
+            results.append(data_model.model_validate(dat))
 
     return results
 
@@ -285,8 +313,9 @@ async def _parallel_chat_impl(
     max_active: int,
     rpm: int,
     data_model: type[BaseModel] | None = None,
+    on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: dict[str, Any] | None = None,
-) -> list[ChatT]:
+) -> list[ChatT | Exception]:
     """
     Internal implementation of parallel chat execution with tool support.
 
@@ -319,10 +348,16 @@ async def _parallel_chat_impl(
     async def _submit_prompt(
         conv: ConversationState,
         prompt: ContentT | list[ContentT],
+        error_controller: ErrorController,
         on_complete: Callable[[], None] = lambda: None,
     ):
         async with semaphore:
             await rate_limiter.acquire()
+
+            # Check if we should skip due to earlier error
+            if error_controller.should_stop_new_requests:
+                on_complete()
+                return
 
             if not isinstance(prompt, list):
                 prompt = [prompt]
@@ -342,29 +377,37 @@ async def _parallel_chat_impl(
 
             except Exception as e:
                 conv.error = e
+                error_controller.record_error(e)
             finally:
                 on_complete()
 
-            # Check for tool requests in the last turn
-            last_turn = conv.chat.get_last_turn(role="assistant")
-            assert last_turn is not None
-            tool_requests = [
-                c for c in last_turn.contents if isinstance(c, ContentToolRequest)
-            ]
-            if tool_requests:
-                conv.pending_tool_requests = tool_requests
+            # Only check for tool requests if no error occurred
+            if conv.error is None:
+                last_turn = conv.chat.get_last_turn(role="assistant")
+                assert last_turn is not None
+                tool_requests = [
+                    c for c in last_turn.contents if isinstance(c, ContentToolRequest)
+                ]
+                if tool_requests:
+                    conv.pending_tool_requests = tool_requests
             conv.pending_tool_results = None
 
     # === PHASE 1: Submit initial prompts in parallel ===
+    error_controller = ErrorController(on_error_mode=on_error)
+
     with ProgressTracker(
         f"Submitting {len(prompts)} prompts",
         total=len(prompts),
     ) as progress:
         tasks = [
-            _submit_prompt(conv, prompt, on_complete=progress.advance)
+            _submit_prompt(conv, prompt, error_controller, on_complete=progress.advance)
             for conv, prompt in zip(conversations, prompts)
         ]
         await asyncio.gather(*tasks)
+
+    # For "stop" mode, raise immediately
+    if on_error == "stop" and error_controller.first_error:
+        raise error_controller.first_error
 
     # Helper to execute tools and attach results to the conversation
     async def _invoke_tools(
@@ -384,10 +427,8 @@ async def _parallel_chat_impl(
             async for res in tool_results:
                 results.append(res)
 
-        # Update conversation state
         if results:
             conv.pending_tool_results = results
-
         conv.pending_tool_requests = None
         on_complete()
 
@@ -395,10 +436,10 @@ async def _parallel_chat_impl(
     round_num = 1
 
     while True:
+        # Errored conversations won't have pending_tool_requests set, so no need
+        # to filter by error state here
         conversations_requesting_tools = [
-            c
-            for c in conversations
-            if c.pending_tool_requests
+            c for c in conversations if c.pending_tool_requests
         ]
 
         if len(conversations_requesting_tools) == 0:
@@ -412,7 +453,7 @@ async def _parallel_chat_impl(
             for conv in conversations_requesting_tools:
                 await _invoke_tools(conv, on_complete=progress.advance)
 
-        # Submit pending tool results, if any, in parallel
+        # Submit pending tool results
         conversations_to_submit = [
             c for c in conversations if c.pending_tool_results
         ]
@@ -428,21 +469,52 @@ async def _parallel_chat_impl(
             for conv in conversations_to_submit:
                 results = cast("list[ContentT]", conv.pending_tool_results)
                 tasks.append(
-                    _submit_prompt(conv, results, on_complete=progress.advance)
+                    _submit_prompt(
+                        conv, results, error_controller, on_complete=progress.advance
+                    )
                 )
             await asyncio.gather(*tasks)
+
+        # Check for "stop" mode after each round
+        if on_error == "stop" and error_controller.first_error:
+            raise error_controller.first_error
 
         round_num += 1
 
     # === PHASE 3: Return completed chats ===
-    # Optionally: log or handle errors
+    # For "stop" mode, raise if any error occurred
+    if on_error == "stop" and error_controller.first_error:
+        raise error_controller.first_error
+
+    res: list[ChatT | Exception] = []
     for conv in conversations:
         if conv.error:
-            # Could log warning, or raise exception, or return None
-            # For now, just include the chat as-is (with partial results)
-            pass
+            res.append(conv.error)
+        else:
+            res.append(conv.chat)
 
-    return [conv.chat for conv in conversations]
+    return res
+
+
+@dataclass
+class ErrorController:
+    """Tracks error state and controls early termination."""
+
+    on_error_mode: Literal["return", "continue", "stop"]
+    """The error handling mode."""
+
+    first_error: Exception | None = None
+    """The first error that occurred."""
+
+    should_stop_new_requests: bool = False
+    """Whether to stop processing new requests."""
+
+    def record_error(self, error: Exception) -> None:
+        """Record an error and determine if we should stop."""
+        if self.first_error is None:
+            self.first_error = error
+            if self.on_error_mode in ("return", "stop"):
+                self.should_stop_new_requests = True
 
 
 @dataclass
