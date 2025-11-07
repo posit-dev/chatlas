@@ -404,8 +404,8 @@ async def parallel_chat_structured(
     chat = ctl.ChatOpenAI()
 
     prompts = [
-        "I go by Alex. 42 years on this planet and counting.", 
-        "Pleased to meet you! I'm Jamal, age 27.", 
+        "I go by Alex. 42 years on this planet and counting.",
+        "Pleased to meet you! I'm Jamal, age 27.",
         "They call me Li Wei. Nineteen years young.",
         "Fatima here. Just celebrated my 35th birthday last week.",
     ]

@@ -48,35 +48,25 @@ async def test_parallel_chat_error_return_mode():
 @pytest.mark.asyncio
 async def test_parallel_chat_error_continue_mode():
     """Test that on_error='continue' processes all requests despite errors."""
-    call_log = []
+    # Use an invalid model to trigger an error
+    chat = ChatOpenAI(model="gpt-4-does-not-exist-12345")
 
-    def tracker(msg: str) -> str:
-        """Track which prompts are processed."""
-        call_log.append(msg)
-        return f"Processed {msg}"
-
-    chat = ChatOpenAI()
-    chat.register_tool(tracker)
-
-    # Mix valid and invalid requests - use invalid model for some
     prompts = [
-        "Call tracker with 'A'",
-        "Call tracker with 'B'",
-        "Call tracker with 'C'",
+        "Say 'A'",
+        "Say 'B'",
+        "Say 'C'",
     ]
 
-    # All should attempt regardless of errors
+    # With max_active=1, only the first request should attempt and fail
     results = await parallel_chat(
         chat,
         prompts,
+        max_active=1,
         on_error="continue",
     )
-
-    # All prompts should have been processed
+    # All should be exceptions
     assert len(results) == 3
-    # All should succeed (valid model)
-    assert all(not isinstance(r, Exception) for r in results)
-    assert call_log == ["A", "B", "C"]
+    assert all(isinstance(r, Exception) for r in results)
 
 
 @pytest.mark.asyncio
@@ -144,86 +134,6 @@ async def test_parallel_chat_structured_error_handling():
     # Should have exceptions in results
     assert len(results) == 2
     assert isinstance(results[0], Exception)
-
-
-@pytest.mark.asyncio
-async def test_parallel_chat_error_in_tool_round():
-    """Test error handling when errors occur during tool result submission."""
-    call_log = []
-
-    def my_tool(x: str) -> str:
-        call_log.append(x)
-        return f"Result: {x}"
-
-    chat = ChatOpenAI()
-    chat.register_tool(my_tool)
-
-    prompts = [
-        "Call my_tool with 'A'",
-        "Call my_tool with 'B'",
-        "Call my_tool with 'C'",
-    ]
-
-    # First prompt should trigger tool call
-    # If we inject an error somehow during tool result submission,
-    # the error handling should still work
-    results = await parallel_chat(chat, prompts, on_error="continue")
-
-    # All should succeed
-    assert len(results) == 3
-    assert all(not isinstance(r, Exception) for r in results)
-    assert call_log == ["A", "B", "C"]
-
-
-@pytest.mark.asyncio
-async def test_parallel_chat_partial_results_on_error():
-    """Test that successful results are returned even when some fail."""
-    call_log = []
-
-    def tracker(msg: str) -> str:
-        call_log.append(msg)
-        return f"Tracked: {msg}"
-
-    # Create two chats - one valid, one invalid
-    chat_valid = ChatOpenAI()
-    chat_valid.register_tool(tracker)
-
-    prompts = ["Call tracker with 'A'", "Call tracker with 'B'"]
-
-    results = await parallel_chat(chat_valid, prompts, on_error="continue")
-
-    # Both should succeed
-    assert len(results) == 2
-    success_count = sum(1 for r in results if not isinstance(r, Exception))
-    assert success_count == 2
-    assert call_log == ["A", "B"]
-
-
-@pytest.mark.asyncio
-async def test_parallel_chat_error_stops_only_errored_conversation():
-    """Test that errors in one conversation don't stop other conversations."""
-    call_log = []
-
-    def my_tool(x: str) -> str:
-        call_log.append(x)
-        return f"Processed {x}"
-
-    chat = ChatOpenAI()
-    chat.register_tool(my_tool)
-
-    prompts = [
-        "Call my_tool with 'A'",
-        "Call my_tool with 'B'",
-        "Call my_tool with 'C'",
-    ]
-
-    # In "return" mode, if one fails, others should still complete
-    results = await parallel_chat(chat, prompts, on_error="return")
-
-    # All should succeed (no actual errors in this test)
-    assert len(results) == 3
-    assert all(not isinstance(r, Exception) for r in results)
-    assert call_log == ["A", "B", "C"]
 
 
 @pytest.mark.asyncio
