@@ -120,14 +120,14 @@ async def parallel_chat(
         the `max_tokens` parameter (defaults to 4096). If your usage tier
         limits you to 16,000 OTPM, you should either set `max_active = 4`
         (16,000 / 4096) or reduce `max_tokens` via `set_model_params()`.
+    rpm
+        Maximum number of requests per minute. Default is 500.
     on_error
         What to do when a request fails. One of:
           * `"return"` (the default): stop processing new requests,
              wait for in-flight requests to finish, then return.
           * `"continue"`: keep going, performing every request.
           * `"stop"`: stop processing and throw an error.
-    rpm
-        Maximum number of requests per minute. Default is 500.
     kwargs
         Additional keyword arguments to pass to the chat method.
 
@@ -144,7 +144,6 @@ async def parallel_chat(
     ```python
     import asyncio
     import chatlas as ctl
-
 
     chat = ctl.ChatOpenAI()
     countries = ["Canada", "New Zealand", "Jamaica", "United States"]
@@ -247,6 +246,12 @@ async def parallel_chat_text(
         The maximum number of simultaneous requests to send.
     rpm
         Maximum number of requests per minute. Default is 500.
+    on_error
+        What to do when a request fails. One of:
+          * `"return"` (the default): stop processing new requests,
+             wait for in-flight requests to finish, then return.
+          * `"continue"`: keep going, performing every request.
+          * `"stop"`: stop processing and throw an error.
     kwargs
         Additional keyword arguments to pass to the chat method.
 
@@ -366,6 +371,12 @@ async def parallel_chat_structured(
         The maximum number of simultaneous requests to send.
     rpm
         Maximum number of requests per minute. Default is 500.
+    on_error
+        What to do when a request fails. One of:
+          * `"return"` (the default): stop processing new requests,
+             wait for in-flight requests to finish, then return.
+          * `"continue"`: keep going, performing every request.
+          * `"stop"`: stop processing and throw an error.
     kwargs
         Additional keyword arguments to pass to the chat method.
 
@@ -393,15 +404,17 @@ async def parallel_chat_structured(
     chat = ctl.ChatOpenAI()
 
     prompts = [
-        "I go by Alex. 42 years on this planet and counting.", "Pleased to meet
-        you! I'm Jamal, age 27.", "They call me Li Wei. Nineteen years young.",
+        "I go by Alex. 42 years on this planet and counting.", 
+        "Pleased to meet you! I'm Jamal, age 27.", 
+        "They call me Li Wei. Nineteen years young.",
         "Fatima here. Just celebrated my 35th birthday last week.",
     ]
 
     # NOTE: if running from a script, you'd need to wrap this in an async
-    function # and call asyncio.run(main()) people = await
-    ctl.parallel_chat_structured(chat, prompts, Person) for person in people:
-        print(f"{person.name} is {person.age} years old")
+    # function and call asyncio.run(main())
+    people = await ctl.parallel_chat_structured(chat, prompts, Person)
+    for person in people:
+        print(f"{person.data.name} is {person.data.age} years old")
     ```
 
     See Also
