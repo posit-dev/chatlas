@@ -6,7 +6,16 @@ import asyncio
 import copy
 import time
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, Optional, TypeVar, cast
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generic,
+    Literal,
+    Optional,
+    TypeVar,
+    cast,
+)
 
 from pydantic import BaseModel
 
@@ -36,7 +45,7 @@ async def parallel_chat(
     rpm: int = 500,
     on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: Optional[dict[str, Any]] = None,
-) -> list[ChatT | Exception]:
+) -> list[ChatT | Exception | None]:
     """
     Submit multiple chat prompts in parallel.
 
@@ -76,7 +85,9 @@ async def parallel_chat(
 
     Returns
     -------
-    A list of Chat objects, one for each prompt.
+    A list with one element for each prompt. Each element is either a Chat
+    object (if successful), None (if the request wasn't submitted), or an
+    error object (if it failed).
 
     Examples
     --------
@@ -134,7 +145,7 @@ async def parallel_chat_text(
     rpm: int = 500,
     on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: Optional[dict[str, Any]] = None,
-) -> list[str | None]:
+) -> list[str | Exception | None]:
     """
     Submit multiple chat prompts in parallel and return text responses.
 
@@ -157,7 +168,9 @@ async def parallel_chat_text(
 
     Returns
     -------
-    A list of text responses, one for each prompt.
+    A list with one element for each prompt. Each element is either a string (if
+    successful), None (if the request wasn't submitted), or an error object (if
+    it failed).
 
     Examples
     --------
@@ -189,17 +202,14 @@ async def parallel_chat_text(
         on_error=on_error,
         kwargs=kwargs,
     )
-    texts: list[str | None] = []
+    texts: list[str | Exception | None] = []
     for x in chats:
-        if isinstance(x, Exception):
-            texts.append(None)
+        if x is None or isinstance(x, Exception):
+            texts.append(x)
             continue
         last_turn = x.get_last_turn(role="assistant")
-        if last_turn is None:
-            # Chat was skipped due to error handling
-            texts.append(None)
-        else:
-            texts.append(last_turn.text)
+        assert last_turn is not None
+        texts.append(last_turn.text)
     return texts
 
 
@@ -212,7 +222,7 @@ async def parallel_chat_structured(
     rpm: int = 500,
     on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: Optional[dict[str, Any]] = None,
-) -> list[BaseModelT | Exception]:
+) -> list[BaseModelT | Exception | None]:
     """
     Submit multiple chat prompts in parallel and extract structured data.
 
@@ -238,8 +248,9 @@ async def parallel_chat_structured(
 
     Returns
     -------
-    A list of structured data objects, one for each prompt, with each
-    object being an instance of the specified Pydantic model.
+    A list with one element for each prompt. Each element is either a Pydantic
+    model (if successful), None (if the request wasn't submitted), or an error
+    object (if it failed).
 
     Examples
     --------
@@ -290,18 +301,15 @@ async def parallel_chat_structured(
         kwargs=kwargs,
     )
 
-    results: list[BaseModelT | Exception] = []
+    results: list[BaseModelT | Exception | None] = []
     for x in chats:
-        if isinstance(x, Exception):
+        if x is None or isinstance(x, Exception):
             results.append(x)
             continue
         turn = x.get_last_turn(role="assistant")
-        if turn is None:
-            # Chat was skipped due to error handling
-            results.append(RuntimeError("Chat was skipped due to error handling"))
-        else:
-            dat = Chat._extract_turn_json(turn)
-            results.append(data_model.model_validate(dat))
+        assert turn is not None
+        dat = Chat._extract_turn_json(turn)
+        results.append(data_model.model_validate(dat))
 
     return results
 
@@ -315,7 +323,7 @@ async def _parallel_chat_impl(
     data_model: type[BaseModel] | None = None,
     on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: dict[str, Any] | None = None,
-) -> list[ChatT | Exception]:
+) -> list[ChatT | Exception | None]:
     """
     Internal implementation of parallel chat execution with tool support.
 
@@ -358,6 +366,9 @@ async def _parallel_chat_impl(
             if error_controller.should_stop_new_requests:
                 on_complete()
                 return
+
+            # Mark that we're attempting to submit this conversation
+            conv.was_submitted = True
 
             if not isinstance(prompt, list):
                 prompt = [prompt]
@@ -454,9 +465,7 @@ async def _parallel_chat_impl(
                 await _invoke_tools(conv, on_complete=progress.advance)
 
         # Submit pending tool results
-        conversations_to_submit = [
-            c for c in conversations if c.pending_tool_results
-        ]
+        conversations_to_submit = [c for c in conversations if c.pending_tool_results]
 
         if len(conversations_to_submit) == 0:
             break
@@ -486,10 +495,13 @@ async def _parallel_chat_impl(
     if on_error == "stop" and error_controller.first_error:
         raise error_controller.first_error
 
-    res: list[ChatT | Exception] = []
+    res: list[ChatT | Exception | None] = []
     for conv in conversations:
         if conv.error:
             res.append(conv.error)
+        elif not conv.was_submitted:
+            # Conversation was never submitted due to error handling
+            res.append(None)
         else:
             res.append(conv.chat)
 
@@ -535,6 +547,9 @@ class ConversationState(Generic[ChatT]):
 
     error: Exception | None = None
     """If an error occurred during processing."""
+
+    was_submitted: bool = False
+    """Whether this conversation's prompt was ever submitted."""
 
 
 class RateLimiter:
