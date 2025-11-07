@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Model choice – chatlas</title>
+<title>parallel_chat_text – chatlas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,8 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../get-started/chat.html" rel="next">
-<link href="../misc/vocabulary.html" rel="prev">
+<link href="../reference/parallel_chat_structured.html" rel="next">
+<link href="../reference/parallel_chat.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -76,9 +76,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../site_libs/bootstrap/bootstrap-3e3c66d980b5d59377b1453b0aeb60cc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
-<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
-<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -108,13 +105,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 
 
-<meta property="og:title" content="Model choice – chatlas">
+<meta property="og:title" content="chatlas">
 <meta property="og:description" content="Your friendly guide to building LLM chat apps in Python with less effort and more clarity.">
-<meta property="og:image" content="https://posit-dev.github.io/chatlas/get-started/images/logo.png">
+<meta property="og:image" content="https://posit-dev.github.io/chatlas/reference/images/logo.png">
 <meta property="og:site_name" content="chatlas">
-<meta name="twitter:title" content="Model choice – chatlas">
+<meta name="twitter:title" content="chatlas">
 <meta name="twitter:description" content="Your friendly guide to building LLM chat apps in Python with less effort and more clarity.">
-<meta name="twitter:image" content="https://posit-dev.github.io/chatlas/get-started/images/logo.png">
+<meta name="twitter:image" content="https://posit-dev.github.io/chatlas/reference/images/logo.png">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -136,7 +133,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../reference/index.html"> 
+    <a class="nav-link active" href="../reference/index.html" aria-current="page"> 
 <span class="menu-text">Reference</span></a>
   </li>  
   <li class="nav-item">
@@ -159,7 +156,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../get-started/models.html">Get started</a></li><li class="breadcrumb-item"><a href="../get-started/models.html">Model choice</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/parallel_chat.html">Parallel and batch chat</a></li><li class="breadcrumb-item"><a href="../reference/parallel_chat_text.html">parallel_chat_text</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -173,20 +170,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Overview</span></a>
-  </div>
-</li>
-        <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../misc/vocabulary.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Vocabulary</span></a>
+  <a href="../reference/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Function reference</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
- <span class="menu-text">Get started</span></a>
+ <span class="menu-text">Chat model providers</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -194,68 +185,116 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/models.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">Model choice</span></a>
+  <a href="../reference/ChatAnthropic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatAnthropic</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/chat.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Hello chat</span></a>
+  <a href="../reference/ChatAuto.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatAuto</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/system-prompt.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">System prompt</span></a>
+  <a href="../reference/ChatAzureOpenAI.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatAzureOpenAI</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/tools.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Tool calling</span></a>
+  <a href="../reference/ChatBedrockAnthropic.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatBedrockAnthropic</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/stream.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Streams</span></a>
+  <a href="../reference/ChatCloudflare.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatCloudflare</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/structured-data.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Structured data</span></a>
+  <a href="../reference/ChatDatabricks.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatDatabricks</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/async.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Async</span></a>
+  <a href="../reference/ChatDeepSeek.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatDeepSeek</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/chatbots.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Chatbots</span></a>
+  <a href="../reference/ChatGithub.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatGithub</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/parameters.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Parameters</span></a>
+  <a href="../reference/ChatGoogle.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatGoogle</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/debug.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Debug</span></a>
+  <a href="../reference/ChatGroq.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatGroq</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/monitor.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Monitor</span></a>
+  <a href="../reference/ChatHuggingFace.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatHuggingFace</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ChatMistral.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatMistral</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ChatOllama.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatOllama</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ChatOpenAI.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatOpenAI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ChatOpenRouter.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatOpenRouter</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ChatPerplexity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatPerplexity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ChatPortkey.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatPortkey</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ChatSnowflake.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatSnowflake</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ChatVertex.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatVertex</span></a>
   </div>
 </li>
       </ul>
@@ -263,7 +302,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Tool calling</span></a>
+ <span class="menu-text">The chat object</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -271,20 +310,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../tool-calling/how-it-works.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">How it works</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../tool-calling/displays.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Displays and results</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../tool-calling/approval.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Approvals</span></a>
+  <a href="../reference/Chat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Chat</span></a>
   </div>
 </li>
       </ul>
@@ -292,7 +319,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
- <span class="menu-text">Structured data</span></a>
+ <span class="menu-text">Image input</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -300,32 +327,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../structured-data/article-summary.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Article summary</span></a>
+  <a href="../reference/content_image_file.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">content_image_file</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../structured-data/entity-recognition.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Entity recognition</span></a>
+  <a href="../reference/content_image_plot.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">content_image_plot</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../structured-data/sentiment-analysis.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Sentiment analysis</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../structured-data/classification.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Classification</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../structured-data/multi-modal.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Multi-modal input</span></a>
+  <a href="../reference/content_image_url.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">content_image_url</span></a>
   </div>
 </li>
       </ul>
@@ -333,7 +348,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
- <span class="menu-text">Miscellaneous</span></a>
+ <span class="menu-text">PDF input</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -341,20 +356,277 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../misc/RAG.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">RAG</span></a>
+  <a href="../reference/content_pdf_file.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">content_pdf_file</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../misc/mcp-tools.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">MCP tools</span></a>
+  <a href="../reference/content_pdf_url.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">content_pdf_url</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Tool calling</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/Tool.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tool</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../misc/evals.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Evals</span></a>
+  <a href="../reference/ToolRejectError.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ToolRejectError</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Parallel and batch chat</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/parallel_chat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">parallel_chat</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/parallel_chat_text.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">parallel_chat_text</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/parallel_chat_structured.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">parallel_chat_structured</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/batch_chat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">batch_chat</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/batch_chat_text.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">batch_chat_text</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/batch_chat_structured.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">batch_chat_structured</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/batch_chat_completed.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">batch_chat_completed</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Prompt interpolation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/interpolate.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">interpolate</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/interpolate_file.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">interpolate_file</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Turns</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/Turn.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Turn</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Query token usage</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/token_usage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">token_usage</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true">
+ <span class="menu-text">Implement a model provider</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/Provider.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Provider</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true">
+ <span class="menu-text">User-facing types</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.Content.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.Content</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ContentImage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ContentImage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ContentImageInline.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ContentImageInline</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ContentImageRemote.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ContentImageRemote</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ContentJson.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ContentJson</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ContentText.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ContentText</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ContentToolRequest.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ContentToolRequest</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ContentToolResult.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ContentToolResult</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ChatResponse.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ChatResponse</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ChatResponseAsync.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ChatResponseAsync</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ImageContentTypes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ImageContentTypes</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.MISSING_TYPE.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.MISSING_TYPE</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.MISSING.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.MISSING</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.SubmitInputArgsT.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.SubmitInputArgsT</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.TokenUsage.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.TokenUsage</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ToolAnnotations.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ToolAnnotations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.ToolInfo.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ToolInfo</span></a>
   </div>
 </li>
       </ul>
@@ -369,263 +641,144 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#model-choice" id="toc-model-choice" class="nav-link active" data-scroll-target="#model-choice">Model choice</a></li>
-  <li><a href="#model-type-hints" id="toc-model-type-hints" class="nav-link" data-scroll-target="#model-type-hints">Model type hints</a></li>
-  <li><a href="#auto-provider" id="toc-auto-provider" class="nav-link" data-scroll-target="#auto-provider">Auto provider</a></li>
-  <li><a href="#listing-model-info" id="toc-listing-model-info" class="nav-link" data-scroll-target="#listing-model-info">Listing model info</a></li>
+  <li><a href="#chatlas.parallel_chat_text" id="toc-chatlas.parallel_chat_text" class="nav-link active" data-scroll-target="#chatlas.parallel_chat_text">parallel_chat_text</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
+  </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/get-started/models.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/parallel_chat_text.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../get-started/models.html">Get started</a></li><li class="breadcrumb-item"><a href="../get-started/models.html">Model choice</a></li></ol></nav>
-<div class="quarto-title">
-<h1 class="title">Model choice</h1>
-</div>
 
 
 
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<p>Below is a table of model providers that come pre-packaged with chatlas.</p>
-<div class="callout callout-style-simple callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Usage pre-requisites
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Each model provider has its own set of pre-requisites. For example, OpenAI requires an API key, while Ollama requires you to install the Ollama CLI and download models. To see the pre-requisites for a given provider, visit the relevant usage page in the table below.</p>
-</div>
-</div>
+<section id="chatlas.parallel_chat_text" class="level1">
+<h1>parallel_chat_text</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>parallel_chat_text(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    chat,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    prompts,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    max_active<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    rpm<span class="op">=</span><span class="dv">500</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    on_error<span class="op">=</span><span class="st">'return'</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Submit multiple chat prompts in parallel and return text responses.</p>
+<p>This is a convenience function that wraps <code>parallel_chat()</code> and extracts just the text content from each response.</p>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Name</th>
-<th>Usage</th>
-<th>Enterprise?</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Anthropic (Claude)</td>
-<td><a href="../reference/ChatAnthropic.html"><code>ChatAnthropic()</code></a></td>
-<td></td>
+<td>chat</td>
+<td><a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat">Chat</a></td>
+<td>A base chat object.</td>
+<td><em>required</em></td>
 </tr>
 <tr class="even">
-<td>AWS Bedrock</td>
-<td><a href="../reference/ChatBedrockAnthropic.html"><code>ChatBedrockAnthropic()</code></a></td>
-<td>✅</td>
+<td>prompts</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<code>ContentT</code>] | <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<code>ContentT</code>]]</td>
+<td>A list of prompts. Each prompt can be a string or a list of string/Content objects.</td>
+<td><em>required</em></td>
 </tr>
 <tr class="odd">
-<td>OpenAI</td>
-<td><a href="../reference/ChatOpenAI.html"><code>ChatOpenAI()</code></a></td>
-<td></td>
+<td>max_active</td>
+<td><a href="https://docs.python.org/3/library/functions.html#int">int</a></td>
+<td>The maximum number of simultaneous requests to send.</td>
+<td><code>10</code></td>
 </tr>
 <tr class="even">
-<td>Azure OpenAI</td>
-<td><a href="../reference/ChatAzureOpenAI.html"><code>ChatAzureOpenAI()</code></a></td>
-<td>✅</td>
+<td>rpm</td>
+<td><a href="https://docs.python.org/3/library/functions.html#int">int</a></td>
+<td>Maximum number of requests per minute. Default is 500.</td>
+<td><code>500</code></td>
 </tr>
 <tr class="odd">
-<td>Google (Gemini)</td>
-<td><a href="../reference/ChatGoogle.html"><code>ChatGoogle()</code></a></td>
-<td></td>
+<td>on_error</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['return', 'continue', 'stop']</td>
+<td>What to do when a request fails. One of: * <code>"return"</code> (the default): stop processing new requests, wait for in-flight requests to finish, then return. * <code>"continue"</code>: keep going, performing every request. * <code>"stop"</code>: stop processing and throw an error.</td>
+<td><code>'return'</code></td>
 </tr>
 <tr class="even">
-<td>Google (Vertex)</td>
-<td><a href="../reference/ChatVertex.html"><code>ChatVertex()</code></a></td>
-<td>✅</td>
-</tr>
-<tr class="odd">
-<td>GitHub model marketplace</td>
-<td><a href="../reference/ChatGithub.html"><code>ChatGithub()</code></a></td>
-<td></td>
-</tr>
-<tr class="even">
-<td>Ollama (local models)</td>
-<td><a href="../reference/ChatOllama.html"><code>ChatOllama()</code></a></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>Open Router</td>
-<td><a href="../reference/ChatOpenRouter.html"><code>ChatOpenRouter()</code></a></td>
-<td></td>
-</tr>
-<tr class="even">
-<td>DeepSeek</td>
-<td><a href="../reference/ChatDeepSeek.html"><code>ChatDeepSeek()</code></a></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>Hugging Face</td>
-<td><a href="../reference/ChatHuggingFace.html"><code>ChatHuggingFace()</code></a></td>
-<td></td>
-</tr>
-<tr class="even">
-<td>Databricks</td>
-<td><a href="../reference/ChatDatabricks.html"><code>ChatDatabricks()</code></a></td>
-<td>✅</td>
-</tr>
-<tr class="odd">
-<td>Snowflake Cortex</td>
-<td><a href="../reference/ChatSnowflake.html"><code>ChatSnowflake()</code></a></td>
-<td>✅</td>
-</tr>
-<tr class="even">
-<td>Mistral</td>
-<td><a href="../reference/ChatMistral.html"><code>ChatMistral()</code></a></td>
-<td>✅</td>
-</tr>
-<tr class="odd">
-<td>Groq</td>
-<td><a href="../reference/ChatGroq.html"><code>ChatGroq()</code></a></td>
-<td></td>
-</tr>
-<tr class="even">
-<td>perplexity.ai</td>
-<td><a href="../reference/ChatPerplexity.html"><code>ChatPerplexity()</code></a></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td>Cloudflare</td>
-<td><a href="../reference/ChatCloudflare.html"><code>ChatCloudflare()</code></a></td>
-<td></td>
-</tr>
-<tr class="even">
-<td>Portkey</td>
-<td><a href="../reference/ChatPortkey.html"><code>ChatPortkey()</code></a></td>
-<td>✅</td>
+<td>kwargs</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]]</td>
+<td>Additional keyword arguments to pass to the chat method.</td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table>
-<div class="callout callout-style-simple callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Other providers
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>To use chatlas with a provider not listed in the table above, you have two options:</p>
-<ol type="1">
-<li>If the model provider is “OpenAI compatible” (i.e., it can be used with the <a href="https://github.com/openai/openai-python#readme"><code>openai</code> Python SDK</a>), use <code>ChatOpenAI()</code> with the appropriate <code>base_url</code> and <code>api_key</code>.
-<ul>
-<li>When providers say they are “OpenAI compatible”, they usually mean compatible with the <a href="https://github.com/openai/openai-python?tab=readme-ov-file#usage">Completions API</a>. In this case, use <a href="../reference/ChatOpenAICompletions.qmd"><code>ChatOpenAICompletions()</code></a> instead of <code>ChatOpenAI()</code> (the latter uses the newer Responses API).</li>
-</ul></li>
-<li>If you’re motivated, implement a new provider by subclassing <a href="https://github.com/posit-dev/chatlas/blob/main/chatlas/_provider.py"><code>Provider</code></a> and implementing the required methods.</li>
-</ol>
-</div>
-</div>
-<div class="callout callout-style-simple callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Known limitations
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Some providers may have a limited amount of support for things like tool calling, structured data extraction, images, etc. In this case, the provider’s reference page should include a known limitations section describing the limitations.</p>
-</div>
-</div>
-<section id="model-choice" class="level3">
-<h3 class="anchored" data-anchor-id="model-choice">Model choice</h3>
-<p>In addition to choosing a model provider, you also need to choose a specific model from that provider. This is important because different models have different capabilities and performance characteristics. For example, some models are faster and cheaper, while others are more accurate and capable of handling more complex tasks.</p>
-<p>If you’re using <code>chatlas</code> inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g.&nbsp;<code>ChatAzureOpenAI()</code> and <code>ChatBedrockAnthropic()</code>). If you’re using <code>chatlas</code> for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:</p>
-<ul>
-<li><p><code>ChatOpenAI()</code> or <code>ChatAnthropic()</code> are both good places to start. <code>ChatOpenAI()</code> defaults to <strong>GPT-4.1</strong>, but you can use <code>model = "gpt-4.1-nano"</code> for a cheaper lower-quality model, or <code>model = "o3"</code> for more complex reasoning. <code>ChatAnthropic()</code> is similarly good; it defaults to <strong>Claude 4.0 Sonnet</strong> which we have found to be particularly good at writing code.</p></li>
-<li><p><code>ChatGoogle()</code> is a strong model with generous free tier (with the downside that <a href="https://ai.google.dev/gemini-api/terms#unpaid-services">your data is used</a> to improve the model), making it a great place to start if you don’t want to spend any money.</p></li>
-<li><p><code>ChatOllama()</code>, which uses <a href="https://ollama.com">Ollama</a>, allows you to run models on your own computer. The biggest models you can run locally aren’t as good as the state of the art hosted models, but they also don’t share your data and and are effectively free.</p></li>
-</ul>
 </section>
-<section id="model-type-hints" class="level3">
-<h3 class="anchored" data-anchor-id="model-type-hints">Model type hints</h3>
-<p>Some providers like <code>ChatOpenAI()</code> and <code>ChatAnthropic()</code> provide type hints for the <code>model</code> parameter. This makes it quick and easy to find the right model id – just enter <code>model=""</code> and you’ll get a list of available models to choose from (assuming your IDE supports type hints).</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><a href="../images/model-type-hints.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Screenshot of model autocompletion"><img src="../images/model-type-hints.png" class="shadow rounded mb-3 img-fluid figure-img" style="width:67.0%" alt="Screenshot of model autocompletion"></a></p>
-<figcaption>Screenshot of model autocompletion</figcaption>
-</figure>
-</div>
-<div class="callout callout-style-simple callout-tip">
-<div class="callout-body d-flex">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-body-container">
-<p>If the provider doesn’t provide these type hints, try using the <code>.list_models()</code> method (mentioned below) to find available models.</p>
-</div>
-</div>
-</div>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 77%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>A list with one element for each prompt. Each element is either a string (if</td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td>successful), None (if the request wasn't submitted), or an error object (if</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>it failed).</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 </section>
-<section id="auto-provider" class="level3">
-<h3 class="anchored" data-anchor-id="auto-provider">Auto provider</h3>
-<p><a href="../reference/ChatAuto.html"><code>ChatAuto()</code></a> provides access to any provider/model combination through one simple string. This makes for a nice interactive/prototyping experience, where you can quickly switch between different models and providers, and leverage <code>chatlas</code>’ smart defaults:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatAuto</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Default provider (OpenAI) &amp; model</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatAuto()</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(chat.provider.name)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(chat.provider.model)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Different provider (Anthropic) &amp; default model</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatAuto(<span class="st">"anthropic"</span>)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Choose specific provider/model (Claude Sonnet 4)</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatAuto(<span class="st">"anthropic/claude-sonnet-4-0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chatlas <span class="im">as</span> ctl</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ctl.ChatOpenAI()</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>countries <span class="op">=</span> [<span class="st">"Canada"</span>, <span class="st">"New Zealand"</span>, <span class="st">"Jamaica"</span>, <span class="st">"United States"</span>]</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>prompts <span class="op">=</span> [<span class="ss">f"What's the capital of </span><span class="sc">{</span>country<span class="sc">}</span><span class="ss">?"</span> <span class="cf">for</span> country <span class="kw">in</span> countries]</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: if running from a script, you'd need to wrap this in an async function</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># and call asyncio.run(main())</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>responses <span class="op">=</span> <span class="cf">await</span> ctl.parallel_chat_text(chat, prompts)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> country, response <span class="kw">in</span> <span class="bu">zip</span>(countries, responses):</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>country<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>response<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="listing-model-info" class="level3">
-<h3 class="anchored" data-anchor-id="listing-model-info">Listing model info</h3>
-<p>Most providers support the <code>.list_models()</code> method, which returns detailed information about all available models, including model IDs, pricing, and metadata. This is particularly useful for:</p>
+<section id="see-also" class="level2 doc-section doc-section-see-also">
+<h2 class="doc-section doc-section-see-also anchored" data-anchor-id="see-also">See Also</h2>
 <ul>
-<li>Discovering what models are available (ordered by most recent).</li>
-<li>Comparing model pricing and characteristics.</li>
-<li>Finding exactly the right model ID to pass to the <code>Chat</code> constructor.</li>
-</ul>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>models <span class="op">=</span> chat.list_models()</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(models)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<pre><code>                        id         owned_by  input  output  cached_input  created_at
-0               gpt-5-nano           system   0.05     0.4         0.005  2025-08-05
-1                    gpt-5           system   1.25    10.0         0.125  2025-08-05
-2    gpt-5-mini-2025-08-07           system   0.25     2.0         0.025  2025-08-05
-3               gpt-5-mini           system   0.25     2.0         0.025  2025-08-05
-4    gpt-5-nano-2025-08-07           system   0.05     0.4         0.005  2025-08-05
-..                     ...              ...    ...     ...           ...         ...
-83       gpt-3.5-turbo-16k  openai-internal   3.00     4.0           NaN  2023-05-10
-84                   tts-1  openai-internal    NaN     NaN           NaN  2023-04-19
-85           gpt-3.5-turbo           openai   1.50     2.0           NaN  2023-02-28
-86               whisper-1  openai-internal    NaN     NaN           NaN  2023-02-27
-87  text-embedding-ada-002  openai-internal   0.10     0.0           NaN  2022-12-16</code></pre>
-<p>Different providers may include different metadata fields in the model information, but they all generally include the following key details:</p>
-<ul>
-<li><strong><code>id</code></strong>: Model identifier to use with the <code>Chat</code> constructor</li>
-<li><strong><code>input</code>/<code>output</code>/<code>cached_input</code></strong>: Token pricing in USD per million tokens</li>
+<li><a href="../reference/parallel_chat.html#chatlas.parallel_chat"><code>parallel_chat</code></a> : Get full Chat objects</li>
+<li><a href="../reference/parallel_chat_structured.html#chatlas.parallel_chat_structured"><code>parallel_chat_structured</code></a> : Extract structured data</li>
 </ul>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -1051,13 +1204,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../misc/vocabulary.html" class="pagination-link" aria-label="Vocabulary">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Vocabulary</span>
+      <a href="../reference/parallel_chat.html" class="pagination-link" aria-label="parallel_chat">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">parallel_chat</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../get-started/chat.html" class="pagination-link" aria-label="Hello chat">
-        <span class="nav-page-text">Hello chat</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/parallel_chat_structured.html" class="pagination-link" aria-label="parallel_chat_structured">
+        <span class="nav-page-text">parallel_chat_structured</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1069,44 +1222,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/get-started/models.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/parallel_chat_text.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
   </div>
 </footer>
-<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","loop":false,"openEffect":"zoom","selector":".lightbox","descPosition":"bottom"});
-(function() {
-  let previousOnload = window.onload;
-  window.onload = () => {
-    if (previousOnload) {
-      previousOnload();
-    }
-    lightboxQuarto.on('slide_before_load', (data) => {
-      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-      const href = trigger.getAttribute('href');
-      if (href !== null) {
-        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
-        if (imgEl !== null) {
-          const srcAttr = imgEl.getAttribute("src");
-          if (srcAttr && srcAttr.startsWith("data:")) {
-            slideConfig.href = srcAttr;
-          }
-        }
-      } 
-    });
-  
-    lightboxQuarto.on('slide_after_load', (data) => {
-      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(slideNode);
-      }
-    });
-  
-  };
-  
-})();
-          </script>
 
 
 

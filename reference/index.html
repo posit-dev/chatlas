@@ -357,12 +357,30 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
- <span class="menu-text">Batch chat</span></a>
+ <span class="menu-text">Parallel and batch chat</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/parallel_chat.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">parallel_chat</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/parallel_chat_text.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">parallel_chat_text</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/parallel_chat_structured.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">parallel_chat_structured</span></a>
+  </div>
+</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../reference/batch_chat.html" class="sidebar-item-text sidebar-link">
@@ -593,7 +611,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#image-input" id="toc-image-input" class="nav-link" data-scroll-target="#image-input">Image input</a></li>
   <li><a href="#pdf-input" id="toc-pdf-input" class="nav-link" data-scroll-target="#pdf-input">PDF input</a></li>
   <li><a href="#tool-calling" id="toc-tool-calling" class="nav-link" data-scroll-target="#tool-calling">Tool calling</a></li>
-  <li><a href="#batch-chat" id="toc-batch-chat" class="nav-link" data-scroll-target="#batch-chat">Batch chat</a></li>
+  <li><a href="#parallel-and-batch-chat" id="toc-parallel-and-batch-chat" class="nav-link" data-scroll-target="#parallel-and-batch-chat">Parallel and batch chat</a></li>
   <li><a href="#prompt-interpolation" id="toc-prompt-interpolation" class="nav-link" data-scroll-target="#prompt-interpolation">Prompt interpolation</a></li>
   <li><a href="#turns" id="toc-turns" class="nav-link" data-scroll-target="#turns">Turns</a></li>
   <li><a href="#query-token-usage" id="toc-query-token-usage" class="nav-link" data-scroll-target="#query-token-usage">Query token usage</a></li>
@@ -759,24 +777,36 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="batch-chat" class="level2">
-<h2 class="anchored" data-anchor-id="batch-chat">Batch chat</h2>
-<p>Submit multiple chats in one batch</p>
+<section id="parallel-and-batch-chat" class="level2">
+<h2 class="anchored" data-anchor-id="parallel-and-batch-chat">Parallel and batch chat</h2>
+<p>Submit multiple chats in parallel (fast) or one batch (cheap)</p>
 <table class="caption-top table">
 <tbody>
 <tr class="odd">
+<td><a href="../reference/parallel_chat.html#chatlas.parallel_chat">parallel_chat</a></td>
+<td>Submit multiple chat prompts in parallel.</td>
+</tr>
+<tr class="even">
+<td><a href="../reference/parallel_chat_text.html#chatlas.parallel_chat_text">parallel_chat_text</a></td>
+<td>Submit multiple chat prompts in parallel and return text responses.</td>
+</tr>
+<tr class="odd">
+<td><a href="../reference/parallel_chat_structured.html#chatlas.parallel_chat_structured">parallel_chat_structured</a></td>
+<td>Submit multiple chat prompts in parallel and extract structured data.</td>
+</tr>
+<tr class="even">
 <td><a href="../reference/batch_chat.html#chatlas.batch_chat">batch_chat</a></td>
 <td>Submit multiple chat requests in a batch.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="../reference/batch_chat_text.html#chatlas.batch_chat_text">batch_chat_text</a></td>
 <td>Submit multiple chat requests in a batch and return text responses.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="../reference/batch_chat_structured.html#chatlas.batch_chat_structured">batch_chat_structured</a></td>
 <td>Submit multiple structured data requests in a batch.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="../reference/batch_chat_completed.html#chatlas.batch_chat_completed">batch_chat_completed</a></td>
 <td>Check if a batch job is completed without waiting.</td>
 </tr>

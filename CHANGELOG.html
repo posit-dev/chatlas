@@ -252,6 +252,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <section id="new-features" class="level3">
 <h3 class="anchored" data-anchor-id="new-features">New features</h3>
 <ul>
+<li>Added new family of functions (<code>parallel_chat()</code>, <code>parallel_chat_text()</code>, and <code>parallel_chat_structured()</code>) for submitting multiple prompts at once with some basic rate limiting toggles. (#188)</li>
 <li>Added support for systematic evaluation via <a href="https://inspect.aisi.org.uk/">Inspect AI</a>. This includes:
 <ul>
 <li>A new <code>.export_eval()</code> method for exporting conversation history as an Inspect eval dataset sample. This supports multi-turn conversations, tool calls, images, PDFs, and structured data.</li>
@@ -261,6 +262,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </ul></li>
 <li><code>ChatOpenAI()</code> (and <code>ChatAzureOpenAI()</code>) gain access to latest models, built-in tools, etc. as a result of moving to the new <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>. (#192)</li>
 <li>Added rudimentary support for a new <code>ContentThinking</code> type. (#192)</li>
+<li><code>ChatAnthropic()</code> and <code>ChatBedrockAnthropic()</code> gain new <code>cache</code> parameter to control caching. By default it is set to “5m”. This should (on average) reduce the cost of your chats. (#215)</li>
 </ul>
 </section>
 <section id="changes" class="level3">

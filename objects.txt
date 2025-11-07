@@ -128,6 +128,12 @@ chatlas.Tool py:class 1 reference/Tool.html#chatlas.Tool -
 chatlas._tools.Tool py:class 1 reference/Tool.html#chatlas.Tool chatlas.Tool
 chatlas.ToolRejectError py:class 1 reference/ToolRejectError.html#chatlas.ToolRejectError -
 chatlas._tools.ToolRejectError py:class 1 reference/ToolRejectError.html#chatlas.ToolRejectError chatlas.ToolRejectError
+chatlas.parallel_chat py:function 1 reference/parallel_chat.html#chatlas.parallel_chat -
+chatlas._parallel.parallel_chat py:function 1 reference/parallel_chat.html#chatlas.parallel_chat chatlas.parallel_chat
+chatlas.parallel_chat_text py:function 1 reference/parallel_chat_text.html#chatlas.parallel_chat_text -
+chatlas._parallel.parallel_chat_text py:function 1 reference/parallel_chat_text.html#chatlas.parallel_chat_text chatlas.parallel_chat_text
+chatlas.parallel_chat_structured py:function 1 reference/parallel_chat_structured.html#chatlas.parallel_chat_structured -
+chatlas._parallel.parallel_chat_structured py:function 1 reference/parallel_chat_structured.html#chatlas.parallel_chat_structured chatlas.parallel_chat_structured
 chatlas.batch_chat py:function 1 reference/batch_chat.html#chatlas.batch_chat -
 chatlas._batch_chat.batch_chat py:function 1 reference/batch_chat.html#chatlas.batch_chat chatlas.batch_chat
 chatlas.batch_chat_text py:function 1 reference/batch_chat_text.html#chatlas.batch_chat_text -

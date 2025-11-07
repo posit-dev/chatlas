@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>content_pdf_file – chatlas</title>
+<title>parallel_chat_structured – chatlas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,8 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/content_pdf_url.html" rel="next">
-<link href="../reference/content_image_url.html" rel="prev">
+<link href="../reference/batch_chat.html" rel="next">
+<link href="../reference/parallel_chat_text.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -156,7 +156,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/content_pdf_file.html">PDF input</a></li><li class="breadcrumb-item"><a href="../reference/content_pdf_file.html">content_pdf_file</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/parallel_chat.html">Parallel and batch chat</a></li><li class="breadcrumb-item"><a href="../reference/parallel_chat_structured.html">parallel_chat_structured</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -356,7 +356,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/content_pdf_file.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/content_pdf_file.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">content_pdf_file</span></a>
   </div>
 </li>
@@ -414,7 +414,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/parallel_chat_structured.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/parallel_chat_structured.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">parallel_chat_structured</span></a>
   </div>
 </li>
@@ -641,13 +641,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.content_pdf_file" id="toc-chatlas.content_pdf_file" class="nav-link active" data-scroll-target="#chatlas.content_pdf_file">content_pdf_file</a>
+  <li><a href="#chatlas.parallel_chat_structured" id="toc-chatlas.parallel_chat_structured" class="nav-link active" data-scroll-target="#chatlas.parallel_chat_structured">parallel_chat_structured</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/content_pdf_file.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/parallel_chat_structured.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -655,11 +657,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="chatlas.content_pdf_file" class="level1">
-<h1>content_pdf_file</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>content_pdf_file(path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Prepare a local PDF for input to a chat.</p>
-<p>Not all providers support PDF input, so check the documentation for the provider you are using.</p>
+<section id="chatlas.parallel_chat_structured" class="level1">
+<h1>parallel_chat_structured</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>parallel_chat_structured(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    chat,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    prompts,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    data_model,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    max_active<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    rpm<span class="op">=</span><span class="dv">500</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    on_error<span class="op">=</span><span class="st">'return'</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Submit multiple chat prompts in parallel and extract structured data.</p>
+<p>This function processes multiple prompts concurrently and extracts structured data from each response according to the specified Pydantic model type.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
@@ -673,10 +684,46 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td>path</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | <a href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></td>
-<td>A path to a local PDF file.</td>
+<td>chat</td>
+<td><code>ChatT</code></td>
+<td>A base chat object.</td>
 <td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>prompts</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<code>ContentT</code>] | <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<code>ContentT</code>]]</td>
+<td>A list of prompts. Each prompt can be a string or a list of string/Content objects.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>data_model</td>
+<td><a href="https://docs.python.org/3/library/functions.html#type">type</a>[<code>BaseModelT</code>]</td>
+<td>A Pydantic model class defining the structure to extract.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>max_active</td>
+<td><a href="https://docs.python.org/3/library/functions.html#int">int</a></td>
+<td>The maximum number of simultaneous requests to send.</td>
+<td><code>10</code></td>
+</tr>
+<tr class="odd">
+<td>rpm</td>
+<td><a href="https://docs.python.org/3/library/functions.html#int">int</a></td>
+<td>Maximum number of requests per minute. Default is 500.</td>
+<td><code>500</code></td>
+</tr>
+<tr class="even">
+<td>on_error</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['return', 'continue', 'stop']</td>
+<td>What to do when a request fails. One of: * <code>"return"</code> (the default): stop processing new requests, wait for in-flight requests to finish, then return. * <code>"continue"</code>: keep going, performing every request. * <code>"stop"</code>: stop processing and throw an error.</td>
+<td><code>'return'</code></td>
+</tr>
+<tr class="odd">
+<td>kwargs</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <a href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]]</td>
+<td>Additional keyword arguments to pass to the chat method.</td>
+<td><code>None</code></td>
 </tr>
 </tbody>
 </table>
@@ -684,6 +731,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="returns" class="level2 doc-section doc-section-returns">
 <h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
 <table class="caption-top table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 77%">
+<col style="width: 14%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Name</th>
@@ -694,11 +746,65 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td>[](<code>~chatlas.types.Content</code>)</td>
-<td>Content suitable for a <a href="https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn"><code>Turn</code></a> object.</td>
+<td>A list with one element for each prompt. Each element is either a</td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td><code>~chatlas.types.StructuredChatResult</code> (if successful), <code>None</code> (if the</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>request wasn't submitted), or an error object (if it failed). Note that the</td>
+<td></td>
+</tr>
+<tr class="even">
+<td></td>
+<td><code>StructuredChatResult</code> contains both the extracted data (for convenience)</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>and the full Chat object (for completeness).</td>
+<td></td>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<p>Extract structured data from multiple prompts:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chatlas <span class="im">as</span> ctl</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person(BaseModel):</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    age: <span class="bu">int</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ctl.ChatOpenAI()</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>prompts <span class="op">=</span> [</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"I go by Alex. 42 years on this planet and counting."</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Pleased to meet you! I'm Jamal, age 27."</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"They call me Li Wei. Nineteen years young."</span>,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Fatima here. Just celebrated my 35th birthday last week."</span>,</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">NOTE</span><span class="co">: if running from a script, you'd need to wrap this in an async</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># function and call asyncio.run(main())</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>people <span class="op">=</span> <span class="cf">await</span> ctl.parallel_chat_structured(chat, prompts, Person)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> person <span class="kw">in</span> people:</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>person<span class="sc">.</span>data<span class="sc">.</span>name<span class="sc">}</span><span class="ss"> is </span><span class="sc">{</span>person<span class="sc">.</span>data<span class="sc">.</span>age<span class="sc">}</span><span class="ss"> years old"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="see-also" class="level2 doc-section doc-section-see-also">
+<h2 class="doc-section doc-section-see-also anchored" data-anchor-id="see-also">See Also</h2>
+<ul>
+<li><a href="../reference/parallel_chat.html#chatlas.parallel_chat"><code>parallel_chat</code></a> : Get full Chat objects</li>
+<li><a href="../reference/parallel_chat_text.html#chatlas.parallel_chat_text"><code>parallel_chat_text</code></a> : Get just the text responses</li>
+<li><code>structured_data</code> : Extract data from a single chat</li>
+</ul>
 
 
 </section>
@@ -1127,13 +1233,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/content_image_url.html" class="pagination-link" aria-label="content_image_url">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">content_image_url</span>
+      <a href="../reference/parallel_chat_text.html" class="pagination-link" aria-label="parallel_chat_text">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">parallel_chat_text</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/content_pdf_url.html" class="pagination-link" aria-label="content_pdf_url">
-        <span class="nav-page-text">content_pdf_url</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/batch_chat.html" class="pagination-link" aria-label="batch_chat">
+        <span class="nav-page-text">batch_chat</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1145,7 +1251,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/content_pdf_file.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/parallel_chat_structured.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
