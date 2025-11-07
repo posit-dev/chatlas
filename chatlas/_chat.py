@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import copy
 import inspect
 import os
@@ -2444,7 +2443,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content: Literal["text"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
-        tool_lock: Optional[asyncio.Lock] = None,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
@@ -2455,7 +2453,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content: Literal["all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
-        tool_lock: Optional[asyncio.Lock] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
 
     async def _chat_impl_async(
@@ -2465,53 +2462,43 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content: Literal["text", "all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
-        tool_lock: Optional[asyncio.Lock] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
-        # Acquire lock at the very start to preserve prompt submission order
-        if tool_lock:
-            await tool_lock.acquire()
+        user_turn_result: Turn | None = user_turn
+        while user_turn_result is not None:
+            async for chunk in self._submit_turns_async(
+                user_turn_result,
+                echo=echo,
+                stream=stream,
+                kwargs=kwargs,
+            ):
+                yield chunk
 
-        try:
-            user_turn_result: Turn | None = user_turn
-            while user_turn_result is not None:
-                async for chunk in self._submit_turns_async(
-                    user_turn_result,
-                    echo=echo,
-                    stream=stream,
-                    kwargs=kwargs,
-                ):
-                    yield chunk
+            turn = self.get_last_turn(role="assistant")
+            assert turn is not None
+            user_turn_result = None
 
-                turn = self.get_last_turn(role="assistant")
-                assert turn is not None
-                user_turn_result = None
-
-                all_results: list[ContentToolResult] = []
-                for x in turn.contents:
-                    if isinstance(x, ContentToolRequest):
-                        tool = self._tools.get(x.name)
-                        if tool is not None:
-                            x.tool = ToolInfo.from_tool(tool)
+            all_results: list[ContentToolResult] = []
+            for x in turn.contents:
+                if isinstance(x, ContentToolRequest):
+                    tool = self._tools.get(x.name)
+                    if tool is not None:
+                        x.tool = ToolInfo.from_tool(tool)
+                    if echo == "output":
+                        self._echo_content(f"\n\n{x}\n\n")
+                    if content == "all":
+                        yield x
+                    results = self._invoke_tool_async(x)
+                    async for res in results:
                         if echo == "output":
-                            self._echo_content(f"\n\n{x}\n\n")
+                            self._echo_content(f"\n\n{res}\n\n")
                         if content == "all":
-                            yield x
-                        results = self._invoke_tool_async(x)
-                        async for res in results:
-                            if echo == "output":
-                                self._echo_content(f"\n\n{res}\n\n")
-                            if content == "all":
-                                yield res
-                            else:
-                                yield "\n\n"
-                            all_results.append(res)
+                            yield res
+                        else:
+                            yield "\n\n"
+                        all_results.append(res)
 
-                if all_results:
-                    user_turn_result = Turn("user", all_results)
-        finally:
-            # Release lock after entire chat turn completes
-            if tool_lock:
-                tool_lock.release()
+            if all_results:
+                user_turn_result = Turn("user", all_results)
 
     def _submit_turns(
         self,
