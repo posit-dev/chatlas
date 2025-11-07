@@ -16,6 +16,7 @@ from ._content import (
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._content_pdf import content_pdf_file, content_pdf_url
 from ._interpolate import interpolate, interpolate_file
+from ._parallel import parallel_chat, parallel_chat_structured, parallel_chat_text
 from ._provider import Provider
 from ._provider_anthropic import ChatAnthropic, ChatBedrockAnthropic
 from ._provider_cloudflare import ChatCloudflare
@@ -48,6 +49,9 @@ __all__ = (
     "batch_chat_completed",
     "batch_chat_structured",
     "batch_chat_text",
+    "parallel_chat",
+    "parallel_chat_structured",
+    "parallel_chat_text",
     "ChatAnthropic",
     "ChatAuto",
     "ChatBedrockAnthropic",

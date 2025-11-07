@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* Added new family of functions (`parallel_chat()`, `parallel_chat_text()`, and `parallel_chat_structured()`) for submitting multiple prompts at once with some basic rate limiting toggles. (#188)
 * Added support for systematic evaluation via [Inspect AI](https://inspect.aisi.org.uk/). This includes:
     * A new `.export_eval()` method for exporting conversation history as an Inspect eval dataset sample. This supports multi-turn conversations, tool calls, images, PDFs, and structured data.
     * A new `.to_solver()` method for translating chat instances into Inspect solvers that can be used with Inspect's evaluation framework.

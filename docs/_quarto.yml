@@ -157,9 +157,12 @@ quartodoc:
       contents:
         - Tool
         - ToolRejectError
-    - title: Batch chat
-      desc: Submit multiple chats in one batch
+    - title: Parallel and batch chat
+      desc: Submit multiple chats in parallel (fast) or one batch (cheap)
       contents:
+        - parallel_chat
+        - parallel_chat_text
+        - parallel_chat_structured
         - batch_chat
         - batch_chat_text
         - batch_chat_structured
