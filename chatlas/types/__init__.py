@@ -16,6 +16,7 @@ from .._content import (
     ToolAnnotations,
     ToolInfo,
 )
+from .._parallel import StructuredChatResult
 from .._provider import ModelInfo
 from .._tokens import TokenUsage
 from .._utils import MISSING, MISSING_TYPE
@@ -29,6 +30,7 @@ __all__ = (
     "ContentText",
     "ContentToolRequest",
     "ContentToolResult",
+    "StructuredChatResult",
     "ChatResponse",
     "ChatResponseAsync",
     "ImageContentTypes",

@@ -231,11 +231,16 @@ async def test_parallel_chat_structured_basic():
     results = await parallel_chat_structured(chat, prompts, Capital)
 
     assert len(results) == 3
-    assert all(isinstance(r, Capital) for r in results)
+    canada = results[0]
+    japan = results[1]
+    brazil = results[2]
+    assert isinstance(canada.data, Capital)
+    assert isinstance(japan.data, Capital)
+    assert isinstance(brazil.data, Capital)
     # Verify we got reasonable results
-    assert any("Ottawa" in r.capital for r in results)
-    assert any("Tokyo" in r.capital for r in results)
-    assert any("Brasilia" in r.capital or "Brasília" in r.capital for r in results)
+    assert any("Ottawa" in r.data.capital for r in results)
+    assert any("Tokyo" in r.data.capital for r in results)
+    assert any("Brasilia" in r.data.capital or "Brasília" in r.data.capital for r in results)
 
 
 @pytest.mark.asyncio
@@ -270,9 +275,12 @@ async def test_parallel_chat_structured_with_tools():
 
     # Results should be structured
     assert len(results) == 2
-    assert all(isinstance(r, WeatherReport) for r in results)
-    assert results[0].location == "Seattle"
-    assert results[1].location == "Tokyo"
+    seattle = results[0]
+    tokyo = results[1]
+    assert isinstance(seattle.data, WeatherReport)
+    assert isinstance(tokyo.data, WeatherReport)
+    assert seattle.data.location == "Seattle"
+    assert tokyo.data.location == "Tokyo"
 
 
 @pytest.mark.asyncio
@@ -305,4 +313,4 @@ async def test_parallel_chat_structured_tool_ordering():
     # Verify strict ordering
     assert execution_order == ["A", "B", "C"], f"Expected ['A', 'B', 'C'], got {execution_order}"
     assert len(results) == 3
-    assert all(isinstance(r, DataResult) for r in results)
+    assert all(isinstance(r.data, DataResult) for r in results)

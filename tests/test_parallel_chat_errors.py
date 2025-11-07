@@ -3,9 +3,14 @@
 import os
 
 import pytest
-
-from chatlas import ChatOpenAI, parallel_chat, parallel_chat_structured, parallel_chat_text
 from pydantic import BaseModel
+
+from chatlas import (
+    ChatOpenAI,
+    parallel_chat,
+    parallel_chat_structured,
+    parallel_chat_text,
+)
 
 # Skip these tests if not running OpenAI tests
 do_test = os.getenv("TEST_OPENAI", "true")
@@ -26,7 +31,12 @@ async def test_parallel_chat_error_return_mode():
     ]
 
     # With max_active=1, only the first request should attempt and fail
-    results = await parallel_chat(chat, prompts, max_active=1, on_error="return")
+    results = await parallel_chat(
+        chat,
+        prompts,
+        max_active=1,
+        on_error="return",
+    )
 
     # First should be an exception, others should be None (not submitted)
     assert len(results) == 3
@@ -56,7 +66,11 @@ async def test_parallel_chat_error_continue_mode():
     ]
 
     # All should attempt regardless of errors
-    results = await parallel_chat(chat, prompts, on_error="continue")
+    results = await parallel_chat(
+        chat,
+        prompts,
+        on_error="continue",
+    )
 
     # All prompts should have been processed
     assert len(results) == 3
@@ -79,7 +93,12 @@ async def test_parallel_chat_error_stop_mode():
 
     # Should raise an exception immediately
     with pytest.raises(Exception):
-        await parallel_chat(chat, prompts, max_active=1, on_error="stop")
+        await parallel_chat(
+            chat,
+            prompts,
+            max_active=1,
+            on_error="stop",
+        )
 
 
 @pytest.mark.asyncio
@@ -89,11 +108,16 @@ async def test_parallel_chat_text_error_handling():
 
     prompts = ["Say 'Hello'", "Say 'World'"]
 
-    results = await parallel_chat_text(chat, prompts, max_active=1, on_error="return")
+    results = await parallel_chat_text(
+        chat,
+        prompts,
+        max_active=1,
+        on_error="return",
+    )
 
     # Should return None for errored prompts
     assert len(results) == 2
-    assert isinstance(results[0], Exception) # First one errors
+    assert isinstance(results[0], Exception)  # First one errors
     # Second one may or may not run depending on timing
 
 
@@ -110,7 +134,11 @@ async def test_parallel_chat_structured_error_handling():
     prompts = ["John, age 25", "Jane, age 30"]
 
     results = await parallel_chat_structured(
-        chat, prompts, Person, max_active=1, on_error="return"
+        chat,
+        prompts,
+        Person,
+        max_active=1,
+        on_error="return",
     )
 
     # Should have exceptions in results

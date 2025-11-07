@@ -4,6 +4,7 @@ import pytest
 from pydantic import BaseModel
 
 from chatlas import (
+    Chat,
     ChatOpenAI,
     ContentToolRequest,
     ContentToolResult,
@@ -136,11 +137,26 @@ async def test_parallel_chat_structured():
         age: int
 
     people = await parallel_chat_structured(chat, prompts, Person)
-
     assert len(people) == 2
-    assert isinstance(people[0], Person)
-    assert people[0].name.lower() == "john"
-    assert people[0].age == 15
-    assert isinstance(people[1], Person)
-    assert people[1].name.lower() == "jane"
-    assert people[1].age == 16
+
+    john_d = people[0].data
+    jane_d = people[1].data
+
+    assert isinstance(john_d, Person)
+    assert john_d.name.lower() == "john"
+    assert john_d.age == 15
+    assert isinstance(jane_d, Person)
+    assert jane_d.name.lower() == "jane"
+    assert jane_d.age == 16
+
+    # Full Chat objects are also available
+    john_c = people[0].chat
+    jane_c = people[1].chat
+
+    assert isinstance(john_c, Chat)
+    assert isinstance(jane_c, Chat)
+
+    turn1 = john_c.get_last_turn()
+    assert turn1 is not None
+    turn2 = jane_c.get_last_turn()
+    assert turn2 is not None

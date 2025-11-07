@@ -38,6 +38,16 @@ __all__ = (
 ChatT = TypeVar("ChatT", bound=Chat)
 BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
 
+@dataclass
+class StructuredChatResult(Generic[BaseModelT, ChatT]):
+    """Holds the result of a structured parallel chat request."""
+
+    data: BaseModelT
+    """The extracted structured data."""
+
+    chat: ChatT
+    """The Chat object."""
+
 
 @overload
 async def parallel_chat(
@@ -276,20 +286,20 @@ async def parallel_chat_text(
         on_error=on_error,
         kwargs=kwargs,
     )
-    texts: list[str | Exception | None] = []
+    res: list[str | Exception | None] = []
     for x in chats:
-        if x is None or isinstance(x, Exception):
-            texts.append(x)
-            continue
-        last_turn = x.get_last_turn(role="assistant")
-        assert last_turn is not None
-        texts.append(last_turn.text)
-    return texts
+        if not isinstance(x, Chat):
+            res.append(x)
+        else:
+            last_turn = x.get_last_turn(role="assistant")
+            assert last_turn is not None
+            res.append(last_turn.text)
+    return res
 
 
 @overload
 async def parallel_chat_structured(
-    chat: Chat,
+    chat: ChatT,
     prompts: list[ContentT] | list[list[ContentT]],
     data_model: type[BaseModelT],
     *,
@@ -297,12 +307,12 @@ async def parallel_chat_structured(
     rpm: int = 500,
     on_error: Literal["stop"],
     kwargs: Optional[dict[str, Any]] = None,
-) -> Sequence[BaseModelT]: ...
+) -> Sequence[StructuredChatResult[BaseModelT, ChatT]]: ...
 
 
 @overload
 async def parallel_chat_structured(
-    chat: Chat,
+    chat: ChatT,
     prompts: list[ContentT] | list[list[ContentT]],
     data_model: type[BaseModelT],
     *,
@@ -310,12 +320,12 @@ async def parallel_chat_structured(
     rpm: int = 500,
     on_error: Literal["continue"],
     kwargs: Optional[dict[str, Any]] = None,
-) -> Sequence[BaseModelT | Exception]: ...
+) -> Sequence[StructuredChatResult[BaseModelT, ChatT] | Exception]: ...
 
 
 @overload
 async def parallel_chat_structured(
-    chat: Chat,
+    chat: ChatT,
     prompts: list[ContentT] | list[list[ContentT]],
     data_model: type[BaseModelT],
     *,
@@ -323,11 +333,11 @@ async def parallel_chat_structured(
     rpm: int = 500,
     on_error: Literal["return"] = "return",
     kwargs: Optional[dict[str, Any]] = None,
-) -> Sequence[BaseModelT | Exception | None]: ...
+) -> Sequence[StructuredChatResult[BaseModelT, ChatT] | Exception | None]: ...
 
 
 async def parallel_chat_structured(
-    chat: Chat,
+    chat: ChatT,
     prompts: list[ContentT] | list[list[ContentT]],
     data_model: type[BaseModelT],
     *,
@@ -335,13 +345,13 @@ async def parallel_chat_structured(
     rpm: int = 500,
     on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: Optional[dict[str, Any]] = None,
-) -> Sequence[BaseModelT | Exception | None]:
+) -> Sequence[StructuredChatResult[BaseModelT, ChatT] | Exception | None]:
     """
     Submit multiple chat prompts in parallel and extract structured data.
 
     This function processes multiple prompts concurrently and extracts
-    structured data from each response according to the specified Pydantic
-    model type.
+    structured data from each response according to the specified Pydantic model
+    type.
 
     Parameters
     ----------
@@ -361,9 +371,11 @@ async def parallel_chat_structured(
 
     Returns
     -------
-    A list with one element for each prompt. Each element is either a Pydantic
-    model (if successful), None (if the request wasn't submitted), or an error
-    object (if it failed).
+    A list with one element for each prompt. Each element is either a
+    `~chatlas.types.StructuredChatResult` (if successful), `None` (if the
+    request wasn't submitted), or an error object (if it failed). Note that the
+    `StructuredChatResult` contains both the extracted data (for convenience)
+    and the full Chat object (for completeness).
 
     Examples
     --------
@@ -373,7 +385,6 @@ async def parallel_chat_structured(
     import chatlas as ctl
     from pydantic import BaseModel
 
-
     class Person(BaseModel):
         name: str
         age: int
@@ -382,16 +393,14 @@ async def parallel_chat_structured(
     chat = ctl.ChatOpenAI()
 
     prompts = [
-        "I go by Alex. 42 years on this planet and counting.",
-        "Pleased to meet you! I'm Jamal, age 27.",
-        "They call me Li Wei. Nineteen years young.",
+        "I go by Alex. 42 years on this planet and counting.", "Pleased to meet
+        you! I'm Jamal, age 27.", "They call me Li Wei. Nineteen years young.",
         "Fatima here. Just celebrated my 35th birthday last week.",
     ]
 
-    # NOTE: if running from a script, you'd need to wrap this in an async function
-    # and call asyncio.run(main())
-    people = await ctl.parallel_chat_structured(chat, prompts, Person)
-    for person in people:
+    # NOTE: if running from a script, you'd need to wrap this in an async
+    function # and call asyncio.run(main()) people = await
+    ctl.parallel_chat_structured(chat, prompts, Person) for person in people:
         print(f"{person.name} is {person.age} years old")
     ```
 
@@ -414,15 +423,16 @@ async def parallel_chat_structured(
         kwargs=kwargs,
     )
 
-    results: list[BaseModelT | Exception | None] = []
+    results: list[StructuredChatResult[BaseModelT, ChatT] | Exception | None] = []
     for x in chats:
-        if x is None or isinstance(x, Exception):
+        if not isinstance(x, Chat):
             results.append(x)
-            continue
-        turn = x.get_last_turn(role="assistant")
-        assert turn is not None
-        dat = Chat._extract_turn_json(turn)
-        results.append(data_model.model_validate(dat))
+        else:
+            turn = x.get_last_turn(role="assistant")
+            assert turn is not None
+            dat = Chat._extract_turn_json(turn)
+            d = data_model.model_validate(dat)
+            results.append(StructuredChatResult(data=d, chat=x))
 
     return results
 
