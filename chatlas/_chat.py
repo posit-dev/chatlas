@@ -968,23 +968,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 await chat_instance.chat_async(*input_content, echo="none")
 
                 # Map change in chatlas Turn state back to Inspect message.state
+                # (Note: we skip the user prompt turn since it's already included)
                 turns = chat_instance.get_turns(include_system_prompt=False)
-                # Don't subtract 1 to skip the user prompt (already in state.messages)
-                new_turns = turns[len(initial_turns) :]  # noqa: E203
-                for turn in new_turns:
+                usage = imodel.ModelUsage()
+                for i in range(len(initial_turns) + 1, len(turns)):
+                    turn = turns[i]
                     state.messages.extend(turn.to_inspect_messages(model))
-
-                last_turn = new_turns[-1]
-                tokens = last_turn.tokens
-                if tokens is None:
-                    usage = None
-                else:
-                    usage = imodel.ModelUsage(
-                        input_tokens=tokens[0],
-                        output_tokens=tokens[1],
-                        total_tokens=tokens[0] + tokens[1],
-                        input_tokens_cache_read=tokens[2],
-                    )
+                    if turn.tokens:
+                        usage += imodel.ModelUsage(
+                            input_tokens=turn.tokens[0],
+                            output_tokens=turn.tokens[1],
+                            total_tokens=turn.tokens[0] + turn.tokens[1],
+                            input_tokens_cache_read=turn.tokens[2],
+                        )
 
                 last_message = state.messages[-1]
                 if not isinstance(last_message, imodel.ChatMessageAssistant):
@@ -995,7 +991,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 state.output = imodel.ModelOutput(
                     model=model,
                     choices=[imodel.ChatCompletionChoice(message=last_message)],
-                    completion=last_turn.text,
+                    completion=turns[-1].text,
                     usage=usage,
                     time=time.perf_counter() - start_time,
                 )

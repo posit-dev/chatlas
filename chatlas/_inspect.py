@@ -107,6 +107,7 @@ def turn_as_inspect_messages(
 
         return [
             imodel.ChatMessageAssistant(
+                source="generate",
                 content=other_contents,
                 tool_calls=tool_calls,
                 model=model,
