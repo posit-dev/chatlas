@@ -5,19 +5,15 @@ from __future__ import annotations
 import asyncio
 import copy
 import time
-from typing import TYPE_CHECKING, Any, Optional, TypeVar
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Any, Optional, TypeVar, cast
 
 from pydantic import BaseModel
-from rich.progress import (
-    BarColumn,
-    Progress,
-    SpinnerColumn,
-    TaskProgressColumn,
-    TextColumn,
-    TimeElapsedColumn,
-)
 
 from ._chat import Chat
+from ._content import ContentToolRequest, ContentToolResult, ToolInfo
+from ._progress import ProgressTracker
+from ._turn import Turn, user_turn
 
 if TYPE_CHECKING:
     from ._batch_job import ContentT
@@ -113,51 +109,10 @@ async def parallel_chat(
     * :func:`~chatlas.parallel_chat_structured` : Extract structured data
     * :func:`~chatlas.batch_chat` : Batch API for discounted processing
     """
-    if not prompts:
-        return []
-
-    rate_limiter = RateLimiter(rpm)
-    semaphore = asyncio.Semaphore(max_active)
-
-    # Make a "global" copy of the chat with no turns to use as a template
-    # (to avoid a deep copy of turns for each prompt)
-    turns = chat.get_turns()
-    chat_global = copy.deepcopy(chat)
-    chat_global.set_turns([])
-
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TaskProgressColumn(),
-        TimeElapsedColumn(),
-    ) as progress:
-        task_id = progress.add_task(
-            f"Processing {len(prompts)} prompts...",
-            total=len(prompts),
-        )
-
-        async def _do_chat(prompt: ContentT | list[ContentT]):
-            async with semaphore:
-                await rate_limiter.acquire()
-
-                chat_local = copy.deepcopy(chat_global)
-                chat_local.set_turns(turns)
-
-                if not isinstance(prompt, list):
-                    prompt = [prompt]
-
-                await chat_local.chat_async(
-                    *prompt,
-                    echo="none",
-                    stream=False,
-                    kwargs=kwargs,
-                )
-                progress.advance(task_id)
-                return chat_local
-
-        tasks = [_do_chat(prompt) for prompt in prompts]
-        return await asyncio.gather(*tasks)
+    chats = await _parallel_chat_impl(
+        chat, prompts, max_active=max_active, rpm=rpm, kwargs=kwargs
+    )
+    return cast(list[ChatT], chats)
 
 
 async def parallel_chat_text(
@@ -301,6 +256,67 @@ async def parallel_chat_structured(
     if not prompts:
         return []
 
+    # Use the shared implementation with data_model parameter
+    chats = await _parallel_chat_impl(
+        chat,
+        prompts,
+        max_active=max_active,
+        rpm=rpm,
+        kwargs=kwargs,
+        data_model=data_model,
+    )
+
+    # Extract structured data from each completed chat
+    results: list[BaseModelT] = []
+    for chat_obj in chats:
+        last_turn = chat_obj.get_last_turn()
+        assert last_turn is not None
+        dat = Chat._extract_turn_json(last_turn)
+        results.append(data_model.model_validate(dat))
+
+    return results
+
+
+async def _parallel_chat_impl(
+    chat: Chat,
+    prompts: list[ContentT] | list[list[ContentT]],
+    *,
+    max_active: int = 10,
+    rpm: int = 500,
+    kwargs: Optional[dict[str, Any]] = None,
+    data_model: type[BaseModel] | None = None,
+) -> list[Chat]:
+    """
+    Internal implementation of parallel chat execution with tool support.
+
+    This function handles the multi-phase execution:
+    1. Submit all prompts in parallel
+    2. Process tools sequentially in submission order
+    3. Submit tool results in parallel
+    4. Repeat until all conversations are complete
+
+    Parameters
+    ----------
+    chat
+        Base chat object to use as template
+    prompts
+        List of prompts to process
+    max_active
+        Maximum concurrent API calls
+    rpm
+        Requests per minute limit
+    kwargs
+        Additional arguments for chat submission
+    data_model
+        Optional Pydantic model for structured data extraction
+
+    Returns
+    -------
+    List of completed Chat objects
+    """
+    if not prompts:
+        return []
+
     rate_limiter = RateLimiter(rpm)
     semaphore = asyncio.Semaphore(max_active)
 
@@ -310,38 +326,179 @@ async def parallel_chat_structured(
     chat_global = copy.deepcopy(chat)
     chat_global.set_turns([])
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        BarColumn(),
-        TaskProgressColumn(),
-        TimeElapsedColumn(),
-    ) as progress:
-        task_id = progress.add_task(
-            f"Processing {len(prompts)} prompts...", total=len(prompts)
+    # Initialize conversation states
+    conversations = [
+        ConversationState(
+            index=i,
+            chat=copy.deepcopy(chat_global),
+            pending_tool_results=None,
+            is_complete=False,
+            error=None,
         )
+        for i in range(len(prompts))
+    ]
 
-        async def _do_chat(prompt: ContentT | list[ContentT]):
-            async with semaphore:
-                await rate_limiter.acquire()
+    # Restore initial turns for each conversation
+    for conv in conversations:
+        conv.chat.set_turns(turns)
 
-                chat_local = copy.deepcopy(chat_global)
-                chat_local.set_turns(turns)
+    # === PHASE 1: Submit initial prompts in parallel ===
+    async def _submit_prompt(
+        conv: ConversationState, prompt: ContentT | list[ContentT]
+    ):
+        """Submit a user prompt to the LLM."""
+        async with semaphore:
+            await rate_limiter.acquire()
 
+            try:
                 if not isinstance(prompt, list):
                     prompt = [prompt]
 
-                result = await chat_local.chat_structured_async(
-                    *prompt,
+                user_prompt = user_turn(*prompt)
+
+                response = conv.chat._submit_turns_async(
+                    user_prompt,
                     data_model=data_model,
                     echo="none",
+                    stream=False,
                     kwargs=kwargs,
                 )
-                progress.advance(task_id)
-                return result
+                async for _ in response:
+                    pass
 
-        tasks = [_do_chat(prompt) for prompt in prompts]
-        return await asyncio.gather(*tasks)
+            except Exception as e:
+                conv.error = e
+
+    with ProgressTracker(
+        f"Submitting {len(prompts)} prompts",
+        total=len(prompts),
+    ) as progress:
+        tasks = [
+            _submit_prompt(conv, prompt) for conv, prompt in zip(conversations, prompts)
+        ]
+        await asyncio.gather(*tasks)
+        progress.advance(len(prompts))
+
+    # === PHASE 2+: Process tools and submit results until all conversations complete ===
+    round_num = 1
+
+    while True:
+        # Check which conversations need tool processing
+        conversations_needing_tools = [
+            c for c in conversations if not c.is_complete and not c.error
+        ]
+
+        if not conversations_needing_tools:
+            break  # All done!
+
+        # Process tool calls sequentially (in submission order)
+        with ProgressTracker(
+            f"Processing tools (round {round_num})",
+            total=len(conversations_needing_tools),
+        ) as progress:
+            for conv in conversations_needing_tools:
+                last_turn = conv.chat.get_last_turn(role="assistant")
+                if last_turn is None:
+                    conv.is_complete = True
+                    progress.advance()
+                    continue
+
+                # Extract and execute tool calls
+                all_results: list[ContentToolResult] = []
+                for content in last_turn.contents:
+                    if isinstance(content, ContentToolRequest):
+                        tool = chat_global._tools.get(content.name)
+                        if tool is not None:
+                            content.tool = ToolInfo.from_tool(tool)
+
+                        try:
+                            results = conv.chat._invoke_tool_async(content)
+                            async for res in results:
+                                all_results.append(res)
+                        except Exception as e:
+                            conv.error = e
+                            break
+
+                # If we got tool results, prepare to submit them
+                if all_results and not conv.error:
+                    conv.pending_tool_results = Turn(role="user", contents=all_results)
+                else:
+                    conv.is_complete = True  # No more tools needed
+
+                progress.advance()
+
+        # Submit all pending tool results in parallel
+        conversations_to_submit = [
+            c for c in conversations if c.pending_tool_results and not c.error
+        ]
+
+        if not conversations_to_submit:
+            break  # No more tool results to submit
+
+        async def _submit_tool_results(conv: ConversationState):
+            """Submit tool results back to the LLM."""
+            async with semaphore:
+                await rate_limiter.acquire()
+
+                try:
+                    # pending_tool_results should never be None here (filtered above)
+                    if conv.pending_tool_results is None:
+                        return
+
+                    response = conv.chat._submit_turns_async(
+                        conv.pending_tool_results,
+                        data_model=data_model,
+                        echo="none",
+                        stream=False,
+                        kwargs=kwargs,
+                    )
+                    async for _ in response:
+                        pass
+
+                    conv.pending_tool_results = None
+
+                except Exception as e:
+                    conv.error = e
+
+        with ProgressTracker(
+            f"Submitting tool results (round {round_num})",
+            total=len(conversations_to_submit),
+        ) as progress:
+            tasks = [_submit_tool_results(conv) for conv in conversations_to_submit]
+            await asyncio.gather(*tasks)
+            progress.advance(len(conversations_to_submit))
+
+        round_num += 1
+
+    # === PHASE 3: Return completed chats ===
+    # Optionally: log or handle errors
+    for conv in conversations:
+        if conv.error:
+            # Could log warning, or raise exception, or return None
+            # For now, just include the chat as-is (with partial results)
+            pass
+
+    return [conv.chat for conv in conversations]
+
+
+@dataclass
+class ConversationState:
+    """Track the state of a single conversation in parallel_chat."""
+
+    index: int
+    """Position in the original prompts list."""
+
+    chat: Chat
+    """The chat object with accumulated conversation turns."""
+
+    pending_tool_results: Turn | None = None
+    """Tool results that need to be submitted back to the LLM."""
+
+    is_complete: bool = False
+    """Whether this conversation is done (no more tools to execute)."""
+
+    error: Exception | None = None
+    """If an error occurred during processing."""
 
 
 class RateLimiter:
