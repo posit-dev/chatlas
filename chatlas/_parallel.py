@@ -13,8 +13,10 @@ from typing import (
     Generic,
     Literal,
     Optional,
+    Sequence,
     TypeVar,
     cast,
+    overload,
 )
 
 from pydantic import BaseModel
@@ -37,6 +39,42 @@ ChatT = TypeVar("ChatT", bound=Chat)
 BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
 
 
+@overload
+async def parallel_chat(
+    chat: ChatT,
+    prompts: list[ContentT] | list[list[ContentT]],
+    *,
+    max_active: int = 10,
+    rpm: int = 500,
+    on_error: Literal["stop"],
+    kwargs: Optional[dict[str, Any]] = None,
+) -> Sequence[ChatT]: ...
+
+
+@overload
+async def parallel_chat(
+    chat: ChatT,
+    prompts: list[ContentT] | list[list[ContentT]],
+    *,
+    max_active: int = 10,
+    rpm: int = 500,
+    on_error: Literal["continue"],
+    kwargs: Optional[dict[str, Any]] = None,
+) -> Sequence[ChatT | Exception]: ...
+
+
+@overload
+async def parallel_chat(
+    chat: ChatT,
+    prompts: list[ContentT] | list[list[ContentT]],
+    *,
+    max_active: int = 10,
+    rpm: int = 500,
+    on_error: Literal["return"] = "return",
+    kwargs: Optional[dict[str, Any]] = None,
+) -> Sequence[ChatT | Exception | None]: ...
+
+
 async def parallel_chat(
     chat: ChatT,
     prompts: list[ContentT] | list[list[ContentT]],
@@ -45,7 +83,7 @@ async def parallel_chat(
     rpm: int = 500,
     on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: Optional[dict[str, Any]] = None,
-) -> list[ChatT | Exception | None]:
+) -> Sequence[ChatT | Exception | None]:
     """
     Submit multiple chat prompts in parallel.
 
@@ -137,6 +175,42 @@ async def parallel_chat(
     )
 
 
+@overload
+async def parallel_chat_text(
+    chat: Chat,
+    prompts: list[ContentT] | list[list[ContentT]],
+    *,
+    max_active: int = 10,
+    rpm: int = 500,
+    on_error: Literal["stop"],
+    kwargs: Optional[dict[str, Any]] = None,
+) -> Sequence[str]: ...
+
+
+@overload
+async def parallel_chat_text(
+    chat: Chat,
+    prompts: list[ContentT] | list[list[ContentT]],
+    *,
+    max_active: int = 10,
+    rpm: int = 500,
+    on_error: Literal["continue"],
+    kwargs: Optional[dict[str, Any]] = None,
+) -> Sequence[str | Exception]: ...
+
+
+@overload
+async def parallel_chat_text(
+    chat: Chat,
+    prompts: list[ContentT] | list[list[ContentT]],
+    *,
+    max_active: int = 10,
+    rpm: int = 500,
+    on_error: Literal["return"] = "return",
+    kwargs: Optional[dict[str, Any]] = None,
+) -> Sequence[str | Exception | None]: ...
+
+
 async def parallel_chat_text(
     chat: Chat,
     prompts: list[ContentT] | list[list[ContentT]],
@@ -145,7 +219,7 @@ async def parallel_chat_text(
     rpm: int = 500,
     on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: Optional[dict[str, Any]] = None,
-) -> list[str | Exception | None]:
+) -> Sequence[str | Exception | None]:
     """
     Submit multiple chat prompts in parallel and return text responses.
 
@@ -213,6 +287,45 @@ async def parallel_chat_text(
     return texts
 
 
+@overload
+async def parallel_chat_structured(
+    chat: Chat,
+    prompts: list[ContentT] | list[list[ContentT]],
+    data_model: type[BaseModelT],
+    *,
+    max_active: int = 10,
+    rpm: int = 500,
+    on_error: Literal["stop"],
+    kwargs: Optional[dict[str, Any]] = None,
+) -> Sequence[BaseModelT]: ...
+
+
+@overload
+async def parallel_chat_structured(
+    chat: Chat,
+    prompts: list[ContentT] | list[list[ContentT]],
+    data_model: type[BaseModelT],
+    *,
+    max_active: int = 10,
+    rpm: int = 500,
+    on_error: Literal["continue"],
+    kwargs: Optional[dict[str, Any]] = None,
+) -> Sequence[BaseModelT | Exception]: ...
+
+
+@overload
+async def parallel_chat_structured(
+    chat: Chat,
+    prompts: list[ContentT] | list[list[ContentT]],
+    data_model: type[BaseModelT],
+    *,
+    max_active: int = 10,
+    rpm: int = 500,
+    on_error: Literal["return"] = "return",
+    kwargs: Optional[dict[str, Any]] = None,
+) -> Sequence[BaseModelT | Exception | None]: ...
+
+
 async def parallel_chat_structured(
     chat: Chat,
     prompts: list[ContentT] | list[list[ContentT]],
@@ -222,7 +335,7 @@ async def parallel_chat_structured(
     rpm: int = 500,
     on_error: Literal["return", "continue", "stop"] = "return",
     kwargs: Optional[dict[str, Any]] = None,
-) -> list[BaseModelT | Exception | None]:
+) -> Sequence[BaseModelT | Exception | None]:
     """
     Submit multiple chat prompts in parallel and extract structured data.
 
