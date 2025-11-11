@@ -426,7 +426,7 @@ class SnowflakeProvider(
 
         return completion
 
-    def stream_turn(self, completion, has_data_model) -> Turn:
+    def stream_turn(self, completion, has_data_model) -> AssistantTurn:
         import snowflake.core.cortex.inference_service._generated.models as models
 
         completion_dict = completion.model_dump()
@@ -437,7 +437,7 @@ class SnowflakeProvider(
         )
         return self._as_turn(completion, has_data_model)
 
-    def value_turn(self, completion, has_data_model) -> Turn:
+    def value_turn(self, completion, has_data_model) -> AssistantTurn:
         return self._as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):
@@ -517,7 +517,7 @@ class SnowflakeProvider(
             res.append(req)
         return res
 
-    def _as_turn(self, completion: "Completion", has_data_model: bool) -> Turn:
+    def _as_turn(self, completion: "Completion", has_data_model: bool) -> AssistantTurn:
         import snowflake.core.cortex.inference_service._generated.models as models
 
         if not completion.choices:

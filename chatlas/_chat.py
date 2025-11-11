@@ -1470,7 +1470,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return Chat._extract_turn_json(turn)
 
     @staticmethod
-    def _extract_turn_json(turn: Turn) -> dict[str, Any]:
+    def _extract_turn_json(turn: AssistantTurn) -> dict[str, Any]:
         res: list[ContentJson] = []
         for x in turn.contents:
             if isinstance(x, ContentJson):
@@ -2394,7 +2394,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     def _chat_impl(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text"],
         stream: bool,
@@ -2404,7 +2404,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     def _chat_impl(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["all"],
         stream: bool,
@@ -2413,13 +2413,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def _chat_impl(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text", "all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
-        user_turn_result: Turn | None = user_turn
+        user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             for chunk in self._submit_turns(
                 user_turn_result,
@@ -2457,7 +2457,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     def _chat_impl_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text"],
         stream: bool,
@@ -2467,7 +2467,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     def _chat_impl_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["all"],
         stream: bool,
@@ -2476,13 +2476,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def _chat_impl_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text", "all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
-        user_turn_result: Turn | None = user_turn
+        user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             async for chunk in self._submit_turns_async(
                 user_turn_result,
@@ -2521,7 +2521,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def _submit_turns(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         stream: bool,
         data_model: type[BaseModel] | None = None,
@@ -2595,7 +2595,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def _submit_turns_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         stream: bool,
         data_model: type[BaseModel] | None = None,

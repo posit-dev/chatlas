@@ -284,7 +284,7 @@ class OpenAIProvider(
         self,
         result,
         has_data_model: bool = False,
-    ) -> Turn | None:
+    ) -> AssistantTurn | None:
         response = BatchResult.model_validate(result).response
         if response.status_code != 200:
             # TODO: offer advice on what to do?
@@ -295,7 +295,7 @@ class OpenAIProvider(
         return self._response_as_turn(completion, has_data_model)
 
     @staticmethod
-    def _response_as_turn(completion: Response, has_data_model: bool) -> Turn:
+    def _response_as_turn(completion: Response, has_data_model: bool) -> AssistantTurn:
         contents: list[Content] = []
         for output in completion.output:
             if output.type == "message":

@@ -223,7 +223,7 @@ class BatchJob:
         self._save_state()
         return True
 
-    def result_turns(self) -> list[Turn | None]:
+    def result_turns(self) -> list[AssistantTurn | None]:
         turns = []
         for result in self.results:
             turn = self.provider.batch_result_turn(
