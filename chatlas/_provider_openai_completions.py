@@ -56,18 +56,22 @@ ChatCompletionDict = dict[str, Any]
 
 def ChatOpenAICompletions(
     *,
+    base_url: str = "https://api.openai.com/v1",
     system_prompt: Optional[str] = None,
     model: "Optional[ChatModel | str]" = None,
     api_key: Optional[str] = None,
-    base_url: str = "https://api.openai.com/v1",
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
-    Chat with an OpenAI model via the Completions API.
+    Chat with an OpenAI-compatible model (via the Completions API).
 
     This function exists mainly for historical reasons; new code should
     prefer `ChatOpenAI()`, which uses the newer Responses API.
+
+    This function may also be useful for using an "OpenAI-compatible model"
+    hosted by another provider (e.g., vLLM, Ollama, etc.) that supports the
+    OpenAI Completions API.
     """
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None

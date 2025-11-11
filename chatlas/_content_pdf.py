@@ -77,7 +77,7 @@ def content_pdf_url(url: str) -> ContentPDF:
     # apis where they exist. Might need some kind of mutable state so can
     # record point to uploaded file.
     data = download_pdf_bytes(url)
-    return ContentPDF(data=data, filename=unique_pdf_name())
+    return ContentPDF(data=data, filename=unique_pdf_name(), url=url)
 
 
 def parse_data_url(url: str) -> tuple[str, str]:
