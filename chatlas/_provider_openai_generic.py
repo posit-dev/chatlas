@@ -25,7 +25,7 @@ from ._provider import (
 )
 from ._tokens import get_token_pricing
 from ._tools import Tool
-from ._turn import Turn, UserTurn, user_turn
+from ._turn import AssistantTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -277,4 +277,4 @@ class OpenAIAbstractProvider(
     @abstractmethod
     def _response_as_turn(
         completion: ChatCompletionT, has_data_model: bool
-    ) -> Turn: ...
+    ) -> AssistantTurn: ...

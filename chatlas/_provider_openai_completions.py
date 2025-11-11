@@ -353,7 +353,7 @@ class OpenAICompletionsProvider(
     @staticmethod
     def _response_as_turn(
         completion: "ChatCompletion", has_data_model: bool
-    ) -> Turn[ChatCompletion]:
+    ) -> AssistantTurn[ChatCompletion]:
         message = completion.choices[0].message
 
         contents: list[Content] = []
@@ -435,7 +435,7 @@ class OpenAICompletionsProvider(
         self,
         result,
         has_data_model: bool = False,
-    ) -> Turn | None:
+    ) -> AssistantTurn | None:
         response = BatchResult.model_validate(result).response
         if response.status_code != 200:
             # TODO: offer advice on what to do?

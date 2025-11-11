@@ -223,13 +223,13 @@ class BatchJob:
         self._save_state()
         return True
 
-    def result_turns(self) -> list[Turn | None]:
+    def result_turns(self) -> list[AssistantTurn | None]:
         turns = []
         for result in self.results:
             turn = self.provider.batch_result_turn(
                 result, has_data_model=self.data_model is not None
             )
-            if turn and isinstance(turn, AssistantTurn) and turn.tokens is None and turn.completion:
+            if turn and turn.tokens is None and turn.completion:
                 turn.tokens = self.provider.value_tokens(turn.completion)
             turns.append(turn)
 
