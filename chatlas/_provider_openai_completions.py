@@ -69,7 +69,7 @@ def ChatOpenAICompletions(
     This function exists mainly for historical reasons; new code should
     prefer `ChatOpenAI()`, which uses the newer Responses API.
 
-    This function may also be useful for using a "OpenAI-compatible model"
+    This function may also be useful for using an "OpenAI-compatible model"
     hosted by another provider (e.g., vLLM, Ollama, etc.) that supports the
     OpenAI Completions API.
     """
