@@ -34,6 +34,7 @@ if TYPE_CHECKING:
         GenerateContentResponseDict,
         Part,
         PartDict,
+        ThinkingConfigDict,
     )
 
     from .types.google import ChatClientArgs, SubmitInputArgs
@@ -45,6 +46,7 @@ def ChatGoogle(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
+    reasoning: Optional["int | ThinkingConfigDict"] = None,
     api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", GenerateContentResponse]:
@@ -86,6 +88,10 @@ def ChatGoogle(
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly choosing
         a model for all but the most casual use.
+    reasoning
+        If provided, enables reasoning (a.k.a. "thoughts") in the model's
+        responses. This can be an integer number of tokens to use for reasoning,
+        or a full `ThinkingConfigDict` to customize the reasoning behavior.
     api_key
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `GOOGLE_API_KEY` environment variable.
@@ -137,14 +143,20 @@ def ChatGoogle(
     if model is None:
         model = log_model_default("gemini-2.5-flash")
 
+    kwargs_chat: "SubmitInputArgs" = {}
+    if reasoning is not None:
+        if isinstance(reasoning, int):
+            reasoning = {"thinking_budget": reasoning, "include_thoughts": True}
+        kwargs_chat["config"] = {"thinking_config": reasoning}
+
     return Chat(
         provider=GoogleProvider(
             model=model,
             api_key=api_key,
-            name="Google/Gemini",
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+        kwargs_chat=kwargs_chat,
     )
 
 
@@ -367,7 +379,7 @@ class GoogleProvider(
         cached = usage.cached_content_token_count or 0
         return (
             (usage.prompt_token_count or 0) - cached,
-            usage.candidates_token_count or 0,
+            (usage.candidates_token_count or 0) + (usage.thoughts_token_count or 0),
             usage.cached_content_token_count or 0,
         )
 

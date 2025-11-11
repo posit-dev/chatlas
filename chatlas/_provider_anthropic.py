@@ -17,6 +17,7 @@ from ._content import (
     ContentJson,
     ContentPDF,
     ContentText,
+    ContentThinking,
     ContentToolRequest,
     ContentToolResult,
     ContentToolResultImage,
@@ -41,6 +42,8 @@ if TYPE_CHECKING:
         MessageParam,
         RawMessageStreamEvent,
         TextBlock,
+        ThinkingBlock,
+        ThinkingBlockParam,
         ToolParam,
         ToolUseBlock,
     )
@@ -51,6 +54,7 @@ if TYPE_CHECKING:
     from anthropic.types.messages.batch_create_params import Request as BatchRequest
     from anthropic.types.model_param import ModelParam
     from anthropic.types.text_block_param import TextBlockParam
+    from anthropic.types.thinking_config_enabled_param import ThinkingConfigEnabledParam
     from anthropic.types.tool_result_block_param import ToolResultBlockParam
     from anthropic.types.tool_use_block_param import ToolUseBlockParam
 
@@ -62,6 +66,7 @@ if TYPE_CHECKING:
         ToolUseBlockParam,
         ToolResultBlockParam,
         DocumentBlockParam,
+        ThinkingBlockParam,
     ]
 else:
     Message = object
@@ -72,9 +77,10 @@ def ChatAnthropic(
     *,
     system_prompt: Optional[str] = None,
     model: "Optional[ModelParam]" = None,
-    api_key: Optional[str] = None,
     max_tokens: int = 4096,
     cache: Literal["5m", "1h", "none"] = "5m",
+    reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
+    api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
     """
@@ -121,16 +127,23 @@ def ChatAnthropic(
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
         choosing a model for all but the most casual use.
-    api_key
-        The API key to use for authentication. You generally should not supply
-        this directly, but instead set the `ANTHROPIC_API_KEY` environment
-        variable.
     max_tokens
         Maximum number of tokens to generate before stopping.
     cache
         How long to cache inputs? Defaults to "5m" (five minutes).
         Set to "none" to disable caching or "1h" to cache for one hour.
         See the Caching section for details.
+    reasoning
+        Determines how many tokens Claude can be allocated to reasoning. Must be
+        ≥1024 and less than `max_tokens`. Larger budgets can enable more
+        thorough analysis for complex problems, improving response quality.  See
+        [extended
+        thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
+        for details.
+    api_key
+        The API key to use for authentication. You generally should not supply
+        this directly, but instead set the `ANTHROPIC_API_KEY` environment
+        variable.
     kwargs
         Additional arguments to pass to the `anthropic.Anthropic()` client
         constructor.
@@ -220,6 +233,12 @@ def ChatAnthropic(
     if model is None:
         model = log_model_default("claude-sonnet-4-0")
 
+    kwargs_chat: "SubmitInputArgs" = {}
+    if reasoning is not None:
+        if isinstance(reasoning, int):
+            reasoning = {"type": "enabled", "budget_tokens": reasoning}
+        kwargs_chat = {"thinking": reasoning}
+
     return Chat(
         provider=AnthropicProvider(
             api_key=api_key,
@@ -229,6 +248,7 @@ def ChatAnthropic(
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+        kwargs_chat=kwargs_chat,
     )
 
 
@@ -425,8 +445,11 @@ class AnthropicProvider(
         return kwargs_full
 
     def stream_text(self, chunk) -> Optional[str]:
-        if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":
-            return chunk.delta.text
+        if chunk.type == "content_block_delta":
+            if chunk.delta.type == "text_delta":
+                return chunk.delta.text
+            if chunk.delta.type == "thinking_delta":
+                return chunk.delta.thinking
         return None
 
     def stream_merge_chunks(self, completion, chunk):
@@ -451,6 +474,12 @@ class AnthropicProvider(
                 if not isinstance(this_content.input, str):
                     this_content.input = ""  # type: ignore
                 this_content.input += json_delta  # type: ignore
+            elif chunk.delta.type == "thinking_delta":
+                this_content = cast("ThinkingBlock", this_content)
+                this_content.thinking += chunk.delta.thinking
+            elif chunk.delta.type == "signature_delta":
+                this_content = cast("ThinkingBlock", this_content)
+                this_content.signature += chunk.delta.signature
         elif chunk.type == "content_block_stop":
             this_content = completion.content[chunk.index]
             if this_content.type == "tool_use" and isinstance(this_content.input, str):
@@ -656,6 +685,13 @@ class AnthropicProvider(
                 res["content"] = content.get_model_value()  # type: ignore
 
             return res
+        elif isinstance(content, ContentThinking):
+            extra = content.extra or {}
+            return {
+                "type": "thinking",
+                "thinking": content.thinking,
+                "signature": extra.get("signature", ""),
+            }
 
         raise ValueError(f"Unknown content type: {type(content)}")
 
@@ -709,6 +745,13 @@ class AnthropicProvider(
                             arguments=content.input,
                         )
                     )
+            elif content.type == "thinking":
+                contents.append(
+                    ContentThinking(
+                        thinking=content.thinking,
+                        extra={"signature": content.signature},
+                    )
+                )
 
         return Turn(
             "assistant",
