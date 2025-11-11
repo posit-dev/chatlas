@@ -8,10 +8,12 @@ from pydantic import BaseModel
 from tenacity import retry, wait_exponential
 
 from chatlas import (
+    AssistantTurn,
     Chat,
     ContentToolRequest,
     ContentToolResult,
     Turn,
+    UserTurn,
     content_image_file,
     content_image_url,
     content_pdf_file,
@@ -56,9 +58,8 @@ def assert_turns_existing(chat_fun: ChatFun):
     chat = chat_fun()
     chat.set_turns(
         [
-            Turn("user", "My name is Steve"),
-            Turn(
-                "assistant",
+            UserTurn("My name is Steve"),
+            AssistantTurn(
                 "Hello Steve, how can I help you today?",
             ),
         ]

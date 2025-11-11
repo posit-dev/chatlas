@@ -25,7 +25,7 @@ from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn
+from ._turn import AssistantTurn, Turn
 
 if TYPE_CHECKING:
     from openai.types.responses import (
@@ -284,7 +284,7 @@ class OpenAIProvider(
         self,
         result,
         has_data_model: bool = False,
-    ) -> Turn | None:
+    ) -> AssistantTurn | None:
         response = BatchResult.model_validate(result).response
         if response.status_code != 200:
             # TODO: offer advice on what to do?
@@ -295,7 +295,7 @@ class OpenAIProvider(
         return self._response_as_turn(completion, has_data_model)
 
     @staticmethod
-    def _response_as_turn(completion: Response, has_data_model: bool) -> Turn:
+    def _response_as_turn(completion: Response, has_data_model: bool) -> AssistantTurn:
         contents: list[Content] = []
         for output in completion.output:
             if output.type == "message":
@@ -331,8 +331,7 @@ class OpenAIProvider(
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
 
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
             completion=completion,
         )
@@ -344,9 +343,12 @@ class OpenAIProvider(
 
     @staticmethod
     def _turns_as_inputs(turns: list[Turn]) -> "list[ResponseInputItemParam]":
+        from typing import cast
+
         res: "list[ResponseInputItemParam]" = []
         for turn in turns:
-            res.extend([as_input_param(x, turn.role) for x in turn.contents])
+            role = cast(Role, turn.role)
+            res.extend([as_input_param(x, role) for x in turn.contents])
         return res
 
     def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
