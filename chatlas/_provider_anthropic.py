@@ -32,7 +32,7 @@ from ._provider import (
 )
 from ._tokens import get_token_pricing
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, user_turn
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -413,7 +413,7 @@ class AnthropicProvider(
             }
 
         if "system" not in kwargs_full:
-            if len(turns) > 0 and turns[0].role == "system":
+            if len(turns) > 0 and isinstance(turns[0], SystemTurn):
                 sys_param: "TextBlockParam" = {
                     "type": "text",
                     "text": turns[0].text,
@@ -571,9 +571,9 @@ class AnthropicProvider(
     def _as_message_params(self, turns: list[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
         for i, turn in enumerate(turns):
-            if turn.role == "system":
+            if isinstance(turn, SystemTurn):
                 continue  # system prompt passed as separate arg
-            if turn.role not in ["user", "assistant"]:
+            if not isinstance(turn, (UserTurn, AssistantTurn)):
                 raise ValueError(f"Unknown role {turn.role}")
 
             content = [self._as_content_block(c) for c in turn.contents]
@@ -585,7 +585,7 @@ class AnthropicProvider(
                 if self._cache_control():
                     content[-1]["cache_control"] = self._cache_control()
 
-            role = "user" if turn.role == "user" else "assistant"
+            role = "user" if isinstance(turn, UserTurn) else "assistant"
             messages.append({"role": role, "content": content})
         return messages
 
@@ -710,8 +710,7 @@ class AnthropicProvider(
                         )
                     )
 
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
             finish_reason=completion.stop_reason,
             completion=completion,

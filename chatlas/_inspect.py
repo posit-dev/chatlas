@@ -15,7 +15,7 @@ from ._content import (
     ContentUnion,
 )
 from ._content_pdf import parse_data_url
-from ._turn import Turn
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 
 if TYPE_CHECKING:
     import inspect_ai.model as i_model
@@ -61,10 +61,10 @@ def turn_as_inspect_messages(
     """
     (imodel, _, itool) = try_import_inspect()
 
-    if turn.role == "system":
+    if isinstance(turn, SystemTurn):
         return [imodel.ChatMessageSystem(content=turn.text)]
 
-    if turn.role == "user":
+    if isinstance(turn, UserTurn):
         tool_results: list[ContentToolResult] = []
         other_contents: list[InspectContent] = []
         for x in turn.contents:
@@ -86,7 +86,7 @@ def turn_as_inspect_messages(
             res.append(imodel.ChatMessageUser(content=other_contents))
         return res
 
-    if turn.role == "assistant":
+    if isinstance(turn, AssistantTurn):
         tool_calls: list[ToolCall] = []
         other_contents: list[InspectContent] = []
         for x in turn.contents:

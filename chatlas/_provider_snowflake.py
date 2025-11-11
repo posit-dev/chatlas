@@ -22,7 +22,7 @@ from ._content import (
 from ._logging import log_model_default
 from ._provider import Provider, StandardModelParamNames, StandardModelParams
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn
+from ._turn import AssistantTurn, Turn
 from ._utils import drop_none
 
 if TYPE_CHECKING:
@@ -521,7 +521,7 @@ class SnowflakeProvider(
         import snowflake.core.cortex.inference_service._generated.models as models
 
         if not completion.choices:
-            return Turn("assistant", [])
+            return AssistantTurn([])
 
         choice = completion.choices[0]
         if isinstance(choice, dict):
@@ -529,7 +529,7 @@ class SnowflakeProvider(
 
         message = choice.message
         if message is None:
-            return Turn("assistant", [])
+            return AssistantTurn([])
 
         contents: list[Content] = []
         content_list = message.content_list or []
@@ -556,8 +556,7 @@ class SnowflakeProvider(
                     )
                 )
 
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
             # TODO: no finish_reason in Snowflake?
             # finish_reason=completion.choices[0].finish_reason,

@@ -6,21 +6,21 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from ._content import Content, ContentText, ContentUnion, create_content
 
-__all__ = ("Turn",)
+__all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
 
 CompletionT = TypeVar("CompletionT")
 
 
 class Turn(BaseModel, Generic[CompletionT]):
     """
-    A user or assistant turn
+    Base turn class
 
     Every conversation with a chatbot consists of pairs of user and assistant
     turns, corresponding to an HTTP request and response. These turns are
-    represented by the `Turn` object, which contains a list of
-    [](`~chatlas.types.Content`)s representing the individual messages within the
-    turn. These might be text, images, tool requests (assistant only), or tool
-    responses (user only).
+    represented by `Turn` objects (or their subclasses `UserTurn`, `SystemTurn`,
+    `AssistantTurn`), which contain a list of [](`~chatlas.types.Content`)s
+    representing the individual messages within the turn. These might be text,
+    images, tool requests (assistant only), or tool responses (user only).
 
     Note that a call to `.chat()` and related functions may result in multiple
     user-assistant turn cycles. For example, if you have registered tools, chatlas
@@ -31,14 +31,15 @@ class Turn(BaseModel, Generic[CompletionT]):
     --------
 
     ```python
-    from chatlas import Turn, ChatOpenAI, ChatAnthropic
+    from chatlas import UserTurn, AssistantTurn, ChatOpenAI, ChatAnthropic
 
     chat = ChatOpenAI()
     str(chat.chat("What is the capital of France?"))
     turns = chat.get_turns()
     assert len(turns) == 2
-    assert isinstance(turns[0], Turn)
+    assert isinstance(turns[0], UserTurn)
     assert turns[0].role == "user"
+    assert isinstance(turns[1], AssistantTurn)
     assert turns[1].role == "assistant"
 
     # Load context into a new chat instance
@@ -50,39 +51,17 @@ class Turn(BaseModel, Generic[CompletionT]):
 
     Parameters
     ----------
-    role
-        Either "user", "assistant", or "system".
     contents
         A list of [](`~chatlas.types.Content`) objects.
-    tokens
-        A numeric vector of length 3 representing the number of input, output, and cached
-        tokens (respectively) used in this turn. Currently only recorded for
-        assistant turns.
-    finish_reason
-        A string indicating the reason why the conversation ended. This is only
-        relevant for assistant turns.
-    completion
-        The completion object returned by the provider. This is useful if there's
-        information returned by the provider that chatlas doesn't otherwise expose.
-        This is only relevant for assistant turns.
     """
 
-    role: Literal["user", "assistant", "system"]
     contents: list[ContentUnion] = Field(default_factory=list)
-    tokens: Optional[tuple[int, int, int]] = None
-    finish_reason: Optional[str] = None
-    completion: Optional[CompletionT] = Field(default=None, exclude=True)
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __init__(
         self,
-        role: Literal["user", "assistant", "system"],
         contents: str | Sequence[Content | str],
-        *,
-        tokens: Optional[tuple[int, int, int]] = None,
-        finish_reason: Optional[str] = None,
-        completion: Optional[CompletionT] = None,
         **kwargs,
     ):
         if isinstance(contents, str):
@@ -100,13 +79,14 @@ class Turn(BaseModel, Generic[CompletionT]):
                 raise ValueError("All contents must be Content objects or str.")
 
         super().__init__(
-            role=role,
             contents=contents2,
-            tokens=tokens,
-            finish_reason=finish_reason,
-            completion=completion,
             **kwargs,
         )
+
+    @property
+    def role(self) -> str:
+        """Override in subclasses to return specific role"""
+        return "unknown"
 
     @property
     def text(self) -> str:
@@ -116,13 +96,7 @@ class Turn(BaseModel, Generic[CompletionT]):
         return self.text
 
     def __repr__(self, indent: int = 0) -> str:
-        res = " " * indent + f"<Turn role='{self.role}'"
-        if self.tokens:
-            res += f" tokens={self.tokens}"
-        if self.finish_reason:
-            res += f" finish_reason='{self.finish_reason}'"
-        if self.completion:
-            res += f" completion={self.completion}"
+        res = " " * indent + f"<{self.__class__.__name__} role='{self.role}'"
         res += ">"
         for content in self.contents:
             res += "\n" + content.__repr__(indent=indent + 2)
@@ -136,14 +110,119 @@ class Turn(BaseModel, Generic[CompletionT]):
         `.export_eval()` method on `Chat` for a higher level interface to
         exporting chat history for evaluation purposes.
         """
+        from typing import cast
+
         from ._inspect import try_import_inspect, turn_as_inspect_messages
 
         try_import_inspect()
-        return turn_as_inspect_messages(self, self.role, model=model)
+        role = cast(Literal["system", "user", "assistant"], self.role)
+        return turn_as_inspect_messages(self, role, model=model)
 
 
-def user_turn(*args: Content | str) -> Turn:
+class UserTurn(Turn[CompletionT]):
+    """
+    User turn - represents user input
+
+    Parameters
+    ----------
+    contents
+        A list of [](`~chatlas.types.Content`) objects, or strings.
+    """
+
+    def __init__(
+        self,
+        contents: str | Sequence[Content | str],
+        **kwargs,
+    ):
+        super().__init__(contents, **kwargs)
+
+    @property
+    def role(self) -> Literal["user"]:
+        return "user"
+
+
+class SystemTurn(Turn[CompletionT]):
+    """
+    System turn - represents system prompt
+
+    Parameters
+    ----------
+    contents
+        A list of [](`~chatlas.types.Content`) objects, or strings.
+    """
+
+    def __init__(
+        self,
+        contents: str | Sequence[Content | str],
+        **kwargs,
+    ):
+        super().__init__(contents, **kwargs)
+
+    @property
+    def role(self) -> Literal["system"]:
+        return "system"
+
+
+class AssistantTurn(Turn[CompletionT]):
+    """
+    Assistant turn - represents model response with additional metadata
+
+    Parameters
+    ----------
+    contents
+        A list of [](`~chatlas.types.Content`) objects.
+    tokens
+        A numeric vector of length 3 representing the number of input, output, and cached
+        tokens (respectively) used in this turn.
+    finish_reason
+        A string indicating the reason why the conversation ended.
+    completion
+        The completion object returned by the provider. This is useful if there's
+        information returned by the provider that chatlas doesn't otherwise expose.
+    """
+
+    tokens: Optional[tuple[int, int, int]] = None
+    finish_reason: Optional[str] = None
+    completion: Optional[CompletionT] = Field(default=None, exclude=True)
+
+    def __init__(
+        self,
+        contents: str | Sequence[Content | str],
+        *,
+        tokens: Optional[tuple[int, int, int]] = None,
+        finish_reason: Optional[str] = None,
+        completion: Optional[CompletionT] = None,
+        **kwargs,
+    ):
+        super().__init__(contents, **kwargs)
+        # Set assistant-specific fields after calling parent init
+        if tokens is not None:
+            self.tokens = tokens
+        if finish_reason is not None:
+            self.finish_reason = finish_reason
+        if completion is not None:
+            self.completion = completion
+
+    @property
+    def role(self) -> Literal["assistant"]:
+        return "assistant"
+
+    def __repr__(self, indent: int = 0) -> str:
+        res = " " * indent + f"<{self.__class__.__name__} role='{self.role}'"
+        if self.tokens:
+            res += f" tokens={self.tokens}"
+        if self.finish_reason:
+            res += f" finish_reason='{self.finish_reason}'"
+        if self.completion:
+            res += f" completion={self.completion}"
+        res += ">"
+        for content in self.contents:
+            res += "\n" + content.__repr__(indent=indent + 2)
+        return res + "\n"
+
+
+def user_turn(*args: Content | str) -> UserTurn:
     if len(args) == 0:
         raise ValueError("Must supply at least one input.")
 
-    return Turn("user", args)
+    return UserTurn(args)

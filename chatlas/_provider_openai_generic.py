@@ -25,7 +25,7 @@ from ._provider import (
 )
 from ._tokens import get_token_pricing
 from ._tools import Tool
-from ._turn import Turn, user_turn
+from ._turn import Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -146,7 +146,7 @@ class OpenAIAbstractProvider(
 
         # For other contents, get the token count from the actual message param
         other_contents = [x for x in turn.contents if not isinstance(x, ContentImage)]
-        other_full = self._turns_as_inputs([Turn("user", other_contents)])
+        other_full = self._turns_as_inputs([UserTurn(other_contents)])
         other_tokens = len(encoding.encode(str(other_full)))
 
         return other_tokens + image_tokens

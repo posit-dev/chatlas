@@ -34,7 +34,7 @@ from ._merge import merge_dicts
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -234,11 +234,11 @@ class OpenAICompletionsProvider(
     def _turns_as_inputs(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
         res: list["ChatCompletionMessageParam"] = []
         for turn in turns:
-            if turn.role == "system":
+            if isinstance(turn, SystemTurn):
                 res.append(
                     ChatCompletionSystemMessageParam(content=turn.text, role="system")
                 )
-            elif turn.role == "assistant":
+            elif isinstance(turn, AssistantTurn):
                 content_parts: list["ContentArrayOfContentPart"] = []
                 tool_calls: list["ChatCompletionMessageToolCallParam"] = []
                 for x in turn.contents:
@@ -278,7 +278,7 @@ class OpenAICompletionsProvider(
 
                 res.append(ChatCompletionAssistantMessageParam(**args))
 
-            elif turn.role == "user":
+            elif isinstance(turn, UserTurn):
                 contents: list["ChatCompletionContentPartParam"] = []
                 tool_results: list["ChatCompletionToolMessageParam"] = []
                 for x in turn.contents:
@@ -385,8 +385,7 @@ class OpenAICompletionsProvider(
                     )
                 )
 
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
             finish_reason=completion.choices[0].finish_reason,
             completion=completion,
