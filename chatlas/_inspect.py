@@ -217,11 +217,11 @@ def inspect_content_as_chatlas(content: str | InspectContent) -> Content:
         doc = content.document
         if content.mime_type == "application/pdf":
             url = None
-            data = b""
             if doc.startswith("http://") or doc.startswith("https://"):
                 url = doc
+                data = None
             else:
-                data = base64.b64decode(doc.replace("data:application/pdf;base64,", ""))
+                data = base64.b64decode(doc.split(",", 1)[1])
             return ContentPDF(data=data, url=url, filename=content.filename)
         else:
             return ContentText(text=doc)
