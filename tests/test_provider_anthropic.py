@@ -1,11 +1,10 @@
 import base64
+from typing import cast
 
 import httpx
 import pytest
-from typing import cast
-
 from chatlas import ChatAnthropic, ContentToolResultImage, Turn
-from chatlas._provider_anthropic import ProviderAnthropic
+from chatlas._provider_anthropic import AnthropicProvider
 
 from .conftest import (
     assert_data_extraction,
@@ -144,10 +143,10 @@ def test_anthropic_removes_empty_assistant_turns():
     )
 
     # Get the message params that would be sent to the API
-    provider = cast(ProviderAnthropic, chat.provider)
+    provider = cast(AnthropicProvider, chat.provider)
     turns_json = provider._as_message_params(chat.get_turns())
 
     # Should only have the user turn, not the empty assistant turn
     assert len(turns_json) == 1
     assert turns_json[0]["role"] == "user"
-    assert turns_json[0]["content"][0]["text"] == "Don't say anything"
+    assert turns_json[0]["content"][0]["text"] == "Don't say anything"  # type: ignore
