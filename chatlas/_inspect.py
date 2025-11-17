@@ -172,8 +172,11 @@ def chatlas_content_as_inspect(content: ContentUnion) -> InspectContent:
         data_url = f"data:{content.image_content_type};base64,{content.data or ''}"
         return itool.ContentImage(image=data_url, detail="auto")
     elif isinstance(content, ContentPDF):
+        doc = content.url
+        if doc is None:
+            doc = f"data:application/pdf;base64,{base64.b64encode(content.data).decode('ascii')}"
         return itool.ContentDocument(
-            document=base64.b64encode(content.data).decode("ascii"),
+            document=doc,
             mime_type="application/pdf",
             filename=content.filename,
         )
@@ -211,13 +214,17 @@ def inspect_content_as_chatlas(content: str | InspectContent) -> Content:
                 image_content_type=content_type,  # type: ignore
             )
     if isinstance(content, itool.ContentDocument):
+        doc = content.document
         if content.mime_type == "application/pdf":
-            return ContentPDF(
-                data=base64.b64decode(content.document),
-                filename=content.filename,
-            )
+            url = None
+            if doc.startswith("http://") or doc.startswith("https://"):
+                url = doc
+                data = b""
+            else:
+                data = base64.b64decode(doc.split(",", 1)[1])
+            return ContentPDF(data=data, url=url, filename=content.filename)
         else:
-            return ContentText(text=content.document)
+            return ContentText(text=doc)
     if isinstance(content, itool.ContentData):
         return ContentJson(value=content.data)
     raise ValueError(

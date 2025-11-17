@@ -665,12 +665,17 @@ class ContentPDF(Content):
 
     Parameters
     ----------
-    value
+    data
         The PDF data extracted
+    filename
+        The name of the PDF file
+    url
+        An optional URL where the PDF can be accessed
     """
 
     data: bytes
     filename: str
+    url: Optional[str] = None
 
     content_type: ContentTypeEnum = "pdf"
 
