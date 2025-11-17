@@ -578,6 +578,11 @@ class AnthropicProvider(
 
             content = [self._as_content_block(c) for c in turn.contents]
 
+            # Drop empty assistant turns to avoid an API error
+            # (all messages must have non-empty content)
+            if turn.role == "assistant" and len(content) == 0:
+                continue
+
             # Add cache control to the last content block in the last turn
             # https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-automatic-prefix-checking-works
             is_last_turn = i == len(turns) - 1
