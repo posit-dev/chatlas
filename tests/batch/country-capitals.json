@@ -2,25 +2,26 @@
   "version": 1,
   "stage": "done",
   "batch": {
-    "id": "batch_68bf52330768819090342407c7ab923f",
+    "id": "batch_690a6884adc881908499477522442f77",
     "completion_window": "24h",
-    "created_at": 1757368883,
-    "endpoint": "/v1/chat/completions",
-    "input_file_id": "file-X3SVvZ5wstpVkJCZEPcHun",
+    "created_at": 1762289796,
+    "endpoint": "/v1/responses",
+    "input_file_id": "file-Hy1cokeAuvAfjsi5TPnoEs",
     "object": "batch",
     "status": "completed",
     "cancelled_at": null,
     "cancelling_at": null,
-    "completed_at": 1757385690,
+    "completed_at": 1762300127,
     "error_file_id": null,
     "errors": null,
     "expired_at": null,
-    "expires_at": 1757455283,
+    "expires_at": 1762376196,
     "failed_at": null,
-    "finalizing_at": 1757385689,
-    "in_progress_at": 1757368945,
+    "finalizing_at": 1762300126,
+    "in_progress_at": 1762289799,
     "metadata": null,
-    "output_file_id": "file-HaWC2o5DbxVxjK5c77gk6n",
+    "model": "gpt-4o-mini-2024-07-18",
+    "output_file_id": "file-JHp8wwRe4Shn8mYsrF4mbe",
     "request_counts": {
       "completed": 2,
       "failed": 0,
@@ -28,109 +29,173 @@
     },
     "usage": {
       "input_tokens": 26,
-      "output_tokens": 14,
-      "total_tokens": 40,
       "input_tokens_details": {
         "cached_tokens": 0
       },
+      "output_tokens": 16,
       "output_tokens_details": {
         "reasoning_tokens": 0
-      }
+      },
+      "total_tokens": 42
     }
   },
   "results": [
     {
-      "id": "batch_req_68bf93da18a48190a48d32933accb13f",
+      "id": "batch_req_690a90df4c24819082993a3f48db9c11",
       "custom_id": "request-0",
       "response": {
         "status_code": 200,
-        "request_id": "2d1f76c76844fd86c89e415880aa2196",
+        "request_id": "6b0d23b9af20e19c45ce3d0dff00e4a4",
         "body": {
-          "id": "chatcmpl-CDiWm6i1on5vXZobDQTYtHisxpoWy",
-          "object": "chat.completion",
-          "created": 1757385464,
+          "id": "resp_03fadd1c6825c64d01690a90c90f248195a00b1029648d022b",
+          "object": "response",
+          "created_at": 1762300105,
+          "status": "completed",
+          "background": false,
+          "billing": {
+            "payer": "developer"
+          },
+          "error": null,
+          "incomplete_details": null,
+          "instructions": null,
+          "max_output_tokens": null,
+          "max_tool_calls": null,
           "model": "gpt-4o-mini-2024-07-18",
-          "choices": [
+          "output": [
             {
-              "index": 0,
-              "message": {
-                "role": "assistant",
-                "content": "The capital of France is Paris.",
-                "refusal": null,
-                "annotations": []
-              },
-              "logprobs": null,
-              "finish_reason": "stop"
+              "id": "msg_03fadd1c6825c64d01690a90ca777c8195b3f100a2fab3f122",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "The capital of France is Paris."
+                }
+              ],
+              "role": "assistant"
             }
           ],
-          "usage": {
-            "prompt_tokens": 13,
-            "completion_tokens": 7,
-            "total_tokens": 20,
-            "prompt_tokens_details": {
-              "cached_tokens": 0,
-              "audio_tokens": 0
-            },
-            "completion_tokens_details": {
-              "reasoning_tokens": 0,
-              "audio_tokens": 0,
-              "accepted_prediction_tokens": 0,
-              "rejected_prediction_tokens": 0
-            }
+          "parallel_tool_calls": true,
+          "previous_response_id": null,
+          "prompt_cache_key": null,
+          "prompt_cache_retention": null,
+          "reasoning": {
+            "effort": null,
+            "summary": null
           },
+          "safety_identifier": null,
           "service_tier": "default",
-          "system_fingerprint": "fp_8bda4d3a2c"
+          "store": false,
+          "temperature": 1.0,
+          "text": {
+            "format": {
+              "type": "text"
+            },
+            "verbosity": "medium"
+          },
+          "tool_choice": "auto",
+          "tools": [],
+          "top_logprobs": 0,
+          "top_p": 1.0,
+          "truncation": "disabled",
+          "usage": {
+            "input_tokens": 13,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 8,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 21
+          },
+          "user": null,
+          "metadata": {}
         }
       },
       "error": null
     },
     {
-      "id": "batch_req_68bf93da20208190802c1abcf31b622c",
+      "id": "batch_req_690a90df68688190bb427ba6f5a32e96",
       "custom_id": "request-1",
       "response": {
         "status_code": 200,
-        "request_id": "c85dae11995328f94bca24f518d50efd",
+        "request_id": "6173c48fa6272cb0d3fd224bedfc2cab",
         "body": {
-          "id": "chatcmpl-CDiWmegbCu3MA9KsewSkdCRpCxtP6",
-          "object": "chat.completion",
-          "created": 1757385464,
+          "id": "resp_065b32d1eda7e84e01690a90c4c1e481949efaee7f35eeaaee",
+          "object": "response",
+          "created_at": 1762300100,
+          "status": "completed",
+          "background": false,
+          "billing": {
+            "payer": "developer"
+          },
+          "error": null,
+          "incomplete_details": null,
+          "instructions": null,
+          "max_output_tokens": null,
+          "max_tool_calls": null,
           "model": "gpt-4o-mini-2024-07-18",
-          "choices": [
+          "output": [
             {
-              "index": 0,
-              "message": {
-                "role": "assistant",
-                "content": "The capital of Germany is Berlin.",
-                "refusal": null,
-                "annotations": []
-              },
-              "logprobs": null,
-              "finish_reason": "stop"
+              "id": "msg_065b32d1eda7e84e01690a90c641bc81949106fee5b9a919a3",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "The capital of Germany is Berlin."
+                }
+              ],
+              "role": "assistant"
             }
           ],
-          "usage": {
-            "prompt_tokens": 13,
-            "completion_tokens": 7,
-            "total_tokens": 20,
-            "prompt_tokens_details": {
-              "cached_tokens": 0,
-              "audio_tokens": 0
-            },
-            "completion_tokens_details": {
-              "reasoning_tokens": 0,
-              "audio_tokens": 0,
-              "accepted_prediction_tokens": 0,
-              "rejected_prediction_tokens": 0
-            }
+          "parallel_tool_calls": true,
+          "previous_response_id": null,
+          "prompt_cache_key": null,
+          "prompt_cache_retention": null,
+          "reasoning": {
+            "effort": null,
+            "summary": null
           },
+          "safety_identifier": null,
           "service_tier": "default",
-          "system_fingerprint": "fp_8bda4d3a2c"
+          "store": false,
+          "temperature": 1.0,
+          "text": {
+            "format": {
+              "type": "text"
+            },
+            "verbosity": "medium"
+          },
+          "tool_choice": "auto",
+          "tools": [],
+          "top_logprobs": 0,
+          "top_p": 1.0,
+          "truncation": "disabled",
+          "usage": {
+            "input_tokens": 13,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 8,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 21
+          },
+          "user": null,
+          "metadata": {}
         }
       },
       "error": null
     }
   ],
-  "started_at": 1757368881,
+  "started_at": 1762289795,
   "hash": {
     "provider": "OpenAI",
     "model": "gpt-4o-mini",

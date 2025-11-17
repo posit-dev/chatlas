@@ -578,6 +578,11 @@ class AnthropicProvider(
 
             content = [self._as_content_block(c) for c in turn.contents]
 
+            # Drop empty assistant turns to avoid an API error
+            # (all messages must have non-empty content)
+            if turn.role == "assistant" and len(content) == 0:
+                continue
+
             # Add cache control to the last content block in the last turn
             # https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-automatic-prefix-checking-works
             is_last_turn = i == len(turns) - 1
@@ -824,7 +829,7 @@ def ChatBedrockAnthropic(
     *,
     model: Optional[str] = None,
     max_tokens: int = 4096,
-    cache: Literal["5m", "1h", "none"] = "5m",
+    cache: Literal["5m", "1h", "none"] = "none",
     aws_secret_key: Optional[str] = None,
     aws_access_key: Optional[str] = None,
     aws_region: Optional[str] = None,
@@ -989,7 +994,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_profile: str | None,
         aws_session_token: str | None,
         max_tokens: int = 4096,
-        cache: Literal["5m", "1h", "none"] = "5m",
+        cache: Literal["5m", "1h", "none"] = "none",
         base_url: str | None,
         name: str = "AWS/Bedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
