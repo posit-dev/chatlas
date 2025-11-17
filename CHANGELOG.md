@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * Comprehensive documentation in the [Evals guide](https://posit-dev.github.io/chatlas/misc/evals.html).
 * `ChatOpenAI()` (and `ChatAzureOpenAI()`) gain access to latest models, built-in tools, etc. as a result of moving to the new [Responses API](https://platform.openai.com/docs/api-reference/responses). (#192)
 * Added rudimentary support for a new `ContentThinking` type. (#192)
-* `ChatAnthropic()` and `ChatBedrockAnthropic()` gain new `cache` parameter to control caching. For `ChatAnthropic()`, it defaults to `"5m"`, which should (on average) reduce the cost of your chats. For `ChatBedrockAnthropic()`, it defaults to `"none"`, since caching isn't guaranteed to be widely supported  (#215)
+* `ChatAnthropic()` and `ChatBedrockAnthropic()` gain new `cache` parameter to control caching. For `ChatAnthropic()`, it defaults to `"5m"`, which should (on average) reduce the cost of your chats. For `ChatBedrockAnthropic()`, it defaults to `"none"`, since caching isn't guaranteed to be widely supported (#215)
 
 ### Changes
 
