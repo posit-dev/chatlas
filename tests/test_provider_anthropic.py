@@ -1,9 +1,10 @@
 import base64
+from typing import cast
 
 import httpx
 import pytest
-
-from chatlas import ChatAnthropic, ContentToolResultImage
+from chatlas import ChatAnthropic, ContentToolResultImage, Turn
+from chatlas._provider_anthropic import AnthropicProvider
 
 from .conftest import (
     assert_data_extraction,
@@ -129,3 +130,23 @@ def test_anthropic_custom_http_client():
 
 def test_anthropic_list_models():
     assert_list_models(chat_func)
+
+
+def test_anthropic_removes_empty_assistant_turns():
+    """Test that empty assistant turns are dropped to avoid API errors."""
+    chat = chat_func()
+    chat.set_turns(
+        [
+            Turn("user", "Don't say anything"),
+            Turn("assistant", []),
+        ]
+    )
+
+    # Get the message params that would be sent to the API
+    provider = cast(AnthropicProvider, chat.provider)
+    turns_json = provider._as_message_params(chat.get_turns())
+
+    # Should only have the user turn, not the empty assistant turn
+    assert len(turns_json) == 1
+    assert turns_json[0]["role"] == "user"
+    assert turns_json[0]["content"][0]["text"] == "Don't say anything"  # type: ignore

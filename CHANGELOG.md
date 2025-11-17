@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `.set_model_params()` now works correctly for `.*_async()` methods. (#198)
 * `.chat_structured()` results are now included correctly into the multi-turn conversation history. (#203)
+* `ChatAnthropic()` now drops empty assistant turns to avoid API errors when tools return side-effect only results. (#226)
 
 ## [0.13.2] - 2025-10-02
 
