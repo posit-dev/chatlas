@@ -218,28 +218,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         return self.provider.list_models()
 
-    @overload
-    def get_turns(
-        self,
-        *,
-        include_system_prompt: Literal[False] = False,
-        tool_result_role: Literal["assistant", "user"] = "user",
-    ) -> list[AssistantTurn[CompletionT] | UserTurn]: ...
-
-    @overload
-    def get_turns(
-        self,
-        *,
-        include_system_prompt: Literal[True],
-        tool_result_role: Literal["assistant", "user"] = "user",
-    ) -> list[Turn]: ...
-
     def get_turns(
         self,
         *,
         include_system_prompt: bool = False,
         tool_result_role: Literal["assistant", "user"] = "user",
-    ) -> list[Turn] | list[AssistantTurn[CompletionT] | UserTurn]:
+    ) -> list[Turn]:
         """
         Get all the turns (i.e., message contents) in the chat.
 
@@ -1068,7 +1052,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A (consumed) response from the chat. Apply `str()` to this object to
             get the text content of the response.
         """
-        turn = user_turn(*args)
+        turn = user_turn(*args, prior_turns=self.get_turns())
 
         display = self._markdown_display(echo=echo)
 
@@ -1121,7 +1105,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A (consumed) response from the chat. Apply `str()` to this object to
             get the text content of the response.
         """
-        turn = user_turn(*args)
+        turn = user_turn(*args, prior_turns=self.get_turns())
 
         display = self._markdown_display(echo=echo)
 
@@ -1192,7 +1176,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             An (unconsumed) response from the chat. Iterate over this object to
             consume the response.
         """
-        turn = user_turn(*args)
+        turn = user_turn(*args, prior_turns=self.get_turns())
 
         display = self._markdown_display(echo=echo)
 
@@ -1264,7 +1248,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             An (unconsumed) response from the chat. Iterate over this object to
             consume the response.
         """
-        turn = user_turn(*args)
+        turn = user_turn(*args, prior_turns=self.get_turns())
 
         display = self._markdown_display(echo=echo)
 
@@ -1363,7 +1347,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         response = ChatResponse(
             self._submit_turns(
-                user_turn(*args),
+                user_turn(*args, prior_turns=self.get_turns()),
                 data_model=data_model,
                 echo=echo,
                 stream=stream,
@@ -1463,7 +1447,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         response = ChatResponseAsync(
             self._submit_turns_async(
-                user_turn(*args),
+                user_turn(*args, prior_turns=self.get_turns()),
                 data_model=data_model,
                 echo=echo,
                 stream=stream,

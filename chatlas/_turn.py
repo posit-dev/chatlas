@@ -5,7 +5,14 @@ from typing import Any, Generic, Literal, Optional, Sequence, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from ._content import Content, ContentText, ContentUnion, create_content
+from ._content import (
+    Content,
+    ContentText,
+    ContentToolRequest,
+    ContentToolResult,
+    ContentUnion,
+    create_content,
+)
 
 __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
 
@@ -342,8 +349,53 @@ class AssistantTurn(Turn, Generic[CompletionT]):
         return res + "\n"
 
 
-def user_turn(*args: Content | str) -> UserTurn:
+def user_turn(
+    *args: Content | str,
+    prior_turns: Optional[list[Turn]] = None,
+) -> UserTurn:
     if len(args) == 0:
         raise ValueError("Must supply at least one input.")
 
-    return UserTurn(args)
+    # If the prior turns contain dangling tool requests
+    # (possibly due to an interrupted chat), then complete them.
+    results = complete_dangling_tool_requests(prior_turns or [])
+
+    if not results:
+        return UserTurn(args)
+
+    # Include the tool results as additional contents in the user turn
+    # Tool results must come first, before the new user input
+    contents = results + list(args)
+    return UserTurn(contents)
+
+
+def complete_dangling_tool_requests(turns: Sequence[Turn]) -> list[ContentToolResult]:
+    if len(turns) == 0:
+        return []
+
+    last_turn = turns[-1]
+    if not isinstance(last_turn, AssistantTurn):
+        return []
+
+    tool_requests = [
+        content
+        for content in last_turn.contents
+        if isinstance(content, ContentToolRequest)
+    ]
+    if not tool_requests:
+        return []
+
+    return [
+        ContentToolResult(
+            value=None,
+            error=ToolNotInvokedError("Chat ended before the tool could be invoked."),
+            request=req,
+        )
+        for req in tool_requests
+    ]
+
+
+class ToolNotInvokedError(Exception):
+    """Raised when a tool was requested but not invoked before chat ended."""
+
+    pass
