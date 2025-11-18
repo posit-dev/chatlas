@@ -276,15 +276,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         # If a turn is purely a tool result, change its role
         turns2: list[Turn] = []
         for turn in turns:
+            turn2 = turn
             if all(isinstance(c, ContentToolResult) for c in turn.contents):
-                # Convert to appropriate type based on tool_result_role
                 if tool_result_role == "assistant":
-                    turns2.append(AssistantTurn(turn.contents))
-                else:
-                    turns2.append(UserTurn(turn.contents))
-            else:
-                # Deep copy the turn to avoid mutating original
-                turns2.append(copy.copy(turn))
+                    turn2 = AssistantTurn(contents=turn.contents)
+            turns2.append(turn2)
 
         # If two consecutive turns have the same role (i.e., assistant), collapse them into one
         final_turns: list[Turn] = []
