@@ -231,7 +231,7 @@ class AssistantTurn(Turn, Generic[CompletionT]):
         return "assistant"
 
     def __repr__(self, indent: int = 0) -> str:
-        res = " " * indent + f"<{self.__class__.__name__} role='{self.role}'"
+        res = " " * indent + f"<{self.__class__.__name__}"
         if self.tokens:
             res += f" tokens={self.tokens}"
         if self.finish_reason:
