@@ -37,7 +37,7 @@ from ._provider_portkey import ChatPortkey
 from ._provider_snowflake import ChatSnowflake
 from ._tokens import token_usage
 from ._tools import Tool, ToolRejectError
-from ._turn import Turn
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 
 try:
     from ._version import version as __version__
@@ -90,6 +90,9 @@ __all__ = (
     "Tool",
     "ToolRejectError",
     "Turn",
+    "UserTurn",
+    "SystemTurn",
+    "AssistantTurn",
     "types",
 )
 

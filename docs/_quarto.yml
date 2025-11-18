@@ -175,6 +175,9 @@ quartodoc:
     - title: Turns
       desc: A provider-agnostic representation of content generated during an assistant/user turn.
       contents:
+        - AssistantTurn
+        - UserTurn
+        - SystemTurn
         - Turn
     - title: Query token usage
       contents:

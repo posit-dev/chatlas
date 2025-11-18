@@ -24,7 +24,7 @@ from ._merge import merge_dicts
 from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import get_token_pricing
 from ._tools import Tool
-from ._turn import Turn, user_turn
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 
 if TYPE_CHECKING:
     from google.genai.types import Content as GoogleContent
@@ -301,7 +301,7 @@ class GoogleProvider(
             config = GenerateContentConfig.model_construct(**config)
 
         if config.system_instruction is None:
-            if len(turns) > 0 and turns[0].role == "system":
+            if len(turns) > 0 and isinstance(turns[0], SystemTurn):
                 config.system_instruction = turns[0].text
 
         if data_model:
@@ -341,13 +341,13 @@ class GoogleProvider(
             merge_dicts(completion, chunkd),  # type: ignore
         )
 
-    def stream_turn(self, completion, has_data_model) -> Turn:
+    def stream_turn(self, completion, has_data_model):
         return self._as_turn(
             completion,
             has_data_model,
         )
 
-    def value_turn(self, completion, has_data_model) -> Turn:
+    def value_turn(self, completion, has_data_model):
         completion = cast("GenerateContentResponseDict", completion.model_dump())
         return self._as_turn(completion, has_data_model)
 
@@ -424,12 +424,12 @@ class GoogleProvider(
 
         contents: list["GoogleContent"] = []
         for turn in turns:
-            if turn.role == "system":
+            if isinstance(turn, SystemTurn):
                 continue  # System messages are handled separately
-            elif turn.role == "user":
+            elif isinstance(turn, UserTurn):
                 parts = [self._as_part_type(c) for c in turn.contents]
                 contents.append(GoogleContent(role=turn.role, parts=parts))
-            elif turn.role == "assistant":
+            elif isinstance(turn, AssistantTurn):
                 parts = [self._as_part_type(c) for c in turn.contents]
                 contents.append(GoogleContent(role="model", parts=parts))
             else:
@@ -499,12 +499,12 @@ class GoogleProvider(
         self,
         message: "GenerateContentResponseDict",
         has_data_model: bool,
-    ) -> Turn:
+    ) -> AssistantTurn:
         from google.genai.types import FinishReason
 
         candidates = message.get("candidates")
         if not candidates:
-            return Turn("assistant", "")
+            return AssistantTurn("")
 
         parts: list["PartDict"] = []
         finish_reason = None
@@ -556,8 +556,7 @@ class GoogleProvider(
         if isinstance(finish_reason, FinishReason):
             finish_reason = finish_reason.name
 
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
             finish_reason=finish_reason,
             completion=message,

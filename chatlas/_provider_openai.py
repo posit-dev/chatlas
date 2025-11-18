@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import warnings
-from typing import TYPE_CHECKING, Literal, Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 import orjson
 from openai.types.responses import Response, ResponseStreamEvent
@@ -25,7 +25,7 @@ from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn
+from ._turn import AssistantTurn, Turn
 
 if TYPE_CHECKING:
     from openai.types.responses import (
@@ -37,10 +37,9 @@ if TYPE_CHECKING:
     from openai.types.responses.tool_param import ToolParam
     from openai.types.shared_params.responses_model import ResponsesModel
 
+    from ._turn import Role
     from .types.openai import ChatClientArgs
     from .types.openai import ResponsesSubmitInputArgs as SubmitInputArgs
-
-Role = Literal["user", "assistant", "system"]
 
 
 def ChatOpenAI(
@@ -280,11 +279,7 @@ class OpenAIProvider(
             cached_tokens,
         )
 
-    def batch_result_turn(
-        self,
-        result,
-        has_data_model: bool = False,
-    ) -> Turn | None:
+    def batch_result_turn(self, result, has_data_model: bool = False):
         response = BatchResult.model_validate(result).response
         if response.status_code != 200:
             # TODO: offer advice on what to do?
@@ -295,7 +290,7 @@ class OpenAIProvider(
         return self._response_as_turn(completion, has_data_model)
 
     @staticmethod
-    def _response_as_turn(completion: Response, has_data_model: bool) -> Turn:
+    def _response_as_turn(completion: Response, has_data_model: bool) -> AssistantTurn:
         contents: list[Content] = []
         for output in completion.output:
             if output.type == "message":
@@ -331,8 +326,7 @@ class OpenAIProvider(
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
 
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
             completion=completion,
         )

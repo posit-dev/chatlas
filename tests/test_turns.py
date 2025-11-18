@@ -2,13 +2,13 @@ import pytest
 
 from chatlas import ChatAnthropic
 from chatlas._content import ToolInfo
-from chatlas._turn import Turn
+from chatlas._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 from chatlas.types import ContentJson, ContentText, ContentToolRequest, ContentToolResult
 
 
 def test_system_prompt_applied_correctly():
     sys_prompt = "foo"
-    user_msg = Turn("user", "bar")
+    user_msg = UserTurn("bar")
 
     # Test chat with no system prompt
     chat1 = ChatAnthropic()
@@ -24,7 +24,7 @@ def test_system_prompt_applied_correctly():
     chat2.add_turn(user_msg)
     assert chat2.get_turns() == [user_msg]
     assert chat2.get_turns(include_system_prompt=True) == [
-        Turn("system", sys_prompt),
+        SystemTurn(sys_prompt),
         user_msg,
     ]
 
@@ -34,11 +34,11 @@ def test_system_prompt_applied_correctly():
 
     chat2.set_turns([])
     assert chat2.get_turns() == []
-    assert chat2.get_turns(include_system_prompt=True) == [Turn("system", sys_prompt)]
+    assert chat2.get_turns(include_system_prompt=True) == [SystemTurn(sys_prompt)]
 
 
 def test_add_turn_system_role_error():
-    sys_msg = Turn("system", "foo")
+    sys_msg = SystemTurn("foo")
     chat = ChatAnthropic()
 
     with pytest.raises(
@@ -48,9 +48,9 @@ def test_add_turn_system_role_error():
 
 
 def test_set_turns_functionality():
-    user_msg1 = Turn("user", "hello")
-    assistant_msg = Turn("assistant", "hi there")
-    user_msg2 = Turn("user", "how are you?")
+    user_msg1 = UserTurn("hello")
+    assistant_msg = AssistantTurn("hi there")
+    user_msg2 = UserTurn("how are you?")
 
     chat = ChatAnthropic()
 
@@ -60,7 +60,7 @@ def test_set_turns_functionality():
     assert chat.get_turns() == turns
 
     # Test that system turns in set_turns raise error
-    sys_msg = Turn("system", "foo")
+    sys_msg = SystemTurn("foo")
     with pytest.raises(
         ValueError, match="Turn 0 has a role 'system', which is not allowed"
     ):
@@ -82,8 +82,7 @@ def test_system_prompt_property():
 
 
 def test_can_extract_text_easily():
-    turn = Turn(
-        "assistant",
+    turn = AssistantTurn(
         [
             ContentText(text="ABC"),
             ContentJson(value=dict(a="1")),
@@ -112,10 +111,10 @@ def test_get_turns_tool_result_role_default():
     )
     
     # Add turns with mixed content
-    user_turn = Turn("user", "What is 1 + 2?")
-    assistant_turn = Turn("assistant", [ContentText(text="I'll calculate that."), tool_request])
-    tool_result_turn = Turn("user", [tool_result])
-    final_assistant_turn = Turn("assistant", "The answer is 3.")
+    user_turn = UserTurn("What is 1 + 2?")
+    assistant_turn = AssistantTurn([ContentText(text="I'll calculate that."), tool_request])
+    tool_result_turn = UserTurn([tool_result])
+    final_assistant_turn = AssistantTurn("The answer is 3.")
     
     chat.set_turns([user_turn, assistant_turn, tool_result_turn, final_assistant_turn])
     
@@ -145,10 +144,10 @@ def test_get_turns_tool_result_role_assistant():
     )
     
     # Add turns with mixed content
-    user_turn = Turn("user", "What is 1 + 2?")
-    assistant_turn = Turn("assistant", [ContentText(text="I'll calculate that."), tool_request])
-    tool_result_turn = Turn("user", [tool_result])
-    final_assistant_turn = Turn("assistant", "The answer is 3.")
+    user_turn = UserTurn("What is 1 + 2?")
+    assistant_turn = AssistantTurn([ContentText(text="I'll calculate that."), tool_request])
+    tool_result_turn = UserTurn([tool_result])
+    final_assistant_turn = AssistantTurn("The answer is 3.")
     
     chat.set_turns([user_turn, assistant_turn, tool_result_turn, final_assistant_turn])
     
@@ -185,11 +184,11 @@ def test_get_turns_tool_result_role_collapse_consecutive():
     )
     
     # Create turns with multiple consecutive assistant turns via tool results
-    user_turn = Turn("user", "Do some math")
-    assistant_turn1 = Turn("assistant", "Let me calculate.")
-    tool_result_turn1 = Turn("user", [tool_result1])
-    tool_result_turn2 = Turn("user", [tool_result2]) 
-    assistant_turn2 = Turn("assistant", "Done with calculations.")
+    user_turn = UserTurn("Do some math")
+    assistant_turn1 = AssistantTurn("Let me calculate.")
+    tool_result_turn1 = UserTurn([tool_result1])
+    tool_result_turn2 = UserTurn([tool_result2]) 
+    assistant_turn2 = AssistantTurn("Done with calculations.")
     
     chat.set_turns([user_turn, assistant_turn1, tool_result_turn1, tool_result_turn2, assistant_turn2])
     
@@ -223,10 +222,10 @@ def test_get_turns_tool_result_role_mixed_content():
     )
     
     # Turn with mixed content (text + tool result)
-    user_turn = Turn("user", "Check the weather")
-    assistant_turn = Turn("assistant", "I'll check that.")
-    mixed_turn = Turn("user", [ContentText(text="Here's additional info:"), tool_result])
-    final_turn = Turn("assistant", "The weather is nice!")
+    user_turn = UserTurn("Check the weather")
+    assistant_turn = AssistantTurn("I'll check that.")
+    mixed_turn = UserTurn([ContentText(text="Here's additional info:"), tool_result])
+    final_turn = AssistantTurn("The weather is nice!")
     
     chat.set_turns([user_turn, assistant_turn, mixed_turn, final_turn])
     
@@ -260,11 +259,11 @@ def test_get_turns_tool_result_role_purely_tool_results():
     )
     
     # Create different types of turns
-    user_turn = Turn("user", "Do calculations")
-    assistant_turn = Turn("assistant", "I'll help.")
-    pure_tool_turn = Turn("user", [tool_result1, tool_result2])  # Pure tool results
-    mixed_tool_turn = Turn("user", [ContentText(text="Results:"), tool_result1])  # Mixed content
-    final_turn = Turn("assistant", "All done.")
+    user_turn = UserTurn("Do calculations")
+    assistant_turn = AssistantTurn("I'll help.")
+    pure_tool_turn = UserTurn([tool_result1, tool_result2])  # Pure tool results
+    mixed_tool_turn = UserTurn([ContentText(text="Results:"), tool_result1])  # Mixed content
+    final_turn = AssistantTurn("All done.")
     
     chat.set_turns([user_turn, assistant_turn, pure_tool_turn, mixed_tool_turn, final_turn])
     
@@ -283,7 +282,7 @@ def test_get_turns_tool_result_role_invalid_value():
     chat = ChatAnthropic()
     
     # Add some content so validation is triggered
-    user_turn = Turn("user", "Hello")
+    user_turn = UserTurn("Hello")
     chat.set_turns([user_turn])
     
     with pytest.raises(ValueError, match="Expected `tool_result_role` to be one of 'user' or 'assistant', not 'invalid'"):
@@ -301,10 +300,10 @@ def test_get_turns_tool_result_role_with_system_prompt():
         value=4,
     )
     
-    user_turn = Turn("user", "Calculate 2+2")
-    assistant_turn = Turn("assistant", "I'll calculate that.")
-    tool_result_turn = Turn("user", [tool_result])
-    final_turn = Turn("assistant", "The answer is 4.")
+    user_turn = UserTurn("Calculate 2+2")
+    assistant_turn = AssistantTurn("I'll calculate that.")
+    tool_result_turn = UserTurn([tool_result])
+    final_turn = AssistantTurn("The answer is 4.")
     
     chat.set_turns([user_turn, assistant_turn, tool_result_turn, final_turn])
     
@@ -335,8 +334,8 @@ def test_get_turns_tool_result_role_no_tool_results():
     """Test tool_result_role with chat containing no tool results"""
     chat = ChatAnthropic()
     
-    user_turn = Turn("user", "Hello")
-    assistant_turn = Turn("assistant", "Hi there!")
+    user_turn = UserTurn("Hello")
+    assistant_turn = AssistantTurn("Hi there!")
     
     chat.set_turns([user_turn, assistant_turn])
     

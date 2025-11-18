@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from chatlas import Chat, ChatAnthropic, ContentToolRequest, Turn
+from chatlas import AssistantTurn, Chat, ChatAnthropic, ContentToolRequest, Turn, UserTurn
 from chatlas._content import (
     ContentImageInline,
     ContentImageRemote,
@@ -69,8 +69,8 @@ class TestExportEval:
         chat = chat_func(system_prompt=SYSTEM_DEFAULT)
         chat.set_turns(
             [
-                Turn("user", "What is 2+2?"),
-                Turn("assistant", "2 + 2 = 4"),
+                UserTurn("What is 2+2?"),
+                AssistantTurn("2 + 2 = 4"),
             ]
         )
 
@@ -94,9 +94,8 @@ class TestExportEval:
         chat = chat_func()
         chat.set_turns(
             [
-                Turn("user", "Tell me a joke"),
-                Turn(
-                    "assistant",
+                UserTurn("Tell me a joke"),
+                AssistantTurn(
                     "Why did the chicken cross the road? To get to the other side!",
                 ),
             ]
@@ -118,16 +117,16 @@ class TestExportEval:
 
         chat.set_turns(
             [
-                Turn("user", "What is 2+2?"),
-                Turn("assistant", "2 + 2 = 4"),
+                UserTurn("What is 2+2?"),
+                AssistantTurn("2 + 2 = 4"),
             ]
         )
         chat.export_eval(output_file)
 
         chat.set_turns(
             [
-                Turn("user", "What is 3+3?"),
-                Turn("assistant", "3 + 3 = 6"),
+                UserTurn("What is 3+3?"),
+                AssistantTurn("3 + 3 = 6"),
             ]
         )
         chat.export_eval(output_file)
@@ -146,16 +145,16 @@ class TestExportEval:
 
         chat.set_turns(
             [
-                Turn("user", "First question"),
-                Turn("assistant", "First answer"),
+                UserTurn("First question"),
+                AssistantTurn("First answer"),
             ]
         )
         chat.export_eval(output_file)
 
         chat.set_turns(
             [
-                Turn("user", "Second question"),
-                Turn("assistant", "Second answer"),
+                UserTurn("Second question"),
+                AssistantTurn("Second answer"),
             ]
         )
         chat.export_eval(output_file, overwrite=True)
@@ -172,16 +171,16 @@ class TestExportEval:
 
         chat.set_turns(
             [
-                Turn("user", "First question"),
-                Turn("assistant", "First answer"),
+                UserTurn("First question"),
+                AssistantTurn("First answer"),
             ]
         )
         chat.export_eval(output_file)
 
         chat.set_turns(
             [
-                Turn("user", "Second question"),
-                Turn("assistant", "Second answer"),
+                UserTurn("Second question"),
+                AssistantTurn("Second answer"),
             ]
         )
         with pytest.raises(ValueError, match="already exists"):
@@ -191,8 +190,8 @@ class TestExportEval:
         chat = chat_func()
         chat.set_turns(
             [
-                Turn("user", "What is 2+2?"),
-                Turn("assistant", "2 + 2 = 4"),
+                UserTurn("What is 2+2?"),
+                AssistantTurn("2 + 2 = 4"),
             ]
         )
 
@@ -202,7 +201,7 @@ class TestExportEval:
 
     def test_export_eval_no_assistant_turn(self, tmp_path):
         chat = chat_func()
-        chat.set_turns([Turn("user", "Hello")])
+        chat.set_turns([UserTurn("Hello")])
 
         output_file = tmp_path / "test_eval.jsonl"
         with pytest.raises(ValueError, match="must be an assistant turn"):
@@ -212,8 +211,8 @@ class TestExportEval:
         chat = chat_func()
         chat.set_turns(
             [
-                Turn("user", "What is 2+2?"),
-                Turn("assistant", "2 + 2 = 4"),
+                UserTurn("What is 2+2?"),
+                AssistantTurn("2 + 2 = 4"),
             ]
         )
 
@@ -232,8 +231,8 @@ class TestExportEval:
         chat = chat_func()
         chat.set_turns(
             [
-                Turn("user", "First question"),
-                Turn("assistant", "First answer"),
+                UserTurn("First question"),
+                AssistantTurn("First answer"),
             ]
         )
 
@@ -241,8 +240,8 @@ class TestExportEval:
         chat.export_eval(
             output_file,
             turns=[
-                Turn("user", "Second question"),
-                Turn("assistant", "Second answer"),
+                UserTurn("Second question"),
+                AssistantTurn("Second answer"),
             ],
         )
 
@@ -291,8 +290,8 @@ class TestInspectIntegration:
 
         chat.set_turns(
             [
-                Turn("user", "My name is Gregg."),
-                Turn("assistant", "Hello Gregg! How can I assist you today?"),
+                UserTurn("My name is Gregg."),
+                AssistantTurn("Hello Gregg! How can I assist you today?"),
             ]
         )
 
@@ -475,7 +474,7 @@ class TestContentTranslation:
     def test_round_trip_text_translation(self):
         """Test that text content survives round-trip translation."""
 
-        original_turn = Turn("user", "Hello, how are you?")
+        original_turn = UserTurn("Hello, how are you?")
         inspect_msgs = turn_as_inspect_messages(original_turn, "user")
         recovered_turns = inspect_messages_as_turns(inspect_msgs)
 
@@ -486,7 +485,7 @@ class TestContentTranslation:
     def test_round_trip_assistant_translation(self):
         """Test that assistant turns survive round-trip translation."""
 
-        original_turn = Turn("assistant", "I'm doing great, thank you!")
+        original_turn = AssistantTurn("I'm doing great, thank you!")
         inspect_msgs = turn_as_inspect_messages(original_turn, "assistant")
         recovered_turns = inspect_messages_as_turns(inspect_msgs)  # type: ignore
 
@@ -544,7 +543,7 @@ class TestContentTranslation:
             name="get_weather",
             arguments={"city": "New York"},
         )
-        original_turn = Turn("assistant", [tool_request])
+        original_turn = AssistantTurn([tool_request])
 
         inspect_msgs = turn_as_inspect_messages(original_turn, "assistant")
         recovered_turns = inspect_messages_as_turns(inspect_msgs)  # type: ignore
@@ -564,14 +563,13 @@ class TestExportEvalWithComplexContent:
         chat = chat_func()
         chat.set_turns(
             [
-                Turn(
-                    "user",
+                UserTurn(
                     [
                         "What's in this image?",
                         ContentImageRemote(url="https://example.com/image.png"),
                     ],
                 ),
-                Turn("assistant", "I see a red car."),
+                AssistantTurn("I see a red car."),
             ]
         )
 
@@ -593,14 +591,13 @@ class TestExportEvalWithComplexContent:
         chat = chat_func()
         chat.set_turns(
             [
-                Turn(
-                    "user",
+                UserTurn(
                     [
                         "Summarize this PDF:",
                         ContentPDF(data=b"fake pdf content", filename="document.pdf"),
                     ],
                 ),
-                Turn("assistant", "This is a summary."),
+                AssistantTurn("This is a summary."),
             ]
         )
 
@@ -623,10 +620,10 @@ class TestExportEvalWithComplexContent:
         chat = chat_func()
         chat.set_turns(
             [
-                Turn("user", "What is the capital of France?"),
-                Turn("assistant", [ContentJson(value={"capital": "Paris"})]),
-                Turn("user", "Thank you!"),
-                Turn("assistant", "You're welcome!"),
+                UserTurn("What is the capital of France?"),
+                AssistantTurn([ContentJson(value={"capital": "Paris"})]),
+                UserTurn("Thank you!"),
+                AssistantTurn("You're welcome!"),
             ]
         )
 
@@ -662,5 +659,5 @@ class TestExportEvalEdgeCases:
         with pytest.raises(ValueError, match="At least one user turn is required"):
             chat.export_eval(
                 output_file,
-                turns=[Turn("assistant", "Hello!")],
+                turns=[AssistantTurn("Hello!")],
             )

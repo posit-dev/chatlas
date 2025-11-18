@@ -23,6 +23,7 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
+    cast,
     overload,
 )
 
@@ -49,7 +50,7 @@ from ._mcp_manager import MCPSessionManager
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
 from ._tokens import compute_cost, get_token_pricing, tokens_log
 from ._tools import Tool, ToolRejectError
-from ._turn import Turn, user_turn
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._typing_extensions import TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
@@ -217,12 +218,28 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         return self.provider.list_models()
 
+    @overload
+    def get_turns(
+        self,
+        *,
+        include_system_prompt: Literal[False] = False,
+        tool_result_role: Literal["assistant", "user"] = "user",
+    ) -> list[AssistantTurn[CompletionT] | UserTurn]: ...
+
+    @overload
+    def get_turns(
+        self,
+        *,
+        include_system_prompt: Literal[True],
+        tool_result_role: Literal["assistant", "user"] = "user",
+    ) -> list[Turn]: ...
+
     def get_turns(
         self,
         *,
         include_system_prompt: bool = False,
         tool_result_role: Literal["assistant", "user"] = "user",
-    ) -> list[Turn[CompletionT]]:
+    ) -> list[Turn] | list[AssistantTurn[CompletionT] | UserTurn]:
         """
         Get all the turns (i.e., message contents) in the chat.
 
@@ -243,7 +260,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if not self._turns:
             return self._turns
 
-        if not include_system_prompt and self._turns[0].role == "system":
+        if not include_system_prompt and isinstance(self._turns[0], SystemTurn):
             turns = self._turns[1:]
         else:
             turns = self._turns
@@ -257,13 +274,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         # If a turn is purely a tool result, change its role
-        turns2 = copy.deepcopy(turns)
-        for turn in turns2:
+        turns2: list[Turn] = []
+        for turn in turns:
+            turn2 = turn
             if all(isinstance(c, ContentToolResult) for c in turn.contents):
-                turn.role = tool_result_role
+                if tool_result_role == "assistant":
+                    turn2 = AssistantTurn(contents=turn.contents)
+            turns2.append(turn2)
 
         # If two consecutive turns have the same role (i.e., assistant), collapse them into one
-        final_turns: list[Turn[CompletionT]] = []
+        final_turns: list[Turn] = []
         for x in turns2:
             if not final_turns:
                 final_turns.append(x)
@@ -275,11 +295,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return final_turns
 
+    @overload
+    def get_last_turn(self) -> AssistantTurn[CompletionT] | None: ...
+
+    @overload
+    def get_last_turn(
+        self, *, role: Literal["assistant"]
+    ) -> AssistantTurn[CompletionT] | None: ...
+
+    @overload
+    def get_last_turn(self, *, role: Literal["user"]) -> UserTurn | None: ...
+
+    @overload
+    def get_last_turn(self, *, role: Literal["system"]) -> SystemTurn | None: ...
+
     def get_last_turn(
         self,
         *,
         role: Literal["assistant", "user", "system"] = "assistant",
-    ) -> Turn[CompletionT] | None:
+    ) -> Turn | None:
         """
         Get the last turn in the chat with a specific role.
 
@@ -307,8 +341,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         turns
             The turns to set. Turns with the role "system" are not allowed.
         """
-        if any(x.role == "system" for x in turns):
-            idx = next(i for i, x in enumerate(turns) if x.role == "system")
+        if any(isinstance(x, SystemTurn) for x in turns):
+            idx = next(i for i, x in enumerate(turns) if isinstance(x, SystemTurn))
             raise ValueError(
                 f"Turn {idx} has a role 'system', which is not allowed. "
                 "The system prompt must be set separately using the `.system_prompt` property. "
@@ -318,7 +352,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         turns_list = list(turns)
         # Preserve the system prompt if it exists
-        if self._turns and self._turns[0].role == "system":
+        if self._turns and isinstance(self._turns[0], SystemTurn):
             turns_list.insert(0, self._turns[0])
         self._turns = turns_list
 
@@ -331,7 +365,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         turn
             The turn to add. Turns with the role "system" are not allowed.
         """
-        if turn.role == "system":
+        if isinstance(turn, SystemTurn):
             raise ValueError(
                 "Turns with the role 'system' are not allowed. "
                 "The system prompt must be set separately using the `.system_prompt` property."
@@ -348,16 +382,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         str | None
             The system prompt (if any).
         """
-        if self._turns and self._turns[0].role == "system":
+        if self._turns and isinstance(self._turns[0], SystemTurn):
             return self._turns[0].text
         return None
 
     @system_prompt.setter
     def system_prompt(self, value: str | None):
-        if self._turns and self._turns[0].role == "system":
+        if self._turns and isinstance(self._turns[0], SystemTurn):
             self._turns.pop(0)
         if value is not None:
-            self._turns.insert(0, Turn("system", value))
+            self._turns.insert(0, SystemTurn(value))
 
     def get_tokens(self) -> list[TokensDict]:
         """
@@ -405,7 +439,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Expected the 1st non-system turn to have role='user'. " + err_info
             )
 
-        if turns[1].role != "assistant":
+        if not isinstance(turns[1], AssistantTurn):
             raise ValueError(
                 "Expected the 2nd turn non-system to have role='assistant'. " + err_info
             )
@@ -436,7 +470,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         for i in range(1, len(turns) - 1, 2):
             ti = turns[i]
             tj = turns[i + 2]
-            if ti.role != "assistant" or tj.role != "assistant":
+            if not isinstance(ti, AssistantTurn) or not isinstance(tj, AssistantTurn):
                 raise ValueError(
                     "Expected even turns to have role='assistant'." + err_info
                 )
@@ -974,7 +1008,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 for i in range(len(initial_turns) + 1, len(turns)):
                     turn = turns[i]
                     state.messages.extend(turn.to_inspect_messages(model))
-                    if turn.tokens:
+                    if isinstance(turn, AssistantTurn) and turn.tokens:
                         usage += imodel.ModelUsage(
                             input_tokens=turn.tokens[0],
                             output_tokens=turn.tokens[1],
@@ -1447,7 +1481,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return Chat._extract_turn_json(turn)
 
     @staticmethod
-    def _extract_turn_json(turn: Turn) -> dict[str, Any]:
+    def _extract_turn_json(turn: AssistantTurn) -> dict[str, Any]:
         res: list[ContentJson] = []
         for x in turn.contents:
             if isinstance(x, ContentJson):
@@ -2176,7 +2210,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 ]
             )
             if is_html:
-                msg_type = "user" if turn.role == "user" else "chat"
+                msg_type = "user" if isinstance(turn, UserTurn) else "chat"
                 content_attr = html_escape(turn_content)
                 turn_content = f"<shiny-{msg_type}-message content='{content_attr}'></shiny-{msg_type}-message>"
             else:
@@ -2333,12 +2367,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError("The filename must have a `.jsonl` extension.")
 
         if turns is None:
-            turns = self.get_turns(include_system_prompt=False)
+            turns = cast(list[Turn], self.get_turns(include_system_prompt=False))
 
-        if any(x.role == "system" for x in turns):
+        if any(isinstance(x, SystemTurn) for x in turns):
             raise ValueError("System prompts are not allowed in eval input turns.")
 
-        if not any(x.role == "user" for x in turns):
+        if not any(isinstance(x, UserTurn) for x in turns):
             raise ValueError("At least one user turn is required in eval input turns.")
 
         if include_system_prompt:
@@ -2371,7 +2405,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     def _chat_impl(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text"],
         stream: bool,
@@ -2381,7 +2415,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     def _chat_impl(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["all"],
         stream: bool,
@@ -2390,13 +2424,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def _chat_impl(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text", "all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
-        user_turn_result: Turn | None = user_turn
+        user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             for chunk in self._submit_turns(
                 user_turn_result,
@@ -2429,12 +2463,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         all_results.append(res)
 
             if all_results:
-                user_turn_result = Turn("user", all_results)
+                user_turn_result = UserTurn(all_results)
 
     @overload
     def _chat_impl_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text"],
         stream: bool,
@@ -2444,7 +2478,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @overload
     def _chat_impl_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["all"],
         stream: bool,
@@ -2453,13 +2487,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def _chat_impl_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text", "all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
-        user_turn_result: Turn | None = user_turn
+        user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             async for chunk in self._submit_turns_async(
                 user_turn_result,
@@ -2494,11 +2528,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         all_results.append(res)
 
             if all_results:
-                user_turn_result = Turn("user", all_results)
+                user_turn_result = UserTurn(all_results)
 
     def _submit_turns(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         stream: bool,
         data_model: type[BaseModel] | None = None,
@@ -2562,6 +2596,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
+        if not isinstance(turn, AssistantTurn):
+            raise TypeError(
+                f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+            )
         if turn.tokens is None and turn.completion:
             turn.tokens = self.provider.value_tokens(turn.completion)
         if turn.tokens is not None:
@@ -2570,7 +2608,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     async def _submit_turns_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         stream: bool,
         data_model: type[BaseModel] | None = None,
@@ -2631,6 +2669,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
+        if not isinstance(turn, AssistantTurn):
+            raise TypeError(
+                f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+            )
         if turn.tokens is None and turn.completion:
             turn.tokens = self.provider.value_tokens(turn.completion)
         if turn.tokens is not None:
@@ -2824,7 +2866,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         turns = self.get_turns(include_system_prompt=False)
         res = ""
         for turn in turns:
-            icon = "👤" if turn.role == "user" else "🤖"
+            icon = "👤" if isinstance(turn, UserTurn) else "🤖"
             res += f"## {icon} {turn.role.capitalize()} turn:\n\n{str(turn)}\n\n"
         return res
 
@@ -2998,7 +3040,7 @@ def emit_other_contents(
     # Gather other content to emit in _reverse_ order
     to_emit: list[str] = []
 
-    if x.finish_reason:
+    if isinstance(x, AssistantTurn) and x.finish_reason:
         to_emit.append(f"\n\n<< 🤖 finish reason: {x.finish_reason} \\>\\>\n\n")
 
     has_text = False
@@ -3011,7 +3053,7 @@ def emit_other_contents(
             to_emit.append(str(content))
 
     if has_text and has_other:
-        if x.role == "user":
+        if isinstance(x, UserTurn):
             to_emit.append("<< 👤 other content >>")
         else:
             to_emit.append("<< 🤖 other content >>")

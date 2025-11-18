@@ -17,7 +17,7 @@ from pydantic import BaseModel
 
 from ._content import Content
 from ._tools import Tool
-from ._turn import Turn
+from ._turn import AssistantTurn, Turn
 from ._typing_extensions import NotRequired, TypedDict
 
 ChatCompletionT = TypeVar("ChatCompletionT")
@@ -240,14 +240,14 @@ class Provider(
         self,
         completion: ChatCompletionDictT,
         has_data_model: bool,
-    ) -> Turn: ...
+    ) -> AssistantTurn[ChatCompletionT]: ...
 
     @abstractmethod
     def value_turn(
         self,
         completion: ChatCompletionT,
         has_data_model: bool,
-    ) -> Turn: ...
+    ) -> AssistantTurn[ChatCompletionT]: ...
 
     @abstractmethod
     def value_tokens(
@@ -343,7 +343,7 @@ class Provider(
         self,
         result: dict[str, Any],
         has_data_model: bool = False,
-    ) -> Turn | None:
+    ) -> AssistantTurn[ChatCompletionT] | None:
         """
         Convert a batch result to a Turn.
 
