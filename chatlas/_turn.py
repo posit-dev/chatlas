@@ -229,7 +229,7 @@ class UserTurn(Turn):
 
     See Also
     --------
-    - * :class:`~chatlas.Turn`: The base class for all turn types.
+    - :class:`~chatlas.Turn`: The base class for all turn types.
     """
 
     role: Literal["user"] = Field(default="user", frozen=True)  # type: ignore[assignment]
@@ -256,7 +256,7 @@ class SystemTurn(Turn):
 
     See Also
     --------
-    - * :class:`~chatlas.Turn`: The base class for all turn types.
+    - :class:`~chatlas.Turn`: The base class for all turn types.
     """
 
     role: Literal["system"] = Field(default="system", frozen=True)  # type: ignore[assignment]
@@ -291,7 +291,7 @@ class AssistantTurn(Turn, Generic[CompletionT]):
 
     See Also
     --------
-    - * :class:`~chatlas.Turn`: The base class for all turn types.
+    - :class:`~chatlas.Turn`: The base class for all turn types.
     """
 
     role: Literal["assistant"] = Field(default="assistant", frozen=True)  # type: ignore[assignment]
