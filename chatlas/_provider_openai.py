@@ -280,11 +280,7 @@ class OpenAIProvider(
             cached_tokens,
         )
 
-    def batch_result_turn(
-        self,
-        result,
-        has_data_model: bool = False,
-    ) -> AssistantTurn | None:
+    def batch_result_turn(self, result, has_data_model: bool = False):
         response = BatchResult.model_validate(result).response
         if response.status_code != 200:
             # TODO: offer advice on what to do?

@@ -474,10 +474,10 @@ class AnthropicProvider(
 
         return completion
 
-    def stream_turn(self, completion, has_data_model) -> AssistantTurn:
+    def stream_turn(self, completion, has_data_model):
         return self._as_turn(completion, has_data_model)
 
-    def value_turn(self, completion, has_data_model) -> AssistantTurn:
+    def value_turn(self, completion, has_data_model):
         return self._as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):
@@ -811,9 +811,7 @@ class AnthropicProvider(
 
         return results
 
-    def batch_result_turn(
-        self, result, has_data_model: bool = False
-    ) -> AssistantTurn | None:
+    def batch_result_turn(self, result, has_data_model: bool = False):
         from anthropic.types.messages.message_batch_individual_response import (
             MessageBatchIndividualResponse,
         )

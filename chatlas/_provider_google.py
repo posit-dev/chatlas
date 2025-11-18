@@ -341,13 +341,13 @@ class GoogleProvider(
             merge_dicts(completion, chunkd),  # type: ignore
         )
 
-    def stream_turn(self, completion, has_data_model) -> AssistantTurn:
+    def stream_turn(self, completion, has_data_model):
         return self._as_turn(
             completion,
             has_data_model,
         )
 
-    def value_turn(self, completion, has_data_model) -> AssistantTurn:
+    def value_turn(self, completion, has_data_model):
         completion = cast("GenerateContentResponseDict", completion.model_dump())
         return self._as_turn(completion, has_data_model)
 
