@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>chatbedrockanthropic – chatlas</title>
+<title>assistantturn – chatlas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -64,8 +64,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/ChatCloudflare.html" rel="next">
-<link href="../reference/ChatAzureOpenAI.html" rel="prev">
+<link href="../reference/UserTurn.html" rel="next">
+<link href="../reference/interpolate_file.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js"></script>
 <script src="../site_libs/quarto-html/popper.min.js"></script>
@@ -156,7 +156,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/ChatAnthropic.html">Chat model providers</a></li><li class="breadcrumb-item"><a href="../reference/ChatBedrockAnthropic.html">ChatBedrockAnthropic</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/AssistantTurn.html">Turns</a></li><li class="breadcrumb-item"><a href="../reference/AssistantTurn.html">AssistantTurn</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -203,7 +203,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/ChatBedrockAnthropic.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/ChatBedrockAnthropic.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ChatBedrockAnthropic</span></a>
   </div>
 </li>
@@ -478,7 +478,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/AssistantTurn.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/AssistantTurn.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">AssistantTurn</span></a>
   </div>
 </li>
@@ -659,16 +659,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.ChatBedrockAnthropic" id="toc-chatlas.ChatBedrockAnthropic" class="nav-link active" data-scroll-target="#chatlas.ChatBedrockAnthropic">ChatBedrockAnthropic</a>
+  <li><a href="#chatlas.AssistantTurn" id="toc-chatlas.AssistantTurn" class="nav-link active" data-scroll-target="#chatlas.AssistantTurn">AssistantTurn</a>
   <ul class="collapse">
-  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
-  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
-  <li><a href="#troubleshooting" id="toc-troubleshooting" class="nav-link" data-scroll-target="#troubleshooting">Troubleshooting</a></li>
-  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#see-also" id="toc-see-also" class="nav-link" data-scroll-target="#see-also">See Also</a></li>
+  <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
+  <ul class="collapse">
+  <li><a href="#chatlas.AssistantTurn.validate_tokens" id="toc-chatlas.AssistantTurn.validate_tokens" class="nav-link" data-scroll-target="#chatlas.AssistantTurn.validate_tokens">validate_tokens</a></li>
+  </ul></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatBedrockAnthropic.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/AssistantTurn.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -676,65 +677,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<section id="chatlas.ChatBedrockAnthropic" class="level1">
-<h1>ChatBedrockAnthropic</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ChatBedrockAnthropic(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span><span class="dv">4096</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    cache<span class="op">=</span><span class="st">'none'</span>,</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    aws_secret_key<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    aws_access_key<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    aws_region<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    aws_profile<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    aws_session_token<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Chat with an AWS bedrock model.</p>
-<p><a href="https://aws.amazon.com/bedrock/">AWS Bedrock</a> provides a number of chat based models, including those Anthropic’s <a href="https://aws.amazon.com/bedrock/claude/">Claude</a>.</p>
-<section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
-<h2 class="doc-section doc-section-prerequisites anchored" data-anchor-id="prerequisites">Prerequisites</h2>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-AWS credentials
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>Consider using the approach outlined in this guide to manage your AWS credentials: <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html" class="uri">https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html</a></p>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Python requirements
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><code>ChatBedrockAnthropic</code>, requires the <code>anthropic</code> package with the <code>bedrock</code> extras: <code>pip install "chatlas[bedrock-anthropic]"</code></p>
-</div>
-</div>
-</section>
-<section id="examples" class="level2 doc-section doc-section-examples">
-<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatBedrockAnthropic</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatBedrockAnthropic(</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    aws_profile<span class="op">=</span><span class="st">"..."</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    aws_region<span class="op">=</span><span class="st">"us-east"</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    aws_secret_key<span class="op">=</span><span class="st">"..."</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    aws_access_key<span class="op">=</span><span class="st">"..."</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    aws_session_token<span class="op">=</span><span class="st">"..."</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is the capital of France?"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
+<section id="chatlas.AssistantTurn" class="level1">
+<h1>AssistantTurn</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>AssistantTurn(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    contents,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    tokens<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    finish_reason<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    completion<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">**</span>kwargs,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Assistant turn - represents model response with additional metadata</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
@@ -748,141 +701,61 @@ Python requirements
 </thead>
 <tbody>
 <tr class="odd">
-<td>model</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The model to use for the chat.</td>
-<td><code>None</code></td>
+<td>contents</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a> | <a href="https://docs.python.org/3/library/typing.html#typing.Sequence">Sequence</a>[<a href="https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content">Content</a> | <a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>A list of <a href="https://posit-dev.github.io/chatlas/reference/types.Content.html#chatlas.types.Content"><code>Content</code></a> objects.</td>
+<td><em>required</em></td>
 </tr>
 <tr class="even">
-<td>max_tokens</td>
-<td><a href="https://docs.python.org/3/library/functions.html#int">int</a></td>
-<td>Maximum number of tokens to generate before stopping.</td>
-<td><code>4096</code></td>
-</tr>
-<tr class="odd">
-<td>cache</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['5m', '1h', 'none']</td>
-<td>How long to cache inputs? Defaults to “5m” (five minutes). Set to “none” to disable caching or “1h” to cache for one hour. See the Caching section of <code>ChatAnthropic</code> for details.</td>
-<td><code>'none'</code></td>
-</tr>
-<tr class="even">
-<td>aws_secret_key</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The AWS secret key to use for authentication.</td>
+<td>tokens</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a>[<a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>] | <a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/library/functions.html#int">int</a>]]</td>
+<td>A numeric vector of length 3 representing the number of input, output, and cached tokens (respectively) used in this turn.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
-<td>aws_access_key</td>
+<td>finish_reason</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The AWS access key to use for authentication.</td>
+<td>A string indicating the reason why the conversation ended.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
-<td>aws_region</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The AWS region to use. Defaults to the AWS_REGION environment variable. If that is not set, defaults to <code>'us-east-1'</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>aws_profile</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The AWS profile to use.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>aws_session_token</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The AWS session token to use.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>base_url</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The base URL to use. Defaults to the ANTHROPIC_BEDROCK_BASE_URL environment variable. If that is not set, defaults to <code>f"https://bedrock-runtime.{aws_region}.amazonaws.com"</code>.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="even">
-<td>system_prompt</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>A system prompt to set the behavior of the assistant.</td>
-<td><code>None</code></td>
-</tr>
-<tr class="odd">
-<td>kwargs</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['ChatBedrockClientArgs']</td>
-<td>Additional arguments to pass to the <code>anthropic.AnthropicBedrock()</code> client constructor.</td>
+<td>completion</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<code>CompletionT</code>]</td>
+<td>The completion object returned by the provider. This is useful if there’s information returned by the provider that chatlas doesn’t otherwise expose.</td>
 <td><code>None</code></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="troubleshooting" class="level2 doc-section doc-section-troubleshooting">
-<h2 class="doc-section doc-section-troubleshooting anchored" data-anchor-id="troubleshooting">Troubleshooting</h2>
-<p>If you encounter 400 or 403 errors when trying to use the model, keep the following in mind:</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Incorrect model name
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>If the model name is completely incorrect, you’ll see an error like <code>Error code: 400 - {'message': 'The provided model identifier is invalid.'}</code></p>
-<p>Make sure the model name is correct and active in the specified region.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Models are region specific
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>If you encounter errors similar to <code>Error code: 403 - {'message': "You don't have access to the model with the specified model ID."}</code>, make sure your model is active in the relevant <code>aws_region</code>.</p>
-<p>Keep in mind, if <code>aws_region</code> is not specified, and AWS_REGION is not set, the region defaults to us-east-1, which may not match to your AWS config’s default region.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Cross region inference ID
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>In some cases, even if you have the right model and the right region, you may still encounter an error like <code>Error code: 400 - {'message': 'Invocation of model ID anthropic.claude-3-5-sonnet-20240620-v1:0 with on-demand throughput isn't supported. Retry your request with the ID or ARN of an inference profile that contains this model.'}</code></p>
-<p>In this case, you’ll need to look up the ‘cross region inference ID’ for your model. This might required opening your <code>aws-console</code> and navigating to the ‘Anthropic Bedrock’ service page. From there, go to the ‘cross region inference’ tab and copy the relevant ID.</p>
-<p>For example, if the desired model ID is <code>anthropic.claude-3-5-sonnet-20240620-v1:0</code>, the cross region ID might look something like <code>us.anthropic.claude-3-5-sonnet-20240620-v1:0</code>.</p>
-</div>
-</div>
+<section id="see-also" class="level2 doc-section doc-section-see-also">
+<h2 class="doc-section doc-section-see-also anchored" data-anchor-id="see-also">See Also</h2>
+<ul>
+<li><a href="https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn"><code>Turn</code></a>: The base class for all turn types.</li>
+</ul>
 </section>
-<section id="returns" class="level2 doc-section doc-section-returns">
-<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
+<section id="methods" class="level2">
+<h2 class="anchored" data-anchor-id="methods">Methods</h2>
 <table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Name</th>
-<th>Type</th>
 <th>Description</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td></td>
-<td><a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat">Chat</a></td>
-<td>A Chat object.</td>
+<td><a href="#chatlas.AssistantTurn.validate_tokens">validate_tokens</a></td>
+<td>Convert list to tuple for JSON deserialization compatibility.</td>
 </tr>
 </tbody>
 </table>
+<section id="chatlas.AssistantTurn.validate_tokens" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.AssistantTurn.validate_tokens">validate_tokens</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>AssistantTurn.validate_tokens(v)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Convert list to tuple for JSON deserialization compatibility.</p>
 
 
+</section>
 </section>
 </section>
 
@@ -1309,13 +1182,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/ChatAzureOpenAI.html" class="pagination-link" aria-label="ChatAzureOpenAI">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">ChatAzureOpenAI</span>
+      <a href="../reference/interpolate_file.html" class="pagination-link" aria-label="interpolate_file">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">interpolate_file</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/ChatCloudflare.html" class="pagination-link" aria-label="ChatCloudflare">
-        <span class="nav-page-text">ChatCloudflare</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/UserTurn.html" class="pagination-link" aria-label="UserTurn">
+        <span class="nav-page-text">UserTurn</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1327,7 +1200,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatBedrockAnthropic.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/AssistantTurn.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

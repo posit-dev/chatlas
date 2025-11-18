@@ -146,6 +146,14 @@ chatlas.interpolate py:function 1 reference/interpolate.html#chatlas.interpolate
 chatlas._interpolate.interpolate py:function 1 reference/interpolate.html#chatlas.interpolate chatlas.interpolate
 chatlas.interpolate_file py:function 1 reference/interpolate_file.html#chatlas.interpolate_file -
 chatlas._interpolate.interpolate_file py:function 1 reference/interpolate_file.html#chatlas.interpolate_file chatlas.interpolate_file
+chatlas.AssistantTurn.validate_tokens py:function 1 reference/AssistantTurn.html#chatlas.AssistantTurn.validate_tokens -
+chatlas._turn.AssistantTurn.validate_tokens py:function 1 reference/AssistantTurn.html#chatlas.AssistantTurn.validate_tokens chatlas.AssistantTurn.validate_tokens
+chatlas.AssistantTurn py:class 1 reference/AssistantTurn.html#chatlas.AssistantTurn -
+chatlas._turn.AssistantTurn py:class 1 reference/AssistantTurn.html#chatlas.AssistantTurn chatlas.AssistantTurn
+chatlas.UserTurn py:class 1 reference/UserTurn.html#chatlas.UserTurn -
+chatlas._turn.UserTurn py:class 1 reference/UserTurn.html#chatlas.UserTurn chatlas.UserTurn
+chatlas.SystemTurn py:class 1 reference/SystemTurn.html#chatlas.SystemTurn -
+chatlas._turn.SystemTurn py:class 1 reference/SystemTurn.html#chatlas.SystemTurn chatlas.SystemTurn
 chatlas.Turn.to_inspect_messages py:function 1 reference/Turn.html#chatlas.Turn.to_inspect_messages -
 chatlas._turn.Turn.to_inspect_messages py:function 1 reference/Turn.html#chatlas.Turn.to_inspect_messages chatlas.Turn.to_inspect_messages
 chatlas.Turn py:class 1 reference/Turn.html#chatlas.Turn -
