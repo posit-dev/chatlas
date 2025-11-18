@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import base64
-from typing import TYPE_CHECKING, Literal, overload
+from typing import TYPE_CHECKING, overload
 
 from ._content import (
     Content,
@@ -24,8 +24,6 @@ if TYPE_CHECKING:
     from inspect_ai.model import ChatMessage, ChatMessageAssistant, ChatMessageSystem
     from inspect_ai.tool import Content as InspectContent
     from inspect_ai.tool import ToolCall
-
-Role = Literal["system", "user", "assistant"]
 
 
 @overload

@@ -10,6 +10,7 @@ from ._content import Content, ContentText, ContentUnion, create_content
 __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
 
 CompletionT = TypeVar("CompletionT")
+Role = Literal["user", "assistant", "system"]
 
 
 class Turn(BaseModel):
@@ -86,7 +87,7 @@ class Turn(BaseModel):
 
     @property
     @abstractmethod
-    def role(self) -> str:
+    def role(self) -> Role:
         """The role of the turn (e.g., 'user', 'assistant', or 'system')."""
         pass
 

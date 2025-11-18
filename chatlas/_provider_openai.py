@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import warnings
-from typing import TYPE_CHECKING, Literal, Optional, cast
+from typing import TYPE_CHECKING, Optional, cast
 
 import orjson
 from openai.types.responses import Response, ResponseStreamEvent
@@ -37,10 +37,9 @@ if TYPE_CHECKING:
     from openai.types.responses.tool_param import ToolParam
     from openai.types.shared_params.responses_model import ResponsesModel
 
+    from ._turn import Role
     from .types.openai import ChatClientArgs
     from .types.openai import ResponsesSubmitInputArgs as SubmitInputArgs
-
-Role = Literal["user", "assistant", "system"]
 
 
 def ChatOpenAI(
@@ -341,8 +340,7 @@ class OpenAIProvider(
     def _turns_as_inputs(turns: list[Turn]) -> "list[ResponseInputItemParam]":
         res: "list[ResponseInputItemParam]" = []
         for turn in turns:
-            role = cast(Role, turn.role)
-            res.extend([as_input_param(x, role) for x in turn.contents])
+            res.extend([as_input_param(x, turn.role) for x in turn.contents])
         return res
 
     def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
