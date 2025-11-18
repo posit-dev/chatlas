@@ -1,9 +1,7 @@
 import tempfile
 
 import pytest
-from pydantic import BaseModel
-
-from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI
+from chatlas import AssistantTurn, ChatAnthropic, ChatGoogle, ChatOpenAI
 from chatlas._batch_chat import (
     BatchJob,
     batch_chat,
@@ -12,6 +10,7 @@ from chatlas._batch_chat import (
     batch_chat_text,
 )
 from chatlas._provider import BatchStatus
+from pydantic import BaseModel
 
 
 class CountryCapital(BaseModel):
@@ -34,7 +33,6 @@ def test_can_retrieve_batch(test_batch_dir):
     turns2 = chats[1].get_turns()
     assert len(turns1) == 2
     assert len(turns2) == 2
-    from chatlas import AssistantTurn
     assert isinstance(turns1[1], AssistantTurn)
     tokens = turns1[1].tokens or []
     assert len(tokens) == 3

@@ -46,6 +46,12 @@ def turn_as_inspect_messages(
 ) -> list[ChatMessageAssistant]: ...
 
 
+@overload
+def turn_as_inspect_messages(
+    turn: Turn, model: str | None = None
+) -> list[ChatMessageSystem] | list[ChatMessage] | list[ChatMessageAssistant]: ...
+
+
 def turn_as_inspect_messages(
     turn: Turn, model: str | None = None
 ) -> list[ChatMessageSystem] | list[ChatMessage] | list[ChatMessageAssistant]:

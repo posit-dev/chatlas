@@ -343,8 +343,6 @@ class OpenAIProvider(
 
     @staticmethod
     def _turns_as_inputs(turns: list[Turn]) -> "list[ResponseInputItemParam]":
-        from typing import cast
-
         res: "list[ResponseInputItemParam]" = []
         for turn in turns:
             role = cast(Role, turn.role)

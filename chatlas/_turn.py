@@ -12,7 +12,7 @@ __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
 CompletionT = TypeVar("CompletionT")
 
 
-class BaseTurn(BaseModel):
+class Turn(BaseModel):
     """
     Base turn class
 
@@ -115,10 +115,10 @@ class BaseTurn(BaseModel):
         from ._inspect import try_import_inspect, turn_as_inspect_messages
 
         try_import_inspect()
-        return turn_as_inspect_messages(cast(Turn, self), model=model)
+        return turn_as_inspect_messages(self, model=model)
 
 
-class UserTurn(BaseTurn):
+class UserTurn(Turn):
     """
     User turn - represents user input
 
@@ -140,7 +140,7 @@ class UserTurn(BaseTurn):
         return "user"
 
 
-class SystemTurn(BaseTurn):
+class SystemTurn(Turn):
     """
     System turn - represents system prompt
 
@@ -162,7 +162,7 @@ class SystemTurn(BaseTurn):
         return "system"
 
 
-class AssistantTurn(BaseTurn, Generic[CompletionT]):
+class AssistantTurn(Turn, Generic[CompletionT]):
     """
     Assistant turn - represents model response with additional metadata
 
@@ -237,7 +237,3 @@ def user_turn(*args: Content | str) -> UserTurn:
         raise ValueError("Must supply at least one input.")
 
     return UserTurn(args)
-
-
-Turn = UserTurn | SystemTurn | AssistantTurn
-"""Union type representing any turn type."""

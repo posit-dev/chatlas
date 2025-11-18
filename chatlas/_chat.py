@@ -2596,8 +2596,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
-        # Ensure turn is an AssistantTurn (which has tokens, completion attributes)
-        assert isinstance(turn, AssistantTurn)
+        if not isinstance(turn, AssistantTurn):
+            raise TypeError(
+                f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+            )
         if turn.tokens is None and turn.completion:
             turn.tokens = self.provider.value_tokens(turn.completion)
         if turn.tokens is not None:
@@ -2667,8 +2669,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
-        # Ensure turn is an AssistantTurn (which has tokens, completion attributes)
-        assert isinstance(turn, AssistantTurn)
+        if not isinstance(turn, AssistantTurn):
+            raise TypeError(
+                f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+            )
         if turn.tokens is None and turn.completion:
             turn.tokens = self.provider.value_tokens(turn.completion)
         if turn.tokens is not None:

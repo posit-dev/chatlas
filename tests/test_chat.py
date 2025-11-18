@@ -2,18 +2,18 @@ import re
 import tempfile
 
 import pytest
-from pydantic import BaseModel
-
 from chatlas import (
     AssistantTurn,
     ChatOpenAI,
     ContentToolRequest,
     ContentToolResult,
+    SystemTurn,
     ToolRejectError,
     Turn,
     UserTurn,
 )
 from chatlas._chat import ToolFailureWarning
+from pydantic import BaseModel
 
 
 def test_simple_batch_chat():
@@ -209,12 +209,14 @@ def test_json_serialize():
     # Need to create new turn without completion for comparison
     turns_for_comparison = [turns[0]]
     if isinstance(turns[1], AssistantTurn):
-        turns_for_comparison.append(AssistantTurn(
-            turns[1].contents,
-            tokens=turns[1].tokens,
-            finish_reason=turns[1].finish_reason,
-            completion=None
-        ))
+        turns_for_comparison.append(
+            AssistantTurn(
+                turns[1].contents,
+                tokens=turns[1].tokens,
+                finish_reason=turns[1].finish_reason,
+                completion=None,
+            )
+        )
     else:
         turns_for_comparison.append(turns[1])
     assert turns_for_comparison == turns_restored
