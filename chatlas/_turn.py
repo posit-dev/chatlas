@@ -391,8 +391,14 @@ def complete_dangling_tool_requests(turns: Sequence[Turn]) -> list[ContentToolRe
     return [
         ContentToolResult(
             value=None,
-            error=Exception("Chat ended before the tool could be invoked."),
+            error=ToolNotInvokedError("Chat ended before the tool could be invoked."),
             request=req,
         )
         for req in tool_requests
     ]
+
+
+class ToolNotInvokedError(Exception):
+    """Raised when a tool was requested but not invoked before chat ended."""
+
+    pass
