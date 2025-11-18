@@ -390,7 +390,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>The following example, which <a href="https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb">closely inspired by the Claude documentation</a>, shows how <code>.chat_structured()</code> can be used to perform entity recognition.</p>
-<div id="e405a0ef" class="cell" data-execution_count="1">
+<div id="e6a7aaa8" class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel, Field</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
@@ -442,13 +442,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td data-quarto-table-cell-role="th">1</td>
 <td>Google</td>
 <td>organization</td>
-<td>Employer of John</td>
+<td>John works there</td>
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">2</td>
 <td>New York</td>
 <td>location</td>
-<td>Location of Google's office where John works</td>
+<td>Location of John's workplace</td>
 </tr>
 <tr class="even">
 <td data-quarto-table-cell-role="th">3</td>
@@ -458,15 +458,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td data-quarto-table-cell-role="th">4</td>
+<td>CEO</td>
+<td>person-title</td>
+<td>Title of Sarah at Acme Inc.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">5</td>
 <td>Acme Inc.</td>
 <td>organization</td>
 <td>Sarah is the CEO</td>
 </tr>
-<tr class="even">
-<td data-quarto-table-cell-role="th">5</td>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">6</td>
 <td>San Francisco</td>
 <td>location</td>
-<td>John met Sarah here</td>
+<td>Location where John met Sarah</td>
 </tr>
 </tbody>
 </table>
