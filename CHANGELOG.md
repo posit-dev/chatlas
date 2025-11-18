@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
+* `ChatAnthropic()` and `ChatBedrockAnthropic()` now default to Claude Sonnet 4.5.
 * `content_pdf_file()` and `content_pdf_url()` now include relevant `filename` information. (#199)
 
 ### Bug fixes
