@@ -7,7 +7,6 @@ from chatlas import (
     ChatOpenAI,
     ContentToolRequest,
     ContentToolResult,
-    SystemTurn,
     ToolRejectError,
     Turn,
     UserTurn,
@@ -191,9 +190,7 @@ def test_json_serialize():
     chat.chat("Tell me a short joke", echo="none")
     turns = chat.get_turns()
     turns_json = [x.model_dump_json() for x in turns]
-
-    # Use Turn.model_validate_json() which automatically detects the correct subclass
-    turns_restored = [Turn.model_validate_json(turn_json) for turn_json in turns_json]
+    turns_restored = [Turn.model_validate_json(x) for x in turns_json]
 
     assert len(turns) == 2
     # Verify correct types were restored

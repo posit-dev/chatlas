@@ -232,16 +232,14 @@ class UserTurn(Turn):
     - :class:`~chatlas.Turn`: The base class for all turn types.
     """
 
-    role: Literal["user"] = Field(default="user", frozen=True)  # type: ignore[assignment]
+    role: Literal["user"] = Field(default="user", frozen=True)  # pyright: ignore[reportIncompatibleVariableOverride]
 
+    # Make contents a positional argument for convenience
     def __init__(
         self,
         contents: str | Sequence[Content | str],
         **kwargs,
     ):
-        # Don't pass role explicitly - let Pydantic use the default
-        if "role" not in kwargs:
-            kwargs["role"] = "user"
         super().__init__(contents, **kwargs)
 
 
@@ -259,16 +257,14 @@ class SystemTurn(Turn):
     - :class:`~chatlas.Turn`: The base class for all turn types.
     """
 
-    role: Literal["system"] = Field(default="system", frozen=True)  # type: ignore[assignment]
+    role: Literal["system"] = Field(default="system", frozen=True)  # pyright: ignore[reportIncompatibleVariableOverride]
 
+    # Make contents a positional argument for convenience
     def __init__(
         self,
         contents: str | Sequence[Content | str],
         **kwargs,
     ):
-        # Don't pass role explicitly - let Pydantic use the default
-        if "role" not in kwargs:
-            kwargs["role"] = "system"
         super().__init__(contents, **kwargs)
 
 
@@ -294,7 +290,10 @@ class AssistantTurn(Turn, Generic[CompletionT]):
     - :class:`~chatlas.Turn`: The base class for all turn types.
     """
 
-    role: Literal["assistant"] = Field(default="assistant", frozen=True)  # type: ignore[assignment]
+    role: Literal["assistant"] = Field(  # pyright: ignore[reportIncompatibleVariableOverride]
+        default="assistant",
+        frozen=True,
+    )
     tokens: Optional[tuple[int, int, int]] = None
     finish_reason: Optional[str] = None
     completion: Optional[CompletionT] = Field(default=None, exclude=True)
@@ -326,10 +325,6 @@ class AssistantTurn(Turn, Generic[CompletionT]):
             kwargs["finish_reason"] = finish_reason
         if completion is not None:
             kwargs["completion"] = completion
-
-        # Don't pass role explicitly - let Pydantic use the default
-        if "role" not in kwargs:
-            kwargs["role"] = "assistant"
 
         super().__init__(contents, **kwargs)
 
