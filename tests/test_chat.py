@@ -192,19 +192,14 @@ def test_json_serialize():
     turns = chat.get_turns()
     turns_json = [x.model_dump_json() for x in turns]
 
-    # Restore each turn using the appropriate subclass
-    turns_restored = []
-    for i, turn_json in enumerate(turns_json):
-        if isinstance(turns[i], UserTurn):
-            turns_restored.append(UserTurn.model_validate_json(turn_json))
-        elif isinstance(turns[i], AssistantTurn):
-            turns_restored.append(AssistantTurn.model_validate_json(turn_json))
-        elif isinstance(turns[i], SystemTurn):
-            turns_restored.append(SystemTurn.model_validate_json(turn_json))
-        else:
-            turns_restored.append(Turn.model_validate_json(turn_json))
+    # Use Turn.model_validate_json() which automatically detects the correct subclass
+    turns_restored = [Turn.model_validate_json(turn_json) for turn_json in turns_json]
 
     assert len(turns) == 2
+    # Verify correct types were restored
+    assert type(turns_restored[0]) == type(turns[0])
+    assert type(turns_restored[1]) == type(turns[1])
+
     # Completion objects, at least of right now, aren't included in the JSON
     # Need to create new turn without completion for comparison
     turns_for_comparison = [turns[0]]

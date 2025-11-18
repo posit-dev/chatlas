@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing import Generic, Literal, Optional, Sequence, TypeVar, cast
+import json
+from typing import Any, Generic, Literal, Optional, Sequence, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -59,6 +59,8 @@ class Turn(BaseModel):
 
     contents: list[ContentUnion] = Field(default_factory=list)
 
+    # Discriminator field for Pydantic to determine which subclass to instantiate
+    role: Role
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def __init__(
@@ -86,12 +88,6 @@ class Turn(BaseModel):
         )
 
     @property
-    @abstractmethod
-    def role(self) -> Role:
-        """The role of the turn (e.g., 'user', 'assistant', or 'system')."""
-        pass
-
-    @property
     def text(self) -> str:
         return "".join(x.text for x in self.contents if isinstance(x, ContentText))
 
@@ -103,6 +99,109 @@ class Turn(BaseModel):
         for content in self.contents:
             res += "\n" + content.__repr__(indent=indent + 2)
         return res + "\n"
+
+    @classmethod
+    def model_validate(
+        cls,
+        obj: Any,
+        *,
+        strict: Optional[bool] = None,
+        extra: Any = None,
+        from_attributes: Optional[bool] = None,
+        context: Any = None,
+        by_alias: Optional[bool] = None,
+        by_name: Optional[bool] = None,
+    ) -> "Turn":
+        if cls is not Turn:
+            # If called on a subclass, use the standard validation
+            return super().model_validate(
+                obj,
+                strict=strict,
+                extra=extra,
+                from_attributes=from_attributes,
+                context=context,
+                by_alias=by_alias,
+                by_name=by_name,
+            )
+
+        # Determine the correct subclass based on the role field
+        if isinstance(obj, dict) and "role" in obj:
+            target_cls = cls._get_turn_class_for_role(obj["role"])
+            return target_cls.model_validate(
+                obj,
+                strict=strict,
+                extra=extra,
+                from_attributes=from_attributes,
+                context=context,
+                by_alias=by_alias,
+                by_name=by_name,
+            )
+
+        # Fallback to default behavior
+        return super().model_validate(
+            obj,
+            strict=strict,
+            extra=extra,
+            from_attributes=from_attributes,
+            context=context,
+            by_alias=by_alias,
+            by_name=by_name,
+        )
+
+    @classmethod
+    def model_validate_json(
+        cls,
+        json_data: str | bytes | bytearray,
+        *,
+        strict: Optional[bool] = None,
+        extra: Any = None,
+        context: Any = None,
+        by_alias: Optional[bool] = None,
+        by_name: Optional[bool] = None,
+    ) -> "Turn":
+        if cls is not Turn:
+            # If called on a subclass, use the standard validation
+            return super().model_validate_json(
+                json_data,
+                strict=strict,
+                extra=extra,
+                context=context,
+                by_alias=by_alias,
+                by_name=by_name,
+            )
+
+        # Parse JSON to determine the role
+        obj = json.loads(json_data)
+        if isinstance(obj, dict) and "role" in obj:
+            target_cls = cls._get_turn_class_for_role(obj["role"])
+            return target_cls.model_validate_json(
+                json_data,
+                strict=strict,
+                extra=extra,
+                context=context,
+                by_alias=by_alias,
+                by_name=by_name,
+            )
+        else:
+            return super().model_validate_json(
+                json_data,
+                strict=strict,
+                extra=extra,
+                context=context,
+                by_alias=by_alias,
+                by_name=by_name,
+            )
+
+    @classmethod
+    def _get_turn_class_for_role(cls, role: str) -> type["Turn"]:
+        if role == "user":
+            return UserTurn
+        elif role == "system":
+            return SystemTurn
+        elif role == "assistant":
+            return AssistantTurn
+        else:
+            raise ValueError(f"Unknown role: {role}")
 
     def to_inspect_messages(self, model: Optional[str] = None):
         """
@@ -133,16 +232,17 @@ class UserTurn(Turn):
     - * :class:`~chatlas.Turn`: The base class for all turn types.
     """
 
+    role: Literal["user"] = Field(default="user", frozen=True)  # type: ignore[assignment]
+
     def __init__(
         self,
         contents: str | Sequence[Content | str],
         **kwargs,
     ):
+        # Don't pass role explicitly - let Pydantic use the default
+        if "role" not in kwargs:
+            kwargs["role"] = "user"
         super().__init__(contents, **kwargs)
-
-    @property
-    def role(self) -> Literal["user"]:
-        return "user"
 
 
 class SystemTurn(Turn):
@@ -159,16 +259,17 @@ class SystemTurn(Turn):
     - * :class:`~chatlas.Turn`: The base class for all turn types.
     """
 
+    role: Literal["system"] = Field(default="system", frozen=True)  # type: ignore[assignment]
+
     def __init__(
         self,
         contents: str | Sequence[Content | str],
         **kwargs,
     ):
+        # Don't pass role explicitly - let Pydantic use the default
+        if "role" not in kwargs:
+            kwargs["role"] = "system"
         super().__init__(contents, **kwargs)
-
-    @property
-    def role(self) -> Literal["system"]:
-        return "system"
 
 
 class AssistantTurn(Turn, Generic[CompletionT]):
@@ -193,6 +294,7 @@ class AssistantTurn(Turn, Generic[CompletionT]):
     - * :class:`~chatlas.Turn`: The base class for all turn types.
     """
 
+    role: Literal["assistant"] = Field(default="assistant", frozen=True)  # type: ignore[assignment]
     tokens: Optional[tuple[int, int, int]] = None
     finish_reason: Optional[str] = None
     completion: Optional[CompletionT] = Field(default=None, exclude=True)
@@ -225,11 +327,11 @@ class AssistantTurn(Turn, Generic[CompletionT]):
         if completion is not None:
             kwargs["completion"] = completion
 
-        super().__init__(contents, **kwargs)
+        # Don't pass role explicitly - let Pydantic use the default
+        if "role" not in kwargs:
+            kwargs["role"] = "assistant"
 
-    @property
-    def role(self) -> Literal["assistant"]:
-        return "assistant"
+        super().__init__(contents, **kwargs)
 
     def __repr__(self, indent: int = 0) -> str:
         res = " " * indent + f"<{self.__class__.__name__}"
