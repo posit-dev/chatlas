@@ -23,6 +23,7 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
+    cast,
     overload,
 )
 
@@ -217,12 +218,28 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         return self.provider.list_models()
 
+    @overload
+    def get_turns(
+        self,
+        *,
+        include_system_prompt: Literal[False] = False,
+        tool_result_role: Literal["assistant", "user"] = "user",
+    ) -> list[AssistantTurn[CompletionT] | UserTurn]: ...
+
+    @overload
+    def get_turns(
+        self,
+        *,
+        include_system_prompt: Literal[True],
+        tool_result_role: Literal["assistant", "user"] = "user",
+    ) -> list[Turn]: ...
+
     def get_turns(
         self,
         *,
         include_system_prompt: bool = False,
         tool_result_role: Literal["assistant", "user"] = "user",
-    ) -> list[Turn[CompletionT]]:
+    ) -> list[Turn] | list[AssistantTurn[CompletionT] | UserTurn]:
         """
         Get all the turns (i.e., message contents) in the chat.
 
@@ -257,7 +274,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         # If a turn is purely a tool result, change its role
-        turns2: list[Turn[CompletionT]] = []
+        turns2: list[Turn] = []
         for turn in turns:
             if all(isinstance(c, ContentToolResult) for c in turn.contents):
                 # Convert to appropriate type based on tool_result_role
@@ -270,7 +287,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turns2.append(copy.copy(turn))
 
         # If two consecutive turns have the same role (i.e., assistant), collapse them into one
-        final_turns: list[Turn[CompletionT]] = []
+        final_turns: list[Turn] = []
         for x in turns2:
             if not final_turns:
                 final_turns.append(x)
@@ -291,18 +308,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     ) -> AssistantTurn[CompletionT] | None: ...
 
     @overload
-    def get_last_turn(self, *, role: Literal["user"]) -> UserTurn[CompletionT] | None: ...
+    def get_last_turn(self, *, role: Literal["user"]) -> UserTurn | None: ...
 
     @overload
-    def get_last_turn(
-        self, *, role: Literal["system"]
-    ) -> SystemTurn[CompletionT] | None: ...
+    def get_last_turn(self, *, role: Literal["system"]) -> SystemTurn | None: ...
 
     def get_last_turn(
         self,
         *,
         role: Literal["assistant", "user", "system"] = "assistant",
-    ) -> Turn[CompletionT] | None:
+    ) -> Turn | None:
         """
         Get the last turn in the chat with a specific role.
 
@@ -2356,7 +2371,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError("The filename must have a `.jsonl` extension.")
 
         if turns is None:
-            turns = self.get_turns(include_system_prompt=False)
+            turns = cast(list[Turn], self.get_turns(include_system_prompt=False))
 
         if any(isinstance(x, SystemTurn) for x in turns):
             raise ValueError("System prompts are not allowed in eval input turns.")

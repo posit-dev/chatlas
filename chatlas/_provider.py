@@ -240,14 +240,14 @@ class Provider(
         self,
         completion: ChatCompletionDictT,
         has_data_model: bool,
-    ) -> AssistantTurn: ...
+    ) -> AssistantTurn[ChatCompletionT]: ...
 
     @abstractmethod
     def value_turn(
         self,
         completion: ChatCompletionT,
         has_data_model: bool,
-    ) -> AssistantTurn: ...
+    ) -> AssistantTurn[ChatCompletionT]: ...
 
     @abstractmethod
     def value_tokens(
@@ -343,7 +343,7 @@ class Provider(
         self,
         result: dict[str, Any],
         has_data_model: bool = False,
-    ) -> AssistantTurn | None:
+    ) -> AssistantTurn[ChatCompletionT] | None:
         """
         Convert a batch result to a Turn.
 

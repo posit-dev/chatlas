@@ -2,7 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
+from chatlas import AssistantTurn, ChatAnthropic, ChatGoogle, ChatOpenAI, UserTurn
 from chatlas._provider_openai import OpenAIProvider
 from chatlas._provider_openai_azure import OpenAIAzureProvider
 from chatlas._tokens import (
@@ -21,8 +21,8 @@ def test_tokens_method():
     chat = ChatOpenAI()
     chat.set_turns(
         [
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 0)),
         ]
     )
 
@@ -34,10 +34,10 @@ def test_tokens_method():
     chat = ChatOpenAI()
     chat.set_turns(
         [
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(14, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(14, 10, 0)),
         ],
     )
 
@@ -51,10 +51,10 @@ def test_tokens_method():
     chat2 = ChatOpenAI()
     chat2.set_turns(
         [
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(14, 10, 2)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(14, 10, 2)),
         ],
     )
     assert chat2.get_tokens() == [

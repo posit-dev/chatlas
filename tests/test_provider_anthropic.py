@@ -3,7 +3,7 @@ from typing import cast
 
 import httpx
 import pytest
-from chatlas import ChatAnthropic, ContentToolResultImage, Turn
+from chatlas import AssistantTurn, ChatAnthropic, ContentToolResultImage, UserTurn
 from chatlas._provider_anthropic import AnthropicProvider
 
 from .conftest import (
@@ -137,8 +137,8 @@ def test_anthropic_removes_empty_assistant_turns():
     chat = chat_func()
     chat.set_turns(
         [
-            Turn("user", "Don't say anything"),
-            Turn("assistant", []),
+            UserTurn("Don't say anything"),
+            AssistantTurn([]),
         ]
     )
 

@@ -3,21 +3,19 @@ from pathlib import Path
 from typing import Callable
 
 import pytest
-from PIL import Image
-from pydantic import BaseModel
-from tenacity import retry, wait_exponential
-
 from chatlas import (
     AssistantTurn,
     Chat,
     ContentToolRequest,
     ContentToolResult,
-    Turn,
     UserTurn,
     content_image_file,
     content_image_url,
     content_pdf_file,
 )
+from PIL import Image
+from pydantic import BaseModel
+from tenacity import retry, wait_exponential
 
 ChatFun = Callable[..., Chat]
 
@@ -101,7 +99,9 @@ def assert_tools_simple_stream_content(chat_fun: ChatFun):
 
     chat.register_tool(get_date, annotations=ToolAnnotations(title="Get Date"))
 
-    response = chat.stream("What's the current date in YYYY-MM-DD format?", content="all")
+    response = chat.stream(
+        "What's the current date in YYYY-MM-DD format?", content="all"
+    )
     chunks = [chunk for chunk in response]
 
     # Emits a request with tool annotations
@@ -225,7 +225,10 @@ def assert_data_extraction(chat_fun: ChatFun):
     class Person(BaseModel):
         name: str
         age: int
-    data = chat.chat_structured("Generate the name and age of a random person.", data_model=Person)
+
+    data = chat.chat_structured(
+        "Generate the name and age of a random person.", data_model=Person
+    )
     response = chat.chat("What is the name of the person?")
     assert data.name in str(response)
 
@@ -301,6 +304,7 @@ retry_api_call = retry(
 @pytest.fixture
 def test_images_dir():
     return Path(__file__).parent / "images"
+
 
 @pytest.fixture
 def test_batch_dir():

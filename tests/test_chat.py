@@ -5,11 +5,13 @@ import pytest
 from pydantic import BaseModel
 
 from chatlas import (
+    AssistantTurn,
     ChatOpenAI,
     ContentToolRequest,
     ContentToolResult,
     ToolRejectError,
     Turn,
+    UserTurn,
 )
 from chatlas._chat import ToolFailureWarning
 
@@ -73,8 +75,8 @@ def test_basic_repr(snapshot):
     )
     chat.set_turns(
         [
-            Turn("user", "What's 1 + 1? What's 1 + 2?"),
-            Turn("assistant", "2  3", tokens=(15, 5, 5)),
+            UserTurn("What's 1 + 1? What's 1 + 2?"),
+            AssistantTurn("2  3", tokens=(15, 5, 5)),
         ]
     )
     assert snapshot == repr(chat)
@@ -86,8 +88,8 @@ def test_basic_str(snapshot):
     )
     chat.set_turns(
         [
-            Turn("user", "What's 1 + 1? What's 1 + 2?"),
-            Turn("assistant", "2  3", tokens=(15, 5, 0)),
+            UserTurn("What's 1 + 1? What's 1 + 2?"),
+            AssistantTurn("2  3", tokens=(15, 5, 0)),
         ]
     )
     assert snapshot == str(chat)
@@ -99,8 +101,8 @@ def test_basic_export(snapshot):
     )
     chat.set_turns(
         [
-            Turn("user", "What's 1 + 1? What's 1 + 2?"),
-            Turn("assistant", "2  3", tokens=(15, 5, 0)),
+            UserTurn("What's 1 + 1? What's 1 + 2?"),
+            AssistantTurn("2  3", tokens=(15, 5, 0)),
         ]
     )
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -162,8 +164,8 @@ def test_modify_system_prompt():
     chat = ChatOpenAI()
     chat.set_turns(
         [
-            Turn("user", "Hi"),
-            Turn("assistant", "Hello"),
+            UserTurn("Hi"),
+            AssistantTurn("Hello"),
         ]
     )
 
@@ -189,11 +191,33 @@ def test_json_serialize():
     chat.chat("Tell me a short joke", echo="none")
     turns = chat.get_turns()
     turns_json = [x.model_dump_json() for x in turns]
-    turns_restored = [Turn.model_validate_json(x) for x in turns_json]
+
+    # Restore each turn using the appropriate subclass
+    turns_restored = []
+    for i, turn_json in enumerate(turns_json):
+        if isinstance(turns[i], UserTurn):
+            turns_restored.append(UserTurn.model_validate_json(turn_json))
+        elif isinstance(turns[i], AssistantTurn):
+            turns_restored.append(AssistantTurn.model_validate_json(turn_json))
+        elif isinstance(turns[i], SystemTurn):
+            turns_restored.append(SystemTurn.model_validate_json(turn_json))
+        else:
+            turns_restored.append(Turn.model_validate_json(turn_json))
+
     assert len(turns) == 2
     # Completion objects, at least of right now, aren't included in the JSON
-    turns[1].completion = None
-    assert turns == turns_restored
+    # Need to create new turn without completion for comparison
+    turns_for_comparison = [turns[0]]
+    if isinstance(turns[1], AssistantTurn):
+        turns_for_comparison.append(AssistantTurn(
+            turns[1].contents,
+            tokens=turns[1].tokens,
+            finish_reason=turns[1].finish_reason,
+            completion=None
+        ))
+    else:
+        turns_for_comparison.append(turns[1])
+    assert turns_for_comparison == turns_restored
 
 
 # Chat can be deepcopied/forked
@@ -298,10 +322,10 @@ def test_get_cost():
     chat = ChatOpenAI(api_key="fake_key")
     chat.set_turns(
         [
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10, 2)),
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(14, 10, 2)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 2)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(14, 10, 2)),
         ]
     )
 
@@ -340,10 +364,10 @@ def test_get_cost():
     chat2 = ChatOpenAI(api_key="fake_key", model="BADBAD")
     chat2.set_turns(
         [
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(14, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(14, 10, 0)),
         ]
     )
     with pytest.raises(

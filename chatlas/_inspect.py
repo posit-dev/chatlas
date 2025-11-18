@@ -30,24 +30,24 @@ Role = Literal["system", "user", "assistant"]
 
 @overload
 def turn_as_inspect_messages(
-    turn: Turn, role: Literal["system"], model: str | None = None
+    turn: SystemTurn, model: str | None = None
 ) -> list[ChatMessageSystem]: ...
 
 
 @overload
 def turn_as_inspect_messages(
-    turn: Turn, role: Literal["user"], model: str | None = None
+    turn: UserTurn, model: str | None = None
 ) -> list[ChatMessage]: ...
 
 
 @overload
 def turn_as_inspect_messages(
-    turn: Turn, role: Literal["assistant"], model: str | None = None
+    turn: AssistantTurn, model: str | None = None
 ) -> list[ChatMessageAssistant]: ...
 
 
 def turn_as_inspect_messages(
-    turn: Turn, role: Role, model: str | None = None
+    turn: Turn, model: str | None = None
 ) -> list[ChatMessageSystem] | list[ChatMessage] | list[ChatMessageAssistant]:
     """
     Translate a chatlas Turn into InspectAI ChatMessages.
@@ -125,10 +125,10 @@ def inspect_messages_as_turns(messages: list[ChatMessage]) -> list[Turn]:
     for msg in messages:
         if isinstance(msg, imodel.ChatMessageSystem):
             contents = [inspect_content_as_chatlas(x) for x in msg.content]
-            turn = Turn(role="system", contents=contents)
+            turn = SystemTurn(contents=contents)
         elif isinstance(msg, imodel.ChatMessageUser):
             contents = [inspect_content_as_chatlas(x) for x in msg.content]
-            turn = Turn(role="user", contents=contents)
+            turn = UserTurn(contents=contents)
         elif isinstance(msg, imodel.ChatMessageAssistant):
             contents: list[Content] = []
             tool_calls = msg.tool_calls or []
@@ -138,7 +138,7 @@ def inspect_messages_as_turns(messages: list[ChatMessage]) -> list[Turn]:
                 )
             for content in msg.content:
                 contents.append(inspect_content_as_chatlas(content))
-            turn = Turn(role="assistant", contents=contents)
+            turn = AssistantTurn(contents=contents)
         elif isinstance(msg, imodel.ChatMessageTool):
             contents = [
                 ContentToolResult(
@@ -151,7 +151,7 @@ def inspect_messages_as_turns(messages: list[ChatMessage]) -> list[Turn]:
                     ),
                 )
             ]
-            turn = Turn(role="user", contents=contents)
+            turn = UserTurn(contents=contents)
         else:
             raise ValueError(f"Unknown InspectAI ChatMessage type: {type(msg)}")
         turns.append(turn)

@@ -3,7 +3,16 @@ from __future__ import annotations
 import base64
 import re
 import warnings
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Optional,
+    Sequence,
+    Union,
+    cast,
+    overload,
+)
 
 import orjson
 from openai.types.chat import ChatCompletionToolParam
@@ -568,7 +577,7 @@ class AnthropicProvider(
             "stop_sequences",
         }
 
-    def _as_message_params(self, turns: list[Turn]) -> list["MessageParam"]:
+    def _as_message_params(self, turns: Sequence[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
         for i, turn in enumerate(turns):
             if isinstance(turn, SystemTurn):
@@ -802,7 +811,9 @@ class AnthropicProvider(
 
         return results
 
-    def batch_result_turn(self, result, has_data_model: bool = False) -> AssistantTurn | None:
+    def batch_result_turn(
+        self, result, has_data_model: bool = False
+    ) -> AssistantTurn | None:
         from anthropic.types.messages.message_batch_individual_response import (
             MessageBatchIndividualResponse,
         )

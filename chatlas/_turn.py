@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Generic, Literal, Optional, Sequence, TypeVar
+from abc import abstractmethod
+from typing import Generic, Literal, Optional, Sequence, TypeVar, cast
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ._content import Content, ContentText, ContentUnion, create_content
 
@@ -11,7 +12,7 @@ __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
 CompletionT = TypeVar("CompletionT")
 
 
-class Turn(BaseModel, Generic[CompletionT]):
+class BaseTurn(BaseModel):
     """
     Base turn class
 
@@ -84,9 +85,10 @@ class Turn(BaseModel, Generic[CompletionT]):
         )
 
     @property
+    @abstractmethod
     def role(self) -> str:
-        """Override in subclasses to return specific role"""
-        return "unknown"
+        """The role of the turn (e.g., 'user', 'assistant', or 'system')."""
+        pass
 
     @property
     def text(self) -> str:
@@ -96,8 +98,7 @@ class Turn(BaseModel, Generic[CompletionT]):
         return self.text
 
     def __repr__(self, indent: int = 0) -> str:
-        res = " " * indent + f"<{self.__class__.__name__} role='{self.role}'"
-        res += ">"
+        res = " " * indent + f"<{self.__class__.__name__}>"
         for content in self.contents:
             res += "\n" + content.__repr__(indent=indent + 2)
         return res + "\n"
@@ -110,16 +111,14 @@ class Turn(BaseModel, Generic[CompletionT]):
         `.export_eval()` method on `Chat` for a higher level interface to
         exporting chat history for evaluation purposes.
         """
-        from typing import cast
 
         from ._inspect import try_import_inspect, turn_as_inspect_messages
 
         try_import_inspect()
-        role = cast(Literal["system", "user", "assistant"], self.role)
-        return turn_as_inspect_messages(self, role, model=model)
+        return turn_as_inspect_messages(cast(Turn, self), model=model)
 
 
-class UserTurn(Turn[CompletionT]):
+class UserTurn(BaseTurn):
     """
     User turn - represents user input
 
@@ -141,7 +140,7 @@ class UserTurn(Turn[CompletionT]):
         return "user"
 
 
-class SystemTurn(Turn[CompletionT]):
+class SystemTurn(BaseTurn):
     """
     System turn - represents system prompt
 
@@ -163,7 +162,7 @@ class SystemTurn(Turn[CompletionT]):
         return "system"
 
 
-class AssistantTurn(Turn[CompletionT]):
+class AssistantTurn(BaseTurn, Generic[CompletionT]):
     """
     Assistant turn - represents model response with additional metadata
 
@@ -185,23 +184,35 @@ class AssistantTurn(Turn[CompletionT]):
     finish_reason: Optional[str] = None
     completion: Optional[CompletionT] = Field(default=None, exclude=True)
 
+    @field_validator("tokens", mode="before")
+    @classmethod
+    def validate_tokens(cls, v):
+        """Convert list to tuple for JSON deserialization compatibility."""
+        if isinstance(v, list):
+            return tuple(v)
+        return v
+
     def __init__(
         self,
         contents: str | Sequence[Content | str],
         *,
-        tokens: Optional[tuple[int, int, int]] = None,
+        tokens: Optional[tuple[int, int, int] | list[int]] = None,
         finish_reason: Optional[str] = None,
         completion: Optional[CompletionT] = None,
         **kwargs,
     ):
-        super().__init__(contents, **kwargs)
-        # Set assistant-specific fields after calling parent init
+        if isinstance(tokens, list):
+            tokens = cast(tuple[int, int, int], tuple(tokens))
+
+        # Pass assistant-specific fields to parent constructor
         if tokens is not None:
-            self.tokens = tokens
+            kwargs["tokens"] = tokens
         if finish_reason is not None:
-            self.finish_reason = finish_reason
+            kwargs["finish_reason"] = finish_reason
         if completion is not None:
-            self.completion = completion
+            kwargs["completion"] = completion
+
+        super().__init__(contents, **kwargs)
 
     @property
     def role(self) -> Literal["assistant"]:
@@ -226,3 +237,7 @@ def user_turn(*args: Content | str) -> UserTurn:
         raise ValueError("Must supply at least one input.")
 
     return UserTurn(args)
+
+
+Turn = UserTurn | SystemTurn | AssistantTurn
+"""Union type representing any turn type."""
