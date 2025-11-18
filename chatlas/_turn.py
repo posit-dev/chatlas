@@ -356,12 +356,9 @@ def user_turn(
     if len(args) == 0:
         raise ValueError("Must supply at least one input.")
 
-    if prior_turns is None:
-        return UserTurn(args)
-
     # If the prior turns contain dangling tool requests
     # (possibly due to an interrupted chat), then complete them.
-    results = complete_dangling_tool_requests(prior_turns)
+    results = complete_dangling_tool_requests(prior_turns or [])
 
     if not results:
         return UserTurn(args)
@@ -373,7 +370,7 @@ def user_turn(
 
 
 def complete_dangling_tool_requests(turns: Sequence[Turn]) -> list[ContentToolResult]:
-    if not turns:
+    if len(turns) == 0:
         return []
 
     last_turn = turns[-1]
