@@ -227,7 +227,7 @@ def ChatAnthropic(
     """
 
     if model is None:
-        model = log_model_default("claude-sonnet-4-0")
+        model = log_model_default("claude-sonnet-4-5")
 
     return Chat(
         provider=AnthropicProvider(
@@ -973,7 +973,7 @@ def ChatBedrockAnthropic(
     """
 
     if model is None:
-        model = log_model_default("us.anthropic.claude-sonnet-4-20250514-v1:0")
+        model = log_model_default("us.anthropic.claude-sonnet-4-5-20250929-v1:0")
 
     return Chat(
         provider=AnthropicBedrockProvider(
