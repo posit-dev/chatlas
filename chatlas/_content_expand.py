@@ -17,8 +17,6 @@ becomes:
 
 from __future__ import annotations
 
-from typing import TypeGuard
-
 from ._content import (
     Content,
     ContentImageInline,
@@ -29,6 +27,7 @@ from ._content import (
     ContentToolResult,
     ContentUnion,
 )
+from ._typing_extensions import TypeGuard
 
 
 def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:

@@ -4,7 +4,7 @@ from typing import cast
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from chatlas import ContentImageInline, ContentPDF
+from chatlas._content import ContentImageInline, ContentPDF
 from chatlas._tools import Tool
 from chatlas.types import ContentToolResult
 from pydantic.networks import AnyUrl
