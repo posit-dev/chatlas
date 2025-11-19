@@ -3,9 +3,10 @@ from __future__ import annotations
 import json
 from typing import Any, Generic, Literal, Optional, Sequence, TypeVar, cast
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from ._content import Content, ContentText, ContentUnion, create_content
+from ._content import Content, ContentText, ContentUnion, create_content, ContentToolResult
+from ._content_expand import expand_tool_result
 
 __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
 
@@ -241,6 +242,18 @@ class UserTurn(Turn):
         **kwargs,
     ):
         super().__init__(contents, **kwargs)
+
+    @model_validator(mode="after")
+    def expand_tool_contents(self):
+        contents: list[ContentUnion] = []
+        for x in self.contents:
+            if isinstance(x, ContentToolResult):
+                contents.extend(expand_tool_result(x))
+            else:
+                contents.append(x)
+
+        self.contents = contents
+        return self
 
 
 class SystemTurn(Turn):

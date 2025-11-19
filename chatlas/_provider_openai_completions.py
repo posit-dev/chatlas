@@ -26,8 +26,6 @@ from ._content import (
     ContentText,
     ContentToolRequest,
     ContentToolResult,
-    ContentToolResultImage,
-    ContentToolResultResource,
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
@@ -324,12 +322,6 @@ class OpenAICompletionsProvider(
                             }
                         )
                     elif isinstance(x, ContentToolResult):
-                        if isinstance(
-                            x, (ContentToolResultImage, ContentToolResultResource)
-                        ):
-                            raise NotImplementedError(
-                                "OpenAI does not support tool results with images or resources."
-                            )
                         tool_results.append(
                             ChatCompletionToolMessageParam(
                                 # Currently, OpenAI only allows for text content in tool results

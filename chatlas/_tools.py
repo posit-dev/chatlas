@@ -5,7 +5,6 @@ import warnings
 from typing import (
     TYPE_CHECKING,
     Any,
-    AsyncGenerator,
     Awaitable,
     Callable,
     Optional,
@@ -17,9 +16,8 @@ from pydantic import BaseModel, Field, create_model
 
 from . import _utils
 from ._content import (
-    ContentToolResult,
-    ContentToolResultImage,
-    ContentToolResultResource,
+    ContentImageInline,
+    ContentPDF,
     ToolAnnotations,
 )
 
@@ -164,7 +162,7 @@ class Tool:
             A new Tool instance wrapping the MCP tool.
         """
 
-        async def _call(**args: Any) -> AsyncGenerator[ContentToolResult, None]:
+        async def _call(**args: Any):
             result = await session.call_tool(mcp_tool.name, args)
 
             # Raise an error if the tool call resulted in an error. It doesn't seem to be
@@ -181,7 +179,7 @@ class Tool:
 
             for content in result.content:
                 if content.type == "text":
-                    yield ContentToolResult(value=content.text)
+                    yield content.text
                 elif content.type == "image":
                     if content.mimeType not in (
                         "image/png",
@@ -193,9 +191,9 @@ class Tool:
                             f"Unsupported image MIME type: {content.mimeType}"
                         )
 
-                    yield ContentToolResultImage(
-                        value=content.data,
-                        mime_type=content.mimeType,
+                    yield ContentImageInline(
+                        data=content.data,
+                        image_content_type=content.mimeType,
                     )
                 elif content.type == "resource":
                     from mcp.types import TextResourceContents
@@ -206,9 +204,13 @@ class Tool:
                     else:
                         blob = resource.blob.encode("utf-8")
 
-                    yield ContentToolResultResource(
-                        value=blob, mime_type=content.resource.mimeType
-                    )
+                    mime_type = content.resource.mimeType
+                    if mime_type != "application/pdf":
+                        raise ValueError(
+                            f"Unsupported resource MIME type: {content.resource.mimeType}"
+                        )
+
+                    yield ContentPDF(data=blob, filename=f"{mcp_tool.name}-result.pdf")
                 else:
                     raise RuntimeError(f"Unexpected content type: {content.type}")
 
