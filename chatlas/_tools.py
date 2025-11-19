@@ -207,7 +207,7 @@ class Tool:
                     mime_type = content.resource.mimeType
                     if mime_type != "application/pdf":
                         raise ValueError(
-                            f"Unsupported resource MIME type: {content.resource.mimeType}"
+                            f"Unsupported resource MIME type: {mime_type}"
                         )
 
                     yield ContentPDF(data=blob, filename=f"{mcp_tool.name}-result.pdf")

@@ -187,8 +187,8 @@ class TestToolFromMCP:
         assert len(results) == 1
         result = results[0]
         assert isinstance(result, ContentImageInline)
-        assert result.value == "base64imagedata"
-        assert result.mime_type == "image/png"
+        assert result.data == "base64imagedata"
+        assert result.image_content_type == "image/png"
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_resource_result_text(self):
@@ -228,8 +228,8 @@ class TestToolFromMCP:
         assert len(results) == 1
         result = results[0]
         assert isinstance(result, ContentPDF)
-        assert result.value == b"File contents here"
-        assert result.mime_type == "application/pdf"
+        assert result.data == b"File contents here"
+        assert result.content_type == "application/pdf"
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_multiple_results(self):
