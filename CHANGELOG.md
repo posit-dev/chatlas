@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Improvements
 
 * `ChatAnthropic()` and `ChatBedrockAnthropic()` now default to Claude Sonnet 4.5.
+* `ChatGroq()` now defaults to llama-3.1-8b-instant.
 * `content_pdf_file()` and `content_pdf_url()` now include relevant `filename` information. (#199)
 * `Chat.chat()`, `Chat.stream()`, and related methods now automatically complete dangling tool requests when a chat is interrupted during a tool call loop, allowing the conversation to be resumed without causing API errors (#230).
 
