@@ -11,17 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+
+* `ChatOpenAI()` (and `ChatAzureOpenAI()`) gain access to latest models, built-in tools, etc. as a result of moving to the new [Responses API](https://platform.openai.com/docs/api-reference/responses). (#192)
 * Added new family of functions (`parallel_chat()`, `parallel_chat_text()`, and `parallel_chat_structured()`) for submitting multiple prompts at once with some basic rate limiting toggles. (#188)
+* Tools can now return image or PDF content types, with `content_image_file()` or `content_pdf_file()` (#231).
+    * As a result, the experimental `ContentToolResultImage` and `ContentToolResultResource` were removed since this new support for generally supporting `ContentImage` and `ContentPDF` renders those content types redundant.
 * Added support for systematic evaluation via [Inspect AI](https://inspect.aisi.org.uk/). This includes:
     * A new `.export_eval()` method for exporting conversation history as an Inspect eval dataset sample. This supports multi-turn conversations, tool calls, images, PDFs, and structured data.
     * A new `.to_solver()` method for translating chat instances into Inspect solvers that can be used with Inspect's evaluation framework.
     * A new `Turn.to_inspect_messages()` method for converting turns to Inspect's message format.
     * Comprehensive documentation in the [Evals guide](https://posit-dev.github.io/chatlas/misc/evals.html).
-* `ChatOpenAI()` (and `ChatAzureOpenAI()`) gain access to latest models, built-in tools, etc. as a result of moving to the new [Responses API](https://platform.openai.com/docs/api-reference/responses). (#192)
-* Added rudimentary support for a new `ContentThinking` type. (#192)
 * `ChatAnthropic()` and `ChatBedrockAnthropic()` gain new `cache` parameter to control caching. For `ChatAnthropic()`, it defaults to `"5m"`, which should (on average) reduce the cost of your chats. For `ChatBedrockAnthropic()`, it defaults to `"none"`, since caching isn't guaranteed to be widely supported (#215)
-* Tools can now return image or PDF content types, with `content_image_file()` or `content_pdf_file()` (#231).
-    * As a result, the experimental `ContentToolResultImage` and `ContentToolResultResource` were removed since this new support for generally supporting `ContentImage` and `ContentPDF` renders those content types redundant.
+* Added rudimentary support for a new `ContentThinking` type. (#192)
 
 ### Changes
 
@@ -34,8 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `ChatAnthropic()` and `ChatBedrockAnthropic()` now default to Claude Sonnet 4.5.
 * `ChatGroq()` now defaults to llama-3.1-8b-instant.
-* `content_pdf_file()` and `content_pdf_url()` now include relevant `filename` information. (#199)
 * `Chat.chat()`, `Chat.stream()`, and related methods now automatically complete dangling tool requests when a chat is interrupted during a tool call loop, allowing the conversation to be resumed without causing API errors (#230).
+* `content_pdf_file()` and `content_pdf_url()` now include relevant `filename` information. (#199)
 
 ### Bug fixes
 
