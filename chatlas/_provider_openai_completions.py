@@ -31,7 +31,7 @@ from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
-from ._tools import Tool, basemodel_to_param_schema
+from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
@@ -121,7 +121,7 @@ class OpenAICompletionsProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -133,7 +133,7 @@ class OpenAICompletionsProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -144,17 +144,14 @@ class OpenAICompletionsProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        from ._tools import ToolBuiltIn
 
-        # Handle tools - both regular and built-in
         tool_schemas = []
         for tool in tools.values():
             if isinstance(tool, ToolBuiltIn):
-                # For built-in tools, pass the definition through directly
                 tool_schemas.append(tool.definition)
             else:
                 tool_schemas.append(tool.schema)

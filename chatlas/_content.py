@@ -109,14 +109,7 @@ class ToolInfo(BaseModel):
         from ._tools import ToolBuiltIn
 
         if isinstance(tool, ToolBuiltIn):
-            # For built-in tools, extract info from the definition
-            defn = tool.definition
-            return cls(
-                name=tool.name,
-                description=defn.get("description", ""),
-                parameters=defn.get("parameters", {}),
-                annotations=None,
-            )
+            return cls(name=tool.name, description=tool.name, parameters={})
         else:
             # For regular tools, extract from schema
             func_schema = tool.schema["function"]

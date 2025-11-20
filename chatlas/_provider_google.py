@@ -21,7 +21,7 @@ from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import get_token_pricing
-from ._tools import Tool
+from ._tools import Tool, ToolBuiltIn
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 
 if TYPE_CHECKING:
@@ -208,7 +208,7 @@ class GoogleProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -219,7 +219,7 @@ class GoogleProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -229,7 +229,7 @@ class GoogleProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -245,7 +245,7 @@ class GoogleProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -256,7 +256,7 @@ class GoogleProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -266,7 +266,7 @@ class GoogleProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -279,7 +279,7 @@ class GoogleProvider(
     def _chat_perform_args(
         self,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
@@ -307,25 +307,20 @@ class GoogleProvider(
             config.response_mime_type = "application/json"
 
         if tools:
-            from ._tools import ToolBuiltIn
-
-            function_declarations = []
-            for tool in tools.values():
-                if isinstance(tool, ToolBuiltIn):
-                    # For built-in tools, pass the raw definition through
-                    # This allows provider-specific tools like image generation
-                    # Note: Google's API expects these in a specific format
-                    continue  # Built-in tools are not yet fully supported for Google
-                else:
-                    function_declarations.append(
+            config.tools = [
+                GoogleTool(
+                    function_declarations=[
                         FunctionDeclaration.from_callable(
                             client=self._client._api_client,
                             callable=tool.func,
                         )
-                    )
-
-            if function_declarations:
-                config.tools = [GoogleTool(function_declarations=function_declarations)]
+                        for tool in tools.values()
+                        # TODO: to support built-in tools, we may need a way to make
+                        # tool names (e.g., google_search to google.genai.types.GoogleSearch())
+                        if isinstance(tool, Tool)
+                    ]
+                )
+            ]
 
         kwargs_full["config"] = config
 
@@ -380,7 +375,7 @@ class GoogleProvider(
     def token_count(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ):
         kwargs = self._token_count_args(
@@ -395,7 +390,7 @@ class GoogleProvider(
     async def token_count_async(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ):
         kwargs = self._token_count_args(
@@ -410,7 +405,7 @@ class GoogleProvider(
     def _token_count_args(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> dict[str, Any]:
         turn = user_turn(*args)
@@ -553,18 +548,15 @@ class GoogleProvider(
                             ),
                         )
                     )
-            inline_data = part.get("inlineData") or part.get("inline_data")
+            inline_data = part.get("inline_data")
             if inline_data:
-                # Handle image generation responses
-                mime_type = inline_data.get("mimeType") or inline_data.get("mime_type")
+                mime_type = inline_data.get("mime_type")
                 data = inline_data.get("data")
                 if mime_type and data:
-                    # Ensure data is a string (should be base64 encoded)
-                    data_str = data if isinstance(data, str) else str(data)
                     contents.append(
                         ContentImageInline(
+                            data=data.decode("utf-8"),
                             image_content_type=mime_type,  # type: ignore
-                            data=data_str,
                         )
                     )
 

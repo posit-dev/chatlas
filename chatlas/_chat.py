@@ -1880,7 +1880,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def register_tool(
         self,
-        func: Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool | "ToolBuiltIn",
+        func: Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool | ToolBuiltIn,
         *,
         force: bool = False,
         name: Optional[str] = None,
@@ -1974,11 +1974,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ValueError
             If a tool with the same name already exists and `force` is `False`.
         """
-        if isinstance(func, ToolBuiltIn):
-            # ToolBuiltIn objects are stored directly without conversion
-            tool = func
-            tool_name = tool.name
-        elif isinstance(func, Tool):
+        if isinstance(func, Tool):
             name = name or func.name
             annotations = annotations or func.annotations
             if model is not None:
@@ -1987,17 +1983,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 )
             func = func.func
             tool = Tool.from_func(func, name=name, model=model, annotations=annotations)
-            tool_name = tool.name
         else:
-            tool = Tool.from_func(func, name=name, model=model, annotations=annotations)
-            tool_name = tool.name
+            if isinstance(func, ToolBuiltIn):
+                tool = func
+            else:
+                tool = Tool.from_func(
+                    func, name=name, model=model, annotations=annotations
+                )
 
-        if tool_name in self._tools and not force:
+        if tool.name in self._tools and not force:
             raise ValueError(
-                f"Tool with name '{tool_name}' is already registered. "
+                f"Tool with name '{tool.name}' is already registered. "
                 "Set `force=True` to overwrite it."
             )
-        self._tools[tool_name] = tool
+        self._tools[tool.name] = tool
 
     def get_tools(self) -> list[Tool | ToolBuiltIn]:
         """
@@ -2530,7 +2529,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]:
-        if any(hasattr(x, "_is_async") and x._is_async for x in self._tools.values()):
+        if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
         def emit(text: str | Content):
@@ -2700,7 +2699,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             return
 
         if isinstance(tool, ToolBuiltIn):
-            # Built-in tools are handled by the provider, not invoked directly
             yield self._handle_tool_error_result(
                 request,
                 error=RuntimeError(
@@ -2709,8 +2707,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 ),
             )
             return
-
-        func = tool.func
 
         # First, invoke the request callbacks. If a ToolRejectError is raised,
         # treat it like a tool failure (i.e., gracefully handle it).
@@ -2723,9 +2719,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         try:
             if isinstance(request.arguments, dict):
-                res = func(**request.arguments)
+                res = tool.func(**request.arguments)
             else:
-                res = func(request.arguments)
+                res = tool.func(request.arguments)
 
             # Normalize res as a generator of results.
             if not inspect.isgenerator(res):
@@ -2760,7 +2756,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             return
 
         if isinstance(tool, ToolBuiltIn):
-            # Built-in tools are handled by the provider, not invoked directly
             yield self._handle_tool_error_result(
                 request,
                 error=RuntimeError(
@@ -2770,11 +2765,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
             return
 
-        if tool._is_async:
-            func = tool.func
-        else:
-            func = wrap_async(tool.func)
-
         # First, invoke the request callbacks. If a ToolRejectError is raised,
         # treat it like a tool failure (i.e., gracefully handle it).
         result: ContentToolResult | None = None
@@ -2783,6 +2773,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         except ToolRejectError as e:
             yield self._handle_tool_error_result(request, e)
             return
+
+        if tool._is_async:
+            func = tool.func
+        else:
+            func = wrap_async(tool.func)
 
         # Invoke the tool (if it hasn't been rejected).
         try:

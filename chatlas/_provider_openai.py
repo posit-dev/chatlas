@@ -24,7 +24,7 @@ from ._logging import log_model_default
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
-from ._tools import Tool, basemodel_to_param_schema
+from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._turn import AssistantTurn, Turn
 
 if TYPE_CHECKING:
@@ -169,7 +169,7 @@ class OpenAIProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -181,7 +181,7 @@ class OpenAIProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -192,7 +192,7 @@ class OpenAIProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
@@ -204,19 +204,15 @@ class OpenAIProvider(
             **(kwargs or {}),
         }
 
-        from ._tools import ToolBuiltIn
-
         # Handle tools - both regular and built-in
-        responses_tools: list["ToolParam"] = []
+        tool_params: list["ToolParam"] = []
         for tool in tools.values():
             if isinstance(tool, ToolBuiltIn):
-                # For built-in tools, pass the definition through directly
-                responses_tools.append(tool.definition)  # type: ignore
+                tool_params.append(cast(ToolParam, tool.definition))
             else:
-                # Convert completion tool format to responses format
                 schema = tool.schema
                 func = schema["function"]
-                responses_tools.append(
+                tool_params.append(
                     {
                         "type": "function",
                         "name": func["name"],
@@ -226,8 +222,8 @@ class OpenAIProvider(
                     }
                 )
 
-        if responses_tools:
-            kwargs_full["tools"] = responses_tools
+        if tool_params:
+            kwargs_full["tools"] = tool_params
 
         # Add structured data extraction if present
         if data_model is not None:
@@ -332,25 +328,20 @@ class OpenAIProvider(
                     )
 
             elif output.type == "image_generation_call":
-                # Handle image generation responses
-                # The output object should have 'output_format' and 'result' attributes
-                output_dict = output.model_dump()
-                output_format = output_dict.get("output_format", "png")
-                result = output_dict.get("result")
-
+                result = output.result
                 if result:
-                    # Map output format to MIME type
-                    mime_type_map = {
-                        "png": "image/png",
-                        "jpeg": "image/jpeg",
-                        "webp": "image/webp",
-                    }
-                    mime_type = mime_type_map.get(output_format, "image/png")
+                    mime_type = "image/png"
+                    if "image/jpeg" in result:
+                        mime_type = "image/jpeg"
+                    elif "image/webp" in result:
+                        mime_type = "image/webp"
+                    elif "image/gif" in result:
+                        mime_type = "image/gif"
 
                     contents.append(
                         ContentImageInline(
-                            image_content_type=mime_type,  # type: ignore
                             data=result,
+                            image_content_type=mime_type,
                         )
                     )
 

@@ -24,7 +24,7 @@ from ._provider import (
     SubmitInputArgsT,
 )
 from ._tokens import get_token_pricing
-from ._tools import Tool
+from ._tools import Tool, ToolBuiltIn
 from ._turn import AssistantTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
@@ -122,7 +122,7 @@ class OpenAIAbstractProvider(
     def token_count(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         try:
@@ -154,7 +154,7 @@ class OpenAIAbstractProvider(
     async def token_count_async(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         return self.token_count(*args, tools=tools, data_model=data_model)
@@ -265,7 +265,7 @@ class OpenAIAbstractProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> SubmitInputArgsT: ...
 
