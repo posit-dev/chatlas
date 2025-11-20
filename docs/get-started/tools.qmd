@@ -122,7 +122,7 @@ I encountered an issue while trying to retrieve the current weather for San Fran
 
 ## Multi-modal results
 
-Tools can return the same [multi-modal](#multi-modal-input) content types that go in to a chat message, such as images (e.g., [`content_image_url`](../reference/content_image_url.qmd)) and PDFs (e.g., [`content_pdf_file`](../reference/content_pdf_file.qmd)). For a quick example:
+Tools can return the same [multi-modal](chat.qmd#multi-modal-input) content types that go in to a chat message, such as images (e.g., [`content_image_url`](../reference/content_image_url.qmd)) and PDFs (e.g., [`content_pdf_file`](../reference/content_pdf_file.qmd)). For a quick example:
 
 ```python
 from chatlas import ChatOpenAI, content_image_url

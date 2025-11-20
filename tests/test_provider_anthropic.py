@@ -104,7 +104,7 @@ def test_anthropic_image_tool(test_images_dir):
     def get_picture():
         "Returns an image"
         # Local copy of https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png
-        return content_image_file(test_images_dir / "dice.png")
+        return content_image_file(test_images_dir / "dice.png", resize='low')
 
     chat = chat_func()
     chat.register_tool(get_picture)

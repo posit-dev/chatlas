@@ -229,7 +229,7 @@ class TestToolFromMCP:
         result = results[0]
         assert isinstance(result, ContentPDF)
         assert result.data == b"File contents here"
-        assert result.content_type == "application/pdf"
+        assert result.content_type == "pdf"
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_multiple_results(self):

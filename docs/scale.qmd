@@ -1,0 +1,13 @@
+---
+title: Scale
+callout-appearance: simple
+---
+
+Once your workflow can handle sequential requests successfully, you may want to scale up to numerous requests at once. With chatlas, you have the option to submit multiple requests in parallel (for time efficiency) or in batch (for cost efficiency).
+
+## Parallel requests
+
+## Batch requests
+
+In either case, it may be helpful to generate multiple responses at once, both in terms of cost and time efficiency.
+This may be especially useful if you're scaling up a [structured data extraction](structured-data.qmd) to process many documents,

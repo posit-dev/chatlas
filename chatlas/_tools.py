@@ -5,6 +5,7 @@ import warnings
 from typing import (
     TYPE_CHECKING,
     Any,
+    AsyncGenerator,
     Awaitable,
     Callable,
     Optional,
@@ -18,6 +19,7 @@ from . import _utils
 from ._content import (
     ContentImageInline,
     ContentPDF,
+    ContentToolResult,
     ToolAnnotations,
 )
 
@@ -162,7 +164,7 @@ class Tool:
             A new Tool instance wrapping the MCP tool.
         """
 
-        async def _call(**args: Any):
+        async def _call(**args: Any) -> AsyncGenerator[ContentToolResult, None]:
             result = await session.call_tool(mcp_tool.name, args)
 
             # Raise an error if the tool call resulted in an error. It doesn't seem to be
@@ -179,7 +181,7 @@ class Tool:
 
             for content in result.content:
                 if content.type == "text":
-                    yield content.text
+                    yield ContentToolResult(value=content.text)
                 elif content.type == "image":
                     if content.mimeType not in (
                         "image/png",
@@ -191,10 +193,11 @@ class Tool:
                             f"Unsupported image MIME type: {content.mimeType}"
                         )
 
-                    yield ContentImageInline(
+                    img = ContentImageInline(
                         data=content.data,
                         image_content_type=content.mimeType,
                     )
+                    yield ContentToolResult(value=img)
                 elif content.type == "resource":
                     from mcp.types import TextResourceContents
 
@@ -206,11 +209,10 @@ class Tool:
 
                     mime_type = content.resource.mimeType
                     if mime_type != "application/pdf":
-                        raise ValueError(
-                            f"Unsupported resource MIME type: {mime_type}"
-                        )
+                        raise ValueError(f"Unsupported resource MIME type: {mime_type}")
 
-                    yield ContentPDF(data=blob, filename=f"{mcp_tool.name}-result.pdf")
+                    pdf = ContentPDF(data=blob, filename=f"{mcp_tool.name}-result.pdf")
+                    yield ContentToolResult(value=pdf)
                 else:
                     raise RuntimeError(f"Unexpected content type: {content.type}")
 
