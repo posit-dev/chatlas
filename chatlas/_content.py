@@ -237,7 +237,7 @@ class ContentImageInline(ContentImage):
     """
 
     image_content_type: ImageContentTypes
-    data: Optional[str] = None
+    data: str
 
     content_type: ContentTypeEnum = "image_inline"
 
@@ -567,68 +567,6 @@ class ContentToolResult(Content):
         return str(self.arguments)
 
 
-class ContentToolResultImage(ContentToolResult):
-    """
-    A tool result that contains an image.
-
-    This is a specialized version of ContentToolResult for returning images.
-    It requires the image data to be base64-encoded (as `value`) and
-    the MIME type of the image (as `mime_type`).
-
-    Parameters
-    ----------
-    value
-        The image data as a base64-encoded string.
-    mime_type
-        The MIME type of the image (e.g., "image/png").
-    """
-
-    value: str
-    model_format: Literal["auto", "json", "str", "as_is"] = "as_is"
-    mime_type: ImageContentTypes
-
-    content_type: ContentTypeEnum = "tool_result_image"
-
-    def __str__(self):
-        return f"<ContentToolResultImage mime_type='{self.mime_type}'>"
-
-    def _repr_markdown_(self):
-        return f"![](data:{self.mime_type};base64,{self.value})"
-
-
-class ContentToolResultResource(ContentToolResult):
-    """
-    A tool result that contains a resource.
-
-    This is a specialized version of ContentToolResult for returning resources
-    (e.g., images, files) as raw bytes. It requires the resource data to be
-    provided as bytes (as `value`) and the MIME type of the resource (as
-    `mime_type`).
-
-    Parameters
-    ----------
-    value
-        The resource data, in bytes.
-    mime_type
-        The MIME type of the image (e.g., "image/png").
-    """
-
-    value: bytes
-    model_format: Literal["auto", "json", "str", "as_is"] = "as_is"
-    mime_type: Optional[str]
-
-    content_type: ContentTypeEnum = "tool_result_resource"
-
-    def __str__(self):
-        return f"<ContentToolResultResource mime_type='{self.mime_type}'>"
-
-    def _repr_mimebundle_(self, include=None, exclude=None):
-        return {
-            self.mime_type: self.value,
-            "text/plain": f"<{self.mime_type} object>",
-        }
-
-
 class ContentJson(Content):
     """
     JSON content
@@ -747,8 +685,6 @@ ContentUnion = Union[
     ContentImageInline,
     ContentToolRequest,
     ContentToolResult,
-    ContentToolResultImage,
-    ContentToolResultResource,
     ContentJson,
     ContentPDF,
     ContentThinking,
@@ -776,10 +712,6 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentToolRequest.model_validate(data)
     elif ct == "tool_result":
         return ContentToolResult.model_validate(data)
-    elif ct == "tool_result_image":
-        return ContentToolResultImage.model_validate(data)
-    elif ct == "tool_result_resource":
-        return ContentToolResultResource.model_validate(data)
     elif ct == "json":
         return ContentJson.model_validate(data)
     elif ct == "pdf":

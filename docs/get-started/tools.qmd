@@ -92,6 +92,7 @@ You'll learn more about this in [custom displays](../tool-calling/displays.qmd) 
 
 When a tool function is called, it may fail for various reasons, such as network issues, invalid input, or unexpected exceptions.
 When this happens, chatlas captures the exception and sends it back to the chat model as part of the conversation.
+This allows the model to gracefully handle the error, possibly fix it, and continue the conversation.
 It also [logs](debug.qmd) and displays the stacktrace in the Python console to help you debug the issue.
 
 ```python
@@ -118,6 +119,42 @@ ValueError: Failed to get current temperature
 
 I encountered an issue while trying to retrieve the current weather for San Francisco. Please check a reliable weather website or use a weather app for the latest updates. 
 :::
+
+## Multi-modal results
+
+Tools can return the same [multi-modal](chat.qmd#multi-modal-input) content types that go in to a chat message, such as images (e.g., [`content_image_url`](../reference/content_image_url.qmd)) and PDFs (e.g., [`content_pdf_file`](../reference/content_pdf_file.qmd)). For a quick example:
+
+```python
+from chatlas import ChatOpenAI, content_image_url
+import requests
+
+def get_cat_image():
+    """Get a random cat image from an API."""
+    response = requests.get("https://api.thecatapi.com/v1/images/search")
+    image_url = response.json()[0]["url"]
+    return content_image_url(image_url)
+
+chat = ChatOpenAI(model="gpt-4o")
+chat.register_tool(get_cat_image)
+
+chat.chat("Get a cat image and describe what you see")
+```
+
+::: chatlas-response-container
+
+```python
+# 🛠️ tool request
+get_cat_image()
+```
+
+```python
+# ✅ tool result
+![](https://cdn2.thecatapi.com/images/DFHMMPNcD.jpg)
+```
+
+The image shows a beautiful cat with a Siamese-like color pattern. The cat has a dark face, ears, and paws, with a lighter body. Its eyes are large and bright, and the cat is sitting in front of a  green curtain. The contrast between the cat's dark features and the curtain makes the image visually striking. It's a cute and attentive pose. 
+:::
+
 
 
 ### More examples

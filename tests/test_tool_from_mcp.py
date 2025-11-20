@@ -4,11 +4,10 @@ from typing import cast
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from pydantic.networks import AnyUrl
-
-from chatlas._content import ContentToolResultImage, ContentToolResultResource
+from chatlas._content import ContentImageInline, ContentPDF
 from chatlas._tools import Tool
 from chatlas.types import ContentToolResult
+from pydantic.networks import AnyUrl
 
 try:
     import mcp  # noqa: F401
@@ -187,9 +186,9 @@ class TestToolFromMCP:
 
         assert len(results) == 1
         result = results[0]
-        assert isinstance(result, ContentToolResultImage)
-        assert result.value == "base64imagedata"
-        assert result.mime_type == "image/png"
+        assert isinstance(result, ContentImageInline)
+        assert result.data == "base64imagedata"
+        assert result.image_content_type == "image/png"
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_resource_result_text(self):
@@ -214,7 +213,7 @@ class TestToolFromMCP:
             text="File contents here",
             uri=AnyUrl("file://path/to/file.txt"),
         )
-        mock_resource.mimeType = "text/plain"
+        mock_resource.mimeType = "application/pdf"
         mock_content.resource = mock_resource
         mock_result.content = [mock_content]
 
@@ -228,46 +227,9 @@ class TestToolFromMCP:
 
         assert len(results) == 1
         result = results[0]
-        assert isinstance(result, ContentToolResultResource)
-        assert result.value == b"File contents here"
-        assert result.mime_type == "text/plain"
-
-    @pytest.mark.asyncio
-    async def test_mcp_tool_call_resource_result_blob(self):
-        """Test calling an MCP tool that returns blob resource content."""
-        mcp_tool = self.create_mock_mcp_tool(
-            name="get_binary",
-            description="Get binary data",
-            input_schema={"type": "object", "properties": {}},
-        )
-
-        session = self.create_mock_session()
-        mock_result = MagicMock()
-        mock_result.isError = False
-
-        mock_content = MagicMock()
-        mock_content.type = "resource"
-
-        # Mock blob resource
-        mock_resource = MagicMock()
-        mock_resource.blob = "binarydata"
-        mock_resource.mimeType = "application/octet-stream"
-        mock_content.resource = mock_resource
-        mock_result.content = [mock_content]
-
-        session.call_tool.return_value = mock_result
-
-        tool = Tool.from_mcp(session, mcp_tool)
-
-        results = []
-        async for result in await tool.func():
-            results.append(result)
-
-        assert len(results) == 1
-        result = results[0]
-        assert isinstance(result, ContentToolResultResource)
-        assert result.value == b"binarydata"
-        assert result.mime_type == "application/octet-stream"
+        assert isinstance(result, ContentPDF)
+        assert result.data == b"File contents here"
+        assert result.content_type == "pdf"
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_multiple_results(self):

@@ -1,9 +1,8 @@
-import base64
 from typing import cast
 
 import httpx
 import pytest
-from chatlas import AssistantTurn, ChatAnthropic, ContentToolResultImage, UserTurn
+from chatlas import AssistantTurn, ChatAnthropic, UserTurn, content_image_file
 from chatlas._provider_anthropic import AnthropicProvider
 
 from .conftest import (
@@ -105,12 +104,7 @@ def test_anthropic_image_tool(test_images_dir):
     def get_picture():
         "Returns an image"
         # Local copy of https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png
-        with open(test_images_dir / "dice.png", "rb") as image:
-            bytez = image.read()
-        return ContentToolResultImage(
-            value=base64.b64encode(bytez).decode("utf-8"),
-            mime_type="image/png",
-        )
+        return content_image_file(test_images_dir / "dice.png", resize='low')
 
     chat = chat_func()
     chat.register_tool(get_picture)
