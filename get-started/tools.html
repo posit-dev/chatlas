@@ -369,7 +369,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#motivation" id="toc-motivation" class="nav-link active" data-scroll-target="#motivation">Motivation</a></li>
   <li><a href="#registering-tools" id="toc-registering-tools" class="nav-link" data-scroll-target="#registering-tools">Registering tools</a></li>
   <li><a href="#tool-errors" id="toc-tool-errors" class="nav-link" data-scroll-target="#tool-errors">Tool errors</a></li>
+  <li><a href="#multi-modal-results" id="toc-multi-modal-results" class="nav-link" data-scroll-target="#multi-modal-results">Multi-modal results</a>
+  <ul class="collapse">
   <li><a href="#more-examples" id="toc-more-examples" class="nav-link" data-scroll-target="#more-examples">More examples</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/get-started/tools.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
@@ -458,7 +461,7 @@ Tool call displays with <code>.stream()</code>
 </section>
 <section id="tool-errors" class="level3">
 <h3 class="anchored" data-anchor-id="tool-errors">Tool errors</h3>
-<p>When a tool function is called, it may fail for various reasons, such as network issues, invalid input, or unexpected exceptions. When this happens, chatlas captures the exception and sends it back to the chat model as part of the conversation. It also <a href="../get-started/debug.html">logs</a> and displays the stacktrace in the Python console to help you debug the issue.</p>
+<p>When a tool function is called, it may fail for various reasons, such as network issues, invalid input, or unexpected exceptions. When this happens, chatlas captures the exception and sends it back to the chat model as part of the conversation. This allows the model to gracefully handle the error, possibly fix it, and continue the conversation. It also <a href="../get-started/debug.html">logs</a> and displays the stacktrace in the Python console to help you debug the issue.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_current_weather(lat: <span class="bu">float</span>, lng: <span class="bu">float</span>):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Get the current weather "</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Failed to get current temperature"</span>)</span>
@@ -474,11 +477,35 @@ Tool call displays with <code>.stream()</code>
 <p>I encountered an issue while trying to retrieve the current weather for San Francisco. Please check a reliable weather website or use a weather app for the latest updates.</p>
 </div>
 </section>
+<section id="multi-modal-results" class="level2">
+<h2 class="anchored" data-anchor-id="multi-modal-results">Multi-modal results</h2>
+<p>Tools can return the same <a href="../get-started/chat.html#multi-modal-input">multi-modal</a> content types that go in to a chat message, such as images (e.g., <a href="../reference/content_image_url.html"><code>content_image_url</code></a>) and PDFs (e.g., <a href="../reference/content_pdf_file.html"><code>content_pdf_file</code></a>). For a quick example:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI, content_image_url</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_cat_image():</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Get a random cat image from an API."""</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> requests.get(<span class="st">"https://api.thecatapi.com/v1/images/search"</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    image_url <span class="op">=</span> response.json()[<span class="dv">0</span>][<span class="st">"url"</span>]</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> content_image_url(image_url)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(model<span class="op">=</span><span class="st">"gpt-4o"</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>chat.register_tool(get_cat_image)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Get a cat image and describe what you see"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="chatlas-response-container">
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 🛠️ tool request</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>get_cat_image()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ tool result</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>[](https:<span class="op">//</span>cdn2.thecatapi.com<span class="op">/</span>images<span class="op">/</span>DFHMMPNcD.jpg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The image shows a beautiful cat with a Siamese-like color pattern. The cat has a dark face, ears, and paws, with a lighter body. Its eyes are large and bright, and the cat is sitting in front of a green curtain. The contrast between the cat’s dark features and the curtain makes the image visually striking. It’s a cute and attentive pose.</p>
+</div>
 <section id="more-examples" class="level3">
 <h3 class="anchored" data-anchor-id="more-examples">More examples</h3>
 <p>The weather tool presented here is extremely simple, but you can imagine doing much more interesting things from tool functions: calling other APIs, reading from a database, kicking off a complex simulation, or even calling a complementary GenAI model (like an image generator). Or if you are using chatlas in a <a href="https://shiny.posit.co/py/">Shiny</a> app, you could use tools to set reactive values, setting off a chain of reactive updates. This is precisely what <a href="https://github.com/posit-dev/querychat">querychat</a> does to enable users to query databases using natural language.</p>
 
 
+</section>
 </section>
 
 
