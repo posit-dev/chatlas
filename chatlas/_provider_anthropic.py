@@ -15,7 +15,6 @@ from typing import (
 )
 
 import orjson
-from openai.types.chat import ChatCompletionToolParam
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -38,7 +37,7 @@ from ._provider import (
     StandardModelParams,
 )
 from ._tokens import get_token_pricing
-from ._tools import Tool, basemodel_to_param_schema
+from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
@@ -48,7 +47,7 @@ if TYPE_CHECKING:
         MessageParam,
         RawMessageStreamEvent,
         TextBlock,
-        ToolParam,
+        ToolUnionParam,
         ToolUseBlock,
     )
     from anthropic.types.cache_control_ephemeral_param import CacheControlEphemeralParam
@@ -304,7 +303,7 @@ class AnthropicProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -315,7 +314,7 @@ class AnthropicProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -325,7 +324,7 @@ class AnthropicProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -338,7 +337,7 @@ class AnthropicProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -349,7 +348,7 @@ class AnthropicProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -359,7 +358,7 @@ class AnthropicProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -370,12 +369,12 @@ class AnthropicProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
         tool_schemas = [
-            self._anthropic_tool_schema(tool.schema) for tool in tools.values()
+            self._anthropic_tool_schema(tool) for tool in tools.values()
         ]
 
         # If data extraction is requested, add a "mock" tool with parameters inferred from the data model
@@ -395,7 +394,7 @@ class AnthropicProvider(
                 },
             }
 
-            tool_schemas.append(self._anthropic_tool_schema(data_model_tool.schema))
+            tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
 
             if stream:
                 stream = False
@@ -497,7 +496,7 @@ class AnthropicProvider(
     def token_count(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         kwargs = self._token_count_args(
@@ -511,7 +510,7 @@ class AnthropicProvider(
     async def token_count_async(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         kwargs = self._token_count_args(
@@ -525,7 +524,7 @@ class AnthropicProvider(
     def _token_count_args(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> dict[str, Any]:
         turn = user_turn(*args)
@@ -655,11 +654,14 @@ class AnthropicProvider(
         raise ValueError(f"Unknown content type: {type(content)}")
 
     @staticmethod
-    def _anthropic_tool_schema(schema: "ChatCompletionToolParam") -> "ToolParam":
-        fn = schema["function"]
+    def _anthropic_tool_schema(tool: "Tool | ToolBuiltIn") -> "ToolUnionParam":
+        if isinstance(tool, ToolBuiltIn):
+            return tool.definition  # type: ignore
+
+        fn = tool.schema["function"]
         name = fn["name"]
 
-        res: "ToolParam" = {
+        res: "ToolUnionParam" = {
             "name": name,
             "input_schema": {
                 "type": "object",

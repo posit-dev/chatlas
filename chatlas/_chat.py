@@ -49,7 +49,7 @@ from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
 from ._tokens import compute_cost, get_token_pricing, tokens_log
-from ._tools import Tool, ToolRejectError
+from ._tools import Tool, ToolBuiltIn, ToolRejectError
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._typing_extensions import TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
@@ -132,7 +132,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self.system_prompt = system_prompt
         self.kwargs_chat: SubmitInputArgsT = kwargs_chat or {}
 
-        self._tools: dict[str, Tool] = {}
+        self._tools: dict[str, Tool | ToolBuiltIn] = {}
         self._on_tool_request_callbacks = CallbackManager()
         self._on_tool_result_callbacks = CallbackManager()
         self._current_display: Optional[MarkdownDisplay] = None
@@ -1880,7 +1880,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def register_tool(
         self,
-        func: Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool,
+        func: Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool | ToolBuiltIn,
         *,
         force: bool = False,
         name: Optional[str] = None,
@@ -1982,8 +1982,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     func.func, name=name, model=model, annotations=annotations
                 )
             func = func.func
+            tool = Tool.from_func(func, name=name, model=model, annotations=annotations)
+        else:
+            if isinstance(func, ToolBuiltIn):
+                tool = func
+            else:
+                tool = Tool.from_func(
+                    func, name=name, model=model, annotations=annotations
+                )
 
-        tool = Tool.from_func(func, name=name, model=model, annotations=annotations)
         if tool.name in self._tools and not force:
             raise ValueError(
                 f"Tool with name '{tool.name}' is already registered. "
@@ -1991,14 +1998,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
         self._tools[tool.name] = tool
 
-    def get_tools(self) -> list[Tool]:
+    def get_tools(self) -> list[Tool | ToolBuiltIn]:
         """
         Get the list of registered tools.
 
         Returns
         -------
-        list[Tool]
-            A list of `Tool` instances that are currently registered with the chat.
+        list[Tool | ToolBuiltIn]
+            A list of `Tool` or `ToolBuiltIn` instances that are currently registered with the chat.
         """
         return list(self._tools.values())
 
@@ -2522,7 +2529,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]:
-        if any(x._is_async for x in self._tools.values()):
+        if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
         def emit(text: str | Content):
@@ -2683,12 +2690,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def _invoke_tool(self, request: ContentToolRequest):
         tool = self._tools.get(request.name)
-        func = tool.func if tool is not None else None
 
-        if func is None:
+        if tool is None:
             yield self._handle_tool_error_result(
                 request,
                 error=RuntimeError("Unknown tool."),
+            )
+            return
+
+        if isinstance(tool, ToolBuiltIn):
+            yield self._handle_tool_error_result(
+                request,
+                error=RuntimeError(
+                    f"Built-in tool '{request.name}' cannot be invoked directly. "
+                    "It should be handled by the provider."
+                ),
             )
             return
 
@@ -2703,9 +2719,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         try:
             if isinstance(request.arguments, dict):
-                res = func(**request.arguments)
+                res = tool.func(**request.arguments)
             else:
-                res = func(request.arguments)
+                res = tool.func(request.arguments)
 
             # Normalize res as a generator of results.
             if not inspect.isgenerator(res):
@@ -2739,10 +2755,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
             return
 
-        if tool._is_async:
-            func = tool.func
-        else:
-            func = wrap_async(tool.func)
+        if isinstance(tool, ToolBuiltIn):
+            yield self._handle_tool_error_result(
+                request,
+                error=RuntimeError(
+                    f"Built-in tool '{request.name}' cannot be invoked directly. "
+                    "It should be handled by the provider."
+                ),
+            )
+            return
 
         # First, invoke the request callbacks. If a ToolRejectError is raised,
         # treat it like a tool failure (i.e., gracefully handle it).
@@ -2752,6 +2773,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         except ToolRejectError as e:
             yield self._handle_tool_error_result(request, e)
             return
+
+        if tool._is_async:
+            func = tool.func
+        else:
+            func = wrap_async(tool.func)
 
         # Invoke the tool (if it hasn't been rejected).
         try:

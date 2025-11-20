@@ -16,7 +16,7 @@ from typing import (
 from pydantic import BaseModel
 
 from ._content import Content
-from ._tools import Tool
+from ._tools import Tool, ToolBuiltIn
 from ._turn import AssistantTurn, Turn
 from ._typing_extensions import NotRequired, TypedDict
 
@@ -162,7 +162,7 @@ class Provider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> ChatCompletionT: ...
@@ -174,7 +174,7 @@ class Provider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> Iterable[ChatCompletionChunkT]: ...
@@ -185,7 +185,7 @@ class Provider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> Iterable[ChatCompletionChunkT] | ChatCompletionT: ...
@@ -197,7 +197,7 @@ class Provider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> ChatCompletionT: ...
@@ -209,7 +209,7 @@ class Provider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> AsyncIterable[ChatCompletionChunkT]: ...
@@ -220,7 +220,7 @@ class Provider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> AsyncIterable[ChatCompletionChunkT] | ChatCompletionT: ...
@@ -259,7 +259,7 @@ class Provider(
     def token_count(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int: ...
 
@@ -267,7 +267,7 @@ class Provider(
     async def token_count_async(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int: ...
 

@@ -34,7 +34,7 @@ from ._provider_perplexity import ChatPerplexity
 from ._provider_portkey import ChatPortkey
 from ._provider_snowflake import ChatSnowflake
 from ._tokens import token_usage
-from ._tools import Tool, ToolRejectError
+from ._tools import Tool, ToolBuiltIn, ToolRejectError
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 
 try:
@@ -84,6 +84,7 @@ __all__ = (
     "Provider",
     "token_usage",
     "Tool",
+    "ToolBuiltIn",
     "ToolRejectError",
     "Turn",
     "UserTurn",
