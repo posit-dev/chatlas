@@ -173,28 +173,6 @@ def test_expand_turn_tool_result_with_list_of_images():
     assert turn.contents[8].text == "</tool-contents>"
 
 
-def test_expand_turn_tool_result_with_mixed_list():
-    """Test that lists with non-Content items are not expanded."""
-    request = ContentToolRequest(
-        id="call_mixed",
-        name="mixed_tool",
-        arguments={},
-        tool=ToolInfo(name="mixed_tool", description="", parameters={}),
-    )
-
-    # Mixed list: image and string
-    image = ContentImageInline(
-        data=base64.b64encode(b"image").decode("utf-8"),
-        image_content_type="image/png",
-    )
-    result = ContentToolResult(value=[image, "not content"], request=request)
-    turn = UserTurn([result])
-
-    # Should not be expanded since the list contains non-Content items
-    assert len(turn.contents) == 1
-    assert isinstance(turn.contents[0], ContentToolResult)
-    assert isinstance(turn.contents[0].value, list)
-
 
 def test_expand_turn_multiple_tool_results():
     """Test turn with multiple tool results, some needing expansion."""
@@ -245,7 +223,7 @@ def test_expand_turn_preserves_other_content():
         tool=ToolInfo(name="toolx", description="", parameters={}),
     )
 
-    text1 = ContentText(text="Before")
+    text1 = "Before"
     image = ContentImageInline(
         data=base64.b64encode(b"img").decode("utf-8"),
         image_content_type="image/png",

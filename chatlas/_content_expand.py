@@ -25,12 +25,11 @@ from ._content import (
     ContentText,
     ContentToolRequest,
     ContentToolResult,
-    ContentUnion,
 )
 from ._typing_extensions import TypeGuard
 
 
-def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
+def expand_tool_result(content: ContentToolResult) -> list[Content]:
     """Expand a tool result that contains images/PDFs into separate content items."""
     request = content.request
     if request is None:
@@ -43,15 +42,13 @@ def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
     if isinstance(value, (list, tuple)) and any(
         is_image_or_pdf_content(x) for x in value
     ):
-        if all(isinstance(x, Content) for x in value):
+        if all(isinstance(x, (Content, str)) for x in value):
             return expand_tool_values(request, list(value))
 
     return [content]
 
 
-def expand_tool_value(
-    request: ContentToolRequest, value: ContentUnion
-) -> list[ContentUnion]:
+def expand_tool_value(request: ContentToolRequest, value: Content) -> list[Content]:
     open_tag = f'<tool-content call-id="{request.id}">'
 
     return [
@@ -66,8 +63,8 @@ def expand_tool_value(
 
 
 def expand_tool_values(
-    request: ContentToolRequest, values: list[Content]
-) -> list[ContentUnion]:
+    request: ContentToolRequest, values: list[Content | str]
+) -> list[Content]:
     """Expand a tool result containing a list of images or PDFs."""
     open_tag = f'<tool-contents call-id="{request.id}">'
 
@@ -80,11 +77,11 @@ def expand_tool_values(
     ]
 
     # Add each value wrapped in its own tags
-    for value in values:
+    for item in values:
         expanded.extend(
             [
                 ContentText(text="<tool-content>"),
-                value,
+                item if isinstance(item, Content) else ContentText(text=item),
                 ContentText(text="</tool-content>"),
             ]
         )
