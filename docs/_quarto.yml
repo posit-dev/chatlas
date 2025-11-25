@@ -105,6 +105,9 @@ website:
 
 format:
   html:
+    include-in-header:
+      - text: |
+          <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-light-bg="#404041" data-light-fg="#ffffff" data-dark-bg="#ffffff" data-dark-fg="#404041"></script>
     theme:
       - styles.scss
     toc: true
