@@ -67,6 +67,7 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
+<script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-light-bg="#404041" data-light-fg="#ffffff" data-dark-bg="#ffffff" data-dark-fg="#404041"></script>
 
 
 <meta property="og:title" content="chatlas">
@@ -252,7 +253,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <section id="new-features" class="level3">
 <h3 class="anchored" data-anchor-id="new-features">New features</h3>
 <ul>
+<li><code>ChatOpenAI()</code> (and <code>ChatAzureOpenAI()</code>) gain access to latest models, built-in tools, etc. as a result of moving to the new <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>. (#192)</li>
 <li>Added new family of functions (<code>parallel_chat()</code>, <code>parallel_chat_text()</code>, and <code>parallel_chat_structured()</code>) for submitting multiple prompts at once with some basic rate limiting toggles. (#188)</li>
+<li>Tools can now return image or PDF content types, with <code>content_image_file()</code> or <code>content_pdf_file()</code> (#231).
+<ul>
+<li>As a result, the experimental <code>ContentToolResultImage</code> and <code>ContentToolResultResource</code> were removed since this new support for generally supporting <code>ContentImage</code> and <code>ContentPDF</code> renders those content types redundant.</li>
+</ul></li>
 <li>Added support for systematic evaluation via <a href="https://inspect.aisi.org.uk/">Inspect AI</a>. This includes:
 <ul>
 <li>A new <code>.export_eval()</code> method for exporting conversation history as an Inspect eval dataset sample. This supports multi-turn conversations, tool calls, images, PDFs, and structured data.</li>
@@ -260,13 +266,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <li>A new <code>Turn.to_inspect_messages()</code> method for converting turns to Inspect’s message format.</li>
 <li>Comprehensive documentation in the <a href="https://posit-dev.github.io/chatlas/misc/evals.html">Evals guide</a>.</li>
 </ul></li>
-<li><code>ChatOpenAI()</code> (and <code>ChatAzureOpenAI()</code>) gain access to latest models, built-in tools, etc. as a result of moving to the new <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>. (#192)</li>
-<li>Added rudimentary support for a new <code>ContentThinking</code> type. (#192)</li>
 <li><code>ChatAnthropic()</code> and <code>ChatBedrockAnthropic()</code> gain new <code>cache</code> parameter to control caching. For <code>ChatAnthropic()</code>, it defaults to <code>"5m"</code>, which should (on average) reduce the cost of your chats. For <code>ChatBedrockAnthropic()</code>, it defaults to <code>"none"</code>, since caching isn’t guaranteed to be widely supported (#215)</li>
-<li>Tools can now return image or PDF content types, with <code>content_image_file()</code> or <code>content_pdf_file()</code> (#231).
-<ul>
-<li>As a result, the experimental <code>ContentToolResultImage</code> and <code>ContentToolResultResource</code> were removed since this new support for generally supporting <code>ContentImage</code> and <code>ContentPDF</code> renders those content types redundant.</li>
-</ul></li>
+<li>Added rudimentary support for a new <code>ContentThinking</code> type. (#192)</li>
 </ul>
 </section>
 <section id="changes" class="level3">
@@ -282,8 +283,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <h3 class="anchored" data-anchor-id="improvements">Improvements</h3>
 <ul>
 <li><code>ChatAnthropic()</code> and <code>ChatBedrockAnthropic()</code> now default to Claude Sonnet 4.5.</li>
-<li><code>content_pdf_file()</code> and <code>content_pdf_url()</code> now include relevant <code>filename</code> information. (#199)</li>
+<li><code>ChatGroq()</code> now defaults to llama-3.1-8b-instant.</li>
 <li><code>Chat.chat()</code>, <code>Chat.stream()</code>, and related methods now automatically complete dangling tool requests when a chat is interrupted during a tool call loop, allowing the conversation to be resumed without causing API errors (#230).</li>
+<li><code>content_pdf_file()</code> and <code>content_pdf_url()</code> now include relevant <code>filename</code> information. (#199)</li>
 </ul>
 </section>
 <section id="bug-fixes" class="level3">
