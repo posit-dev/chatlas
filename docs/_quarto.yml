@@ -56,7 +56,7 @@ website:
       - text: Reference
         href: reference/index.qmd
       - text: Changelog
-        href: /changelog.html
+        href: /CHANGELOG.html
       - icon: github
         href: https://github.com/posit-dev/chatlas
         aria-label: GitHub repository
