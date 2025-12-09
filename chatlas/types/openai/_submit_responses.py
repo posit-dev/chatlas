@@ -14,6 +14,7 @@ import openai.types.responses.file_search_tool_param
 import openai.types.responses.function_shell_tool_param
 import openai.types.responses.function_tool_param
 import openai.types.responses.response_code_interpreter_tool_call_param
+import openai.types.responses.response_compaction_item_param_param
 import openai.types.responses.response_computer_tool_call_param
 import openai.types.responses.response_conversation_param
 import openai.types.responses.response_create_params
@@ -78,6 +79,7 @@ class SubmitInputArgs(TypedDict, total=False):
                 openai.types.responses.response_function_tool_call_param.ResponseFunctionToolCallParam,
                 openai.types.responses.response_input_param.FunctionCallOutput,
                 openai.types.responses.response_reasoning_item_param.ResponseReasoningItemParam,
+                openai.types.responses.response_compaction_item_param_param.ResponseCompactionItemParamParam,
                 openai.types.responses.response_input_param.ImageGenerationCall,
                 openai.types.responses.response_code_interpreter_tool_call_param.ResponseCodeInterpreterToolCallParam,
                 openai.types.responses.response_input_param.LocalShellCall,
@@ -186,6 +188,7 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-5-codex",
             "gpt-5-pro",
             "gpt-5-pro-2025-10-06",
+            "gpt-5.1-codex-max",
         ],
         openai.Omit,
     ]
