@@ -25,11 +25,12 @@ from ._content import (
     ContentText,
     ContentToolRequest,
     ContentToolResult,
+    ContentUnion,
 )
 from ._typing_extensions import TypeGuard
 
 
-def expand_tool_result(content: ContentToolResult) -> list[Content]:
+def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
     """Expand a tool result that contains images/PDFs into separate content items."""
     request = content.request
     if request is None:

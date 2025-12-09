@@ -204,11 +204,10 @@ class OpenAIProvider(
             **(kwargs or {}),
         }
 
-        # Handle tools - both regular and built-in
         tool_params: list["ToolParam"] = []
         for tool in tools.values():
             if isinstance(tool, ToolBuiltIn):
-                tool_params.append(cast(ToolParam, tool.definition))
+                tool_params.append(cast("ToolParam", tool.definition))
             else:
                 schema = tool.schema
                 func = schema["function"]

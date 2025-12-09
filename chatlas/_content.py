@@ -258,7 +258,7 @@ class ContentImageInline(ContentImage):
         if self.image_content_type == "image/png" and self.data:
             import base64
 
-            return base64.b64decode(self.data)
+            return base64.b64decode(self.data.encode("ascii"))
         return None
 
     def _repr_jpeg_(self):
@@ -266,7 +266,7 @@ class ContentImageInline(ContentImage):
         if self.image_content_type == "image/jpeg" and self.data:
             import base64
 
-            return base64.b64decode(self.data)
+            return base64.b64decode(self.data.encode("ascii"))
         return None
 
     def __repr__(self, indent: int = 0):
