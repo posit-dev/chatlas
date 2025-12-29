@@ -20,7 +20,7 @@ from ._content import (
 from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
-from ._tokens import get_token_pricing
+from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 
@@ -184,7 +184,7 @@ class GoogleProvider(
         res: list[ModelInfo] = []
         for m in models:
             name = m.name or "[unknown]"
-            pricing = get_token_pricing(self.name, name) or {}
+            pricing = get_price_info(self.name, name) or {}
             info: ModelInfo = {
                 "id": name,
                 "name": m.display_name or "[unknown]",

@@ -304,6 +304,9 @@ class AssistantTurn(Turn, Generic[CompletionT]):
     completion
         The completion object returned by the provider. This is useful if there's
         information returned by the provider that chatlas doesn't otherwise expose.
+    cost
+        The cost of this turn in USD. This is computed when the turn is created
+        based on the token usage and pricing information (including service tier).
 
     See Also
     --------
@@ -317,6 +320,7 @@ class AssistantTurn(Turn, Generic[CompletionT]):
     tokens: Optional[tuple[int, int, int]] = None
     finish_reason: Optional[str] = None
     completion: Optional[CompletionT] = Field(default=None, exclude=True)
+    cost: Optional[float] = None
 
     @field_validator("tokens", mode="before")
     @classmethod
@@ -333,6 +337,7 @@ class AssistantTurn(Turn, Generic[CompletionT]):
         tokens: Optional[tuple[int, int, int] | list[int]] = None,
         finish_reason: Optional[str] = None,
         completion: Optional[CompletionT] = None,
+        cost: Optional[float] = None,
         **kwargs,
     ):
         if isinstance(tokens, list):
@@ -345,6 +350,8 @@ class AssistantTurn(Turn, Generic[CompletionT]):
             kwargs["finish_reason"] = finish_reason
         if completion is not None:
             kwargs["completion"] = completion
+        if cost is not None:
+            kwargs["cost"] = cost
 
         super().__init__(contents, **kwargs)
 
