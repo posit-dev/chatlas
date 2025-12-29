@@ -321,9 +321,11 @@ class OpenAIProvider(
         if tokens is None:
             return None
 
-        return get_token_cost(
-            self.name, self.model, tokens, completion.service_tier or ""
-        )
+        service_tier = ""
+        if completion is not None:
+            service_tier = completion.service_tier or ""
+
+        return get_token_cost(self.name, self.model, tokens, service_tier)
 
     def batch_result_turn(self, result, has_data_model: bool = False):
         response = BatchResult.model_validate(result).response
