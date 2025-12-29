@@ -306,6 +306,28 @@ class OpenAIProvider(
             cached_tokens,
         )
 
+    def value_cost(
+        self,
+        completion,
+        tokens: tuple[int, int, int] | None = None,
+    ) -> float | None:
+        """
+        Compute the cost for a completion, using service_tier if available.
+        """
+        from ._tokens import get_token_cost
+
+        if tokens is None:
+            tokens = self.value_tokens(completion)
+        if tokens is None:
+            return None
+
+        # Extract service_tier from completion if available
+        variant = ""
+        if completion is not None:
+            variant = getattr(completion, "service_tier", None) or ""
+
+        return get_token_cost(self.name, self.model, tokens, variant)
+
     def batch_result_turn(self, result, has_data_model: bool = False):
         response = BatchResult.model_validate(result).response
         if response.status_code != 200:

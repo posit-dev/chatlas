@@ -36,7 +36,7 @@ from ._provider import (
     StandardModelParamNames,
     StandardModelParams,
 )
-from ._tokens import get_token_pricing
+from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
@@ -278,7 +278,7 @@ class AnthropicProvider(
 
         res: list[ModelInfo] = []
         for m in models:
-            pricing = get_token_pricing(self.name, m.id) or {}
+            pricing = get_price_info(self.name, m.id) or {}
             info: ModelInfo = {
                 "id": m.id,
                 "name": m.display_name,
@@ -373,9 +373,7 @@ class AnthropicProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        tool_schemas = [
-            self._anthropic_tool_schema(tool) for tool in tools.values()
-        ]
+        tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
 
         # If data extraction is requested, add a "mock" tool with parameters inferred from the data model
         data_model_tool: Tool | None = None
@@ -1029,7 +1027,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
 
         res: list[ModelInfo] = []
         for m in models:
-            pricing = get_token_pricing(self.name, m["modelId"]) or {}
+            pricing = get_price_info(self.name, m["modelId"]) or {}
             info: ModelInfo = {
                 "id": m["modelId"],
                 "name": m["modelName"],

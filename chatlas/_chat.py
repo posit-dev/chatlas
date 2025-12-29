@@ -48,7 +48,7 @@ from ._display import (
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
-from ._tokens import compute_cost, get_token_pricing, tokens_log
+from ._tokens import tokens_log
 from ._tools import Tool, ToolBuiltIn, ToolRejectError
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._typing_extensions import TypedDict, TypeGuard
@@ -490,7 +490,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def get_cost(
         self,
-        options: Literal["all", "last"] = "all",
+        include: Literal["all", "last"] = "all",
         token_price: Optional[tuple[float, float, float]] = None,
     ) -> float:
         """
@@ -503,7 +503,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Parameters
         ----------
-        options
+        include
             One of the following (default is "all"):
               - `"all"`: Return the total cost of all turns in the chat.
               - `"last"`: Return the cost of the last turn in the chat.
@@ -523,63 +523,58 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             The cost of the chat, in USD.
         """
 
-        # Look up token cost for user and input tokens based on the provider and model
-        turns_tokens = self.get_tokens()
-        if token_price:
-            input_token_price = token_price[0] / 1e6
-            output_token_price = token_price[1] / 1e6
-            cached_token_price = token_price[2] / 1e6
-        else:
-            price_token = get_token_pricing(self.provider.name, self.provider.model)
-            if not price_token:
+        assistant_turns = [t for t in self._turns if isinstance(t, AssistantTurn)]
+
+        if len(assistant_turns) == 0:
+            return 0.0
+
+        if include not in ("all", "last"):
+            raise ValueError(
+                f"Expected `include` to be one of 'all' or 'last', not '{include}'"
+            )
+
+        def compute_turn_cost(turn: AssistantTurn) -> float:
+            from ._tokens import get_token_cost
+
+            tokens = turn.tokens
+
+            # When user provides token_price, only tokens are required
+            if token_price:
+                if tokens is None:
+                    raise ValueError(
+                        "Can't compute cost with `token_price` without `AssistantTurn` "
+                        "having `.tokens` information."
+                    )
+                return (
+                    (tokens[0] * token_price[0] / 1e6)
+                    + (tokens[1] * token_price[1] / 1e6)
+                    + (tokens[2] * token_price[2] / 1e6)
+                )
+
+            # Use pre-computed cost if available
+            if turn.cost is not None:
+                return turn.cost
+
+            # Try to compute cost from pricing database
+            if tokens is not None:
+                cost = get_token_cost(self.provider.name, self.provider.model, tokens)
+                if cost is not None:
+                    return cost
                 raise KeyError(
-                    f"We could not locate pricing information for model '{self.provider.model}'"
-                    f" from provider '{self.provider.name}'. "
+                    f"We could not locate pricing information for model "
+                    f"'{self.provider.model}' from provider '{self.provider.name}'. "
                     "If you know the pricing for this model, specify it in `token_price`."
                 )
 
-            input_token_price = price_token["input"] / 1e6
-            output_token_price = price_token.get("output", 0) / 1e6
-            cached_token_price = price_token.get("cached_input", 0) / 1e6
-
-        if len(turns_tokens) == 0:
-            return 0.0
-
-        if options not in ("all", "last"):
             raise ValueError(
-                f"Expected `options` to be one of 'all' or 'last', not '{options}'"
+                "Don't know how to compute cost without `AssistantTurn` "
+                "having `.tokens` or `.cost` information."
             )
 
-        if options == "all":
-            asst_tokens = sum(
-                u["tokens_total"] for u in turns_tokens if u["role"] == "assistant"
-            )
-            user_tokens = sum(
-                u["tokens_total"] for u in turns_tokens if u["role"] == "user"
-            )
-            # We add the cached tokens here because for relevant providers they have already been subtracted
-            # from the user tokens. This assumes the provider uses (reads) the cache each time.
-            cached_token_reads = sum(
-                u["tokens_cached"] for u in turns_tokens if u["role"] == "user"
-            )
+        if include == "all":
+            return sum(compute_turn_cost(turn) for turn in assistant_turns)
 
-            cost = (
-                (asst_tokens * output_token_price)
-                + (user_tokens * input_token_price)
-                + (cached_token_reads * cached_token_price)
-            )
-            return cost
-
-        last_turn = turns_tokens[-1]
-        if last_turn["role"] == "assistant":
-            return last_turn["tokens"] * output_token_price
-        if last_turn["role"] == "user":
-            return (last_turn["tokens_total"] * input_token_price) + (
-                last_turn["tokens_cached"] * cached_token_price
-            )
-        raise ValueError(
-            f"Expected last turn to have a role of 'user' or `'assistant'`, not '{last_turn['role']}'"
-        )
+        return compute_turn_cost(assistant_turns[-1])
 
     def token_count(
         self,
@@ -2593,6 +2588,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
         if turn.tokens is None and turn.completion:
             turn.tokens = self.provider.value_tokens(turn.completion)
+        if turn.cost is None and turn.completion:
+            turn.cost = self.provider.value_cost(turn.completion, turn.tokens)
         if turn.tokens is not None:
             tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
@@ -2666,6 +2663,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
         if turn.tokens is None and turn.completion:
             turn.tokens = self.provider.value_tokens(turn.completion)
+        if turn.cost is None and turn.completion:
+            turn.cost = self.provider.value_cost(turn.completion, turn.tokens)
         if turn.tokens is not None:
             tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
@@ -2893,15 +2892,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
 
         # Add cost info only if we can compute it
-        cost = compute_cost(
-            self.provider.name,
-            self.provider.model,
-            tokens_user,
-            tokens_asst,
-            tokens_cached,
-        )
-        if cost is not None:
-            res += f" ${round(cost, ndigits=2)}"
+        assistant_turns = [t for t in turns if isinstance(t, AssistantTurn)]
+        costs = [t.cost for t in assistant_turns if t.cost is not None]
+        if len(costs) > 0:
+            res += f" ${sum(costs):,.2f}"
 
         res += ">"
         for turn in turns:
