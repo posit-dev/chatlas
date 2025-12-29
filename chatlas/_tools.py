@@ -25,6 +25,7 @@ from ._content import (
 
 __all__ = (
     "Tool",
+    "ToolBuiltIn",
     "ToolRejectError",
 )
 
@@ -230,6 +231,27 @@ class Tool:
             parameters=params,
             annotations=annotations,
         )
+
+
+class ToolBuiltIn:
+    """
+    Define a built-in provider-specific tool
+
+    This class represents tools that are built into specific providers (like image
+    generation). Unlike regular Tool objects, ToolBuiltIn instances pass raw
+    provider-specific JSON directly through to the API.
+
+    Parameters
+    ----------
+    name
+        The name of the tool.
+    definition
+        The raw provider-specific tool definition as a dictionary.
+    """
+
+    def __init__(self, *, name: str, definition: dict[str, Any]):
+        self.name = name
+        self.definition = definition
 
 
 class ToolRejectError(Exception):

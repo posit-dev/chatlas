@@ -24,7 +24,7 @@ from ._logging import log_model_default
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
-from ._tools import Tool, basemodel_to_param_schema
+from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._turn import AssistantTurn, Turn
 
 if TYPE_CHECKING:
@@ -169,7 +169,7 @@ class OpenAIProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -181,7 +181,7 @@ class OpenAIProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -192,7 +192,7 @@ class OpenAIProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
@@ -204,13 +204,14 @@ class OpenAIProvider(
             **(kwargs or {}),
         }
 
-        tool_schemas = [tool.schema for tool in tools.values()]
-        if tool_schemas:
-            # Convert completion tool format to responses format
-            responses_tools: list["ToolParam"] = []
-            for schema in tool_schemas:
+        tool_params: list["ToolParam"] = []
+        for tool in tools.values():
+            if isinstance(tool, ToolBuiltIn):
+                tool_params.append(cast("ToolParam", tool.definition))
+            else:
+                schema = tool.schema
                 func = schema["function"]
-                responses_tools.append(
+                tool_params.append(
                     {
                         "type": "function",
                         "name": func["name"],
@@ -219,8 +220,9 @@ class OpenAIProvider(
                         "strict": func.get("strict", True),
                     }
                 )
-            if responses_tools:
-                kwargs_full["tools"] = responses_tools
+
+        if tool_params:
+            kwargs_full["tools"] = tool_params
 
         # Add structured data extraction if present
         if data_model is not None:
@@ -323,6 +325,25 @@ class OpenAIProvider(
                             extra=output.model_dump(),
                         )
                     )
+
+            elif output.type == "image_generation_call":
+                result = output.result
+                if result:
+                    mime_type = "image/png"
+                    if "image/jpeg" in result:
+                        mime_type = "image/jpeg"
+                    elif "image/webp" in result:
+                        mime_type = "image/webp"
+                    elif "image/gif" in result:
+                        mime_type = "image/gif"
+
+                    contents.append(
+                        ContentImageInline(
+                            data=result,
+                            image_content_type=mime_type,
+                        )
+                    )
+
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
 

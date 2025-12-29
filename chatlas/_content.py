@@ -11,7 +11,7 @@ from pydantic import BaseModel, ConfigDict
 from ._typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    from ._tools import Tool
+    from ._tools import Tool, ToolBuiltIn
 
 
 class ToolAnnotations(TypedDict, total=False):
@@ -104,15 +104,21 @@ class ToolInfo(BaseModel):
     annotations: Optional[ToolAnnotations] = None
 
     @classmethod
-    def from_tool(cls, tool: "Tool") -> "ToolInfo":
-        """Create a ToolInfo from a Tool instance."""
-        func_schema = tool.schema["function"]
-        return cls(
-            name=tool.name,
-            description=func_schema.get("description", ""),
-            parameters=func_schema.get("parameters", {}),
-            annotations=tool.annotations,
-        )
+    def from_tool(cls, tool: "Tool | ToolBuiltIn") -> "ToolInfo":
+        """Create a ToolInfo from a Tool or ToolBuiltIn instance."""
+        from ._tools import ToolBuiltIn
+
+        if isinstance(tool, ToolBuiltIn):
+            return cls(name=tool.name, description=tool.name, parameters={})
+        else:
+            # For regular tools, extract from schema
+            func_schema = tool.schema["function"]
+            return cls(
+                name=tool.name,
+                description=func_schema.get("description", ""),
+                parameters=func_schema.get("parameters", {}),
+                annotations=tool.annotations,
+            )
 
 
 ContentTypeEnum = Literal[

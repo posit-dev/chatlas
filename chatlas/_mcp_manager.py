@@ -7,7 +7,7 @@ from contextlib import AsyncExitStack
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Optional, Sequence
 
-from ._tools import Tool
+from ._tools import Tool, ToolBuiltIn
 
 if TYPE_CHECKING:
     from mcp import ClientSession
@@ -23,7 +23,7 @@ class SessionInfo(ABC):
 
     # Primary derived attributes
     session: ClientSession | None = None
-    tools: dict[str, Tool] = field(default_factory=dict)
+    tools: dict[str, Tool | ToolBuiltIn] = field(default_factory=dict)
 
     # Background task management
     ready_event: asyncio.Event = field(default_factory=asyncio.Event)
@@ -74,7 +74,7 @@ class SessionInfo(ABC):
             tool_names = tool_names.difference(exclude)
 
         # Apply namespace and convert to chatlas.Tool instances
-        self_tools: dict[str, Tool] = {}
+        self_tools: dict[str, Tool | ToolBuiltIn] = {}
         for tool in response.tools:
             if tool.name not in tool_names:
                 continue
