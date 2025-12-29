@@ -2895,7 +2895,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         assistant_turns = [t for t in turns if isinstance(t, AssistantTurn)]
         cost = sum(t.cost for t in assistant_turns if t.cost is not None)
         if cost > 0:
-            res += f" ${round(cost, ndigits=2)}"
+            res += f" ${cost:,.2f}"
 
         res += ">"
         for turn in turns:
