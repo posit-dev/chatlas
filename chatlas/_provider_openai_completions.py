@@ -26,15 +26,13 @@ from ._content import (
     ContentText,
     ContentToolRequest,
     ContentToolResult,
-    ContentToolResultImage,
-    ContentToolResultResource,
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
-from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn
+from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -56,18 +54,22 @@ ChatCompletionDict = dict[str, Any]
 
 def ChatOpenAICompletions(
     *,
+    base_url: str = "https://api.openai.com/v1",
     system_prompt: Optional[str] = None,
     model: "Optional[ChatModel | str]" = None,
     api_key: Optional[str] = None,
-    base_url: str = "https://api.openai.com/v1",
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
-    Chat with an OpenAI model via the Completions API.
+    Chat with an OpenAI-compatible model (via the Completions API).
 
     This function exists mainly for historical reasons; new code should
     prefer `ChatOpenAI()`, which uses the newer Responses API.
+
+    This function may also be useful for using an "OpenAI-compatible model"
+    hosted by another provider (e.g., vLLM, Ollama, etc.) that supports the
+    OpenAI Completions API.
     """
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
@@ -119,7 +121,7 @@ class OpenAICompletionsProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -131,7 +133,7 @@ class OpenAICompletionsProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -142,11 +144,17 @@ class OpenAICompletionsProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        tool_schemas = [tool.schema for tool in tools.values()]
+
+        tool_schemas = []
+        for tool in tools.values():
+            if isinstance(tool, ToolBuiltIn):
+                tool_schemas.append(tool.definition)
+            else:
+                tool_schemas.append(tool.schema)
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
@@ -234,11 +242,11 @@ class OpenAICompletionsProvider(
     def _turns_as_inputs(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
         res: list["ChatCompletionMessageParam"] = []
         for turn in turns:
-            if turn.role == "system":
+            if isinstance(turn, SystemTurn):
                 res.append(
                     ChatCompletionSystemMessageParam(content=turn.text, role="system")
                 )
-            elif turn.role == "assistant":
+            elif isinstance(turn, AssistantTurn):
                 content_parts: list["ContentArrayOfContentPart"] = []
                 tool_calls: list["ChatCompletionMessageToolCallParam"] = []
                 for x in turn.contents:
@@ -278,7 +286,7 @@ class OpenAICompletionsProvider(
 
                 res.append(ChatCompletionAssistantMessageParam(**args))
 
-            elif turn.role == "user":
+            elif isinstance(turn, UserTurn):
                 contents: list["ChatCompletionContentPartParam"] = []
                 tool_results: list["ChatCompletionToolMessageParam"] = []
                 for x in turn.contents:
@@ -320,12 +328,6 @@ class OpenAICompletionsProvider(
                             }
                         )
                     elif isinstance(x, ContentToolResult):
-                        if isinstance(
-                            x, (ContentToolResultImage, ContentToolResultResource)
-                        ):
-                            raise NotImplementedError(
-                                "OpenAI does not support tool results with images or resources."
-                            )
                         tool_results.append(
                             ChatCompletionToolMessageParam(
                                 # Currently, OpenAI only allows for text content in tool results
@@ -353,7 +355,7 @@ class OpenAICompletionsProvider(
     @staticmethod
     def _response_as_turn(
         completion: "ChatCompletion", has_data_model: bool
-    ) -> Turn[ChatCompletion]:
+    ) -> AssistantTurn[ChatCompletion]:
         message = completion.choices[0].message
 
         contents: list[Content] = []
@@ -385,8 +387,7 @@ class OpenAICompletionsProvider(
                     )
                 )
 
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
             finish_reason=completion.choices[0].finish_reason,
             completion=completion,
@@ -432,11 +433,7 @@ class OpenAICompletionsProvider(
             "stop_sequences",
         }
 
-    def batch_result_turn(
-        self,
-        result,
-        has_data_model: bool = False,
-    ) -> Turn | None:
+    def batch_result_turn(self, result, has_data_model: bool = False):
         response = BatchResult.model_validate(result).response
         if response.status_code != 200:
             # TODO: offer advice on what to do?

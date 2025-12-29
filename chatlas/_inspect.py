@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import base64
-from typing import TYPE_CHECKING, Literal, overload
+from typing import TYPE_CHECKING, overload
 
 from ._content import (
     Content,
@@ -15,7 +15,7 @@ from ._content import (
     ContentUnion,
 )
 from ._content_pdf import parse_data_url
-from ._turn import Turn
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 
 if TYPE_CHECKING:
     import inspect_ai.model as i_model
@@ -25,29 +25,33 @@ if TYPE_CHECKING:
     from inspect_ai.tool import Content as InspectContent
     from inspect_ai.tool import ToolCall
 
-Role = Literal["system", "user", "assistant"]
-
 
 @overload
 def turn_as_inspect_messages(
-    turn: Turn, role: Literal["system"], model: str | None = None
+    turn: SystemTurn, model: str | None = None
 ) -> list[ChatMessageSystem]: ...
 
 
 @overload
 def turn_as_inspect_messages(
-    turn: Turn, role: Literal["user"], model: str | None = None
+    turn: UserTurn, model: str | None = None
 ) -> list[ChatMessage]: ...
 
 
 @overload
 def turn_as_inspect_messages(
-    turn: Turn, role: Literal["assistant"], model: str | None = None
+    turn: AssistantTurn, model: str | None = None
 ) -> list[ChatMessageAssistant]: ...
 
 
+@overload
 def turn_as_inspect_messages(
-    turn: Turn, role: Role, model: str | None = None
+    turn: Turn, model: str | None = None
+) -> list[ChatMessageSystem] | list[ChatMessage] | list[ChatMessageAssistant]: ...
+
+
+def turn_as_inspect_messages(
+    turn: Turn, model: str | None = None
 ) -> list[ChatMessageSystem] | list[ChatMessage] | list[ChatMessageAssistant]:
     """
     Translate a chatlas Turn into InspectAI ChatMessages.
@@ -61,10 +65,10 @@ def turn_as_inspect_messages(
     """
     (imodel, _, itool) = try_import_inspect()
 
-    if turn.role == "system":
+    if isinstance(turn, SystemTurn):
         return [imodel.ChatMessageSystem(content=turn.text)]
 
-    if turn.role == "user":
+    if isinstance(turn, UserTurn):
         tool_results: list[ContentToolResult] = []
         other_contents: list[InspectContent] = []
         for x in turn.contents:
@@ -86,7 +90,7 @@ def turn_as_inspect_messages(
             res.append(imodel.ChatMessageUser(content=other_contents))
         return res
 
-    if turn.role == "assistant":
+    if isinstance(turn, AssistantTurn):
         tool_calls: list[ToolCall] = []
         other_contents: list[InspectContent] = []
         for x in turn.contents:
@@ -107,6 +111,7 @@ def turn_as_inspect_messages(
 
         return [
             imodel.ChatMessageAssistant(
+                source="generate",
                 content=other_contents,
                 tool_calls=tool_calls,
                 model=model,
@@ -124,10 +129,10 @@ def inspect_messages_as_turns(messages: list[ChatMessage]) -> list[Turn]:
     for msg in messages:
         if isinstance(msg, imodel.ChatMessageSystem):
             contents = [inspect_content_as_chatlas(x) for x in msg.content]
-            turn = Turn(role="system", contents=contents)
+            turn = SystemTurn(contents=contents)
         elif isinstance(msg, imodel.ChatMessageUser):
             contents = [inspect_content_as_chatlas(x) for x in msg.content]
-            turn = Turn(role="user", contents=contents)
+            turn = UserTurn(contents=contents)
         elif isinstance(msg, imodel.ChatMessageAssistant):
             contents: list[Content] = []
             tool_calls = msg.tool_calls or []
@@ -137,7 +142,7 @@ def inspect_messages_as_turns(messages: list[ChatMessage]) -> list[Turn]:
                 )
             for content in msg.content:
                 contents.append(inspect_content_as_chatlas(content))
-            turn = Turn(role="assistant", contents=contents)
+            turn = AssistantTurn(contents=contents)
         elif isinstance(msg, imodel.ChatMessageTool):
             contents = [
                 ContentToolResult(
@@ -150,7 +155,7 @@ def inspect_messages_as_turns(messages: list[ChatMessage]) -> list[Turn]:
                     ),
                 )
             ]
-            turn = Turn(role="user", contents=contents)
+            turn = UserTurn(contents=contents)
         else:
             raise ValueError(f"Unknown InspectAI ChatMessage type: {type(msg)}")
         turns.append(turn)
@@ -171,8 +176,11 @@ def chatlas_content_as_inspect(content: ContentUnion) -> InspectContent:
         data_url = f"data:{content.image_content_type};base64,{content.data or ''}"
         return itool.ContentImage(image=data_url, detail="auto")
     elif isinstance(content, ContentPDF):
+        doc = content.url
+        if doc is None:
+            doc = f"data:application/pdf;base64,{base64.b64encode(content.data).decode('ascii')}"
         return itool.ContentDocument(
-            document=base64.b64encode(content.data).decode("ascii"),
+            document=doc,
             mime_type="application/pdf",
             filename=content.filename,
         )
@@ -210,13 +218,17 @@ def inspect_content_as_chatlas(content: str | InspectContent) -> Content:
                 image_content_type=content_type,  # type: ignore
             )
     if isinstance(content, itool.ContentDocument):
+        doc = content.document
         if content.mime_type == "application/pdf":
-            return ContentPDF(
-                data=base64.b64decode(content.document),
-                filename=content.filename,
-            )
+            url = None
+            if doc.startswith("http://") or doc.startswith("https://"):
+                url = doc
+                data = b""
+            else:
+                data = base64.b64decode(doc.split(",", 1)[1])
+            return ContentPDF(data=data, url=url, filename=content.filename)
         else:
-            return ContentText(text=content.document)
+            return ContentText(text=doc)
     if isinstance(content, itool.ContentData):
         return ContentJson(value=content.data)
     raise ValueError(

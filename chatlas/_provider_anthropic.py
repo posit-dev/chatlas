@@ -3,10 +3,18 @@ from __future__ import annotations
 import base64
 import re
 import warnings
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Optional,
+    Sequence,
+    Union,
+    cast,
+    overload,
+)
 
 import orjson
-from openai.types.chat import ChatCompletionToolParam
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -20,8 +28,6 @@ from ._content import (
     ContentThinking,
     ContentToolRequest,
     ContentToolResult,
-    ContentToolResultImage,
-    ContentToolResultResource,
 )
 from ._logging import log_model_default
 from ._provider import (
@@ -31,9 +37,9 @@ from ._provider import (
     StandardModelParamNames,
     StandardModelParams,
 )
-from ._tokens import get_token_pricing
-from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, user_turn
+from ._tokens import get_price_info
+from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -44,7 +50,7 @@ if TYPE_CHECKING:
         TextBlock,
         ThinkingBlock,
         ThinkingBlockParam,
-        ToolParam,
+        ToolUnionParam,
         ToolUseBlock,
     )
     from anthropic.types.cache_control_ephemeral_param import CacheControlEphemeralParam
@@ -231,7 +237,7 @@ def ChatAnthropic(
     """
 
     if model is None:
-        model = log_model_default("claude-sonnet-4-0")
+        model = log_model_default("claude-sonnet-4-5")
 
     kwargs_chat: "SubmitInputArgs" = {}
     if reasoning is not None:
@@ -292,7 +298,7 @@ class AnthropicProvider(
 
         res: list[ModelInfo] = []
         for m in models:
-            pricing = get_token_pricing(self.name, m.id) or {}
+            pricing = get_price_info(self.name, m.id) or {}
             info: ModelInfo = {
                 "id": m.id,
                 "name": m.display_name,
@@ -317,7 +323,7 @@ class AnthropicProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -328,7 +334,7 @@ class AnthropicProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -338,7 +344,7 @@ class AnthropicProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -351,7 +357,7 @@ class AnthropicProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -362,7 +368,7 @@ class AnthropicProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -372,7 +378,7 @@ class AnthropicProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -383,13 +389,11 @@ class AnthropicProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        tool_schemas = [
-            self._anthropic_tool_schema(tool.schema) for tool in tools.values()
-        ]
+        tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
 
         # If data extraction is requested, add a "mock" tool with parameters inferred from the data model
         data_model_tool: Tool | None = None
@@ -408,7 +412,7 @@ class AnthropicProvider(
                 },
             }
 
-            tool_schemas.append(self._anthropic_tool_schema(data_model_tool.schema))
+            tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
 
             if stream:
                 stream = False
@@ -433,7 +437,7 @@ class AnthropicProvider(
             }
 
         if "system" not in kwargs_full:
-            if len(turns) > 0 and turns[0].role == "system":
+            if len(turns) > 0 and isinstance(turns[0], SystemTurn):
                 sys_param: "TextBlockParam" = {
                     "type": "text",
                     "text": turns[0].text,
@@ -494,10 +498,10 @@ class AnthropicProvider(
 
         return completion
 
-    def stream_turn(self, completion, has_data_model) -> Turn:
+    def stream_turn(self, completion, has_data_model):
         return self._as_turn(completion, has_data_model)
 
-    def value_turn(self, completion, has_data_model) -> Turn:
+    def value_turn(self, completion, has_data_model):
         return self._as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):
@@ -519,7 +523,7 @@ class AnthropicProvider(
     def token_count(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         kwargs = self._token_count_args(
@@ -533,7 +537,7 @@ class AnthropicProvider(
     async def token_count_async(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         kwargs = self._token_count_args(
@@ -547,7 +551,7 @@ class AnthropicProvider(
     def _token_count_args(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> dict[str, Any]:
         turn = user_turn(*args)
@@ -597,15 +601,20 @@ class AnthropicProvider(
             "stop_sequences",
         }
 
-    def _as_message_params(self, turns: list[Turn]) -> list["MessageParam"]:
+    def _as_message_params(self, turns: Sequence[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
         for i, turn in enumerate(turns):
-            if turn.role == "system":
+            if isinstance(turn, SystemTurn):
                 continue  # system prompt passed as separate arg
-            if turn.role not in ["user", "assistant"]:
+            if not isinstance(turn, (UserTurn, AssistantTurn)):
                 raise ValueError(f"Unknown role {turn.role}")
 
             content = [self._as_content_block(c) for c in turn.contents]
+
+            # Drop empty assistant turns to avoid an API error
+            # (all messages must have non-empty content)
+            if turn.role == "assistant" and len(content) == 0:
+                continue
 
             # Add cache control to the last content block in the last turn
             # https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-automatic-prefix-checking-works
@@ -614,7 +623,7 @@ class AnthropicProvider(
                 if self._cache_control():
                     content[-1]["cache_control"] = self._cache_control()
 
-            role = "user" if turn.role == "user" else "assistant"
+            role = "user" if isinstance(turn, UserTurn) else "assistant"
             messages.append({"role": role, "content": content})
         return messages
 
@@ -663,26 +672,9 @@ class AnthropicProvider(
                 "type": "tool_result",
                 "tool_use_id": content.id,
                 "is_error": content.error is not None,
-            }
-
-            if isinstance(content, ContentToolResultImage):
-                res["content"] = [
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": content.mime_type,
-                            "data": content.value,
-                        },
-                    }
-                ]
-            elif isinstance(content, ContentToolResultResource):
-                raise NotImplementedError(
-                    "ContentToolResultResource is not currently supported by Anthropic."
-                )
-            else:
                 # Anthropic supports non-text contents like ImageBlockParam
-                res["content"] = content.get_model_value()  # type: ignore
+                "content": content.get_model_value(),  # type: ignore
+            }
 
             return res
         elif isinstance(content, ContentThinking):
@@ -696,11 +688,14 @@ class AnthropicProvider(
         raise ValueError(f"Unknown content type: {type(content)}")
 
     @staticmethod
-    def _anthropic_tool_schema(schema: "ChatCompletionToolParam") -> "ToolParam":
-        fn = schema["function"]
+    def _anthropic_tool_schema(tool: "Tool | ToolBuiltIn") -> "ToolUnionParam":
+        if isinstance(tool, ToolBuiltIn):
+            return tool.definition  # type: ignore
+
+        fn = tool.schema["function"]
         name = fn["name"]
 
-        res: "ToolParam" = {
+        res: "ToolUnionParam" = {
             "name": name,
             "input_schema": {
                 "type": "object",
@@ -719,7 +714,7 @@ class AnthropicProvider(
 
         return res
 
-    def _as_turn(self, completion: Message, has_data_model=False) -> Turn:
+    def _as_turn(self, completion: Message, has_data_model=False) -> AssistantTurn:
         contents = []
         for content in completion.content:
             if content.type == "text":
@@ -753,8 +748,7 @@ class AnthropicProvider(
                     )
                 )
 
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
             finish_reason=completion.stop_reason,
             completion=completion,
@@ -841,7 +835,7 @@ class AnthropicProvider(
 
         return results
 
-    def batch_result_turn(self, result, has_data_model: bool = False) -> Turn | None:
+    def batch_result_turn(self, result, has_data_model: bool = False):
         from anthropic.types.messages.message_batch_individual_response import (
             MessageBatchIndividualResponse,
         )
@@ -868,7 +862,7 @@ def ChatBedrockAnthropic(
     *,
     model: Optional[str] = None,
     max_tokens: int = 4096,
-    cache: Literal["5m", "1h", "none"] = "5m",
+    cache: Literal["5m", "1h", "none"] = "none",
     aws_secret_key: Optional[str] = None,
     aws_access_key: Optional[str] = None,
     aws_region: Optional[str] = None,
@@ -1003,7 +997,7 @@ def ChatBedrockAnthropic(
     """
 
     if model is None:
-        model = log_model_default("us.anthropic.claude-sonnet-4-20250514-v1:0")
+        model = log_model_default("us.anthropic.claude-sonnet-4-5-20250929-v1:0")
 
     return Chat(
         provider=AnthropicBedrockProvider(
@@ -1033,7 +1027,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_profile: str | None,
         aws_session_token: str | None,
         max_tokens: int = 4096,
-        cache: Literal["5m", "1h", "none"] = "5m",
+        cache: Literal["5m", "1h", "none"] = "none",
         base_url: str | None,
         name: str = "AWS/Bedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
@@ -1076,7 +1070,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
 
         res: list[ModelInfo] = []
         for m in models:
-            pricing = get_token_pricing(self.name, m["modelId"]) or {}
+            pricing = get_price_info(self.name, m["modelId"]) or {}
             info: ModelInfo = {
                 "id": m["modelId"],
                 "name": m["modelName"],

@@ -73,7 +73,7 @@ chat.chat("What's my name?", echo="text")
 ```
 :::
 
-## Multi-modal input
+## Multi-modal input {#multi-modal-input}
 
 The `.chat()` method also accepts input other than text, such as images, pdfs, and more.
 These content objects can be created using a function such as [`content_image_url()`](../reference/content_image_url.qmd), [`content_pdf_file()`](../reference/content_pdf_file.qmd), etc.

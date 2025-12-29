@@ -113,7 +113,7 @@ def ChatGroq(
     ```
     """
     if model is None:
-        model = log_model_default("llama3-8b-8192")
+        model = log_model_default("llama-3.1-8b-instant")
 
     if api_key is None:
         api_key = os.getenv("GROQ_API_KEY")

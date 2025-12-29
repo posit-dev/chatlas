@@ -11,31 +11,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* Added new family of functions (`parallel_chat()`, `parallel_chat_text()`, and `parallel_chat_structured()`) for submitting multiple prompts at once with some basic rate limiting toggles. (#188)
-* `ChatOpenAI()` and `ChatAzureOpenAI()` gain access to latest models, built-in tools, image generation, etc. as a result of moving to the new [Responses API](https://platform.openai.com/docs/api-reference/responses). (#192)
 * `ChatOpenAI()`, `ChatAnthropic()`, and `ChatGoogle()` gain a new `reasoning` parameter to easily opt-into, and fully customize, reasoning capabilities. (#202) 
     * A new `ContentThinking` content type was added and captures the "thinking" portion of a reasoning model. (#192)
-* `ChatAnthropic()` and `ChatBedrockAnthropic()` gain new `cache` parameter to control caching. By default it is set to "5m". This should (on average) reduce the cost of your chats. (#215)
+* Added support for built-in provider tools via a new `ToolBuiltIn` class. This enables provider-specific functionality like OpenAI's image generation to be registered and used as tools. Built-in tools pass raw provider definitions directly to the API rather than wrapping Python functions. (#214)
+* `ChatGoogle()` gains basic support for image generation. (#214)
+* `ChatOpenAI()` and `ChatAzureOpenAI()` gain a new `service_tier` parameter to request a specific service tier (e.g., `"flex"` for slower/cheaper or `"priority"` for faster/more expensive). (#204)
+
+### Changes
+
+* The `Chat.get_cost()` method's `options` parameter was renamed to `include`. (#244)
+
+## [0.14.0] - 2025-12-09
+
+### New features
+
+* `ChatOpenAI()` (and `ChatAzureOpenAI()`) gain access to latest models, built-in tools, etc. as a result of moving to the new [Responses API](https://platform.openai.com/docs/api-reference/responses). (#192)
+* Added new family of functions (`parallel_chat()`, `parallel_chat_text()`, and `parallel_chat_structured()`) for submitting multiple prompts at once with some basic rate limiting toggles. (#188)
+* Tools can now return image or PDF content types, with `content_image_file()` or `content_pdf_file()` (#231).
+    * As a result, the experimental `ContentToolResultImage` and `ContentToolResultResource` were removed since this new support for generally supporting `ContentImage` and `ContentPDF` renders those content types redundant.
 * Added support for systematic evaluation via [Inspect AI](https://inspect.aisi.org.uk/). This includes:
     * A new `.export_eval()` method for exporting conversation history as an Inspect eval dataset sample. This supports multi-turn conversations, tool calls, images, PDFs, and structured data.
     * A new `.to_solver()` method for translating chat instances into Inspect solvers that can be used with Inspect's evaluation framework.
     * A new `Turn.to_inspect_messages()` method for converting turns to Inspect's message format.
     * Comprehensive documentation in the [Evals guide](https://posit-dev.github.io/chatlas/misc/evals.html).
+* `ChatAnthropic()` and `ChatBedrockAnthropic()` gain new `cache` parameter to control caching. For `ChatAnthropic()`, it defaults to `"5m"`, which should (on average) reduce the cost of your chats. For `ChatBedrockAnthropic()`, it defaults to `"none"`, since caching isn't guaranteed to be widely supported (#215)
+* Added rudimentary support for a new `ContentThinking` type. (#192)
 
 ### Changes
 
-* `ChatOpenAI()` and `ChatAzureOpenAI()` move from OpenAI's Completions API to [Responses API](https://platform.openai.com/docs/api-reference/responses). If this happens to break behavior, change `ChatOpenAI()` -> `ChatOpenAICompletions()` (or `ChatAzureOpenAI()` -> `ChatAzureOpenAICompletions()`). (#192)
+* `ChatOpenAI()` (and `ChatAzureOpenAI()`) move from OpenAI's Completions API to [Responses API](https://platform.openai.com/docs/api-reference/responses). If this happens to break behavior, change `ChatOpenAI()` -> `ChatOpenAICompletions()` (or `ChatAzureOpenAI()` -> `ChatAzureOpenAICompletions()`). (#192)
+* The `Turn` class is now a base class with three specialized subclasses: `UserTurn`, `AssistantTurn`, and `SystemTurn`. Use these new classes to construct turns by hand. (#224)
 * The `.set_model_params()` method no longer accepts `kwargs`. Instead, use the new `chat.kwargs_chat` attribute to set chat input parameters that persist across the chat session. (#212)
 * `Provider` implementations now require an additional `.value_tokens()` method. Previously, it was assumed that token info was logged and attached to the `Turn` as part of the `.value_turn()` method. The logging and attaching is now handled automatically. (#194)
 
 ### Improvements
 
+* `ChatAnthropic()` and `ChatBedrockAnthropic()` now default to Claude Sonnet 4.5.
+* `ChatGroq()` now defaults to llama-3.1-8b-instant.
+* `Chat.chat()`, `Chat.stream()`, and related methods now automatically complete dangling tool requests when a chat is interrupted during a tool call loop, allowing the conversation to be resumed without causing API errors (#230).
 * `content_pdf_file()` and `content_pdf_url()` now include relevant `filename` information. (#199)
 
 ### Bug fixes
 
 * `.set_model_params()` now works correctly for `.*_async()` methods. (#198)
 * `.chat_structured()` results are now included correctly into the multi-turn conversation history. (#203)
+* `ChatAnthropic()` now drops empty assistant turns to avoid API errors when tools return side-effect only results. (#226)
 
 ## [0.13.2] - 2025-10-02
 

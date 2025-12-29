@@ -17,14 +17,15 @@ from pydantic import BaseModel, Field, create_model
 
 from . import _utils
 from ._content import (
+    ContentImageInline,
+    ContentPDF,
     ContentToolResult,
-    ContentToolResultImage,
-    ContentToolResultResource,
     ToolAnnotations,
 )
 
 __all__ = (
     "Tool",
+    "ToolBuiltIn",
     "ToolRejectError",
 )
 
@@ -193,10 +194,11 @@ class Tool:
                             f"Unsupported image MIME type: {content.mimeType}"
                         )
 
-                    yield ContentToolResultImage(
-                        value=content.data,
-                        mime_type=content.mimeType,
+                    img = ContentImageInline(
+                        data=content.data,
+                        image_content_type=content.mimeType,
                     )
+                    yield ContentToolResult(value=img)
                 elif content.type == "resource":
                     from mcp.types import TextResourceContents
 
@@ -206,9 +208,12 @@ class Tool:
                     else:
                         blob = resource.blob.encode("utf-8")
 
-                    yield ContentToolResultResource(
-                        value=blob, mime_type=content.resource.mimeType
-                    )
+                    mime_type = content.resource.mimeType
+                    if mime_type != "application/pdf":
+                        raise ValueError(f"Unsupported resource MIME type: {mime_type}")
+
+                    pdf = ContentPDF(data=blob, filename=f"{mcp_tool.name}-result.pdf")
+                    yield ContentToolResult(value=pdf)
                 else:
                     raise RuntimeError(f"Unexpected content type: {content.type}")
 
@@ -226,6 +231,27 @@ class Tool:
             parameters=params,
             annotations=annotations,
         )
+
+
+class ToolBuiltIn:
+    """
+    Define a built-in provider-specific tool
+
+    This class represents tools that are built into specific providers (like image
+    generation). Unlike regular Tool objects, ToolBuiltIn instances pass raw
+    provider-specific JSON directly through to the API.
+
+    Parameters
+    ----------
+    name
+        The name of the tool.
+    definition
+        The raw provider-specific tool definition as a dictionary.
+    """
+
+    def __init__(self, *, name: str, definition: dict[str, Any]):
+        self.name = name
+        self.definition = definition
 
 
 class ToolRejectError(Exception):

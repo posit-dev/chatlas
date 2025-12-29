@@ -6,12 +6,15 @@
 from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
 
 import openai
+import openai.types.responses.apply_patch_tool_param
 import openai.types.responses.computer_tool_param
 import openai.types.responses.custom_tool_param
 import openai.types.responses.easy_input_message_param
 import openai.types.responses.file_search_tool_param
+import openai.types.responses.function_shell_tool_param
 import openai.types.responses.function_tool_param
 import openai.types.responses.response_code_interpreter_tool_call_param
+import openai.types.responses.response_compaction_item_param_param
 import openai.types.responses.response_computer_tool_call_param
 import openai.types.responses.response_conversation_param
 import openai.types.responses.response_create_params
@@ -26,9 +29,11 @@ import openai.types.responses.response_prompt_param
 import openai.types.responses.response_reasoning_item_param
 import openai.types.responses.response_text_config_param
 import openai.types.responses.tool_choice_allowed_param
+import openai.types.responses.tool_choice_apply_patch_param
 import openai.types.responses.tool_choice_custom_param
 import openai.types.responses.tool_choice_function_param
 import openai.types.responses.tool_choice_mcp_param
+import openai.types.responses.tool_choice_shell_param
 import openai.types.responses.tool_choice_types_param
 import openai.types.responses.tool_param
 import openai.types.responses.web_search_preview_tool_param
@@ -74,10 +79,15 @@ class SubmitInputArgs(TypedDict, total=False):
                 openai.types.responses.response_function_tool_call_param.ResponseFunctionToolCallParam,
                 openai.types.responses.response_input_param.FunctionCallOutput,
                 openai.types.responses.response_reasoning_item_param.ResponseReasoningItemParam,
+                openai.types.responses.response_compaction_item_param_param.ResponseCompactionItemParamParam,
                 openai.types.responses.response_input_param.ImageGenerationCall,
                 openai.types.responses.response_code_interpreter_tool_call_param.ResponseCodeInterpreterToolCallParam,
                 openai.types.responses.response_input_param.LocalShellCall,
                 openai.types.responses.response_input_param.LocalShellCallOutput,
+                openai.types.responses.response_input_param.ShellCall,
+                openai.types.responses.response_input_param.ShellCallOutput,
+                openai.types.responses.response_input_param.ApplyPatchCall,
+                openai.types.responses.response_input_param.ApplyPatchCallOutput,
                 openai.types.responses.response_input_param.McpListTools,
                 openai.types.responses.response_input_param.McpApprovalRequest,
                 openai.types.responses.response_input_param.McpApprovalResponse,
@@ -96,6 +106,16 @@ class SubmitInputArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "gpt-5.2",
+            "gpt-5.2-2025-12-11",
+            "gpt-5.2-chat-latest",
+            "gpt-5.2-pro",
+            "gpt-5.2-pro-2025-12-11",
+            "gpt-5.1",
+            "gpt-5.1-2025-11-13",
+            "gpt-5.1-codex",
+            "gpt-5.1-mini",
+            "gpt-5.1-chat-latest",
             "gpt-5",
             "gpt-5-mini",
             "gpt-5-nano",
@@ -173,6 +193,7 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-5-codex",
             "gpt-5-pro",
             "gpt-5-pro-2025-10-06",
+            "gpt-5.1-codex-max",
         ],
         openai.Omit,
     ]
@@ -184,6 +205,7 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.Omit,
     ]
     prompt_cache_key: str | openai.Omit
+    prompt_cache_retention: Union[Literal["in-memory", "24h"], None, openai.Omit]
     reasoning: Union[openai.types.shared_params.reasoning.Reasoning, None, openai.Omit]
     safety_identifier: str | openai.Omit
     service_tier: Union[
@@ -206,6 +228,8 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.types.responses.tool_choice_function_param.ToolChoiceFunctionParam,
         openai.types.responses.tool_choice_mcp_param.ToolChoiceMcpParam,
         openai.types.responses.tool_choice_custom_param.ToolChoiceCustomParam,
+        openai.types.responses.tool_choice_apply_patch_param.ToolChoiceApplyPatchParam,
+        openai.types.responses.tool_choice_shell_param.ToolChoiceShellParam,
         openai.Omit,
     ]
     tools: Union[
@@ -219,8 +243,10 @@ class SubmitInputArgs(TypedDict, total=False):
                 openai.types.responses.tool_param.CodeInterpreter,
                 openai.types.responses.tool_param.ImageGeneration,
                 openai.types.responses.tool_param.LocalShell,
+                openai.types.responses.function_shell_tool_param.FunctionShellToolParam,
                 openai.types.responses.custom_tool_param.CustomToolParam,
                 openai.types.responses.web_search_preview_tool_param.WebSearchPreviewToolParam,
+                openai.types.responses.apply_patch_tool_param.ApplyPatchToolParam,
             ]
         ],
         openai.Omit,

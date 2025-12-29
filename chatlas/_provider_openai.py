@@ -24,8 +24,8 @@ from ._logging import log_model_default
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
-from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn
+from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
+from ._turn import AssistantTurn, Turn
 
 if TYPE_CHECKING:
     from openai.types.responses import (
@@ -39,10 +39,9 @@ if TYPE_CHECKING:
     from openai.types.shared_params.reasoning import Reasoning
     from openai.types.shared_params.responses_model import ResponsesModel
 
+    from ._turn import Role
     from .types.openai import ChatClientArgs
     from .types.openai import ResponsesSubmitInputArgs as SubmitInputArgs
-
-Role = Literal["user", "assistant", "system"]
 
 
 def ChatOpenAI(
@@ -51,6 +50,9 @@ def ChatOpenAI(
     model: "Optional[ResponsesModel | str]" = None,
     base_url: str = "https://api.openai.com/v1",
     reasoning: "Optional[ReasoningEffort | Reasoning]" = None,
+    service_tier: Optional[
+        Literal["auto", "default", "flex", "scale", "priority"]
+    ] = None,
     api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Response]:
@@ -95,6 +97,13 @@ def ChatOpenAI(
     reasoning
         The reasoning effort to use (for reasoning-capable models like the o and
         gpt-5 series).
+    service_tier
+        Request a specific service tier. Options:
+        - `"auto"` (default): uses the service tier configured in Project settings.
+        - `"default"`: standard pricing and performance.
+        - `"flex"`: slower and cheaper.
+        - `"scale"`: batch-like pricing for high-volume use.
+        - `"priority"`: faster and more expensive.
     api_key
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `OPENAI_API_KEY` environment
@@ -153,12 +162,16 @@ def ChatOpenAI(
         model = log_model_default("gpt-4.1")
 
     kwargs_chat: "SubmitInputArgs" = {}
+
     if reasoning is not None:
         if not is_reasoning_model(model):
             warnings.warn(f"Model {model} is not reasoning-capable", UserWarning)
         if isinstance(reasoning, str):
             reasoning = {"effort": reasoning, "summary": "auto"}
-        kwargs_chat = {"reasoning": reasoning}
+        kwargs_chat["reasoning"] = reasoning
+
+    if service_tier is not None:
+        kwargs_chat["service_tier"] = service_tier
 
     return Chat(
         provider=OpenAIProvider(
@@ -185,7 +198,7 @@ class OpenAIProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -197,7 +210,7 @@ class OpenAIProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -208,7 +221,7 @@ class OpenAIProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
@@ -220,13 +233,14 @@ class OpenAIProvider(
             **(kwargs or {}),
         }
 
-        tool_schemas = [tool.schema for tool in tools.values()]
-        if tool_schemas:
-            # Convert completion tool format to responses format
-            responses_tools: list["ToolParam"] = []
-            for schema in tool_schemas:
+        tool_params: list["ToolParam"] = []
+        for tool in tools.values():
+            if isinstance(tool, ToolBuiltIn):
+                tool_params.append(cast("ToolParam", tool.definition))
+            else:
+                schema = tool.schema
                 func = schema["function"]
-                responses_tools.append(
+                tool_params.append(
                     {
                         "type": "function",
                         "name": func["name"],
@@ -235,8 +249,9 @@ class OpenAIProvider(
                         "strict": func.get("strict", True),
                     }
                 )
-            if responses_tools:
-                kwargs_full["tools"] = responses_tools
+
+        if tool_params:
+            kwargs_full["tools"] = tool_params
 
         # Add structured data extraction if present
         if data_model is not None:
@@ -282,6 +297,16 @@ class OpenAIProvider(
     def stream_merge_chunks(self, completion, chunk):
         if chunk.type == "response.completed":
             return chunk.response
+        elif chunk.type == "response.failed":
+            error = chunk.response.error
+            if error is None:
+                msg = "Request failed with an unknown error."
+            else:
+                msg = f"Request failed ({error.code}): {error.message}"
+            raise RuntimeError(msg)
+        elif chunk.type == "error":
+            raise RuntimeError(f"Request errored: {chunk.message}")
+
         # Since this value won't actually be used, we can lie about the type
         return cast(Response, None)
 
@@ -302,11 +327,28 @@ class OpenAIProvider(
             cached_tokens,
         )
 
-    def batch_result_turn(
+    def value_cost(
         self,
-        result,
-        has_data_model: bool = False,
-    ) -> Turn | None:
+        completion,
+        tokens: tuple[int, int, int] | None = None,
+    ) -> float | None:
+        """
+        Compute the cost for a completion, using service_tier if available.
+        """
+        from ._tokens import get_token_cost
+
+        if tokens is None:
+            tokens = self.value_tokens(completion)
+        if tokens is None:
+            return None
+
+        service_tier = ""
+        if completion is not None:
+            service_tier = completion.service_tier or ""
+
+        return get_token_cost(self.name, self.model, tokens, service_tier)
+
+    def batch_result_turn(self, result, has_data_model: bool = False):
         response = BatchResult.model_validate(result).response
         if response.status_code != 200:
             # TODO: offer advice on what to do?
@@ -317,7 +359,7 @@ class OpenAIProvider(
         return self._response_as_turn(completion, has_data_model)
 
     @staticmethod
-    def _response_as_turn(completion: Response, has_data_model: bool) -> Turn:
+    def _response_as_turn(completion: Response, has_data_model: bool) -> AssistantTurn:
         contents: list[Content] = []
         for output in completion.output:
             if output.type == "message":
@@ -350,11 +392,29 @@ class OpenAIProvider(
                             extra=output.model_dump(),
                         )
                     )
+
+            elif output.type == "image_generation_call":
+                result = output.result
+                if result:
+                    mime_type = "image/png"
+                    if "image/jpeg" in result:
+                        mime_type = "image/jpeg"
+                    elif "image/webp" in result:
+                        mime_type = "image/webp"
+                    elif "image/gif" in result:
+                        mime_type = "image/gif"
+
+                    contents.append(
+                        ContentImageInline(
+                            data=result,
+                            image_content_type=mime_type,
+                        )
+                    )
+
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
 
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
             completion=completion,
         )

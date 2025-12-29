@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import (
     TYPE_CHECKING,
     Generator,
@@ -21,8 +23,8 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._provider import Provider, StandardModelParamNames, StandardModelParams
-from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn
+from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
+from ._turn import AssistantTurn, Turn
 from ._utils import drop_none
 
 if TYPE_CHECKING:
@@ -205,7 +207,7 @@ class SnowflakeProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CompleteRequest"] = None,
     ): ...
@@ -216,7 +218,7 @@ class SnowflakeProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CompleteRequest"] = None,
     ): ...
@@ -226,7 +228,7 @@ class SnowflakeProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CompleteRequest"] = None,
     ):
@@ -254,7 +256,7 @@ class SnowflakeProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CompleteRequest"] = None,
     ): ...
@@ -265,7 +267,7 @@ class SnowflakeProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CompleteRequest"] = None,
     ): ...
@@ -275,7 +277,7 @@ class SnowflakeProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CompleteRequest"] = None,
     ):
@@ -303,7 +305,7 @@ class SnowflakeProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["CompleteRequest"] = None,
     ):
@@ -426,7 +428,7 @@ class SnowflakeProvider(
 
         return completion
 
-    def stream_turn(self, completion, has_data_model) -> Turn:
+    def stream_turn(self, completion, has_data_model):
         import snowflake.core.cortex.inference_service._generated.models as models
 
         completion_dict = completion.model_dump()
@@ -437,7 +439,7 @@ class SnowflakeProvider(
         )
         return self._as_turn(completion, has_data_model)
 
-    def value_turn(self, completion, has_data_model) -> Turn:
+    def value_turn(self, completion, has_data_model):
         return self._as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):
@@ -455,7 +457,7 @@ class SnowflakeProvider(
     def token_count(
         self,
         *args: "Content | str",
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         raise NotImplementedError(
@@ -465,7 +467,7 @@ class SnowflakeProvider(
     async def token_count_async(
         self,
         *args: "Content | str",
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         raise NotImplementedError(
@@ -517,11 +519,11 @@ class SnowflakeProvider(
             res.append(req)
         return res
 
-    def _as_turn(self, completion: "Completion", has_data_model: bool) -> Turn:
+    def _as_turn(self, completion: "Completion", has_data_model: bool) -> AssistantTurn:
         import snowflake.core.cortex.inference_service._generated.models as models
 
         if not completion.choices:
-            return Turn("assistant", [])
+            return AssistantTurn([])
 
         choice = completion.choices[0]
         if isinstance(choice, dict):
@@ -529,7 +531,7 @@ class SnowflakeProvider(
 
         message = choice.message
         if message is None:
-            return Turn("assistant", [])
+            return AssistantTurn([])
 
         contents: list[Content] = []
         content_list = message.content_list or []
@@ -556,8 +558,7 @@ class SnowflakeProvider(
                     )
                 )
 
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
             # TODO: no finish_reason in Snowflake?
             # finish_reason=completion.choices[0].finish_reason,
@@ -566,8 +567,14 @@ class SnowflakeProvider(
 
     # N.B. this is currently the best documentation I can find for how tool calling works
     # https://quickstarts.snowflake.com/guide/getting-started-with-tool-use-on-cortex-and-anthropic-claude/index.html#5
-    def _as_snowflake_tool(self, tool: Tool):
+    def _as_snowflake_tool(self, tool: Tool | ToolBuiltIn):
         import snowflake.core.cortex.inference_service._generated.models as models
+
+        if isinstance(tool, ToolBuiltIn):
+            raise NotImplementedError(
+                "Built-in tools are not yet supported for Snowflake. "
+                "Please use custom tools via Tool instances."
+            )
 
         func = tool.schema["function"]
         params = func.get("parameters", {})

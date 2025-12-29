@@ -1,17 +1,16 @@
 from typing import Optional
 
-from pydantic import BaseModel
-
-from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI, Turn
+from chatlas import AssistantTurn, ChatAnthropic, ChatGoogle, ChatOpenAI, UserTurn
 from chatlas._provider_openai import OpenAIProvider
 from chatlas._provider_openai_azure import OpenAIAzureProvider
 from chatlas._tokens import (
-    compute_cost,
-    get_token_pricing,
+    get_price_info,
+    get_token_cost,
     token_usage,
     tokens_log,
     tokens_reset,
 )
+from pydantic import BaseModel
 
 
 def test_tokens_method():
@@ -21,8 +20,8 @@ def test_tokens_method():
     chat = ChatOpenAI()
     chat.set_turns(
         [
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 0)),
         ]
     )
 
@@ -34,10 +33,10 @@ def test_tokens_method():
     chat = ChatOpenAI()
     chat.set_turns(
         [
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(14, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(14, 10, 0)),
         ],
     )
 
@@ -51,10 +50,10 @@ def test_tokens_method():
     chat2 = ChatOpenAI()
     chat2.set_turns(
         [
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(14, 10, 2)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(14, 10, 2)),
         ],
     )
     assert chat2.get_tokens() == [
@@ -78,7 +77,7 @@ def test_token_count_method():
 
 def test_get_token_prices():
     chat = ChatOpenAI(model="o1-mini")
-    pricing = get_token_pricing(chat.provider.name, chat.provider.model)
+    pricing = get_price_info(chat.provider.name, chat.provider.model)
     assert pricing is not None
     assert pricing["provider"] == "OpenAI"
     assert pricing["model"] == "o1-mini"
@@ -90,14 +89,14 @@ def test_get_token_prices():
         assert isinstance(pricing["output"], float)
 
 
-def test_compute_cost():
+def test_get_token_cost():
     chat = ChatOpenAI(model="o1-mini")
-    price = compute_cost(chat.provider.name, chat.provider.model, 10, 50)
+    price = get_token_cost(chat.provider.name, chat.provider.model, (10, 50, 0))
     assert isinstance(price, float)
     assert price > 0
 
     chat = ChatOpenAI(model="ABCD")
-    price = compute_cost(chat.provider.name, chat.provider.model, 10, 50)
+    price = get_token_cost(chat.provider.name, chat.provider.model, (10, 50, 0))
     assert price is None
 
 
@@ -159,3 +158,101 @@ def test_prices_json_validates_against_typeddict():
         raise AssertionError(f"Validation failed for prices.json: {e}")
 
     assert len(validated_entries) == len(pricing_list)
+
+
+def test_get_price_info_with_variants():
+    """Test pricing variant lookup and fallback behavior."""
+    # gpt-4o has baseline, 'batches', and 'priority' variants
+
+    # Test baseline (empty variant)
+    baseline = get_price_info("OpenAI", "gpt-4o", variant="")
+    assert baseline is not None
+    assert baseline["input"] == 2.5
+    assert baseline["output"] == 10
+    assert baseline.get("variant", "") == ""
+
+    # Test specific variant
+    batches = get_price_info("OpenAI", "gpt-4o", variant="batches")
+    assert batches is not None
+    assert batches["input"] == 1.25  # 50% discount
+    assert batches["output"] == 5
+    assert batches.get("variant") == "batches"
+
+    priority = get_price_info("OpenAI", "gpt-4o", variant="priority")
+    assert priority is not None
+    assert priority["input"] == 4.25  # Higher price
+    assert priority["output"] == 17
+    assert priority.get("variant") == "priority"
+
+    # Test fallback: non-existent variant should fall back to baseline
+    fallback = get_price_info("OpenAI", "gpt-4o", variant="nonexistent_variant")
+    assert fallback is not None
+    assert fallback["input"] == 2.5  # Should match baseline
+    assert fallback.get("variant", "") == ""
+
+    # Test no fallback when variant not specified and model not found
+    unknown = get_price_info("OpenAI", "unknown-model", variant="")
+    assert unknown is None
+
+
+def test_get_token_cost_with_variants():
+    """Test cost calculation with different pricing variants."""
+    tokens = (1_000_000, 1_000_000, 0)  # 1M input, 1M output, 0 cached
+
+    # Baseline pricing
+    baseline_cost = get_token_cost("OpenAI", "gpt-4o", tokens, variant="")
+    assert baseline_cost is not None
+    expected_baseline = (1_000_000 * 2.5 / 1e6) + (1_000_000 * 10 / 1e6)
+    assert baseline_cost == expected_baseline  # $2.50 + $10 = $12.50
+
+    # Batches pricing (cheaper)
+    batches_cost = get_token_cost("OpenAI", "gpt-4o", tokens, variant="batches")
+    assert batches_cost is not None
+    expected_batches = (1_000_000 * 1.25 / 1e6) + (1_000_000 * 5 / 1e6)
+    assert batches_cost == expected_batches  # $1.25 + $5 = $6.25
+
+    # Priority pricing (more expensive)
+    priority_cost = get_token_cost("OpenAI", "gpt-4o", tokens, variant="priority")
+    assert priority_cost is not None
+    expected_priority = (1_000_000 * 4.25 / 1e6) + (1_000_000 * 17 / 1e6)
+    assert priority_cost == expected_priority  # $4.25 + $17 = $21.25
+
+    # Verify ordering: batches < baseline < priority
+    assert batches_cost < baseline_cost < priority_cost
+
+
+def test_tokens_log_with_variant():
+    """Test that tokens_log accepts variant parameter."""
+    tokens_reset()
+
+    provider = OpenAIProvider(api_key="fake_key", model="gpt-4o")
+
+    # Log tokens with variant
+    tokens_log(provider, (100, 50, 0), variant="batches")
+
+    usage = token_usage()
+    assert usage is not None
+    assert len(usage) == 1
+    assert usage[0]["input"] == 100
+    assert usage[0]["output"] == 50
+    # Cost should be calculated using batches pricing
+    assert usage[0]["cost"] is not None
+
+    tokens_reset()
+
+
+def test_provider_value_cost():
+    """Test Provider.value_cost() method."""
+    provider = OpenAIProvider(api_key="fake_key", model="gpt-4o")
+
+    # Test with pre-computed tokens (completion=None is valid when tokens provided)
+    tokens = (1000, 500, 0)
+    cost = provider.value_cost(completion=None, tokens=tokens)
+    assert cost is not None
+    expected = (1000 * 2.5 / 1e6) + (500 * 10 / 1e6)
+    assert cost == expected
+
+    # Test with unknown model returns None
+    provider_unknown = OpenAIProvider(api_key="fake_key", model="unknown-model")
+    cost_unknown = provider_unknown.value_cost(completion=None, tokens=tokens)
+    assert cost_unknown is None

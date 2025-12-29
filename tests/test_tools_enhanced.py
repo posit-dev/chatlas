@@ -1,10 +1,9 @@
 import pytest
-from pydantic import BaseModel, Field
-
 from chatlas import ChatOpenAI
-from chatlas._content import ContentToolResultImage, ContentToolResultResource, ToolInfo
+from chatlas._content import ToolInfo
 from chatlas._tools import Tool
 from chatlas.types import ContentToolRequest, ContentToolResult
+from pydantic import BaseModel, Field
 
 
 class TestNewToolConstructor:
@@ -157,55 +156,6 @@ class TestToolFromFunc:
         assert tool._is_async is True
         func = tool.schema["function"]
         assert func.get("description") == "Add two numbers asynchronously."
-
-
-class TestNewContentClasses:
-    """Test new ContentToolResultImage and ContentToolResultResource classes."""
-
-    def test_content_tool_result_image(self):
-        """Test ContentToolResultImage class."""
-        import base64
-
-        # Create dummy base64 image data
-        image_data = base64.b64encode(b"fake image data").decode("utf-8")
-
-        result = ContentToolResultImage(value=image_data, mime_type="image/png")
-
-        assert result.content_type == "tool_result_image"
-        assert result.value == image_data
-        assert result.mime_type == "image/png"
-        assert result.model_format == "as_is"
-        assert "ContentToolResultImage" in str(result)
-        assert "image/png" in str(result)
-
-        # Test markdown representation
-        markdown = result._repr_markdown_()
-        assert f"![](data:image/png;base64,{image_data})" == markdown
-
-    def test_content_tool_result_resource(self):
-        """Test ContentToolResultResource class."""
-        resource_data = b"This is some resource data"
-
-        result = ContentToolResultResource(value=resource_data, mime_type="text/plain")
-
-        assert result.content_type == "tool_result_resource"
-        assert result.value == resource_data
-        assert result.mime_type == "text/plain"
-        assert result.model_format == "as_is"
-        assert "ContentToolResultResource" in str(result)
-        assert "text/plain" in str(result)
-
-        # Test MIME bundle representation
-        mime_bundle = result._repr_mimebundle_()
-        assert mime_bundle["text/plain"] == "<text/plain object>"
-
-    def test_content_tool_result_image_valid_mime_types(self):
-        """Test that valid MIME types work correctly."""
-        valid_types = ["image/png", "image/jpeg", "image/webp", "image/gif"]
-
-        for mime_type in valid_types:
-            result = ContentToolResultImage(value="base64data", mime_type=mime_type)
-            assert result.mime_type == mime_type
 
 
 class TestChatGetSetTools:

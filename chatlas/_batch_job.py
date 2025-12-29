@@ -14,7 +14,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from ._chat import Chat
 from ._content import Content
 from ._provider import BatchStatus
-from ._turn import Turn, user_turn
+from ._turn import AssistantTurn, Turn, user_turn
 from ._typing_extensions import TypedDict
 
 BatchStage = Literal["submitting", "waiting", "retrieving", "done"]
@@ -223,7 +223,7 @@ class BatchJob:
         self._save_state()
         return True
 
-    def result_turns(self) -> list[Turn | None]:
+    def result_turns(self) -> list[AssistantTurn | None]:
         turns = []
         for result in self.results:
             turn = self.provider.batch_result_turn(

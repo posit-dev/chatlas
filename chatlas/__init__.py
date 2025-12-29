@@ -10,8 +10,6 @@ from ._chat import Chat
 from ._content import (
     ContentToolRequest,
     ContentToolResult,
-    ContentToolResultImage,
-    ContentToolResultResource,
 )
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._content_pdf import content_pdf_file, content_pdf_url
@@ -36,8 +34,8 @@ from ._provider_perplexity import ChatPerplexity
 from ._provider_portkey import ChatPortkey
 from ._provider_snowflake import ChatSnowflake
 from ._tokens import token_usage
-from ._tools import Tool, ToolRejectError
-from ._turn import Turn
+from ._tools import Tool, ToolBuiltIn, ToolRejectError
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 
 try:
     from ._version import version as __version__
@@ -81,20 +79,20 @@ __all__ = (
     "content_pdf_url",
     "ContentToolRequest",
     "ContentToolResult",
-    "ContentToolResultImage",
-    "ContentToolResultResource",
     "interpolate",
     "interpolate_file",
     "Provider",
     "token_usage",
     "Tool",
+    "ToolBuiltIn",
     "ToolRejectError",
     "Turn",
+    "UserTurn",
+    "SystemTurn",
+    "AssistantTurn",
     "types",
 )
 
 # Rebuild content models to resolve forward references to ToolAnnotation
 ContentToolRequest.model_rebuild()
 ContentToolResult.model_rebuild()
-ContentToolResultImage.model_rebuild()
-ContentToolResultResource.model_rebuild()

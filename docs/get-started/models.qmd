@@ -58,7 +58,7 @@ In addition to choosing a model provider, you also need to choose a specific mod
 
 If you're using `chatlas` inside your organisation, you'll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g. `ChatAzureOpenAI()` and `ChatBedrockAnthropic()`). If you're using `chatlas` for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:
 
-- `ChatOpenAI()` or `ChatAnthropic()` are both good places to start. `ChatOpenAI()` defaults to **GPT-4.1**, but you can use `model = "gpt-4.1-nano"` for a cheaper lower-quality model, or `model = "o3"` for more complex reasoning.  `ChatAnthropic()` is similarly good; it defaults to **Claude 4.0 Sonnet** which we have found to be particularly good at writing code.
+- `ChatOpenAI()` or `ChatAnthropic()` are both good places to start. `ChatOpenAI()` defaults to **GPT-4.1**, but you can use `model = "gpt-4.1-nano"` for a cheaper lower-quality model, or `model = "o3"` for more complex reasoning.  `ChatAnthropic()` is similarly good; it defaults to **Claude 4.5 Sonnet** which we have found to be particularly good at writing code.
 
 - `ChatGoogle()` is a strong model with generous free tier (with the downside that [your data is used](https://ai.google.dev/gemini-api/terms#unpaid-services) to improve the model), making it a great place to start if you don't want to spend any money.
 

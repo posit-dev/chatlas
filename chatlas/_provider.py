@@ -16,8 +16,8 @@ from typing import (
 from pydantic import BaseModel
 
 from ._content import Content
-from ._tools import Tool
-from ._turn import Turn
+from ._tools import Tool, ToolBuiltIn
+from ._turn import AssistantTurn, Turn
 from ._typing_extensions import NotRequired, TypedDict
 
 ChatCompletionT = TypeVar("ChatCompletionT")
@@ -162,7 +162,7 @@ class Provider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> ChatCompletionT: ...
@@ -174,7 +174,7 @@ class Provider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> Iterable[ChatCompletionChunkT]: ...
@@ -185,7 +185,7 @@ class Provider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> Iterable[ChatCompletionChunkT] | ChatCompletionT: ...
@@ -197,7 +197,7 @@ class Provider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> ChatCompletionT: ...
@@ -209,7 +209,7 @@ class Provider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> AsyncIterable[ChatCompletionChunkT]: ...
@@ -220,7 +220,7 @@ class Provider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
         kwargs: SubmitInputArgsT,
     ) -> AsyncIterable[ChatCompletionChunkT] | ChatCompletionT: ...
@@ -240,14 +240,14 @@ class Provider(
         self,
         completion: ChatCompletionDictT,
         has_data_model: bool,
-    ) -> Turn: ...
+    ) -> AssistantTurn[ChatCompletionT]: ...
 
     @abstractmethod
     def value_turn(
         self,
         completion: ChatCompletionT,
         has_data_model: bool,
-    ) -> Turn: ...
+    ) -> AssistantTurn[ChatCompletionT]: ...
 
     @abstractmethod
     def value_tokens(
@@ -255,11 +255,41 @@ class Provider(
         completion: ChatCompletionT,
     ) -> tuple[int, int, int] | None: ...
 
+    def value_cost(
+        self,
+        completion: ChatCompletionT,
+        tokens: tuple[int, int, int] | None = None,
+    ) -> float | None:
+        """
+        Compute the cost for a completion.
+
+        Parameters
+        ----------
+        completion
+            The completion object from the provider.
+        tokens
+            Optional pre-computed tokens tuple. If not provided, will be extracted
+            from the completion.
+
+        Returns
+        -------
+        float | None
+            The cost in USD, or None if cost cannot be computed.
+        """
+        from ._tokens import get_token_cost
+
+        if tokens is None:
+            tokens = self.value_tokens(completion)
+        if tokens is None:
+            return None
+
+        return get_token_cost(self.name, self.model, tokens)
+
     @abstractmethod
     def token_count(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int: ...
 
@@ -267,7 +297,7 @@ class Provider(
     async def token_count_async(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int: ...
 
@@ -343,7 +373,7 @@ class Provider(
         self,
         result: dict[str, Any],
         has_data_model: bool = False,
-    ) -> Turn | None:
+    ) -> AssistantTurn[ChatCompletionT] | None:
         """
         Convert a batch result to a Turn.
 

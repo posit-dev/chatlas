@@ -2,135 +2,230 @@
   "version": 1,
   "stage": "done",
   "batch": {
-    "id": "batch_68c045e8d5108190949582bc3c028af4",
+    "id": "batch_690b6cb0afa481909ae4aa397ce216f4",
     "completion_window": "24h",
-    "created_at": 1757431272,
-    "endpoint": "/v1/chat/completions",
-    "input_file_id": "file-2oi7LNA358NPBuSrWXcZsF",
+    "created_at": 1762356400,
+    "endpoint": "/v1/responses",
+    "input_file_id": "file-DqdXCuzcQNx9q8bqrj5sWS",
     "object": "batch",
     "status": "completed",
     "cancelled_at": null,
     "cancelling_at": null,
-    "completed_at": 1757440259,
+    "completed_at": 1762384349,
     "error_file_id": null,
     "errors": null,
     "expired_at": null,
-    "expires_at": 1757517672,
+    "expires_at": 1762442800,
     "failed_at": null,
-    "finalizing_at": 1757440258,
-    "in_progress_at": 1757431335,
+    "finalizing_at": 1762384346,
+    "in_progress_at": 1762356401,
     "metadata": null,
-    "output_file_id": "file-KBzTN6egssBMxEJ9E3iGaq",
+    "model": "gpt-4o-mini-2024-07-18",
+    "output_file_id": "file-QTxQsfjMnTvdxjF94xFcgF",
     "request_counts": {
       "completed": 2,
       "failed": 0,
       "total": 2
     },
     "usage": {
-      "input_tokens": 86,
-      "output_tokens": 10,
-      "total_tokens": 96,
+      "input_tokens": 72,
       "input_tokens_details": {
         "cached_tokens": 0
       },
+      "output_tokens": 12,
       "output_tokens_details": {
         "reasoning_tokens": 0
-      }
+      },
+      "total_tokens": 84
     }
   },
   "results": [
     {
-      "id": "batch_req_68c069035300819093210276a3530651",
+      "id": "batch_req_690bd9dc958881908f6a64cb942caf6f",
       "custom_id": "request-0",
       "response": {
         "status_code": 200,
-        "request_id": "d968ee5ca37299bddef923f7217ff987",
+        "request_id": "79801b264e5bf8839bbf38d41ebde8f8",
         "body": {
-          "id": "chatcmpl-CDwm9AC2NCS5m1z5IcY0XwBbvIfdP",
-          "object": "chat.completion",
-          "created": 1757440233,
+          "id": "resp_08c3694139778be001690bd9c1184c819fa0c2987a38f23795",
+          "object": "response",
+          "created_at": 1762384321,
+          "status": "completed",
+          "background": false,
+          "billing": {
+            "payer": "developer"
+          },
+          "error": null,
+          "incomplete_details": null,
+          "instructions": null,
+          "max_output_tokens": null,
+          "max_tool_calls": null,
           "model": "gpt-4o-mini-2024-07-18",
-          "choices": [
+          "output": [
             {
-              "index": 0,
-              "message": {
-                "role": "assistant",
-                "content": "{\"name\":\"Paris\"}",
-                "refusal": null,
-                "annotations": []
-              },
-              "logprobs": null,
-              "finish_reason": "stop"
+              "id": "msg_08c3694139778be001690bd9c1ad44819fa283592847c9cac2",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "{\"name\":\"Paris\"}"
+                }
+              ],
+              "role": "assistant"
             }
           ],
-          "usage": {
-            "prompt_tokens": 43,
-            "completion_tokens": 5,
-            "total_tokens": 48,
-            "prompt_tokens_details": {
-              "cached_tokens": 0,
-              "audio_tokens": 0
-            },
-            "completion_tokens_details": {
-              "reasoning_tokens": 0,
-              "audio_tokens": 0,
-              "accepted_prediction_tokens": 0,
-              "rejected_prediction_tokens": 0
-            }
+          "parallel_tool_calls": true,
+          "previous_response_id": null,
+          "prompt_cache_key": null,
+          "prompt_cache_retention": null,
+          "reasoning": {
+            "effort": null,
+            "summary": null
           },
+          "safety_identifier": null,
           "service_tier": "default",
-          "system_fingerprint": "fp_e665f7564b"
+          "store": false,
+          "temperature": 1.0,
+          "text": {
+            "format": {
+              "type": "json_schema",
+              "description": null,
+              "name": "structured_data",
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "type": "object",
+                "additionalProperties": false
+              },
+              "strict": true
+            },
+            "verbosity": "medium"
+          },
+          "tool_choice": "auto",
+          "tools": [],
+          "top_logprobs": 0,
+          "top_p": 1.0,
+          "truncation": "disabled",
+          "usage": {
+            "input_tokens": 36,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 42
+          },
+          "user": null,
+          "metadata": {}
         }
       },
       "error": null
     },
     {
-      "id": "batch_req_68c06903978c8190ad48a117b7882887",
+      "id": "batch_req_690bd9dc90c48190beda35a998aaf511",
       "custom_id": "request-1",
       "response": {
         "status_code": 200,
-        "request_id": "eb6973b88aba352cfa2be3a905a20094",
+        "request_id": "9327798a86e019b4ac73cddb0d06ae70",
         "body": {
-          "id": "chatcmpl-CDwmCHXOgh9gssdwGcVGEj3pE9zZl",
-          "object": "chat.completion",
-          "created": 1757440236,
+          "id": "resp_099303caef89b28201690bc367b58c819d8db8d35a38e1a321",
+          "object": "response",
+          "created_at": 1762378599,
+          "status": "completed",
+          "background": false,
+          "billing": {
+            "payer": "developer"
+          },
+          "error": null,
+          "incomplete_details": null,
+          "instructions": null,
+          "max_output_tokens": null,
+          "max_tool_calls": null,
           "model": "gpt-4o-mini-2024-07-18",
-          "choices": [
+          "output": [
             {
-              "index": 0,
-              "message": {
-                "role": "assistant",
-                "content": "{\"name\":\"Berlin\"}",
-                "refusal": null,
-                "annotations": []
-              },
-              "logprobs": null,
-              "finish_reason": "stop"
+              "id": "msg_099303caef89b28201690bc36bdd74819da8a06a6c25b60c8e",
+              "type": "message",
+              "status": "completed",
+              "content": [
+                {
+                  "type": "output_text",
+                  "annotations": [],
+                  "logprobs": [],
+                  "text": "{\"name\":\"Berlin\"}"
+                }
+              ],
+              "role": "assistant"
             }
           ],
-          "usage": {
-            "prompt_tokens": 43,
-            "completion_tokens": 5,
-            "total_tokens": 48,
-            "prompt_tokens_details": {
-              "cached_tokens": 0,
-              "audio_tokens": 0
-            },
-            "completion_tokens_details": {
-              "reasoning_tokens": 0,
-              "audio_tokens": 0,
-              "accepted_prediction_tokens": 0,
-              "rejected_prediction_tokens": 0
-            }
+          "parallel_tool_calls": true,
+          "previous_response_id": null,
+          "prompt_cache_key": null,
+          "prompt_cache_retention": null,
+          "reasoning": {
+            "effort": null,
+            "summary": null
           },
+          "safety_identifier": null,
           "service_tier": "default",
-          "system_fingerprint": "fp_8bda4d3a2c"
+          "store": false,
+          "temperature": 1.0,
+          "text": {
+            "format": {
+              "type": "json_schema",
+              "description": null,
+              "name": "structured_data",
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "type": "object",
+                "additionalProperties": false
+              },
+              "strict": true
+            },
+            "verbosity": "medium"
+          },
+          "tool_choice": "auto",
+          "tools": [],
+          "top_logprobs": 0,
+          "top_p": 1.0,
+          "truncation": "disabled",
+          "usage": {
+            "input_tokens": 36,
+            "input_tokens_details": {
+              "cached_tokens": 0
+            },
+            "output_tokens": 6,
+            "output_tokens_details": {
+              "reasoning_tokens": 0
+            },
+            "total_tokens": 42
+          },
+          "user": null,
+          "metadata": {}
         }
       },
       "error": null
     }
   ],
-  "started_at": 1757431270,
+  "started_at": 1762356398,
   "hash": {
     "provider": "OpenAI",
     "model": "gpt-4o-mini",

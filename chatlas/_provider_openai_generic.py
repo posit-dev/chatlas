@@ -23,9 +23,9 @@ from ._provider import (
     Provider,
     SubmitInputArgsT,
 )
-from ._tokens import get_token_pricing
-from ._tools import Tool
-from ._turn import Turn, user_turn
+from ._tokens import get_price_info
+from ._tools import Tool, ToolBuiltIn
+from ._turn import AssistantTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -98,7 +98,7 @@ class OpenAIAbstractProvider(
 
         res: list[ModelInfo] = []
         for m in models:
-            pricing = get_token_pricing(self.name, m.id) or {}
+            pricing = get_price_info(self.name, m.id) or {}
             info: ModelInfo = {
                 "id": m.id,
                 "owned_by": m.owned_by,
@@ -122,7 +122,7 @@ class OpenAIAbstractProvider(
     def token_count(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         try:
@@ -146,7 +146,7 @@ class OpenAIAbstractProvider(
 
         # For other contents, get the token count from the actual message param
         other_contents = [x for x in turn.contents if not isinstance(x, ContentImage)]
-        other_full = self._turns_as_inputs([Turn("user", other_contents)])
+        other_full = self._turns_as_inputs([UserTurn(other_contents)])
         other_tokens = len(encoding.encode(str(other_full)))
 
         return other_tokens + image_tokens
@@ -154,7 +154,7 @@ class OpenAIAbstractProvider(
     async def token_count_async(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         return self.token_count(*args, tools=tools, data_model=data_model)
@@ -265,7 +265,7 @@ class OpenAIAbstractProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> SubmitInputArgsT: ...
 
@@ -277,4 +277,4 @@ class OpenAIAbstractProvider(
     @abstractmethod
     def _response_as_turn(
         completion: ChatCompletionT, has_data_model: bool
-    ) -> Turn: ...
+    ) -> AssistantTurn: ...

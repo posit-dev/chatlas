@@ -1,8 +1,7 @@
 import tempfile
 
 import pytest
-from chatlas import ChatAnthropic, ChatGoogle
-from chatlas import ChatOpenAICompletions as ChatOpenAI
+from chatlas import AssistantTurn, ChatAnthropic, ChatGoogle, ChatOpenAI
 from chatlas._batch_chat import (
     BatchJob,
     batch_chat,
@@ -34,6 +33,7 @@ def test_can_retrieve_batch(test_batch_dir):
     turns2 = chats[1].get_turns()
     assert len(turns1) == 2
     assert len(turns2) == 2
+    assert isinstance(turns1[1], AssistantTurn)
     tokens = turns1[1].tokens or []
     assert len(tokens) == 3
 
