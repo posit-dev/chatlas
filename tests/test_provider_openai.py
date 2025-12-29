@@ -105,3 +105,31 @@ def test_openai_custom_http_client():
 
 def test_openai_list_models():
     assert_list_models(ChatOpenAI)
+
+
+def test_openai_service_tier():
+    chat = ChatOpenAI(service_tier="flex")
+    assert chat.kwargs_chat.get("service_tier") == "flex"
+
+
+def test_openai_service_tier_affects_pricing():
+    from chatlas._tokens import get_token_cost
+
+    chat = ChatOpenAI(service_tier="priority")
+    chat.chat("What is 1+1?")
+
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert turn.tokens is not None
+    assert turn.cost is not None
+
+    # Verify that cost was calculated using priority pricing
+    tokens = turn.tokens
+    priority_cost = get_token_cost("OpenAI", chat.provider.model, tokens, "priority")
+    assert priority_cost is not None
+    assert turn.cost == priority_cost
+
+    # Verify priority pricing is more expensive than default
+    default_cost = get_token_cost("OpenAI", chat.provider.model, tokens, "")
+    assert default_cost is not None
+    assert turn.cost > default_cost

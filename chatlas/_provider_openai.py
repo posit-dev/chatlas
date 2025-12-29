@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import warnings
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Literal, Optional, cast
 
 import orjson
 from openai.types.responses import Response, ResponseStreamEvent
@@ -48,6 +48,9 @@ def ChatOpenAI(
     model: "Optional[ResponsesModel | str]" = None,
     api_key: Optional[str] = None,
     base_url: str = "https://api.openai.com/v1",
+    service_tier: Optional[
+        Literal["auto", "default", "flex", "scale", "priority"]
+    ] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Response]:
     """
@@ -92,6 +95,13 @@ def ChatOpenAI(
         variable.
     base_url
         The base URL to the endpoint; the default uses OpenAI.
+    service_tier
+        Request a specific service tier. Options:
+        - `"auto"` (default): uses the service tier configured in Project settings.
+        - `"default"`: standard pricing and performance.
+        - `"flex"`: slower and cheaper.
+        - `"scale"`: batch-like pricing for high-volume use.
+        - `"priority"`: faster and more expensive.
     kwargs
         Additional arguments to pass to the `openai.OpenAI()` client
         constructor.
@@ -145,6 +155,10 @@ def ChatOpenAI(
     if model is None:
         model = log_model_default("gpt-4.1")
 
+    kwargs_chat: "SubmitInputArgs" = {}
+    if service_tier is not None:
+        kwargs_chat["service_tier"] = service_tier
+
     return Chat(
         provider=OpenAIProvider(
             api_key=api_key,
@@ -153,6 +167,7 @@ def ChatOpenAI(
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+        kwargs_chat=kwargs_chat,
     )
 
 
@@ -261,6 +276,16 @@ class OpenAIProvider(
     def stream_merge_chunks(self, completion, chunk):
         if chunk.type == "response.completed":
             return chunk.response
+        elif chunk.type == "response.failed":
+            error = chunk.response.error
+            if error is None:
+                msg = "Request failed with an unknown error."
+            else:
+                msg = f"Request failed ({error.code}): {error.message}"
+            raise RuntimeError(msg)
+        elif chunk.type == "error":
+            raise RuntimeError(f"Request errored: {chunk.message}")
+
         # Since this value won't actually be used, we can lie about the type
         return cast(Response, None)
 
@@ -296,12 +321,11 @@ class OpenAIProvider(
         if tokens is None:
             return None
 
-        # Extract service_tier from completion if available
-        variant = ""
+        service_tier = ""
         if completion is not None:
-            variant = getattr(completion, "service_tier", None) or ""
+            service_tier = completion.service_tier or ""
 
-        return get_token_cost(self.name, self.model, tokens, variant)
+        return get_token_cost(self.name, self.model, tokens, service_tier)
 
     def batch_result_turn(self, result, has_data_model: bool = False):
         response = BatchResult.model_validate(result).response
