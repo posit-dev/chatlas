@@ -384,14 +384,12 @@ class OpenAIProvider(
                 )
 
             elif output.type == "reasoning":
-                if output.content:
-                    thinking = "".join(x.text for x in output.content)
-                    contents.append(
-                        ContentThinking(
-                            thinking=thinking,
-                            extra=output.model_dump(),
-                        )
+                contents.append(
+                    ContentThinking(
+                        thinking="".join(x.text for x in output.summary),
+                        extra=output.model_dump(),
                     )
+                )
 
             elif output.type == "image_generation_call":
                 result = output.result
@@ -513,7 +511,12 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
             role,
         )
     elif isinstance(content, ContentThinking):
-        return cast("ResponseReasoningItemParam", content.extra)
+        # Filter out 'status' which is output-only and not accepted as input
+        extra = content.extra or {}
+        return cast(
+            "ResponseReasoningItemParam",
+            {k: v for k, v in extra.items() if k != "status"},
+        )
     elif isinstance(content, ContentToolResult):
         return {
             "type": "function_call_output",
