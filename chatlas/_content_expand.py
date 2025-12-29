@@ -49,7 +49,9 @@ def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
     return [content]
 
 
-def expand_tool_value(request: ContentToolRequest, value: Content) -> list[Content]:
+def expand_tool_value(
+    request: ContentToolRequest, value: ContentImageInline | ContentImageRemote | ContentPDF
+) -> list[ContentUnion]:
     open_tag = f'<tool-content call-id="{request.id}">'
 
     return [
@@ -65,7 +67,7 @@ def expand_tool_value(request: ContentToolRequest, value: Content) -> list[Conte
 
 def expand_tool_values(
     request: ContentToolRequest, values: list[Content | str]
-) -> list[Content]:
+) -> list[ContentUnion]:
     """Expand a tool result containing a list of images or PDFs."""
     open_tag = f'<tool-contents call-id="{request.id}">'
 
