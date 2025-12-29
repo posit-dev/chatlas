@@ -255,6 +255,36 @@ class Provider(
         completion: ChatCompletionT,
     ) -> tuple[int, int, int] | None: ...
 
+    def value_cost(
+        self,
+        completion: ChatCompletionT,
+        tokens: tuple[int, int, int] | None = None,
+    ) -> float | None:
+        """
+        Compute the cost for a completion.
+
+        Parameters
+        ----------
+        completion
+            The completion object from the provider.
+        tokens
+            Optional pre-computed tokens tuple. If not provided, will be extracted
+            from the completion.
+
+        Returns
+        -------
+        float | None
+            The cost in USD, or None if cost cannot be computed.
+        """
+        from ._tokens import get_token_cost
+
+        if tokens is None:
+            tokens = self.value_tokens(completion)
+        if tokens is None:
+            return None
+
+        return get_token_cost(self.name, self.model, tokens)
+
     @abstractmethod
     def token_count(
         self,

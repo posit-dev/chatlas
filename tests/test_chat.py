@@ -207,6 +207,7 @@ def test_json_serialize():
                 tokens=turns[1].tokens,
                 finish_reason=turns[1].finish_reason,
                 completion=None,
+                cost=turns[1].cost,
             )
         )
     else:
@@ -326,17 +327,17 @@ def test_get_cost():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "Expected `options` to be one of 'all' or 'last', not 'bad_option'"
+            "Expected `include` to be one of 'all' or 'last', not 'bad_option'"
         ),
     ):
-        chat.get_cost(options="bad_option")  # type: ignore
+        chat.get_cost(include="bad_option")  # type: ignore
 
     # Checking that these have the right form vs. the actual calculation because the price may change
-    cost = chat.get_cost(options="all")
+    cost = chat.get_cost(include="all")
     assert isinstance(cost, float)
     assert cost > 0
 
-    last = chat.get_cost(options="last")
+    last = chat.get_cost(include="last")
     assert isinstance(last, float)
     assert last > 0
 
@@ -348,11 +349,15 @@ def test_get_cost():
     expected_cost = (
         (10 * byoc[1] / 1e6) + (2 * byoc[0] / 1e6) + (2 * byoc[2] / 1e6)
     ) + ((10 * byoc[1] / 1e6) + (14 * byoc[0] / 1e6) + (2 * byoc[2] / 1e6))
-    cost2 = chat.get_cost(options="all", token_price=byoc)
+    cost2 = chat.get_cost(include="all", token_price=byoc)
     assert cost2 == expected_cost
 
-    last_expected_cost = 10 * byoc[1] / 1e6  # Only the last turn's assistant tokens
-    last2 = chat.get_cost(options="last", token_price=byoc)
+    # get_cost(include="last") returns the full cost of the last assistant turn
+    # Last turn has tokens=(14, 10, 2) -> input=14, output=10, cached=2
+    last_expected_cost = (
+        (14 * byoc[0] / 1e6) + (10 * byoc[1] / 1e6) + (2 * byoc[2] / 1e6)
+    )
+    last2 = chat.get_cost(include="last", token_price=byoc)
     assert last2 == last_expected_cost
 
     chat2 = ChatOpenAI(api_key="fake_key", model="BADBAD")
@@ -368,4 +373,4 @@ def test_get_cost():
         KeyError,
         match="We could not locate pricing information for model 'BADBAD' from provider 'OpenAI'. If you know the pricing for this model, specify it in `token_price`.",
     ):
-        chat2.get_cost(options="all")
+        chat2.get_cost(include="all")

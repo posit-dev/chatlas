@@ -23,7 +23,7 @@ from ._provider import (
     Provider,
     SubmitInputArgsT,
 )
-from ._tokens import get_token_pricing
+from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
 from ._turn import AssistantTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
@@ -98,7 +98,7 @@ class OpenAIAbstractProvider(
 
         res: list[ModelInfo] = []
         for m in models:
-            pricing = get_token_pricing(self.name, m.id) or {}
+            pricing = get_price_info(self.name, m.id) or {}
             info: ModelInfo = {
                 "id": m.id,
                 "owned_by": m.owned_by,
