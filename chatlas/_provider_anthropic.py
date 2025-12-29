@@ -84,8 +84,8 @@ def ChatAnthropic(
     system_prompt: Optional[str] = None,
     model: "Optional[ModelParam]" = None,
     max_tokens: int = 4096,
-    cache: Literal["5m", "1h", "none"] = "5m",
     reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
+    cache: Literal["5m", "1h", "none"] = "5m",
     api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
@@ -135,10 +135,6 @@ def ChatAnthropic(
         choosing a model for all but the most casual use.
     max_tokens
         Maximum number of tokens to generate before stopping.
-    cache
-        How long to cache inputs? Defaults to "5m" (five minutes).
-        Set to "none" to disable caching or "1h" to cache for one hour.
-        See the Caching section for details.
     reasoning
         Determines how many tokens Claude can be allocated to reasoning. Must be
         ≥1024 and less than `max_tokens`. Larger budgets can enable more
@@ -146,6 +142,10 @@ def ChatAnthropic(
         [extended
         thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
         for details.
+    cache
+        How long to cache inputs? Defaults to "5m" (five minutes).
+        Set to "none" to disable caching or "1h" to cache for one hour.
+        See the Caching section for details.
     api_key
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `ANTHROPIC_API_KEY` environment
@@ -619,9 +619,10 @@ class AnthropicProvider(
             # Add cache control to the last content block in the last turn
             # https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-automatic-prefix-checking-works
             is_last_turn = i == len(turns) - 1
-            if is_last_turn and len(content) > 0:
-                if self._cache_control():
-                    content[-1]["cache_control"] = self._cache_control()
+            if self._cache_control() and is_last_turn and len(content) > 0:
+                # Note: ThinkingBlockParam (i.e., type: "thinking") doesn't support cache_control
+                if content[-1].get("type") != "thinking":
+                    content[-1]["cache_control"] = self._cache_control()  # type: ignore
 
             role = "user" if isinstance(turn, UserTurn) else "assistant"
             messages.append({"role": role, "content": content})
