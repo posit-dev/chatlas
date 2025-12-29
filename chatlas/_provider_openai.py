@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import warnings
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Literal, Optional, cast
 
 import orjson
 from openai.types.responses import Response, ResponseStreamEvent
