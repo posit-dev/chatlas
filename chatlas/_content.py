@@ -253,22 +253,6 @@ class ContentImageInline(ContentImage):
     def _repr_markdown_(self):
         return self.__str__()
 
-    def _repr_png_(self):
-        """Display PNG images directly in Jupyter notebooks."""
-        if self.image_content_type == "image/png" and self.data:
-            import base64
-
-            return base64.b64decode(self.data.encode("ascii"))
-        return None
-
-    def _repr_jpeg_(self):
-        """Display JPEG images directly in Jupyter notebooks."""
-        if self.image_content_type == "image/jpeg" and self.data:
-            import base64
-
-            return base64.b64decode(self.data.encode("ascii"))
-        return None
-
     def __repr__(self, indent: int = 0):
         n_bytes = len(self.data) if self.data else 0
         return (
