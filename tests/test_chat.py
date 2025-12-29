@@ -75,7 +75,7 @@ def test_basic_repr(snapshot):
     chat.set_turns(
         [
             UserTurn("What's 1 + 1? What's 1 + 2?"),
-            AssistantTurn("2  3", tokens=(15, 5, 5)),
+            AssistantTurn("2  3", tokens=(15, 5, 5), cost=0.001),
         ]
     )
     assert snapshot == repr(chat)
@@ -88,7 +88,7 @@ def test_basic_str(snapshot):
     chat.set_turns(
         [
             UserTurn("What's 1 + 1? What's 1 + 2?"),
-            AssistantTurn("2  3", tokens=(15, 5, 0)),
+            AssistantTurn("2  3", tokens=(15, 5, 0), cost=0.001),
         ]
     )
     assert snapshot == str(chat)

@@ -2893,9 +2893,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         # Add cost info only if we can compute it
         assistant_turns = [t for t in turns if isinstance(t, AssistantTurn)]
-        cost = sum(t.cost for t in assistant_turns if t.cost is not None)
-        if cost > 0:
-            res += f" ${cost:,.2f}"
+        costs = [t.cost for t in assistant_turns if t.cost is not None]
+        if len(costs) > 0:
+            res += f" ${sum(costs):,.2f}"
 
         res += ">"
         for turn in turns:
