@@ -150,10 +150,10 @@ class Content(BaseModel):
         raise NotImplementedError
 
     def _repr_markdown_(self):
-        raise NotImplementedError
+        return self.__str__()
 
     def __repr__(self):
-        return str(self)
+        return self.__str__()
 
 
 class ContentText(Content):
@@ -171,9 +171,6 @@ class ContentText(Content):
             self.text = "[empty string]"
 
     def __str__(self):
-        return self.text
-
-    def _repr_markdown_(self):
         return self.text
 
 
@@ -212,9 +209,6 @@ class ContentImageRemote(ContentImage):
     def __str__(self):
         return f"![]({self.url})"
 
-    def _repr_markdown_(self):
-        return self.__str__()
-
 
 class ContentImageInline(ContentImage):
     """
@@ -239,9 +233,6 @@ class ContentImageInline(ContentImage):
 
     def __str__(self):
         return f"![](data:{self.image_content_type};base64,{self.data})"
-
-    def _repr_markdown_(self):
-        return self.__str__()
 
 
 class ContentToolRequest(Content):
@@ -278,9 +269,6 @@ class ContentToolRequest(Content):
         func_call = f"{self.name}({args_str})"
         comment = f"# 🔧 tool request ({self.id})"
         return f"```python\n{comment}\n{func_call}\n```\n"
-
-    def _repr_markdown_(self):
-        return self.__str__()
 
     def _arguments_str(self) -> str:
         if isinstance(self.arguments, dict):
@@ -391,16 +379,11 @@ class ContentToolResult(Content):
             )
         return self.request.arguments
 
-    # Primarily used for `echo="all"`...
     def __str__(self):
         prefix = "✅ tool result" if not self.error else "❌ tool error"
         comment = f"# {prefix} ({self.id})"
         value = self._get_display_value()
         return f"""```python\n{comment}\n{value}\n```"""
-
-    # ... and for displaying in the notebook
-    def _repr_markdown_(self):
-        return self.__str__()
 
     # Format the value for display purposes
     def _get_display_value(self):
@@ -568,10 +551,8 @@ class ContentJson(Content):
     content_type: ContentTypeEnum = "json"
 
     def __str__(self):
-        return orjson.dumps(self.value, option=orjson.OPT_INDENT_2).decode("utf-8")
-
-    def _repr_markdown_(self):
-        return f"""```json\n{self.__str__()}\n```"""
+        val = orjson.dumps(self.value, option=orjson.OPT_INDENT_2).decode("utf-8")
+        return f"""```json\n{val}\n```"""
 
 
 class ContentPDF(Content):
@@ -600,9 +581,6 @@ class ContentPDF(Content):
     def __str__(self):
         return f"<PDF document file={self.filename} size={len(self.data)} bytes>"
 
-    def _repr_markdown_(self):
-        return self.__str__()
-
 
 class ContentThinking(Content):
     """
@@ -626,9 +604,6 @@ class ContentThinking(Content):
 
     def __str__(self):
         return f"<thinking>\n{self.thinking}\n</thinking>\n"
-
-    def _repr_markdown_(self):
-        return self.__str__()
 
     def _repr_html_(self):
         return str(self.tagify())
