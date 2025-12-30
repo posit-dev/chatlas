@@ -15,12 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `ChatGoogle()` gains basic support for image generation. (#214)
 * `ChatOpenAI()` and `ChatAzureOpenAI()` gain a new `service_tier` parameter to request a specific service tier (e.g., `"flex"` for slower/cheaper or `"priority"` for faster/more expensive). (#204)
 
-### Improvements
-
-* `repr(Chat)` and `repr(Turn)` now display styled output with colored role headers, token usage, and cost information.
-
 ### Changes
 
+* `repr(Chat)` and `repr(Turn)` now produce a more human-readable result (closer to the result that gets `echo`ed by `.chat()`). (#245)
 * The `Chat.get_cost()` method's `options` parameter was renamed to `include`. (#244)
 
 ## [0.14.0] - 2025-12-09
