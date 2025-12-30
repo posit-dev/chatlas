@@ -14,8 +14,10 @@ from ._content import (
     create_content,
 )
 from ._content_expand import expand_tool_result
+from ._repr import format_tokens
 
 __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
+
 
 CompletionT = TypeVar("CompletionT")
 Role = Literal["user", "assistant", "system"]
@@ -102,11 +104,15 @@ class Turn(BaseModel):
     def __str__(self) -> str:
         return self.text
 
-    def __repr__(self, indent: int = 0) -> str:
-        res = " " * indent + f"<{self.__class__.__name__}>"
-        for content in self.contents:
-            res += "\n" + content.__repr__(indent=indent + 2)
-        return res + "\n"
+    def __repr__(self) -> str:
+        header = f"## {self.role}"
+        if isinstance(self, AssistantTurn):
+            token_info = format_tokens(self.tokens, self.cost)
+            if token_info:
+                header += f" [{token_info}]"
+
+        content = "\n".join(repr(c) for c in self.contents)
+        return f"{header}\n\n{content}"
 
     @classmethod
     def model_validate(
@@ -354,19 +360,6 @@ class AssistantTurn(Turn, Generic[CompletionT]):
             kwargs["cost"] = cost
 
         super().__init__(contents, **kwargs)
-
-    def __repr__(self, indent: int = 0) -> str:
-        res = " " * indent + f"<{self.__class__.__name__}"
-        if self.tokens:
-            res += f" tokens={self.tokens}"
-        if self.finish_reason:
-            res += f" finish_reason='{self.finish_reason}'"
-        if self.completion:
-            res += f" completion={self.completion}"
-        res += ">"
-        for content in self.contents:
-            res += "\n" + content.__repr__(indent=indent + 2)
-        return res + "\n"
 
 
 def user_turn(

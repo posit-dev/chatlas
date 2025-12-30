@@ -374,3 +374,145 @@ def test_get_cost():
         match="We could not locate pricing information for model 'BADBAD' from provider 'OpenAI'. If you know the pricing for this model, specify it in `token_price`.",
     ):
         chat2.get_cost(include="all")
+
+
+# -----------------------------------------------------------------------------
+# Tests for repr formatting
+# -----------------------------------------------------------------------------
+
+
+
+
+def test_turn_repr_user():
+    """Test that UserTurn repr shows markdown format."""
+    turn = UserTurn("Hello, world!")
+    result = repr(turn)
+
+    assert "## user" in result
+    assert "Hello, world!" in result
+
+
+def test_turn_repr_system():
+    """Test that SystemTurn repr shows markdown format."""
+    from chatlas import SystemTurn
+
+    turn = SystemTurn("You are a helpful assistant.")
+    result = repr(turn)
+
+    assert "## system" in result
+    assert "You are a helpful assistant." in result
+
+
+def test_turn_repr_assistant_with_tokens():
+    """Test that AssistantTurn repr includes token/cost info."""
+    turn = AssistantTurn("The answer is 42.", tokens=(100, 50, 20), cost=0.0025)
+    result = repr(turn)
+
+    assert "## assistant" in result
+    assert "The answer is 42." in result
+    assert "input=100+20" in result
+    assert "output=50" in result
+    assert "cost=$0.0025" in result
+
+
+def test_turn_repr_assistant_without_tokens():
+    """Test that AssistantTurn repr works without token info."""
+    turn = AssistantTurn("Hello!")
+    result = repr(turn)
+
+    assert "## assistant" in result
+    assert "Hello!" in result
+    assert "input=" not in result
+
+
+def test_turn_repr_assistant_no_cached_tokens():
+    """Test token formatting when cached tokens are 0."""
+    turn = AssistantTurn("Test", tokens=(100, 50, 0), cost=0.001)
+    result = repr(turn)
+
+    assert "input=100" in result
+    assert "+0" not in result
+    assert "output=50" in result
+
+
+def test_chat_repr_header_format():
+    """Test Chat repr header shows correct format."""
+    chat = ChatOpenAI(api_key="fake_key", system_prompt="Be helpful")
+    chat.set_turns(
+        [
+            UserTurn("Hi"),
+            AssistantTurn("Hello!", tokens=(10, 20, 5), cost=0.001),
+        ]
+    )
+    result = repr(chat)
+
+    first_line = result.split("\n")[0]
+    assert first_line.startswith("<Chat")
+    assert "OpenAI" in first_line
+    assert "turns=3" in first_line
+    assert "input=10+5" in first_line
+    assert "output=20" in first_line
+    assert "cost=" in first_line
+
+
+def test_chat_repr_no_tokens():
+    """Test Chat repr when no token info is available."""
+    chat = ChatOpenAI(api_key="fake_key")
+    chat.set_turns(
+        [
+            UserTurn("Hi"),
+            AssistantTurn("Hello!"),
+        ]
+    )
+    result = repr(chat)
+
+    first_line = result.split("\n")[0]
+    assert "turns=2" in first_line
+    assert "input=" not in first_line
+
+
+def test_turn_repr_with_tool_request():
+    """Test repr formatting for turns with tool requests."""
+    from chatlas import ContentToolRequest
+
+    turn = AssistantTurn(
+        [
+            ContentToolRequest(id="123", name="get_weather", arguments={"city": "NYC"}),
+        ],
+        tokens=(50, 30, 0),
+    )
+    result = repr(turn)
+
+    assert "## assistant" in result
+    assert "🔧 tool request (123)" in result
+    assert 'get_weather(city="NYC")' in result
+
+
+def test_turn_repr_with_tool_result():
+    """Test repr formatting for turns with tool results."""
+    request = ContentToolRequest(id="123", name="get_weather", arguments={"city": "NYC"})
+    turn = UserTurn(
+        [
+            ContentToolResult(value="72°F and sunny", request=request),
+        ]
+    )
+    result = repr(turn)
+
+    assert "## user" in result
+    assert "✅ tool result (123)" in result
+    assert "72°F and sunny" in result
+
+
+def test_str_unchanged():
+    """Verify that __str__ still uses the original emoji-based format."""
+    chat = ChatOpenAI(api_key="fake_key")
+    chat.set_turns(
+        [
+            UserTurn("Hi"),
+            AssistantTurn("Hello!"),
+        ]
+    )
+    result = str(chat)
+
+    assert "👤" in result or "User" in result
+    assert "🤖" in result or "Assistant" in result

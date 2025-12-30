@@ -2880,26 +2880,31 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return res
 
     def __repr__(self):
+        from ._repr import format_tokens
+
         turns = self.get_turns(include_system_prompt=True)
-        tokens = self.get_tokens()
-        tokens_asst = sum(u["tokens_total"] for u in tokens if u["role"] == "assistant")
-        tokens_user = sum(u["tokens_total"] for u in tokens if u["role"] == "user")
-        tokens_cached = sum(u["tokens_cached"] for u in tokens if u["role"] == "user")
-
-        res = (
-            f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)}"
-            f" tokens={tokens_user + tokens_cached}/{tokens_asst}"
-        )
-
-        # Add cost info only if we can compute it
         assistant_turns = [t for t in turns if isinstance(t, AssistantTurn)]
-        costs = [t.cost for t in assistant_turns if t.cost is not None]
-        if len(costs) > 0:
-            res += f" ${sum(costs):,.2f}"
 
+        # Sum tokens across assistant turns
+        tokens: tuple[int, int, int] | None = None
+        if any(t.tokens for t in assistant_turns):
+            tokens = (
+                sum(t.tokens[0] for t in assistant_turns if t.tokens),
+                sum(t.tokens[1] for t in assistant_turns if t.tokens),
+                sum(t.tokens[2] for t in assistant_turns if t.tokens),
+            )
+
+        costs = [t.cost for t in assistant_turns if t.cost is not None]
+        total_cost = sum(costs) if costs else None
+
+        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)}"
+        token_info = format_tokens(tokens, total_cost)
+        if token_info:
+            res += f" {token_info}"
         res += ">"
+
         for turn in turns:
-            res += "\n" + turn.__repr__(indent=2)
+            res += "\n\n" + repr(turn)
         return res + "\n"
 
     def __deepcopy__(self, memo):
