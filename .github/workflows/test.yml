@@ -38,11 +38,14 @@ jobs:
             --ignore=tests/test_inspect.py \
             --ignore=tests/test_mcp_client.py \
             --ignore=tests/test_mcp_servers.py \
-            --ignore=tests/test_provider_bedrock.py \
-            --ignore=tests/test_provider_google.py \
-            --ignore=tests/test_provider_portkey.py \
-            --ignore=tests/test_provider_snowflake.py \
             --ignore=tests/test_tokens.py
+        env:
+          # Skip providers that don't work with VCR or don't have cassettes
+          TEST_BEDROCK: "false"
+          TEST_GOOGLE: "false"
+          TEST_SNOWFLAKE: "false"
+          # Portkey API was failing during cassette recording
+          PORTKEY_API_KEY: ""
 
       - name: Check types
         if: ${{ matrix.python-version != '3.9' }}

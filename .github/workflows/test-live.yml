@@ -59,16 +59,15 @@ jobs:
           EOF
 
       - name: Check tests (live API)
-        run: |
-          uv run pytest tests/ -v \
-            --ignore=tests/test_provider_bedrock.py \
-            --ignore=tests/test_provider_cloudflare.py \
-            --ignore=tests/test_provider_deepseek.py \
-            --ignore=tests/test_provider_github.py \
-            --ignore=tests/test_provider_huggingface.py \
-            --ignore=tests/test_provider_mistral.py \
-            --ignore=tests/test_provider_ollama.py \
-            --ignore=tests/test_provider_openrouter.py \
-            --ignore=tests/test_provider_perplexity.py \
-            --ignore=tests/test_provider_portkey.py \
-            --ignore=tests/test_provider_groq.py
+        run: make check-tests
+        env:
+          # Skip providers without secrets configured
+          TEST_BEDROCK: "false"
+          # Clear API keys for providers without secrets
+          CLOUDFLARE_API_KEY: ""
+          DEEPSEEK_API_KEY: ""
+          GITHUB_TOKEN: ""
+          HUGGINGFACE_API_KEY: ""
+          MISTRAL_API_KEY: ""
+          OPENROUTER_API_KEY: ""
+          PORTKEY_API_KEY: ""

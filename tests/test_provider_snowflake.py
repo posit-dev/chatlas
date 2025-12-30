@@ -1,4 +1,11 @@
+import os
+
 import pytest
+
+do_test = os.getenv("TEST_SNOWFLAKE", "true")
+if do_test.lower() == "false":
+    pytest.skip("Skipping Snowflake tests", allow_module_level=True)
+
 from chatlas import ChatSnowflake
 
 from .conftest import (

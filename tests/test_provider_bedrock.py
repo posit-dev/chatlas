@@ -1,4 +1,11 @@
+import os
+
 import pytest
+
+do_test = os.getenv("TEST_BEDROCK", "true")
+if do_test.lower() == "false":
+    pytest.skip("Skipping Bedrock tests", allow_module_level=True)
+
 from chatlas import ChatBedrockAnthropic
 
 from .conftest import (
@@ -13,12 +20,6 @@ from .conftest import (
     assert_turns_existing,
     assert_turns_system,
 )
-
-try:
-    chat = ChatBedrockAnthropic()
-    chat.chat("What is 1 + 1?")
-except Exception:
-    pytest.skip("Bedrock credentials aren't configured", allow_module_level=True)
 
 
 def test_anthropic_simple_request():
