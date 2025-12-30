@@ -89,7 +89,6 @@ class ToolWebSearch(ToolBuiltIn):
                 "Use one or the other."
             )
 
-        # Store configuration
         self.allowed_domains = allowed_domains
         self.blocked_domains = blocked_domains
         self.user_location = user_location

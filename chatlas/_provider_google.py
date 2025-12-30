@@ -296,7 +296,11 @@ class GoogleProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        from google.genai.types import FunctionDeclaration, GenerateContentConfig
+        from google.genai.types import (
+            FunctionDeclaration,
+            GenerateContentConfig,
+            ToolListUnion,
+        )
         from google.genai.types import Tool as GoogleTool
 
         kwargs_full: "SubmitInputArgs" = {
@@ -320,24 +324,27 @@ class GoogleProvider(
             config.response_mime_type = "application/json"
 
         if tools:
-            func_declarations = [
-                FunctionDeclaration.from_callable(
-                    client=self._client._api_client,
-                    callable=tool.func,
-                )
-                for tool in tools.values()
-                if isinstance(tool, Tool)
-            ]
-            builtin_tools = [
-                tool.get_definition("google")
-                for tool in tools.values()
-                if isinstance(tool, (ToolWebSearch, ToolWebFetch))
-            ]
-
-            google_tools: list[Any] = []
-            if func_declarations:
-                google_tools.append(GoogleTool(function_declarations=func_declarations))
-            google_tools.extend(builtin_tools)
+            google_tools: ToolListUnion = []
+            for tool in tools.values():
+                if isinstance(tool, ToolWebSearch):
+                    gtool = GoogleTool(google_search=tool.get_definition("google"))
+                    google_tools.append(gtool)
+                elif isinstance(tool, ToolWebFetch):
+                    gtool = GoogleTool(url_context=tool.get_definition("google"))
+                    google_tools.append(gtool)
+                elif isinstance(tool, ToolBuiltIn):
+                    # TODO: how to support?
+                    raise NotImplementedError()
+                else:
+                    gtool = GoogleTool(
+                        function_declarations=[
+                            FunctionDeclaration.from_callable(
+                                client=self._client._api_client,
+                                callable=tool.func,
+                            )
+                        ]
+                    )
+                    google_tools.append(gtool)
 
             if google_tools:
                 config.tools = google_tools
