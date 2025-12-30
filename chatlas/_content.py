@@ -149,11 +149,11 @@ class Content(BaseModel):
     def __str__(self):
         raise NotImplementedError
 
-    def _repr_markdown_(self):
-        raise NotImplementedError
+    def __repr__(self):
+        return self.__str__()
 
-    def __repr__(self, indent: int = 0):
-        raise NotImplementedError
+    def _repr_markdown_(self):
+        return self.__str__()
 
 
 class ContentText(Content):
@@ -172,13 +172,6 @@ class ContentText(Content):
 
     def __str__(self):
         return self.text
-
-    def _repr_markdown_(self):
-        return self.text
-
-    def __repr__(self, indent: int = 0):
-        text = self.text[:50] + "..." if len(self.text) > 50 else self.text
-        return " " * indent + f"<ContentText text='{text}'>"
 
 
 class ContentImage(Content):
@@ -216,15 +209,6 @@ class ContentImageRemote(ContentImage):
     def __str__(self):
         return f"![]({self.url})"
 
-    def _repr_markdown_(self):
-        return self.__str__()
-
-    def __repr__(self, indent: int = 0):
-        return (
-            " " * indent
-            + f"<ContentImageRemote url='{self.url}' detail='{self.detail}'>"
-        )
-
 
 class ContentImageInline(ContentImage):
     """
@@ -249,16 +233,6 @@ class ContentImageInline(ContentImage):
 
     def __str__(self):
         return f"![](data:{self.image_content_type};base64,{self.data})"
-
-    def _repr_markdown_(self):
-        return self.__str__()
-
-    def __repr__(self, indent: int = 0):
-        n_bytes = len(self.data) if self.data else 0
-        return (
-            " " * indent
-            + f"<ContentImageInline content_type='{self.image_content_type}' size={n_bytes}>"
-        )
 
 
 class ContentToolRequest(Content):
@@ -296,20 +270,18 @@ class ContentToolRequest(Content):
         comment = f"# 🔧 tool request ({self.id})"
         return f"```python\n{comment}\n{func_call}\n```\n"
 
-    def _repr_markdown_(self):
-        return self.__str__()
-
-    def __repr__(self, indent: int = 0):
-        args_str = self._arguments_str()
-        return (
-            " " * indent
-            + f"<ContentToolRequest name='{self.name}' arguments='{args_str}' id='{self.id}'>"
-        )
-
     def _arguments_str(self) -> str:
         if isinstance(self.arguments, dict):
-            return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
+            return ", ".join(
+                f"{k}={self._format_arg(v)}" for k, v in self.arguments.items()
+            )
         return str(self.arguments)
+
+    @staticmethod
+    def _format_arg(value: object) -> str:
+        if isinstance(value, str):
+            return f'"{value}"'
+        return str(value)
 
     def _repr_html_(self) -> str:
         return str(self.tagify())
@@ -407,23 +379,11 @@ class ContentToolResult(Content):
             )
         return self.request.arguments
 
-    # Primarily used for `echo="all"`...
     def __str__(self):
         prefix = "✅ tool result" if not self.error else "❌ tool error"
         comment = f"# {prefix} ({self.id})"
         value = self._get_display_value()
         return f"""```python\n{comment}\n{value}\n```"""
-
-    # ... and for displaying in the notebook
-    def _repr_markdown_(self):
-        return self.__str__()
-
-    def __repr__(self, indent: int = 0):
-        res = " " * indent
-        res += f"<ContentToolResult value='{self.value}' id='{self.id}'"
-        if self.error:
-            res += f" error='{self.error}'"
-        return res + ">"
 
     # Format the value for display purposes
     def _get_display_value(self):
@@ -591,13 +551,8 @@ class ContentJson(Content):
     content_type: ContentTypeEnum = "json"
 
     def __str__(self):
-        return orjson.dumps(self.value, option=orjson.OPT_INDENT_2).decode("utf-8")
-
-    def _repr_markdown_(self):
-        return f"""```json\n{self.__str__()}\n```"""
-
-    def __repr__(self, indent: int = 0):
-        return " " * indent + f"<ContentJson value={self.value}>"
+        val = orjson.dumps(self.value, option=orjson.OPT_INDENT_2).decode("utf-8")
+        return f"""```json\n{val}\n```"""
 
 
 class ContentPDF(Content):
@@ -626,15 +581,6 @@ class ContentPDF(Content):
     def __str__(self):
         return f"<PDF document file={self.filename} size={len(self.data)} bytes>"
 
-    def _repr_markdown_(self):
-        return self.__str__()
-
-    def __repr__(self, indent: int = 0):
-        return (
-            " " * indent
-            + f"<ContentPDF file={self.filename} size={len(self.data)} bytes>"
-        )
-
 
 class ContentThinking(Content):
     """
@@ -658,15 +604,6 @@ class ContentThinking(Content):
 
     def __str__(self):
         return f"<thinking>\n{self.thinking}\n</thinking>\n"
-
-    def _repr_markdown_(self):
-        return self.__str__()
-
-    def __repr__(self, indent: int = 0):
-        preview = (
-            self.thinking[:50] + "..." if len(self.thinking) > 50 else self.thinking
-        )
-        return " " * indent + f"<ContentThinking thinking='{preview}'>"
 
     def _repr_html_(self):
         return str(self.tagify())

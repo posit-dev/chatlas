@@ -16,9 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Added support for built-in provider tools via a new `ToolBuiltIn` class. This enables provider-specific functionality like OpenAI's image generation to be registered and used as tools. Built-in tools pass raw provider definitions directly to the API rather than wrapping Python functions. (#214)
 * `ChatGoogle()` gains basic support for image generation. (#214)
 * `ChatOpenAI()` and `ChatAzureOpenAI()` gain a new `service_tier` parameter to request a specific service tier (e.g., `"flex"` for slower/cheaper or `"priority"` for faster/more expensive). (#204)
+* `Chat` and `Turn` now have a `_repr_markdown_` method and an overall improved `repr()` experience. (#245)
 
 ### Changes
 
+* `repr()` now generally gives the same result as `str()` for many classes (`Chat`, `Turn`, `Content`, etc). This leads to a more human-readable result (and is closer to the result that gets `echo`ed by `.chat()`). (#245)
 * The `Chat.get_cost()` method's `options` parameter was renamed to `include`. (#244)
 
 ## [0.14.0] - 2025-12-09
