@@ -1,0 +1,126 @@
+interactions:
+- request:
+    body: '{"contents": [{"parts": [{"text": "What''s the current date in YYYY-MM-DD
+      format?"}], "role": "user"}], "systemInstruction": {"parts": [{"text": "Be very
+      terse, not even punctuation."}], "role": "user"}, "tools": [{"functionDeclarations":
+      [{"description": "Gets the current date", "name": "get_date"}]}], "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '343'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"get_date\",\"args\": {}},\"thoughtSignature\": \"CiQBcsjafOIZepgNICz/Tg6LIRjgcb4ZYWpy0JJK3n0o2Os87gAKcAFyyNp8zTK5/wHT0T+9LrHL2qHP2H+ZUd15rPn3q+LEfgKS8rQmUObe9U74cdMfNbwKLPxlrN7gqXGPmAodIMDKJJHQpjzmgD8lnUZi2NNZE4L2xlarBbaa66yjkQa9Fx1STkWmUCjOx7cQ4XlpheYKlQEBcsjafFGnXgpATScdasYsptDjk9wkW5D4IxItkqPjBrGM7ecndQXj7FD1Q+CDsWHdLVCa512soARUqPov58ykZkCmp3PSRDGSEJioBBolgmWblvg8IxZJtYWZLPXOhVRIY75aP1t+rTKMieKwh9L+3Tr8ayVpqkf4cX2wMYRslW9afOMot3lKKE8k8m9jefhi7RQxXg==\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
+        generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
+        51,\"candidatesTokenCount\": 10,\"totalTokenCount\": 104,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 51}],\"thoughtsTokenCount\": 43},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"5BZUac_dAemM_PUPrer-4As\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Tue, 30 Dec 2025 18:16:04 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=656
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What''s the current date in YYYY-MM-DD
+      format?"}], "role": "user"}, {"parts": [{"functionCall": {"args": {}, "name":
+      "get_date"}}], "role": "model"}, {"parts": [{"functionResponse": {"name": "get_date",
+      "response": {"result": "2024-01-01"}}}], "role": "user"}], "systemInstruction":
+      {"parts": [{"text": "Be very terse, not even punctuation."}], "role": "user"},
+      "tools": [{"functionDeclarations": [{"description": "Gets the current date",
+      "name": "get_date"}]}], "generationConfig": {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '536'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"2024\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 85,\"candidatesTokenCount\":
+        4,\"totalTokenCount\": 89,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        85}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"5RZUaZoS5rf-4w_fzcH5DA\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"-01-01\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        85,\"candidatesTokenCount\": 10,\"totalTokenCount\": 95,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 85}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
+        \"5RZUaZoS5rf-4w_fzcH5DA\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Tue, 30 Dec 2025 18:16:05 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=447
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

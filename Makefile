@@ -66,6 +66,30 @@ update-snaps:
 	@echo "📸 Updating pytest snapshots"
 	uv run pytest --snapshot-update
 
+.PHONY: record-vcr
+record-vcr: record-vcr-openai record-vcr-anthropic record-vcr-google ## [py] Record VCR cassettes for all providers
+
+.PHONY: record-vcr-openai
+record-vcr-openai:  ## [py] Record VCR cassettes for OpenAI
+	@echo "📼 Recording OpenAI cassettes"
+	uv run pytest --record-mode=all tests/test_provider_openai.py -v
+
+.PHONY: record-vcr-anthropic
+record-vcr-anthropic:  ## [py] Record VCR cassettes for Anthropic
+	@echo "📼 Recording Anthropic cassettes"
+	uv run pytest --record-mode=all tests/test_provider_anthropic.py -v
+
+.PHONY: record-vcr-google
+record-vcr-google:  ## [py] Record VCR cassettes for Google
+	@echo "📼 Recording Google cassettes"
+	uv run pytest --record-mode=all tests/test_provider_google.py -v
+
+.PHONY: rerecord-vcr
+rerecord-vcr:  ## [py] Delete and re-record all VCR cassettes
+	@echo "🗑️  Deleting existing cassettes"
+	rm -rf tests/_vcr/test_provider_openai tests/_vcr/test_provider_anthropic tests/_vcr/test_provider_google
+	$(MAKE) record-vcr
+
 .PHONY: update-types
 update-types:
 	@echo "📝 Updating chat provider types"

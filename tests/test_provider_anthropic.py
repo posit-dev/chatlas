@@ -30,6 +30,7 @@ def chat_func(system_prompt: str = "", **kwargs):
     )
 
 
+@pytest.mark.vcr
 def test_anthropic_simple_request():
     chat = chat_func(
         system_prompt="Be as terse as possible; no punctuation",
@@ -41,6 +42,7 @@ def test_anthropic_simple_request():
     assert turn.finish_reason == "end_turn"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_anthropic_simple_streaming_request():
     chat = chat_func(
@@ -56,11 +58,13 @@ async def test_anthropic_simple_streaming_request():
     assert turn.finish_reason == "end_turn"
 
 
+@pytest.mark.vcr
 def test_anthropic_respects_turns_interface():
     assert_turns_system(chat_func)
     assert_turns_existing(chat_func)
 
 
+@pytest.mark.vcr
 @retry_api_call
 def test_anthropic_tool_variations():
     assert_tools_simple(chat_func)
@@ -68,31 +72,37 @@ def test_anthropic_tool_variations():
     assert_tools_sequential(chat_func, total_calls=6)
 
 
+@pytest.mark.vcr
 @retry_api_call
 def test_anthropic_tool_variations_parallel():
     assert_tools_parallel(chat_func)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 @retry_api_call
 async def test_anthropic_tool_variations_async():
     await assert_tools_async(chat_func)
 
 
+@pytest.mark.vcr
 def test_data_extraction():
     assert_data_extraction(chat_func)
 
 
+@pytest.mark.vcr
 @retry_api_call
 def test_anthropic_images():
     assert_images_inline(chat_func)
     assert_images_remote(chat_func)
 
 
+@pytest.mark.vcr
 def test_anthropic_pdfs():
     assert_pdf_local(chat_func)
 
 
+@pytest.mark.vcr
 def test_anthropic_empty_response():
     chat = chat_func()
     chat.chat("Respond with only two blank lines")
@@ -100,6 +110,7 @@ def test_anthropic_empty_response():
     assert "2" == str(resp).strip()
 
 
+@pytest.mark.vcr
 def test_anthropic_image_tool(test_images_dir):
     def get_picture():
         "Returns an image"
@@ -122,6 +133,7 @@ def test_anthropic_custom_http_client():
     chat_func(kwargs={"http_client": httpx.AsyncClient()})
 
 
+@pytest.mark.vcr
 def test_anthropic_list_models():
     assert_list_models(chat_func)
 

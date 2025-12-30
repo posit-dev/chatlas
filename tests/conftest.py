@@ -1,3 +1,4 @@
+import os
 import tempfile
 from pathlib import Path
 from typing import Callable
@@ -309,3 +310,114 @@ def test_images_dir():
 @pytest.fixture
 def test_batch_dir():
     return Path(__file__).parent / "batch"
+
+
+# ---------------------------------------------------------------------------
+# VCR Configuration for HTTP recording/replay
+# ---------------------------------------------------------------------------
+
+
+# Some providers (Anthropic, Google) validate API keys before making requests,
+# so we need dummy keys for VCR replay mode
+@pytest.fixture(autouse=True, scope="session")
+def set_dummy_api_keys_for_vcr():
+    """Set dummy API keys for providers that validate keys before requests.
+
+    This enables VCR replay mode to work without real API keys.
+    When a real key is set, it takes precedence.
+    """
+    dummy_keys = {
+        "ANTHROPIC_API_KEY": "sk-ant-dummy-key-for-vcr-replay",
+        "GOOGLE_API_KEY": "dummy-google-key-for-vcr-replay",
+    }
+    original_values = {}
+
+    for key, dummy_value in dummy_keys.items():
+        original_values[key] = os.environ.get(key)
+        if not original_values[key]:
+            os.environ[key] = dummy_value
+
+    yield
+
+    # Restore original values
+    for key, original_value in original_values.items():
+        if original_value is None:
+            os.environ.pop(key, None)
+        else:
+            os.environ[key] = original_value
+
+
+def _filter_response_headers(response):
+    """Remove sensitive headers from response before recording."""
+    headers_to_remove = [
+        "openai-organization",
+        "openai-project",
+        "anthropic-organization-id",
+        "set-cookie",
+        "cf-ray",
+        "x-request-id",
+        "request-id",
+    ]
+    headers = response.get("headers", {})
+    for header in headers_to_remove:
+        # Headers can be stored as lowercase or original case
+        headers.pop(header, None)
+        headers.pop(header.title(), None)
+        headers.pop(header.lower(), None)
+        # Also handle capitalization variations
+        headers.pop(header.replace("-", "").lower(), None)
+    return response
+
+
+@pytest.fixture(scope="module")
+def vcr_config():
+    """Global VCR configuration for pytest-recording."""
+    return {
+        "filter_headers": [
+            "authorization",
+            "x-api-key",
+            "api-key",
+            "openai-organization",
+            "x-goog-api-key",
+            "x-stainless-arch",
+            "x-stainless-lang",
+            "x-stainless-os",
+            "x-stainless-package-version",
+            "x-stainless-runtime",
+            "x-stainless-runtime-version",
+            "x-stainless-retry-count",
+            "user-agent",
+        ],
+        "filter_post_data_parameters": ["api_key"],
+        "decode_compressed_response": True,
+        "record_mode": "once",
+        "match_on": ["method", "scheme", "host", "port", "path", "body"],
+        "before_record_response": _filter_response_headers,
+    }
+
+
+@pytest.fixture(scope="module")
+def vcr_cassette_dir(request):
+    """Store cassettes in per-module directories."""
+    module_name = request.module.__name__.split(".")[-1]
+    return os.path.join(os.path.dirname(__file__), "_vcr", module_name)
+
+
+def pytest_exception_interact(node, call, report):
+    """Provide helpful message when VCR cassette is missing."""
+    if call.excinfo is not None:
+        exc_str = str(call.excinfo.value)
+        if "CannotOverwriteExistingCassetteException" in exc_str or "Can't find" in exc_str:
+            print("\n" + "=" * 60)
+            print("VCR CASSETTE MISSING OR OUTDATED")
+            print("=" * 60)
+            print("To record/update cassettes, run locally with API keys:")
+            print("  make record-vcr")
+            print("Or for a specific provider:")
+            print("  make record-vcr-openai")
+            print("  make record-vcr-anthropic")
+            print("  make record-vcr-google")
+            print("")
+            print("Or directly with pytest:")
+            print("  uv run pytest --record-mode=all tests/test_provider_openai.py -v")
+            print("=" * 60 + "\n")

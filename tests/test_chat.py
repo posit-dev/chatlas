@@ -15,12 +15,14 @@ from chatlas._chat import ToolFailureWarning
 from pydantic import BaseModel
 
 
+@pytest.mark.vcr
 def test_simple_batch_chat():
     chat = ChatOpenAI()
     response = chat.chat("What's 1 + 1. Just give me the answer, no punctuation")
     assert str(response) == "2"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_simple_async_batch_chat():
     chat = ChatOpenAI()
@@ -30,6 +32,7 @@ async def test_simple_async_batch_chat():
     assert "2" == await response.get_content()
 
 
+@pytest.mark.vcr
 def test_simple_streaming_chat():
     chat = ChatOpenAI()
     res = chat.stream(
@@ -49,6 +52,7 @@ def test_simple_streaming_chat():
     assert res == "redorangeyellowgreenblueindigoviolet"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_simple_streaming_chat_async():
     chat = ChatOpenAI()
@@ -111,6 +115,7 @@ def test_basic_export(snapshot):
             assert snapshot == f.read()
 
 
+@pytest.mark.vcr
 def test_chat_structured():
     chat = ChatOpenAI()
 
@@ -122,6 +127,7 @@ def test_chat_structured():
     assert data == Person(name="John", age=15)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_chat_structured_async():
     chat = ChatOpenAI()
@@ -136,6 +142,7 @@ async def test_chat_structured_async():
     assert data == Person(name="John", age=15)
 
 
+@pytest.mark.vcr
 def test_last_turn_retrieval():
     chat = ChatOpenAI()
     assert chat.get_last_turn(role="user") is None
@@ -185,6 +192,7 @@ def test_modify_system_prompt():
     assert chat.system_prompt is None
 
 
+@pytest.mark.vcr
 def test_json_serialize():
     chat = ChatOpenAI()
     chat.chat("Tell me a short joke", echo="none")
@@ -216,6 +224,7 @@ def test_json_serialize():
 
 
 # Chat can be deepcopied/forked
+@pytest.mark.vcr
 def test_deepcopy_chat():
     import copy
 
@@ -232,6 +241,7 @@ def test_deepcopy_chat():
     assert len(chat_fork.get_turns()) == 4
 
 
+@pytest.mark.vcr
 def test_chat_callbacks():
     chat = ChatOpenAI()
 
@@ -266,6 +276,7 @@ def test_chat_callbacks():
     assert cb_count_result == 2
 
 
+@pytest.mark.vcr
 @pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject():
     chat = ChatOpenAI()
@@ -291,6 +302,7 @@ def test_chat_tool_request_reject():
     assert str(response).lower() == "joe unknown hadley red"
 
 
+@pytest.mark.vcr
 @pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject2(capsys):
     chat = ChatOpenAI()

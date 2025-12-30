@@ -13,6 +13,7 @@ if do_test.lower() == "false":
     pytest.skip("Skipping OpenAI tests", allow_module_level=True)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_multi_turn_tools():
     """Test that tools can trigger multiple LLM rounds."""
@@ -55,6 +56,7 @@ async def test_parallel_chat_multi_turn_tools():
     assert len(chats[1].get_turns()) >= 4, f"Expected at least 4 turns, got {len(chats[1].get_turns())}"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_ordering_preserved():
     """Test that tool execution order matches submission order."""
@@ -81,6 +83,7 @@ async def test_parallel_chat_ordering_preserved():
     assert len(chats) == 3
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_mixed_tools_and_no_tools():
     """Test conversations with and without tools."""
@@ -112,6 +115,7 @@ async def test_parallel_chat_mixed_tools_and_no_tools():
     assert len(turns) == 2, f"Expected 2 turns for no-tool chat, got {len(turns)}"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_chained_tool_calls():
     """Test that a conversation can have multiple rounds of tool calls."""
@@ -160,6 +164,7 @@ async def test_parallel_chat_chained_tool_calls():
     assert len(chats) == 2
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_no_tools_registered():
     """Test that parallel_chat works normally when no tools are registered."""
@@ -183,6 +188,7 @@ async def test_parallel_chat_no_tools_registered():
         assert len(c.get_turns()) == 2
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_tool_ordering_with_rate_limiting():
     """Test that tool ordering is preserved even with rate limiting."""
@@ -210,6 +216,7 @@ async def test_parallel_chat_tool_ordering_with_rate_limiting():
 # ===== Tests for parallel_chat_structured() =====
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_structured_basic():
     """Test parallel_chat_structured() without tools."""
@@ -243,6 +250,7 @@ async def test_parallel_chat_structured_basic():
     assert any("Brasilia" in r.data.capital or "Brasília" in r.data.capital for r in results)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_structured_with_tools():
     """Test that parallel_chat_structured() works with tools."""
@@ -283,6 +291,7 @@ async def test_parallel_chat_structured_with_tools():
     assert tokyo.data.location == "Tokyo"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_structured_tool_ordering():
     """Test that tool execution order is preserved in parallel_chat_structured()."""

@@ -18,6 +18,7 @@ if do_test.lower() == "false":
     pytest.skip("Skipping OpenAI tests", allow_module_level=True)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_error_return_mode():
     """Test that on_error='return' stops new requests but completes in-flight ones."""
@@ -45,6 +46,7 @@ async def test_parallel_chat_error_return_mode():
     assert results[2] is None  # Not submitted
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_error_continue_mode():
     """Test that on_error='continue' processes all requests despite errors."""
@@ -69,6 +71,7 @@ async def test_parallel_chat_error_continue_mode():
     assert all(isinstance(r, Exception) for r in results)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_error_stop_mode():
     """Test that on_error='stop' raises immediately on first error."""
@@ -91,6 +94,7 @@ async def test_parallel_chat_error_stop_mode():
         )
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_text_error_handling():
     """Test that parallel_chat_text handles errors correctly."""
@@ -111,6 +115,7 @@ async def test_parallel_chat_text_error_handling():
     # Second one may or may not run depending on timing
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_structured_error_handling():
     """Test that parallel_chat_structured handles errors correctly."""

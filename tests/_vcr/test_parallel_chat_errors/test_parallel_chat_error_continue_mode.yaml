@@ -1,0 +1,182 @@
+interactions:
+- request:
+    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
+      "Say ''A''"}]}], "model": "gpt-4-does-not-exist-12345", "store": false, "stream":
+      false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '144'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"error\": {\n    \"message\": \"The requested model 'gpt-4-does-not-exist-12345'
+        does not exist.\",\n    \"type\": \"invalid_request_error\",\n    \"param\":
+        \"model\",\n    \"code\": \"model_not_found\"\n  }\n}"
+    headers:
+      CF-RAY:
+      - 9b6383c72ec872e4-ORD
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '192'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 18:14:04 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      openai-processing-ms:
+      - '42'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '46'
+    status:
+      code: 400
+      message: Bad Request
+- request:
+    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
+      "Say ''B''"}]}], "model": "gpt-4-does-not-exist-12345", "store": false, "stream":
+      false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '144'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=NQjjA5gBddpdoXKHaFUZn8uxdJV6Ng1zx0JXwpSusW4-1767118444-1.0.1.1-rXt5IC2DbuiEgJNhAEQu5OFbCJk03WB_tMi9FybpfN3LAziLvx9ATHfYOGaNsy1UkK1hrIb2IXM1H7JE.1kYx4bVhdUU707YQK3S0XNIHjY;
+        _cfuvid=tLAN020_kd6Imp4rRsaCvVOHVBYh.O9IlKazz9cvxag-1767118444791-0.0.1.1-604800000
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"error\": {\n    \"message\": \"The requested model 'gpt-4-does-not-exist-12345'
+        does not exist.\",\n    \"type\": \"invalid_request_error\",\n    \"param\":
+        \"model\",\n    \"code\": \"model_not_found\"\n  }\n}"
+    headers:
+      CF-RAY:
+      - 9b6383c8fa85a69c-ORD
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '192'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 18:14:06 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      openai-processing-ms:
+      - '395'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '1146'
+    status:
+      code: 400
+      message: Bad Request
+- request:
+    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
+      "Say ''C''"}]}], "model": "gpt-4-does-not-exist-12345", "store": false, "stream":
+      false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '144'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=NQjjA5gBddpdoXKHaFUZn8uxdJV6Ng1zx0JXwpSusW4-1767118444-1.0.1.1-rXt5IC2DbuiEgJNhAEQu5OFbCJk03WB_tMi9FybpfN3LAziLvx9ATHfYOGaNsy1UkK1hrIb2IXM1H7JE.1kYx4bVhdUU707YQK3S0XNIHjY;
+        _cfuvid=tLAN020_kd6Imp4rRsaCvVOHVBYh.O9IlKazz9cvxag-1767118444791-0.0.1.1-604800000
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"error\": {\n    \"message\": \"The requested model 'gpt-4-does-not-exist-12345'
+        does not exist.\",\n    \"type\": \"invalid_request_error\",\n    \"param\":
+        \"model\",\n    \"code\": \"model_not_found\"\n  }\n}"
+    headers:
+      CF-RAY:
+      - 9b6383d1fbe7e578-ORD
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '192'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 18:14:06 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      openai-processing-ms:
+      - '67'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '71'
+    status:
+      code: 400
+      message: Bad Request
+version: 1

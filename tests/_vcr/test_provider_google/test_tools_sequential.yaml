@@ -1,0 +1,205 @@
+interactions:
+- request:
+    body: '{"contents": [{"parts": [{"text": "What should I pack for New York this
+      weekend?"}], "role": "user"}], "systemInstruction": {"parts": [{"text": "\n        Be
+      very terse, not even punctuation. If asked for equipment to pack,\n        first
+      use the weather_forecast tool provided to you. Then, use the\n        equipment
+      tool provided to you.\n        "}], "role": "user"}, "tools": [{"functionDeclarations":
+      [{"description": "Gets the weather forecast for a city", "name": "weather_forecast",
+      "parameters": {"properties": {"city": {"type": "STRING"}}, "required": ["city"],
+      "type": "OBJECT"}}, {"description": "Gets the equipment needed for a weather
+      condition", "name": "equipment", "parameters": {"properties": {"weather": {"type":
+      "STRING"}}, "required": ["weather"], "type": "OBJECT"}}]}], "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '832'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"weather_forecast\",\"args\": {\"city\": \"New York\"}},\"thoughtSignature\":
+        \"CiQBcsjafH9m9fErT3xiAkJYC+q/3grb25+rYVHXDGak+AjtpKMKbwFyyNp8JBgPkBwA7lWp6zuLq3YH3BOtBpMwIM4s6U5awrQiC48YOEtaIfCSffQNkagUkcSf/+D2JY6FNQRLkbK5Zk/jYUlymICx6DIuQmEaDjM+6aiTM6QVccwQ7K98DXTqmZUHNIivB8CLyY82Cgr9AQFyyNp8kVS2HiSgGDMMeDv5LXzkrEiZ1wh8sE16x+STSKikSRGbCmompewgVXdr6Q3lUIyieEi6d//OqFnbtd8RT6yIqN6Y2TOyLsM5SePOGfTzrrFrYz+8eEeS+vJxnWCzzickF+v36biTOEu4WTOR5Gdku5/lOiIn5uaKVm3ZwkkdqItgPNKYput/PtcquvjJI+lYNlOjSEu0DgZXygDomEmP32lsivqiGrMHu6KkGrer0Rm+cn/vu9YO4I9PGD16k47alLGr6lwA35/ikEXo19IYzgFnPjb7q2bhQY0FK6LxzK3ySIq5azkNOPQYFLqMMr11klhNoXOSs+IKSgFyyNp8blGnCwYt5y9T7YAu+8V4QS33GjUs33iXT3o+IRgaVbj5n9hBjGTaAw/DWxaHvGW8/k3rIMP/rrk56BNPrFCBrZKBR9Uk\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
+        generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
+        133,\"candidatesTokenCount\": 16,\"totalTokenCount\": 226,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 133}],\"thoughtsTokenCount\": 77},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"6BZUab2NOJ6j_uMPrfrPiAs\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Tue, 30 Dec 2025 18:16:09 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=1477
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What should I pack for New York this
+      weekend?"}], "role": "user"}, {"parts": [{"functionCall": {"args": {"city":
+      "New York"}, "name": "weather_forecast"}}], "role": "model"}, {"parts": [{"functionResponse":
+      {"name": "weather_forecast", "response": {"result": "rainy"}}}], "role": "user"}],
+      "systemInstruction": {"parts": [{"text": "\n        Be very terse, not even
+      punctuation. If asked for equipment to pack,\n        first use the weather_forecast
+      tool provided to you. Then, use the\n        equipment tool provided to you.\n        "}],
+      "role": "user"}, "tools": [{"functionDeclarations": [{"description": "Gets the
+      weather forecast for a city", "name": "weather_forecast", "parameters": {"properties":
+      {"city": {"type": "STRING"}}, "required": ["city"], "type": "OBJECT"}}, {"description":
+      "Gets the equipment needed for a weather condition", "name": "equipment", "parameters":
+      {"properties": {"weather": {"type": "STRING"}}, "required": ["weather"], "type":
+      "OBJECT"}}]}], "generationConfig": {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1054'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"equipment\",\"args\": {\"weather\": \"rainy\"}}}],\"role\": \"model\"},\"finishReason\":
+        \"STOP\",\"index\": 0,\"finishMessage\": \"Model generated function call(s).\"}],\"usageMetadata\":
+        {\"promptTokenCount\": 165,\"candidatesTokenCount\": 14,\"totalTokenCount\":
+        179,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 165}]},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"6hZUaewzvIX7xg-w38CwBw\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Tue, 30 Dec 2025 18:16:10 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=467
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What should I pack for New York this
+      weekend?"}], "role": "user"}, {"parts": [{"functionCall": {"args": {"city":
+      "New York"}, "name": "weather_forecast"}}], "role": "model"}, {"parts": [{"functionResponse":
+      {"name": "weather_forecast", "response": {"result": "rainy"}}}], "role": "user"},
+      {"parts": [{"functionCall": {"args": {"weather": "rainy"}, "name": "equipment"}}],
+      "role": "model"}, {"parts": [{"functionResponse": {"name": "equipment", "response":
+      {"result": "umbrella"}}}], "role": "user"}], "systemInstruction": {"parts":
+      [{"text": "\n        Be very terse, not even punctuation. If asked for equipment
+      to pack,\n        first use the weather_forecast tool provided to you. Then,
+      use the\n        equipment tool provided to you.\n        "}], "role": "user"},
+      "tools": [{"functionDeclarations": [{"description": "Gets the weather forecast
+      for a city", "name": "weather_forecast", "parameters": {"properties": {"city":
+      {"type": "STRING"}}, "required": ["city"], "type": "OBJECT"}}, {"description":
+      "Gets the equipment needed for a weather condition", "name": "equipment", "parameters":
+      {"properties": {"weather": {"type": "STRING"}}, "required": ["weather"], "type":
+      "OBJECT"}}]}], "generationConfig": {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1265'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"umbrella\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        192,\"candidatesTokenCount\": 1,\"totalTokenCount\": 193,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 192}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
+        \"6hZUabeILP29jrEP1t2GcQ\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Tue, 30 Dec 2025 18:16:10 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=439
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

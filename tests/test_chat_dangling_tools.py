@@ -1,3 +1,5 @@
+import pytest
+
 from chatlas import ChatOpenAI
 from chatlas._turn import AssistantTurn, UserTurn
 from chatlas.types import ContentText, ContentToolRequest, ContentToolResult
@@ -50,6 +52,7 @@ class TestDanglingToolRequests:
         assert isinstance(submitted_turn.contents[1], ContentText)
         assert submitted_turn.contents[1].text == "try again"
 
+    @pytest.mark.vcr
     def test_can_resume_chat_after_dangling_tool_requests(self):
         chat = ChatOpenAI(system_prompt="Be terse and use tool results over your internal knowledge.")
         chat.register_tool(get_date)

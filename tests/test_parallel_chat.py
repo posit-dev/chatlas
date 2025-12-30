@@ -14,6 +14,7 @@ from chatlas import (
 )
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_basic():
     chat = ChatOpenAI(system_prompt="Be terse.")
@@ -55,6 +56,7 @@ def new_roll_func():
     return roll
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_tools():
     chat = ChatOpenAI(system_prompt="Be terse.")
@@ -85,6 +87,7 @@ async def test_parallel_chat_tools():
     assert f"You rolled {result.get_model_value()}" in turns[3].text
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_tools_uneven():
     chat = ChatOpenAI(system_prompt="Be terse.")
@@ -123,6 +126,7 @@ async def test_parallel_chat_tools_uneven():
     assert "beep" in turn4.text
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_structured():
     """Test parallel_chat_structured for structured data extraction."""

@@ -12,6 +12,7 @@ if do_test.lower() == "false":
     pytest.skip("Skipping OpenAI tests", allow_module_level=True)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_tool_ordering_basic():
     """Test that tools execute in prompt order across parallel chats."""
@@ -48,6 +49,7 @@ async def test_parallel_chat_tool_ordering_basic():
         assert last_turn.text is not None
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_tool_ordering_multiple_tools_per_prompt():
     """Test that multiple tools within a prompt execute before the next prompt's tools."""
@@ -86,6 +88,7 @@ async def test_parallel_chat_tool_ordering_multiple_tools_per_prompt():
     )
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_no_tools():
     """Test that parallel_chat works normally when no tools are needed."""
@@ -107,6 +110,7 @@ async def test_parallel_chat_no_tools():
         assert last_turn.text is not None
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_mixed_tools_and_no_tools():
     """Test parallel_chat with mix of prompts that do and don't use tools."""

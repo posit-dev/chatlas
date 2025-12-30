@@ -1,0 +1,267 @@
+interactions:
+- request:
+    body: '{"contents": [{"parts": [{"text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples
+      are delicious and tasty and I like to eat them.\nExcept for red delicious, that
+      is. They are NOT delicious.\n"}], "role": "user"}], "generationConfig": {"temperature":
+      0, "responseMimeType": "application/json", "responseSchema": {"description":
+      "Summary of the article", "properties": {"title": {"title": "Title", "type":
+      "STRING"}, "author": {"title": "Author", "type": "STRING"}}, "property_ordering":
+      ["title", "author"], "required": ["title", "author"], "title": "ArticleSummary",
+      "type": "OBJECT"}}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '589'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+  response:
+    body:
+      string: "{\n  \"candidates\": [\n    {\n      \"content\": {\n        \"parts\":
+        [\n          {\n            \"text\": \"{\\\"title\\\": \\\"Apples are tasty\\\",
+        \\\"author\\\": \\\"Hadley Wickham\\\"}\"\n          }\n        ],\n        \"role\":
+        \"model\"\n      },\n      \"finishReason\": \"STOP\",\n      \"index\": 0\n
+        \   }\n  ],\n  \"usageMetadata\": {\n    \"promptTokenCount\": 40,\n    \"candidatesTokenCount\":
+        18,\n    \"totalTokenCount\": 160,\n    \"promptTokensDetails\": [\n      {\n
+        \       \"modality\": \"TEXT\",\n        \"tokenCount\": 40\n      }\n    ],\n
+        \   \"thoughtsTokenCount\": 102\n  },\n  \"modelVersion\": \"gemini-2.5-flash\",\n
+        \ \"responseId\": \"7BZUaebHDJ6r-8YPv8Gl2Q8\"\n}\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Type:
+      - application/json; charset=UTF-8
+      Date:
+      - Tue, 30 Dec 2025 18:16:12 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=1250
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+      content-length:
+      - '609'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples
+      are delicious and tasty and I like to eat them.\nExcept for red delicious, that
+      is. They are NOT delicious.\n"}], "role": "user"}, {"parts": [{"text": "{\"title\":\"Apples
+      are tasty\",\"author\":\"Hadley Wickham\"}"}], "role": "model"}, {"parts": [{"text":
+      "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
+      I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}],
+      "role": "user"}], "generationConfig": {"temperature": 0, "responseMimeType":
+      "application/json", "responseSchema": {"description": "Summary of the article",
+      "properties": {"title": {"title": "Title", "type": "STRING"}, "author": {"title":
+      "Author", "type": "STRING"}}, "property_ordering": ["title", "author"], "required":
+      ["title", "author"], "title": "ArticleSummary", "type": "OBJECT"}}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '897'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+  response:
+    body:
+      string: "{\n  \"candidates\": [\n    {\n      \"content\": {\n        \"parts\":
+        [\n          {\n            \"text\": \"{\\\"title\\\":\\\"Apples are tasty\\\",\\\"author\\\":\\\"Hadley
+        Wickham\\\"}\"\n          }\n        ],\n        \"role\": \"model\"\n      },\n
+        \     \"finishReason\": \"STOP\",\n      \"index\": 0\n    }\n  ],\n  \"usageMetadata\":
+        {\n    \"promptTokenCount\": 96,\n    \"candidatesTokenCount\": 15,\n    \"totalTokenCount\":
+        175,\n    \"promptTokensDetails\": [\n      {\n        \"modality\": \"TEXT\",\n
+        \       \"tokenCount\": 96\n      }\n    ],\n    \"thoughtsTokenCount\": 64\n
+        \ },\n  \"modelVersion\": \"gemini-2.5-flash\",\n  \"responseId\": \"7RZUadn3Hci9jrEP-uvO6Qg\"\n}\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Type:
+      - application/json; charset=UTF-8
+      Date:
+      - Tue, 30 Dec 2025 18:16:13 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=963
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+      content-length:
+      - '605'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples
+      are delicious and tasty and I like to eat them.\nExcept for red delicious, that
+      is. They are NOT delicious.\n"}], "role": "user"}, {"parts": [{"text": "{\"title\":\"Apples
+      are tasty\",\"author\":\"Hadley Wickham\"}"}], "role": "model"}, {"parts": [{"text":
+      "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
+      I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}],
+      "role": "user"}, {"parts": [{"text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}], "role": "model"}, {"parts": [{"text": "Generate the name and
+      age of a random person."}], "role": "user"}], "generationConfig": {"temperature":
+      0, "responseMimeType": "application/json", "responseSchema": {"properties":
+      {"name": {"title": "Name", "type": "STRING"}, "age": {"title": "Age", "type":
+      "INTEGER"}}, "property_ordering": ["name", "age"], "required": ["name", "age"],
+      "title": "Person", "type": "OBJECT"}}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1027'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+  response:
+    body:
+      string: "{\n  \"candidates\": [\n    {\n      \"content\": {\n        \"parts\":
+        [\n          {\n            \"text\": \"{\\\"name\\\":\\\"Alice Smith\\\",\\\"age\\\":30}\"\n
+        \         }\n        ],\n        \"role\": \"model\"\n      },\n      \"finishReason\":
+        \"STOP\",\n      \"index\": 0\n    }\n  ],\n  \"usageMetadata\": {\n    \"promptTokenCount\":
+        123,\n    \"candidatesTokenCount\": 11,\n    \"totalTokenCount\": 177,\n    \"promptTokensDetails\":
+        [\n      {\n        \"modality\": \"TEXT\",\n        \"tokenCount\": 123\n
+        \     }\n    ],\n    \"thoughtsTokenCount\": 43\n  },\n  \"modelVersion\":
+        \"gemini-2.5-flash\",\n  \"responseId\": \"7hZUacXpIfGc-8YPvO7ssQc\"\n}\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Type:
+      - application/json; charset=UTF-8
+      Date:
+      - Tue, 30 Dec 2025 18:16:14 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=838
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+      content-length:
+      - '582'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples
+      are delicious and tasty and I like to eat them.\nExcept for red delicious, that
+      is. They are NOT delicious.\n"}], "role": "user"}, {"parts": [{"text": "{\"title\":\"Apples
+      are tasty\",\"author\":\"Hadley Wickham\"}"}], "role": "model"}, {"parts": [{"text":
+      "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
+      I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}],
+      "role": "user"}, {"parts": [{"text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}], "role": "model"}, {"parts": [{"text": "Generate the name and
+      age of a random person."}], "role": "user"}, {"parts": [{"text": "{\"name\":\"Alice
+      Smith\",\"age\":30}"}], "role": "model"}, {"parts": [{"text": "What is the name
+      of the person?"}], "role": "user"}], "generationConfig": {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '913'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Alice
+        Smith\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 144,\"candidatesTokenCount\": 2,\"totalTokenCount\":
+        146,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 144}]},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"7xZUabGjArSt_uMP876dyQ0\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Tue, 30 Dec 2025 18:16:15 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=290
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1
