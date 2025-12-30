@@ -2872,14 +2872,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         }
 
     def __str__(self):
-        turns = self.get_turns(include_system_prompt=False)
-        res = ""
-        for turn in turns:
-            icon = "👤" if isinstance(turn, UserTurn) else "🤖"
-            res += f"## {icon} {turn.role.capitalize()} turn:\n\n{str(turn)}\n\n"
-        return res
-
-    def __repr__(self):
         from ._repr import format_tokens
 
         turns = self.get_turns(include_system_prompt=True)
@@ -2906,6 +2898,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         for turn in turns:
             res += "\n\n" + repr(turn)
         return res + "\n"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def _repr_markdown_(self) -> str:
+        return self.__str__()
 
     def __deepcopy__(self, memo):
         result = self.__class__.__new__(self.__class__)

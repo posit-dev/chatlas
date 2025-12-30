@@ -149,10 +149,10 @@ class Content(BaseModel):
     def __str__(self):
         raise NotImplementedError
 
-    def _repr_markdown_(self):
+    def __repr__(self):
         return self.__str__()
 
-    def __repr__(self):
+    def _repr_markdown_(self):
         return self.__str__()
 
 
