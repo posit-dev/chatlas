@@ -42,7 +42,6 @@ jobs:
         env:
           # Skip providers that don't work with VCR or don't have cassettes
           TEST_BEDROCK: "false"
-          TEST_GOOGLE: "false"
           TEST_SNOWFLAKE: "false"
           # Portkey API was failing during cassette recording
           PORTKEY_API_KEY: ""
