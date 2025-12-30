@@ -99,6 +99,8 @@ def test_name_setting():
 @pytest.mark.asyncio
 @retry_gemini_call
 async def test_google_simple_streaming_request():
+    if os.getenv("TEST_GOOGLE_STREAMING", "true").lower() == "false":
+        pytest.skip("Google streaming tests disabled (VCR incompatible)")
     chat = chat_func(
         system_prompt="Be as terse as possible; no punctuation. Do not spell out numbers.",
     )

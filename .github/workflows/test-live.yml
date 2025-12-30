@@ -1,0 +1,62 @@
+name: Test (Live API)
+
+# This workflow runs tests against live APIs to verify VCR cassettes are up-to-date.
+# It requires API keys and runs less frequently than the main test workflow.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test-live:
+    runs-on: ubuntu-latest
+
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      # Rate-limited providers - only test on this dedicated workflow
+      TEST_GOOGLE: "true"
+      TEST_AZURE: "true"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install the project
+        run: uv sync --python 3.12 --all-extras
+
+      - name: Create Snowflake connections.toml file
+        run: |
+          mkdir -p ~/.ssh
+          echo '${{ secrets.SNOWFLAKE_SSH_PUBLIC_KEY }}' > ~/.ssh/snowflake_key.pub
+          echo '${{ secrets.SNOWFLAKE_SSH_PRIVATE_KEY }}' > ~/.ssh/snowflake_key.p8
+          chmod 644 ~/.ssh/snowflake_key.pub
+          chmod 600 ~/.ssh/snowflake_key.p8
+          chmod 700 ~/.ssh
+
+          mkdir -p ~/.snowflake
+          cat > ~/.snowflake/connections.toml << 'EOF'
+          [posit]
+          account="duloftf-posit-software-pbc-dev"
+          user="carson@posit.co"
+          private_key_file="/home/runner/.ssh/snowflake_key.p8"
+          private_key_file_pwd="${{ secrets.SNOWFLAKE_SSH_PRIVATE_KEY_PASSWORD }}"
+          EOF
+
+      - name: Check tests (live API)
+        run: make check-tests

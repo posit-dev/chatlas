@@ -67,7 +67,10 @@ update-snaps:
 	uv run pytest --snapshot-update
 
 .PHONY: record-vcr
-record-vcr: record-vcr-openai record-vcr-anthropic record-vcr-google ## [py] Record VCR cassettes for all providers
+record-vcr: record-vcr-providers record-vcr-chat ## [py] Record all VCR cassettes
+
+.PHONY: record-vcr-providers
+record-vcr-providers: record-vcr-openai record-vcr-anthropic record-vcr-google ## [py] Record VCR cassettes for providers
 
 .PHONY: record-vcr-openai
 record-vcr-openai:  ## [py] Record VCR cassettes for OpenAI
@@ -84,10 +87,22 @@ record-vcr-google:  ## [py] Record VCR cassettes for Google
 	@echo "📼 Recording Google cassettes"
 	uv run pytest --record-mode=all tests/test_provider_google.py -v
 
+.PHONY: record-vcr-chat
+record-vcr-chat:  ## [py] Record VCR cassettes for chat tests
+	@echo "📼 Recording chat cassettes"
+	uv run pytest --record-mode=all \
+		tests/test_chat.py \
+		tests/test_chat_dangling_tools.py \
+		tests/test_parallel_chat.py \
+		tests/test_parallel_chat_improved.py \
+		tests/test_parallel_chat_errors.py \
+		tests/test_parallel_chat_ordering.py \
+		-v
+
 .PHONY: rerecord-vcr
 rerecord-vcr:  ## [py] Delete and re-record all VCR cassettes
 	@echo "🗑️  Deleting existing cassettes"
-	rm -rf tests/_vcr/test_provider_openai tests/_vcr/test_provider_anthropic tests/_vcr/test_provider_google
+	rm -rf tests/_vcr/test_provider_* tests/_vcr/test_chat* tests/_vcr/test_parallel_chat*
 	$(MAKE) record-vcr
 
 .PHONY: update-types

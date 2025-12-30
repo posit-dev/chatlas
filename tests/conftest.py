@@ -327,6 +327,7 @@ def set_dummy_api_keys_for_vcr():
     When a real key is set, it takes precedence.
     """
     dummy_keys = {
+        "OPENAI_API_KEY": "sk-dummy-openai-key-for-vcr-replay",
         "ANTHROPIC_API_KEY": "sk-ant-dummy-key-for-vcr-replay",
         "GOOGLE_API_KEY": "dummy-google-key-for-vcr-replay",
     }
