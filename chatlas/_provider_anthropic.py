@@ -499,6 +499,14 @@ class AnthropicProvider(
             elif chunk.delta.type == "signature_delta":
                 this_content = cast("ThinkingBlock", this_content)
                 this_content.signature += chunk.delta.signature
+            elif chunk.delta.type == "citations_delta":
+                # https://docs.claude.com/en/docs/build-with-claude/citations#streaming-support
+                # Accumulate citations on the content block
+                citations = getattr(this_content, "citations", None)
+                if citations is None:
+                    citations = []
+                    setattr(this_content, "citations", citations)
+                citations.append(chunk.delta.citation)
         elif chunk.type == "content_block_stop":
             this_content = completion.content[chunk.index]
             if this_content.type == "tool_use" and isinstance(this_content.input, str):
