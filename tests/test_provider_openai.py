@@ -133,3 +133,21 @@ def test_openai_service_tier_affects_pricing():
     default_cost = get_token_cost("OpenAI", chat.provider.model, tokens, "")
     assert default_cost is not None
     assert turn.cost > default_cost
+
+
+def test_can_extract_custom_id_from_malformed_json():
+    from chatlas._provider_openai_generic import _extract_custom_id, _openai_json_fallback
+
+    # Test _extract_custom_id
+    assert _extract_custom_id('{"custom_id": "request-123", ') == "request-123"
+    assert _extract_custom_id('{"custom_id":"request-456"}') == "request-456"
+    assert _extract_custom_id('{"custom_id" : "request-789" }') == "request-789"
+    assert _extract_custom_id("no custom id here") == ""
+    assert _extract_custom_id("") == ""
+
+    # Test _openai_json_fallback
+    result = _openai_json_fallback('{"custom_id": "request-123", ')
+    assert result == {
+        "custom_id": "request-123",
+        "response": {"status_code": 500},
+    }
