@@ -1,0 +1,346 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Be very terse, not even punctuation.", "role":
+      "system"}, {"content": "What''s the current date in YYYY-MM-DD format?", "role":
+      "user"}], "model": "deepseek-chat", "seed": 1014, "stream": true, "stream_options":
+      {"include_usage": true}, "tools": [{"type": "function", "function": {"name":
+      "get_current_date", "description": "Gets the current date", "parameters": {"properties":
+      {}, "type": "object", "additionalProperties": false, "required": []}}}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '442'
+      Content-Type:
+      - application/json
+      Host:
+      - api.deepseek.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.deepseek.com/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"6fb22ae9-490c-411b-a565-5114fd7d61f5","object":"chat.completion.chunk","created":1767130905,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"6fb22ae9-490c-411b-a565-5114fd7d61f5","object":"chat.completion.chunk","created":1767130905,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_00_7v7wUsagBNvXsLO8tcsMDWt6","type":"function","function":{"name":"get_current_date","arguments":""}}]},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"6fb22ae9-490c-411b-a565-5114fd7d61f5","object":"chat.completion.chunk","created":1767130905,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"{}"}}]},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"6fb22ae9-490c-411b-a565-5114fd7d61f5","object":"chat.completion.chunk","created":1767130905,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":315,"completion_tokens":28,"total_tokens":343,"prompt_tokens_details":{"cached_tokens":256},"prompt_cache_hit_tokens":256,"prompt_cache_miss_tokens":59}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:41:45 GMT
+      Server:
+      - elb
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 5a309e78451c67c6233975ca9b791776.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - 7vYqB_RE7g-iLtwvhs4gdTtBlpaDx4n0X7IiEl4z6wOLBk05rZB05g==
+      X-Amz-Cf-Pop:
+      - ORD51-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-credentials:
+      - 'true'
+      cache-control:
+      - no-cache
+      vary:
+      - origin, access-control-request-method, access-control-request-headers
+      x-ds-trace-id:
+      - edd329d19ff56ec8277df008798f29b7
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": "Be very terse, not even punctuation.", "role":
+      "system"}, {"content": "What''s the current date in YYYY-MM-DD format?", "role":
+      "user"}, {"role": "assistant", "content": "[empty string]", "tool_calls": [{"id":
+      "call_00_7v7wUsagBNvXsLO8tcsMDWt6", "function": {"name": "get_current_date",
+      "arguments": "{}"}, "type": "function"}]}, {"content": "2024-01-01", "tool_call_id":
+      "call_00_7v7wUsagBNvXsLO8tcsMDWt6", "role": "tool"}], "model": "deepseek-chat",
+      "seed": 1014, "stream": true, "stream_options": {"include_usage": true}, "tools":
+      [{"type": "function", "function": {"name": "get_current_date", "description":
+      "Gets the current date", "parameters": {"properties": {}, "type": "object",
+      "additionalProperties": false, "required": []}}}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '710'
+      Content-Type:
+      - application/json
+      Host:
+      - api.deepseek.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.deepseek.com/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"b7610d2a-53e2-4465-a58c-b0cb31dc0f24","object":"chat.completion.chunk","created":1767130907,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"b7610d2a-53e2-4465-a58c-b0cb31dc0f24","object":"chat.completion.chunk","created":1767130907,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"202"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"b7610d2a-53e2-4465-a58c-b0cb31dc0f24","object":"chat.completion.chunk","created":1767130907,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"4"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"b7610d2a-53e2-4465-a58c-b0cb31dc0f24","object":"chat.completion.chunk","created":1767130907,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"-"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"b7610d2a-53e2-4465-a58c-b0cb31dc0f24","object":"chat.completion.chunk","created":1767130907,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"01"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"b7610d2a-53e2-4465-a58c-b0cb31dc0f24","object":"chat.completion.chunk","created":1767130907,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"-"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"b7610d2a-53e2-4465-a58c-b0cb31dc0f24","object":"chat.completion.chunk","created":1767130907,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"01"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"b7610d2a-53e2-4465-a58c-b0cb31dc0f24","object":"chat.completion.chunk","created":1767130907,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":369,"completion_tokens":6,"total_tokens":375,"prompt_tokens_details":{"cached_tokens":320},"prompt_cache_hit_tokens":320,"prompt_cache_miss_tokens":49}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:41:48 GMT
+      Server:
+      - elb
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 f6f50a18ea4eff452cff644a5d7ae9e6.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - -t63uDHIi0hy3ARV0EG81t8fuVdJ4c4uafAF2Su_jteYqIR5TAlBlw==
+      X-Amz-Cf-Pop:
+      - ORD56-P9
+      X-Cache:
+      - Miss from cloudfront
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-credentials:
+      - 'true'
+      cache-control:
+      - no-cache
+      vary:
+      - origin, access-control-request-method, access-control-request-headers
+      x-ds-trace-id:
+      - 4a5ed976d996f0afdef28fdb61de9dc3
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": "Be very terse, not even punctuation.", "role":
+      "system"}, {"content": "What''s the current date in YYYY-MM-DD format?", "role":
+      "user"}], "model": "deepseek-chat", "seed": 1014, "stream": true, "stream_options":
+      {"include_usage": true}, "tools": [{"type": "function", "function": {"name":
+      "get_current_date2", "description": "Gets the current date", "parameters": {"properties":
+      {}, "type": "object", "additionalProperties": false, "required": []}}}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '443'
+      Content-Type:
+      - application/json
+      Host:
+      - api.deepseek.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.deepseek.com/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"d229d278-ed8b-4a33-90a9-99d1370f9375","object":"chat.completion.chunk","created":1767130909,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"d229d278-ed8b-4a33-90a9-99d1370f9375","object":"chat.completion.chunk","created":1767130909,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_00_3SL1oYtm9CaelNifvhSRnp2x","type":"function","function":{"name":"get_current_date2","arguments":""}}]},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"d229d278-ed8b-4a33-90a9-99d1370f9375","object":"chat.completion.chunk","created":1767130909,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"function":{"arguments":"{}"}}]},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"d229d278-ed8b-4a33-90a9-99d1370f9375","object":"chat.completion.chunk","created":1767130909,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"tool_calls"}],"usage":{"prompt_tokens":316,"completion_tokens":29,"total_tokens":345,"prompt_tokens_details":{"cached_tokens":256},"prompt_cache_hit_tokens":256,"prompt_cache_miss_tokens":60}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:41:49 GMT
+      Server:
+      - elb
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 00ef8ecd78271874d21d6af1bcec168e.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - OY1CcEMCMpH7eu9mxTuupkcj8PTZmDBCQy5LpjkpOdTUaPa2pLWUWw==
+      X-Amz-Cf-Pop:
+      - ORD56-P7
+      X-Cache:
+      - Miss from cloudfront
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-credentials:
+      - 'true'
+      cache-control:
+      - no-cache
+      vary:
+      - origin, access-control-request-method, access-control-request-headers
+      x-ds-trace-id:
+      - 53d143c70c2d00ebb4ebbb846df40551
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": "Be very terse, not even punctuation.", "role":
+      "system"}, {"content": "What''s the current date in YYYY-MM-DD format?", "role":
+      "user"}, {"role": "assistant", "content": "[empty string]", "tool_calls": [{"id":
+      "call_00_3SL1oYtm9CaelNifvhSRnp2x", "function": {"name": "get_current_date2",
+      "arguments": "{}"}, "type": "function"}]}, {"content": "2024-01-01", "tool_call_id":
+      "call_00_3SL1oYtm9CaelNifvhSRnp2x", "role": "tool"}], "model": "deepseek-chat",
+      "seed": 1014, "stream": true, "stream_options": {"include_usage": true}, "tools":
+      [{"type": "function", "function": {"name": "get_current_date2", "description":
+      "Gets the current date", "parameters": {"properties": {}, "type": "object",
+      "additionalProperties": false, "required": []}}}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '712'
+      Content-Type:
+      - application/json
+      Host:
+      - api.deepseek.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.deepseek.com/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"8efd9e26-e311-4607-a793-aabad99f3734","object":"chat.completion.chunk","created":1767130912,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"8efd9e26-e311-4607-a793-aabad99f3734","object":"chat.completion.chunk","created":1767130912,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"202"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"8efd9e26-e311-4607-a793-aabad99f3734","object":"chat.completion.chunk","created":1767130912,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"4"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"8efd9e26-e311-4607-a793-aabad99f3734","object":"chat.completion.chunk","created":1767130912,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"-"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"8efd9e26-e311-4607-a793-aabad99f3734","object":"chat.completion.chunk","created":1767130912,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"01"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"8efd9e26-e311-4607-a793-aabad99f3734","object":"chat.completion.chunk","created":1767130912,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"-"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"8efd9e26-e311-4607-a793-aabad99f3734","object":"chat.completion.chunk","created":1767130912,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"01"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"8efd9e26-e311-4607-a793-aabad99f3734","object":"chat.completion.chunk","created":1767130912,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":371,"completion_tokens":6,"total_tokens":377,"prompt_tokens_details":{"cached_tokens":320},"prompt_cache_hit_tokens":320,"prompt_cache_miss_tokens":51}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:41:52 GMT
+      Server:
+      - elb
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 b396e0a882c49cbb07a802b058405aa8.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - okA2aKRGZUO9JI215XUBVlysWZ7rLwSPXgr6GxvnMdwbApiyorumXg==
+      X-Amz-Cf-Pop:
+      - ORD51-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-credentials:
+      - 'true'
+      cache-control:
+      - no-cache
+      vary:
+      - origin, access-control-request-method, access-control-request-headers
+      x-ds-trace-id:
+      - ea7d1ac349f47af06ef94ced4320ce96
+    status:
+      code: 200
+      message: OK
+version: 1

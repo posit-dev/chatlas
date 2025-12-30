@@ -1,0 +1,368 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "mistral-large-latest", "response_format": {"type": "json_schema",
+      "json_schema": {"name": "structured_data", "description": "Summary of the article",
+      "schema": {"description": "Summary of the article", "properties": {"title":
+      {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "stream":
+      false, "random_seed": 1014}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '620'
+      Content-Type:
+      - application/json
+      Host:
+      - api.mistral.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.mistral.ai/v1/chat/completions
+  response:
+    body:
+      string: '{"id":"85e6b52062e2452cb026c8d42f8e1021","created":1767131068,"model":"mistral-large-latest","usage":{"prompt_tokens":44,"total_tokens":71,"completion_tokens":27},"object":"chat.completion","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","tool_calls":null,"content":"{\n  \"title\":
+        \"Apples are tasty\",\n  \"author\": \"Hadley Wickham\"\n  \t}"}}]}'
+    headers:
+      CF-RAY:
+      - 9b64b7fa5fc3023b-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 21:44:29 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-origin:
+      - '*'
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '377'
+      mistral-correlation-id:
+      - 019b7138-38ca-765e-bf1e-029b0a9ff85a
+      x-envoy-upstream-service-time:
+      - '792'
+      x-kong-proxy-latency:
+      - '7'
+      x-kong-request-id:
+      - 019b7138-38ca-765e-bf1e-029b0a9ff85a
+      x-kong-upstream-latency:
+      - '793'
+      x-ratelimit-limit-req-minute:
+      - '60'
+      x-ratelimit-limit-tokens-minute:
+      - '500000'
+      x-ratelimit-limit-tokens-month:
+      - '1000000000'
+      x-ratelimit-remaining-req-minute:
+      - '54'
+      x-ratelimit-remaining-tokens-minute:
+      - '499739'
+      x-ratelimit-remaining-tokens-month:
+      - '999998068'
+      x-ratelimit-tokens-query-cost:
+      - '71'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "mistral-large-latest", "response_format": {"type": "json_schema",
+      "json_schema": {"name": "structured_data", "description": "Summary of the article",
+      "schema": {"description": "Summary of the article", "properties": {"title":
+      {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "stream":
+      false, "random_seed": 1014}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '954'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=iHp6MpdcCo6WdtWN49R_1RGnR4shr7tG6L3Gtzvqui0-1767131069-1.0.1.1-g1JU9fydQFWmt8ijc36sfx4DhygxEJcktikGa2sbewB_ojEPsl26V_xyQttolTCKCAghzf0rZy9Zr3GR1g1_AnZwXA04PoSJec1ZYn45yKw;
+        _cfuvid=aRPRpMHJ.BsWhY7WJH2L.oD.2xSGsBuCN0t4b0eEzhg-1767131069473-0.0.1.1-604800000
+      Host:
+      - api.mistral.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.mistral.ai/v1/chat/completions
+  response:
+    body:
+      string: '{"id":"e46c5bb0a35a4a7fa26a9e1256e3d68d","created":1767131069,"model":"mistral-large-latest","usage":{"prompt_tokens":104,"total_tokens":128,"completion_tokens":24},"object":"chat.completion","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","tool_calls":null,"content":"{\n  \"title\":
+        \"Apples are tasty\",\n  \"author\": \"Hadley Wickham\"\n}"}}]}'
+    headers:
+      CF-RAY:
+      - 9b64b8015fe478af-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 21:44:30 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-origin:
+      - '*'
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '375'
+      mistral-correlation-id:
+      - 019b7138-3d2c-7d8a-9657-7937602266bc
+      x-envoy-upstream-service-time:
+      - '632'
+      x-kong-proxy-latency:
+      - '11'
+      x-kong-request-id:
+      - 019b7138-3d2c-7d8a-9657-7937602266bc
+      x-kong-upstream-latency:
+      - '633'
+      x-ratelimit-limit-req-minute:
+      - '60'
+      x-ratelimit-limit-tokens-minute:
+      - '500000'
+      x-ratelimit-limit-tokens-month:
+      - '1000000000'
+      x-ratelimit-remaining-req-minute:
+      - '53'
+      x-ratelimit-remaining-tokens-minute:
+      - '499611'
+      x-ratelimit-remaining-tokens-month:
+      - '999997940'
+      x-ratelimit-tokens-query-cost:
+      - '128'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}], "model": "mistral-large-latest",
+      "response_format": {"type": "json_schema", "json_schema": {"name": "structured_data",
+      "description": "", "schema": {"properties": {"name": {"type": "string"}, "age":
+      {"type": "integer"}}, "required": ["name", "age"], "type": "object", "additionalProperties":
+      false}, "strict": true}}, "stream": false, "random_seed": 1014}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1106'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=iHp6MpdcCo6WdtWN49R_1RGnR4shr7tG6L3Gtzvqui0-1767131069-1.0.1.1-g1JU9fydQFWmt8ijc36sfx4DhygxEJcktikGa2sbewB_ojEPsl26V_xyQttolTCKCAghzf0rZy9Zr3GR1g1_AnZwXA04PoSJec1ZYn45yKw;
+        _cfuvid=aRPRpMHJ.BsWhY7WJH2L.oD.2xSGsBuCN0t4b0eEzhg-1767131069473-0.0.1.1-604800000
+      Host:
+      - api.mistral.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.mistral.ai/v1/chat/completions
+  response:
+    body:
+      string: '{"id":"37c47c8d9f9044208bcb5c2749ab6a19","created":1767131070,"model":"mistral-large-latest","usage":{"prompt_tokens":133,"total_tokens":152,"completion_tokens":19},"object":"chat.completion","choices":[{"index":0,"finish_reason":"stop","message":{"role":"assistant","tool_calls":null,"content":"{\n  \"name\":
+        \"Emma Johnson\",\n  \"age\": 28\n}"}}]}'
+    headers:
+      CF-RAY:
+      - 9b64b80779261f93-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 21:44:31 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-origin:
+      - '*'
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '351'
+      mistral-correlation-id:
+      - 019b7138-40ff-70ca-9d82-6e51e3cc9ca7
+      x-envoy-upstream-service-time:
+      - '849'
+      x-kong-proxy-latency:
+      - '8'
+      x-kong-request-id:
+      - 019b7138-40ff-70ca-9d82-6e51e3cc9ca7
+      x-kong-upstream-latency:
+      - '850'
+      x-ratelimit-limit-req-minute:
+      - '60'
+      x-ratelimit-limit-tokens-minute:
+      - '500000'
+      x-ratelimit-limit-tokens-month:
+      - '1000000000'
+      x-ratelimit-remaining-req-minute:
+      - '52'
+      x-ratelimit-remaining-tokens-minute:
+      - '499459'
+      x-ratelimit-remaining-tokens-month:
+      - '999997788'
+      x-ratelimit-tokens-query-cost:
+      - '152'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}, {"role": "assistant", "content":
+      [{"type": "text", "text": "{\"name\":\"Emma Johnson\",\"age\":28}"}]}, {"content":
+      [{"type": "text", "text": "What is the name of the person?"}], "role": "user"}],
+      "model": "mistral-large-latest", "stream": true, "random_seed": 1014}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1027'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=iHp6MpdcCo6WdtWN49R_1RGnR4shr7tG6L3Gtzvqui0-1767131069-1.0.1.1-g1JU9fydQFWmt8ijc36sfx4DhygxEJcktikGa2sbewB_ojEPsl26V_xyQttolTCKCAghzf0rZy9Zr3GR1g1_AnZwXA04PoSJec1ZYn45yKw;
+        _cfuvid=aRPRpMHJ.BsWhY7WJH2L.oD.2xSGsBuCN0t4b0eEzhg-1767131069473-0.0.1.1-604800000
+      Host:
+      - api.mistral.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.mistral.ai/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"c529468b57df4369855ce7fa3cfe9600","object":"chat.completion.chunk","created":1767131073,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null}]}
+
+
+        data: {"id":"c529468b57df4369855ce7fa3cfe9600","object":"chat.completion.chunk","created":1767131073,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"The"},"finish_reason":null}]}
+
+
+        data: {"id":"c529468b57df4369855ce7fa3cfe9600","object":"chat.completion.chunk","created":1767131073,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        name of the person"},"finish_reason":null}]}
+
+
+        data: {"id":"c529468b57df4369855ce7fa3cfe9600","object":"chat.completion.chunk","created":1767131073,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        is **Emma"},"finish_reason":null}]}
+
+
+        data: {"id":"c529468b57df4369855ce7fa3cfe9600","object":"chat.completion.chunk","created":1767131073,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        Johnson**."},"finish_reason":"stop"}],"usage":{"prompt_tokens":155,"total_tokens":166,"completion_tokens":11}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b64b80f7926ab72-YYZ
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:44:33 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-origin:
+      - '*'
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      mistral-correlation-id:
+      - 019b7138-4a22-7cfb-a3e0-04688619415b
+      x-envoy-upstream-service-time:
+      - '226'
+      x-kong-proxy-latency:
+      - '7'
+      x-kong-request-id:
+      - 019b7138-4a22-7cfb-a3e0-04688619415b
+      x-kong-upstream-latency:
+      - '226'
+    status:
+      code: 200
+      message: OK
+version: 1

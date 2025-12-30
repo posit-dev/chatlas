@@ -14,6 +14,7 @@ if api_key is None or account_id is None:
     )
 
 
+@pytest.mark.vcr
 def test_cloudflare_simple_request():
     chat = ChatCloudflare(
         model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
@@ -28,6 +29,7 @@ def test_cloudflare_simple_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_cloudflare_simple_streaming_request():
     chat = ChatCloudflare(
@@ -42,12 +44,14 @@ async def test_cloudflare_simple_streaming_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 def test_cloudflare_respects_turns_interface():
     chat_fun = ChatCloudflare
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
+@pytest.mark.vcr
 def test_cloudflare_data_extraction():
     def chat_fun(**kwargs):
         return ChatCloudflare(

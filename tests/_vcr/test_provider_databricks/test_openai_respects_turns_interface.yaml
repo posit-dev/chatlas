@@ -1,0 +1,206 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
+      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "databricks-claude-3-7-sonnet",
+      "stream": true}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '254'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"CHRISTOPHER"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NeGwWvgUjrwCF9bH2v4iVd","created":1767131131}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        ROBIN."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NeGwWvgUjrwCF9bH2v4iVd","created":1767131131}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":8,"prompt_tokens":35,"total_tokens":43,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NeGwWvgUjrwCF9bH2v4iVd","created":1767131131}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 30 Dec 2025 21:45:31 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="a57891ae-e04f-4f33-929b-de49cc1d6ae3", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - 21a6b43e-81da-4607-a7e2-d100b8147e10
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
+      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "databricks-claude-3-7-sonnet",
+      "stream": true}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '254'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"CHRISTOPHER"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BsV7HbdkKEmrC3HmhRZ6qt","created":1767131132}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        ROBIN"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BsV7HbdkKEmrC3HmhRZ6qt","created":1767131132}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":7,"prompt_tokens":35,"total_tokens":42,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BsV7HbdkKEmrC3HmhRZ6qt","created":1767131132}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 30 Dec 2025 21:45:32 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="0c451839-b383-4db4-a5e4-12fb76a8c900", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - 0b14d380-d304-4d78-a826-0a08cc9b48c0
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "My name is Steve"}],
+      "role": "user"}, {"role": "assistant", "content": [{"type": "text", "text":
+      "Hello Steve, how can I help you today?"}]}, {"content": [{"type": "text", "text":
+      "What is my name?"}], "role": "user"}], "model": "databricks-claude-3-7-sonnet",
+      "stream": true}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '304'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"Your
+        name is Steve"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":32,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01DYXJs43NssvqGDdV5Z5hgX","created":1767131133}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":",
+        as"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":32,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01DYXJs43NssvqGDdV5Z5hgX","created":1767131133}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        you mentioned earlier."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":32,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01DYXJs43NssvqGDdV5Z5hgX","created":1767131133}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":13,"prompt_tokens":32,"total_tokens":45,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01DYXJs43NssvqGDdV5Z5hgX","created":1767131133}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 30 Dec 2025 21:45:33 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="64aba31b-ea8c-4eb3-90c8-b207536c993e", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - 56f300bb-cbdd-4040-8c86-13757d9efa7a
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+    status:
+      code: 200
+      message: OK
+version: 1

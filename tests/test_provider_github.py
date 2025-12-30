@@ -26,6 +26,7 @@ if api_key is None:
     )
 
 
+@pytest.mark.vcr
 def test_github_simple_request():
     chat = ChatGithub(
         system_prompt="Be as terse as possible; no punctuation",
@@ -40,6 +41,7 @@ def test_github_simple_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_simple_streaming_request():
     chat = ChatGithub(
@@ -54,12 +56,14 @@ async def test_github_simple_streaming_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 def test_github_respects_turns_interface():
     chat_fun = ChatGithub
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
+@pytest.mark.vcr
 def test_github_tool_variations():
     chat_fun = ChatGithub
     assert_tools_simple(chat_fun)
@@ -68,21 +72,25 @@ def test_github_tool_variations():
     assert_tools_sequential(chat_fun, total_calls=6)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_tool_variations_async():
     await assert_tools_async(ChatGithub)
 
 
+@pytest.mark.vcr
 def test_data_extraction():
     assert_data_extraction(ChatGithub)
 
 
+@pytest.mark.vcr
 def test_github_images():
     chat_fun = ChatGithub
     assert_images_inline(chat_fun)
     assert_images_remote(chat_fun)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_logprobs():
     chat = ChatGithub()
@@ -110,5 +118,6 @@ def test_github_custom_http_client():
     ChatGithub(kwargs={"http_client": httpx.AsyncClient()})
 
 
+@pytest.mark.vcr
 def test_github_list_models():
     assert_list_models(ChatGithub)

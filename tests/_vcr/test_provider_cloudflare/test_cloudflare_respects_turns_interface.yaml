@@ -1,0 +1,204 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
+      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "seed": 1014, "stream": true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '318'
+      Content-Type:
+      - application/json
+      Host:
+      - api.cloudflare.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"id-1767130856453","created":1767130856,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"CHR"}}]}
+
+
+        data: {"id":"id-1767130856453","created":1767130856,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"IST"}}]}
+
+
+        data: {"id":"id-1767130856453","created":1767130856,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"OPHER
+        RO"}}]}
+
+
+        data: {"id":"id-1767130856453","created":1767130856,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"BIN"}}]}
+
+
+        data: {"id":"id-1767130856453","object":"chat.completion.chunk","created":1767130856,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":62,"completion_tokens":7,"total_tokens":69}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b64b2cbff4861bf-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Tue, 30 Dec 2025 21:40:56 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      api-version:
+      - '2025-12-30'
+      cf-auditlog-id:
+      - 019b7134-fbc3-722a-bbc8-183e435ab0a3
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
+      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "seed": 1014, "stream": true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '318'
+      Content-Type:
+      - application/json
+      Host:
+      - api.cloudflare.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"id-1767130857213","created":1767130857,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"CHR"}}]}
+
+
+        data: {"id":"id-1767130857213","created":1767130857,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"IST"}}]}
+
+
+        data: {"id":"id-1767130857213","created":1767130857,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"OPHER
+        RO"}}]}
+
+
+        data: {"id":"id-1767130857213","created":1767130857,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"BIN"}}]}
+
+
+        data: {"id":"id-1767130857213","object":"chat.completion.chunk","created":1767130857,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":62,"completion_tokens":7,"total_tokens":69}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b64b2cf8fc62d03-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Tue, 30 Dec 2025 21:40:57 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      api-version:
+      - '2025-12-30'
+      cf-auditlog-id:
+      - 019b7134-fdc3-79d9-b87b-d0cf0a1f54ee
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "My name is Steve"}],
+      "role": "user"}, {"role": "assistant", "content": [{"type": "text", "text":
+      "Hello Steve, how can I help you today?"}]}, {"content": [{"type": "text", "text":
+      "What is my name?"}], "role": "user"}], "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "seed": 1014, "stream": true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '368'
+      Content-Type:
+      - application/json
+      Host:
+      - api.cloudflare.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"id-1767130858173","created":1767130858,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"Your"}}]}
+
+
+        data: {"id":"id-1767130858173","created":1767130858,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        name isSteve"}}]}
+
+
+        data: {"id":"id-1767130858173","created":1767130858,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"."}}]}
+
+
+        data: {"id":"id-1767130858173","object":"chat.completion.chunk","created":1767130858,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":64,"completion_tokens":6,"total_tokens":70}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b64b2d64b900164-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Tue, 30 Dec 2025 21:40:58 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      api-version:
+      - '2025-12-30'
+      cf-auditlog-id:
+      - 019b7135-0220-747a-867c-26e3dc8e8ffd
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,0 +1,76 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Be as terse as possible; no punctuation", "role":
+      "system"}, {"content": [{"type": "text", "text": "What is 1 + 1?"}], "role":
+      "user"}], "model": "mistral-large-latest", "stream": true, "random_seed": 1014}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '216'
+      Content-Type:
+      - application/json
+      Host:
+      - api.mistral.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.mistral.ai/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"cb1ae8d407b2471498a724ff0fa48860","object":"chat.completion.chunk","created":1767131064,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null}]}
+
+
+        data: {"id":"cb1ae8d407b2471498a724ff0fa48860","object":"chat.completion.chunk","created":1767131064,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"2"},"finish_reason":null}]}
+
+
+        data: {"id":"cb1ae8d407b2471498a724ff0fa48860","object":"chat.completion.chunk","created":1767131064,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":""},"finish_reason":"stop"}],"usage":{"prompt_tokens":22,"total_tokens":24,"completion_tokens":2}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b64b7e3af2390b3-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:44:25 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-origin:
+      - '*'
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      mistral-correlation-id:
+      - 019b7138-2a91-7ab8-8b2d-0c2766a271d1
+      x-envoy-upstream-service-time:
+      - '199'
+      x-kong-proxy-latency:
+      - '7'
+      x-kong-request-id:
+      - 019b7138-2a91-7ab8-8b2d-0c2766a271d1
+      x-kong-upstream-latency:
+      - '200'
+    status:
+      code: 200
+      message: OK
+version: 1

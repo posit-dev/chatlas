@@ -1,0 +1,325 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "openai/gpt-4o-mini-2024-07-18", "response_format": {"type": "json_schema",
+      "json_schema": {"name": "structured_data", "description": "Summary of the article",
+      "schema": {"description": "Summary of the article", "properties": {"title":
+      {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "seed":
+      1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '622'
+      Content-Type:
+      - application/json
+      HTTP-Referer:
+      - https://posit-dev.github.io/chatlas
+      Host:
+      - openrouter.ai
+      X-Stainless-Async:
+      - 'false'
+      X-Title:
+      - chatlas
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://openrouter.ai/api/v1/chat/completions
+  response:
+    body:
+      string: "\n         \n{\"id\":\"gen-1767131092-lw2noo8IuQJbpdvxJlGj\",\"provider\":\"OpenAI\",\"model\":\"openai/gpt-4o-mini-2024-07-18\",\"object\":\"chat.completion\",\"created\":1767131092,\"choices\":[{\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"stop\",\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"title\\\":\\\"Apples
+        are tasty\\\",\\\"author\\\":\\\"Hadley Wickham\\\"}\",\"refusal\":null,\"reasoning\":null}}],\"system_fingerprint\":\"fp_8bbc38b4db\",\"usage\":{\"prompt_tokens\":95,\"completion_tokens\":15,\"total_tokens\":110,\"cost\":0.00002325,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_prompt_cost\":0.00001425,\"upstream_inference_completions_cost\":0.000009},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"image_tokens\":0}}}"
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 9b64b88f6cb97815-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 21:44:52 GMT
+      Permissions-Policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      Referrer-Policy:
+      - no-referrer, strict-origin-when-cross-origin
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      content-length:
+      - '821'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "openai/gpt-4o-mini-2024-07-18", "response_format": {"type": "json_schema",
+      "json_schema": {"name": "structured_data", "description": "Summary of the article",
+      "schema": {"description": "Summary of the article", "properties": {"title":
+      {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "seed":
+      1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '956'
+      Content-Type:
+      - application/json
+      HTTP-Referer:
+      - https://posit-dev.github.io/chatlas
+      Host:
+      - openrouter.ai
+      X-Stainless-Async:
+      - 'false'
+      X-Title:
+      - chatlas
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://openrouter.ai/api/v1/chat/completions
+  response:
+    body:
+      string: "\n         \n{\"id\":\"gen-1767131093-7y25KBSOBlWSSWs8IHe3\",\"provider\":\"OpenAI\",\"model\":\"openai/gpt-4o-mini-2024-07-18\",\"object\":\"chat.completion\",\"created\":1767131093,\"choices\":[{\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"stop\",\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"title\\\":\\\"Apples
+        are tasty\\\",\\\"author\\\":\\\"Hadley Wickham\\\"}\",\"refusal\":null,\"reasoning\":null}}],\"system_fingerprint\":\"fp_11f3029f6b\",\"usage\":{\"prompt_tokens\":160,\"completion_tokens\":15,\"total_tokens\":175,\"cost\":0.000033,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_prompt_cost\":0.000024,\"upstream_inference_completions_cost\":0.000009},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"image_tokens\":0}}}"
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 9b64b89548c26b84-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 21:44:53 GMT
+      Permissions-Policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      Referrer-Policy:
+      - no-referrer, strict-origin-when-cross-origin
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      content-length:
+      - '818'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}], "model": "openai/gpt-4o-mini-2024-07-18",
+      "response_format": {"type": "json_schema", "json_schema": {"name": "structured_data",
+      "description": "", "schema": {"properties": {"name": {"type": "string"}, "age":
+      {"type": "integer"}}, "required": ["name", "age"], "type": "object", "additionalProperties":
+      false}, "strict": true}}, "seed": 1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1108'
+      Content-Type:
+      - application/json
+      HTTP-Referer:
+      - https://posit-dev.github.io/chatlas
+      Host:
+      - openrouter.ai
+      X-Stainless-Async:
+      - 'false'
+      X-Title:
+      - chatlas
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://openrouter.ai/api/v1/chat/completions
+  response:
+    body:
+      string: "\n         \n{\"id\":\"gen-1767131094-ACtNdThVt2L0izd5g0cn\",\"provider\":\"OpenAI\",\"model\":\"openai/gpt-4o-mini-2024-07-18\",\"object\":\"chat.completion\",\"created\":1767131094,\"choices\":[{\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"stop\",\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"name\\\":\\\"Ella
+        Thompson\\\",\\\"age\\\":29}\",\"refusal\":null,\"reasoning\":null}}],\"system_fingerprint\":\"fp_29330a9688\",\"usage\":{\"prompt_tokens\":184,\"completion_tokens\":10,\"total_tokens\":194,\"cost\":0.0000336,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":null,\"upstream_inference_prompt_cost\":0.0000276,\"upstream_inference_completions_cost\":0.000006},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"image_tokens\":0}}}"
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 9b64b89c0c6c6e89-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 21:44:54 GMT
+      Permissions-Policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      Referrer-Policy:
+      - no-referrer, strict-origin-when-cross-origin
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      content-length:
+      - '797'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}, {"role": "assistant", "content":
+      [{"type": "text", "text": "{\"name\":\"Ella Thompson\",\"age\":29}"}]}, {"content":
+      [{"type": "text", "text": "What is the name of the person?"}], "role": "user"}],
+      "model": "openai/gpt-4o-mini-2024-07-18", "seed": 1014, "stream": true, "stream_options":
+      {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1070'
+      Content-Type:
+      - application/json
+      HTTP-Referer:
+      - https://posit-dev.github.io/chatlas
+      Host:
+      - openrouter.ai
+      X-Stainless-Async:
+      - 'false'
+      X-Title:
+      - chatlas
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://openrouter.ai/api/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_29330a9688"}
+
+
+        data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":"The"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_29330a9688"}
+
+
+        data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":"
+        name"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_29330a9688"}
+
+
+        data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":"
+        of"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_29330a9688"}
+
+
+        data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":"
+        the"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_29330a9688"}
+
+
+        data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":"
+        person"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_29330a9688"}
+
+
+        data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":"
+        is"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_29330a9688"}
+
+
+        data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":"
+        Ella"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_29330a9688"}
+
+
+        data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":"
+        Thompson"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_29330a9688"}
+
+
+        data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":"."},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_29330a9688"}
+
+
+        data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":"stop","native_finish_reason":"stop","logprobs":null}],"system_fingerprint":"fp_29330a9688"}
+
+
+        data: {"id":"gen-1767131095-808frUsKAsZnhFNt8Nrv","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131095,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":165,"completion_tokens":9,"total_tokens":174,"cost":0.00003015,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":null,"upstream_inference_prompt_cost":0.00002475,"upstream_inference_completions_cost":0.0000054},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0}}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 9b64b8a1acbb10f5-ORD
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Tue, 30 Dec 2025 21:44:55 GMT
+      Permissions-Policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      Referrer-Policy:
+      - no-referrer, strict-origin-when-cross-origin
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+    status:
+      code: 200
+      message: OK
+version: 1

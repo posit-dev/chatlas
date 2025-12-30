@@ -1,0 +1,200 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "What''s in this image?"},
+      {"type": "image_url", "image_url": {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAeCAIAAAD/+uoYAAAASUlEQVR4nNXOQREAMAjAsK7+PTMPfLhGQd7QI0ESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEES5HVg4wOyrgE7Ar2lQQAAAABJRU5ErkJggg=="}}],
+      "role": "user"}], "model": "gpt-4.1", "seed": 1014, "stream": true, "stream_options":
+      {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '415'
+      Content-Type:
+      - application/json
+      Host:
+      - models.github.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://models.github.ai/inference/chat/completions
+  response:
+    body:
+      string: 'Too many requests. For more on scraping GitHub and how it may affect
+        your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+        '
+    headers:
+      Content-Length:
+      - '196'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:44:09 GMT
+      Retry-After:
+      - '73189'
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Request-Id:
+      - 9780:2A24E6:2717238:30CB6B2:695447A9
+      azureml-served-by-cluster:
+      - vienna-westus-01
+      request-context:
+      - appId=
+      x-github-backend:
+      - Kubernetes
+      x-ms-error-code:
+      - RateLimitReached
+      x-ratelimit-timeremaining:
+      - '73189'
+      x-ratelimit-type:
+      - UserByModelByDay
+      x-request-time:
+      - '0.012'
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "What''s in this image?"},
+      {"type": "image_url", "image_url": {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAeCAIAAAD/+uoYAAAASUlEQVR4nNXOQREAMAjAsK7+PTMPfLhGQd7QI0ESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEES5HVg4wOyrgE7Ar2lQQAAAABJRU5ErkJggg=="}}],
+      "role": "user"}], "model": "gpt-4.1", "seed": 1014, "stream": true, "stream_options":
+      {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '415'
+      Content-Type:
+      - application/json
+      Host:
+      - models.github.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://models.github.ai/inference/chat/completions
+  response:
+    body:
+      string: 'Too many requests. For more on scraping GitHub and how it may affect
+        your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+        '
+    headers:
+      Content-Length:
+      - '196'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:44:10 GMT
+      Retry-After:
+      - '73188'
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Request-Id:
+      - 88CE:1FBFAF:25C6196:2F86264:695447AA
+      azureml-served-by-cluster:
+      - vienna-westus-02
+      request-context:
+      - appId=
+      x-github-backend:
+      - Kubernetes
+      x-ms-error-code:
+      - RateLimitReached
+      x-ratelimit-timeremaining:
+      - '73188'
+      x-ratelimit-type:
+      - UserByModelByDay
+      x-request-time:
+      - '0.014'
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "What''s in this image?"},
+      {"type": "image_url", "image_url": {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAeCAIAAAD/+uoYAAAASUlEQVR4nNXOQREAMAjAsK7+PTMPfLhGQd7QI0ESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEES5HVg4wOyrgE7Ar2lQQAAAABJRU5ErkJggg=="}}],
+      "role": "user"}], "model": "gpt-4.1", "seed": 1014, "stream": true, "stream_options":
+      {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '415'
+      Content-Type:
+      - application/json
+      Host:
+      - models.github.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://models.github.ai/inference/chat/completions
+  response:
+    body:
+      string: 'Too many requests. For more on scraping GitHub and how it may affect
+        your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+        '
+    headers:
+      Content-Length:
+      - '196'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:44:11 GMT
+      Retry-After:
+      - '73187'
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Request-Id:
+      - 6144:333BC0:26A02CC:305B4D0:695447AB
+      azureml-served-by-cluster:
+      - vienna-westus-02
+      request-context:
+      - appId=
+      x-github-backend:
+      - Kubernetes
+      x-ms-error-code:
+      - RateLimitReached
+      x-ratelimit-timeremaining:
+      - '73187'
+      x-ratelimit-type:
+      - UserByModelByDay
+      x-request-time:
+      - '0.015'
+    status:
+      code: 429
+      message: Too Many Requests
+version: 1

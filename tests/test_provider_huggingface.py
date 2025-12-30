@@ -23,6 +23,7 @@ if api_key is None:
     )
 
 
+@pytest.mark.vcr
 def test_huggingface_simple_request():
     chat = ChatHuggingFace(
         system_prompt="Be as terse as possible; no punctuation",
@@ -38,6 +39,7 @@ def test_huggingface_simple_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_huggingface_simple_streaming_request():
     chat = ChatHuggingFace(
@@ -53,12 +55,14 @@ async def test_huggingface_simple_streaming_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 def test_huggingface_respects_turns_interface():
     chat_fun = ChatHuggingFace
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
+@pytest.mark.vcr
 def test_huggingface_tools():
     def chat_fun(**kwargs):
         return ChatHuggingFace(model="meta-llama/Llama-3.1-8B-Instruct", **kwargs)
@@ -66,6 +70,7 @@ def test_huggingface_tools():
     assert_tools_simple(chat_fun)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_huggingface_tools_async():
     def chat_fun(**kwargs):
@@ -74,6 +79,7 @@ async def test_huggingface_tools_async():
     await assert_tools_async(chat_fun)
 
 
+@pytest.mark.vcr
 def test_huggingface_data_extraction():
     def chat_fun(**kwargs):
         return ChatHuggingFace(model="meta-llama/Llama-3.1-8B-Instruct", **kwargs)
@@ -81,6 +87,7 @@ def test_huggingface_data_extraction():
     assert_data_extraction(chat_fun)
 
 
+@pytest.mark.vcr
 def test_huggingface_images():
     # Use a vision model that supports images
     def chat_fun(**kwargs):
@@ -90,6 +97,7 @@ def test_huggingface_images():
     assert_images_remote(chat_fun)
 
 
+@pytest.mark.vcr
 def test_huggingface_model_list():
     assert_list_models(ChatHuggingFace)
 

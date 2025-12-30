@@ -1,0 +1,291 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "databricks-claude-3-7-sonnet", "response_format": {"type": "json_schema",
+      "json_schema": {"name": "structured_data", "description": "Summary of the article",
+      "schema": {"description": "Summary of the article", "properties": {"title":
+      {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "stream":
+      false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '609'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: '{"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"message":{"role":"assistant","content":"{\"title\":\"Apples
+        are tasty\",\"author\":\"Hadley Wickham\"}"},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":60,"prompt_tokens":458,"total_tokens":518,"cache_creation_input_tokens":0},"object":"chat.completion","id":"msg_bdrk_01YNNRPC9zbUT3P8RY8nRqLx","created":1767131150}'
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-length:
+      - '430'
+      content-type:
+      - application/json
+      date:
+      - Tue, 30 Dec 2025 21:45:50 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="03377652-db5b-4ab0-b5f1-24e4a3bb6fd5", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-amzn-bedrock-input-token-count:
+      - '458'
+      x-amzn-bedrock-invocation-latency:
+      - '1651'
+      x-amzn-bedrock-output-token-count:
+      - '60'
+      x-amzn-requestid:
+      - 362a8925-ff7e-40f7-a753-2c305a25fa2b
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "databricks-claude-3-7-sonnet", "response_format": {"type": "json_schema",
+      "json_schema": {"name": "structured_data", "description": "Summary of the article",
+      "schema": {"description": "Summary of the article", "properties": {"title":
+      {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "stream":
+      false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '943'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: '{"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"message":{"role":"assistant","content":"{\"title\":\"Apples
+        are tasty\",\"author\":\"Hadley Wickham\"}"},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":60,"prompt_tokens":534,"total_tokens":594,"cache_creation_input_tokens":0},"object":"chat.completion","id":"msg_bdrk_01TLtCCNXATHy9iF7SeRrLPu","created":1767131151}'
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-length:
+      - '430'
+      content-type:
+      - application/json
+      date:
+      - Tue, 30 Dec 2025 21:45:51 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="2d904b4b-139d-4c1a-9e84-3cdf86a1e7f4", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-amzn-bedrock-input-token-count:
+      - '534'
+      x-amzn-bedrock-invocation-latency:
+      - '1158'
+      x-amzn-bedrock-output-token-count:
+      - '60'
+      x-amzn-requestid:
+      - cc58f158-7a34-4cd7-8c8a-e64cc78e17eb
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}], "model": "databricks-claude-3-7-sonnet",
+      "response_format": {"type": "json_schema", "json_schema": {"name": "structured_data",
+      "description": "", "schema": {"properties": {"name": {"type": "string"}, "age":
+      {"type": "integer"}}, "required": ["name", "age"], "type": "object", "additionalProperties":
+      false}, "strict": true}}, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1095'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: '{"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"message":{"role":"assistant","content":"{\"name\":\"Emma
+        Johnson\",\"age\":34}"},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":51,"prompt_tokens":551,"total_tokens":602,"cache_creation_input_tokens":0},"object":"chat.completion","id":"msg_bdrk_01TrEKYXTcyrMz2k9RME2HpV","created":1767131153}'
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-length:
+      - '406'
+      content-type:
+      - application/json
+      date:
+      - Tue, 30 Dec 2025 21:45:53 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="8f6af84c-fd61-4abc-bf68-3c328ac129a4", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-amzn-bedrock-input-token-count:
+      - '551'
+      x-amzn-bedrock-invocation-latency:
+      - '1034'
+      x-amzn-bedrock-output-token-count:
+      - '51'
+      x-amzn-requestid:
+      - 623985c9-dba5-433d-a23e-908fa9c86675
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}, {"role": "assistant", "content":
+      [{"type": "text", "text": "{\"name\":\"Emma Johnson\",\"age\":34}"}]}, {"content":
+      [{"type": "text", "text": "What is the name of the person?"}], "role": "user"}],
+      "model": "databricks-claude-3-7-sonnet", "stream": true}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1016'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"The"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":193,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01GzPNCyMcT5zEBm1mipHjr5","created":1767131154}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        name of the randomly generated person is Emma"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":193,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01GzPNCyMcT5zEBm1mipHjr5","created":1767131154}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        Johnson."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":193,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01GzPNCyMcT5zEBm1mipHjr5","created":1767131155}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":14,"prompt_tokens":193,"total_tokens":207,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01GzPNCyMcT5zEBm1mipHjr5","created":1767131155}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 30 Dec 2025 21:45:54 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="6cebb71e-e97b-4b84-9bef-98595514acf3", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - 80bbd5ee-11b3-4bd0-89f1-5d6d92593eea
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+    status:
+      code: 200
+      message: OK
+version: 1

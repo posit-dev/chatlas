@@ -1,0 +1,103 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Always use a tool to help you answer. Reply
+      with ''It is ____.''.", "role": "system"}, {"content": [{"type": "text", "text":
+      "What''s the current date in YYYY-MM-DD format?"}], "role": "user"}], "model":
+      "meta-llama/Llama-3.1-8B-Instruct", "stream": true, "stream_options": {"include_usage":
+      true}, "tools": [{"type": "function", "function": {"name": "get_date", "description":
+      "Gets the current date", "parameters": {"properties": {}, "type": "object",
+      "additionalProperties": false, "required": []}}}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '493'
+      Content-Type:
+      - application/json
+      Host:
+      - router.huggingface.co
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://router.huggingface.co/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"chatcmpl-2257fa84-99c2-4840-a2a5-f9e14e77f863","choices":[{"delta":{"role":"assistant"},"index":0}],"created":1767131114,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-2257fa84-99c2-4840-a2a5-f9e14e77f863","choices":[{"delta":{"content":"It"},"index":0}],"created":1767131114,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-2257fa84-99c2-4840-a2a5-f9e14e77f863","choices":[{"delta":{"content":"
+        is the date in the format it is formatted for you."},"index":0}],"created":1767131114,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-2257fa84-99c2-4840-a2a5-f9e14e77f863","choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1767131114,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk","usage":{"total_tokens":529,"completion_tokens":14,"prompt_tokens":515,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.772073472,"prompt_time":0.022727775,"completion_time":0.005639097,"total_time":0.8018300533294678,"created":1767131114.2617}}
+
+
+        '
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Expose-Headers:
+      - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:45:12 GMT
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      Via:
+      - 1.1 e6acd25be4e8f28d7a25f72c24c4380a.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - vq1S0pp3GfrIUwDXeAIRI6K068ZSgx2Z1KJX8mQXh35LNNmNfZJWHA==
+      X-Amz-Cf-Pop:
+      - MSP50-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Powered-By:
+      - huggingface-moon
+      X-Robots-Tag:
+      - none
+      cf-cache-status:
+      - DYNAMIC
+      cross-origin-opener-policy:
+      - same-origin
+      inference-id:
+      - chatcmpl-2257fa84-99c2-4840-a2a5-f9e14e77f863
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=3600; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-inference-provider:
+      - cerebras
+      x-ratelimit-remaining-requests-day:
+      - '2879999'
+      x-ratelimit-remaining-requests-hour:
+      - '119999'
+      x-ratelimit-remaining-requests-minute:
+      - '1999'
+      x-ratelimit-remaining-tokens-day:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-hour:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-minute:
+      - '9223372036854767616'
+    status:
+      code: 200
+      message: OK
+version: 1

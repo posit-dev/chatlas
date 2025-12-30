@@ -1,0 +1,89 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Be as terse as possible; no punctuation", "role":
+      "system"}, {"content": [{"type": "text", "text": "What is 1 + 1?"}], "role":
+      "user"}], "model": "@openai/gpt-4o-mini", "stream": true, "stream_options":
+      {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '236'
+      Content-Type:
+      - application/json
+      Host:
+      - api.portkey.ai
+      X-Stainless-Async:
+      - 'false'
+      x-portkey-api-key:
+      - GLZkvIKz/iuBjBrFbHdY308hD4ZE
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.portkey.ai/v1/chat/completions
+  response:
+    body:
+      string: '{"html-message":"{\n  \"error\": {\n    \"message\": \"Incorrect API
+        key provided: sk-proj-********************************************************************************************************************************************************lcgA.
+        You can find your API key at https://platform.openai.com/account/api-keys.\",\n    \"type\":
+        \"invalid_request_error\",\n    \"code\": \"invalid_api_key\",\n    \"param\":
+        null\n  },\n  \"status\": 401\n}"}'
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9b64bba12e09615d-ORD
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '455'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 21:46:58 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - accept-encoding
+      alt-svc:
+      - h3=":443"; ma=86400
+      x-content-type-options:
+      - nosniff
+      x-datadog-parent-id:
+      - '687585326018365467'
+      x-datadog-sampling-priority:
+      - '0'
+      x-datadog-trace-id:
+      - '2427692026657736906'
+      x-envoy-upstream-service-time:
+      - '25'
+      x-error-json:
+      - ewogICJlcnJvciI6IHsKICAgICJtZXNzYWdlIjogIkluY29ycmVjdCBBUEkga2V5IHByb3ZpZGVkOiBzay1wcm9qLSoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqbGNnQS4gWW91IGNhbiBmaW5kIHlvdXIgQVBJIGtleSBhdCBodHRwczovL3BsYXRmb3JtLm9wZW5haS5jb20vYWNjb3VudC9hcGkta2V5cy4iLAogICAgInR5cGUiOiAiaW52YWxpZF9yZXF1ZXN0X2Vycm9yIiwKICAgICJjb2RlIjogImludmFsaWRfYXBpX2tleSIsCiAgICAicGFyYW0iOiBudWxsCiAgfSwKICAic3RhdHVzIjogNDAxCn0=
+      x-openai-authorization-error:
+      - '401'
+      x-openai-ide-error-code:
+      - invalid_api_key
+      x-openai-internal-caller:
+      - unknown_through_ide
+      x-openai-proxy-wasm:
+      - v0.1
+      x-portkey-cache-status:
+      - DISABLED
+      x-portkey-last-used-option-index:
+      - config
+      x-portkey-provider:
+      - openai
+      x-portkey-retry-attempt-count:
+      - '0'
+      x-portkey-trace-id:
+      - a502bfdf-36df-4680-8012-42a2735b58da
+    status:
+      code: 401
+      message: Unauthorized
+version: 1

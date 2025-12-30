@@ -1,0 +1,271 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "response_format": {"type":
+      "json_schema", "json_schema": {"name": "structured_data", "description": "Summary
+      of the article", "schema": {"description": "Summary of the article", "properties":
+      {"title": {"type": "string"}, "author": {"type": "string"}}, "required": ["title",
+      "author"], "type": "object", "additionalProperties": false}, "strict": true}},
+      "seed": 1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '633'
+      Content-Type:
+      - application/json
+      Host:
+      - api.cloudflare.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
+  response:
+    body:
+      string: '{"id":"id-1767130859696","object":"chat.completion","created":1767130859,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"message":{"role":"assistant","content":{"title":"Apples
+        are tasty","author":"Hadley Wickham"},"refusal":null},"logprobs":null,"finish_reason":"stop"}]}'
+    headers:
+      CF-RAY:
+      - 9b64b2db8c6fd94a-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 21:40:59 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      api-version:
+      - '2025-12-30'
+      cf-auditlog-id:
+      - 019b7135-0549-7bf3-ac80-13c79a4bf671
+      content-length:
+      - '298'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "response_format": {"type":
+      "json_schema", "json_schema": {"name": "structured_data", "description": "Summary
+      of the article", "schema": {"description": "Summary of the article", "properties":
+      {"title": {"type": "string"}, "author": {"type": "string"}}, "required": ["title",
+      "author"], "type": "object", "additionalProperties": false}, "strict": true}},
+      "seed": 1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '967'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=yKnKlC7UNRlKfPimHN81vTWiS.feBCC9RtUg.orvJwA-1767130859-1.0.1.1-AsZUabjm.I7aIMLpjy9s0Vov9JYVG0bEkIdY6yYbY07xoB5BbGRyrn8usw1qs4LM9OcRVAzrAFyl9gGinaD.bf8OAfVVBBZFmGABC6X.byU;
+        _cfuvid=zfHuxbVZ7bJ7W3dde5LFeDO7pBvBRBfZqbLDNJ2NkKQ-1767130859711-0.0.1.1-604800000
+      Host:
+      - api.cloudflare.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
+  response:
+    body:
+      string: '{"id":"id-1767130860899","object":"chat.completion","created":1767130860,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"message":{"role":"assistant","content":{"title":"Apples
+        are tasty","author":"Hadley Wickham"},"refusal":null},"logprobs":null,"finish_reason":"stop"}]}'
+    headers:
+      CF-RAY:
+      - 9b64b2e25f7910bc-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 21:41:00 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      api-version:
+      - '2025-12-30'
+      cf-auditlog-id:
+      - 019b7135-099e-7b57-90b8-3101801600ba
+      content-length:
+      - '298'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}], "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "response_format": {"type": "json_schema", "json_schema": {"name": "structured_data",
+      "description": "", "schema": {"properties": {"name": {"type": "string"}, "age":
+      {"type": "integer"}}, "required": ["name", "age"], "type": "object", "additionalProperties":
+      false}, "strict": true}}, "seed": 1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1119'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=yKnKlC7UNRlKfPimHN81vTWiS.feBCC9RtUg.orvJwA-1767130859-1.0.1.1-AsZUabjm.I7aIMLpjy9s0Vov9JYVG0bEkIdY6yYbY07xoB5BbGRyrn8usw1qs4LM9OcRVAzrAFyl9gGinaD.bf8OAfVVBBZFmGABC6X.byU;
+        _cfuvid=zfHuxbVZ7bJ7W3dde5LFeDO7pBvBRBfZqbLDNJ2NkKQ-1767130859711-0.0.1.1-604800000
+      Host:
+      - api.cloudflare.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
+  response:
+    body:
+      string: '{"id":"id-1767130862036","object":"chat.completion","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"message":{"role":"assistant","content":{"name":"Emily
+        Wilson","age":32},"refusal":null},"logprobs":null,"finish_reason":"stop"}]}'
+    headers:
+      CF-RAY:
+      - 9b64b2ea2cea0bf0-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 30 Dec 2025 21:41:02 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      api-version:
+      - '2025-12-30'
+      cf-auditlog-id:
+      - 019b7135-0e78-7806-97cc-467e74bf19d3
+      content-length:
+      - '276'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}, {"role": "assistant", "content":
+      [{"type": "text", "text": "{\"name\":\"Emily Wilson\",\"age\":32}"}]}, {"content":
+      [{"type": "text", "text": "What is the name of the person?"}], "role": "user"}],
+      "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "seed": 1014, "stream":
+      true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1080'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=yKnKlC7UNRlKfPimHN81vTWiS.feBCC9RtUg.orvJwA-1767130859-1.0.1.1-AsZUabjm.I7aIMLpjy9s0Vov9JYVG0bEkIdY6yYbY07xoB5BbGRyrn8usw1qs4LM9OcRVAzrAFyl9gGinaD.bf8OAfVVBBZFmGABC6X.byU;
+        _cfuvid=zfHuxbVZ7bJ7W3dde5LFeDO7pBvBRBfZqbLDNJ2NkKQ-1767130859711-0.0.1.1-604800000
+      Host:
+      - api.cloudflare.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"id-1767130862622","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"The"}}]}
+
+
+        data: {"id":"id-1767130862622","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        name of the"}}]}
+
+
+        data: {"id":"id-1767130862622","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        person is Emily"}}]}
+
+
+        data: {"id":"id-1767130862622","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        Wilson."}}]}
+
+
+        data: {"id":"id-1767130862622","object":"chat.completion.chunk","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":199,"completion_tokens":10,"total_tokens":209}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b64b2f22be7023b-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Tue, 30 Dec 2025 21:41:02 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      api-version:
+      - '2025-12-30'
+      cf-auditlog-id:
+      - 019b7135-1383-793b-b8cc-946030503faa
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,0 +1,74 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Be as terse as possible; no punctuation", "role":
+      "system"}, {"content": "What is 1 + 1?", "role": "user"}], "model": "deepseek-chat",
+      "seed": 1014, "stream": true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '217'
+      Content-Type:
+      - application/json
+      Host:
+      - api.deepseek.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.deepseek.com/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"7ba8ffb5-21b0-4a95-a351-44fa3408eb05","object":"chat.completion.chunk","created":1767130891,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"7ba8ffb5-21b0-4a95-a351-44fa3408eb05","object":"chat.completion.chunk","created":1767130891,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"2"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"7ba8ffb5-21b0-4a95-a351-44fa3408eb05","object":"chat.completion.chunk","created":1767130891,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":21,"completion_tokens":1,"total_tokens":22,"prompt_tokens_details":{"cached_tokens":0},"prompt_cache_hit_tokens":0,"prompt_cache_miss_tokens":21}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:41:31 GMT
+      Server:
+      - elb
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 48a3516657fbe296329cc3974dc11950.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - 2_IAlSGg1XAkBob13IU_vv6Z2GkjUcncVX3kcPVFzBs1Vm2qkDFnhA==
+      X-Amz-Cf-Pop:
+      - ORD56-P8
+      X-Cache:
+      - Miss from cloudfront
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-credentials:
+      - 'true'
+      cache-control:
+      - no-cache
+      vary:
+      - origin, access-control-request-method, access-control-request-headers
+      x-ds-trace-id:
+      - 4e32f01f1e09e1e0ff4fe42e975f0be4
+    status:
+      code: 200
+      message: OK
+version: 1

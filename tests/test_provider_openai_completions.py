@@ -19,6 +19,7 @@ from .conftest import (
 )
 
 
+@pytest.mark.vcr
 def test_openai_simple_request():
     chat = ChatOpenAI(
         system_prompt="Be as terse as possible; no punctuation",
@@ -33,6 +34,7 @@ def test_openai_simple_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_simple_streaming_request():
     chat = ChatOpenAI(
@@ -47,12 +49,14 @@ async def test_openai_simple_streaming_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 def test_openai_respects_turns_interface():
     chat_fun = ChatOpenAI
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
+@pytest.mark.vcr
 def test_openai_tool_variations():
     chat_fun = ChatOpenAI
     assert_tools_simple(chat_fun)
@@ -61,21 +65,25 @@ def test_openai_tool_variations():
     assert_tools_sequential(chat_fun, total_calls=6)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_tool_variations_async():
     await assert_tools_async(ChatOpenAI)
 
 
+@pytest.mark.vcr
 def test_data_extraction():
     assert_data_extraction(ChatOpenAI)
 
 
+@pytest.mark.vcr
 def test_openai_images():
     chat_fun = ChatOpenAI
     assert_images_inline(chat_fun)
     assert_images_remote(chat_fun)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_logprobs():
     chat = ChatOpenAI()
@@ -94,6 +102,7 @@ async def test_openai_logprobs():
     assert len(logprobs) == len(pieces)
 
 
+@pytest.mark.vcr
 def test_openai_pdf():
     chat_fun = ChatOpenAI
     assert_pdf_local(chat_fun)
@@ -103,5 +112,6 @@ def test_openai_custom_http_client():
     ChatOpenAI(kwargs={"http_client": httpx.AsyncClient()})
 
 
+@pytest.mark.vcr
 def test_openai_list_models():
     assert_list_models(ChatOpenAI)

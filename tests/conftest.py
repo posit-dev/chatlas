@@ -330,6 +330,16 @@ def set_dummy_api_keys_for_vcr():
         "OPENAI_API_KEY": "sk-dummy-openai-key-for-vcr-replay",
         "ANTHROPIC_API_KEY": "sk-ant-dummy-key-for-vcr-replay",
         "GOOGLE_API_KEY": "dummy-google-key-for-vcr-replay",
+        "AZURE_OPENAI_API_KEY": "dummy-azure-key-for-vcr-replay",
+        "CLOUDFLARE_API_KEY": "dummy-cloudflare-key-for-vcr-replay",
+        "CLOUDFLARE_ACCOUNT_ID": "dummy-cloudflare-account-for-vcr-replay",
+        "DATABRICKS_HOST": "https://dummy-databricks-host.cloud.databricks.com",
+        "DATABRICKS_TOKEN": "dummy-databricks-token-for-vcr-replay",
+        "DEEPSEEK_API_KEY": "dummy-deepseek-key-for-vcr-replay",
+        "GITHUB_TOKEN": "dummy-github-token-for-vcr-replay",
+        "HUGGINGFACE_API_KEY": "dummy-huggingface-key-for-vcr-replay",
+        "MISTRAL_API_KEY": "dummy-mistral-key-for-vcr-replay",
+        "OPENROUTER_API_KEY": "dummy-openrouter-key-for-vcr-replay",
     }
     original_values = {}
 

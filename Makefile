@@ -70,25 +70,75 @@ update-snaps:
 record-vcr: record-vcr-providers record-vcr-chat ## [py] Record all VCR cassettes
 
 .PHONY: record-vcr-providers
-record-vcr-providers: record-vcr-openai record-vcr-anthropic record-vcr-google ## [py] Record VCR cassettes for providers
+record-vcr-providers: record-vcr-openai record-vcr-anthropic record-vcr-google record-vcr-azure record-vcr-cloudflare record-vcr-databricks record-vcr-deepseek record-vcr-github record-vcr-huggingface record-vcr-mistral record-vcr-openai-completions record-vcr-openrouter record-vcr-portkey ## [py] Record VCR cassettes for providers
 
 .PHONY: record-vcr-openai
-record-vcr-openai:  ## [py] Record VCR cassettes for OpenAI
+record-vcr-openai:
 	@echo "📼 Recording OpenAI cassettes"
 	uv run pytest --record-mode=all tests/test_provider_openai.py -v
 
 .PHONY: record-vcr-anthropic
-record-vcr-anthropic:  ## [py] Record VCR cassettes for Anthropic
+record-vcr-anthropic:
 	@echo "📼 Recording Anthropic cassettes"
 	uv run pytest --record-mode=all tests/test_provider_anthropic.py -v
 
 .PHONY: record-vcr-google
-record-vcr-google:  ## [py] Record VCR cassettes for Google
+record-vcr-google:
 	@echo "📼 Recording Google cassettes"
 	uv run pytest --record-mode=all tests/test_provider_google.py -v
 
+.PHONY: record-vcr-azure
+record-vcr-azure:
+	@echo "📼 Recording Azure cassettes"
+	uv run pytest --record-mode=all tests/test_provider_azure.py -v
+
+.PHONY: record-vcr-cloudflare
+record-vcr-cloudflare:
+	@echo "📼 Recording Cloudflare cassettes"
+	uv run pytest --record-mode=all tests/test_provider_cloudflare.py -v
+
+.PHONY: record-vcr-databricks
+record-vcr-databricks:
+	@echo "📼 Recording Databricks cassettes"
+	uv run pytest --record-mode=all tests/test_provider_databricks.py -v
+
+.PHONY: record-vcr-deepseek
+record-vcr-deepseek:
+	@echo "📼 Recording DeepSeek cassettes"
+	uv run pytest --record-mode=all tests/test_provider_deepseek.py -v
+
+.PHONY: record-vcr-github
+record-vcr-github:
+	@echo "📼 Recording GitHub cassettes"
+	uv run pytest --record-mode=all tests/test_provider_github.py -v
+
+.PHONY: record-vcr-huggingface
+record-vcr-huggingface:
+	@echo "📼 Recording HuggingFace cassettes"
+	uv run pytest --record-mode=all tests/test_provider_huggingface.py -v
+
+.PHONY: record-vcr-mistral
+record-vcr-mistral:
+	@echo "📼 Recording Mistral cassettes"
+	uv run pytest --record-mode=all tests/test_provider_mistral.py -v
+
+.PHONY: record-vcr-openai-completions
+record-vcr-openai-completions:
+	@echo "📼 Recording OpenAI Completions cassettes"
+	uv run pytest --record-mode=all tests/test_provider_openai_completions.py -v
+
+.PHONY: record-vcr-openrouter
+record-vcr-openrouter:
+	@echo "📼 Recording OpenRouter cassettes"
+	uv run pytest --record-mode=all tests/test_provider_openrouter.py -v
+
+.PHONY: record-vcr-portkey
+record-vcr-portkey:
+	@echo "📼 Recording Portkey cassettes"
+	uv run pytest --record-mode=all tests/test_provider_portkey.py -v
+
 .PHONY: record-vcr-chat
-record-vcr-chat:  ## [py] Record VCR cassettes for chat tests
+record-vcr-chat:
 	@echo "📼 Recording chat cassettes"
 	uv run pytest --record-mode=all \
 		tests/test_chat.py \

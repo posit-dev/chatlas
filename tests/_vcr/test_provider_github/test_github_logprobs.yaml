@@ -1,0 +1,197 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "Hi"}], "role": "user"}],
+      "model": "gpt-4.1", "logprobs": true, "seed": 1014, "stream": true, "stream_options":
+      {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '170'
+      Content-Type:
+      - application/json
+      Host:
+      - models.github.ai
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://models.github.ai/inference/chat/completions
+  response:
+    body:
+      string: 'Too many requests. For more on scraping GitHub and how it may affect
+        your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+        '
+    headers:
+      Content-Length:
+      - '196'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:44:12 GMT
+      Retry-After:
+      - '73187'
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Request-Id:
+      - 7CCE:333A07:2662FE7:3021B3C:695447AC
+      azureml-served-by-cluster:
+      - vienna-westus-01
+      request-context:
+      - appId=
+      x-github-backend:
+      - Kubernetes
+      x-ms-error-code:
+      - RateLimitReached
+      x-ratelimit-timeremaining:
+      - '73187'
+      x-ratelimit-type:
+      - UserByModelByDay
+      x-request-time:
+      - '0.013'
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "Hi"}], "role": "user"}],
+      "model": "gpt-4.1", "logprobs": true, "seed": 1014, "stream": true, "stream_options":
+      {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '170'
+      Content-Type:
+      - application/json
+      Host:
+      - models.github.ai
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://models.github.ai/inference/chat/completions
+  response:
+    body:
+      string: 'Too many requests. For more on scraping GitHub and how it may affect
+        your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+        '
+    headers:
+      Content-Length:
+      - '196'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:44:13 GMT
+      Retry-After:
+      - '73186'
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Request-Id:
+      - 6E86:31C0F7:25E227F:2FA34BF:695447AD
+      azureml-served-by-cluster:
+      - vienna-westus-01
+      request-context:
+      - appId=
+      x-github-backend:
+      - Kubernetes
+      x-ms-error-code:
+      - RateLimitReached
+      x-ratelimit-timeremaining:
+      - '73186'
+      x-ratelimit-type:
+      - UserByModelByDay
+      x-request-time:
+      - '0.014'
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "Hi"}], "role": "user"}],
+      "model": "gpt-4.1", "logprobs": true, "seed": 1014, "stream": true, "stream_options":
+      {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '170'
+      Content-Type:
+      - application/json
+      Host:
+      - models.github.ai
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://models.github.ai/inference/chat/completions
+  response:
+    body:
+      string: 'Too many requests. For more on scraping GitHub and how it may affect
+        your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+        '
+    headers:
+      Content-Length:
+      - '196'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Tue, 30 Dec 2025 21:44:14 GMT
+      Retry-After:
+      - '49'
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Request-Id:
+      - 7B5F:121694:26C1A48:307EE75:695447AE
+      azureml-served-by-cluster:
+      - vienna-westus-02
+      request-context:
+      - appId=
+      x-github-backend:
+      - Kubernetes
+      x-ms-error-code:
+      - RateLimitReached
+      x-ratelimit-timeremaining:
+      - '49'
+      x-ratelimit-type:
+      - UserByModelByMinute
+      x-request-time:
+      - '0.009'
+    status:
+      code: 429
+      message: Too Many Requests
+version: 1
