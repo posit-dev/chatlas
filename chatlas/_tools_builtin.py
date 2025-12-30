@@ -542,6 +542,13 @@ def tool_web_fetch(
 
     Supported providers: Claude (Anthropic), Google (Gemini)
 
+    Prerequisites
+    -------------
+    - **Claude**: The web fetch tool requires the beta header
+      `anthropic-beta: web-fetch-2025-09-10`. Pass this via the `kwargs`
+      parameter's `default_headers` option (see examples below).
+    - **Google**: URL context is available by default with Gemini.
+
     Parameters
     ----------
     allowed_domains
@@ -564,13 +571,17 @@ def tool_web_fetch(
     ```python
     from chatlas import ChatAnthropic, tool_web_fetch
 
-    # Basic usage
-    chat = ChatAnthropic()
+    # Basic usage with Claude (requires beta header)
+    chat = ChatAnthropic(
+        kwargs={"default_headers": {"anthropic-beta": "web-fetch-2025-09-10"}}
+    )
     chat.register_tool(tool_web_fetch())
     chat.chat("Summarize the content at https://en.wikipedia.org/wiki/Python")
 
     # With domain restrictions
-    chat = ChatAnthropic()
+    chat = ChatAnthropic(
+        kwargs={"default_headers": {"anthropic-beta": "web-fetch-2025-09-10"}}
+    )
     chat.register_tool(tool_web_fetch(allowed_domains=["wikipedia.org", "python.org"]))
     chat.chat("Summarize the content at https://en.wikipedia.org/wiki/Guido_van_Rossum")
     ```
