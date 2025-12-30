@@ -132,6 +132,10 @@ ContentTypeEnum = Literal[
     "json",
     "pdf",
     "thinking",
+    "web_search_request",
+    "web_search_results",
+    "web_fetch_request",
+    "web_fetch_results",
 ]
 """
 A discriminated union of all content types.
@@ -622,6 +626,103 @@ class ContentThinking(Content):
         return HTML(html)
 
 
+class ContentWebSearchRequest(Content):
+    """
+    A web search request from the model.
+
+    This content type represents the model's request to search the web.
+    It's automatically generated when a built-in web search tool is used.
+
+    Parameters
+    ----------
+    query
+        The search query.
+    extra
+        The raw provider-specific response data.
+    """
+
+    query: str
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "web_search_request"
+
+    def __str__(self):
+        return f"[web search request]: {self.query!r}"
+
+
+class ContentWebSearchResults(Content):
+    """
+    Web search results from the model.
+
+    This content type represents the results of a web search.
+    It's automatically generated when a built-in web search tool returns results.
+
+    Parameters
+    ----------
+    urls
+        The URLs returned by the search.
+    extra
+        The raw provider-specific response data.
+    """
+
+    urls: list[str]
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "web_search_results"
+
+    def __str__(self):
+        url_list = "\n".join(f"* {url}" for url in self.urls)
+        return f"[web search results]:\n{url_list}"
+
+
+class ContentWebFetchRequest(Content):
+    """
+    A web fetch request from the model.
+
+    This content type represents the model's request to fetch a URL.
+    It's automatically generated when a built-in web fetch tool is used.
+
+    Parameters
+    ----------
+    url
+        The URL to fetch.
+    extra
+        The raw provider-specific response data.
+    """
+
+    url: str
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "web_fetch_request"
+
+    def __str__(self):
+        return f"[web fetch request]: {self.url}"
+
+
+class ContentWebFetchResults(Content):
+    """
+    Web fetch results from the model.
+
+    This content type represents the results of fetching a URL.
+    It's automatically generated when a built-in web fetch tool returns results.
+
+    Parameters
+    ----------
+    url
+        The URL that was fetched.
+    extra
+        The raw provider-specific response data.
+    """
+
+    url: str
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "web_fetch_results"
+
+    def __str__(self):
+        return f"[web fetch result]: {self.url}"
+
+
 ContentUnion = Union[
     ContentText,
     ContentImageRemote,
@@ -631,6 +732,10 @@ ContentUnion = Union[
     ContentJson,
     ContentPDF,
     ContentThinking,
+    ContentWebSearchRequest,
+    ContentWebSearchResults,
+    ContentWebFetchRequest,
+    ContentWebFetchResults,
 ]
 
 
@@ -661,6 +766,14 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentPDF.model_validate(data)
     elif ct == "thinking":
         return ContentThinking.model_validate(data)
+    elif ct == "web_search_request":
+        return ContentWebSearchRequest.model_validate(data)
+    elif ct == "web_search_results":
+        return ContentWebSearchResults.model_validate(data)
+    elif ct == "web_fetch_request":
+        return ContentWebFetchRequest.model_validate(data)
+    elif ct == "web_fetch_results":
+        return ContentWebFetchResults.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
 
