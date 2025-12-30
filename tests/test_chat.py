@@ -388,7 +388,7 @@ def test_turn_repr_user():
     turn = UserTurn("Hello, world!")
     result = repr(turn)
 
-    assert "## user" in result
+    assert "## User" in result
     assert "Hello, world!" in result
 
 
@@ -399,7 +399,7 @@ def test_turn_repr_system():
     turn = SystemTurn("You are a helpful assistant.")
     result = repr(turn)
 
-    assert "## system" in result
+    assert "## System" in result
     assert "You are a helpful assistant." in result
 
 
@@ -408,7 +408,7 @@ def test_turn_repr_assistant_with_tokens():
     turn = AssistantTurn("The answer is 42.", tokens=(100, 50, 20), cost=0.0025)
     result = repr(turn)
 
-    assert "## assistant" in result
+    assert "## Assistant" in result
     assert "The answer is 42." in result
     assert "input=100+20" in result
     assert "output=50" in result
@@ -420,7 +420,7 @@ def test_turn_repr_assistant_without_tokens():
     turn = AssistantTurn("Hello!")
     result = repr(turn)
 
-    assert "## assistant" in result
+    assert "## Assistant" in result
     assert "Hello!" in result
     assert "input=" not in result
 
@@ -483,7 +483,7 @@ def test_turn_repr_with_tool_request():
     )
     result = repr(turn)
 
-    assert "## assistant" in result
+    assert "## Assistant" in result
     assert "🔧 tool request (123)" in result
     assert 'get_weather(city="NYC")' in result
 
@@ -498,7 +498,7 @@ def test_turn_repr_with_tool_result():
     )
     result = repr(turn)
 
-    assert "## user" in result
+    assert "## User" in result
     assert "✅ tool result (123)" in result
     assert "72°F and sunny" in result
 

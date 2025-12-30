@@ -34,15 +34,15 @@
   '''
   <Chat OpenAI/gpt-4.1 turns=3 input=15+5 output=5 cost=$0.0010>
   
-  ## system
+  ## System
   
   You're a helpful assistant that returns very minimal output
   
-  ## user
+  ## User
   
   What's 1 + 1? What's 1 + 2?
   
-  ## assistant [input=15+5 output=5 cost=$0.0010]
+  ## Assistant [input=15+5 output=5 cost=$0.0010]
   
   2  3
   
@@ -50,14 +50,19 @@
 # ---
 # name: test_basic_str
   '''
-  ## 👤 User turn:
+  <Chat OpenAI/gpt-4.1 turns=3 input=15 output=5 cost=$0.0010>
+  
+  ## System
+  
+  You're a helpful assistant that returns very minimal output
+  
+  ## User
   
   What's 1 + 1? What's 1 + 2?
   
-  ## 🤖 Assistant turn:
+  ## Assistant [input=15 output=5 cost=$0.0010]
   
   2  3
-  
   
   '''
 # ---
