@@ -19,6 +19,7 @@ from ._content import (
     ContentThinking,
     ContentToolRequest,
     ContentToolResult,
+    ContentWebSearchRequest,
 )
 from ._logging import log_model_default
 from ._provider import StandardModelParamNames, StandardModelParams
@@ -418,6 +419,18 @@ class OpenAIProvider(
                             image_content_type=mime_type,
                         )
                     )
+
+            elif output.type == "web_search_call":
+                # https://platform.openai.com/docs/guides/tools-web-search#output-and-citations
+                query = ""
+                if hasattr(output, "action") and output.action:
+                    query = getattr(output.action, "query", "")
+                contents.append(
+                    ContentWebSearchRequest(
+                        query=query,
+                        extra=output.model_dump(),
+                    )
+                )
 
             else:
                 raise ValueError(f"Unknown output type: {output.type}")

@@ -28,6 +28,10 @@ from ._content import (
     ContentThinking,
     ContentToolRequest,
     ContentToolResult,
+    ContentWebFetchRequest,
+    ContentWebFetchResults,
+    ContentWebSearchRequest,
+    ContentWebSearchResults,
 )
 from ._logging import log_model_default
 from ._provider import (
@@ -761,6 +765,47 @@ class AnthropicProvider(
                     ContentThinking(
                         thinking=content.thinking,
                         extra={"signature": content.signature},
+                    )
+                )
+            elif content.type == "server_tool_use":
+                # Handle built-in server tools (web_search, web_fetch)
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
+                input_dict = cast(dict, content.input)
+                if content.name == "web_search":
+                    contents.append(
+                        ContentWebSearchRequest(
+                            query=str(input_dict.get("query", "")),
+                            extra=content.model_dump(),
+                        )
+                    )
+                elif content.name == "web_fetch":
+                    contents.append(
+                        ContentWebFetchRequest(
+                            url=str(input_dict.get("url", "")),
+                            extra=content.model_dump(),
+                        )
+                    )
+                else:
+                    raise ValueError(f"Unknown server tool: {content.name}")
+            elif content.type == "web_search_tool_result":
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
+                # content.content is Union[WebSearchToolResultError, list[WebSearchResultBlock]]
+                urls: list[str] = []
+                if isinstance(content.content, list):
+                    urls = [x.url for x in content.content]
+                contents.append(
+                    ContentWebSearchResults(
+                        urls=urls,
+                        extra=content.model_dump(),
+                    )
+                )
+            elif content.type == "web_fetch_tool_result":
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
+                contents.append(
+                    ContentWebFetchResults(
+                        url=getattr(content, "url", None) or "failed",
+                        extra=content.model_dump(),
                     )
                 )
 
