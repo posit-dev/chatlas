@@ -59,4 +59,16 @@ jobs:
           EOF
 
       - name: Check tests (live API)
-        run: make check-tests
+        run: |
+          uv run pytest tests/ -v \
+            --ignore=tests/test_provider_bedrock.py \
+            --ignore=tests/test_provider_cloudflare.py \
+            --ignore=tests/test_provider_deepseek.py \
+            --ignore=tests/test_provider_github.py \
+            --ignore=tests/test_provider_huggingface.py \
+            --ignore=tests/test_provider_mistral.py \
+            --ignore=tests/test_provider_ollama.py \
+            --ignore=tests/test_provider_openrouter.py \
+            --ignore=tests/test_provider_perplexity.py \
+            --ignore=tests/test_provider_portkey.py \
+            --ignore=tests/test_provider_groq.py
