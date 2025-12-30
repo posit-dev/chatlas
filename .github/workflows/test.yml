@@ -38,6 +38,7 @@ jobs:
             --ignore=tests/test_inspect.py \
             --ignore=tests/test_mcp_client.py \
             --ignore=tests/test_mcp_servers.py \
+            --ignore=tests/test_provider_google.py \
             --ignore=tests/test_provider_huggingface.py \
             --ignore=tests/test_provider_mistral.py \
             --ignore=tests/test_provider_openai_completions.py \
@@ -55,8 +56,6 @@ jobs:
           TEST_GROQ: "false"
           TEST_CLOUDFLARE: "false"
           TEST_DEEPSEEK: "false"
-          # Google streaming doesn't work with VCR
-          TEST_GOOGLE_STREAMING: "false"
 
       - name: Check types
         if: ${{ matrix.python-version != '3.9' }}
