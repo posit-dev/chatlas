@@ -333,8 +333,8 @@ class GoogleProvider(
                     gtool = GoogleTool(url_context=tool.get_definition("google"))
                     google_tools.append(gtool)
                 elif isinstance(tool, ToolBuiltIn):
-                    # TODO: how to support?
-                    raise NotImplementedError()
+                    gtool = GoogleTool.model_validate(tool.definition)
+                    google_tools.append(gtool)
                 else:
                     gtool = GoogleTool(
                         function_declarations=[

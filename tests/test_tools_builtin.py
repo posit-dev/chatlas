@@ -77,8 +77,8 @@ class TestToolWebFetchConfiguration:
 
     def test_with_allowed_domains(self):
         """Test web fetch tool with allowed domains."""
-        tool = tool_web_fetch(allowed_domains=["tidyverse.org"])
-        assert tool.allowed_domains == ["tidyverse.org"]
+        tool = tool_web_fetch(allowed_domains=["example.com"])
+        assert tool.allowed_domains == ["example.com"]
 
     def test_cannot_use_both_domain_filters(self):
         """Test that both allowed and blocked domains cannot be specified."""
@@ -208,11 +208,11 @@ class TestToolWebFetchProviderDefinitions:
     def test_anthropic_with_all_options(self):
         """Test Anthropic definition with all options."""
         tool = tool_web_fetch(
-            allowed_domains=["tidyverse.org"],
+            allowed_domains=["example.com"],
             max_uses=5,
         )
         definition = tool.get_definition("anthropic")
-        assert definition["allowed_domains"] == ["tidyverse.org"]
+        assert definition["allowed_domains"] == ["example.com"]
         assert definition["max_uses"] == 5
 
     def test_google_definition(self):

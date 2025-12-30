@@ -53,6 +53,15 @@ __all__ = (
 )
 
 
+def _warn_unsupported(param_name: str, provider: str) -> None:
+    """Warn that a parameter is not supported by a provider."""
+    warnings.warn(
+        f"{param_name} is not supported by {provider} and will be ignored.",
+        UserWarning,
+        stacklevel=3,
+    )
+
+
 class ToolWebSearch(ToolBuiltIn):
     """
     A provider-agnostic web search tool configuration.
@@ -158,17 +167,9 @@ class ToolWebSearch(ToolBuiltIn):
         """
         if provider_name == "openai":
             if self.blocked_domains:
-                warnings.warn(
-                    "blocked_domains is not supported by OpenAI and will be ignored.",
-                    UserWarning,
-                    stacklevel=2,
-                )
+                _warn_unsupported("blocked_domains", "OpenAI")
             if self.max_uses is not None:
-                warnings.warn(
-                    "max_uses is not supported by OpenAI and will be ignored.",
-                    UserWarning,
-                    stacklevel=2,
-                )
+                _warn_unsupported("max_uses", "OpenAI")
             return self._openai_definition(
                 allowed_domains=self.allowed_domains,
                 user_location=self.user_location,
@@ -184,23 +185,11 @@ class ToolWebSearch(ToolBuiltIn):
             )
         elif provider_name == "google":
             if self.allowed_domains:
-                warnings.warn(
-                    "allowed_domains is not supported by Google and will be ignored.",
-                    UserWarning,
-                    stacklevel=2,
-                )
+                _warn_unsupported("allowed_domains", "Google")
             if self.user_location:
-                warnings.warn(
-                    "user_location is not supported by Google and will be ignored.",
-                    UserWarning,
-                    stacklevel=2,
-                )
+                _warn_unsupported("user_location", "Google")
             if self.max_uses is not None:
-                warnings.warn(
-                    "max_uses is not supported by Google and will be ignored.",
-                    UserWarning,
-                    stacklevel=2,
-                )
+                _warn_unsupported("max_uses", "Google")
             return self._google_definition(
                 blocked_domains=self.blocked_domains,
                 blocking_confidence=blocking_confidence,
@@ -390,23 +379,11 @@ class ToolWebFetch(ToolBuiltIn):
             )
         elif provider_name == "google":
             if self.allowed_domains:
-                warnings.warn(
-                    "allowed_domains is not supported by Google and will be ignored.",
-                    UserWarning,
-                    stacklevel=2,
-                )
+                _warn_unsupported("allowed_domains", "Google")
             if self.blocked_domains:
-                warnings.warn(
-                    "blocked_domains is not supported by Google and will be ignored.",
-                    UserWarning,
-                    stacklevel=2,
-                )
+                _warn_unsupported("blocked_domains", "Google")
             if self.max_uses is not None:
-                warnings.warn(
-                    "max_uses is not supported by Google and will be ignored.",
-                    UserWarning,
-                    stacklevel=2,
-                )
+                _warn_unsupported("max_uses", "Google")
             return self._google_definition()
         else:
             raise ValueError(
@@ -590,12 +567,12 @@ def tool_web_fetch(
     # Basic usage
     chat = ChatAnthropic()
     chat.register_tool(tool_web_fetch())
-    chat.chat("What are the latest posts on https://tidyverse.org/blog?")
+    chat.chat("Summarize the content at https://en.wikipedia.org/wiki/Python")
 
     # With domain restrictions
     chat = ChatAnthropic()
-    chat.register_tool(tool_web_fetch(allowed_domains=["tidyverse.org", "posit.co"]))
-    chat.chat("Summarize the content at https://tidyverse.org")
+    chat.register_tool(tool_web_fetch(allowed_domains=["wikipedia.org", "python.org"]))
+    chat.chat("Summarize the content at https://en.wikipedia.org/wiki/Guido_van_Rossum")
     ```
 
     Note
@@ -622,7 +599,7 @@ def tool_web_fetch(
             command="npx",
             args=["-y", "@anthropic-ai/mcp-fetch"],
         )
-        await chat.chat_async("Summarize the content at https://tidyverse.org")
+        await chat.chat_async("Summarize the content at https://www.python.org")
         await chat.cleanup_mcp_tools()
 
 
