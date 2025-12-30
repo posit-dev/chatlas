@@ -51,6 +51,14 @@ The project uses `uv` for package management and Make for common tasks:
 4. **Content-Based Messaging**: All communication uses structured `Content` objects rather than raw strings
 5. **Tool Integration**: Seamless function calling with automatic JSON schema generation from Python type hints
 
+### Typing Best Practices
+
+This project prioritizes strong typing that leverages provider SDK types directly:
+
+- **Use provider SDK types**: Import and use types from `openai.types`, `anthropic.types`, `google.genai.types`, etc. rather than creating custom TypedDicts or dataclasses that mirror them. This ensures compatibility with SDK updates and provides better IDE support.
+- **Use `@overload` for provider-specific returns**: When a method returns different types based on a provider argument, use `@overload` with `Literal` types to give callers precise return type information.
+- **Explore SDK types interactively**: Use `python -c "from <sdk>.types import <Type>; print(<Type>.__annotations__)"` to inspect available fields and nested types when implementing provider-specific features.
+
 ### Testing Structure
 
 - Tests are organized by component (e.g., `test_provider_openai.py`, `test_tools.py`)

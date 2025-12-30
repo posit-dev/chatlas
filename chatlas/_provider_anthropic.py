@@ -39,6 +39,7 @@ from ._provider import (
 )
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
+from ._tools_builtin import ToolWebFetch, ToolWebSearch
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
@@ -700,6 +701,11 @@ class AnthropicProvider(
 
     @staticmethod
     def _anthropic_tool_schema(tool: "Tool | ToolBuiltIn") -> "ToolUnionParam":
+        if isinstance(tool, ToolWebSearch):
+            return tool.get_definition("anthropic")
+        if isinstance(tool, ToolWebFetch):
+            # TODO: why is this not apart of ToolUnionParam?
+            return tool.get_definition("anthropic")  # type: ignore
         if isinstance(tool, ToolBuiltIn):
             return tool.definition  # type: ignore
 

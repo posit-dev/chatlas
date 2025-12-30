@@ -22,6 +22,7 @@ from ._merge import merge_dicts
 from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
+from ._tools_builtin import ToolWebFetch, ToolWebSearch
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 
 if TYPE_CHECKING:
@@ -319,20 +320,27 @@ class GoogleProvider(
             config.response_mime_type = "application/json"
 
         if tools:
-            config.tools = [
-                GoogleTool(
-                    function_declarations=[
-                        FunctionDeclaration.from_callable(
-                            client=self._client._api_client,
-                            callable=tool.func,
-                        )
-                        for tool in tools.values()
-                        # TODO: to support built-in tools, we may need a way to make
-                        # tool names (e.g., google_search to google.genai.types.GoogleSearch())
-                        if isinstance(tool, Tool)
-                    ]
+            func_declarations = [
+                FunctionDeclaration.from_callable(
+                    client=self._client._api_client,
+                    callable=tool.func,
                 )
+                for tool in tools.values()
+                if isinstance(tool, Tool)
             ]
+            builtin_tools = [
+                tool.get_definition("google")
+                for tool in tools.values()
+                if isinstance(tool, (ToolWebSearch, ToolWebFetch))
+            ]
+
+            google_tools: list[Any] = []
+            if func_declarations:
+                google_tools.append(GoogleTool(function_declarations=func_declarations))
+            google_tools.extend(builtin_tools)
+
+            if google_tools:
+                config.tools = google_tools
 
         kwargs_full["config"] = config
 

@@ -25,6 +25,7 @@ from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
+from ._tools_builtin import ToolWebFetch, ToolWebSearch
 from ._turn import AssistantTurn, Turn
 
 if TYPE_CHECKING:
@@ -235,7 +236,16 @@ class OpenAIProvider(
 
         tool_params: list["ToolParam"] = []
         for tool in tools.values():
-            if isinstance(tool, ToolBuiltIn):
+            if isinstance(tool, ToolWebSearch):
+                tool_params.append(tool.get_definition("openai"))
+            elif isinstance(tool, ToolWebFetch):
+                raise ValueError(
+                    "Web fetch is not supported by OpenAI. "
+                    "Use the MCP Fetch server instead via "
+                    "chat.register_mcp_tools_stdio_async(). "
+                    "See help(tool_web_fetch) for details."
+                )
+            elif isinstance(tool, ToolBuiltIn):
                 tool_params.append(cast("ToolParam", tool.definition))
             else:
                 schema = tool.schema
