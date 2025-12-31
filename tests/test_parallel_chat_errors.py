@@ -14,8 +14,7 @@ from pydantic import BaseModel
 @pytest.mark.asyncio
 async def test_parallel_chat_error_return_mode():
     """Test that on_error='return' stops new requests but completes in-flight ones."""
-    # Use an invalid model to trigger an error - use explicit dummy key since not valid VCR test
-    chat = ChatOpenAI(api_key="test", model="gpt-4-does-not-exist-12345")
+    chat = ChatOpenAI(model="gpt-4-does-not-exist-12345")
 
     prompts = [
         "Say 'A'",
@@ -42,8 +41,7 @@ async def test_parallel_chat_error_return_mode():
 @pytest.mark.asyncio
 async def test_parallel_chat_error_continue_mode():
     """Test that on_error='continue' processes all requests despite errors."""
-    # Use an invalid model to trigger an error - use explicit dummy key since not valid VCR test
-    chat = ChatOpenAI(api_key="test", model="gpt-4-does-not-exist-12345")
+    chat = ChatOpenAI(model="gpt-4-does-not-exist-12345")
 
     prompts = [
         "Say 'A'",
@@ -67,8 +65,7 @@ async def test_parallel_chat_error_continue_mode():
 @pytest.mark.asyncio
 async def test_parallel_chat_error_stop_mode():
     """Test that on_error='stop' raises immediately on first error."""
-    # Use an invalid model to trigger an error - use explicit dummy key since not valid VCR test
-    chat = ChatOpenAI(api_key="test", model="gpt-4-invalid-12345")
+    chat = ChatOpenAI(model="gpt-4-invalid-12345")
 
     prompts = [
         "Say 'A'",
@@ -90,8 +87,7 @@ async def test_parallel_chat_error_stop_mode():
 @pytest.mark.asyncio
 async def test_parallel_chat_text_error_handling():
     """Test that parallel_chat_text handles errors correctly."""
-    # Use explicit dummy key since testing error handling with invalid model
-    chat = ChatOpenAI(api_key="test", model="gpt-4-nonexistent-99999")
+    chat = ChatOpenAI(model="gpt-4-nonexistent-99999")
 
     prompts = ["Say 'Hello'", "Say 'World'"]
 
@@ -117,8 +113,7 @@ async def test_parallel_chat_structured_error_handling():
         name: str
         age: int
 
-    # Use explicit dummy key since testing error handling with invalid model
-    chat = ChatOpenAI(api_key="test", model="invalid-model-12345")
+    chat = ChatOpenAI(model="invalid-model-12345")
 
     prompts = ["John, age 25", "Jane, age 30"]
 

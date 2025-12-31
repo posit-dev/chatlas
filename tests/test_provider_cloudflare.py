@@ -53,9 +53,7 @@ def test_cloudflare_data_extraction():
 
 
 def test_cloudflare_custom_model():
-    # This test doesn't use VCR, so use explicit dummy credentials
     chat = ChatCloudflare(
-        api_key="test",
         account="test-account",
         model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
     )

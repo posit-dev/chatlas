@@ -102,8 +102,7 @@ async def test_github_logprobs():
 
 
 def test_github_custom_http_client():
-    # This test doesn't use VCR, so use explicit dummy key
-    ChatGithub(api_key="test", kwargs={"http_client": httpx.AsyncClient()})
+    ChatGithub(kwargs={"http_client": httpx.AsyncClient()})
 
 
 @pytest.mark.vcr

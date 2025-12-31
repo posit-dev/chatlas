@@ -21,8 +21,9 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     
     env:
-      # This workflow assumes VCR cassettes are available for tests 
-      # marked with @pytest.mark.vcr. We still provide a dummy API key 
+      # This workflow will not make any live API calls; those are reserved for 
+      # the test-live.yml workflow. Instead, we rely on the VCR cassettes to
+      # simulate API responses. However, we still set dummy API keys here
       # so that, if the SDK makes pre-emptive checks for the presence of
       # an API key, those checks will pass.
       ANTHROPIC_API_KEY: dummy-api-key

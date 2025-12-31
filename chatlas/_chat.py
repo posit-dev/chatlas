@@ -2872,35 +2872,38 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         }
 
     def __str__(self):
-        turns = self.get_turns(include_system_prompt=False)
-        res = ""
+        from ._repr import format_tokens
+
+        turns = self.get_turns(include_system_prompt=True)
+        assistant_turns = [t for t in turns if isinstance(t, AssistantTurn)]
+
+        # Sum tokens across assistant turns
+        tokens: tuple[int, int, int] | None = None
+        if any(t.tokens for t in assistant_turns):
+            tokens = (
+                sum(t.tokens[0] for t in assistant_turns if t.tokens),
+                sum(t.tokens[1] for t in assistant_turns if t.tokens),
+                sum(t.tokens[2] for t in assistant_turns if t.tokens),
+            )
+
+        costs = [t.cost for t in assistant_turns if t.cost is not None]
+        total_cost = sum(costs) if costs else None
+
+        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)}"
+        token_info = format_tokens(tokens, total_cost)
+        if token_info:
+            res += f" {token_info}"
+        res += ">"
+
         for turn in turns:
-            icon = "👤" if isinstance(turn, UserTurn) else "🤖"
-            res += f"## {icon} {turn.role.capitalize()} turn:\n\n{str(turn)}\n\n"
-        return res
+            res += "\n\n" + repr(turn)
+        return res + "\n"
 
     def __repr__(self):
-        turns = self.get_turns(include_system_prompt=True)
-        tokens = self.get_tokens()
-        tokens_asst = sum(u["tokens_total"] for u in tokens if u["role"] == "assistant")
-        tokens_user = sum(u["tokens_total"] for u in tokens if u["role"] == "user")
-        tokens_cached = sum(u["tokens_cached"] for u in tokens if u["role"] == "user")
+        return self.__str__()
 
-        res = (
-            f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)}"
-            f" tokens={tokens_user + tokens_cached}/{tokens_asst}"
-        )
-
-        # Add cost info only if we can compute it
-        assistant_turns = [t for t in turns if isinstance(t, AssistantTurn)]
-        costs = [t.cost for t in assistant_turns if t.cost is not None]
-        if len(costs) > 0:
-            res += f" ${sum(costs):,.2f}"
-
-        res += ">"
-        for turn in turns:
-            res += "\n" + turn.__repr__(indent=2)
-        return res + "\n"
+    def _repr_markdown_(self) -> str:
+        return self.__str__()
 
     def __deepcopy__(self, memo):
         result = self.__class__.__new__(self.__class__)

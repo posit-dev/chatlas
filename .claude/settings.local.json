@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh issue view:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(uv run:*)",
+      "Bash(make:*)",
+      "Bash(uv sync:*)",
+      "Bash(TEST_OPENAI=false uv run python -m pytest:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

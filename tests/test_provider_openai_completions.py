@@ -104,8 +104,7 @@ def test_openai_pdf():
 
 
 def test_openai_custom_http_client():
-    # This test doesn't use VCR, so use explicit dummy key
-    ChatOpenAICompletions(api_key="test", kwargs={"http_client": httpx.AsyncClient()})
+    ChatOpenAICompletions(kwargs={"http_client": httpx.AsyncClient()})
 
 
 @pytest.mark.vcr

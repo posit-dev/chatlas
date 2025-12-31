@@ -131,8 +131,7 @@ def test_anthropic_image_tool(test_images_dir):
 
 
 def test_anthropic_custom_http_client():
-    # This test doesn't use VCR, so use explicit dummy key
-    ChatAnthropic(api_key="test", kwargs={"http_client": httpx.AsyncClient()})
+    ChatAnthropic(kwargs={"http_client": httpx.AsyncClient()})
 
 
 @pytest.mark.vcr

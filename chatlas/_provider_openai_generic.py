@@ -245,7 +245,11 @@ class OpenAIAbstractProvider(
         response = self._client.files.content(batch.output_file_id)
         results: list[dict[str, Any]] = []
         for line in response.text.splitlines():
-            results.append(json.loads(line))
+            try:
+                results.append(json.loads(line))
+            except json.JSONDecodeError:
+                # Fall back to regex extraction if JSON is malformed
+                results.append(_openai_json_fallback(line))
 
         # Sort by custom_id to maintain order
         def extract_id(x: str):
@@ -278,3 +282,20 @@ class OpenAIAbstractProvider(
     def _response_as_turn(
         completion: ChatCompletionT, has_data_model: bool
     ) -> AssistantTurn: ...
+
+
+def _openai_json_fallback(line: str) -> dict[str, Any]:
+    """Create a fallback response when JSON parsing fails."""
+    return {
+        "custom_id": _extract_custom_id(line),
+        "response": {"status_code": 500},
+    }
+
+
+def _extract_custom_id(json_string: str) -> str:
+    """Extract custom_id from potentially malformed JSON using regex."""
+    pattern = r'"custom_id"\s*:\s*"([^"]*)"'
+    match = re.search(pattern, json_string)
+    if match:
+        return match.group(1)
+    return ""

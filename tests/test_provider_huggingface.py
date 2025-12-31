@@ -92,12 +92,10 @@ def test_huggingface_model_list():
 
 
 def test_huggingface_custom_model():
-    # This test doesn't use VCR, so use explicit dummy key
-    chat = ChatHuggingFace(api_key="test", model="microsoft/DialoGPT-medium")
+    chat = ChatHuggingFace(model="microsoft/DialoGPT-medium")
     assert chat.provider.model == "microsoft/DialoGPT-medium"
 
 
 def test_huggingface_provider_name():
-    # This test doesn't use VCR, so use explicit dummy key
-    chat = ChatHuggingFace(api_key="test")
+    chat = ChatHuggingFace()
     assert chat.provider.name == "HuggingFace"
