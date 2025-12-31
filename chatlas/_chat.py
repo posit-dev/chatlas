@@ -2896,7 +2896,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         res += ">"
 
         for turn in turns:
-            res += "\n\n" + repr(turn)
+            header = f"## {turn.role.capitalize()}"
+            if isinstance(turn, AssistantTurn):
+                token_info = format_tokens(turn.tokens, turn.cost)
+                if token_info:
+                    header += f" [{token_info}]"
+            res += f"\n\n{header}\n\n{str(turn)}"
+
         return res + "\n"
 
     def __repr__(self):
