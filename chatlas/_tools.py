@@ -458,7 +458,8 @@ def sanitize_schema(
     - `title`: Pydantic includes titles at model/field level, but they're not needed
     - `format`: JSON Schema format hints (e.g., "uri", "date-time") that some
       providers like OpenAI reject
-    - `required`: OpenAI requires all properties to be listed in required array
+    - `required`: OpenAI requires all properties to be in required array, with
+      optional params using anyOf with null type
     """
     if "title" in params:
         del params["title"]
@@ -467,12 +468,27 @@ def sanitize_schema(
         del params["format"]
 
     if "properties" in params and isinstance(params["properties"], dict):
-        # OpenAI requires all properties to be in required array
-        params["required"] = list(params["properties"].keys())
+        required_keys = set(params.get("required", []))
 
-        for prop in params["properties"].values():
+        for key, prop in params["properties"].items():
             if isinstance(prop, dict):
                 sanitize_schema(prop)
+
+                # For optional properties (not in required), make them nullable
+                # OpenAI requires all props in required array, using anyOf with
+                # null type to indicate optionality
+                if key not in required_keys:
+                    prop_type = prop.get("type")
+                    if prop_type and prop_type != "null":
+                        # Convert to anyOf with null
+                        prop["anyOf"] = [{"type": prop_type}, {"type": "null"}]
+                        del prop["type"]
+                    elif "anyOf" not in prop and "oneOf" not in prop:
+                        # No type specified, just allow null
+                        prop["anyOf"] = [prop.copy(), {"type": "null"}]
+
+        # OpenAI requires all properties to be in required array
+        params["required"] = list(params["properties"].keys())
 
     return params
 
