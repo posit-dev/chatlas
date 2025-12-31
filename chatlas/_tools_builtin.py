@@ -592,12 +592,33 @@ def tool_web_fetch(
     context (user messages or previous tool results). For security reasons,
     Claude cannot dynamically construct URLs to fetch.
 
-    Using with other providers
-    --------------------------
-    OpenAI does not have a built-in URL fetch tool. For other providers,
-    you can use MCP servers like the filesystem or other tools. Note that
-    some MCP servers (including the MCP Fetch server) may have schema
-    compatibility issues with certain providers.
+    Using with OpenAI (and other providers)
+    ---------------------------------------
+    OpenAI does not have a built-in URL fetch tool. For OpenAI and other
+    providers without native fetch support, use the MCP Fetch server from
+    the Model Context Protocol project:
+    https://github.com/modelcontextprotocol/servers/tree/main/src/fetch
+
+    ```python
+    import asyncio
+    from chatlas import ChatOpenAI
+
+
+    async def main():
+        chat = ChatOpenAI()
+        await chat.register_mcp_tools_stdio_async(
+            command="uvx",
+            args=["mcp-server-fetch"],
+        )
+        await chat.chat_async("Summarize the content at https://www.python.org")
+        await chat.cleanup_mcp_tools()
+
+
+    asyncio.run(main())
+    ```
+
+    This approach works with any provider, making it useful for consistent
+    behavior across different LLM backends.
     """
     return ToolWebFetch(
         allowed_domains=allowed_domains,

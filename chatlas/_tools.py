@@ -441,7 +441,7 @@ def _validate_model_vs_function(model: type[BaseModel], func: Callable) -> None:
 def mcp_tool_input_schema_to_param_schema(
     input_schema: dict[str, Any],
 ) -> dict[str, object]:
-    params = rm_param_titles(input_schema)
+    params = sanitize_schema(input_schema)
 
     if "additionalProperties" not in params:
         params["additionalProperties"] = False
@@ -449,17 +449,29 @@ def mcp_tool_input_schema_to_param_schema(
     return params
 
 
-def rm_param_titles(
+def sanitize_schema(
     params: dict[str, object],
 ) -> dict[str, object]:
-    # For some reason, pydantic wants to include a title at the model and field
-    # level. I don't think we actually need or want this.
+    """
+    Remove schema fields that some providers don't support.
+
+    - `title`: Pydantic includes titles at model/field level, but they're not needed
+    - `format`: JSON Schema format hints (e.g., "uri", "date-time") that some
+      providers like OpenAI reject
+    """
     if "title" in params:
         del params["title"]
 
+    if "format" in params:
+        del params["format"]
+
     if "properties" in params and isinstance(params["properties"], dict):
         for prop in params["properties"].values():
-            if "title" in prop:
-                del prop["title"]
+            if isinstance(prop, dict):
+                sanitize_schema(prop)
 
     return params
+
+
+# Keep for backwards compatibility
+rm_param_titles = sanitize_schema
