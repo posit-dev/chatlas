@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Optional, Union, cast
 
 from ._chat import Chat
 from ._logging import log_model_default
@@ -157,8 +157,10 @@ class DeepSeekProvider(OpenAICompletionsProvider):
         for i, param in enumerate(params):
             if param["role"] in ["assistant", "user"]:
                 param = cast(
-                    ChatCompletionAssistantMessageParam
-                    | ChatCompletionUserMessageParam,
+                    Union[
+                        ChatCompletionAssistantMessageParam,
+                        ChatCompletionUserMessageParam,
+                    ],
                     param,
                 )
                 contents = param.get("content", None)

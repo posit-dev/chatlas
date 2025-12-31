@@ -2371,7 +2371,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError("The last turn must be an assistant turn.")
 
         if target is None:
-            target = str(target_turn)
+            target = target_turn.text
 
         input_messages = []
         for x in input_turns:
