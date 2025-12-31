@@ -160,6 +160,11 @@ quartodoc:
       contents:
         - Tool
         - ToolRejectError
+    - title: Built-in tools
+      desc: Provider-agnostic access to built-in web search and fetch capabilities.
+      contents:
+        - tool_web_search
+        - tool_web_fetch
     - title: Parallel and batch chat
       desc: Submit multiple chats in parallel (fast) or one batch (cheap)
       contents:
@@ -198,6 +203,10 @@ quartodoc:
         - types.ContentText
         - types.ContentToolRequest
         - types.ContentToolResult
+        - types.ContentWebSearchRequest
+        - types.ContentWebSearchResults
+        - types.ContentWebFetchRequest
+        - types.ContentWebFetchResults
         - types.ChatResponse
         - types.ChatResponseAsync
         - types.ImageContentTypes
