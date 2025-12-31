@@ -28,10 +28,10 @@ This server is maintained by Anthropic and can be run via `uvx` (which comes wit
 
 ```python
 import asyncio
-from chatlas import ChatOpenAI
+from chatlas import ChatAnthropic
 
 async def main():
-    chat = ChatOpenAI()
+    chat = ChatAnthropic()
     await chat.register_mcp_tools_stdio_async(
         command="uvx",
         args=["mcp-server-fetch"],
@@ -94,9 +94,9 @@ Roughly speaking, usage looks something like this:
 Use this when running a server locally via a command. This is the most common approach for 3rd party servers.
 
 ```python
-from chatlas import ChatOpenAI
+from chatlas import ChatAnthropic
 
-chat = ChatOpenAI()
+chat = ChatAnthropic()
 
 # Run a server via uvx, npx, or any other command
 await chat.register_mcp_tools_stdio_async(
