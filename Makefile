@@ -17,6 +17,29 @@ check-tests:  ## [py] Run python tests
 	@echo "🧪 Running tests with pytest"
 	uv run pytest
 
+.PHONY: check-tests-vcr
+check-tests-vcr:  ## [py] Run VCR-compatible tests (skips VCR-incompatible providers/tests)
+	@echo ""
+	@echo "📼 Running VCR-compatible tests"
+	TEST_BEDROCK=false \
+	TEST_SNOWFLAKE=false \
+	TEST_GOOGLE_STREAMING=false \
+	TEST_PORTKEY=false \
+	TEST_GITHUB=false \
+	TEST_HUGGINGFACE=false \
+	TEST_MISTRAL=false \
+	TEST_OPENROUTER=false \
+	uv run pytest tests/ -v \
+		--ignore=tests/test_batch_chat.py \
+		--ignore=tests/test_inspect.py \
+		--ignore=tests/test_mcp_client.py
+
+.PHONY: check-tests-live
+check-tests-live:  ## [py] Run all tests with live APIs (requires credentials)
+	@echo ""
+	@echo "🔴 Running live API tests"
+	uv run pytest
+
 .PHONY: check-types
 check-types:  ## [py] Run python type checks
 	@echo ""
@@ -147,6 +170,7 @@ record-vcr-chat:
 		tests/test_parallel_chat_improved.py \
 		tests/test_parallel_chat_errors.py \
 		tests/test_parallel_chat_ordering.py \
+		tests/test_tokens.py \
 		-v
 
 .PHONY: rerecord-vcr

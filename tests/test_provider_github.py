@@ -1,5 +1,12 @@
+import os
+
 import httpx
 import pytest
+
+do_test = os.getenv("TEST_GITHUB", "true")
+if do_test.lower() == "false":
+    pytest.skip("Skipping GitHub tests", allow_module_level=True)
+
 from chatlas import ChatGithub
 
 from ._test_providers import TestChatGithub

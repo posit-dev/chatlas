@@ -1,4 +1,10 @@
+import os
+
 import pytest
+
+do_test = os.getenv("TEST_MISTRAL", "true")
+if do_test.lower() == "false":
+    pytest.skip("Skipping Mistral tests", allow_module_level=True)
 
 from ._test_providers import TestChatMistral
 from .conftest import (

@@ -1,4 +1,11 @@
+import os
+
 import pytest
+
+do_test = os.getenv("TEST_HUGGINGFACE", "true")
+if do_test.lower() == "false":
+    pytest.skip("Skipping HuggingFace tests", allow_module_level=True)
+
 from chatlas import ChatHuggingFace
 
 from ._test_providers import TestChatHuggingFace

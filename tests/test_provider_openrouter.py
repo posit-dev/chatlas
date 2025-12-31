@@ -1,4 +1,10 @@
+import os
+
 import pytest
+
+do_test = os.getenv("TEST_OPENROUTER", "true")
+if do_test.lower() == "false":
+    pytest.skip("Skipping OpenRouter tests", allow_module_level=True)
 
 from chatlas import ChatOpenRouter
 
