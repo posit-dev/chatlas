@@ -24,13 +24,13 @@ interactions:
     uri: https://api.mistral.ai/v1/chat/completions
   response:
     body:
-      string: 'data: {"id":"41def60aa4a049f5b1f7af8980a1ee8e","object":"chat.completion.chunk","created":1767213647,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null}]}
+      string: 'data: {"id":"3c9f8fbd2dee4436ad162cf548136cac","object":"chat.completion.chunk","created":1767220872,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null}]}
 
 
-        data: {"id":"41def60aa4a049f5b1f7af8980a1ee8e","object":"chat.completion.chunk","created":1767213647,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"2"},"finish_reason":null}]}
+        data: {"id":"3c9f8fbd2dee4436ad162cf548136cac","object":"chat.completion.chunk","created":1767220872,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"2"},"finish_reason":null}]}
 
 
-        data: {"id":"41def60aa4a049f5b1f7af8980a1ee8e","object":"chat.completion.chunk","created":1767213647,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":""},"finish_reason":"stop"}],"usage":{"prompt_tokens":22,"total_tokens":24,"completion_tokens":2}}
+        data: {"id":"3c9f8fbd2dee4436ad162cf548136cac","object":"chat.completion.chunk","created":1767220872,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":""},"finish_reason":"stop"}],"usage":{"prompt_tokens":22,"total_tokens":24,"completion_tokens":2}}
 
 
         data: [DONE]
@@ -39,13 +39,13 @@ interactions:
         '
     headers:
       CF-RAY:
-      - 9b6c980d3da6eada-ORD
+      - 9b6d4876ed97e13b-ORD
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Wed, 31 Dec 2025 20:40:47 GMT
+      - Wed, 31 Dec 2025 22:41:13 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -61,15 +61,15 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       mistral-correlation-id:
-      - 019b7624-44a2-74eb-ba3f-5b29385ab8d8
+      - 019b7692-869a-7ef3-93b9-4c3d027c3d4a
       x-envoy-upstream-service-time:
-      - '272'
+      - '206'
       x-kong-proxy-latency:
-      - '6'
+      - '8'
       x-kong-request-id:
-      - 019b7624-44a2-74eb-ba3f-5b29385ab8d8
+      - 019b7692-869a-7ef3-93b9-4c3d027c3d4a
       x-kong-upstream-latency:
-      - '273'
+      - '207'
     status:
       code: 200
       message: OK
