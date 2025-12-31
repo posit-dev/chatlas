@@ -28,13 +28,13 @@ interactions:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
         {\"name\": \"favorite_color\",\"args\": {\"_person\": \"Joe\"}},\"thoughtSignature\":
-        \"CiQBcsjafDEFelPuukzsZNcgE15/jdXrNcIakhyaydrJTVzGjs4KdQFyyNp84drHPS1HNkEFXcH/w7OC7UUGfc5+jjiT5Kn+CZg6yghwkK8BUvVnOoTLp7Nr/gdeK7TTSambUPhAJvQSTBVjaCU70GTUNLgubehf1sF9WJ/CS5G1+lpxeyds5tbhMmR1vKlzaT3jEDe/e2Ly6FvCuQrLAQFyyNp85LfygDYwI+/HBcQasQRo13CntKuusykbgKv1Ig7u7q5RL+wzxd5gYS2fZhvCdsybQAkybRGW+5V/ep7vokTzvUl3gxz6VMHdgv1Oia/6EcID+Qz7Krk87z9Mu6d3kKVl5dOEjY9qdOie7neI8rPHRrTWfN2z6Ws0TixD4zKXEjUuINrDdgmArOwJsh5XTMt1hMTp6hbyd/D6fhJaS8vnVaV550vty8YdA5kyUv0oTV4BDU+QGl5n88E7j/ucaNMmTR4KY1SI\"},{\"functionCall\":
+        \"CiQBcsjafIpVCESiAaj4msfXLDtkGtRXDzkrfMkrDsWuhei/jfIKdQFyyNp8mEUvNFgY1oFUk3aouficRDG0xF/QemU5iqmc71bPg3iwYyxiPgn1GhYVb5Dh3tl52wgqDF4N6xWi85wOhZ14RqJRIybba9ccvEI93jWOD31dG+fCuHlVU1GgIBzG8NjVXCcNDhzq0qNf2mFDD7asmQrLAQFyyNp8SyR1cnoGS5OQEOYJEqrbGuFDS+tcLW2oJZGttYFZwOc0YgFTNgSbL25I7oiopWSLyJYMfrgMFBwn8sFH0mhcrppDyjSkG7EhzmAbfbbJ8wIGmhIqni4HgxwY8bTQApQJWr1LNU81JSvlUXHHdddFGhPt0UMbi/DVVAJl+yQ8eLIWdhbEivMGvoxEYgDD4x+NS/35kZios6g14Qx4fSLO94uzjhQMkfdWzXhUP4Qzfn0vOXfrq0ZIYHS7BdcSn4kjGgWQ0HjR\"},{\"functionCall\":
         {\"name\": \"favorite_color\",\"args\": {\"_person\": \"Hadley\"}}}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
         generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
         80,\"candidatesTokenCount\": 31,\"totalTokenCount\": 170,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 80}],\"thoughtsTokenCount\": 59},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"5RZUabXbLPTT_uMPpoP_qAk\"}\r\n\r\n"
+        \"gemini-2.5-flash\",\"responseId\": \"L4pVaZaWD66OjMcPpqfR8Ak\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -43,11 +43,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 18:16:06 GMT
+      - Wed, 31 Dec 2025 20:40:15 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=873
+      - gfet4t7; dur=760
       Transfer-Encoding:
       - chunked
       Vary:
@@ -96,11 +96,11 @@ interactions:
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Joe:
-        sage green, Hadley: red\",\"thoughtSignature\": \"CikBcsjafAagQAiZWoJIcjjHZ8LRoCEDMfK3zyV59zR6CGYuy8V5E53yLQp4AXLI2nyDD7Eior6isyxBAM8GQp/1oGMcke+JBt2BTZ2LJrxm9ROe3U/U0C6h2nsFtJMiK1XQHkhEdAViMTx9X8cOpsm2fX+sff5rBNrDIos4J6m0Ds1bTxX0QaO1y2CmleTZYOXU2nw/hh5Hy4nmRKGPwSW1uC6mCsoBAXLI2nxaWSFkZChzzgY14g3XV33CInOlcyry4EKXpTCxqjxNonoAlBDwwucLN2RcfhjQdoVq3wTxOIY9E1XRxW/ryWREhv4/y5L0yFGRffvYDXZunEjxntb3QeUm/CB0PdmandQD1CuLv+dq0Gcf9D76NBbohCUAF1+otcQMv7VRo3e/XAOFEAm7otoEp3PO+isC8edNFvePB6qvuXpehDzwrfGaUko7oLwzeD7fvgfViZKgmk3bN2jpDnQSaUwCRd9RbVCFQk7LmAqWAQFyyNp8r5zc7BwGYi8bpEnkzraGjQ/KLG/K9j9Ef28NQ/VBzvTSdnpjySohwt+8IPYa9c3uIOKhkO1UgnJHzPZQaMDYjvZhLDYCbc1BgF6iqHzQ5Cqn1INatFH2cLutsRC6Aj2HUZhKKgyhMEOrJemDdOQFc280aBydJHJ0dD8+My83Xg2dz2CvM/h5k737Mlj6QinlBA==\"}],\"role\":
+        sage green, Hadley: red\",\"thoughtSignature\": \"CikBcsjafJy4vP26akCCsZpVo0gaD5ZkmBkU9+wrMmuGO+wnXU8wfipcdgp4AXLI2nypksxPLt5ajn0lUrbg6Lp3dJKa59hEXYVF+1P+Z1SlOQGi8/nIMCMpxLEJCx+8Vi3vc8Wl3gRqqghCHesFpIdFCMmy/SHmIU+ICcGHfvaOxeZtqt3hxzGzQAewsvZajs1HjkSp6KOuxJ2z3CERYTlTZo36CsoBAXLI2nwxsDpb9a7wuk2PaBayJnxREAyCGUb/qBi52Y+r8Wukl2+TfHmuv7YMcU1hNxv9n27rNkojP+fzlqvVkoj8J48+Nq4iSqTcc39wzKIJm1l697DLkJ4Tsv3ZXonZUjgDUDs2Qa6uLYx57mqRSDtu/6bKsKNjTOHdMh75Uxx+Lc45jFJqv9vGhi6tXI920EC7j6e1m+VyohWaHSRDfJAC0m1JpxB8Qx6sFs6ODyFC5k2h0OpXfE0phIFWEDCjvLvwj7xCGxIlqwqWAQFyyNp87bg90HeJqV3224cg12Gr5UeeAeIYSU4LT3Gt9Y2Zdeig7/Rtsh+tOzF3SwPMmw6tbKa0FXSOcGn5NBXs18iieorl0oOTDwFZMvu6EI5wmXNPGN5uZNZr995PU70sTI5hRzbNJAXCTQyce3G1e653SKVfAWuNAtUHUA0v9KDi4ZY0kcKyG/Sf2p4Be0XSD0SGRw==\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
         140,\"candidatesTokenCount\": 8,\"totalTokenCount\": 254,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 140}],\"thoughtsTokenCount\": 106},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"5hZUaZ3jPLWi_uMP757joAY\"}\r\n\r\n"
+        \"gemini-2.5-flash\",\"responseId\": \"MIpVafijFfuN_uMP6v24QA\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -109,11 +109,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 18:16:07 GMT
+      - Wed, 31 Dec 2025 20:40:16 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=1207
+      - gfet4t7; dur=916
       Transfer-Encoding:
       - chunked
       Vary:

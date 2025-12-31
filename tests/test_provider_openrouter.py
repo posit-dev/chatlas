@@ -1,14 +1,6 @@
-import os
-
 import pytest
-
-do_test = os.getenv("TEST_OPENROUTER", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping OpenRouter tests", allow_module_level=True)
-
 from chatlas import ChatOpenRouter
 
-from ._test_providers import TestChatOpenRouter
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -20,7 +12,7 @@ from .conftest import (
 
 @pytest.mark.vcr
 def test_openrouter_simple_request():
-    chat = TestChatOpenRouter(
+    chat = ChatOpenRouter(
         model="openai/gpt-4o-mini-2024-07-18",
         system_prompt="Be as terse as possible; no punctuation",
     )
@@ -36,7 +28,7 @@ def test_openrouter_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openrouter_simple_streaming_request():
-    chat = TestChatOpenRouter(
+    chat = ChatOpenRouter(
         model="openai/gpt-4o-mini-2024-07-18",
         system_prompt="Be as terse as possible; no punctuation",
     )
@@ -52,7 +44,7 @@ async def test_openrouter_simple_streaming_request():
 @pytest.mark.vcr
 def test_openrouter_tool_variations():
     def chat_fun(**kwargs):
-        return TestChatOpenRouter(model="openai/gpt-4o-mini-2024-07-18", **kwargs)
+        return ChatOpenRouter(model="openai/gpt-4o-mini-2024-07-18", **kwargs)
 
     assert_tools_simple(chat_fun)
 
@@ -60,7 +52,7 @@ def test_openrouter_tool_variations():
 @pytest.mark.vcr
 def test_data_extraction():
     def chat_fun(**kwargs):
-        return TestChatOpenRouter(model="openai/gpt-4o-mini-2024-07-18", **kwargs)
+        return ChatOpenRouter(model="openai/gpt-4o-mini-2024-07-18", **kwargs)
 
     assert_data_extraction(chat_fun)
 
@@ -68,7 +60,7 @@ def test_data_extraction():
 @pytest.mark.vcr
 def test_openrouter_images():
     def chat_fun(**kwargs):
-        return TestChatOpenRouter(model="openai/gpt-4o-mini-2024-07-18", **kwargs)
+        return ChatOpenRouter(model="openai/gpt-4o-mini-2024-07-18", **kwargs)
 
     assert_images_inline(chat_fun)
     assert_images_remote(chat_fun)
@@ -76,4 +68,4 @@ def test_openrouter_images():
 
 @pytest.mark.vcr
 def test_openrouter_list_models():
-    assert_list_models(TestChatOpenRouter)
+    assert_list_models(ChatOpenRouter)

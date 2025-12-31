@@ -27,7 +27,7 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 21:41:53 GMT
+      - Wed, 31 Dec 2025 20:37:50 GMT
       Server:
       - elb
       Strict-Transport-Security:
@@ -35,11 +35,11 @@ interactions:
       Vary:
       - origin
       Via:
-      - 1.1 6dc07fd08e4c425b7a554df1cf809832.cloudfront.net (CloudFront)
+      - 1.1 2f51a381830e231f6bc2b46fda74f69e.cloudfront.net (CloudFront)
       X-Amz-Cf-Id:
-      - kJLrzWLnRvonnEQnnARFxnZzRfKXxgX9Gxn0MLNZF2dKfcGLDiCBaw==
+      - mgFFCx8JBolTTjH52ADc1GUHPZssINDzDxG2pABqc5djt5OUrlCTbQ==
       X-Amz-Cf-Pop:
-      - ORD58-P4
+      - ORD56-P7
       X-Cache:
       - Miss from cloudfront
       X-Content-Type-Options:
@@ -47,7 +47,7 @@ interactions:
       access-control-allow-credentials:
       - 'true'
       x-ds-trace-id:
-      - ae383ff8fb259ff269865bcc55459fa8
+      - e9649652e269daf0ffdd27df13056a22
     status:
       code: 200
       message: OK

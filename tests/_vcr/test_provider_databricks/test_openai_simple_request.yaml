@@ -1,8 +1,7 @@
 interactions:
 - request:
-    body: '{"messages": [{"content": "Be as terse as possible; no punctuation", "role":
-      "system"}, {"content": [{"type": "text", "text": "What is 1 + 1?"}], "role":
-      "user"}], "model": "databricks-claude-3-7-sonnet", "stream": true}'
+    body: '{"messages":[{"content":"Be as terse as possible; no punctuation","role":"system"},{"content":[{"type":"text","text":"What
+      is 1 + 1?"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true}'
     headers:
       Accept:
       - application/json
@@ -16,18 +15,34 @@ interactions:
       - application/json
       Host:
       - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
       X-Stainless-Async:
       - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
       x-stainless-read-timeout:
       - '600'
+      x-stainless-retry-count:
+      - '0'
     method: POST
     uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
   response:
     body:
-      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"2"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":26,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01TJW1WowmKY3ea3jfqPT3kb","created":1767131129}
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"2"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":26,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01Qh6n7f11huu3v5mG7Nphhk","created":1767213414}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":5,"prompt_tokens":26,"total_tokens":31,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01TJW1WowmKY3ea3jfqPT3kb","created":1767131129}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":5,"prompt_tokens":26,"total_tokens":31,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01Qh6n7f11huu3v5mG7Nphhk","created":1767213414}
 
 
         data: [DONE]
@@ -40,11 +55,11 @@ interactions:
       content-type:
       - text/event-stream
       date:
-      - Tue, 30 Dec 2025 21:45:29 GMT
+      - Wed, 31 Dec 2025 20:36:54 GMT
       server:
       - databricks
       server-timing:
-      - request_id;dur=0;desc="d4fe8078-4edf-4b0c-8a8e-4f5d8fddb1f7", client_protocol;dur=0;desc="HTTP/1.1"
+      - request_id;dur=0;desc="21533114-f6af-41a9-9d2d-c476840c322e", client_protocol;dur=0;desc="HTTP/1.1"
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       transfer-encoding:
@@ -52,11 +67,13 @@ interactions:
       x-amzn-bedrock-content-type:
       - application/json
       x-amzn-requestid:
-      - d2879fff-a01d-4e9c-9873-2e6f7f1d2763
+      - 9cc81846-a8dc-4dcd-993a-a7b5fdf22d67
       x-content-type-options:
       - nosniff
       x-databricks-org-id:
       - '138962681435081'
+      x-request-id:
+      - 21533114-f6af-41a9-9d2d-c476840c322e
     status:
       code: 200
       message: OK

@@ -14,12 +14,10 @@ from chatlas import (
 from chatlas._chat import ToolFailureWarning
 from pydantic import BaseModel
 
-from ._test_providers import TestChatOpenAI
-
 
 @pytest.mark.vcr
 def test_simple_batch_chat():
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
     response = chat.chat("What's 1 + 1. Just give me the answer, no punctuation")
     assert str(response) == "2"
 
@@ -27,7 +25,7 @@ def test_simple_batch_chat():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_simple_async_batch_chat():
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
     response = await chat.chat_async(
         "What's 1 + 1. Just give me the answer, no punctuation",
     )
@@ -36,7 +34,7 @@ async def test_simple_async_batch_chat():
 
 @pytest.mark.vcr
 def test_simple_streaming_chat():
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
     res = chat.stream(
         """
         What are the canonical colors of the ROYGBIV rainbow?
@@ -57,7 +55,7 @@ def test_simple_streaming_chat():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_simple_streaming_chat_async():
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
     res = await chat.stream_async(
         """
         What are the canonical colors of the ROYGBIV rainbow?
@@ -125,7 +123,7 @@ def test_basic_export(snapshot):
 
 @pytest.mark.vcr
 def test_chat_structured():
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
 
     class Person(BaseModel):
         name: str
@@ -138,7 +136,7 @@ def test_chat_structured():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_chat_structured_async():
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
 
     class Person(BaseModel):
         name: str
@@ -152,7 +150,7 @@ async def test_chat_structured_async():
 
 @pytest.mark.vcr
 def test_last_turn_retrieval():
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
     assert chat.get_last_turn(role="user") is None
     assert chat.get_last_turn(role="assistant") is None
 
@@ -204,7 +202,7 @@ def test_modify_system_prompt():
 
 @pytest.mark.vcr
 def test_json_serialize():
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
     chat.chat("Tell me a short joke", echo="none")
     turns = chat.get_turns()
     turns_json = [x.model_dump_json() for x in turns]
@@ -238,7 +236,7 @@ def test_json_serialize():
 def test_deepcopy_chat():
     import copy
 
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
     chat.chat("Hi", echo="none")
     chat_fork = copy.deepcopy(chat)
 
@@ -253,7 +251,7 @@ def test_deepcopy_chat():
 
 @pytest.mark.vcr
 def test_chat_callbacks():
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
 
     def test_tool(user: str) -> str:
         "Find out a user's favorite color"
@@ -289,7 +287,7 @@ def test_chat_callbacks():
 @pytest.mark.vcr
 @pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject():
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
 
     def test_tool(user: str) -> str:
         "Find out a user's favorite color"
@@ -315,7 +313,7 @@ def test_chat_tool_request_reject():
 @pytest.mark.vcr
 @pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject2(capsys):
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
 
     def test_tool(user: str) -> str:
         "Find out a user's favorite color"

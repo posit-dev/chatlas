@@ -15,9 +15,28 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    
+    env:
+      # This workflow assumes VCR cassettes are available for tests 
+      # marked with @pytest.mark.vcr. We still provide a dummy API key 
+      # so that, if the SDK makes pre-emptive checks for the presence of
+      # an API key, those checks will pass.
+      ANTHROPIC_API_KEY: dummy-api-key
+      AZURE_OPENAI_API_KEY: dummy-api-key
+      CLOUDFLARE_API_KEY: dummy-api-key
+      DATABRICKS_HOST: dummy-api-key
+      DATABRICKS_TOKEN: dummy-api-key
+      DEEPSEEK_API_KEY: dummy-api-key
+      GH_TOKEN: dummy-api-key
+      GOOGLE_API_KEY: dummy-api-key
+      GROQ_API_KEY: dummy-api-key
+      HUGGINGFACE_API_KEY: dummy-api-key
+      MISTRAL_API_KEY: dummy-api-key
+      OPENAI_API_KEY: dummy-api-key
 
     steps:
       - uses: actions/checkout@v4
@@ -31,8 +50,8 @@ jobs:
       - name: Install the project
         run: uv sync --python ${{ matrix.python-version }} --all-extras
 
-      - name: Check tests (VCR replay)
-        run: make check-tests-vcr
+      - name: Check tests
+        run: make check-tests
 
       - name: Check types
         if: ${{ matrix.python-version != '3.9' }}

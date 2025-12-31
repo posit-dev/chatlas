@@ -1,0 +1,103 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Be very terse, not even punctuation.", "role":
+      "system"}, {"content": [{"type": "text", "text": "What''s the current date in
+      YYYY-MM-DD format?"}], "role": "user"}], "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "stream": true, "stream_options": {"include_usage": true}, "tools": [{"type":
+      "function", "function": {"name": "get_current_date", "description": "Gets the
+      current date", "parameters": {"properties": {}, "type": "object", "additionalProperties":
+      false, "required": []}}}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '474'
+      Content-Type:
+      - application/json
+      Host:
+      - router.huggingface.co
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://router.huggingface.co/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"chatcmpl-262c28d3-c682-4602-802a-810d299126d3","choices":[{"delta":{"role":"assistant"},"index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-262c28d3-c682-4602-802a-810d299126d3","choices":[{"delta":{"content":"{\""},"index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-262c28d3-c682-4602-802a-810d299126d3","choices":[{"delta":{"content":"name\":
+        \"get_current_date\", \"arguments\": {}}"},"index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-262c28d3-c682-4602-802a-810d299126d3","choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk","usage":{"total_tokens":521,"completion_tokens":14,"prompt_tokens":507,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.770940242,"prompt_time":0.023424641,"completion_time":0.005823922,"total_time":0.8023312091827393,"created":1767213635.7006187}}
+
+
+        '
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Expose-Headers:
+      - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:40:35 GMT
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      Via:
+      - 1.1 8668391dce76a5e01d23980e8e8d3454.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - _wU1alLTBvVDXh9QIn94AvzA1uEMPo3UyAgfVyAM-i8OKZBlMy-aTw==
+      X-Amz-Cf-Pop:
+      - MSP50-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Powered-By:
+      - huggingface-moon
+      X-Robots-Tag:
+      - none
+      cf-cache-status:
+      - DYNAMIC
+      cross-origin-opener-policy:
+      - same-origin
+      inference-id:
+      - chatcmpl-262c28d3-c682-4602-802a-810d299126d3
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=3600; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-inference-provider:
+      - cerebras
+      x-ratelimit-remaining-requests-day:
+      - '2879999'
+      x-ratelimit-remaining-requests-hour:
+      - '119999'
+      x-ratelimit-remaining-requests-minute:
+      - '1999'
+      x-ratelimit-remaining-tokens-day:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-hour:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-minute:
+      - '9223372036854767616'
+    status:
+      code: 200
+      message: OK
+version: 1

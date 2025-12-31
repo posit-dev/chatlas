@@ -38,64 +38,38 @@ interactions:
     uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
   response:
     body:
-      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"This"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199427}
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"This"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_016xMCog7E1qmB7QsEQ3D4Zh","created":1767213444}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        image appears"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199427}
+        image appears to be"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_016xMCog7E1qmB7QsEQ3D4Zh","created":1767213444}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        to be"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199427}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        a soli"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199427}
+        a solid re"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_016xMCog7E1qmB7QsEQ3D4Zh","created":1767213444}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"d
-        re"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199427}
+        rectangle or background. It''s a"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_016xMCog7E1qmB7QsEQ3D4Zh","created":1767213444}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        bright, vibrant re"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_016xMCog7E1qmB7QsEQ3D4Zh","created":1767213444}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"d
-        rectangle or backgroun"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"d."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
+        color with no other visible elements,"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_016xMCog7E1qmB7QsEQ3D4Zh","created":1767213444}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        It"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"''s
-        a"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
+        patterns, or text"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_016xMCog7E1qmB7QsEQ3D4Zh","created":1767213444}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        bright, vibrant re"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
+        within it."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_016xMCog7E1qmB7QsEQ3D4Zh","created":1767213445}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"d
-        color that fills the"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        entire frame without"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        any other visible elements,"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        patterns, or text"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":40,"prompt_tokens":22,"total_tokens":62,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":37,"prompt_tokens":22,"total_tokens":59,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_016xMCog7E1qmB7QsEQ3D4Zh","created":1767213445}
 
 
         data: [DONE]
@@ -108,11 +82,11 @@ interactions:
       content-type:
       - text/event-stream
       date:
-      - Wed, 31 Dec 2025 16:43:47 GMT
+      - Wed, 31 Dec 2025 20:37:24 GMT
       server:
       - databricks
       server-timing:
-      - request_id;dur=0;desc="114302a2-8a40-4fb7-b696-2ddd52cdcbf0", client_protocol;dur=0;desc="HTTP/1.1"
+      - request_id;dur=0;desc="3ff59209-2167-4054-842d-1f7c68c84b3e", client_protocol;dur=0;desc="HTTP/1.1"
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       transfer-encoding:
@@ -120,13 +94,13 @@ interactions:
       x-amzn-bedrock-content-type:
       - application/json
       x-amzn-requestid:
-      - 63917b08-1457-4e13-a078-5d5407669e84
+      - 2fe2ba52-e209-4d05-a38c-4da0da27b016
       x-content-type-options:
       - nosniff
       x-databricks-org-id:
       - '138962681435081'
       x-request-id:
-      - 114302a2-8a40-4fb7-b696-2ddd52cdcbf0
+      - 3ff59209-2167-4054-842d-1f7c68c84b3e
     status:
       code: 200
       message: OK

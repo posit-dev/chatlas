@@ -1,13 +1,9 @@
-import os
-
 import pytest
 import requests
+from chatlas import ChatGoogle, ChatVertex
 from google.genai.errors import APIError
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
-from chatlas import ChatGoogle, ChatVertex
-
-from ._test_providers import TestChatGoogle
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -22,18 +18,14 @@ from .conftest import (
     assert_turns_system,
 )
 
-do_test = os.getenv("TEST_GOOGLE", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping Google tests", allow_module_level=True)
-
 
 def chat_func(vertex: bool = False, **kwargs):
     # For Vertex, use ChatVertex directly (not commonly used in VCR tests)
-    # For Google, use TestChatGoogle with fallback credentials
+    # For Google, use ChatGoogle with fallback credentials
     if vertex:
         chat = ChatVertex(**kwargs)
     else:
-        chat = TestChatGoogle(**kwargs)
+        chat = ChatGoogle(**kwargs)
     chat.set_model_params(temperature=0)
     return chat
 
@@ -102,16 +94,10 @@ def test_name_setting():
     # assert chat.provider.name == "Google/Vertex"
 
 
-# Google streaming tests don't work with VCR due to SDK-specific response handling
-# This test requires live API access
+# TODO: Google streaming tests don't work with VCR due to SDK-specific response handling?
 @pytest.mark.asyncio
 @retry_gemini_call
 async def test_google_simple_streaming_request():
-    # Skip if no real Google API key or if streaming tests are disabled
-    if not os.environ.get("GOOGLE_API_KEY"):
-        pytest.skip("GOOGLE_API_KEY required for streaming test (VCR incompatible)")
-    if os.getenv("TEST_GOOGLE_STREAMING", "true").lower() == "false":
-        pytest.skip("Google streaming tests disabled (VCR incompatible)")
     chat = chat_func(
         system_prompt="Be as terse as possible; no punctuation. Do not spell out numbers.",
     )
@@ -191,4 +177,4 @@ def test_google_pdfs():
 
 @pytest.mark.vcr
 def test_google_list_models():
-    assert_list_models(TestChatGoogle)
+    assert_list_models(ChatGoogle)

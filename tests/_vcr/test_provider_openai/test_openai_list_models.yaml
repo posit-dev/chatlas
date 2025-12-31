@@ -245,13 +245,13 @@ interactions:
         \"openai-internal\"\n    }\n  ]\n}"
     headers:
       CF-RAY:
-      - 9b63851608d92339-ORD
+      - 9b6c990249d9e1eb-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:14:58 GMT
+      - Wed, 31 Dec 2025 20:41:26 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -265,13 +265,13 @@ interactions:
       content-length:
       - '15424'
       openai-processing-ms:
-      - '170'
+      - '396'
       openai-version:
       - '2020-10-01'
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       x-envoy-upstream-service-time:
-      - '172'
+      - '400'
       x-openai-proxy-wasm:
       - v0.1
     status:

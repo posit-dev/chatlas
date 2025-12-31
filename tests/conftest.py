@@ -257,7 +257,9 @@ def assert_images_remote(chat_fun: ChatFun, stream: bool = True):
     assert "baseball" in str(response).lower()
 
 
-def assert_images_remote_error(chat_fun: ChatFun, message: str = "Remote images aren't supported"):
+def assert_images_remote_error(
+    chat_fun: ChatFun, message: str = "Remote images aren't supported"
+):
     chat = chat_fun()
     image_remote = content_image_url("https://httr2.r-lib.org/logo.png")
 
@@ -446,7 +448,6 @@ def vcr_config():
         ],
         "filter_post_data_parameters": ["api_key"],
         "decode_compressed_response": True,
-        "record_mode": "once",
         "match_on": ["method", "scheme", "host", "port", "path", "body"],
         "before_record_response": _filter_aws_response,
         "before_record_request": _scrub_aws_request,
@@ -464,7 +465,10 @@ def pytest_exception_interact(node, call, report):
     """Provide helpful message when VCR cassette is missing."""
     if call.excinfo is not None:
         exc_str = str(call.excinfo.value)
-        if "CannotOverwriteExistingCassetteException" in exc_str or "Can't find" in exc_str:
+        if (
+            "CannotOverwriteExistingCassetteException" in exc_str
+            or "Can't find" in exc_str
+        ):
             print("\n" + "=" * 60)
             print("VCR CASSETTE MISSING OR OUTDATED")
             print("=" * 60)

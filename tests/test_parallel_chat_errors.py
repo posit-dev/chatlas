@@ -1,16 +1,13 @@
 """Tests for parallel_chat error handling."""
 
 import pytest
-from pydantic import BaseModel
-
 from chatlas import (
     ChatOpenAI,
     parallel_chat,
     parallel_chat_structured,
     parallel_chat_text,
 )
-
-from ._test_providers import TestChatOpenAI
+from pydantic import BaseModel
 
 
 @pytest.mark.vcr
@@ -141,7 +138,7 @@ async def test_parallel_chat_structured_error_handling():
 @pytest.mark.asyncio
 async def test_parallel_chat_empty_prompts_with_error_handling():
     """Test that empty prompts list works with error handling."""
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
 
     results = await parallel_chat(chat, [], on_error="return")
     assert results == []

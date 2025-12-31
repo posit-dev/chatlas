@@ -27,13 +27,13 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_01b3b7bf80c59a3e016954161a9cc4819c904d00ee627cd0f8\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118362,\n  \"status\":
+      string: "{\n  \"id\": \"resp_06094837b279c75c01695588927c04819fbae3553a405c1e28\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213202,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118363,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213202,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_01b3b7bf80c59a3e016954161af2f4819c838b050dd805b6e5\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_06094837b279c75c0169558892a7d4819f9fe92e01ad24ee90\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"name\\\":\\\"John\\\",\\\"age\\\":15}\"\n
@@ -56,13 +56,13 @@ interactions:
         \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-RAY:
-      - 9b6381c5f8f261d5-ORD
+      - 9b6c8d334b59871c-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:12:43 GMT
+      - Wed, 31 Dec 2025 20:33:22 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -78,11 +78,11 @@ interactions:
       content-length:
       - '1905'
       openai-processing-ms:
-      - '524'
+      - '277'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '527'
+      - '279'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:

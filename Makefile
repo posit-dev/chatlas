@@ -17,29 +17,6 @@ check-tests:  ## [py] Run python tests
 	@echo "🧪 Running tests with pytest"
 	uv run pytest
 
-.PHONY: check-tests-vcr
-check-tests-vcr:  ## [py] Run VCR-compatible tests (skips VCR-incompatible providers/tests)
-	@echo ""
-	@echo "📼 Running VCR-compatible tests"
-	TEST_BEDROCK=false \
-	TEST_SNOWFLAKE=false \
-	TEST_GOOGLE_STREAMING=false \
-	TEST_PORTKEY=false \
-	TEST_GITHUB=false \
-	TEST_HUGGINGFACE=false \
-	TEST_MISTRAL=false \
-	TEST_OPENROUTER=false \
-	uv run pytest tests/ -v \
-		--ignore=tests/test_batch_chat.py \
-		--ignore=tests/test_inspect.py \
-		--ignore=tests/test_mcp_client.py
-
-.PHONY: check-tests-live
-check-tests-live:  ## [py] Run all tests with live APIs (requires credentials)
-	@echo ""
-	@echo "🔴 Running live API tests"
-	uv run pytest
-
 .PHONY: check-types
 check-types:  ## [py] Run python type checks
 	@echo ""
@@ -90,94 +67,9 @@ update-snaps:
 	uv run pytest --snapshot-update
 
 .PHONY: record-vcr
-record-vcr: record-vcr-providers record-vcr-chat ## [py] Record all VCR cassettes
-
-.PHONY: record-vcr-providers
-record-vcr-providers: record-vcr-openai record-vcr-anthropic record-vcr-google record-vcr-azure record-vcr-cloudflare record-vcr-databricks record-vcr-deepseek record-vcr-github record-vcr-huggingface record-vcr-mistral record-vcr-openai-completions record-vcr-openrouter record-vcr-portkey ## [py] Record VCR cassettes for providers
-
-.PHONY: record-vcr-openai
-record-vcr-openai:
-	@echo "📼 Recording OpenAI cassettes"
-	uv run pytest --record-mode=all tests/test_provider_openai.py -v
-
-.PHONY: record-vcr-anthropic
-record-vcr-anthropic:
-	@echo "📼 Recording Anthropic cassettes"
-	uv run pytest --record-mode=all tests/test_provider_anthropic.py -v
-
-.PHONY: record-vcr-google
-record-vcr-google:
-	@echo "📼 Recording Google cassettes"
-	uv run pytest --record-mode=all tests/test_provider_google.py -v
-
-.PHONY: record-vcr-azure
-record-vcr-azure:
-	@echo "📼 Recording Azure cassettes"
-	uv run pytest --record-mode=all tests/test_provider_azure.py -v
-
-.PHONY: record-vcr-cloudflare
-record-vcr-cloudflare:
-	@echo "📼 Recording Cloudflare cassettes"
-	uv run pytest --record-mode=all tests/test_provider_cloudflare.py -v
-
-.PHONY: record-vcr-databricks
-record-vcr-databricks:
-	@echo "📼 Recording Databricks cassettes"
-	uv run pytest --record-mode=all tests/test_provider_databricks.py -v
-
-.PHONY: record-vcr-deepseek
-record-vcr-deepseek:
-	@echo "📼 Recording DeepSeek cassettes"
-	uv run pytest --record-mode=all tests/test_provider_deepseek.py -v
-
-.PHONY: record-vcr-github
-record-vcr-github:
-	@echo "📼 Recording GitHub cassettes"
-	uv run pytest --record-mode=all tests/test_provider_github.py -v
-
-.PHONY: record-vcr-huggingface
-record-vcr-huggingface:
-	@echo "📼 Recording HuggingFace cassettes"
-	uv run pytest --record-mode=all tests/test_provider_huggingface.py -v
-
-.PHONY: record-vcr-mistral
-record-vcr-mistral:
-	@echo "📼 Recording Mistral cassettes"
-	uv run pytest --record-mode=all tests/test_provider_mistral.py -v
-
-.PHONY: record-vcr-openai-completions
-record-vcr-openai-completions:
-	@echo "📼 Recording OpenAI Completions cassettes"
-	uv run pytest --record-mode=all tests/test_provider_openai_completions.py -v
-
-.PHONY: record-vcr-openrouter
-record-vcr-openrouter:
-	@echo "📼 Recording OpenRouter cassettes"
-	uv run pytest --record-mode=all tests/test_provider_openrouter.py -v
-
-.PHONY: record-vcr-portkey
-record-vcr-portkey:
-	@echo "📼 Recording Portkey cassettes"
-	uv run pytest --record-mode=all tests/test_provider_portkey.py -v
-
-.PHONY: record-vcr-chat
-record-vcr-chat:
-	@echo "📼 Recording chat cassettes"
-	uv run pytest --record-mode=all \
-		tests/test_chat.py \
-		tests/test_chat_dangling_tools.py \
-		tests/test_parallel_chat.py \
-		tests/test_parallel_chat_improved.py \
-		tests/test_parallel_chat_errors.py \
-		tests/test_parallel_chat_ordering.py \
-		tests/test_tokens.py \
-		-v
-
-.PHONY: rerecord-vcr
-rerecord-vcr:  ## [py] Delete and re-record all VCR cassettes
-	@echo "🗑️  Deleting existing cassettes"
-	rm -rf tests/_vcr/test_provider_* tests/_vcr/test_chat* tests/_vcr/test_parallel_chat*
-	$(MAKE) record-vcr
+update-snaps-vcr:
+	@echo "📼 Updating VCR cassettes"
+	uv run pytest --record-mode=rewrite
 
 .PHONY: update-types
 update-types:

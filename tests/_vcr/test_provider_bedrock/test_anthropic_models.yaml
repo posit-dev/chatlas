@@ -8,7 +8,7 @@ interactions:
     body:
       string: '{"roleCredentials": {"accessKeyId": "SCRUBBED_ACCESS_KEY_ID", "secretAccessKey":
         "SCRUBBED_SECRET_ACCESS_KEY", "sessionToken": "SCRUBBED_SESSION_TOKEN", "expiration":
-        1767249209000}}'
+        1767256602000}}'
     headers:
       Access-Control-Expose-Headers:
       - RequestId
@@ -22,13 +22,13 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 18:33:30 GMT
+      - Wed, 31 Dec 2025 20:36:43 GMT
       RequestId:
-      - 9c790596-555f-4eba-a4f9-02bbff2f2e26
+      - e709f946-33da-4b82-9439-5c1b8a7ba8ea
       Server:
       - AWS SSO
       x-amzn-RequestId:
-      - 9c790596-555f-4eba-a4f9-02bbff2f2e26
+      - e709f946-33da-4b82-9439-5c1b8a7ba8ea
     status:
       code: 200
       message: OK
@@ -37,7 +37,7 @@ interactions:
     headers:
       X-Amz-Date:
       - !!binary |
-        MjAyNTEyMzFUMTgzMzMwWg==
+        MjAyNTEyMzFUMjAzNjQzWg==
     method: GET
     uri: https://bedrock.us-east-1.amazonaws.com/foundation-models
   response:
@@ -569,9 +569,9 @@ interactions:
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 18:33:31 GMT
+      - Wed, 31 Dec 2025 20:36:43 GMT
       x-amzn-RequestId:
-      - 09de442d-c21e-4750-9411-77cd5509ce0c
+      - eb83378b-36d8-4cc5-b125-89416112589a
     status:
       code: 200
       message: OK

@@ -30,15 +30,15 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_034031ab7393f438016954164e938c81a28cfa79ad62ec3231\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118414,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0de0eedf9abbba8e01695588dee61081a094c9139363717b4f\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213278,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118415,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213279,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"fc_034031ab7393f438016954164f07a481a2ba858bd8c4bddfd5\",\n
+        \ \"output\": [\n    {\n      \"id\": \"fc_0de0eedf9abbba8e01695588df828c81a0b45419fd233fb5d0\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{}\",\n      \"call_id\": \"call_APn9Ggk7zrmS4MqRhMzUrtBH\",\n      \"name\":
+        \"{}\",\n      \"call_id\": \"call_OCvTa1W61xxoZeEtTW7m34i5\",\n      \"name\":
         \"step_one\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\":
         null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n
         \ \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
@@ -60,13 +60,13 @@ interactions:
         \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-RAY:
-      - 9b63830ace360297-ORD
+      - 9b6c8f10da5a0d35-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:35 GMT
+      - Wed, 31 Dec 2025 20:34:39 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -82,11 +82,11 @@ interactions:
       content-length:
       - '1929'
       openai-processing-ms:
-      - '499'
+      - '664'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '501'
+      - '666'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -133,15 +133,15 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_05baf42dcf2bd923016954164eb16c819f802e54ba6aee9915\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118414,\n  \"status\":
+      string: "{\n  \"id\": \"resp_03362c591142706a01695588df06548190a1217283a5acba08\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213279,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118415,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213279,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"fc_05baf42dcf2bd923016954164f6314819f808d1a29d0cb4263\",\n
+        \ \"output\": [\n    {\n      \"id\": \"fc_03362c591142706a01695588dfc3d88190a1dd0f13c2022115\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{}\",\n      \"call_id\": \"call_JE5cvWy3FaA0qTe67uqa5h4h\",\n      \"name\":
+        \"{}\",\n      \"call_id\": \"call_pzBmxpmc0vXqsxskUc2fkarC\",\n      \"name\":
         \"step_one\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\":
         null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n
         \ \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
@@ -163,13 +163,13 @@ interactions:
         \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-RAY:
-      - 9b63830b7dc8d130-ORD
+      - 9b6c8f119a1de819-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:35 GMT
+      - Wed, 31 Dec 2025 20:34:39 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -185,11 +185,11 @@ interactions:
       content-length:
       - '1929'
       openai-processing-ms:
-      - '756'
+      - '794'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '760'
+      - '796'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -209,9 +209,9 @@ interactions:
     body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
       "Be terse. Follow instructions exactly."}]}, {"role": "user", "content": [{"type":
       "input_text", "text": "First call step_one, wait for the result, then call step_two,
-      and tell me when both are done"}]}, {"type": "function_call", "call_id": "fc_034031ab7393f438016954164f07a481a2ba858bd8c4bddfd5",
+      and tell me when both are done"}]}, {"type": "function_call", "call_id": "fc_0de0eedf9abbba8e01695588df828c81a0b45419fd233fb5d0",
       "name": "step_one", "arguments": "{}"}, {"type": "function_call_output", "call_id":
-      "fc_034031ab7393f438016954164f07a481a2ba858bd8c4bddfd5", "output": "Step 1 complete"}],
+      "fc_0de0eedf9abbba8e01695588df828c81a0b45419fd233fb5d0", "output": "Step 1 complete"}],
       "model": "gpt-4.1", "store": false, "stream": false, "tools": [{"type": "function",
       "name": "step_one", "description": "First step.", "parameters": {"properties":
       {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
@@ -230,8 +230,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=xNfuzw72YS_.2ORc7kk0OGHChD9D0dcCobjpWq.dNmE-1767118415-1.0.1.1-7P6zqnelzCoI0lANwxiRD5I0cicZku0S9JD2EThRiLTTnXTLgtWI8g76L.QCwDvdS7S9cR2QsX7D0auaMTQWTOkdcQ_GcSQM3QZDsKaJBlg;
-        _cfuvid=AlDbVPz4YgeBpHiGy4ppw8i.4uZDKW8.YyBhycb7FzM-1767118415464-0.0.1.1-604800000
+      - __cf_bm=IDwKAiDYQ.k9PVr34hUJTHFdtMrFdfkg.ZChz8.Vq0Q-1767213279-1.0.1.1-NSjpDfe6DCtgDXc1LAZEb2CMJbDuD2mk7n8f3XEauiOBBQfpD7oemVayB9l0S0XNMVLm0LYhywSTCn.095wyTUURblHBqL6I7i0kbK8lBm8;
+        _cfuvid=Mm3FLzrWgSv1xkIPnqQDoc3cDcYWL5rbkE_Q68zKnaU-1767213279829-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -242,15 +242,15 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0204b824c43717de016954164fb04c8193ab71a9649b298373\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118415,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0cb7928f1dc5e80701695588e00c04819ea011e66843bc5f78\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213280,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118416,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213280,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"fc_0204b824c43717de016954165025588193a2ee324cddb0e90f\",\n
+        \ \"output\": [\n    {\n      \"id\": \"fc_0cb7928f1dc5e80701695588e05a94819ebcc3ce52307aebef\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{}\",\n      \"call_id\": \"call_kNjtIzdZcCgiNZjrIKMtuv7c\",\n      \"name\":
+        \"{}\",\n      \"call_id\": \"call_Gro32WsZ9ZNck9GbDs6oteZn\",\n      \"name\":
         \"step_two\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\":
         null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n
         \ \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
@@ -272,13 +272,13 @@ interactions:
         \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-RAY:
-      - 9b638311c8ab1177-ORD
+      - 9b6c8f180cdde894-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:36 GMT
+      - Wed, 31 Dec 2025 20:34:40 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -294,11 +294,11 @@ interactions:
       content-length:
       - '1930'
       openai-processing-ms:
-      - '503'
+      - '352'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '506'
+      - '355'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -318,9 +318,9 @@ interactions:
     body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
       "Be terse. Follow instructions exactly."}]}, {"role": "user", "content": [{"type":
       "input_text", "text": "Just call step_one and tell me when it''s done"}]}, {"type":
-      "function_call", "call_id": "fc_05baf42dcf2bd923016954164f6314819f808d1a29d0cb4263",
+      "function_call", "call_id": "fc_03362c591142706a01695588dfc3d88190a1dd0f13c2022115",
       "name": "step_one", "arguments": "{}"}, {"type": "function_call_output", "call_id":
-      "fc_05baf42dcf2bd923016954164f6314819f808d1a29d0cb4263", "output": "Step 1 complete"}],
+      "fc_03362c591142706a01695588dfc3d88190a1dd0f13c2022115", "output": "Step 1 complete"}],
       "model": "gpt-4.1", "store": false, "stream": false, "tools": [{"type": "function",
       "name": "step_one", "description": "First step.", "parameters": {"properties":
       {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
@@ -339,8 +339,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=xNfuzw72YS_.2ORc7kk0OGHChD9D0dcCobjpWq.dNmE-1767118415-1.0.1.1-7P6zqnelzCoI0lANwxiRD5I0cicZku0S9JD2EThRiLTTnXTLgtWI8g76L.QCwDvdS7S9cR2QsX7D0auaMTQWTOkdcQ_GcSQM3QZDsKaJBlg;
-        _cfuvid=AlDbVPz4YgeBpHiGy4ppw8i.4uZDKW8.YyBhycb7FzM-1767118415464-0.0.1.1-604800000
+      - __cf_bm=IDwKAiDYQ.k9PVr34hUJTHFdtMrFdfkg.ZChz8.Vq0Q-1767213279-1.0.1.1-NSjpDfe6DCtgDXc1LAZEb2CMJbDuD2mk7n8f3XEauiOBBQfpD7oemVayB9l0S0XNMVLm0LYhywSTCn.095wyTUURblHBqL6I7i0kbK8lBm8;
+        _cfuvid=Mm3FLzrWgSv1xkIPnqQDoc3cDcYWL5rbkE_Q68zKnaU-1767213279829-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -351,13 +351,13 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0091c8a97ff5f778016954164fd7888195a10f7eb63774e4a8\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118415,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0c85e190305b393d01695588e02df48195863dada154f29ec9\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213280,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118416,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213280,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0091c8a97ff5f778016954165031ac81958e92723220539f21\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0c85e190305b393d01695588e0741c8195ad17f1cd0978ff52\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"Step one is done.\"\n
@@ -382,13 +382,13 @@ interactions:
         \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-RAY:
-      - 9b6383129ad495c1-ORD
+      - 9b6c8f18cecee273-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:36 GMT
+      - Wed, 31 Dec 2025 20:34:40 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -404,11 +404,11 @@ interactions:
       content-length:
       - '2023'
       openai-processing-ms:
-      - '602'
+      - '380'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '605'
+      - '383'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -428,12 +428,12 @@ interactions:
     body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
       "Be terse. Follow instructions exactly."}]}, {"role": "user", "content": [{"type":
       "input_text", "text": "First call step_one, wait for the result, then call step_two,
-      and tell me when both are done"}]}, {"type": "function_call", "call_id": "fc_034031ab7393f438016954164f07a481a2ba858bd8c4bddfd5",
+      and tell me when both are done"}]}, {"type": "function_call", "call_id": "fc_0de0eedf9abbba8e01695588df828c81a0b45419fd233fb5d0",
       "name": "step_one", "arguments": "{}"}, {"type": "function_call_output", "call_id":
-      "fc_034031ab7393f438016954164f07a481a2ba858bd8c4bddfd5", "output": "Step 1 complete"},
-      {"type": "function_call", "call_id": "fc_0204b824c43717de016954165025588193a2ee324cddb0e90f",
+      "fc_0de0eedf9abbba8e01695588df828c81a0b45419fd233fb5d0", "output": "Step 1 complete"},
+      {"type": "function_call", "call_id": "fc_0cb7928f1dc5e80701695588e05a94819ebcc3ce52307aebef",
       "name": "step_two", "arguments": "{}"}, {"type": "function_call_output", "call_id":
-      "fc_0204b824c43717de016954165025588193a2ee324cddb0e90f", "output": "Step 2 complete"}],
+      "fc_0cb7928f1dc5e80701695588e05a94819ebcc3ce52307aebef", "output": "Step 2 complete"}],
       "model": "gpt-4.1", "store": false, "stream": false, "tools": [{"type": "function",
       "name": "step_one", "description": "First step.", "parameters": {"properties":
       {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
@@ -452,8 +452,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=xNfuzw72YS_.2ORc7kk0OGHChD9D0dcCobjpWq.dNmE-1767118415-1.0.1.1-7P6zqnelzCoI0lANwxiRD5I0cicZku0S9JD2EThRiLTTnXTLgtWI8g76L.QCwDvdS7S9cR2QsX7D0auaMTQWTOkdcQ_GcSQM3QZDsKaJBlg;
-        _cfuvid=AlDbVPz4YgeBpHiGy4ppw8i.4uZDKW8.YyBhycb7FzM-1767118415464-0.0.1.1-604800000
+      - __cf_bm=IDwKAiDYQ.k9PVr34hUJTHFdtMrFdfkg.ZChz8.Vq0Q-1767213279-1.0.1.1-NSjpDfe6DCtgDXc1LAZEb2CMJbDuD2mk7n8f3XEauiOBBQfpD7oemVayB9l0S0XNMVLm0LYhywSTCn.095wyTUURblHBqL6I7i0kbK8lBm8;
+        _cfuvid=Mm3FLzrWgSv1xkIPnqQDoc3cDcYWL5rbkE_Q68zKnaU-1767213279829-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -464,13 +464,13 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0a96259448cb7f4d01695416513b0c8196aeb3811a10e09c5b\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118417,\n  \"status\":
+      string: "{\n  \"id\": \"resp_06d4ad63f2b9f33101695588e0d2a48192be079e8750aef863\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213280,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118419,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213281,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0a96259448cb7f4d016954165293d48196b21a8cc842728087\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_06d4ad63f2b9f33101695588e10fa08192b95477bf927db574\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"Step one done. Step
@@ -496,13 +496,13 @@ interactions:
         \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-RAY:
-      - 9b6383181fd28710-ORD
+      - 9b6c8f1cc97ff862-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:39 GMT
+      - Wed, 31 Dec 2025 20:34:41 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -518,11 +518,11 @@ interactions:
       content-length:
       - '2057'
       openai-processing-ms:
-      - '2904'
+      - '389'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '3069'
+      - '392'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:

@@ -3,13 +3,12 @@ import os
 import pytest
 from chatlas import ChatCloudflare
 
-from ._test_providers import TestChatCloudflare
 from .conftest import assert_data_extraction, assert_turns_existing, assert_turns_system
 
 
 @pytest.mark.vcr
 def test_cloudflare_simple_request():
-    chat = TestChatCloudflare(
+    chat = ChatCloudflare(
         model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
     )
     chat.chat("What is 1 + 1?")
@@ -25,7 +24,7 @@ def test_cloudflare_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_cloudflare_simple_streaming_request():
-    chat = TestChatCloudflare(
+    chat = ChatCloudflare(
         model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
     )
     res = []
@@ -39,14 +38,14 @@ async def test_cloudflare_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_cloudflare_respects_turns_interface():
-    assert_turns_system(TestChatCloudflare)
-    assert_turns_existing(TestChatCloudflare)
+    assert_turns_system(ChatCloudflare)
+    assert_turns_existing(ChatCloudflare)
 
 
 @pytest.mark.vcr
 def test_cloudflare_data_extraction():
     def chat_fun(**kwargs):
-        return TestChatCloudflare(
+        return ChatCloudflare(
             model="@cf/meta/llama-3.3-70b-instruct-fp8-fast", **kwargs
         )
 

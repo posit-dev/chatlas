@@ -5,7 +5,6 @@ import pytest
 from chatlas import AssistantTurn, ChatAnthropic, UserTurn, content_image_file
 from chatlas._provider_anthropic import AnthropicProvider
 
-from ._test_providers import TestChatAnthropic
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -24,7 +23,7 @@ from .conftest import (
 
 
 def chat_func(system_prompt: str = "", **kwargs):
-    return TestChatAnthropic(
+    return ChatAnthropic(
         system_prompt=system_prompt,
         model="claude-haiku-4-5-20251001",
         **kwargs,

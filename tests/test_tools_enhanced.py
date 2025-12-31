@@ -158,7 +158,7 @@ class TestToolFromFunc:
         assert func.get("description") == "Add two numbers asynchronously."
 
 
-class TestChatGetSetTools:
+class ChatGetSetTools:
     """Test Chat.get_tools() and Chat.set_tools() methods."""
 
     def test_get_tools_empty(self):

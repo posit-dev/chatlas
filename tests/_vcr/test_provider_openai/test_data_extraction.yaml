@@ -29,44 +29,44 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0b56a3dfa681b2ec016954169128dc819d969db852d0ceb8cc\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118481,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0de1f7fdb56d45370169558a6b3bd88191805466907e85d55a\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213675,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118481,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213675,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0b56a3dfa681b2ec0169541691668c819d8844b344b755eda9\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0de1f7fdb56d45370169558a6b8ab0819197ee3cebfa1d54a2\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"title\\\":\\\"Apples
-        are tasty\\\",\\\"author\\\":\\\"Hadley Wickham\\\"}\"\n        }\n      ],\n
-        \     \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        null,\n  \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n
-        \ },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
-        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
-        \"json_schema\",\n      \"description\": null,\n      \"name\": \"structured_data\",\n
-        \     \"schema\": {\n        \"description\": \"Summary of the article\",\n
-        \       \"properties\": {\n          \"title\": {\n            \"type\": \"string\"\n
-        \         },\n          \"author\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"title\",\n          \"author\"\n
-        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        82,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 16,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 98\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+        [],\n          \"logprobs\": [],\n          \"text\": \"{\\n  \\\"title\\\":
+        \\\"Apples are tasty\\\",\\n  \\\"author\\\": \\\"Hadley Wickham\\\"\\n}\"\n
+        \       }\n      ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
+        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
+        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
+        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
+        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
+        \   \"format\": {\n      \"type\": \"json_schema\",\n      \"description\":
+        null,\n      \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\":
+        \"Summary of the article\",\n        \"properties\": {\n          \"title\":
+        {\n            \"type\": \"string\"\n          },\n          \"author\": {\n
+        \           \"type\": \"string\"\n          }\n        },\n        \"required\":
+        [\n          \"title\",\n          \"author\"\n        ],\n        \"type\":
+        \"object\",\n        \"additionalProperties\": false\n      },\n      \"strict\":
+        true\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
+        \ \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\":
+        \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 82,\n    \"input_tokens_details\":
+        {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 23,\n    \"output_tokens_details\":
+        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 105\n  },\n
+        \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-RAY:
-      - 9b6384aafbc1000c-ORD
+      - 9b6c98bdfa9adb04-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:14:41 GMT
+      - Wed, 31 Dec 2025 20:41:15 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -80,13 +80,13 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '1993'
+      - '2006'
       openai-processing-ms:
-      - '742'
+      - '500'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '744'
+      - '503'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -94,7 +94,7 @@ interactions:
       x-ratelimit-remaining-requests:
       - '9999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '29999996'
       x-ratelimit-reset-requests:
       - 6ms
       x-ratelimit-reset-tokens:
@@ -128,8 +128,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=ll6fJBEY9zA_9yu7OzcSMNHqwCkDYtqhmr5gds0euqc-1767118481-1.0.1.1-mO9JoWWSvza.nQsNgUbo872H_13_qMPO0wFu7GbI13JAJUlTOVjgRjS9dFHJ8SqcCpwZb06w5hTfPx.DLYqiQ4BO3Ll_2kNhp0tiq6MEzTA;
-        _cfuvid=oy_Hitz71_..qKroxKqIvtgRjWcAu9Uyeez94CHhEFY-1767118481916-0.0.1.1-604800000
+      - __cf_bm=daLjsRYl4e1swzRhMGi7txja5RcE.6l0BHHvKDYAKm8-1767213675-1.0.1.1-H8SNmRbdbetKI2d0i_b36DAsIKJq21VrDLGEJmWnJT3cP4VMOhpV163OUoNUwq4SvTR5gcT.UiOB6M6EyugTC5BY6.6978BE1oCQNRhrF_8;
+        _cfuvid=G80JVON9JDKas3rhhmkj2._hkOStYcgp8eMmmgSFUIA-1767213675745-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -140,13 +140,13 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0bc8cfedb4dfa3e4016954169238fc819c9cf2fca14a1b4257\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118482,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0c83445941e524b70169558a6bfa10819d992abd619b92f762\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213676,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118482,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213676,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0bc8cfedb4dfa3e401695416926938819c81a0ba5ee1cfc7a9\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0c83445941e524b70169558a6c38d0819da082e7e7b12b6ba3\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"title\\\":\\\"Apples
@@ -171,13 +171,13 @@ interactions:
         {}\n}"
     headers:
       CF-RAY:
-      - 9b6384b19ea0f859-ORD
+      - 9b6c98c29cbecefa-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:14:42 GMT
+      - Wed, 31 Dec 2025 20:41:16 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -193,11 +193,11 @@ interactions:
       content-length:
       - '1995'
       openai-processing-ms:
-      - '375'
+      - '397'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '378'
+      - '400'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -243,8 +243,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=ll6fJBEY9zA_9yu7OzcSMNHqwCkDYtqhmr5gds0euqc-1767118481-1.0.1.1-mO9JoWWSvza.nQsNgUbo872H_13_qMPO0wFu7GbI13JAJUlTOVjgRjS9dFHJ8SqcCpwZb06w5hTfPx.DLYqiQ4BO3Ll_2kNhp0tiq6MEzTA;
-        _cfuvid=oy_Hitz71_..qKroxKqIvtgRjWcAu9Uyeez94CHhEFY-1767118481916-0.0.1.1-604800000
+      - __cf_bm=daLjsRYl4e1swzRhMGi7txja5RcE.6l0BHHvKDYAKm8-1767213675-1.0.1.1-H8SNmRbdbetKI2d0i_b36DAsIKJq21VrDLGEJmWnJT3cP4VMOhpV163OUoNUwq4SvTR5gcT.UiOB6M6EyugTC5BY6.6978BE1oCQNRhrF_8;
+        _cfuvid=G80JVON9JDKas3rhhmkj2._hkOStYcgp8eMmmgSFUIA-1767213675745-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -255,17 +255,17 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0121d83ccb2038e30169541692e7788195838a944af739159c\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118482,\n  \"status\":
+      string: "{\n  \"id\": \"resp_07ad3cacaa68c2e80169558a6ca248819ea81489088a94adff\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213676,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118483,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213677,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0121d83ccb2038e3016954169340988195a766e88c23d581d6\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_07ad3cacaa68c2e80169558a6d3b88819ea9fc2c9f21e29818\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"name\\\":\\\"Emily
-        Johnson\\\",\\\"age\\\":27}\"\n        }\n      ],\n      \"role\": \"assistant\"\n
+        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"name\\\":\\\"Sophia
+        Johnson\\\",\\\"age\\\":34}\"\n        }\n      ],\n      \"role\": \"assistant\"\n
         \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\":
         null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n
         \ \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
@@ -280,18 +280,18 @@ interactions:
         \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
         0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
         169,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 11,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 180\n  },\n  \"user\": null,\n  \"metadata\":
+        \   \"output_tokens\": 12,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 181\n  },\n  \"user\": null,\n  \"metadata\":
         {}\n}"
     headers:
       CF-RAY:
-      - 9b6384b5bd2ff606-ORD
+      - 9b6c98c6bb90eac4-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:14:43 GMT
+      - Wed, 31 Dec 2025 20:41:17 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -305,13 +305,13 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '1916'
+      - '1917'
       openai-processing-ms:
-      - '648'
+      - '819'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '653'
+      - '822'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -341,7 +341,7 @@ interactions:
       Wickham\"}", "annotations": []}], "status": "completed", "type": "message",
       "id": "msg_missing_id"}, {"role": "user", "content": [{"type": "input_text",
       "text": "Generate the name and age of a random person."}]}, {"role": "assistant",
-      "content": [{"type": "output_text", "text": "{\"name\":\"Emily Johnson\",\"age\":27}",
+      "content": [{"type": "output_text", "text": "{\"name\":\"Sophia Johnson\",\"age\":34}",
       "annotations": []}], "status": "completed", "type": "message", "id": "msg_missing_id"},
       {"role": "user", "content": [{"type": "input_text", "text": "What is the name
       of the person?"}]}], "model": "gpt-4.1", "store": false, "stream": true}'
@@ -353,12 +353,12 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1283'
+      - '1284'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=ll6fJBEY9zA_9yu7OzcSMNHqwCkDYtqhmr5gds0euqc-1767118481-1.0.1.1-mO9JoWWSvza.nQsNgUbo872H_13_qMPO0wFu7GbI13JAJUlTOVjgRjS9dFHJ8SqcCpwZb06w5hTfPx.DLYqiQ4BO3Ll_2kNhp0tiq6MEzTA;
-        _cfuvid=oy_Hitz71_..qKroxKqIvtgRjWcAu9Uyeez94CHhEFY-1767118481916-0.0.1.1-604800000
+      - __cf_bm=daLjsRYl4e1swzRhMGi7txja5RcE.6l0BHHvKDYAKm8-1767213675-1.0.1.1-H8SNmRbdbetKI2d0i_b36DAsIKJq21VrDLGEJmWnJT3cP4VMOhpV163OUoNUwq4SvTR5gcT.UiOB6M6EyugTC5BY6.6978BE1oCQNRhrF_8;
+        _cfuvid=G80JVON9JDKas3rhhmkj2._hkOStYcgp8eMmmgSFUIA-1767213675745-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -371,69 +371,125 @@ interactions:
     body:
       string: 'event: response.created
 
-        data: {"type":"response.created","sequence_number":0,"response":{"id":"resp_0598fddda1e6f0560169541693d3b0819da01c66998c468523","object":"response","created_at":1767118483,"status":"in_progress","background":false,"completed_at":null,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}}}
+        data: {"type":"response.created","sequence_number":0,"response":{"id":"resp_0a418a38cbd95bcd0169558a6db6a4819fa22a82fc183ad602","object":"response","created_at":1767213677,"status":"in_progress","background":false,"completed_at":null,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}}}
 
 
         event: response.in_progress
 
-        data: {"type":"response.in_progress","sequence_number":1,"response":{"id":"resp_0598fddda1e6f0560169541693d3b0819da01c66998c468523","object":"response","created_at":1767118483,"status":"in_progress","background":false,"completed_at":null,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}}}
+        data: {"type":"response.in_progress","sequence_number":1,"response":{"id":"resp_0a418a38cbd95bcd0169558a6db6a4819fa22a82fc183ad602","object":"response","created_at":1767213677,"status":"in_progress","background":false,"completed_at":null,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}}}
 
 
         event: response.output_item.added
 
-        data: {"type":"response.output_item.added","sequence_number":2,"output_index":0,"item":{"id":"msg_0598fddda1e6f056016954169411ec819d859c96b00460ec88","type":"message","status":"in_progress","content":[],"role":"assistant"}}
+        data: {"type":"response.output_item.added","sequence_number":2,"output_index":0,"item":{"id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","type":"message","status":"in_progress","content":[],"role":"assistant"}}
 
 
         event: response.content_part.added
 
-        data: {"type":"response.content_part.added","sequence_number":3,"item_id":"msg_0598fddda1e6f056016954169411ec819d859c96b00460ec88","output_index":0,"content_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""}}
+        data: {"type":"response.content_part.added","sequence_number":3,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""}}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","sequence_number":4,"item_id":"msg_0598fddda1e6f056016954169411ec819d859c96b00460ec88","output_index":0,"content_index":0,"delta":"Emily","logprobs":[],"obfuscation":"qpYAXZlaz49"}
+        data: {"type":"response.output_text.delta","sequence_number":4,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":"The","logprobs":[],"obfuscation":"vI5P6PQcB0mYG"}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","sequence_number":5,"item_id":"msg_0598fddda1e6f056016954169411ec819d859c96b00460ec88","output_index":0,"content_index":0,"delta":"
-        Johnson","logprobs":[],"obfuscation":"03yOwzES"}
+        data: {"type":"response.output_text.delta","sequence_number":5,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":"
+        name","logprobs":[],"obfuscation":"cejTxGBrJU6"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":6,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":"
+        of","logprobs":[],"obfuscation":"gPh3VFno8jQaJ"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":7,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":"
+        the","logprobs":[],"obfuscation":"p5Lcn1GmEd9N"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":8,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":"
+        person","logprobs":[],"obfuscation":"vrmiJjh6Z"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":9,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":"
+        is","logprobs":[],"obfuscation":"WCrWXp26DU0TT"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":10,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":"
+        **","logprobs":[],"obfuscation":"VLwD2QHN3xfZb"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":11,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":"Soph","logprobs":[],"obfuscation":"GQG5XK9gimCV"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":12,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":"ia","logprobs":[],"obfuscation":"WnNZb003njzWwh"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":13,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":"
+        Johnson","logprobs":[],"obfuscation":"7HIpxiIW"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":14,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":"**","logprobs":[],"obfuscation":"J2PYacztHNoR5t"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":15,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"delta":".","logprobs":[],"obfuscation":"uN0ZvKJkkNAaK5P"}
 
 
         event: response.output_text.done
 
-        data: {"type":"response.output_text.done","sequence_number":6,"item_id":"msg_0598fddda1e6f056016954169411ec819d859c96b00460ec88","output_index":0,"content_index":0,"text":"Emily
-        Johnson","logprobs":[]}
+        data: {"type":"response.output_text.done","sequence_number":16,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"text":"The
+        name of the person is **Sophia Johnson**.","logprobs":[]}
 
 
         event: response.content_part.done
 
-        data: {"type":"response.content_part.done","sequence_number":7,"item_id":"msg_0598fddda1e6f056016954169411ec819d859c96b00460ec88","output_index":0,"content_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"Emily
-        Johnson"}}
+        data: {"type":"response.content_part.done","sequence_number":17,"item_id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","output_index":0,"content_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"The
+        name of the person is **Sophia Johnson**."}}
 
 
         event: response.output_item.done
 
-        data: {"type":"response.output_item.done","sequence_number":8,"output_index":0,"item":{"id":"msg_0598fddda1e6f056016954169411ec819d859c96b00460ec88","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"Emily
-        Johnson"}],"role":"assistant"}}
+        data: {"type":"response.output_item.done","sequence_number":18,"output_index":0,"item":{"id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"The
+        name of the person is **Sophia Johnson**."}],"role":"assistant"}}
 
 
         event: response.completed
 
-        data: {"type":"response.completed","sequence_number":9,"response":{"id":"resp_0598fddda1e6f0560169541693d3b0819da01c66998c468523","object":"response","created_at":1767118483,"status":"completed","background":false,"completed_at":1767118484,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[{"id":"msg_0598fddda1e6f056016954169411ec819d859c96b00460ec88","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"Emily
-        Johnson"}],"role":"assistant"}],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":{"input_tokens":165,"input_tokens_details":{"cached_tokens":0},"output_tokens":3,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":168},"user":null,"metadata":{}}}
+        data: {"type":"response.completed","sequence_number":19,"response":{"id":"resp_0a418a38cbd95bcd0169558a6db6a4819fa22a82fc183ad602","object":"response","created_at":1767213677,"status":"completed","background":false,"completed_at":1767213677,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[{"id":"msg_0a418a38cbd95bcd0169558a6de524819fa12a2cbcdf2850b6","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"The
+        name of the person is **Sophia Johnson**."}],"role":"assistant"}],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":{"input_tokens":166,"input_tokens_details":{"cached_tokens":0},"output_tokens":13,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":179},"user":null,"metadata":{}}}
 
 
         '
     headers:
       CF-RAY:
-      - 9b6384bbae0a2303-ORD
+      - 9b6c98cd7fabda16-ORD
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Tue, 30 Dec 2025 18:14:43 GMT
+      - Wed, 31 Dec 2025 20:41:17 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -447,11 +503,11 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       openai-processing-ms:
-      - '34'
+      - '67'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '37'
+      - '70'
     status:
       code: 200
       message: OK

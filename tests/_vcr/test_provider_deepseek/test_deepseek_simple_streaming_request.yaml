@@ -24,13 +24,13 @@ interactions:
     uri: https://api.deepseek.com/chat/completions
   response:
     body:
-      string: 'data: {"id":"dcd59158-442e-483d-8298-f47dfb0eabe9","object":"chat.completion.chunk","created":1767130893,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}],"usage":null}
+      string: 'data: {"id":"3b0ff12f-a937-4da7-938f-451ffb6c7142","object":"chat.completion.chunk","created":1767213448,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}],"usage":null}
 
 
-        data: {"id":"dcd59158-442e-483d-8298-f47dfb0eabe9","object":"chat.completion.chunk","created":1767130893,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"2"},"logprobs":null,"finish_reason":null}],"usage":null}
+        data: {"id":"3b0ff12f-a937-4da7-938f-451ffb6c7142","object":"chat.completion.chunk","created":1767213448,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"2"},"logprobs":null,"finish_reason":null}],"usage":null}
 
 
-        data: {"id":"dcd59158-442e-483d-8298-f47dfb0eabe9","object":"chat.completion.chunk","created":1767130893,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":21,"completion_tokens":1,"total_tokens":22,"prompt_tokens_details":{"cached_tokens":0},"prompt_cache_hit_tokens":0,"prompt_cache_miss_tokens":21}}
+        data: {"id":"3b0ff12f-a937-4da7-938f-451ffb6c7142","object":"chat.completion.chunk","created":1767213448,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":21,"completion_tokens":1,"total_tokens":22,"prompt_tokens_details":{"cached_tokens":0},"prompt_cache_hit_tokens":0,"prompt_cache_miss_tokens":21}}
 
 
         data: [DONE]
@@ -43,7 +43,7 @@ interactions:
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Tue, 30 Dec 2025 21:41:33 GMT
+      - Wed, 31 Dec 2025 20:37:28 GMT
       Server:
       - elb
       Strict-Transport-Security:
@@ -51,11 +51,11 @@ interactions:
       Transfer-Encoding:
       - chunked
       Via:
-      - 1.1 f497fa2422d5b3ba3b34ed87ffef89a6.cloudfront.net (CloudFront)
+      - 1.1 d1c0b1f525e8772ead2ffa07108a507a.cloudfront.net (CloudFront)
       X-Amz-Cf-Id:
-      - N7bfevg4vYM25ew9K_dAMeg-AxlmCBygcIq7WfHNi0R9SRkqfpOY8A==
+      - UupM1_no4tv7vgM5IV01tqij1d9KsueqzJ4JhynR1-aJF_rb3GKSGA==
       X-Amz-Cf-Pop:
-      - ORD56-P1
+      - ORD56-P7
       X-Cache:
       - Miss from cloudfront
       X-Content-Type-Options:
@@ -67,7 +67,7 @@ interactions:
       vary:
       - origin, access-control-request-method, access-control-request-headers
       x-ds-trace-id:
-      - bbb7cced412822ad6d93cc0a09e851c6
+      - fd21acdb8321284c8941965bde4f32e9
     status:
       code: 200
       message: OK

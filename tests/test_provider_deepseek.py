@@ -1,6 +1,6 @@
 import pytest
+from chatlas import ChatDeepSeek
 
-from ._test_providers import TestChatDeepSeek
 from .conftest import (
     assert_list_models,
     assert_tools_async,
@@ -12,7 +12,7 @@ from .conftest import (
 
 @pytest.mark.vcr
 def test_deepseek_simple_request():
-    chat = TestChatDeepSeek(
+    chat = ChatDeepSeek(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -27,7 +27,7 @@ def test_deepseek_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_deepseek_simple_streaming_request():
-    chat = TestChatDeepSeek(
+    chat = ChatDeepSeek(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -41,19 +41,19 @@ async def test_deepseek_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_deepseek_respects_turns_interface():
-    assert_turns_system(TestChatDeepSeek)
-    assert_turns_existing(TestChatDeepSeek)
+    assert_turns_system(ChatDeepSeek)
+    assert_turns_existing(ChatDeepSeek)
 
 
 @pytest.mark.vcr
 def test_deepseek_tool_variations():
-    assert_tools_simple(TestChatDeepSeek)
+    assert_tools_simple(ChatDeepSeek)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_deepseek_tool_variations_async():
-    await assert_tools_async(TestChatDeepSeek)
+    await assert_tools_async(ChatDeepSeek)
 
 
 # Doesn't seem to support data extraction or images
@@ -61,4 +61,4 @@ async def test_deepseek_tool_variations_async():
 
 @pytest.mark.vcr
 def test_deepseek_list_models():
-    assert_list_models(TestChatDeepSeek)
+    assert_list_models(ChatDeepSeek)

@@ -32,16 +32,16 @@ interactions:
       string: ': OPENROUTER PROCESSING
 
 
-        data: {"id":"gen-1767131085-2aAHFuFpQ1jpi6ZFpa2F","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131085,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_8bbc38b4db"}
+        data: {"id":"gen-1767213717-dGUNCjIaPNYaUL5NzhXU","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767213717,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_8bbc38b4db"}
 
 
-        data: {"id":"gen-1767131085-2aAHFuFpQ1jpi6ZFpa2F","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131085,"choices":[{"index":0,"delta":{"role":"assistant","content":"2"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_8bbc38b4db"}
+        data: {"id":"gen-1767213717-dGUNCjIaPNYaUL5NzhXU","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767213717,"choices":[{"index":0,"delta":{"role":"assistant","content":"2"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_8bbc38b4db"}
 
 
-        data: {"id":"gen-1767131085-2aAHFuFpQ1jpi6ZFpa2F","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131085,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":"stop","native_finish_reason":"stop","logprobs":null}],"system_fingerprint":"fp_8bbc38b4db"}
+        data: {"id":"gen-1767213717-dGUNCjIaPNYaUL5NzhXU","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767213717,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":"stop","native_finish_reason":"stop","logprobs":null}],"system_fingerprint":"fp_8bbc38b4db"}
 
 
-        data: {"id":"gen-1767131085-2aAHFuFpQ1jpi6ZFpa2F","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767131085,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":27,"completion_tokens":1,"total_tokens":28,"cost":0.00000465,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":null,"upstream_inference_prompt_cost":0.00000405,"upstream_inference_completions_cost":6e-7},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0}}}
+        data: {"id":"gen-1767213717-dGUNCjIaPNYaUL5NzhXU","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767213717,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":27,"completion_tokens":1,"total_tokens":28,"cost":0.00000465,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":null,"upstream_inference_prompt_cost":0.00000405,"upstream_inference_completions_cost":6e-7},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0}}}
 
 
         data: [DONE]
@@ -52,7 +52,7 @@ interactions:
       Access-Control-Allow-Origin:
       - '*'
       CF-RAY:
-      - 9b64b864fed9eb6a-ORD
+      - 9b6c99c75c96222b-ORD
       Cache-Control:
       - no-cache
       Connection:
@@ -60,7 +60,7 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 21:44:46 GMT
+      - Wed, 31 Dec 2025 20:41:58 GMT
       Permissions-Policy:
       - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
         "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")

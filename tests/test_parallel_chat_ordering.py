@@ -1,10 +1,7 @@
 """Test that parallel_chat() maintains tool execution order."""
 
 import pytest
-
 from chatlas import ChatOpenAI, parallel_chat
-
-from ._test_providers import TestChatOpenAI
 
 
 @pytest.mark.vcr
@@ -19,7 +16,7 @@ async def test_parallel_chat_tool_ordering_basic():
         execution_order.append(prompt_id)
         return f"Executed for {prompt_id}"
 
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
     chat.register_tool(record_tool)
 
     prompts = [
@@ -55,7 +52,7 @@ async def test_parallel_chat_tool_ordering_multiple_tools_per_prompt():
         execution_order.append(prompt_id)
         return f"Executed for {prompt_id}"
 
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
     chat.register_tool(record_tool)
 
     # Ask the model to call the tool multiple times per prompt
@@ -68,7 +65,9 @@ async def test_parallel_chat_tool_ordering_multiple_tools_per_prompt():
 
     # Should see all of A's tools before any of B's tools
     # The order should be ['A1', 'A2', 'B1', 'B2'], not interleaved like ['A1', 'B1', 'A2', 'B2']
-    assert len(execution_order) == 4, f"Expected 4 tool calls, got {len(execution_order)}"
+    assert len(execution_order) == 4, (
+        f"Expected 4 tool calls, got {len(execution_order)}"
+    )
 
     # Find where A tools end and B tools begin
     a_tools = [x for x in execution_order if x.startswith("A")]
@@ -87,7 +86,7 @@ async def test_parallel_chat_tool_ordering_multiple_tools_per_prompt():
 @pytest.mark.asyncio
 async def test_parallel_chat_no_tools():
     """Test that parallel_chat works normally when no tools are needed."""
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
 
     prompts = [
         "Say 'Hello'",
@@ -116,7 +115,7 @@ async def test_parallel_chat_mixed_tools_and_no_tools():
         execution_order.append(prompt_id)
         return f"Executed for {prompt_id}"
 
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
     chat.register_tool(record_tool)
 
     prompts = [
@@ -128,8 +127,6 @@ async def test_parallel_chat_mixed_tools_and_no_tools():
     chats = await parallel_chat(chat, prompts)
 
     # Only A and B should have called the tool, and in that order
-    assert execution_order == ["A", "B"], (
-        f"Expected ['A', 'B'], got {execution_order}"
-    )
+    assert execution_order == ["A", "B"], f"Expected ['A', 'B'], got {execution_order}"
 
     assert len(chats) == 3

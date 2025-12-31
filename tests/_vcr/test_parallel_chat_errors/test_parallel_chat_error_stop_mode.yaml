@@ -23,20 +23,21 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"error\": {\n    \"message\": \"The requested model 'gpt-4-invalid-12345'
-        does not exist.\",\n    \"type\": \"invalid_request_error\",\n    \"param\":
-        \"model\",\n    \"code\": \"model_not_found\"\n  }\n}"
+      string: "{\n  \"error\": {\n    \"message\": \"Incorrect API key provided: test.
+        You can find your API key at https://platform.openai.com/account/api-keys.\",\n
+        \   \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code\":
+        \"invalid_api_key\"\n  }\n}"
     headers:
       CF-RAY:
-      - 9b6383d4793086f0-ORD
+      - 9b6c8ed76cf061d2-ORD
       Connection:
       - keep-alive
       Content-Length:
-      - '185'
+      - '233'
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:14:06 GMT
+      - Wed, 31 Dec 2025 20:34:32 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -48,12 +49,14 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       openai-processing-ms:
-      - '82'
+      - '205'
       openai-version:
       - '2020-10-01'
+      www-authenticate:
+      - Bearer realm="OpenAI API"
       x-envoy-upstream-service-time:
-      - '86'
+      - '2849'
     status:
-      code: 400
-      message: Bad Request
+      code: 401
+      message: Unauthorized
 version: 1

@@ -24,16 +24,16 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0900237ba2805868016954163300c881a1992aae1736f91195\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118387,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0c1499262d66523701695588cde2ec8193ba85801bccfdd3e2\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213261,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118387,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213262,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0900237ba28058680169541633297881a184356fffa5d54fc6\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0c1499262d66523701695588ce131881939d9a1c1e738b69db\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"1 + 1 = 2\"\n        }\n
+        [],\n          \"logprobs\": [],\n          \"text\": \"1 + 1 = 2.\"\n        }\n
         \     ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
         true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
         \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
@@ -43,18 +43,18 @@ interactions:
         \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
         0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
         22,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 8,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 30\n  },\n  \"user\": null,\n  \"metadata\":
+        \   \"output_tokens\": 9,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 31\n  },\n  \"user\": null,\n  \"metadata\":
         {}\n}"
     headers:
       CF-RAY:
-      - 9b63825e8815025e-ORD
+      - 9b6c8ea68c0c8637-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:07 GMT
+      - Wed, 31 Dec 2025 20:34:22 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -68,13 +68,13 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '1478'
+      - '1479'
       openai-processing-ms:
-      - '239'
+      - '331'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '241'
+      - '334'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -115,13 +115,13 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_09d3838b653a1f95016954163304888193bfce6b7001372e13\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118387,\n  \"status\":
+      string: "{\n  \"id\": \"resp_015fa61e47067f6101695588ce00648195bc0a91b06d1450db\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213262,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118387,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213262,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_09d3838b653a1f95016954163334c48193a1529cae769ae398\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_015fa61e47067f6101695588ce2f748195ac61cc5264e2cc8d\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"2 + 2 = 4.\"\n        }\n
@@ -139,13 +139,13 @@ interactions:
         {}\n}"
     headers:
       CF-RAY:
-      - 9b63825e992bd7f1-ORD
+      - 9b6c8ea748a82262-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:07 GMT
+      - Wed, 31 Dec 2025 20:34:22 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -161,11 +161,11 @@ interactions:
       content-length:
       - '1479'
       openai-processing-ms:
-      - '286'
+      - '264'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '290'
+      - '268'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -197,8 +197,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=66PNWA02ZpNYNWm1UL0abFLN2xYmhedxQ398LbYDBsE-1767118387-1.0.1.1-Er9DRvvnTbdSJKxzdqmLMzEOkNRHw_qAmlKCnNYeO96xhuZVvtacWThDz1opL85rRNRvt6tj4aKF7cKEWqwVXhBvVojb5JXLTdSJxSxlE3I;
-        _cfuvid=fjKnbTHYYKSS_5O_0Bv4CtuEQWM.akIm4IKBkI1PT8c-1767118387329-0.0.1.1-604800000
+      - __cf_bm=kHSAifHW3e4zgUvVQKCWcp_Vcil1AL2iOa3JP2OVq38-1767213262-1.0.1.1-2CvNBfDMRN87C5_vCOS55IzEWOhq8DwOuo7tJcTaPEeAL4AP3ZaWo2xvDrPPZgbO0C8haAxJg6LaXMr31GcUDv.gr5ZGv6NluVNXYKjKvLo;
+        _cfuvid=tZ3vZTwykQNKRDZbqSGFmazXJCIJiUIixu9z6B_8NJM-1767213262265-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -209,16 +209,16 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_05cfab7fe388064401695416339b94819ea1388a1d11d84ec0\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118387,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0c27b5d18bf6286201695588ce7e148197bdc54ea9f4c0999a\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213262,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118387,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213262,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_05cfab7fe38806440169541633cb08819ebdf5805263e4036e\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0c27b5d18bf6286201695588ced4288197918dd8f30799e3ac\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"1 + 1 = 2.\"\n        }\n
+        [],\n          \"logprobs\": [],\n          \"text\": \"1 + 1 = 2\"\n        }\n
         \     ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
         true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
         \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
@@ -228,18 +228,18 @@ interactions:
         \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
         0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
         22,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 9,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 31\n  },\n  \"user\": null,\n  \"metadata\":
+        \   \"output_tokens\": 8,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 30\n  },\n  \"user\": null,\n  \"metadata\":
         {}\n}"
     headers:
       CF-RAY:
-      - 9b638262487698d7-ORD
+      - 9b6c8eaa5f6de8ea-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:07 GMT
+      - Wed, 31 Dec 2025 20:34:22 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -253,13 +253,13 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '1479'
+      - '1478'
       openai-processing-ms:
-      - '265'
+      - '464'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '276'
+      - '466'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -291,8 +291,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=66PNWA02ZpNYNWm1UL0abFLN2xYmhedxQ398LbYDBsE-1767118387-1.0.1.1-Er9DRvvnTbdSJKxzdqmLMzEOkNRHw_qAmlKCnNYeO96xhuZVvtacWThDz1opL85rRNRvt6tj4aKF7cKEWqwVXhBvVojb5JXLTdSJxSxlE3I;
-        _cfuvid=fjKnbTHYYKSS_5O_0Bv4CtuEQWM.akIm4IKBkI1PT8c-1767118387329-0.0.1.1-604800000
+      - __cf_bm=kHSAifHW3e4zgUvVQKCWcp_Vcil1AL2iOa3JP2OVq38-1767213262-1.0.1.1-2CvNBfDMRN87C5_vCOS55IzEWOhq8DwOuo7tJcTaPEeAL4AP3ZaWo2xvDrPPZgbO0C8haAxJg6LaXMr31GcUDv.gr5ZGv6NluVNXYKjKvLo;
+        _cfuvid=tZ3vZTwykQNKRDZbqSGFmazXJCIJiUIixu9z6B_8NJM-1767213262265-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -303,13 +303,13 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_00d750d4db31bf4e0169541634242881948d7c1bcb973fc578\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118388,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0f696d229ebb979901695588ce99c48194812e3b489c4b9d85\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213262,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118390,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213263,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_00d750d4db31bf4e0169541635af98819497a65e6303ca5e4d\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0f696d229ebb979901695588cf02dc81949dddf0a35a8cf82e\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"2 + 2 = 4.\"\n        }\n
@@ -327,13 +327,13 @@ interactions:
         {}\n}"
     headers:
       CF-RAY:
-      - 9b6382630e8a02ac-ORD
+      - 9b6c8eaaea2937b9-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:10 GMT
+      - Wed, 31 Dec 2025 20:34:23 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -349,11 +349,11 @@ interactions:
       content-length:
       - '1479'
       openai-processing-ms:
-      - '2990'
+      - '503'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '3071'
+      - '505'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:

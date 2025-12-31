@@ -27,13 +27,13 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0dd61d8b2199b86b01695416419e28819d82c3be630f22bce1\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118401,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0b11477ba8b45d5c01695588d3585481a3945639eeadeda1ac\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213267,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118402,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213267,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0dd61d8b2199b86b0169541641ed28819da318d0748a4258fe\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0b11477ba8b45d5c01695588d3a87881a38d74133e90eae173\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"name\\\":\\\"John\\\",\\\"age\\\":15}\"\n
@@ -57,13 +57,13 @@ interactions:
         \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-RAY:
-      - 9b6382b9df02f51e-ORD
+      - 9b6c8ec88c98e259-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:22 GMT
+      - Wed, 31 Dec 2025 20:34:27 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -79,11 +79,11 @@ interactions:
       content-length:
       - '1959'
       openai-processing-ms:
-      - '421'
+      - '483'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '425'
+      - '486'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -127,13 +127,13 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0e040ce0c8101ebf0169541641c13081919922a41e51d4c6a7\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118401,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0ab7f1678d183c2301695588d36c9481a3b1bf38f33c76191b\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213267,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118405,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213267,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0e040ce0c8101ebf016954164514908191a9a40385c8affccd\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0ab7f1678d183c2301695588d3bfac81a3b0f23e47e4c2c62d\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"name\\\":\\\"Jane\\\",\\\"age\\\":16}\"\n
@@ -157,13 +157,13 @@ interactions:
         \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-RAY:
-      - 9b6382ba9a41eada-ORD
+      - 9b6c8ec91ce011a3-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:25 GMT
+      - Wed, 31 Dec 2025 20:34:27 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -179,11 +179,11 @@ interactions:
       content-length:
       - '1959'
       openai-processing-ms:
-      - '3546'
+      - '491'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '3549'
+      - '495'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:

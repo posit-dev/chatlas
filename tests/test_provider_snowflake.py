@@ -1,11 +1,4 @@
-import os
-
 import pytest
-
-do_test = os.getenv("TEST_SNOWFLAKE", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping Snowflake tests", allow_module_level=True)
-
 from chatlas import ChatSnowflake
 
 from .conftest import (
@@ -60,6 +53,7 @@ async def test_openai_simple_streaming_request():
     # No token / finish_reason info available
     # assert turn.finish_reason == "stop"
 
+
 @pytest.mark.filterwarnings("ignore")
 def test_respects_turns_interface():
     def chat_fun(**kwargs):
@@ -67,6 +61,7 @@ def test_respects_turns_interface():
 
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
+
 
 @pytest.mark.filterwarnings("ignore")
 def test_tool_variations():
@@ -88,6 +83,7 @@ async def test_tool_variations_async():
         return ChatSnowflake(connection_name=CONNECTION, model=MODEL, **kwargs)
 
     await assert_tools_async(chat_fun)
+
 
 @pytest.mark.filterwarnings("ignore")
 def test_data_extraction():

@@ -33,15 +33,15 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0ac64e46af8795a4016954166726b0819e8585248203616369\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118439,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0e7bbee6d3760bd901695588ecc2f8819ea174aa016a40bbbc\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213292,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118440,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213293,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"fc_0ac64e46af8795a40169541667e538819e8bd825044641f3bb\",\n
+        \ \"output\": [\n    {\n      \"id\": \"fc_0e7bbee6d3760bd901695588ed0e94819ebe55e5b44cf1995a\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"location\\\":\\\"Seattle\\\"}\",\n      \"call_id\": \"call_Eo9duaDSle8CLzeyo8UJdtMi\",\n
+        \"{\\\"location\\\":\\\"Seattle\\\"}\",\n      \"call_id\": \"call_xKlgaYcppKpaHVjFZJJ0pMKA\",\n
         \     \"name\": \"get_weather\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
         \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
         null,\n  \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n
@@ -69,13 +69,13 @@ interactions:
         {}\n}"
     headers:
       CF-RAY:
-      - 9b6383a45e4f2911-ORD
+      - 9b6c8f67780e72eb-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:14:00 GMT
+      - Wed, 31 Dec 2025 20:34:53 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -91,11 +91,11 @@ interactions:
       content-length:
       - '2381'
       openai-processing-ms:
-      - '1060'
+      - '405'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '1063'
+      - '408'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -145,15 +145,15 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0c42dd19397a2345016954166745d08194b8e8ef6851bb2fd2\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118439,\n  \"status\":
+      string: "{\n  \"id\": \"resp_04e10ed5542cce7f01695588ecea54819fb0b3fe7ce30cd516\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213292,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118440,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213293,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"fc_0c42dd19397a234501695416680d008194b001be446f9dfccc\",\n
+        \ \"output\": [\n    {\n      \"id\": \"fc_04e10ed5542cce7f01695588ed39b8819f82800898bc909e97\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"location\\\":\\\"Tokyo\\\"}\",\n      \"call_id\": \"call_Jqk1R1mOBkqvI0M1BYoDwZv4\",\n
+        \"{\\\"location\\\":\\\"Tokyo\\\"}\",\n      \"call_id\": \"call_y3loi48NQmkuvxsH2o4dzryI\",\n
         \     \"name\": \"get_weather\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
         \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
         null,\n  \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n
@@ -181,13 +181,13 @@ interactions:
         {}\n}"
     headers:
       CF-RAY:
-      - 9b6383a51fc322d5-ORD
+      - 9b6c8f687eba118b-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:14:00 GMT
+      - Wed, 31 Dec 2025 20:34:53 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -203,131 +203,11 @@ interactions:
       content-length:
       - '2379'
       openai-processing-ms:
-      - '1041'
+      - '422'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '1044'
-      x-ratelimit-limit-requests:
-      - '10000'
-      x-ratelimit-limit-tokens:
-      - '30000000'
-      x-ratelimit-remaining-requests:
-      - '9999'
-      x-ratelimit-remaining-tokens:
-      - '30000000'
-      x-ratelimit-reset-requests:
-      - 6ms
-      x-ratelimit-reset-tokens:
-      - 0s
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Get the weather in Tokyo and format it as a structured weather report"}]},
-      {"type": "function_call", "call_id": "fc_0c42dd19397a234501695416680d008194b001be446f9dfccc",
-      "name": "get_weather", "arguments": "{\"location\":\"Tokyo\"}"}, {"type": "function_call_output",
-      "call_id": "fc_0c42dd19397a234501695416680d008194b001be446f9dfccc", "output":
-      "Weather in Tokyo: Sunny, 72\u00b0F"}], "model": "gpt-4.1", "store": false,
-      "stream": false, "text": {"format": {"type": "json_schema", "name": "structured_data",
-      "schema": {"description": "A weather report.", "properties": {"location": {"type":
-      "string"}, "temperature": {"type": "string"}, "conditions": {"type": "string"}},
-      "required": ["location", "temperature", "conditions"], "type": "object", "additionalProperties":
-      false}, "strict": true}}, "tools": [{"type": "function", "name": "get_weather",
-      "description": "Get the weather for a location.", "parameters": {"properties":
-      {"location": {"type": "string"}}, "required": ["location"], "type": "object",
-      "additionalProperties": false}, "strict": true}]}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '1118'
-      Content-Type:
-      - application/json
-      Cookie:
-      - __cf_bm=zhmZxd.wkR6tOlG9ftlfa8Rt6bEf91BYF0t90xB.5TA-1767118440-1.0.1.1-GWLqXDpQufx82.WrbpbhKspegiqqhgi..wIdtF91_hQeYN3nvplKJbInVtTHB2tarfaRceAU24kdwjZHxfZ.CwjMhn3PQwzwBkl7EbZZkbU;
-        _cfuvid=5qr28NQV5U73zq.PA3eIk_iZa3kSmf3KDIlIkudUJMM-1767118440341-0.0.1.1-604800000
-      Host:
-      - api.openai.com
-      X-Stainless-Async:
-      - async:asyncio
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://api.openai.com/v1/responses
-  response:
-    body:
-      string: "{\n  \"id\": \"resp_0477cb3b056db17f0169541668ae2c819cbe4773758a7447bc\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118440,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118441,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0477cb3b056db17f01695416690630819c9b560d2047cf71a5\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"location\\\":\\\"Tokyo\\\",\\\"temperature\\\":\\\"72\\u00b0F\\\",\\\"conditions\\\":\\\"Sunny\\\"}\"\n
-        \       }\n      ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
-        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
-        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
-        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
-        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
-        \   \"format\": {\n      \"type\": \"json_schema\",\n      \"description\":
-        null,\n      \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\":
-        \"A weather report.\",\n        \"properties\": {\n          \"location\":
-        {\n            \"type\": \"string\"\n          },\n          \"temperature\":
-        {\n            \"type\": \"string\"\n          },\n          \"conditions\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"location\",\n          \"temperature\",\n          \"conditions\"\n
-        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\":
-        \"function\",\n      \"description\": \"Get the weather for a location.\",\n
-        \     \"name\": \"get_weather\",\n      \"parameters\": {\n        \"properties\":
-        {\n          \"location\": {\n            \"type\": \"string\"\n          }\n
-        \       },\n        \"required\": [\n          \"location\"\n        ],\n
-        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
-        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        130,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 20,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 150\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
-    headers:
-      CF-RAY:
-      - 9b6383ade9556185-ORD
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Date:
-      - Tue, 30 Dec 2025 18:14:01 GMT
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Transfer-Encoding:
-      - chunked
-      X-Content-Type-Options:
-      - nosniff
-      alt-svc:
-      - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
-      content-length:
-      - '2511'
-      openai-processing-ms:
-      - '768'
-      openai-version:
-      - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '770'
+      - '425'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -347,9 +227,9 @@ interactions:
     body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
       "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
       "Get the weather in Seattle and format it as a structured weather report"}]},
-      {"type": "function_call", "call_id": "fc_0ac64e46af8795a40169541667e538819e8bd825044641f3bb",
+      {"type": "function_call", "call_id": "fc_0e7bbee6d3760bd901695588ed0e94819ebe55e5b44cf1995a",
       "name": "get_weather", "arguments": "{\"location\":\"Seattle\"}"}, {"type":
-      "function_call_output", "call_id": "fc_0ac64e46af8795a40169541667e538819e8bd825044641f3bb",
+      "function_call_output", "call_id": "fc_0e7bbee6d3760bd901695588ed0e94819ebe55e5b44cf1995a",
       "output": "Weather in Seattle: Sunny, 72\u00b0F"}], "model": "gpt-4.1", "store":
       false, "stream": false, "text": {"format": {"type": "json_schema", "name": "structured_data",
       "schema": {"description": "A weather report.", "properties": {"location": {"type":
@@ -371,8 +251,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=zhmZxd.wkR6tOlG9ftlfa8Rt6bEf91BYF0t90xB.5TA-1767118440-1.0.1.1-GWLqXDpQufx82.WrbpbhKspegiqqhgi..wIdtF91_hQeYN3nvplKJbInVtTHB2tarfaRceAU24kdwjZHxfZ.CwjMhn3PQwzwBkl7EbZZkbU;
-        _cfuvid=5qr28NQV5U73zq.PA3eIk_iZa3kSmf3KDIlIkudUJMM-1767118440341-0.0.1.1-604800000
+      - __cf_bm=GZIBN5yY3PNJJ47jn_XI4kbUHYlyFifE7zpvdhdaMcs-1767213293-1.0.1.1-HkUVx3PYR5XOb7OacRgg9Jw0pT7x4K1TeRbk9VMLcoYcXccYZB.xJFm86tvCu5L7hwSlvBBTRU3AZPceYwzyymo34YR1p5D6Y6b.HFCdP6o;
+        _cfuvid=U_IJ1vlppyBljadJJUwdlXBiJJC.XUKyVTSzFwToe44-1767213293389-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -383,13 +263,13 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_020fcdf309f13572016954166893c88193b3e977cb3e02c2b7\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118440,\n  \"status\":
+      string: "{\n  \"id\": \"resp_054c80146311f94e01695588ed9e94819cae0b0e2fde4d57c1\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213293,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118441,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213294,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_020fcdf309f13572016954166901148193be02308c4e48f51e\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_054c80146311f94e01695588ede85c819ca23ff976286b1289\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"location\\\":\\\"Seattle\\\",\\\"temperature\\\":\\\"72\\u00b0F\\\",\\\"conditions\\\":\\\"Sunny\\\"}\"\n
@@ -421,13 +301,13 @@ interactions:
         {}\n}"
     headers:
       CF-RAY:
-      - 9b6383ad5af3e12b-ORD
+      - 9b6c8f6cdee81923-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:14:01 GMT
+      - Wed, 31 Dec 2025 20:34:54 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -443,11 +323,131 @@ interactions:
       content-length:
       - '2513'
       openai-processing-ms:
-      - '869'
+      - '423'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '873'
+      - '426'
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '30000000'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
+      "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
+      "Get the weather in Tokyo and format it as a structured weather report"}]},
+      {"type": "function_call", "call_id": "fc_04e10ed5542cce7f01695588ed39b8819f82800898bc909e97",
+      "name": "get_weather", "arguments": "{\"location\":\"Tokyo\"}"}, {"type": "function_call_output",
+      "call_id": "fc_04e10ed5542cce7f01695588ed39b8819f82800898bc909e97", "output":
+      "Weather in Tokyo: Sunny, 72\u00b0F"}], "model": "gpt-4.1", "store": false,
+      "stream": false, "text": {"format": {"type": "json_schema", "name": "structured_data",
+      "schema": {"description": "A weather report.", "properties": {"location": {"type":
+      "string"}, "temperature": {"type": "string"}, "conditions": {"type": "string"}},
+      "required": ["location", "temperature", "conditions"], "type": "object", "additionalProperties":
+      false}, "strict": true}}, "tools": [{"type": "function", "name": "get_weather",
+      "description": "Get the weather for a location.", "parameters": {"properties":
+      {"location": {"type": "string"}}, "required": ["location"], "type": "object",
+      "additionalProperties": false}, "strict": true}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1118'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=GZIBN5yY3PNJJ47jn_XI4kbUHYlyFifE7zpvdhdaMcs-1767213293-1.0.1.1-HkUVx3PYR5XOb7OacRgg9Jw0pT7x4K1TeRbk9VMLcoYcXccYZB.xJFm86tvCu5L7hwSlvBBTRU3AZPceYwzyymo34YR1p5D6Y6b.HFCdP6o;
+        _cfuvid=U_IJ1vlppyBljadJJUwdlXBiJJC.XUKyVTSzFwToe44-1767213293389-0.0.1.1-604800000
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_038a17f8e93b5ebc01695588edbe488195a868bfa73f986a62\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213293,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1767213294,\n  \"error\": null,\n
+        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
+        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_038a17f8e93b5ebc01695588ee753881959e4608220dc1a56f\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"location\\\":\\\"Tokyo\\\",\\\"temperature\\\":\\\"72\\u00b0F\\\",\\\"conditions\\\":\\\"Sunny\\\"}\"\n
+        \       }\n      ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
+        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
+        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
+        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
+        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
+        \   \"format\": {\n      \"type\": \"json_schema\",\n      \"description\":
+        null,\n      \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\":
+        \"A weather report.\",\n        \"properties\": {\n          \"location\":
+        {\n            \"type\": \"string\"\n          },\n          \"temperature\":
+        {\n            \"type\": \"string\"\n          },\n          \"conditions\":
+        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
+        [\n          \"location\",\n          \"temperature\",\n          \"conditions\"\n
+        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\":
+        \"function\",\n      \"description\": \"Get the weather for a location.\",\n
+        \     \"name\": \"get_weather\",\n      \"parameters\": {\n        \"properties\":
+        {\n          \"location\": {\n            \"type\": \"string\"\n          }\n
+        \       },\n        \"required\": [\n          \"location\"\n        ],\n
+        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
+        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
+        1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
+        130,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
+        \   \"output_tokens\": 20,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 150\n  },\n  \"user\": null,\n  \"metadata\":
+        {}\n}"
+    headers:
+      CF-RAY:
+      - 9b6c8f6dac23f833-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:34:54 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '2511'
+      openai-processing-ms:
+      - '879'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '882'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:

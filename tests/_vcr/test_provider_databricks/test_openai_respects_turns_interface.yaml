@@ -1,9 +1,7 @@
 interactions:
 - request:
-    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
-      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
-      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "databricks-claude-3-7-sonnet",
-      "stream": true}'
+    body: '{"messages":[{"content":"Return very minimal output, AND ONLY USE UPPERCASE.","role":"system"},{"content":[{"type":"text","text":"What
+      is the name of Winnie the Pooh''s human friend?"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true}'
     headers:
       Accept:
       - application/json
@@ -17,22 +15,38 @@ interactions:
       - application/json
       Host:
       - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
       X-Stainless-Async:
       - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
       x-stainless-read-timeout:
       - '600'
+      x-stainless-retry-count:
+      - '0'
     method: POST
     uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
   response:
     body:
-      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"CHRISTOPHER"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NeGwWvgUjrwCF9bH2v4iVd","created":1767131131}
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"CHRISTOPHER"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_017bE8MxKwzCnfG5DzYa2min","created":1767213417}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        ROBIN."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NeGwWvgUjrwCF9bH2v4iVd","created":1767131131}
+        ROBIN"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_017bE8MxKwzCnfG5DzYa2min","created":1767213417}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":8,"prompt_tokens":35,"total_tokens":43,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NeGwWvgUjrwCF9bH2v4iVd","created":1767131131}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":7,"prompt_tokens":35,"total_tokens":42,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_017bE8MxKwzCnfG5DzYa2min","created":1767213417}
 
 
         data: [DONE]
@@ -45,11 +59,11 @@ interactions:
       content-type:
       - text/event-stream
       date:
-      - Tue, 30 Dec 2025 21:45:31 GMT
+      - Wed, 31 Dec 2025 20:36:57 GMT
       server:
       - databricks
       server-timing:
-      - request_id;dur=0;desc="a57891ae-e04f-4f33-929b-de49cc1d6ae3", client_protocol;dur=0;desc="HTTP/1.1"
+      - request_id;dur=0;desc="f1b1d993-695c-4476-af27-8e6788e314e6", client_protocol;dur=0;desc="HTTP/1.1"
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       transfer-encoding:
@@ -57,19 +71,19 @@ interactions:
       x-amzn-bedrock-content-type:
       - application/json
       x-amzn-requestid:
-      - 21a6b43e-81da-4607-a7e2-d100b8147e10
+      - d8844fdb-e21c-443b-b92c-9b5eb2c1c411
       x-content-type-options:
       - nosniff
       x-databricks-org-id:
       - '138962681435081'
+      x-request-id:
+      - f1b1d993-695c-4476-af27-8e6788e314e6
     status:
       code: 200
       message: OK
 - request:
-    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
-      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
-      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "databricks-claude-3-7-sonnet",
-      "stream": true}'
+    body: '{"messages":[{"content":"Return very minimal output, AND ONLY USE UPPERCASE.","role":"system"},{"content":[{"type":"text","text":"What
+      is the name of Winnie the Pooh''s human friend?"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true}'
     headers:
       Accept:
       - application/json
@@ -83,22 +97,38 @@ interactions:
       - application/json
       Host:
       - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
       X-Stainless-Async:
       - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
       x-stainless-read-timeout:
       - '600'
+      x-stainless-retry-count:
+      - '0'
     method: POST
     uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
   response:
     body:
-      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"CHRISTOPHER"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BsV7HbdkKEmrC3HmhRZ6qt","created":1767131132}
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"CHRISTOPHER"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_012BwXBCASXsgiS7gbcjeRmu","created":1767213418}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        ROBIN"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BsV7HbdkKEmrC3HmhRZ6qt","created":1767131132}
+        ROBIN"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":35,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_012BwXBCASXsgiS7gbcjeRmu","created":1767213418}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":7,"prompt_tokens":35,"total_tokens":42,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BsV7HbdkKEmrC3HmhRZ6qt","created":1767131132}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":7,"prompt_tokens":35,"total_tokens":42,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_012BwXBCASXsgiS7gbcjeRmu","created":1767213418}
 
 
         data: [DONE]
@@ -111,11 +141,11 @@ interactions:
       content-type:
       - text/event-stream
       date:
-      - Tue, 30 Dec 2025 21:45:32 GMT
+      - Wed, 31 Dec 2025 20:36:58 GMT
       server:
       - databricks
       server-timing:
-      - request_id;dur=0;desc="0c451839-b383-4db4-a5e4-12fb76a8c900", client_protocol;dur=0;desc="HTTP/1.1"
+      - request_id;dur=0;desc="08d6aecc-732c-4758-a75b-9e0b3235df85", client_protocol;dur=0;desc="HTTP/1.1"
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       transfer-encoding:
@@ -123,20 +153,20 @@ interactions:
       x-amzn-bedrock-content-type:
       - application/json
       x-amzn-requestid:
-      - 0b14d380-d304-4d78-a826-0a08cc9b48c0
+      - a6107b89-4929-44db-b3f7-be2d05229ddf
       x-content-type-options:
       - nosniff
       x-databricks-org-id:
       - '138962681435081'
+      x-request-id:
+      - 08d6aecc-732c-4758-a75b-9e0b3235df85
     status:
       code: 200
       message: OK
 - request:
-    body: '{"messages": [{"content": [{"type": "text", "text": "My name is Steve"}],
-      "role": "user"}, {"role": "assistant", "content": [{"type": "text", "text":
-      "Hello Steve, how can I help you today?"}]}, {"content": [{"type": "text", "text":
-      "What is my name?"}], "role": "user"}], "model": "databricks-claude-3-7-sonnet",
-      "stream": true}'
+    body: '{"messages":[{"content":[{"type":"text","text":"My name is Steve"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"Hello
+      Steve, how can I help you today?"}]},{"content":[{"type":"text","text":"What
+      is my name?"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true}'
     headers:
       Accept:
       - application/json
@@ -150,27 +180,39 @@ interactions:
       - application/json
       Host:
       - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
       X-Stainless-Async:
       - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
       x-stainless-read-timeout:
       - '600'
+      x-stainless-retry-count:
+      - '0'
     method: POST
     uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
   response:
     body:
       string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"Your
-        name is Steve"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":32,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01DYXJs43NssvqGDdV5Z5hgX","created":1767131133}
+        name is Steve"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":32,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01W4AB6Rsqa7qM6sD1ymzXNe","created":1767213419}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":",
-        as"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":32,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01DYXJs43NssvqGDdV5Z5hgX","created":1767131133}
+        as you mentioned earlier."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":32,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01W4AB6Rsqa7qM6sD1ymzXNe","created":1767213420}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        you mentioned earlier."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":32,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01DYXJs43NssvqGDdV5Z5hgX","created":1767131133}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":13,"prompt_tokens":32,"total_tokens":45,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01DYXJs43NssvqGDdV5Z5hgX","created":1767131133}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":13,"prompt_tokens":32,"total_tokens":45,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01W4AB6Rsqa7qM6sD1ymzXNe","created":1767213420}
 
 
         data: [DONE]
@@ -183,11 +225,11 @@ interactions:
       content-type:
       - text/event-stream
       date:
-      - Tue, 30 Dec 2025 21:45:33 GMT
+      - Wed, 31 Dec 2025 20:36:59 GMT
       server:
       - databricks
       server-timing:
-      - request_id;dur=0;desc="64aba31b-ea8c-4eb3-90c8-b207536c993e", client_protocol;dur=0;desc="HTTP/1.1"
+      - request_id;dur=0;desc="ed5653af-4081-49b1-a7b1-c1ab1d747fb1", client_protocol;dur=0;desc="HTTP/1.1"
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       transfer-encoding:
@@ -195,11 +237,13 @@ interactions:
       x-amzn-bedrock-content-type:
       - application/json
       x-amzn-requestid:
-      - 56f300bb-cbdd-4040-8c86-13757d9efa7a
+      - 17ebe1ed-9a48-4308-a166-8f093fa102fc
       x-content-type-options:
       - nosniff
       x-databricks-org-id:
       - '138962681435081'
+      x-request-id:
+      - ed5653af-4081-49b1-a7b1-c1ab1d747fb1
     status:
       code: 200
       message: OK

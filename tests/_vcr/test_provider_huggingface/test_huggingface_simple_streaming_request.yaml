@@ -25,16 +25,16 @@ interactions:
     uri: https://router.huggingface.co/v1/chat/completions
   response:
     body:
-      string: 'data: {"id":"chatcmpl-fd0304d3-d668-4811-85ec-5f3b43191e53","choices":[{"delta":{"role":"assistant"},"index":0}],"created":1767131112,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+      string: 'data: {"id":"chatcmpl-e95808b4-883c-44af-ba50-8c9d7796c958","choices":[{"delta":{"role":"assistant"},"index":0}],"created":1767213633,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
 
 
-        data: {"id":"chatcmpl-fd0304d3-d668-4811-85ec-5f3b43191e53","choices":[{"delta":{"content":"2"},"index":0}],"created":1767131112,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+        data: {"id":"chatcmpl-e95808b4-883c-44af-ba50-8c9d7796c958","choices":[{"delta":{"content":"2"},"index":0}],"created":1767213633,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
 
 
-        data: {"id":"chatcmpl-fd0304d3-d668-4811-85ec-5f3b43191e53","choices":[{"delta":{},"index":0}],"created":1767131112,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+        data: {"id":"chatcmpl-e95808b4-883c-44af-ba50-8c9d7796c958","choices":[{"delta":{},"index":0}],"created":1767213633,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
 
 
-        data: {"id":"chatcmpl-fd0304d3-d668-4811-85ec-5f3b43191e53","choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1767131112,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk","usage":{"total_tokens":53,"completion_tokens":2,"prompt_tokens":51,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.11998447500000001,"prompt_time":0.0044130730000000035,"completion_time":0.000778242,"total_time":0.1265559196472168,"created":1767131112.3081286}}
+        data: {"id":"chatcmpl-e95808b4-883c-44af-ba50-8c9d7796c958","choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1767213633,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk","usage":{"total_tokens":53,"completion_tokens":2,"prompt_tokens":51,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.000319181,"prompt_time":0.002270897,"completion_time":0.000784782,"total_time":0.004564046859741211,"created":1767213633.6134012}}
 
 
         '
@@ -48,15 +48,15 @@ interactions:
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Tue, 30 Dec 2025 21:45:10 GMT
+      - Wed, 31 Dec 2025 20:40:31 GMT
       Transfer-Encoding:
       - chunked
       Vary:
       - Origin
       Via:
-      - 1.1 7cc224be3664680df186a12039cdc424.cloudfront.net (CloudFront)
+      - 1.1 990606ab91bf6503d073ad5fee40784c.cloudfront.net (CloudFront)
       X-Amz-Cf-Id:
-      - hf3zHwyhbMyrPe70TAPvSC6qLWNM6JUF2iiXnO4q1u-WLZtX8i13uA==
+      - zQjs8RRSoFbvZ6hYYIFb16XYiwNRK2x1mTc-x5-ehe047ZlLTyhYvw==
       X-Amz-Cf-Pop:
       - MSP50-P2
       X-Cache:
@@ -70,7 +70,7 @@ interactions:
       cross-origin-opener-policy:
       - same-origin
       inference-id:
-      - chatcmpl-fd0304d3-d668-4811-85ec-5f3b43191e53
+      - chatcmpl-e95808b4-883c-44af-ba50-8c9d7796c958
       referrer-policy:
       - strict-origin-when-cross-origin
       server:

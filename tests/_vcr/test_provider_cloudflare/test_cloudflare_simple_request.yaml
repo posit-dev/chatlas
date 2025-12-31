@@ -24,18 +24,18 @@ interactions:
     uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
   response:
     body:
-      string: 'data: {"id":"id-1767130855085","created":1767130855,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+      string: 'data: {"id":"id-1767213404343","created":1767213404,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
         + 1"}}]}
 
 
-        data: {"id":"id-1767130855085","created":1767130855,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        data: {"id":"id-1767213404343","created":1767213404,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
         = 2"}}]}
 
 
-        data: {"id":"id-1767130855085","created":1767130855,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"."}}]}
+        data: {"id":"id-1767213404343","created":1767213404,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"."}}]}
 
 
-        data: {"id":"id-1767130855085","object":"chat.completion.chunk","created":1767130855,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":43,"completion_tokens":9,"total_tokens":52}}
+        data: {"id":"id-1767213404343","object":"chat.completion.chunk","created":1767213404,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":43,"completion_tokens":9,"total_tokens":52}}
 
 
         data: [DONE]
@@ -44,13 +44,13 @@ interactions:
         '
     headers:
       CF-RAY:
-      - 9b64b2c3882cddf4-ORD
+      - 9b6c921fae6a000c-ORD
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 21:40:55 GMT
+      - Wed, 31 Dec 2025 20:36:44 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -58,9 +58,9 @@ interactions:
       Vary:
       - Accept-Encoding
       api-version:
-      - '2025-12-30'
+      - '2025-12-31'
       cf-auditlog-id:
-      - 019b7134-f65b-7047-87fd-f4d8fac7bce2
+      - 019b7620-8fe4-7b78-86b9-81c4b4aead89
     status:
       code: 200
       message: OK

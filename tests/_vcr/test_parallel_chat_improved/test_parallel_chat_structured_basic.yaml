@@ -28,118 +28,17 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0055c0e8611eb9c00169541666358481a284e884a0ea64d4d7\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118438,\n  \"status\":
+      string: "{\n  \"id\": \"resp_09d8279cd482895901695588eb058c819eb59d6527b815b9a3\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213291,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118438,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213291,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0055c0e8611eb9c00169541666758481a298d5aafef2214c91\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_09d8279cd482895901695588eb35f8819e890320791e8672f9\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"country\\\":\\\"Canada\\\",\\\"capital\\\":\\\"Ottawa\\\"}\"\n
-        \       }\n      ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
-        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
-        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
-        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
-        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
-        \   \"format\": {\n      \"type\": \"json_schema\",\n      \"description\":
-        null,\n      \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\":
-        \"A capital city.\",\n        \"properties\": {\n          \"country\": {\n
-        \           \"type\": \"string\"\n          },\n          \"capital\": {\n
-        \           \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"country\",\n          \"capital\"\n        ],\n        \"type\":
-        \"object\",\n        \"additionalProperties\": false\n      },\n      \"strict\":
-        true\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
-        \ \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\":
-        \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 56,\n    \"input_tokens_details\":
-        {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 11,\n    \"output_tokens_details\":
-        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 67\n  },\n
-        \ \"user\": null,\n  \"metadata\": {}\n}"
-    headers:
-      CF-RAY:
-      - 9b63839e8ce14fa9-ORD
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Date:
-      - Tue, 30 Dec 2025 18:13:58 GMT
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Transfer-Encoding:
-      - chunked
-      X-Content-Type-Options:
-      - nosniff
-      alt-svc:
-      - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
-      content-length:
-      - '1977'
-      openai-processing-ms:
-      - '394'
-      openai-version:
-      - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '397'
-      x-ratelimit-limit-requests:
-      - '10000'
-      x-ratelimit-limit-tokens:
-      - '30000000'
-      x-ratelimit-remaining-requests:
-      - '9999'
-      x-ratelimit-remaining-tokens:
-      - '30000000'
-      x-ratelimit-reset-requests:
-      - 6ms
-      x-ratelimit-reset-tokens:
-      - 0s
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
-      "What is the capital of Japan? Extract the country and capital."}]}], "model":
-      "gpt-4.1", "store": false, "stream": false, "text": {"format": {"type": "json_schema",
-      "name": "structured_data", "schema": {"description": "A capital city.", "properties":
-      {"country": {"type": "string"}, "capital": {"type": "string"}}, "required":
-      ["country", "capital"], "type": "object", "additionalProperties": false}, "strict":
-      true}}}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '452'
-      Content-Type:
-      - application/json
-      Host:
-      - api.openai.com
-      X-Stainless-Async:
-      - async:asyncio
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://api.openai.com/v1/responses
-  response:
-    body:
-      string: "{\n  \"id\": \"resp_056fad468cbe1e6f016954166647d881a18332ead1310e4c78\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118438,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118438,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_056fad468cbe1e6f01695416667f2881a1839996c1f17512a3\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\n  \\\"country\\\":
-        \\\"Japan\\\",\\n  \\\"capital\\\": \\\"Tokyo\\\"\\n}\"\n        }\n      ],\n
+        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"country\\\":
+        \\\"Canada\\\", \\\"capital\\\": \\\"Ottawa\\\"}\"\n        }\n      ],\n
         \     \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
         \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
         null,\n  \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n
@@ -155,18 +54,18 @@ interactions:
         \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
         0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
         56,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 17,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 73\n  },\n  \"user\": null,\n  \"metadata\":
+        \   \"output_tokens\": 14,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 70\n  },\n  \"user\": null,\n  \"metadata\":
         {}\n}"
     headers:
       CF-RAY:
-      - 9b63839ef8eea69c-ORD
+      - 9b6c8f5ca9b7d84c-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:58 GMT
+      - Wed, 31 Dec 2025 20:34:51 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -180,13 +79,13 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '1987'
+      - '1980'
       openai-processing-ms:
-      - '447'
+      - '291'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '450'
+      - '294'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:
@@ -231,13 +130,13 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_05c30647db17969201695416664bd48195b04186218e69dc75\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767118438,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0b72a17134880c4401695588eb2ae08192b0d47e1856d7482e\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213291,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767118438,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1767213291,\n  \"error\": null,\n
         \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
         null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_05c30647db17969201695416669c4881958e7d64575f8277be\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0b72a17134880c4401695588eb7bb881928988c705b6f8a124\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"country\\\":\\\"Brazil\\\",\\\"capital\\\":\\\"Bras\\u00edlia\\\"}\"\n
@@ -261,13 +160,13 @@ interactions:
         \ \"user\": null,\n  \"metadata\": {}\n}"
     headers:
       CF-RAY:
-      - 9b63839efe8990b3-ORD
+      - 9b6c8f5d6c6a8e5c-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:13:58 GMT
+      - Wed, 31 Dec 2025 20:34:51 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -283,11 +182,112 @@ interactions:
       content-length:
       - '1984'
       openai-processing-ms:
-      - '505'
+      - '408'
       openai-version:
       - '2020-10-01'
       x-envoy-upstream-service-time:
-      - '507'
+      - '412'
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '30000000'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
+      "What is the capital of Japan? Extract the country and capital."}]}], "model":
+      "gpt-4.1", "store": false, "stream": false, "text": {"format": {"type": "json_schema",
+      "name": "structured_data", "schema": {"description": "A capital city.", "properties":
+      {"country": {"type": "string"}, "capital": {"type": "string"}}, "required":
+      ["country", "capital"], "type": "object", "additionalProperties": false}, "strict":
+      true}}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '452'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_09670a7d8b5004dd01695588eb5640819d9229ba81850c48fd\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213291,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1767213292,\n  \"error\": null,\n
+        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
+        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_09670a7d8b5004dd01695588ebfa10819d8d8767df67b5b2bc\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"country\\\":\\\"Japan\\\",\\\"capital\\\":\\\"Tokyo\\\"}\"\n
+        \       }\n      ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
+        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
+        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
+        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
+        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
+        \   \"format\": {\n      \"type\": \"json_schema\",\n      \"description\":
+        null,\n      \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\":
+        \"A capital city.\",\n        \"properties\": {\n          \"country\": {\n
+        \           \"type\": \"string\"\n          },\n          \"capital\": {\n
+        \           \"type\": \"string\"\n          }\n        },\n        \"required\":
+        [\n          \"country\",\n          \"capital\"\n        ],\n        \"type\":
+        \"object\",\n        \"additionalProperties\": false\n      },\n      \"strict\":
+        true\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
+        \ \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\":
+        \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 56,\n    \"input_tokens_details\":
+        {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 10,\n    \"output_tokens_details\":
+        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 66\n  },\n
+        \ \"user\": null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 9b6c8f5d6b492225-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:34:52 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1975'
+      openai-processing-ms:
+      - '1284'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '1325'
       x-ratelimit-limit-requests:
       - '10000'
       x-ratelimit-limit-tokens:

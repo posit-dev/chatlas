@@ -1,12 +1,6 @@
-import os
-
 import pytest
+from chatlas import ChatMistral
 
-do_test = os.getenv("TEST_MISTRAL", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping Mistral tests", allow_module_level=True)
-
-from ._test_providers import TestChatMistral
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -19,7 +13,7 @@ from .conftest import (
 
 @pytest.mark.vcr
 def test_mistral_simple_request():
-    chat = TestChatMistral(
+    chat = ChatMistral(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -35,7 +29,7 @@ def test_mistral_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_mistral_simple_streaming_request():
-    chat = TestChatMistral(
+    chat = ChatMistral(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -49,33 +43,33 @@ async def test_mistral_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_mistral_respects_turns_interface():
-    assert_turns_system(TestChatMistral)
-    assert_turns_existing(TestChatMistral)
+    assert_turns_system(ChatMistral)
+    assert_turns_existing(ChatMistral)
 
 
 # Tool calling is poorly supported
 # def test_mistral_tool_variations():
-#    chat_fun = TestChatMistral
+#    chat_fun = ChatMistral
 #    assert_tools_simple(chat_fun)
 #    assert_tools_simple_stream_content(chat_fun)
 
 # Tool calling is poorly supported
 # @pytest.mark.asyncio
 # async def test_mistral_tool_variations_async():
-#    await assert_tools_async(TestChatMistral)
+#    await assert_tools_async(ChatMistral)
 
 
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(TestChatMistral)
+    assert_data_extraction(ChatMistral)
 
 
 @pytest.mark.vcr
 def test_mistral_images():
-    assert_images_inline(TestChatMistral)
-    assert_images_remote(TestChatMistral)
+    assert_images_inline(ChatMistral)
+    assert_images_remote(ChatMistral)
 
 
 @pytest.mark.vcr
 def test_mistral_model_list():
-    assert_list_models(TestChatMistral)
+    assert_list_models(ChatMistral)

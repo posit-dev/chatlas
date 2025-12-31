@@ -24,20 +24,21 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"error\": {\n    \"message\": \"The requested model 'gpt-4-does-not-exist-12345'
-        does not exist.\",\n    \"type\": \"invalid_request_error\",\n    \"param\":
-        \"model\",\n    \"code\": \"model_not_found\"\n  }\n}"
+      string: "{\n  \"error\": {\n    \"message\": \"Incorrect API key provided: test.
+        You can find your API key at https://platform.openai.com/account/api-keys.\",\n
+        \   \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code\":
+        \"invalid_api_key\"\n  }\n}"
     headers:
       CF-RAY:
-      - 9b6383c72ec872e4-ORD
+      - 9b6c8ed07c0eeaff-ORD
       Connection:
       - keep-alive
       Content-Length:
-      - '192'
+      - '233'
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:14:04 GMT
+      - Wed, 31 Dec 2025 20:34:29 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -49,14 +50,16 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       openai-processing-ms:
-      - '42'
+      - '242'
       openai-version:
       - '2020-10-01'
+      www-authenticate:
+      - Bearer realm="OpenAI API"
       x-envoy-upstream-service-time:
-      - '46'
+      - '386'
     status:
-      code: 400
-      message: Bad Request
+      code: 401
+      message: Unauthorized
 - request:
     body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
       "Say ''B''"}]}], "model": "gpt-4-does-not-exist-12345", "store": false, "stream":
@@ -73,8 +76,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=NQjjA5gBddpdoXKHaFUZn8uxdJV6Ng1zx0JXwpSusW4-1767118444-1.0.1.1-rXt5IC2DbuiEgJNhAEQu5OFbCJk03WB_tMi9FybpfN3LAziLvx9ATHfYOGaNsy1UkK1hrIb2IXM1H7JE.1kYx4bVhdUU707YQK3S0XNIHjY;
-        _cfuvid=tLAN020_kd6Imp4rRsaCvVOHVBYh.O9IlKazz9cvxag-1767118444791-0.0.1.1-604800000
+      - __cf_bm=J_pKoCfI1Y4YyifwAq079.x5K7BUzEbvMkblGFWZCCI-1767213269-1.0.1.1-aN8_PMBzApVmCl_aqz5iamor8O37p2DBzfosYz_4MMQFeUqZ_l.F.sqMoWTnvtoQKKB5bm8oCMI5KkKXN98J3BB79ufZpGXNaa6QF1OKoGk;
+        _cfuvid=ffVcI1e2P_8X1Ce6K6.IR0PVjAnM5ahffGppkbONYn8-1767213269002-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -85,20 +88,21 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"error\": {\n    \"message\": \"The requested model 'gpt-4-does-not-exist-12345'
-        does not exist.\",\n    \"type\": \"invalid_request_error\",\n    \"param\":
-        \"model\",\n    \"code\": \"model_not_found\"\n  }\n}"
+      string: "{\n  \"error\": {\n    \"message\": \"Incorrect API key provided: test.
+        You can find your API key at https://platform.openai.com/account/api-keys.\",\n
+        \   \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code\":
+        \"invalid_api_key\"\n  }\n}"
     headers:
       CF-RAY:
-      - 9b6383c8fa85a69c-ORD
+      - 9b6c8ed45aa4dc06-ORD
       Connection:
       - keep-alive
       Content-Length:
-      - '192'
+      - '233'
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:14:06 GMT
+      - Wed, 31 Dec 2025 20:34:29 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -110,14 +114,16 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       openai-processing-ms:
-      - '395'
+      - '14'
       openai-version:
       - '2020-10-01'
+      www-authenticate:
+      - Bearer realm="OpenAI API"
       x-envoy-upstream-service-time:
-      - '1146'
+      - '17'
     status:
-      code: 400
-      message: Bad Request
+      code: 401
+      message: Unauthorized
 - request:
     body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
       "Say ''C''"}]}], "model": "gpt-4-does-not-exist-12345", "store": false, "stream":
@@ -134,8 +140,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=NQjjA5gBddpdoXKHaFUZn8uxdJV6Ng1zx0JXwpSusW4-1767118444-1.0.1.1-rXt5IC2DbuiEgJNhAEQu5OFbCJk03WB_tMi9FybpfN3LAziLvx9ATHfYOGaNsy1UkK1hrIb2IXM1H7JE.1kYx4bVhdUU707YQK3S0XNIHjY;
-        _cfuvid=tLAN020_kd6Imp4rRsaCvVOHVBYh.O9IlKazz9cvxag-1767118444791-0.0.1.1-604800000
+      - __cf_bm=J_pKoCfI1Y4YyifwAq079.x5K7BUzEbvMkblGFWZCCI-1767213269-1.0.1.1-aN8_PMBzApVmCl_aqz5iamor8O37p2DBzfosYz_4MMQFeUqZ_l.F.sqMoWTnvtoQKKB5bm8oCMI5KkKXN98J3BB79ufZpGXNaa6QF1OKoGk;
+        _cfuvid=ffVcI1e2P_8X1Ce6K6.IR0PVjAnM5ahffGppkbONYn8-1767213269002-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -146,20 +152,21 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"error\": {\n    \"message\": \"The requested model 'gpt-4-does-not-exist-12345'
-        does not exist.\",\n    \"type\": \"invalid_request_error\",\n    \"param\":
-        \"model\",\n    \"code\": \"model_not_found\"\n  }\n}"
+      string: "{\n  \"error\": {\n    \"message\": \"Incorrect API key provided: test.
+        You can find your API key at https://platform.openai.com/account/api-keys.\",\n
+        \   \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code\":
+        \"invalid_api_key\"\n  }\n}"
     headers:
       CF-RAY:
-      - 9b6383d1fbe7e578-ORD
+      - 9b6c8ed5c90beadf-ORD
       Connection:
       - keep-alive
       Content-Length:
-      - '192'
+      - '233'
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 18:14:06 GMT
+      - Wed, 31 Dec 2025 20:34:29 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -171,12 +178,14 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       openai-processing-ms:
-      - '67'
+      - '20'
       openai-version:
       - '2020-10-01'
+      www-authenticate:
+      - Bearer realm="OpenAI API"
       x-envoy-upstream-service-time:
-      - '71'
+      - '22'
     status:
-      code: 400
-      message: Bad Request
+      code: 401
+      message: Unauthorized
 version: 1

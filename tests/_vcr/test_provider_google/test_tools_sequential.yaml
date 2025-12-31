@@ -32,12 +32,12 @@ interactions:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
         {\"name\": \"weather_forecast\",\"args\": {\"city\": \"New York\"}},\"thoughtSignature\":
-        \"CiQBcsjafH9m9fErT3xiAkJYC+q/3grb25+rYVHXDGak+AjtpKMKbwFyyNp8JBgPkBwA7lWp6zuLq3YH3BOtBpMwIM4s6U5awrQiC48YOEtaIfCSffQNkagUkcSf/+D2JY6FNQRLkbK5Zk/jYUlymICx6DIuQmEaDjM+6aiTM6QVccwQ7K98DXTqmZUHNIivB8CLyY82Cgr9AQFyyNp8kVS2HiSgGDMMeDv5LXzkrEiZ1wh8sE16x+STSKikSRGbCmompewgVXdr6Q3lUIyieEi6d//OqFnbtd8RT6yIqN6Y2TOyLsM5SePOGfTzrrFrYz+8eEeS+vJxnWCzzickF+v36biTOEu4WTOR5Gdku5/lOiIn5uaKVm3ZwkkdqItgPNKYput/PtcquvjJI+lYNlOjSEu0DgZXygDomEmP32lsivqiGrMHu6KkGrer0Rm+cn/vu9YO4I9PGD16k47alLGr6lwA35/ikEXo19IYzgFnPjb7q2bhQY0FK6LxzK3ySIq5azkNOPQYFLqMMr11klhNoXOSs+IKSgFyyNp8blGnCwYt5y9T7YAu+8V4QS33GjUs33iXT3o+IRgaVbj5n9hBjGTaAw/DWxaHvGW8/k3rIMP/rrk56BNPrFCBrZKBR9Uk\"}],\"role\":
+        \"CiQBcsjafNUBGh4QLt85En0LjIwarZmhxJbOx/1VhJEmW33Bx0YKeQFyyNp8NTvPAtD+BfMwIi62ObKJFsjbjbtuT3JVfCS6Ej/ubFuhXD1wL/pjI4o24GeD4TjP/IZTA3xfgGhiw4+xjobiU724itbmy56pt6myazU5w6PZ4rTRguyxN+C2smodEM7k/lvEKHr6GxO7XMBvPBc54cPHqKoKjAIBcsjafJStwwy5GjsjNO1dSSfljOzJi0Z9snlhIiCe89e72YvclpRI3iwOWJ6Tt7ZNCJzQH7WsMlBggmyLZ8WTL4/lt+bfx/gdGaU4vTWmcIvwkHjYRDLr1PoMNMK3mk3OohKipNI9L+Of6QbctBcvfR4kop6APOwg82pz2TY1zqhaA9EnRTYSr6IfrqPEjiJ6khAeJZROmcdmgrOXH2dSn3s4UV+Cl6FjSsGmpzTZps+fMXQOC+//FWyqSuTfRAGGTf6DS3lz9qbggO/AhNjGXkEubHOeOxtRQJbszLZK3d20FiD7j9SUkDfvfFDUsa15Kzrg8nWFLF++CP9kPiDD6RRG7k+qGO+fBPFHCl8BcsjafMIwW015wrIigL2y7GW9Y/+5Nfu5p6ABavPbIxLNjifZSUjNBRsIV37YYnn1MpcAnWUB8nS9T4AxQKG2QBk2q/uoZozhJhs+UYYhIG6OCi9uS2esVkaFuoJmfA==\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
         generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
-        133,\"candidatesTokenCount\": 16,\"totalTokenCount\": 226,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 133}],\"thoughtsTokenCount\": 77},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"6BZUab2NOJ6j_uMPrfrPiAs\"}\r\n\r\n"
+        133,\"candidatesTokenCount\": 16,\"totalTokenCount\": 232,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 133}],\"thoughtsTokenCount\": 83},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"MYpVaZn8HK6n_uMP8-yp-Ao\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -46,11 +46,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 18:16:09 GMT
+      - Wed, 31 Dec 2025 20:40:17 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=1477
+      - gfet4t7; dur=805
       Transfer-Encoding:
       - chunked
       Vary:
@@ -104,7 +104,7 @@ interactions:
         \"STOP\",\"index\": 0,\"finishMessage\": \"Model generated function call(s).\"}],\"usageMetadata\":
         {\"promptTokenCount\": 165,\"candidatesTokenCount\": 14,\"totalTokenCount\":
         179,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 165}]},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"6hZUaewzvIX7xg-w38CwBw\"}\r\n\r\n"
+        \"gemini-2.5-flash\",\"responseId\": \"MopVab2dHdWA_uMP-MvrmQw\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -113,11 +113,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 18:16:10 GMT
+      - Wed, 31 Dec 2025 20:40:18 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=467
+      - gfet4t7; dur=331
       Transfer-Encoding:
       - chunked
       Vary:
@@ -173,7 +173,7 @@ interactions:
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
         192,\"candidatesTokenCount\": 1,\"totalTokenCount\": 193,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 192}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"6hZUabeILP29jrEP1t2GcQ\"}\r\n\r\n"
+        \"MopVaf3oOtSK-sAPvqHd8Aw\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -182,11 +182,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 18:16:10 GMT
+      - Wed, 31 Dec 2025 20:40:18 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=439
+      - gfet4t7; dur=247
       Transfer-Encoding:
       - chunked
       Vary:

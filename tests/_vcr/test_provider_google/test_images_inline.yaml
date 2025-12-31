@@ -29,7 +29,7 @@ interactions:
         \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 266,\"candidatesTokenCount\":
         28,\"totalTokenCount\": 773,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         8},{\"modality\": \"IMAGE\",\"tokenCount\": 258}],\"thoughtsTokenCount\":
-        479},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"l1FVaZHkCJyA_uMP9NLf4Qg\"}\r\n\r\n"
+        479},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"N4pVadjUIabP_uMP1PvVgQU\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -38,11 +38,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 16:38:49 GMT
+      - Wed, 31 Dec 2025 20:40:25 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=2888
+      - gfet4t7; dur=2779
       Transfer-Encoding:
       - chunked
       Vary:

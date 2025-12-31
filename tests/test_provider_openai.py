@@ -3,7 +3,6 @@ import pytest
 from chatlas import ChatOpenAI
 from openai.types.responses import ResponseOutputMessage, ResponseOutputText
 
-from ._test_providers import TestChatOpenAI
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -22,7 +21,7 @@ from .conftest import (
 
 @pytest.mark.vcr
 def test_openai_simple_request():
-    chat = TestChatOpenAI(
+    chat = ChatOpenAI(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -37,7 +36,7 @@ def test_openai_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_simple_streaming_request():
-    chat = TestChatOpenAI(
+    chat = ChatOpenAI(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -50,39 +49,39 @@ async def test_openai_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_openai_respects_turns_interface():
-    assert_turns_system(TestChatOpenAI)
-    assert_turns_existing(TestChatOpenAI)
+    assert_turns_system(ChatOpenAI)
+    assert_turns_existing(ChatOpenAI)
 
 
 @pytest.mark.vcr
 def test_openai_tool_variations():
-    assert_tools_simple(TestChatOpenAI)
-    assert_tools_simple_stream_content(TestChatOpenAI)
-    assert_tools_parallel(TestChatOpenAI)
-    assert_tools_sequential(TestChatOpenAI, total_calls=6)
+    assert_tools_simple(ChatOpenAI)
+    assert_tools_simple_stream_content(ChatOpenAI)
+    assert_tools_parallel(ChatOpenAI)
+    assert_tools_sequential(ChatOpenAI, total_calls=6)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_tool_variations_async():
-    await assert_tools_async(TestChatOpenAI)
+    await assert_tools_async(ChatOpenAI)
 
 
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(TestChatOpenAI)
+    assert_data_extraction(ChatOpenAI)
 
 
 @pytest.mark.vcr
 def test_openai_images():
-    assert_images_inline(TestChatOpenAI)
-    assert_images_remote(TestChatOpenAI)
+    assert_images_inline(ChatOpenAI)
+    assert_images_remote(ChatOpenAI)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_logprobs():
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
     chat.set_model_params(log_probs=True)
 
     pieces = []
@@ -103,7 +102,7 @@ async def test_openai_logprobs():
 
 @pytest.mark.vcr
 def test_openai_pdf():
-    assert_pdf_local(TestChatOpenAI)
+    assert_pdf_local(ChatOpenAI)
 
 
 def test_openai_custom_http_client():
@@ -113,7 +112,7 @@ def test_openai_custom_http_client():
 
 @pytest.mark.vcr
 def test_openai_list_models():
-    assert_list_models(TestChatOpenAI)
+    assert_list_models(ChatOpenAI)
 
 
 def test_openai_service_tier():
@@ -126,7 +125,7 @@ def test_openai_service_tier():
 def test_openai_service_tier_affects_pricing():
     from chatlas._tokens import get_token_cost
 
-    chat = TestChatOpenAI(service_tier="priority")
+    chat = ChatOpenAI(service_tier="priority")
     chat.chat("What is 1+1?")
 
     turn = chat.get_last_turn()

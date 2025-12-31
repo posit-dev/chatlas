@@ -1,11 +1,8 @@
 """Tests for improved parallel_chat with multi-turn tool support."""
 
 import pytest
-from pydantic import BaseModel
-
 from chatlas import ChatOpenAI, parallel_chat, parallel_chat_structured
-
-from ._test_providers import TestChatOpenAI
+from pydantic import BaseModel
 
 
 @pytest.mark.vcr
@@ -24,7 +21,7 @@ async def test_parallel_chat_multi_turn_tools():
         call_log.append(f"time:{location}")
         return f"Time in {location}: 3:00 PM"
 
-    chat = TestChatOpenAI(system_prompt="Be terse.")
+    chat = ChatOpenAI(system_prompt="Be terse.")
     chat.register_tool(get_weather)
     chat.register_tool(get_time)
 
@@ -47,8 +44,12 @@ async def test_parallel_chat_multi_turn_tools():
     # Each chat should have multiple turns
     assert len(chats) == 2
     # At least: user, assistant (with tools), user (tool results), assistant (final response)
-    assert len(chats[0].get_turns()) >= 4, f"Expected at least 4 turns, got {len(chats[0].get_turns())}"
-    assert len(chats[1].get_turns()) >= 4, f"Expected at least 4 turns, got {len(chats[1].get_turns())}"
+    assert len(chats[0].get_turns()) >= 4, (
+        f"Expected at least 4 turns, got {len(chats[0].get_turns())}"
+    )
+    assert len(chats[1].get_turns()) >= 4, (
+        f"Expected at least 4 turns, got {len(chats[1].get_turns())}"
+    )
 
 
 @pytest.mark.vcr
@@ -62,7 +63,9 @@ async def test_parallel_chat_ordering_preserved():
         execution_order.append(msg)
         return f"Recorded: {msg}"
 
-    chat = TestChatOpenAI(system_prompt="Be terse. Always use the record tool as requested.")
+    chat = ChatOpenAI(
+        system_prompt="Be terse. Always use the record tool as requested."
+    )
     chat.register_tool(record)
 
     prompts = [
@@ -74,7 +77,9 @@ async def test_parallel_chat_ordering_preserved():
     chats = await parallel_chat(chat, prompts)
 
     # Verify strict ordering
-    assert execution_order == ["A", "B", "C"], f"Expected ['A', 'B', 'C'], got {execution_order}"
+    assert execution_order == ["A", "B", "C"], (
+        f"Expected ['A', 'B', 'C'], got {execution_order}"
+    )
     assert len(chats) == 3
 
 
@@ -89,7 +94,7 @@ async def test_parallel_chat_mixed_tools_and_no_tools():
         call_log.append("called")
         return "done"
 
-    chat = TestChatOpenAI(system_prompt="Be terse.")
+    chat = ChatOpenAI(system_prompt="Be terse.")
     chat.register_tool(helper)
 
     prompts = [
@@ -101,7 +106,9 @@ async def test_parallel_chat_mixed_tools_and_no_tools():
     chats = await parallel_chat(chat, prompts)
 
     # Only prompts 0 and 2 should have used the tool
-    assert call_log == ["called", "called"], f"Expected ['called', 'called'], got {call_log}"
+    assert call_log == ["called", "called"], (
+        f"Expected ['called', 'called'], got {call_log}"
+    )
     assert len(chats) == 3
 
     # Verify the middle chat didn't use tools
@@ -126,7 +133,7 @@ async def test_parallel_chat_chained_tool_calls():
         call_log.append("step_2")
         return "Step 2 complete"
 
-    chat = TestChatOpenAI(system_prompt="Be terse. Follow instructions exactly.")
+    chat = ChatOpenAI(system_prompt="Be terse. Follow instructions exactly.")
     chat.register_tool(step_one)
     chat.register_tool(step_two)
 
@@ -139,15 +146,21 @@ async def test_parallel_chat_chained_tool_calls():
 
     # First prompt should call both tools in sequence
     # Second prompt should only call step_one
-    assert len(call_log) >= 3, f"Expected at least 3 tool calls, got {len(call_log)}: {call_log}"
+    assert len(call_log) >= 3, (
+        f"Expected at least 3 tool calls, got {len(call_log)}: {call_log}"
+    )
 
     # Find indices
     step_1_indices = [i for i, x in enumerate(call_log) if x == "step_1"]
     step_2_indices = [i for i, x in enumerate(call_log) if x == "step_2"]
 
     # There should be 2 step_1 calls and at least 1 step_2 call
-    assert len(step_1_indices) == 2, f"Expected 2 step_1 calls, got {len(step_1_indices)}: {call_log}"
-    assert len(step_2_indices) >= 1, f"Expected at least 1 step_2 call, got {len(step_2_indices)}: {call_log}"
+    assert len(step_1_indices) == 2, (
+        f"Expected 2 step_1 calls, got {len(step_1_indices)}: {call_log}"
+    )
+    assert len(step_2_indices) >= 1, (
+        f"Expected at least 1 step_2 call, got {len(step_2_indices)}: {call_log}"
+    )
 
     # Within each round, tools should be processed in order
     # But between rounds, conversations can diverge (some may need more tools than others)
@@ -163,7 +176,7 @@ async def test_parallel_chat_chained_tool_calls():
 @pytest.mark.asyncio
 async def test_parallel_chat_no_tools_registered():
     """Test that parallel_chat works normally when no tools are registered."""
-    chat = TestChatOpenAI(system_prompt="Be terse.")
+    chat = ChatOpenAI(system_prompt="Be terse.")
 
     prompts = [
         "Say 'Alpha'",
@@ -194,7 +207,9 @@ async def test_parallel_chat_tool_ordering_with_rate_limiting():
         execution_order.append(id)
         return f"Recorded {id}"
 
-    chat = TestChatOpenAI(system_prompt="Be terse. Always use the record tool as requested.")
+    chat = ChatOpenAI(
+        system_prompt="Be terse. Always use the record tool as requested."
+    )
     chat.register_tool(record)
 
     # Use a larger set to test rate limiting
@@ -222,7 +237,7 @@ async def test_parallel_chat_structured_basic():
         country: str
         capital: str
 
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
 
     countries = ["Canada", "Japan", "Brazil"]
     prompts = [
@@ -242,7 +257,9 @@ async def test_parallel_chat_structured_basic():
     # Verify we got reasonable results
     assert any("Ottawa" in r.data.capital for r in results)
     assert any("Tokyo" in r.data.capital for r in results)
-    assert any("Brasilia" in r.data.capital or "Brasília" in r.data.capital for r in results)
+    assert any(
+        "Brasilia" in r.data.capital or "Brasília" in r.data.capital for r in results
+    )
 
 
 @pytest.mark.vcr
@@ -263,7 +280,7 @@ async def test_parallel_chat_structured_with_tools():
         temperature: str
         conditions: str
 
-    chat = TestChatOpenAI(system_prompt="Be terse.")
+    chat = ChatOpenAI(system_prompt="Be terse.")
     chat.register_tool(get_weather)
 
     prompts = [
@@ -303,7 +320,7 @@ async def test_parallel_chat_structured_tool_ordering():
         id: str
         data: str
 
-    chat = TestChatOpenAI(system_prompt="Be terse. Use the fetch_data tool as requested.")
+    chat = ChatOpenAI(system_prompt="Be terse. Use the fetch_data tool as requested.")
     chat.register_tool(fetch_data)
 
     prompts = [
@@ -315,6 +332,8 @@ async def test_parallel_chat_structured_tool_ordering():
     results = await parallel_chat_structured(chat, prompts, DataResult)
 
     # Verify strict ordering
-    assert execution_order == ["A", "B", "C"], f"Expected ['A', 'B', 'C'], got {execution_order}"
+    assert execution_order == ["A", "B", "C"], (
+        f"Expected ['A', 'B', 'C'], got {execution_order}"
+    )
     assert len(results) == 3
     assert all(isinstance(r.data, DataResult) for r in results)

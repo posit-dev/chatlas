@@ -1,12 +1,6 @@
-import os
-
 import pytest
+from chatlas import ChatBedrockAnthropic
 
-do_test = os.getenv("TEST_BEDROCK", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping Bedrock tests", allow_module_level=True)
-
-from ._test_providers import TestChatBedrockAnthropic
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -20,10 +14,16 @@ from .conftest import (
     assert_turns_system,
 )
 
+try:
+    chat = ChatBedrockAnthropic()
+    chat.chat("What is 1 + 1?")
+except Exception:
+    pytest.skip("Bedrock credentials aren't configured", allow_module_level=True)
+
 
 @pytest.mark.vcr
 def test_anthropic_simple_request():
-    chat = TestChatBedrockAnthropic(
+    chat = ChatBedrockAnthropic(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -35,7 +35,7 @@ def test_anthropic_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_anthropic_simple_streaming_request():
-    chat = TestChatBedrockAnthropic(
+    chat = ChatBedrockAnthropic(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -50,36 +50,36 @@ async def test_anthropic_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_anthropic_respects_turns_interface():
-    assert_turns_system(TestChatBedrockAnthropic)
-    assert_turns_existing(TestChatBedrockAnthropic)
+    assert_turns_system(ChatBedrockAnthropic)
+    assert_turns_existing(ChatBedrockAnthropic)
 
 
 @pytest.mark.vcr
 def test_anthropic_tool_variations():
-    assert_tools_simple(TestChatBedrockAnthropic)
-    assert_tools_parallel(TestChatBedrockAnthropic)
-    assert_tools_sequential(TestChatBedrockAnthropic, total_calls=6)
+    assert_tools_simple(ChatBedrockAnthropic)
+    assert_tools_parallel(ChatBedrockAnthropic)
+    assert_tools_sequential(ChatBedrockAnthropic, total_calls=6)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_anthropic_tool_variations_async():
-    await assert_tools_async(TestChatBedrockAnthropic)
+    await assert_tools_async(ChatBedrockAnthropic)
 
 
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(TestChatBedrockAnthropic)
+    assert_data_extraction(ChatBedrockAnthropic)
 
 
 @pytest.mark.vcr
 def test_anthropic_images():
-    assert_images_inline(TestChatBedrockAnthropic)
+    assert_images_inline(ChatBedrockAnthropic)
     assert_images_remote_error(
-        TestChatBedrockAnthropic, message="URL sources are not supported"
+        ChatBedrockAnthropic, message="URL sources are not supported"
     )
 
 
 @pytest.mark.vcr
 def test_anthropic_models():
-    assert_list_models(TestChatBedrockAnthropic)
+    assert_list_models(ChatBedrockAnthropic)

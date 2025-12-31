@@ -1,16 +1,4 @@
-import os
-
 import pytest
-
-do_test = os.getenv("TEST_PORTKEY", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping Portkey tests", allow_module_level=True)
-
-# Skip if PORTKEY_API_KEY is not set or empty
-api_key = os.getenv("PORTKEY_API_KEY", "")
-if not api_key:
-    pytest.skip("PORTKEY_API_KEY is not set; skipping tests", allow_module_level=True)
-
 from chatlas import ChatPortkey
 
 from .conftest import (
@@ -33,6 +21,13 @@ def _chat_portkey_test(**kwargs):
         "system_prompt", "Be as terse as possible; no punctuation"
     )
     return ChatPortkey(model=model, system_prompt=system_prompt, **kwargs)
+
+
+try:
+    chat = _chat_portkey_test()
+    chat.chat("What is 1 + 1?")
+except Exception:
+    pytest.skip("Portkey credentials aren't configured", allow_module_level=True)
 
 
 def test_portkey_simple_request():

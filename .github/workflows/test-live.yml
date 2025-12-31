@@ -30,9 +30,6 @@ jobs:
       HUGGINGFACE_API_KEY: ${{ secrets.HUGGINGFACE_API_KEY }}
       MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      # Rate-limited providers - only test on this dedicated workflow
-      TEST_GOOGLE: "true"
-      TEST_AZURE: "true"
 
     steps:
       - uses: actions/checkout@v4
@@ -64,5 +61,5 @@ jobs:
           private_key_file_pwd="${{ secrets.SNOWFLAKE_SSH_PRIVATE_KEY_PASSWORD }}"
           EOF
 
-      - name: Check tests (live API)
-        run: make check-tests-live
+      - name: Check tests
+        run: make check-tests

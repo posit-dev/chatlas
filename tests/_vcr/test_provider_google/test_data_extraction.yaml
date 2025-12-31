@@ -35,18 +35,18 @@ interactions:
         18,\n    \"totalTokenCount\": 160,\n    \"promptTokensDetails\": [\n      {\n
         \       \"modality\": \"TEXT\",\n        \"tokenCount\": 40\n      }\n    ],\n
         \   \"thoughtsTokenCount\": 102\n  },\n  \"modelVersion\": \"gemini-2.5-flash\",\n
-        \ \"responseId\": \"7BZUaebHDJ6r-8YPv8Gl2Q8\"\n}\n"
+        \ \"responseId\": \"NIpVaY6SD62r_uMPpZqE4Qw\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Content-Type:
       - application/json; charset=UTF-8
       Date:
-      - Tue, 30 Dec 2025 18:16:12 GMT
+      - Wed, 31 Dec 2025 20:40:20 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=1250
+      - gfet4t7; dur=1014
       Transfer-Encoding:
       - chunked
       Vary:
@@ -102,18 +102,18 @@ interactions:
         {\n    \"promptTokenCount\": 96,\n    \"candidatesTokenCount\": 15,\n    \"totalTokenCount\":
         175,\n    \"promptTokensDetails\": [\n      {\n        \"modality\": \"TEXT\",\n
         \       \"tokenCount\": 96\n      }\n    ],\n    \"thoughtsTokenCount\": 64\n
-        \ },\n  \"modelVersion\": \"gemini-2.5-flash\",\n  \"responseId\": \"7RZUadn3Hci9jrEP-uvO6Qg\"\n}\n"
+        \ },\n  \"modelVersion\": \"gemini-2.5-flash\",\n  \"responseId\": \"NYpVaefEEuOi_uMPvcOsqQs\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Content-Type:
       - application/json; charset=UTF-8
       Date:
-      - Tue, 30 Dec 2025 18:16:13 GMT
+      - Wed, 31 Dec 2025 20:40:21 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=963
+      - gfet4t7; dur=823
       Transfer-Encoding:
       - chunked
       Vary:
@@ -168,21 +168,21 @@ interactions:
         [\n          {\n            \"text\": \"{\\\"name\\\":\\\"Alice Smith\\\",\\\"age\\\":30}\"\n
         \         }\n        ],\n        \"role\": \"model\"\n      },\n      \"finishReason\":
         \"STOP\",\n      \"index\": 0\n    }\n  ],\n  \"usageMetadata\": {\n    \"promptTokenCount\":
-        123,\n    \"candidatesTokenCount\": 11,\n    \"totalTokenCount\": 177,\n    \"promptTokensDetails\":
+        123,\n    \"candidatesTokenCount\": 11,\n    \"totalTokenCount\": 172,\n    \"promptTokensDetails\":
         [\n      {\n        \"modality\": \"TEXT\",\n        \"tokenCount\": 123\n
-        \     }\n    ],\n    \"thoughtsTokenCount\": 43\n  },\n  \"modelVersion\":
-        \"gemini-2.5-flash\",\n  \"responseId\": \"7hZUacXpIfGc-8YPvO7ssQc\"\n}\n"
+        \     }\n    ],\n    \"thoughtsTokenCount\": 38\n  },\n  \"modelVersion\":
+        \"gemini-2.5-flash\",\n  \"responseId\": \"NopVaenuC7TQ_uMP_vPbaQ\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Content-Type:
       - application/json; charset=UTF-8
       Date:
-      - Tue, 30 Dec 2025 18:16:14 GMT
+      - Wed, 31 Dec 2025 20:40:22 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=838
+      - gfet4t7; dur=678
       Transfer-Encoding:
       - chunked
       Vary:
@@ -196,7 +196,7 @@ interactions:
       X-XSS-Protection:
       - '0'
       content-length:
-      - '582'
+      - '581'
     status:
       code: 200
       message: OK
@@ -235,7 +235,7 @@ interactions:
         Smith\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
         {\"promptTokenCount\": 144,\"candidatesTokenCount\": 2,\"totalTokenCount\":
         146,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 144}]},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"7xZUabGjArSt_uMP876dyQ0\"}\r\n\r\n"
+        \"gemini-2.5-flash\",\"responseId\": \"NopVab-5K7iSjMcP34bCiQo\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -244,11 +244,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 18:16:15 GMT
+      - Wed, 31 Dec 2025 20:40:22 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=290
+      - gfet4t7; dur=291
       Transfer-Encoding:
       - chunked
       Vary:

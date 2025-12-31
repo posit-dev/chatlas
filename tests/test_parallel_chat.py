@@ -1,8 +1,6 @@
 """Tests for parallel chat functionality."""
 
 import pytest
-from pydantic import BaseModel
-
 from chatlas import (
     Chat,
     ChatOpenAI,
@@ -12,14 +10,13 @@ from chatlas import (
     parallel_chat_structured,
     parallel_chat_text,
 )
-
-from ._test_providers import TestChatOpenAI
+from pydantic import BaseModel
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_basic():
-    chat = TestChatOpenAI(system_prompt="Be terse.")
+    chat = ChatOpenAI(system_prompt="Be terse.")
 
     prompts = [
         "What is 1 + 1?",
@@ -29,20 +26,21 @@ async def test_parallel_chat_basic():
     chats = await parallel_chat(chat, prompts)
 
     assert len(chats) == 2
-    assert chats[0] is not None
+    assert isinstance(chats[0], Chat)
     turn1 = chats[0].get_last_turn()
     assert turn1 is not None
     assert "2" in turn1.text
     assert chats[1] is not None
+    assert isinstance(chats[1], Chat)
     turn2 = chats[1].get_last_turn()
     assert turn2 is not None
     assert "4" in turn2.text
 
     chats = await parallel_chat_text(chat, prompts)
     assert len(chats) == 2
-    assert chats[0] is not None
+    assert isinstance(chats[0], str)
     assert "2" in chats[0]
-    assert chats[1] is not None
+    assert isinstance(chats[1], str)
     assert "4" in chats[1]
 
 
@@ -61,7 +59,7 @@ def new_roll_func():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_tools():
-    chat = TestChatOpenAI(system_prompt="Be terse.")
+    chat = ChatOpenAI(system_prompt="Be terse.")
 
     prompts = [
         "Roll the dice, please! Reply with 'You rolled ____'",
@@ -72,7 +70,7 @@ async def test_parallel_chat_tools():
     chats = await parallel_chat(chat, prompts)
 
     assert len(chats) == 2
-    assert chats[0] is not None
+    assert isinstance(chats[0], Chat)
     turns = chats[0].get_turns()
     assert len(turns) == 4
     assert isinstance(turns[1].contents[0], ContentToolRequest)
@@ -92,7 +90,7 @@ async def test_parallel_chat_tools():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_tools_uneven():
-    chat = TestChatOpenAI(system_prompt="Be terse.")
+    chat = ChatOpenAI(system_prompt="Be terse.")
 
     prompts = [
         "Roll the dice, please! Reply with 'You rolled ____'",
@@ -105,13 +103,13 @@ async def test_parallel_chat_tools_uneven():
     chats = await parallel_chat(chat, prompts)
 
     assert len(chats) == 4
-    assert chats[0] is not None
+    assert isinstance(chats[0], Chat)
     assert len(chats[0].get_turns()) == 4
-    assert chats[1] is not None
+    assert isinstance(chats[1], Chat)
     assert len(chats[1].get_turns()) == 2
-    assert chats[2] is not None
+    assert isinstance(chats[2], Chat)
     assert len(chats[2].get_turns()) == 4
-    assert chats[3] is not None
+    assert isinstance(chats[3], Chat)
     assert len(chats[3].get_turns()) == 2
 
     turn1 = chats[0].get_last_turn()
@@ -132,7 +130,7 @@ async def test_parallel_chat_tools_uneven():
 @pytest.mark.asyncio
 async def test_parallel_chat_structured():
     """Test parallel_chat_structured for structured data extraction."""
-    chat = TestChatOpenAI()
+    chat = ChatOpenAI()
 
     prompts = ["John, age 15", "Jane, age 16"]
 

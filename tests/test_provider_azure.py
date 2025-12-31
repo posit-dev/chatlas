@@ -1,16 +1,9 @@
-import os
-
 import pytest
-
-from ._test_providers import TestChatAzureOpenAI
-
-do_test = os.getenv("TEST_AZURE", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping Azure tests", allow_module_level=True)
+from chatlas import ChatAzureOpenAI
 
 
 def chat_func(system_prompt: str = "Be as terse as possible; no punctuation"):
-    return TestChatAzureOpenAI(
+    return ChatAzureOpenAI(
         system_prompt=system_prompt,
         endpoint="https://carso-mhl2zrqb-eastus2.cognitiveservices.azure.com/",
         deployment_id="gpt-5-nano",

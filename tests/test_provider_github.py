@@ -1,15 +1,7 @@
-import os
-
 import httpx
 import pytest
-
-do_test = os.getenv("TEST_GITHUB", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping GitHub tests", allow_module_level=True)
-
 from chatlas import ChatGithub
 
-from ._test_providers import TestChatGithub
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -27,7 +19,7 @@ from .conftest import (
 
 @pytest.mark.vcr
 def test_github_simple_request():
-    chat = TestChatGithub(
+    chat = ChatGithub(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -43,7 +35,7 @@ def test_github_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_simple_streaming_request():
-    chat = TestChatGithub(
+    chat = ChatGithub(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -57,39 +49,39 @@ async def test_github_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_github_respects_turns_interface():
-    assert_turns_system(TestChatGithub)
-    assert_turns_existing(TestChatGithub)
+    assert_turns_system(ChatGithub)
+    assert_turns_existing(ChatGithub)
 
 
 @pytest.mark.vcr
 def test_github_tool_variations():
-    assert_tools_simple(TestChatGithub)
-    assert_tools_simple_stream_content(TestChatGithub)
-    assert_tools_parallel(TestChatGithub)
-    assert_tools_sequential(TestChatGithub, total_calls=6)
+    assert_tools_simple(ChatGithub)
+    assert_tools_simple_stream_content(ChatGithub)
+    assert_tools_parallel(ChatGithub)
+    assert_tools_sequential(ChatGithub, total_calls=6)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_tool_variations_async():
-    await assert_tools_async(TestChatGithub)
+    await assert_tools_async(ChatGithub)
 
 
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(TestChatGithub)
+    assert_data_extraction(ChatGithub)
 
 
 @pytest.mark.vcr
 def test_github_images():
-    assert_images_inline(TestChatGithub)
-    assert_images_remote(TestChatGithub)
+    assert_images_inline(ChatGithub)
+    assert_images_remote(ChatGithub)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_logprobs():
-    chat = TestChatGithub()
+    chat = ChatGithub()
 
     pieces = []
     async for x in await chat.stream_async("Hi", kwargs={"logprobs": True}):
@@ -106,7 +98,7 @@ async def test_github_logprobs():
 
 # Doesn't seem to be supported
 # def test_github_pdf():
-#    assert_pdf_local(TestChatGithub)
+#    assert_pdf_local(ChatGithub)
 
 
 def test_github_custom_http_client():
@@ -116,4 +108,4 @@ def test_github_custom_http_client():
 
 @pytest.mark.vcr
 def test_github_list_models():
-    assert_list_models(TestChatGithub)
+    assert_list_models(ChatGithub)

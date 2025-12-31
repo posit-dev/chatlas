@@ -1,11 +1,8 @@
 interactions:
 - request:
-    body: '{"messages": [{"content": "Be very terse, not even punctuation.", "role":
-      "system"}, {"content": [{"type": "text", "text": "What''s the current date in
-      YYYY-MM-DD format?"}], "role": "user"}], "model": "databricks-claude-3-7-sonnet",
-      "stream": true, "tools": [{"type": "function", "function": {"name": "get_current_date",
-      "description": "Gets the current date", "parameters": {"properties": {}, "type":
-      "object", "additionalProperties": false, "required": []}}}]}'
+    body: '{"messages":[{"content":"Be very terse, not even punctuation.","role":"system"},{"content":[{"type":"text","text":"What''s
+      the current date in YYYY-MM-DD format?"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true,"tools":[{"type":"function","function":{"name":"get_current_date","description":"Gets
+      the current date","parameters":{"properties":{},"type":"object","additionalProperties":false,"required":[]}}}]}'
     headers:
       Accept:
       - application/json
@@ -19,40 +16,48 @@ interactions:
       - application/json
       Host:
       - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - AsyncOpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
       X-Stainless-Async:
       - async:asyncio
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
       x-stainless-read-timeout:
       - '600'
+      x-stainless-retry-count:
+      - '0'
     method: POST
     uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
   response:
     body:
-      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"I"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BKeEwhirLvvmv5XirAYHJ1","created":1767131143}
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"I"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BkJdeJtMFk3Mht6jqQn9Zm","created":1767213432}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"''ll
-        get"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BKeEwhirLvvmv5XirAYHJ1","created":1767131143}
+        get the current date for you in"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BkJdeJtMFk3Mht6jqQn9Zm","created":1767213432}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        the current date for"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BKeEwhirLvvmv5XirAYHJ1","created":1767131143}
+        YYYY-MM-DD format."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BkJdeJtMFk3Mht6jqQn9Zm","created":1767213432}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        you in YYYY-MM"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BKeEwhirLvvmv5XirAYHJ1","created":1767131143}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"id":"toolu_bdrk_011AUYhUb58oWXYL8oEYMb38","type":"function","function":{"name":"get_current_date","arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BkJdeJtMFk3Mht6jqQn9Zm","created":1767213433}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"-DD
-        format."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BKeEwhirLvvmv5XirAYHJ1","created":1767131143}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"function":{"arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BkJdeJtMFk3Mht6jqQn9Zm","created":1767213433}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"id":"toolu_bdrk_01We9RqETV4Y75JKkKAAN9yL","type":"function","function":{"name":"get_current_date","arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BKeEwhirLvvmv5XirAYHJ1","created":1767131143}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"function":{"arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":396,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BKeEwhirLvvmv5XirAYHJ1","created":1767131143}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"tool_calls"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":56,"prompt_tokens":396,"total_tokens":452,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BKeEwhirLvvmv5XirAYHJ1","created":1767131143}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"tool_calls"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":56,"prompt_tokens":396,"total_tokens":452,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BkJdeJtMFk3Mht6jqQn9Zm","created":1767213433}
 
 
         data: [DONE]
@@ -65,11 +70,11 @@ interactions:
       content-type:
       - text/event-stream
       date:
-      - Tue, 30 Dec 2025 21:45:43 GMT
+      - Wed, 31 Dec 2025 20:37:12 GMT
       server:
       - databricks
       server-timing:
-      - request_id;dur=0;desc="cb8c94ac-2860-4fb7-9cc8-8fdc7ff530a7", client_protocol;dur=0;desc="HTTP/1.1"
+      - request_id;dur=0;desc="27872223-b6a1-43af-ab04-ee0fe330a37a", client_protocol;dur=0;desc="HTTP/1.1"
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       transfer-encoding:
@@ -77,26 +82,21 @@ interactions:
       x-amzn-bedrock-content-type:
       - application/json
       x-amzn-requestid:
-      - 5650edd0-6cfc-4b4b-bee8-ad7b977d535e
+      - db986592-c196-4d9e-83ac-3a2c45d160bb
       x-content-type-options:
       - nosniff
       x-databricks-org-id:
       - '138962681435081'
+      x-request-id:
+      - 27872223-b6a1-43af-ab04-ee0fe330a37a
     status:
       code: 200
       message: OK
 - request:
-    body: '{"messages": [{"content": "Be very terse, not even punctuation.", "role":
-      "system"}, {"content": [{"type": "text", "text": "What''s the current date in
-      YYYY-MM-DD format?"}], "role": "user"}, {"role": "assistant", "content": [{"type":
-      "text", "text": "I''ll get the current date for you in YYYY-MM-DD format."}],
-      "tool_calls": [{"id": "toolu_bdrk_01We9RqETV4Y75JKkKAAN9yL", "function": {"name":
-      "get_current_date", "arguments": "{}"}, "type": "function"}]}, {"content": "2024-01-01",
-      "tool_call_id": "toolu_bdrk_01We9RqETV4Y75JKkKAAN9yL", "role": "tool"}], "model":
-      "databricks-claude-3-7-sonnet", "stream": true, "tools": [{"type": "function",
-      "function": {"name": "get_current_date", "description": "Gets the current date",
-      "parameters": {"properties": {}, "type": "object", "additionalProperties": false,
-      "required": []}}}]}'
+    body: '{"messages":[{"content":"Be very terse, not even punctuation.","role":"system"},{"content":[{"type":"text","text":"What''s
+      the current date in YYYY-MM-DD format?"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"I''ll
+      get the current date for you in YYYY-MM-DD format."}],"tool_calls":[{"id":"toolu_bdrk_011AUYhUb58oWXYL8oEYMb38","function":{"name":"get_current_date","arguments":"{}"},"type":"function"}]},{"content":"2024-01-01","tool_call_id":"toolu_bdrk_011AUYhUb58oWXYL8oEYMb38","role":"tool"}],"model":"databricks-claude-3-7-sonnet","stream":true,"tools":[{"type":"function","function":{"name":"get_current_date","description":"Gets
+      the current date","parameters":{"properties":{},"type":"object","additionalProperties":false,"required":[]}}}]}'
     headers:
       Accept:
       - application/json
@@ -110,24 +110,40 @@ interactions:
       - application/json
       Host:
       - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - AsyncOpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
       X-Stainless-Async:
       - async:asyncio
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
       x-stainless-read-timeout:
       - '600'
+      x-stainless-retry-count:
+      - '0'
     method: POST
     uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
   response:
     body:
-      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"2"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":469,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01PaEovwjwiaxLhxmN1yrHZw","created":1767131144}
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"2"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":469,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NCybR3kWj4QqwrUdWurDbs","created":1767213434}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"024-01-"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":469,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01PaEovwjwiaxLhxmN1yrHZw","created":1767131144}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"024-01-"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":469,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NCybR3kWj4QqwrUdWurDbs","created":1767213434}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"01"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":469,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01PaEovwjwiaxLhxmN1yrHZw","created":1767131144}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"01"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":469,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NCybR3kWj4QqwrUdWurDbs","created":1767213434}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":10,"prompt_tokens":469,"total_tokens":479,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01PaEovwjwiaxLhxmN1yrHZw","created":1767131144}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":10,"prompt_tokens":469,"total_tokens":479,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NCybR3kWj4QqwrUdWurDbs","created":1767213434}
 
 
         data: [DONE]
@@ -140,11 +156,11 @@ interactions:
       content-type:
       - text/event-stream
       date:
-      - Tue, 30 Dec 2025 21:45:44 GMT
+      - Wed, 31 Dec 2025 20:37:14 GMT
       server:
       - databricks
       server-timing:
-      - request_id;dur=0;desc="42dd0be2-164c-4b5a-be17-d1745e3754a8", client_protocol;dur=0;desc="HTTP/1.1"
+      - request_id;dur=0;desc="9dd2b622-4142-4995-8297-c0930cdc51b9", client_protocol;dur=0;desc="HTTP/1.1"
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       transfer-encoding:
@@ -152,21 +168,20 @@ interactions:
       x-amzn-bedrock-content-type:
       - application/json
       x-amzn-requestid:
-      - ba7d38c6-70d4-4bf6-90cc-83e058152425
+      - 0d338b05-8e93-41e5-9ba5-0db19fd7742e
       x-content-type-options:
       - nosniff
       x-databricks-org-id:
       - '138962681435081'
+      x-request-id:
+      - 9dd2b622-4142-4995-8297-c0930cdc51b9
     status:
       code: 200
       message: OK
 - request:
-    body: '{"messages": [{"content": "Be very terse, not even punctuation.", "role":
-      "system"}, {"content": [{"type": "text", "text": "What''s the current date in
-      YYYY-MM-DD format?"}], "role": "user"}], "model": "databricks-claude-3-7-sonnet",
-      "stream": true, "tools": [{"type": "function", "function": {"name": "get_current_date2",
-      "description": "Gets the current date", "parameters": {"properties": {}, "type":
-      "object", "additionalProperties": false, "required": []}}}]}'
+    body: '{"messages":[{"content":"Be very terse, not even punctuation.","role":"system"},{"content":[{"type":"text","text":"What''s
+      the current date in YYYY-MM-DD format?"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true,"tools":[{"type":"function","function":{"name":"get_current_date2","description":"Gets
+      the current date","parameters":{"properties":{},"type":"object","additionalProperties":false,"required":[]}}}]}'
     headers:
       Accept:
       - application/json
@@ -180,28 +195,48 @@ interactions:
       - application/json
       Host:
       - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - AsyncOpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
       X-Stainless-Async:
       - async:asyncio
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
       x-stainless-read-timeout:
       - '600'
+      x-stainless-retry-count:
+      - '0'
     method: POST
     uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
   response:
     body:
-      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"I"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":397,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01GmB7Jt1CNTBgLMyEDtxM7v","created":1767131146}
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"I"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":397,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01LttVKBCvmkvvuvMVxVGNi4","created":1767213435}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"''ll
-        get the current date for you."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":397,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01GmB7Jt1CNTBgLMyEDtxM7v","created":1767131146}
+        get the current date for"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":397,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01LttVKBCvmkvvuvMVxVGNi4","created":1767213435}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"id":"toolu_bdrk_01M8BXRAKac6ZYXiRjPm3np4","type":"function","function":{"name":"get_current_date2","arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":397,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01GmB7Jt1CNTBgLMyEDtxM7v","created":1767131146}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        you."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":397,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01LttVKBCvmkvvuvMVxVGNi4","created":1767213435}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"function":{"arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":397,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01GmB7Jt1CNTBgLMyEDtxM7v","created":1767131146}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"id":"toolu_bdrk_01Ngtosq8eCQHW1UGyB3vF8n","type":"function","function":{"name":"get_current_date2","arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":397,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01LttVKBCvmkvvuvMVxVGNi4","created":1767213436}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"tool_calls"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":49,"prompt_tokens":397,"total_tokens":446,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01GmB7Jt1CNTBgLMyEDtxM7v","created":1767131146}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"function":{"arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":397,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01LttVKBCvmkvvuvMVxVGNi4","created":1767213436}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"tool_calls"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":49,"prompt_tokens":397,"total_tokens":446,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01LttVKBCvmkvvuvMVxVGNi4","created":1767213436}
 
 
         data: [DONE]
@@ -214,11 +249,11 @@ interactions:
       content-type:
       - text/event-stream
       date:
-      - Tue, 30 Dec 2025 21:45:46 GMT
+      - Wed, 31 Dec 2025 20:37:15 GMT
       server:
       - databricks
       server-timing:
-      - request_id;dur=0;desc="98e3134a-49e2-43a7-994a-687e823c4db3", client_protocol;dur=0;desc="HTTP/1.1"
+      - request_id;dur=0;desc="f22b48ac-7898-4ef4-a5d1-63208f51fe83", client_protocol;dur=0;desc="HTTP/1.1"
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       transfer-encoding:
@@ -226,25 +261,21 @@ interactions:
       x-amzn-bedrock-content-type:
       - application/json
       x-amzn-requestid:
-      - 828c3c61-77a5-4b15-bdb0-d96791c9b867
+      - c00d855e-1d26-4f4e-8946-8e8ab81a3372
       x-content-type-options:
       - nosniff
       x-databricks-org-id:
       - '138962681435081'
+      x-request-id:
+      - f22b48ac-7898-4ef4-a5d1-63208f51fe83
     status:
       code: 200
       message: OK
 - request:
-    body: '{"messages": [{"content": "Be very terse, not even punctuation.", "role":
-      "system"}, {"content": [{"type": "text", "text": "What''s the current date in
-      YYYY-MM-DD format?"}], "role": "user"}, {"role": "assistant", "content": [{"type":
-      "text", "text": "I''ll get the current date for you."}], "tool_calls": [{"id":
-      "toolu_bdrk_01M8BXRAKac6ZYXiRjPm3np4", "function": {"name": "get_current_date2",
-      "arguments": "{}"}, "type": "function"}]}, {"content": "2024-01-01", "tool_call_id":
-      "toolu_bdrk_01M8BXRAKac6ZYXiRjPm3np4", "role": "tool"}], "model": "databricks-claude-3-7-sonnet",
-      "stream": true, "tools": [{"type": "function", "function": {"name": "get_current_date2",
-      "description": "Gets the current date", "parameters": {"properties": {}, "type":
-      "object", "additionalProperties": false, "required": []}}}]}'
+    body: '{"messages":[{"content":"Be very terse, not even punctuation.","role":"system"},{"content":[{"type":"text","text":"What''s
+      the current date in YYYY-MM-DD format?"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"I''ll
+      get the current date for you."}],"tool_calls":[{"id":"toolu_bdrk_01Ngtosq8eCQHW1UGyB3vF8n","function":{"name":"get_current_date2","arguments":"{}"},"type":"function"}]},{"content":"2024-01-01","tool_call_id":"toolu_bdrk_01Ngtosq8eCQHW1UGyB3vF8n","role":"tool"}],"model":"databricks-claude-3-7-sonnet","stream":true,"tools":[{"type":"function","function":{"name":"get_current_date2","description":"Gets
+      the current date","parameters":{"properties":{},"type":"object","additionalProperties":false,"required":[]}}}]}'
     headers:
       Accept:
       - application/json
@@ -258,24 +289,40 @@ interactions:
       - application/json
       Host:
       - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - AsyncOpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
       X-Stainless-Async:
       - async:asyncio
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
       x-stainless-read-timeout:
       - '600'
+      x-stainless-retry-count:
+      - '0'
     method: POST
     uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
   response:
     body:
-      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"2"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":463,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_014XrHjvzpPz2tWshfocVisU","created":1767131148}
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"2"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":463,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_013PHYKV5Ssv1wQVzix7h37D","created":1767213437}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"024-01-"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":463,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_014XrHjvzpPz2tWshfocVisU","created":1767131148}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"024-01-"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":463,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_013PHYKV5Ssv1wQVzix7h37D","created":1767213437}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"01"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":463,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_014XrHjvzpPz2tWshfocVisU","created":1767131148}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"01"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":463,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_013PHYKV5Ssv1wQVzix7h37D","created":1767213437}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":10,"prompt_tokens":463,"total_tokens":473,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_014XrHjvzpPz2tWshfocVisU","created":1767131148}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":10,"prompt_tokens":463,"total_tokens":473,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_013PHYKV5Ssv1wQVzix7h37D","created":1767213437}
 
 
         data: [DONE]
@@ -288,11 +335,11 @@ interactions:
       content-type:
       - text/event-stream
       date:
-      - Tue, 30 Dec 2025 21:45:48 GMT
+      - Wed, 31 Dec 2025 20:37:17 GMT
       server:
       - databricks
       server-timing:
-      - request_id;dur=0;desc="7a741ed1-0618-4553-977c-0fa1c18eced1", client_protocol;dur=0;desc="HTTP/1.1"
+      - request_id;dur=0;desc="55899bef-69f4-4d20-a26a-31fc24db9ca3", client_protocol;dur=0;desc="HTTP/1.1"
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       transfer-encoding:
@@ -300,11 +347,13 @@ interactions:
       x-amzn-bedrock-content-type:
       - application/json
       x-amzn-requestid:
-      - 05545c26-d41c-468c-bb47-02442a3a78c7
+      - 109e0abf-4743-486b-9399-d73a6100d7cb
       x-content-type-options:
       - nosniff
       x-databricks-org-id:
       - '138962681435081'
+      x-request-id:
+      - 55899bef-69f4-4d20-a26a-31fc24db9ca3
     status:
       code: 200
       message: OK

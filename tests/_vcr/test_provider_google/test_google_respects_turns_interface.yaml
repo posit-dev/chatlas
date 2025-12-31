@@ -27,7 +27,7 @@ interactions:
         ROBIN\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
         {\"promptTokenCount\": 27,\"candidatesTokenCount\": 5,\"totalTokenCount\":
         67,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 27}],\"thoughtsTokenCount\":
-        35},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"3BZUaa7zPLzi_uMPxvLSoQs\"}\r\n\r\n"
+        35},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"KIpVadoKuqP-4w-5iNgJ\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -36,11 +36,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 18:15:57 GMT
+      - Wed, 31 Dec 2025 20:40:08 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=516
+      - gfet4t7; dur=597
       Transfer-Encoding:
       - chunked
       Vary:
@@ -84,7 +84,7 @@ interactions:
         ROBIN\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
         {\"promptTokenCount\": 27,\"candidatesTokenCount\": 5,\"totalTokenCount\":
         67,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 27}],\"thoughtsTokenCount\":
-        35},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"3RZUaf3nLajh_uMPz9bFuAc\"}\r\n\r\n"
+        35},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"KIpVaemvKYKV_uMP_ZfUmQI\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -93,11 +93,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 18:15:58 GMT
+      - Wed, 31 Dec 2025 20:40:08 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=587
+      - gfet4t7; dur=454
       Transfer-Encoding:
       - chunked
       Vary:
@@ -140,9 +140,9 @@ interactions:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Your
         name is Steve.\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\":
         0}],\"usageMetadata\": {\"promptTokenCount\": 22,\"candidatesTokenCount\":
-        5,\"totalTokenCount\": 50,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
-        22}],\"thoughtsTokenCount\": 23},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"3hZUaZHOIuDf_uMP7JuWoQg\"}\r\n\r\n"
+        5,\"totalTokenCount\": 46,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        22}],\"thoughtsTokenCount\": 19},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
+        \"KYpVadrOIIKVjMcP18HUmQo\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -151,11 +151,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 18:15:58 GMT
+      - Wed, 31 Dec 2025 20:40:09 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=497
+      - gfet4t7; dur=482
       Transfer-Encoding:
       - chunked
       Vary:

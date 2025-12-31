@@ -30,17 +30,17 @@ interactions:
     uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
   response:
     body:
-      string: '{"id":"id-1767130859696","object":"chat.completion","created":1767130859,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"message":{"role":"assistant","content":{"title":"Apples
+      string: '{"id":"id-1767213408428","object":"chat.completion","created":1767213408,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"message":{"role":"assistant","content":{"title":"Apples
         are tasty","author":"Hadley Wickham"},"refusal":null},"logprobs":null,"finish_reason":"stop"}]}'
     headers:
       CF-RAY:
-      - 9b64b2db8c6fd94a-ORD
+      - 9b6c92349839ab71-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 21:40:59 GMT
+      - Wed, 31 Dec 2025 20:36:48 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -48,9 +48,9 @@ interactions:
       Vary:
       - Accept-Encoding
       api-version:
-      - '2025-12-30'
+      - '2025-12-31'
       cf-auditlog-id:
-      - 019b7135-0549-7bf3-ac80-13c79a4bf671
+      - 019b7620-9cf5-7fea-8fe6-cfbec96accbc
       content-length:
       - '298'
     status:
@@ -82,8 +82,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=yKnKlC7UNRlKfPimHN81vTWiS.feBCC9RtUg.orvJwA-1767130859-1.0.1.1-AsZUabjm.I7aIMLpjy9s0Vov9JYVG0bEkIdY6yYbY07xoB5BbGRyrn8usw1qs4LM9OcRVAzrAFyl9gGinaD.bf8OAfVVBBZFmGABC6X.byU;
-        _cfuvid=zfHuxbVZ7bJ7W3dde5LFeDO7pBvBRBfZqbLDNJ2NkKQ-1767130859711-0.0.1.1-604800000
+      - __cf_bm=fWMVIu7d.gS_tGiCwPzMa9eM4bQfxtlCbBtpaahuIKQ-1767213408-1.0.1.1-8dIFloR7os_tkEPO52_6qkVHiTMyAj0SMdybIetBJa6C5FRZISby5iVgRs_BQ9OnT5L69uTH3dQE_zcugYqAT4Lg0RAMhj6F.aEaQY1HH6o;
+        _cfuvid=yyQK5fqvrpken7yuNpK9FGJDvnClh0BFJ7_95inLeF8-1767213408453-0.0.1.1-604800000
       Host:
       - api.cloudflare.com
       X-Stainless-Async:
@@ -94,17 +94,17 @@ interactions:
     uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
   response:
     body:
-      string: '{"id":"id-1767130860899","object":"chat.completion","created":1767130860,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"message":{"role":"assistant","content":{"title":"Apples
+      string: '{"id":"id-1767213409746","object":"chat.completion","created":1767213409,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"message":{"role":"assistant","content":{"title":"Apples
         are tasty","author":"Hadley Wickham"},"refusal":null},"logprobs":null,"finish_reason":"stop"}]}'
     headers:
       CF-RAY:
-      - 9b64b2e25f7910bc-ORD
+      - 9b6c923c3e3f6182-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 21:41:00 GMT
+      - Wed, 31 Dec 2025 20:36:49 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -112,9 +112,9 @@ interactions:
       Vary:
       - Accept-Encoding
       api-version:
-      - '2025-12-30'
+      - '2025-12-31'
       cf-auditlog-id:
-      - 019b7135-099e-7b57-90b8-3101801600ba
+      - 019b7620-a1ba-7ec4-9cf7-86a555869899
       content-length:
       - '298'
     status:
@@ -147,8 +147,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=yKnKlC7UNRlKfPimHN81vTWiS.feBCC9RtUg.orvJwA-1767130859-1.0.1.1-AsZUabjm.I7aIMLpjy9s0Vov9JYVG0bEkIdY6yYbY07xoB5BbGRyrn8usw1qs4LM9OcRVAzrAFyl9gGinaD.bf8OAfVVBBZFmGABC6X.byU;
-        _cfuvid=zfHuxbVZ7bJ7W3dde5LFeDO7pBvBRBfZqbLDNJ2NkKQ-1767130859711-0.0.1.1-604800000
+      - __cf_bm=fWMVIu7d.gS_tGiCwPzMa9eM4bQfxtlCbBtpaahuIKQ-1767213408-1.0.1.1-8dIFloR7os_tkEPO52_6qkVHiTMyAj0SMdybIetBJa6C5FRZISby5iVgRs_BQ9OnT5L69uTH3dQE_zcugYqAT4Lg0RAMhj6F.aEaQY1HH6o;
+        _cfuvid=yyQK5fqvrpken7yuNpK9FGJDvnClh0BFJ7_95inLeF8-1767213408453-0.0.1.1-604800000
       Host:
       - api.cloudflare.com
       X-Stainless-Async:
@@ -159,17 +159,17 @@ interactions:
     uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
   response:
     body:
-      string: '{"id":"id-1767130862036","object":"chat.completion","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"message":{"role":"assistant","content":{"name":"Emily
+      string: '{"id":"id-1767213411249","object":"chat.completion","created":1767213411,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"message":{"role":"assistant","content":{"name":"Emily
         Wilson","age":32},"refusal":null},"logprobs":null,"finish_reason":"stop"}]}'
     headers:
       CF-RAY:
-      - 9b64b2ea2cea0bf0-ORD
+      - 9b6c9244592d1e95-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 21:41:02 GMT
+      - Wed, 31 Dec 2025 20:36:51 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -177,9 +177,9 @@ interactions:
       Vary:
       - Accept-Encoding
       api-version:
-      - '2025-12-30'
+      - '2025-12-31'
       cf-auditlog-id:
-      - 019b7135-0e78-7806-97cc-467e74bf19d3
+      - 019b7620-a6c7-7e2d-b93c-725ac2a8caa8
       content-length:
       - '276'
     status:
@@ -212,8 +212,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=yKnKlC7UNRlKfPimHN81vTWiS.feBCC9RtUg.orvJwA-1767130859-1.0.1.1-AsZUabjm.I7aIMLpjy9s0Vov9JYVG0bEkIdY6yYbY07xoB5BbGRyrn8usw1qs4LM9OcRVAzrAFyl9gGinaD.bf8OAfVVBBZFmGABC6X.byU;
-        _cfuvid=zfHuxbVZ7bJ7W3dde5LFeDO7pBvBRBfZqbLDNJ2NkKQ-1767130859711-0.0.1.1-604800000
+      - __cf_bm=fWMVIu7d.gS_tGiCwPzMa9eM4bQfxtlCbBtpaahuIKQ-1767213408-1.0.1.1-8dIFloR7os_tkEPO52_6qkVHiTMyAj0SMdybIetBJa6C5FRZISby5iVgRs_BQ9OnT5L69uTH3dQE_zcugYqAT4Lg0RAMhj6F.aEaQY1HH6o;
+        _cfuvid=yyQK5fqvrpken7yuNpK9FGJDvnClh0BFJ7_95inLeF8-1767213408453-0.0.1.1-604800000
       Host:
       - api.cloudflare.com
       X-Stainless-Async:
@@ -224,22 +224,42 @@ interactions:
     uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
   response:
     body:
-      string: 'data: {"id":"id-1767130862622","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"The"}}]}
+      string: 'data: {"id":"id-1767213411714","created":1767213411,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"The"}}]}
 
 
-        data: {"id":"id-1767130862622","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        data: {"id":"id-1767213411714","created":1767213411,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
         name of the"}}]}
 
 
-        data: {"id":"id-1767130862622","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        data: {"id":"id-1767213411714","created":1767213411,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
         person is Emily"}}]}
 
 
-        data: {"id":"id-1767130862622","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
-        Wilson."}}]}
+        data: {"id":"id-1767213411714","created":1767213411,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        Wilson. She"}}]}
 
 
-        data: {"id":"id-1767130862622","object":"chat.completion.chunk","created":1767130862,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":199,"completion_tokens":10,"total_tokens":209}}
+        data: {"id":"id-1767213411714","created":1767213411,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        is 27"}}]}
+
+
+        data: {"id":"id-1767213411714","created":1767213411,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        years old,"}}]}
+
+
+        data: {"id":"id-1767213411714","created":1767213411,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        but I previously"}}]}
+
+
+        data: {"id":"id-1767213411714","created":1767213411,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        stated she as"}}]}
+
+
+        data: {"id":"id-1767213411714","created":1767213411,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        32."}}]}
+
+
+        data: {"id":"id-1767213411714","object":"chat.completion.chunk","created":1767213411,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":199,"completion_tokens":26,"total_tokens":225}}
 
 
         data: [DONE]
@@ -248,13 +268,13 @@ interactions:
         '
     headers:
       CF-RAY:
-      - 9b64b2f22be7023b-ORD
+      - 9b6c924ebfd90262-ORD
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 21:41:02 GMT
+      - Wed, 31 Dec 2025 20:36:51 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -262,9 +282,9 @@ interactions:
       Vary:
       - Accept-Encoding
       api-version:
-      - '2025-12-30'
+      - '2025-12-31'
       cf-auditlog-id:
-      - 019b7135-1383-793b-b8cc-946030503faa
+      - 019b7620-ad4b-7bd5-98d6-fa0416641fb7
     status:
       code: 200
       message: OK
