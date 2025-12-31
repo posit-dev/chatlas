@@ -6,11 +6,20 @@ from chatlas import ChatCloudflare
 from .conftest import assert_data_extraction, assert_turns_existing, assert_turns_system
 
 
+def chat_fun(**kwargs):
+    return ChatCloudflare(model="@cf/meta/llama-3.3-70b-instruct-fp8-fast", **kwargs)
+
+
+try:
+    chat = chat_fun()
+    chat.chat("What is 1 + 1?")
+except Exception:
+    pytest.skip("Cloudflare credentials aren't configured", allow_module_level=True)
+
+
 @pytest.mark.vcr
 def test_cloudflare_simple_request():
-    chat = ChatCloudflare(
-        model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-    )
+    chat = chat_fun()
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
@@ -24,9 +33,7 @@ def test_cloudflare_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_cloudflare_simple_streaming_request():
-    chat = ChatCloudflare(
-        model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-    )
+    chat = chat_fun()
     res = []
     async for x in await chat.stream_async("What is 1 + 1?"):
         res.append(x)
@@ -38,18 +45,12 @@ async def test_cloudflare_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_cloudflare_respects_turns_interface():
-    chat_fun = ChatCloudflare
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
 @pytest.mark.vcr
 def test_cloudflare_data_extraction():
-    def chat_fun(**kwargs):
-        return ChatCloudflare(
-            model="@cf/meta/llama-3.3-70b-instruct-fp8-fast", **kwargs
-        )
-
     assert_data_extraction(chat_fun)
 
 
