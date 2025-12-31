@@ -61,6 +61,7 @@ def test_can_retrieve_batch(test_batch_dir):
     assert capitals[1].name == "Berlin"
 
 
+@pytest.mark.vcr
 def test_can_submit_openai_batch():
     with tempfile.NamedTemporaryFile() as temp_file:
         chat = ChatOpenAI()

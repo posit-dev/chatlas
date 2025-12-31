@@ -1,6 +1,6 @@
-import pytest
 from typing import Optional
 
+import pytest
 from chatlas import AssistantTurn, ChatAnthropic, ChatGoogle, ChatOpenAI, UserTurn
 from chatlas._provider_openai import OpenAIProvider
 from chatlas._provider_openai_azure import OpenAIAzureProvider
@@ -63,6 +63,7 @@ def test_tokens_method():
         {"role": "user", "tokens": 2, "tokens_cached": 2, "tokens_total": 14},
         {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
     ]
+
 
 @pytest.mark.vcr
 def test_token_count_method():
