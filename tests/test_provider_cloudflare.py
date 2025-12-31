@@ -38,8 +38,9 @@ async def test_cloudflare_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_cloudflare_respects_turns_interface():
-    assert_turns_system(ChatCloudflare)
-    assert_turns_existing(ChatCloudflare)
+    chat_fun = ChatCloudflare
+    assert_turns_system(chat_fun)
+    assert_turns_existing(chat_fun)
 
 
 @pytest.mark.vcr

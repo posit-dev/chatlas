@@ -49,16 +49,18 @@ async def test_openai_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_openai_respects_turns_interface():
-    assert_turns_system(ChatOpenAI)
-    assert_turns_existing(ChatOpenAI)
+    chat_fun = ChatOpenAI
+    assert_turns_system(chat_fun)
+    assert_turns_existing(chat_fun)
 
 
 @pytest.mark.vcr
 def test_openai_tool_variations():
-    assert_tools_simple(ChatOpenAI)
-    assert_tools_simple_stream_content(ChatOpenAI)
-    assert_tools_parallel(ChatOpenAI)
-    assert_tools_sequential(ChatOpenAI, total_calls=6)
+    chat_fun = ChatOpenAI
+    assert_tools_simple(chat_fun)
+    assert_tools_simple_stream_content(chat_fun)
+    assert_tools_parallel(chat_fun)
+    assert_tools_sequential(chat_fun, total_calls=6)
 
 
 @pytest.mark.vcr
@@ -74,8 +76,9 @@ def test_data_extraction():
 
 @pytest.mark.vcr
 def test_openai_images():
-    assert_images_inline(ChatOpenAI)
-    assert_images_remote(ChatOpenAI)
+    chat_fun = ChatOpenAI
+    assert_images_inline(chat_fun)
+    assert_images_remote(chat_fun)
 
 
 @pytest.mark.vcr

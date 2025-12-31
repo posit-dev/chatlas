@@ -50,15 +50,17 @@ async def test_anthropic_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_anthropic_respects_turns_interface():
-    assert_turns_system(ChatBedrockAnthropic)
-    assert_turns_existing(ChatBedrockAnthropic)
+    chat_fun = ChatBedrockAnthropic
+    assert_turns_system(chat_fun)
+    assert_turns_existing(chat_fun)
 
 
 @pytest.mark.vcr
 def test_anthropic_tool_variations():
-    assert_tools_simple(ChatBedrockAnthropic)
-    assert_tools_parallel(ChatBedrockAnthropic)
-    assert_tools_sequential(ChatBedrockAnthropic, total_calls=6)
+    chat_fun = ChatBedrockAnthropic
+    assert_tools_simple(chat_fun)
+    assert_tools_parallel(chat_fun)
+    assert_tools_sequential(chat_fun, total_calls=6)
 
 
 @pytest.mark.vcr
@@ -74,10 +76,9 @@ def test_data_extraction():
 
 @pytest.mark.vcr
 def test_anthropic_images():
-    assert_images_inline(ChatBedrockAnthropic)
-    assert_images_remote_error(
-        ChatBedrockAnthropic, message="URL sources are not supported"
-    )
+    chat_fun = ChatBedrockAnthropic
+    assert_images_inline(chat_fun)
+    assert_images_remote_error(chat_fun)
 
 
 @pytest.mark.vcr

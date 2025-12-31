@@ -57,8 +57,9 @@ async def test_openai_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_openai_respects_turns_interface():
-    assert_turns_system(ChatDatabricks)
-    assert_turns_existing(ChatDatabricks)
+    chat_fun = ChatDatabricks
+    assert_turns_system(chat_fun)
+    assert_turns_existing(chat_fun)
 
 
 @pytest.mark.vcr
@@ -71,7 +72,8 @@ def test_anthropic_empty_response():
 
 @pytest.mark.vcr
 def test_openai_tool_variations():
-    assert_tools_simple(ChatDatabricks)
+    chat_fun = ChatDatabricks
+    assert_tools_simple(chat_fun)
 
 
 @pytest.mark.vcr
@@ -87,15 +89,17 @@ def test_data_extraction():
 
 @pytest.mark.vcr
 def test_openai_images():
-    assert_images_inline(ChatDatabricks)
+    chat_fun = ChatDatabricks
+    assert_images_inline(chat_fun)
     # Remote images don't seem to be supported yet
-    # assert_images_remote(ChatDatabricks)
+    # assert_images_remote(chat_fun)
 
 
 # PDF doesn't seem to be supported yet
 #
 # def test_openai_pdf():
-#     assert_pdf_local(ChatDatabricks)
+#     chat_fun = ChatDatabricks
+#     assert_pdf_local(chat_fun)
 
 
 def test_connect_without_openai_key(monkeypatch):

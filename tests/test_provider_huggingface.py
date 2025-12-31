@@ -45,8 +45,9 @@ async def test_huggingface_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_huggingface_respects_turns_interface():
-    assert_turns_system(ChatHuggingFace)
-    assert_turns_existing(ChatHuggingFace)
+    chat_fun = ChatHuggingFace
+    assert_turns_system(chat_fun)
+    assert_turns_existing(chat_fun)
 
 
 # TODO: I don't think tool calling is currently (or has ever) worked?

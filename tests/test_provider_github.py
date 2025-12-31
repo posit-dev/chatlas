@@ -49,16 +49,18 @@ async def test_github_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_github_respects_turns_interface():
-    assert_turns_system(ChatGithub)
-    assert_turns_existing(ChatGithub)
+    chat_fun = ChatGithub
+    assert_turns_system(chat_fun)
+    assert_turns_existing(chat_fun)
 
 
 @pytest.mark.vcr
 def test_github_tool_variations():
-    assert_tools_simple(ChatGithub)
-    assert_tools_simple_stream_content(ChatGithub)
-    assert_tools_parallel(ChatGithub)
-    assert_tools_sequential(ChatGithub, total_calls=6)
+    chat_fun = ChatGithub
+    assert_tools_simple(chat_fun)
+    assert_tools_simple_stream_content(chat_fun)
+    assert_tools_parallel(chat_fun)
+    assert_tools_sequential(chat_fun, total_calls=6)
 
 
 @pytest.mark.vcr
@@ -74,8 +76,9 @@ def test_data_extraction():
 
 @pytest.mark.vcr
 def test_github_images():
-    assert_images_inline(ChatGithub)
-    assert_images_remote(ChatGithub)
+    chat_fun = ChatGithub
+    assert_images_inline(chat_fun)
+    assert_images_remote(chat_fun)
 
 
 @pytest.mark.vcr

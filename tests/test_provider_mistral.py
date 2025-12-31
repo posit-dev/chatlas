@@ -43,8 +43,9 @@ async def test_mistral_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_mistral_respects_turns_interface():
-    assert_turns_system(ChatMistral)
-    assert_turns_existing(ChatMistral)
+    chat_fun = ChatMistral
+    assert_turns_system(chat_fun)
+    assert_turns_existing(chat_fun)
 
 
 # Tool calling is poorly supported
