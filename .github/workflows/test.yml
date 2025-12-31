@@ -44,8 +44,6 @@ jobs:
           # Bedrock uses AWS SSO which requires live credential fetching - incompatible with VCR
           TEST_BEDROCK: "false"
           TEST_SNOWFLAKE: "false"
-          # Databricks cassettes contain real host URLs that don't match dummy host in VCR replay
-          TEST_DATABRICKS: "false"
           # Portkey API was failing during cassette recording
           PORTKEY_API_KEY: ""
 

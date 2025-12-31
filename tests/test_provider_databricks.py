@@ -18,6 +18,15 @@ if do_test.lower() == "false":
     pytest.skip("Skipping Databricks tests", allow_module_level=True)
 
 
+# Override VCR config to ignore host - Databricks host varies by environment
+# but cassettes were recorded with a specific host
+@pytest.fixture(scope="module")
+def vcr_config():
+    return {
+        "match_on": ["method", "scheme", "port", "path", "body"],
+    }
+
+
 @pytest.mark.vcr
 def test_openai_simple_request():
     chat = ChatDatabricks(
