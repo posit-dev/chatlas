@@ -1,6 +1,5 @@
 import httpx
 import pytest
-
 from chatlas import ChatGithub
 
 from ._test_providers import TestChatGithub

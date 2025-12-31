@@ -1,5 +1,4 @@
 import pytest
-
 from chatlas import ChatHuggingFace
 
 from ._test_providers import TestChatHuggingFace

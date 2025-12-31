@@ -6,8 +6,7 @@ do_test = os.getenv("TEST_BEDROCK", "true")
 if do_test.lower() == "false":
     pytest.skip("Skipping Bedrock tests", allow_module_level=True)
 
-from chatlas import ChatBedrockAnthropic
-
+from ._test_providers import TestChatBedrockAnthropic
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -22,8 +21,9 @@ from .conftest import (
 )
 
 
+@pytest.mark.vcr
 def test_anthropic_simple_request():
-    chat = ChatBedrockAnthropic(
+    chat = TestChatBedrockAnthropic(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -32,9 +32,10 @@ def test_anthropic_simple_request():
     assert turn.tokens == (26, 5, 0)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_anthropic_simple_streaming_request():
-    chat = ChatBedrockAnthropic(
+    chat = TestChatBedrockAnthropic(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -47,33 +48,38 @@ async def test_anthropic_simple_streaming_request():
     assert turn.finish_reason == "end_turn"
 
 
+@pytest.mark.vcr
 def test_anthropic_respects_turns_interface():
-    chat_fun = ChatBedrockAnthropic
-    assert_turns_system(chat_fun)
-    assert_turns_existing(chat_fun)
+    assert_turns_system(TestChatBedrockAnthropic)
+    assert_turns_existing(TestChatBedrockAnthropic)
 
 
+@pytest.mark.vcr
 def test_anthropic_tool_variations():
-    chat_fun = ChatBedrockAnthropic
-    assert_tools_simple(chat_fun)
-    assert_tools_parallel(chat_fun)
-    assert_tools_sequential(chat_fun, total_calls=6)
+    assert_tools_simple(TestChatBedrockAnthropic)
+    assert_tools_parallel(TestChatBedrockAnthropic)
+    assert_tools_sequential(TestChatBedrockAnthropic, total_calls=6)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_anthropic_tool_variations_async():
-    await assert_tools_async(ChatBedrockAnthropic)
+    await assert_tools_async(TestChatBedrockAnthropic)
 
 
+@pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(ChatBedrockAnthropic)
+    assert_data_extraction(TestChatBedrockAnthropic)
 
 
+@pytest.mark.vcr
 def test_anthropic_images():
-    chat_fun = ChatBedrockAnthropic
-    assert_images_inline(chat_fun)
-    assert_images_remote_error(chat_fun, message="URL sources are not supported")
+    assert_images_inline(TestChatBedrockAnthropic)
+    assert_images_remote_error(
+        TestChatBedrockAnthropic, message="URL sources are not supported"
+    )
 
 
+@pytest.mark.vcr
 def test_anthropic_models():
-    assert_list_models(ChatBedrockAnthropic)
+    assert_list_models(TestChatBedrockAnthropic)

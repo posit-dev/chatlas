@@ -15,12 +15,13 @@ Usage:
 """
 
 import os
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from chatlas import (
     Chat,
     ChatAnthropic,
     ChatAzureOpenAI,
+    ChatBedrockAnthropic,
     ChatCloudflare,
     ChatDatabricks,
     ChatDeepSeek,
@@ -33,10 +34,6 @@ from chatlas import (
     ChatOpenRouter,
     ChatPortkey,
 )
-
-if TYPE_CHECKING:
-    from chatlas.types.openai import ChatClientArgs
-
 
 # ---------------------------------------------------------------------------
 # Dummy credentials for VCR replay mode
@@ -233,6 +230,17 @@ def TestChatOpenRouter(
 
 
 DUMMY_PORTKEY_KEY = "dummy-portkey-key-for-vcr"
+
+
+def TestChatBedrockAnthropic(**kwargs) -> Chat:
+    """ChatBedrockAnthropic for VCR replay.
+
+    Note: Bedrock uses boto3 which reads AWS credentials from env vars or
+    ~/.aws/credentials. For VCR replay, the actual credentials don't matter
+    since requests are intercepted, but boto3 still requires valid-looking
+    credentials to be configured.
+    """
+    return ChatBedrockAnthropic(**kwargs)
 
 
 def TestChatPortkey(

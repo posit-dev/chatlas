@@ -1,7 +1,5 @@
 import pytest
 
-from chatlas import ChatDeepSeek
-
 from ._test_providers import TestChatDeepSeek
 from .conftest import (
     assert_list_models,

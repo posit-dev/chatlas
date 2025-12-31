@@ -2,8 +2,6 @@ import os
 
 import pytest
 
-from chatlas import ChatDatabricks
-
 from ._test_providers import TestChatDatabricks
 from .conftest import (
     assert_data_extraction,

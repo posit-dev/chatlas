@@ -2,8 +2,6 @@ import os
 
 import pytest
 
-from chatlas import ChatAzureOpenAI
-
 from ._test_providers import TestChatAzureOpenAI
 
 do_test = os.getenv("TEST_AZURE", "true")

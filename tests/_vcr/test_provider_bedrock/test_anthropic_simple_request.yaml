@@ -1,0 +1,112 @@
+interactions:
+- request:
+    body: null
+    headers: {}
+    method: GET
+    uri: https://portal.sso.us-east-2.amazonaws.com/federation/credentials?role_name=PowerUser&account_id=SCRUBBED_ACCOUNT_ID
+  response:
+    body:
+      string: '{"roleCredentials": {"accessKeyId": "SCRUBBED_ACCESS_KEY_ID", "secretAccessKey":
+        "SCRUBBED_SECRET_ACCESS_KEY", "sessionToken": "SCRUBBED_SESSION_TOKEN", "expiration":
+        1767249160000}}'
+    headers:
+      Access-Control-Expose-Headers:
+      - RequestId
+      - x-amzn-RequestId
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1068'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 18:32:41 GMT
+      RequestId:
+      - fb099c46-d3d5-420c-a53c-42401db19a4f
+      Server:
+      - AWS SSO
+      x-amzn-RequestId:
+      - fb099c46-d3d5-420c-a53c-42401db19a4f
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What is 1 + 1?", "type": "text"}]}], "system": [{"type": "text", "text": "Be
+      as terse as possible; no punctuation"}], "tools": [], "anthropic_version": "bedrock-2023-05-31"}'
+    headers:
+      Connection:
+      - keep-alive
+      X-Amz-Date:
+      - 20251231T183240Z
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      content-length:
+      - '228'
+      content-type:
+      - application/json
+      host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke-with-response-stream
+  response:
+    body:
+      string: !!binary |
+        AAACHQAAAEtRlLVJCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
+        aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpj
+        MkZuWlY5emRHRnlkQ0lzSW0xbGMzTmhaMlVpT25zaWJXOWtaV3dpT2lKamJHRjFaR1V0YzI5dWJt
+        VjBMVFF0TlMweU1ESTFNRGt5T1NJc0ltbGtJam9pYlhOblgySmtjbXRmTURGWGNFaGFjWHBhTW1S
+        UmRXUkxaVlpoWkZoSVVYVTFJaXdpZEhsd1pTSTZJbTFsYzNOaFoyVWlMQ0p5YjJ4bElqb2lZWE56
+        YVhOMFlXNTBJaXdpWTI5dWRHVnVkQ0k2VzEwc0luTjBiM0JmY21WaGMyOXVJanB1ZFd4c0xDSnpk
+        Rzl3WDNObGNYVmxibU5sSWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5CMWRGOTBiMnRsYm5NaU9q
+        STJMQ0pqWVdOb1pWOWpjbVZoZEdsdmJsOXBibkIxZEY5MGIydGxibk1pT2pBc0ltTmhZMmhsWDNK
+        bFlXUmZhVzV3ZFhSZmRHOXJaVzV6SWpvd0xDSnZkWFJ3ZFhSZmRHOXJaVzV6SWpveGZYMTkiLCJw
+        IjoiYWJjZGVmZ2hpamtsbW5vcHFycyJ9hkLTpwAAAOwAAABLaQhtrws6ZXZlbnQtdHlwZQcABWNo
+        dW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVu
+        dHsiYnl0ZXMiOiJleUowZVhCbElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5emRHRnlkQ0lzSW1sdVpH
+        VjRJam93TENKamIyNTBaVzUwWDJKc2IyTnJJanA3SW5SNWNHVWlPaUowWlhoMElpd2lkR1Y0ZENJ
+        NklpSjlmUT09IiwicCI6ImFiY2RlZmdoaWprbG1uIn36+4deAAABEAAAAEsvkANWCzpldmVudC10
+        eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlw
+        ZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTlrWld4MFlT
+        SXNJbWx1WkdWNElqb3dMQ0prWld4MFlTSTZleUowZVhCbElqb2lkR1Y0ZEY5a1pXeDBZU0lzSW5S
+        bGVIUWlPaUl5SW4xOSIsInAiOiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpL
+        TE1OT1BRUlNUVVZXWFlaMDEifX6T7b8AAACoAAAAS8R7kyYLOmV2ZW50LXR5cGUHAAVjaHVuaw06
+        Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5
+        dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOXpkRzl3SWl3aWFXNWtaWGdpT2pC
+        OSIsInAiOiJhYmNkZWYifa3NXToAAAEWAAAAS6DQ9vYLOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29u
+        dGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVz
+        IjoiZXlKMGVYQmxJam9pYldWemMyRm5aVjlrWld4MFlTSXNJbVJsYkhSaElqcDdJbk4wYjNCZmNt
+        VmhjMjl1SWpvaVpXNWtYM1IxY200aUxDSnpkRzl3WDNObGNYVmxibU5sSWpwdWRXeHNmU3dpZFhO
+        aFoyVWlPbnNpYjNWMGNIVjBYM1J2YTJWdWN5STZOWDE5IiwicCI6ImFiY2RlZmdoaWprbG1ub3Bx
+        cnN0dXZ3eCJ9U/wTjgAAAWMAAABLkeKZSQs6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50LXR5
+        cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJleUow
+        ZVhCbElqb2liV1Z6YzJGblpWOXpkRzl3SWl3aVlXMWhlbTl1TFdKbFpISnZZMnN0YVc1MmIyTmhk
+        R2x2YmsxbGRISnBZM01pT25zaWFXNXdkWFJVYjJ0bGJrTnZkVzUwSWpveU5pd2liM1YwY0hWMFZH
+        OXJaVzVEYjNWdWRDSTZOU3dpYVc1MmIyTmhkR2x2Ymt4aGRHVnVZM2tpT2pFNE5Ua3NJbVpwY25O
+        MFFubDBaVXhoZEdWdVkza2lPakU0TlRWOWZRPT0iLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFyc3R1
+        dnd4eXpBQkNERUZHSElKS0xNTk8ifV90C+I=
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/vnd.amazon.eventstream
+      Date:
+      - Wed, 31 Dec 2025 18:32:43 GMT
+      Transfer-Encoding:
+      - chunked
+      X-Amzn-Bedrock-Content-Type:
+      - application/json
+      x-amzn-RequestId:
+      - d4e5f19c-9c08-4136-b078-433931bd00b7
+    status:
+      code: 200
+      message: OK
+version: 1

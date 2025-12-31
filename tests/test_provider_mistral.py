@@ -1,7 +1,5 @@
 import pytest
 
-from chatlas import ChatMistral
-
 from ._test_providers import TestChatMistral
 from .conftest import (
     assert_data_extraction,

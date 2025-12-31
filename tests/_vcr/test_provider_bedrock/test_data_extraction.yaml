@@ -1,0 +1,276 @@
+interactions:
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
+      I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n",
+      "type": "text"}]}], "tool_choice": {"type": "tool", "name": "_structured_tool_call"},
+      "tools": [{"name": "_structured_tool_call", "input_schema": {"type": "object",
+      "properties": {"data": {"description": "Summary of the article", "properties":
+      {"title": {"type": "string"}, "author": {"type": "string"}}, "required": ["title",
+      "author"], "type": "object", "additionalProperties": false}}}, "description":
+      "Extract structured data"}], "anthropic_version": "bedrock-2023-05-31"}'
+    headers:
+      Connection:
+      - keep-alive
+      X-Amz-Date:
+      - 20251231T183317Z
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      content-length:
+      - '669'
+      content-type:
+      - application/json
+      host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-5-20250929","id":"msg_bdrk_01QLSqPGZPpx8RfpBzmBX62L","type":"message","role":"assistant","content":[{"type":"tool_use","id":"toolu_bdrk_01U99fuGLpqFurFC2SfJoBi1","name":"_structured_tool_call","input":{"data":{"title":"Apples
+        are tasty","author":"Hadley Wickham"}}}],"stop_reason":"tool_use","stop_sequence":null,"usage":{"input_tokens":748,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":54}}'
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '447'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 18:33:19 GMT
+      X-Amzn-Bedrock-Input-Token-Count:
+      - '748'
+      X-Amzn-Bedrock-Invocation-Latency:
+      - '1904'
+      X-Amzn-Bedrock-Output-Token-Count:
+      - '54'
+      x-amzn-RequestId:
+      - a7841223-f602-4224-8cfc-025ec1c70dc9
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
+      I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n",
+      "type": "text"}]}, {"role": "assistant", "content": [{"text": "{\"title\":\"Apples
+      are tasty\",\"author\":\"Hadley Wickham\"}", "type": "text"}]}, {"role": "user",
+      "content": [{"text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are
+      delicious and tasty and I like to eat them.\nExcept for red delicious, that
+      is. They are NOT delicious.\n", "type": "text"}]}], "tool_choice": {"type":
+      "tool", "name": "_structured_tool_call"}, "tools": [{"name": "_structured_tool_call",
+      "input_schema": {"type": "object", "properties": {"data": {"description": "Summary
+      of the article", "properties": {"title": {"type": "string"}, "author": {"type":
+      "string"}}, "required": ["title", "author"], "type": "object", "additionalProperties":
+      false}}}, "description": "Extract structured data"}], "anthropic_version": "bedrock-2023-05-31"}'
+    headers:
+      Connection:
+      - keep-alive
+      X-Amz-Date:
+      - 20251231T183319Z
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      content-length:
+      - '1003'
+      content-type:
+      - application/json
+      host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-5-20250929","id":"msg_bdrk_011a8P2fcYdEJtRUhkVnQaSG","type":"message","role":"assistant","content":[{"type":"tool_use","id":"toolu_bdrk_01EVPMyndfbGpTwH99kr8bGT","name":"_structured_tool_call","input":{"data":{"title":"Apples
+        are tasty","author":"Hadley Wickham"}}}],"stop_reason":"tool_use","stop_sequence":null,"usage":{"input_tokens":824,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":54}}'
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '447'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 18:33:22 GMT
+      X-Amzn-Bedrock-Input-Token-Count:
+      - '824'
+      X-Amzn-Bedrock-Invocation-Latency:
+      - '2084'
+      X-Amzn-Bedrock-Output-Token-Count:
+      - '54'
+      x-amzn-RequestId:
+      - c5d0395a-8e25-47b4-99bc-f9e37f31a1af
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
+      I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n",
+      "type": "text"}]}, {"role": "assistant", "content": [{"text": "{\"title\":\"Apples
+      are tasty\",\"author\":\"Hadley Wickham\"}", "type": "text"}]}, {"role": "user",
+      "content": [{"text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are
+      delicious and tasty and I like to eat them.\nExcept for red delicious, that
+      is. They are NOT delicious.\n", "type": "text"}]}, {"role": "assistant", "content":
+      [{"text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley Wickham\"}",
+      "type": "text"}]}, {"role": "user", "content": [{"text": "Generate the name
+      and age of a random person.", "type": "text"}]}], "tool_choice": {"type": "tool",
+      "name": "_structured_tool_call"}, "tools": [{"name": "_structured_tool_call",
+      "input_schema": {"type": "object", "properties": {"data": {"properties": {"name":
+      {"type": "string"}, "age": {"type": "integer"}}, "required": ["name", "age"],
+      "type": "object", "additionalProperties": false}}}, "description": "Extract
+      structured data"}], "anthropic_version": "bedrock-2023-05-31"}'
+    headers:
+      Connection:
+      - keep-alive
+      X-Amz-Date:
+      - 20251231T183321Z
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      content-length:
+      - '1177'
+      content-type:
+      - application/json
+      host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - '600'
+    method: POST
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke
+  response:
+    body:
+      string: '{"model":"claude-sonnet-4-5-20250929","id":"msg_bdrk_01DVr7vvHMCUmurbxRD5H6m6","type":"message","role":"assistant","content":[{"type":"tool_use","id":"toolu_bdrk_01EL9AjHuP7QwWErPG1bvTxf","name":"_structured_tool_call","input":{"data":{"name":"Sarah
+        Martinez","age":34}}}],"stop_reason":"tool_use","stop_sequence":null,"usage":{"input_tokens":850,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":44}}'
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '427'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 18:33:24 GMT
+      X-Amzn-Bedrock-Input-Token-Count:
+      - '850'
+      X-Amzn-Bedrock-Invocation-Latency:
+      - '1849'
+      X-Amzn-Bedrock-Output-Token-Count:
+      - '44'
+      x-amzn-RequestId:
+      - 48a3fe00-13fd-4831-a798-5ab9941914b2
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
+      I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n",
+      "type": "text"}]}, {"role": "assistant", "content": [{"text": "{\"title\":\"Apples
+      are tasty\",\"author\":\"Hadley Wickham\"}", "type": "text"}]}, {"role": "user",
+      "content": [{"text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are
+      delicious and tasty and I like to eat them.\nExcept for red delicious, that
+      is. They are NOT delicious.\n", "type": "text"}]}, {"role": "assistant", "content":
+      [{"text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley Wickham\"}",
+      "type": "text"}]}, {"role": "user", "content": [{"text": "Generate the name
+      and age of a random person.", "type": "text"}]}, {"role": "assistant", "content":
+      [{"text": "{\"name\":\"Sarah Martinez\",\"age\":34}", "type": "text"}]}, {"role":
+      "user", "content": [{"text": "What is the name of the person?", "type": "text"}]}],
+      "tools": [], "anthropic_version": "bedrock-2023-05-31"}'
+    headers:
+      Connection:
+      - keep-alive
+      X-Amz-Date:
+      - 20251231T183324Z
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate
+      content-length:
+      - '1035'
+      content-type:
+      - application/json
+      host:
+      - bedrock-runtime.us-east-1.amazonaws.com
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://bedrock-runtime.us-east-1.amazonaws.com/model/us.anthropic.claude-sonnet-4-5-20250929-v1:0/invoke-with-response-stream
+  response:
+    body:
+      string: !!binary |
+        AAACHQAAAEtRlLVJCzpldmVudC10eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0
+        aW9uL2pzb24NOm1lc3NhZ2UtdHlwZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaWJXVnpj
+        MkZuWlY5emRHRnlkQ0lzSW0xbGMzTmhaMlVpT25zaWJXOWtaV3dpT2lKamJHRjFaR1V0YzI5dWJt
+        VjBMVFF0TlMweU1ESTFNRGt5T1NJc0ltbGtJam9pYlhOblgySmtjbXRmTURFM05WbzJOV3MyVURG
+        aU16VmxWbEExVGtvNU5XRlFJaXdpZEhsd1pTSTZJbTFsYzNOaFoyVWlMQ0p5YjJ4bElqb2lZWE56
+        YVhOMFlXNTBJaXdpWTI5dWRHVnVkQ0k2VzEwc0luTjBiM0JmY21WaGMyOXVJanB1ZFd4c0xDSnpk
+        Rzl3WDNObGNYVmxibU5sSWpwdWRXeHNMQ0oxYzJGblpTSTZleUpwYm5CMWRGOTBiMnRsYm5NaU9q
+        RTVNeXdpWTJGamFHVmZZM0psWVhScGIyNWZhVzV3ZFhSZmRHOXJaVzV6SWpvd0xDSmpZV05vWlY5
+        eVpXRmtYMmx1Y0hWMFgzUnZhMlZ1Y3lJNk1Dd2liM1YwY0hWMFgzUnZhMlZ1Y3lJNk1YMTlmUT09
+        IiwicCI6ImFiY2RlZmdoaWprbG1ubyJ9udL96QAAAOwAAABLaQhtrws6ZXZlbnQtdHlwZQcABWNo
+        dW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlvbi9qc29uDTptZXNzYWdlLXR5cGUHAAVldmVu
+        dHsiYnl0ZXMiOiJleUowZVhCbElqb2lZMjl1ZEdWdWRGOWliRzlqYTE5emRHRnlkQ0lzSW1sdVpH
+        VjRJam93TENKamIyNTBaVzUwWDJKc2IyTnJJanA3SW5SNWNHVWlPaUowWlhoMElpd2lkR1Y0ZENJ
+        NklpSjlmUT09IiwicCI6ImFiY2RlZmdoaWprbG1uIn36+4deAAABFgAAAEug0Pb2CzpldmVudC10
+        eXBlBwAFY2h1bmsNOmNvbnRlbnQtdHlwZQcAEGFwcGxpY2F0aW9uL2pzb24NOm1lc3NhZ2UtdHlw
+        ZQcABWV2ZW50eyJieXRlcyI6ImV5SjBlWEJsSWpvaVkyOXVkR1Z1ZEY5aWJHOWphMTlrWld4MFlT
+        SXNJbWx1WkdWNElqb3dMQ0prWld4MFlTSTZleUowZVhCbElqb2lkR1Y0ZEY5a1pXeDBZU0lzSW5S
+        bGVIUWlPaUpVYUdVaWZYMD0iLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpBQkNERUZH
+        SElKS0xNTk9QUVJTVFVWV1hZWjAxMjMifaVJn5wAAAD/AAAAS05IgP0LOmV2ZW50LXR5cGUHAAVj
+        aHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZl
+        bnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOWtaV3gwWVNJc0ltbHVa
+        R1Y0SWpvd0xDSmtaV3gwWVNJNmV5SjBlWEJsSWpvaWRHVjRkRjlrWld4MFlTSXNJblJsZUhRaU9p
+        SWdibUZ0WlNKOWZRPT0iLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpBQkMifaon4pIA
+        AAELAAAASzigpcULOmV2ZW50LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRp
+        b24vanNvbg06bWVzc2FnZS10eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRH
+        VnVkRjlpYkc5amExOWtaV3gwWVNJc0ltbHVaR1Y0SWpvd0xDSmtaV3gwWVNJNmV5SjBlWEJsSWpv
+        aWRHVjRkRjlrWld4MFlTSXNJblJsZUhRaU9pSWdiMllnZEdobElIQmxjbk52YmlCcGN5QlRZWEpo
+        YUNCTllYSjBhVzVsZWk0aWZYMD0iLCJwIjoiYWJjZGUifRW4lAYAAACoAAAAS8R7kyYLOmV2ZW50
+        LXR5cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10
+        eXBlBwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pWTI5dWRHVnVkRjlpYkc5amExOXpkRzl3
+        SWl3aWFXNWtaWGdpT2pCOSIsInAiOiJhYmNkZWYifa3NXToAAAErAAAAS/lhisELOmV2ZW50LXR5
+        cGUHAAVjaHVuaw06Y29udGVudC10eXBlBwAQYXBwbGljYXRpb24vanNvbg06bWVzc2FnZS10eXBl
+        BwAFZXZlbnR7ImJ5dGVzIjoiZXlKMGVYQmxJam9pYldWemMyRm5aVjlrWld4MFlTSXNJbVJsYkhS
+        aElqcDdJbk4wYjNCZmNtVmhjMjl1SWpvaVpXNWtYM1IxY200aUxDSnpkRzl3WDNObGNYVmxibU5s
+        SWpwdWRXeHNmU3dpZFhOaFoyVWlPbnNpYjNWMGNIVjBYM1J2YTJWdWN5STZNVEo5ZlE9PSIsInAi
+        OiJhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OTyJ9Q9U4QQAAAXMAAABL
+        8QIOyws6ZXZlbnQtdHlwZQcABWNodW5rDTpjb250ZW50LXR5cGUHABBhcHBsaWNhdGlvbi9qc29u
+        DTptZXNzYWdlLXR5cGUHAAVldmVudHsiYnl0ZXMiOiJleUowZVhCbElqb2liV1Z6YzJGblpWOXpk
+        Rzl3SWl3aVlXMWhlbTl1TFdKbFpISnZZMnN0YVc1MmIyTmhkR2x2YmsxbGRISnBZM01pT25zaWFX
+        NXdkWFJVYjJ0bGJrTnZkVzUwSWpveE9UTXNJbTkxZEhCMWRGUnZhMlZ1UTI5MWJuUWlPakV5TENK
+        cGJuWnZZMkYwYVc5dVRHRjBaVzVqZVNJNk1UZzRNQ3dpWm1seWMzUkNlWFJsVEdGMFpXNWplU0k2
+        TVRjd05IMTkiLCJwIjoiYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXpBQkNERUZHSElKS0xNTk9Q
+        UVJTVFVWV1hZWjAxMjM0In3B53MK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/vnd.amazon.eventstream
+      Date:
+      - Wed, 31 Dec 2025 18:33:26 GMT
+      Transfer-Encoding:
+      - chunked
+      X-Amzn-Bedrock-Content-Type:
+      - application/json
+      x-amzn-RequestId:
+      - 23acd045-af9c-43c7-b067-f517e3d28fe7
+    status:
+      code: 200
+      message: OK
+version: 1
