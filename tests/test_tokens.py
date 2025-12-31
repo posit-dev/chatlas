@@ -1,3 +1,4 @@
+import pytest
 from typing import Optional
 
 from chatlas import AssistantTurn, ChatAnthropic, ChatGoogle, ChatOpenAI, UserTurn
@@ -63,7 +64,7 @@ def test_tokens_method():
         {"role": "assistant", "tokens": 10, "tokens_cached": 0, "tokens_total": 10},
     ]
 
-
+@pytest.mark.vcr
 def test_token_count_method():
     chat = ChatOpenAI(model="gpt-4o-mini")
     assert chat.token_count("What is 1 + 1?") == 32
