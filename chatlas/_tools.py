@@ -453,11 +453,12 @@ def sanitize_schema(
     params: dict[str, object],
 ) -> dict[str, object]:
     """
-    Remove schema fields that some providers don't support.
+    Sanitize JSON Schema for provider compatibility.
 
     - `title`: Pydantic includes titles at model/field level, but they're not needed
     - `format`: JSON Schema format hints (e.g., "uri", "date-time") that some
       providers like OpenAI reject
+    - `required`: OpenAI requires all properties to be listed in required array
     """
     if "title" in params:
         del params["title"]
@@ -466,6 +467,9 @@ def sanitize_schema(
         del params["format"]
 
     if "properties" in params and isinstance(params["properties"], dict):
+        # OpenAI requires all properties to be in required array
+        params["required"] = list(params["properties"].keys())
+
         for prop in params["properties"].values():
             if isinstance(prop, dict):
                 sanitize_schema(prop)
