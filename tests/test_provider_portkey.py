@@ -2,6 +2,10 @@ import os
 
 import pytest
 
+do_test = os.getenv("TEST_PORTKEY", "true")
+if do_test.lower() == "false":
+    pytest.skip("Skipping Portkey tests", allow_module_level=True)
+
 # Skip if PORTKEY_API_KEY is not set or empty
 api_key = os.getenv("PORTKEY_API_KEY", "")
 if not api_key:
