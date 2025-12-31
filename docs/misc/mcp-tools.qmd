@@ -6,7 +6,7 @@ callout-appearance: simple
 [Model Context Protocol (MCP)](https://modelcontextprotocol.io) provides a standard
 way to build services that LLMs can use to gain context.
 Most significantly, MCP provides a standard way to serve [tools](../get-started/tools.qmd) (i.e., functions) for an LLM to call from another program or machine.
-As a result, there are now [many useful MCP server implementations available](https://github.com/punkpeye/awesome-mcp-servers?tab=readme-ov-file#server-implementations) to help extend the capabilities of your chat application.
+As a result, there are now [many useful MCP server implementations available](https://glama.ai/mcp/servers) to help extend the capabilities of your chat application.
 In this article, you'll learn the basics of using and implementing MCP tools in chatlas.
 
 
@@ -24,7 +24,7 @@ pip install 'chatlas[mcp]'
 ## Quick start {#quick-start}
 
 Let's start with a practical example: using the [MCP Fetch server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch) to give an LLM the ability to fetch and read web pages.
-This server is maintained by Anthropic and can be run via `npx` (which comes with Node.js).
+This server is maintained by Anthropic and can be run via `uvx` (which comes with [uv](https://docs.astral.sh/uv/)).
 
 ```python
 import asyncio
@@ -33,8 +33,8 @@ from chatlas import ChatOpenAI
 async def main():
     chat = ChatOpenAI()
     await chat.register_mcp_tools_stdio_async(
-        command="npx",
-        args=["-y", "@anthropic-ai/mcp-fetch"],
+        command="uvx",
+        args=["mcp-server-fetch"],
     )
     await chat.chat_async(
         "Summarize the first paragraph of https://en.wikipedia.org/wiki/Python_(programming_language)"
@@ -98,10 +98,10 @@ from chatlas import ChatOpenAI
 
 chat = ChatOpenAI()
 
-# Run a server via npx, uv, or any other command
+# Run a server via uvx, npx, or any other command
 await chat.register_mcp_tools_stdio_async(
-    command="npx",
-    args=["-y", "@anthropic-ai/mcp-fetch"],
+    command="uvx",
+    args=["mcp-server-fetch"],
 )
 ```
 

@@ -607,8 +607,8 @@ def tool_web_fetch(
     async def main():
         chat = ChatOpenAI()
         await chat.register_mcp_tools_stdio_async(
-            command="npx",
-            args=["-y", "@anthropic-ai/mcp-fetch"],
+            command="uvx",
+            args=["mcp-server-fetch"],
         )
         await chat.chat_async("Summarize the content at https://www.python.org")
         await chat.cleanup_mcp_tools()
