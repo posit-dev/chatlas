@@ -14,7 +14,6 @@ from ._content import (
     create_content,
 )
 from ._content_expand import expand_tool_result
-from ._repr import format_tokens
 
 __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
 
@@ -102,14 +101,7 @@ class Turn(BaseModel):
         return "".join(x.text for x in self.contents if isinstance(x, ContentText))
 
     def __str__(self) -> str:
-        header = f"## {self.role.capitalize()}"
-        if isinstance(self, AssistantTurn):
-            token_info = format_tokens(self.tokens, self.cost)
-            if token_info:
-                header += f" [{token_info}]"
-
-        content = "\n".join(str(c) for c in self.contents)
-        return f"{header}\n\n{content}"
+        return "\n".join(str(c) for c in self.contents)
 
     def __repr__(self):
         return self.__str__()
