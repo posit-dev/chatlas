@@ -29,6 +29,7 @@ jobs:
       ANTHROPIC_API_KEY: dummy-api-key
       AZURE_OPENAI_API_KEY: dummy-api-key
       CLOUDFLARE_API_KEY: dummy-api-key
+      CLOUDFLARE_ACCOUNT_ID: dummy-id
       DATABRICKS_HOST: dummy-api-key
       DATABRICKS_TOKEN: dummy-api-key
       DEEPSEEK_API_KEY: dummy-api-key
