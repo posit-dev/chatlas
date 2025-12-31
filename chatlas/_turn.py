@@ -14,7 +14,6 @@ from ._content import (
     create_content,
 )
 from ._content_expand import expand_tool_result
-from ._repr import format_tokens
 
 __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
 
