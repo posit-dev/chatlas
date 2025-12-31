@@ -1,8 +1,6 @@
 interactions:
 - request:
-    body: '{"messages": [{"content": [{"type": "text", "text": "What''s in this image?"},
-      {"type": "image_url", "image_url": {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAeCAIAAAD/+uoYAAAASUlEQVR4nNXOQREAMAjAsK7+PTMPfLhGQd7QI0ESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEESJEES5HVg4wOyrgE7Ar2lQQAAAABJRU5ErkJggg=="}}],
-      "role": "user"}], "model": "databricks-claude-3-7-sonnet", "stream": true}'
+    body: '{"messages":[{"content":[{"type":"text","text":"What''s in this image?"},{"type":"image_url","image_url":{"url":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAeCAIAAAD/+uoYAAAVQUlEQVR4AQE2FcnqAf8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsq4BO+gASKcAAAAASUVORK5CYII="}}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true}'
     headers:
       Accept:
       - application/json
@@ -11,66 +9,93 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '384'
+      - '7540'
       Content-Type:
       - application/json
       Host:
       - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
       X-Stainless-Async:
       - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
       x-stainless-read-timeout:
       - '600'
+      x-stainless-retry-count:
+      - '0'
     method: POST
     uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
   response:
     body:
-      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"This"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131156}
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"This"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199427}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        image appears"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131156}
+        image appears"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199427}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        to be"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131156}
+        to be"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199427}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        a solid re"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131156}
+        a soli"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199427}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"d
-        rectangle or backgroun"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131156}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"d.
-        It''s a"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131156}
-
-
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        bright, vibrant re"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131156}
+        re"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199427}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"d
-        color that fills"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131156}
+        rectangle or backgroun"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"d."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        the entire frame without"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131156}
+        It"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"''s
+        a"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        any other visible"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131156}
+        bright, vibrant re"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"d
+        color that fills the"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
 
 
         data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
-        elements, patterns, or text"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131157}
+        entire frame without"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131157}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        any other visible elements,"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
 
 
-        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":40,"prompt_tokens":22,"total_tokens":62,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01NHhrxbUvaKDFmCpxStMuZn","created":1767131157}
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        patterns, or text"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":22,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":40,"prompt_tokens":22,"total_tokens":62,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01YGndDUZqbiAMGDQXPwQWKw","created":1767199428}
 
 
         data: [DONE]
@@ -83,11 +108,11 @@ interactions:
       content-type:
       - text/event-stream
       date:
-      - Tue, 30 Dec 2025 21:45:56 GMT
+      - Wed, 31 Dec 2025 16:43:47 GMT
       server:
       - databricks
       server-timing:
-      - request_id;dur=0;desc="06aaa2b3-5269-472c-a25c-cf60b95c8d76", client_protocol;dur=0;desc="HTTP/1.1"
+      - request_id;dur=0;desc="114302a2-8a40-4fb7-b696-2ddd52cdcbf0", client_protocol;dur=0;desc="HTTP/1.1"
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       transfer-encoding:
@@ -95,11 +120,13 @@ interactions:
       x-amzn-bedrock-content-type:
       - application/json
       x-amzn-requestid:
-      - 98117e51-2704-4ce2-a634-e6b0e8eea94e
+      - 63917b08-1457-4e13-a078-5d5407669e84
       x-content-type-options:
       - nosniff
       x-databricks-org-id:
       - '138962681435081'
+      x-request-id:
+      - 114302a2-8a40-4fb7-b696-2ddd52cdcbf0
     status:
       code: 200
       message: OK

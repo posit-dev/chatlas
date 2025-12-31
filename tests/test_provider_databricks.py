@@ -24,6 +24,11 @@ if do_test.lower() == "false":
 def vcr_config():
     return {
         "match_on": ["method", "scheme", "port", "path", "body"],
+        "filter_headers": [
+            "authorization",
+            "x-api-key",
+            "api-key",
+        ],
     }
 
 

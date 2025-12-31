@@ -233,12 +233,13 @@ def assert_data_extraction(chat_fun: ChatFun):
 
 
 def assert_images_inline(chat_fun: ChatFun, stream: bool = True):
-    # Use a fixture image to ensure deterministic VCR cassette matching
+    # Use a fixture image with resize="none" to ensure deterministic VCR cassette
+    # matching (resize can produce different bytes across platforms/PIL versions)
     img_path = Path(__file__).parent / "images" / "red_test.png"
     chat = chat_fun()
     response = chat.chat(
         "What's in this image?",
-        content_image_file(str(img_path), resize="low"),
+        content_image_file(str(img_path), resize="none"),
         stream=stream,
     )
     assert "red" in str(response).lower()
