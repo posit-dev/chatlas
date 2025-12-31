@@ -259,11 +259,11 @@ def assert_images_remote(chat_fun: ChatFun, stream: bool = True):
     assert "baseball" in str(response).lower()
 
 
-def assert_images_remote_error(chat_fun: ChatFun):
+def assert_images_remote_error(chat_fun: ChatFun, message: str = "Remote images aren't supported"):
     chat = chat_fun()
     image_remote = content_image_url("https://httr2.r-lib.org/logo.png")
 
-    with pytest.raises(Exception, match="Remote images aren't supported"):
+    with pytest.raises(Exception, match=message):
         chat.chat("What's in this image?", image_remote)
 
     assert len(chat.get_turns()) == 0

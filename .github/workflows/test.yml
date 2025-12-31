@@ -41,6 +41,7 @@ jobs:
             --ignore=tests/test_tokens.py
         env:
           # Skip providers that don't work with VCR or don't have cassettes
+          # Bedrock uses AWS SSO which requires live credential fetching - incompatible with VCR
           TEST_BEDROCK: "false"
           TEST_SNOWFLAKE: "false"
           # Portkey API was failing during cassette recording

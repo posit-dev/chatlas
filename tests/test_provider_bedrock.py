@@ -72,7 +72,7 @@ def test_data_extraction():
 def test_anthropic_images():
     chat_fun = ChatBedrockAnthropic
     assert_images_inline(chat_fun)
-    assert_images_remote_error(chat_fun)
+    assert_images_remote_error(chat_fun, message="URL sources are not supported")
 
 
 def test_anthropic_models():
