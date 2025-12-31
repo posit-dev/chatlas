@@ -3,7 +3,7 @@ import os
 import pytest
 import requests
 from google.genai.errors import APIError
-from tenacity import retry, retry_if_exception, wait_exponential
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from chatlas import ChatGoogle, ChatVertex
 
@@ -47,6 +47,7 @@ def _is_retryable_error(exception: BaseException) -> bool:
 retry_gemini_call = retry(
     retry=retry_if_exception(_is_retryable_error),
     wait=wait_exponential(min=1, max=500),
+    stop=stop_after_attempt(5),
     reraise=True,
 )
 

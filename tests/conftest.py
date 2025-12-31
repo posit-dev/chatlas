@@ -16,7 +16,7 @@ from chatlas import (
 )
 from PIL import Image
 from pydantic import BaseModel
-from tenacity import retry, wait_exponential
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 ChatFun = Callable[..., Chat]
 
@@ -298,6 +298,7 @@ def assert_list_models(chat_fun: ChatFun):
 
 retry_api_call = retry(
     wait=wait_exponential(min=1, max=60),
+    stop=stop_after_attempt(3),
     reraise=True,
 )
 
