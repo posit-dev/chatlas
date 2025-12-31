@@ -1,9 +1,8 @@
-import os
-
 import pytest
 
 from chatlas import ChatMistral
 
+from ._test_providers import TestChatMistral
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -13,14 +12,10 @@ from .conftest import (
     assert_turns_system,
 )
 
-api_key = os.getenv("MISTRAL_API_KEY")
-if api_key is None:
-    pytest.skip("MISTRAL_API_KEY is not set; skipping tests", allow_module_level=True)
-
 
 @pytest.mark.vcr
 def test_mistral_simple_request():
-    chat = ChatMistral(
+    chat = TestChatMistral(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -36,7 +31,7 @@ def test_mistral_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_mistral_simple_streaming_request():
-    chat = ChatMistral(
+    chat = TestChatMistral(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -50,34 +45,33 @@ async def test_mistral_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_mistral_respects_turns_interface():
-    chat_fun = ChatMistral
-    assert_turns_system(chat_fun)
-    assert_turns_existing(chat_fun)
+    assert_turns_system(TestChatMistral)
+    assert_turns_existing(TestChatMistral)
 
 
 # Tool calling is poorly supported
 # def test_mistral_tool_variations():
-#    chat_fun = ChatMistral
+#    chat_fun = TestChatMistral
 #    assert_tools_simple(chat_fun)
 #    assert_tools_simple_stream_content(chat_fun)
 
 # Tool calling is poorly supported
 # @pytest.mark.asyncio
 # async def test_mistral_tool_variations_async():
-#    await assert_tools_async(ChatMistral)
+#    await assert_tools_async(TestChatMistral)
 
 
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(ChatMistral)
+    assert_data_extraction(TestChatMistral)
 
 
 @pytest.mark.vcr
 def test_mistral_images():
-    assert_images_inline(ChatMistral)
-    assert_images_remote(ChatMistral)
+    assert_images_inline(TestChatMistral)
+    assert_images_remote(TestChatMistral)
 
 
 @pytest.mark.vcr
-def test_huggingface_model_list():
-    assert_list_models(ChatMistral)
+def test_mistral_model_list():
+    assert_list_models(TestChatMistral)

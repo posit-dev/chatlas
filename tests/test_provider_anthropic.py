@@ -5,6 +5,7 @@ import pytest
 from chatlas import AssistantTurn, ChatAnthropic, UserTurn, content_image_file
 from chatlas._provider_anthropic import AnthropicProvider
 
+from ._test_providers import TestChatAnthropic
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -23,7 +24,7 @@ from .conftest import (
 
 
 def chat_func(system_prompt: str = "", **kwargs):
-    return ChatAnthropic(
+    return TestChatAnthropic(
         system_prompt=system_prompt,
         model="claude-haiku-4-5-20251001",
         **kwargs,
@@ -131,7 +132,8 @@ def test_anthropic_image_tool(test_images_dir):
 
 
 def test_anthropic_custom_http_client():
-    chat_func(kwargs={"http_client": httpx.AsyncClient()})
+    # This test doesn't use VCR, so use explicit dummy key
+    ChatAnthropic(api_key="test", kwargs={"http_client": httpx.AsyncClient()})
 
 
 @pytest.mark.vcr

@@ -1,7 +1,5 @@
 """Tests for parallel_chat error handling."""
 
-import os
-
 import pytest
 from pydantic import BaseModel
 
@@ -12,18 +10,15 @@ from chatlas import (
     parallel_chat_text,
 )
 
-# Skip these tests if not running OpenAI tests
-do_test = os.getenv("TEST_OPENAI", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping OpenAI tests", allow_module_level=True)
+from ._test_providers import TestChatOpenAI
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_error_return_mode():
     """Test that on_error='return' stops new requests but completes in-flight ones."""
-    # Use an invalid model to trigger an error
-    chat = ChatOpenAI(model="gpt-4-does-not-exist-12345")
+    # Use an invalid model to trigger an error - use explicit dummy key since not valid VCR test
+    chat = ChatOpenAI(api_key="test", model="gpt-4-does-not-exist-12345")
 
     prompts = [
         "Say 'A'",
@@ -50,8 +45,8 @@ async def test_parallel_chat_error_return_mode():
 @pytest.mark.asyncio
 async def test_parallel_chat_error_continue_mode():
     """Test that on_error='continue' processes all requests despite errors."""
-    # Use an invalid model to trigger an error
-    chat = ChatOpenAI(model="gpt-4-does-not-exist-12345")
+    # Use an invalid model to trigger an error - use explicit dummy key since not valid VCR test
+    chat = ChatOpenAI(api_key="test", model="gpt-4-does-not-exist-12345")
 
     prompts = [
         "Say 'A'",
@@ -75,8 +70,8 @@ async def test_parallel_chat_error_continue_mode():
 @pytest.mark.asyncio
 async def test_parallel_chat_error_stop_mode():
     """Test that on_error='stop' raises immediately on first error."""
-    # Use an invalid model to trigger an error
-    chat = ChatOpenAI(model="gpt-4-invalid-12345")
+    # Use an invalid model to trigger an error - use explicit dummy key since not valid VCR test
+    chat = ChatOpenAI(api_key="test", model="gpt-4-invalid-12345")
 
     prompts = [
         "Say 'A'",
@@ -98,7 +93,8 @@ async def test_parallel_chat_error_stop_mode():
 @pytest.mark.asyncio
 async def test_parallel_chat_text_error_handling():
     """Test that parallel_chat_text handles errors correctly."""
-    chat = ChatOpenAI(model="gpt-4-nonexistent-99999")
+    # Use explicit dummy key since testing error handling with invalid model
+    chat = ChatOpenAI(api_key="test", model="gpt-4-nonexistent-99999")
 
     prompts = ["Say 'Hello'", "Say 'World'"]
 
@@ -124,7 +120,8 @@ async def test_parallel_chat_structured_error_handling():
         name: str
         age: int
 
-    chat = ChatOpenAI(model="invalid-model-12345")
+    # Use explicit dummy key since testing error handling with invalid model
+    chat = ChatOpenAI(api_key="test", model="invalid-model-12345")
 
     prompts = ["John, age 25", "Jane, age 30"]
 
@@ -144,7 +141,7 @@ async def test_parallel_chat_structured_error_handling():
 @pytest.mark.asyncio
 async def test_parallel_chat_empty_prompts_with_error_handling():
     """Test that empty prompts list works with error handling."""
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
 
     results = await parallel_chat(chat, [], on_error="return")
     assert results == []

@@ -4,6 +4,7 @@ import pytest
 
 from chatlas import ChatDatabricks
 
+from ._test_providers import TestChatDatabricks
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -34,7 +35,7 @@ def vcr_config():
 
 @pytest.mark.vcr
 def test_openai_simple_request():
-    chat = ChatDatabricks(
+    chat = TestChatDatabricks(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -50,7 +51,7 @@ def test_openai_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_simple_streaming_request():
-    chat = ChatDatabricks(
+    chat = TestChatDatabricks(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -64,14 +65,13 @@ async def test_openai_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_openai_respects_turns_interface():
-    chat_fun = ChatDatabricks
-    assert_turns_system(chat_fun)
-    assert_turns_existing(chat_fun)
+    assert_turns_system(TestChatDatabricks)
+    assert_turns_existing(TestChatDatabricks)
 
 
 @pytest.mark.vcr
 def test_anthropic_empty_response():
-    chat = ChatDatabricks()
+    chat = TestChatDatabricks()
     chat.chat("Respond with only two blank lines")
     resp = chat.chat("What's 1+1? Just give me the number")
     assert "2" == str(resp).strip()
@@ -79,34 +79,31 @@ def test_anthropic_empty_response():
 
 @pytest.mark.vcr
 def test_openai_tool_variations():
-    chat_fun = ChatDatabricks
-    assert_tools_simple(chat_fun)
+    assert_tools_simple(TestChatDatabricks)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_tool_variations_async():
-    await assert_tools_async(ChatDatabricks)
+    await assert_tools_async(TestChatDatabricks)
 
 
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(ChatDatabricks)
+    assert_data_extraction(TestChatDatabricks)
 
 
 @pytest.mark.vcr
 def test_openai_images():
-    chat_fun = ChatDatabricks
-    assert_images_inline(chat_fun)
+    assert_images_inline(TestChatDatabricks)
     # Remote images don't seem to be supported yet
-    # assert_images_remote(chat_fun)
+    # assert_images_remote(TestChatDatabricks)
 
 
 # PDF doesn't seem to be supported yet
 #
 # def test_openai_pdf():
-#     chat_fun = ChatDatabricks
-#     assert_pdf_local(chat_fun)
+#     assert_pdf_local(TestChatDatabricks)
 
 
 def test_connect_without_openai_key(monkeypatch):
@@ -114,5 +111,5 @@ def test_connect_without_openai_key(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
     # This should not raise an error
-    chat = ChatDatabricks()
+    chat = TestChatDatabricks()
     assert chat is not None

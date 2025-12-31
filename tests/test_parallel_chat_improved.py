@@ -1,16 +1,11 @@
 """Tests for improved parallel_chat with multi-turn tool support."""
 
-import os
-
 import pytest
 from pydantic import BaseModel
 
 from chatlas import ChatOpenAI, parallel_chat, parallel_chat_structured
 
-# Skip these tests if not running OpenAI tests
-do_test = os.getenv("TEST_OPENAI", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping OpenAI tests", allow_module_level=True)
+from ._test_providers import TestChatOpenAI
 
 
 @pytest.mark.vcr
@@ -29,7 +24,7 @@ async def test_parallel_chat_multi_turn_tools():
         call_log.append(f"time:{location}")
         return f"Time in {location}: 3:00 PM"
 
-    chat = ChatOpenAI(system_prompt="Be terse.")
+    chat = TestChatOpenAI(system_prompt="Be terse.")
     chat.register_tool(get_weather)
     chat.register_tool(get_time)
 
@@ -67,7 +62,7 @@ async def test_parallel_chat_ordering_preserved():
         execution_order.append(msg)
         return f"Recorded: {msg}"
 
-    chat = ChatOpenAI(system_prompt="Be terse. Always use the record tool as requested.")
+    chat = TestChatOpenAI(system_prompt="Be terse. Always use the record tool as requested.")
     chat.register_tool(record)
 
     prompts = [
@@ -94,7 +89,7 @@ async def test_parallel_chat_mixed_tools_and_no_tools():
         call_log.append("called")
         return "done"
 
-    chat = ChatOpenAI(system_prompt="Be terse.")
+    chat = TestChatOpenAI(system_prompt="Be terse.")
     chat.register_tool(helper)
 
     prompts = [
@@ -131,7 +126,7 @@ async def test_parallel_chat_chained_tool_calls():
         call_log.append("step_2")
         return "Step 2 complete"
 
-    chat = ChatOpenAI(system_prompt="Be terse. Follow instructions exactly.")
+    chat = TestChatOpenAI(system_prompt="Be terse. Follow instructions exactly.")
     chat.register_tool(step_one)
     chat.register_tool(step_two)
 
@@ -168,7 +163,7 @@ async def test_parallel_chat_chained_tool_calls():
 @pytest.mark.asyncio
 async def test_parallel_chat_no_tools_registered():
     """Test that parallel_chat works normally when no tools are registered."""
-    chat = ChatOpenAI(system_prompt="Be terse.")
+    chat = TestChatOpenAI(system_prompt="Be terse.")
 
     prompts = [
         "Say 'Alpha'",
@@ -199,7 +194,7 @@ async def test_parallel_chat_tool_ordering_with_rate_limiting():
         execution_order.append(id)
         return f"Recorded {id}"
 
-    chat = ChatOpenAI(system_prompt="Be terse. Always use the record tool as requested.")
+    chat = TestChatOpenAI(system_prompt="Be terse. Always use the record tool as requested.")
     chat.register_tool(record)
 
     # Use a larger set to test rate limiting
@@ -227,7 +222,7 @@ async def test_parallel_chat_structured_basic():
         country: str
         capital: str
 
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
 
     countries = ["Canada", "Japan", "Brazil"]
     prompts = [
@@ -268,7 +263,7 @@ async def test_parallel_chat_structured_with_tools():
         temperature: str
         conditions: str
 
-    chat = ChatOpenAI(system_prompt="Be terse.")
+    chat = TestChatOpenAI(system_prompt="Be terse.")
     chat.register_tool(get_weather)
 
     prompts = [
@@ -308,7 +303,7 @@ async def test_parallel_chat_structured_tool_ordering():
         id: str
         data: str
 
-    chat = ChatOpenAI(system_prompt="Be terse. Use the fetch_data tool as requested.")
+    chat = TestChatOpenAI(system_prompt="Be terse. Use the fetch_data tool as requested.")
     chat.register_tool(fetch_data)
 
     prompts = [

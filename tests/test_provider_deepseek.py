@@ -1,9 +1,8 @@
-import os
-
 import pytest
 
 from chatlas import ChatDeepSeek
 
+from ._test_providers import TestChatDeepSeek
 from .conftest import (
     assert_list_models,
     assert_tools_async,
@@ -12,14 +11,10 @@ from .conftest import (
     assert_turns_system,
 )
 
-api_key = os.getenv("DEEPSEEK_API_KEY")
-if api_key is None:
-    pytest.skip("DEEPSEEK_API_KEY is not set; skipping tests", allow_module_level=True)
-
 
 @pytest.mark.vcr
 def test_deepseek_simple_request():
-    chat = ChatDeepSeek(
+    chat = TestChatDeepSeek(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -34,7 +29,7 @@ def test_deepseek_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_deepseek_simple_streaming_request():
-    chat = ChatDeepSeek(
+    chat = TestChatDeepSeek(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -48,22 +43,19 @@ async def test_deepseek_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_deepseek_respects_turns_interface():
-    chat_fun = ChatDeepSeek
-    assert_turns_system(chat_fun)
-    assert_turns_existing(chat_fun)
+    assert_turns_system(TestChatDeepSeek)
+    assert_turns_existing(TestChatDeepSeek)
 
 
 @pytest.mark.vcr
 def test_deepseek_tool_variations():
-    chat_fun = ChatDeepSeek
-    assert_tools_simple(chat_fun)
+    assert_tools_simple(TestChatDeepSeek)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_deepseek_tool_variations_async():
-    chat_fun = ChatDeepSeek
-    await assert_tools_async(chat_fun)
+    await assert_tools_async(TestChatDeepSeek)
 
 
 # Doesn't seem to support data extraction or images
@@ -71,4 +63,4 @@ async def test_deepseek_tool_variations_async():
 
 @pytest.mark.vcr
 def test_deepseek_list_models():
-    assert_list_models(ChatDeepSeek)
+    assert_list_models(TestChatDeepSeek)

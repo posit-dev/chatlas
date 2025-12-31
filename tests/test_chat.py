@@ -14,10 +14,12 @@ from chatlas import (
 from chatlas._chat import ToolFailureWarning
 from pydantic import BaseModel
 
+from ._test_providers import TestChatOpenAI
+
 
 @pytest.mark.vcr
 def test_simple_batch_chat():
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
     response = chat.chat("What's 1 + 1. Just give me the answer, no punctuation")
     assert str(response) == "2"
 
@@ -25,7 +27,7 @@ def test_simple_batch_chat():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_simple_async_batch_chat():
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
     response = await chat.chat_async(
         "What's 1 + 1. Just give me the answer, no punctuation",
     )
@@ -34,7 +36,7 @@ async def test_simple_async_batch_chat():
 
 @pytest.mark.vcr
 def test_simple_streaming_chat():
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
     res = chat.stream(
         """
         What are the canonical colors of the ROYGBIV rainbow?
@@ -55,7 +57,7 @@ def test_simple_streaming_chat():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_simple_streaming_chat_async():
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
     res = await chat.stream_async(
         """
         What are the canonical colors of the ROYGBIV rainbow?
@@ -73,8 +75,10 @@ async def test_simple_streaming_chat_async():
 
 
 def test_basic_repr(snapshot):
+    # This test doesn't use VCR, so use explicit dummy key
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output"
+        api_key="test",
+        system_prompt="You're a helpful assistant that returns very minimal output",
     )
     chat.set_turns(
         [
@@ -86,8 +90,10 @@ def test_basic_repr(snapshot):
 
 
 def test_basic_str(snapshot):
+    # This test doesn't use VCR, so use explicit dummy key
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output"
+        api_key="test",
+        system_prompt="You're a helpful assistant that returns very minimal output",
     )
     chat.set_turns(
         [
@@ -99,8 +105,10 @@ def test_basic_str(snapshot):
 
 
 def test_basic_export(snapshot):
+    # This test doesn't use VCR, so use explicit dummy key
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output"
+        api_key="test",
+        system_prompt="You're a helpful assistant that returns very minimal output",
     )
     chat.set_turns(
         [
@@ -117,7 +125,7 @@ def test_basic_export(snapshot):
 
 @pytest.mark.vcr
 def test_chat_structured():
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
 
     class Person(BaseModel):
         name: str
@@ -130,7 +138,7 @@ def test_chat_structured():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_chat_structured_async():
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
 
     class Person(BaseModel):
         name: str
@@ -144,7 +152,7 @@ async def test_chat_structured_async():
 
 @pytest.mark.vcr
 def test_last_turn_retrieval():
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
     assert chat.get_last_turn(role="user") is None
     assert chat.get_last_turn(role="assistant") is None
 
@@ -156,18 +164,20 @@ def test_last_turn_retrieval():
 
 
 def test_system_prompt_retrieval():
-    chat1 = ChatOpenAI()
+    # This test doesn't use VCR, so use explicit dummy key
+    chat1 = ChatOpenAI(api_key="test")
     assert chat1.system_prompt is None
     assert chat1.get_last_turn(role="system") is None
 
-    chat2 = ChatOpenAI(system_prompt="You are from New Zealand")
+    chat2 = ChatOpenAI(api_key="test", system_prompt="You are from New Zealand")
     assert chat2.system_prompt == "You are from New Zealand"
     turn = chat2.get_last_turn(role="system")
     assert turn is not None and turn.text == "You are from New Zealand"
 
 
 def test_modify_system_prompt():
-    chat = ChatOpenAI()
+    # This test doesn't use VCR, so use explicit dummy key
+    chat = ChatOpenAI(api_key="test")
     chat.set_turns(
         [
             UserTurn("Hi"),
@@ -194,7 +204,7 @@ def test_modify_system_prompt():
 
 @pytest.mark.vcr
 def test_json_serialize():
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
     chat.chat("Tell me a short joke", echo="none")
     turns = chat.get_turns()
     turns_json = [x.model_dump_json() for x in turns]
@@ -228,7 +238,7 @@ def test_json_serialize():
 def test_deepcopy_chat():
     import copy
 
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
     chat.chat("Hi", echo="none")
     chat_fork = copy.deepcopy(chat)
 
@@ -243,7 +253,7 @@ def test_deepcopy_chat():
 
 @pytest.mark.vcr
 def test_chat_callbacks():
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
 
     def test_tool(user: str) -> str:
         "Find out a user's favorite color"
@@ -279,7 +289,7 @@ def test_chat_callbacks():
 @pytest.mark.vcr
 @pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject():
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
 
     def test_tool(user: str) -> str:
         "Find out a user's favorite color"
@@ -305,7 +315,7 @@ def test_chat_tool_request_reject():
 @pytest.mark.vcr
 @pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject2(capsys):
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
 
     def test_tool(user: str) -> str:
         "Find out a user's favorite color"

@@ -3,20 +3,13 @@ import os
 import pytest
 from chatlas import ChatCloudflare
 
+from ._test_providers import TestChatCloudflare
 from .conftest import assert_data_extraction, assert_turns_existing, assert_turns_system
-
-api_key = os.getenv("CLOUDFLARE_API_KEY")
-account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID")
-if api_key is None or account_id is None:
-    pytest.skip(
-        "CLOUDFLARE_API_KEY and CLOUDFLARE_ACCOUNT_ID are not set; skipping tests",
-        allow_module_level=True,
-    )
 
 
 @pytest.mark.vcr
 def test_cloudflare_simple_request():
-    chat = ChatCloudflare(
+    chat = TestChatCloudflare(
         model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
     )
     chat.chat("What is 1 + 1?")
@@ -32,7 +25,7 @@ def test_cloudflare_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_cloudflare_simple_streaming_request():
-    chat = ChatCloudflare(
+    chat = TestChatCloudflare(
         model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
     )
     res = []
@@ -46,15 +39,14 @@ async def test_cloudflare_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_cloudflare_respects_turns_interface():
-    chat_fun = ChatCloudflare
-    assert_turns_system(chat_fun)
-    assert_turns_existing(chat_fun)
+    assert_turns_system(TestChatCloudflare)
+    assert_turns_existing(TestChatCloudflare)
 
 
 @pytest.mark.vcr
 def test_cloudflare_data_extraction():
     def chat_fun(**kwargs):
-        return ChatCloudflare(
+        return TestChatCloudflare(
             model="@cf/meta/llama-3.3-70b-instruct-fp8-fast", **kwargs
         )
 
@@ -62,7 +54,12 @@ def test_cloudflare_data_extraction():
 
 
 def test_cloudflare_custom_model():
-    chat = ChatCloudflare(model="@cf/meta/llama-3.3-70b-instruct-fp8-fast")
+    # This test doesn't use VCR, so use explicit dummy credentials
+    chat = ChatCloudflare(
+        api_key="test",
+        account="test-account",
+        model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+    )
     assert chat.provider.model == "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 
 

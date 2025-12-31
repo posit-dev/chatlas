@@ -1,10 +1,9 @@
-import os
-
 import httpx
 import pytest
 
 from chatlas import ChatGithub
 
+from ._test_providers import TestChatGithub
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -19,16 +18,10 @@ from .conftest import (
     assert_turns_system,
 )
 
-api_key = os.getenv("GITHUB_TOKEN", os.getenv("GITHUB_PAT"))
-if api_key is None:
-    pytest.skip(
-        "GITHUB_TOKEN or GITHUB_PAT is not set; skipping tests", allow_module_level=True
-    )
-
 
 @pytest.mark.vcr
 def test_github_simple_request():
-    chat = ChatGithub(
+    chat = TestChatGithub(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -44,7 +37,7 @@ def test_github_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_simple_streaming_request():
-    chat = ChatGithub(
+    chat = TestChatGithub(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -58,42 +51,39 @@ async def test_github_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_github_respects_turns_interface():
-    chat_fun = ChatGithub
-    assert_turns_system(chat_fun)
-    assert_turns_existing(chat_fun)
+    assert_turns_system(TestChatGithub)
+    assert_turns_existing(TestChatGithub)
 
 
 @pytest.mark.vcr
 def test_github_tool_variations():
-    chat_fun = ChatGithub
-    assert_tools_simple(chat_fun)
-    assert_tools_simple_stream_content(chat_fun)
-    assert_tools_parallel(chat_fun)
-    assert_tools_sequential(chat_fun, total_calls=6)
+    assert_tools_simple(TestChatGithub)
+    assert_tools_simple_stream_content(TestChatGithub)
+    assert_tools_parallel(TestChatGithub)
+    assert_tools_sequential(TestChatGithub, total_calls=6)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_tool_variations_async():
-    await assert_tools_async(ChatGithub)
+    await assert_tools_async(TestChatGithub)
 
 
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(ChatGithub)
+    assert_data_extraction(TestChatGithub)
 
 
 @pytest.mark.vcr
 def test_github_images():
-    chat_fun = ChatGithub
-    assert_images_inline(chat_fun)
-    assert_images_remote(chat_fun)
+    assert_images_inline(TestChatGithub)
+    assert_images_remote(TestChatGithub)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_logprobs():
-    chat = ChatGithub()
+    chat = TestChatGithub()
 
     pieces = []
     async for x in await chat.stream_async("Hi", kwargs={"logprobs": True}):
@@ -110,14 +100,14 @@ async def test_github_logprobs():
 
 # Doesn't seem to be supported
 # def test_github_pdf():
-#    chat_fun = ChatGithub
-#    assert_pdf_local(chat_fun)
+#    assert_pdf_local(TestChatGithub)
 
 
 def test_github_custom_http_client():
-    ChatGithub(kwargs={"http_client": httpx.AsyncClient()})
+    # This test doesn't use VCR, so use explicit dummy key
+    ChatGithub(api_key="test", kwargs={"http_client": httpx.AsyncClient()})
 
 
 @pytest.mark.vcr
 def test_github_list_models():
-    assert_list_models(ChatGithub)
+    assert_list_models(TestChatGithub)

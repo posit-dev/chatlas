@@ -3,6 +3,7 @@ import pytest
 from chatlas import ChatOpenAI
 from openai.types.responses import ResponseOutputMessage, ResponseOutputText
 
+from ._test_providers import TestChatOpenAI
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -21,7 +22,7 @@ from .conftest import (
 
 @pytest.mark.vcr
 def test_openai_simple_request():
-    chat = ChatOpenAI(
+    chat = TestChatOpenAI(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -36,7 +37,7 @@ def test_openai_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_simple_streaming_request():
-    chat = ChatOpenAI(
+    chat = TestChatOpenAI(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -49,42 +50,39 @@ async def test_openai_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_openai_respects_turns_interface():
-    chat_fun = ChatOpenAI
-    assert_turns_system(chat_fun)
-    assert_turns_existing(chat_fun)
+    assert_turns_system(TestChatOpenAI)
+    assert_turns_existing(TestChatOpenAI)
 
 
 @pytest.mark.vcr
 def test_openai_tool_variations():
-    chat_fun = ChatOpenAI
-    assert_tools_simple(chat_fun)
-    assert_tools_simple_stream_content(chat_fun)
-    assert_tools_parallel(chat_fun)
-    assert_tools_sequential(chat_fun, total_calls=6)
+    assert_tools_simple(TestChatOpenAI)
+    assert_tools_simple_stream_content(TestChatOpenAI)
+    assert_tools_parallel(TestChatOpenAI)
+    assert_tools_sequential(TestChatOpenAI, total_calls=6)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_tool_variations_async():
-    await assert_tools_async(ChatOpenAI)
+    await assert_tools_async(TestChatOpenAI)
 
 
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(ChatOpenAI)
+    assert_data_extraction(TestChatOpenAI)
 
 
 @pytest.mark.vcr
 def test_openai_images():
-    chat_fun = ChatOpenAI
-    assert_images_inline(chat_fun)
-    assert_images_remote(chat_fun)
+    assert_images_inline(TestChatOpenAI)
+    assert_images_remote(TestChatOpenAI)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_logprobs():
-    chat = ChatOpenAI()
+    chat = TestChatOpenAI()
     chat.set_model_params(log_probs=True)
 
     pieces = []
@@ -105,20 +103,22 @@ async def test_openai_logprobs():
 
 @pytest.mark.vcr
 def test_openai_pdf():
-    assert_pdf_local(ChatOpenAI)
+    assert_pdf_local(TestChatOpenAI)
 
 
 def test_openai_custom_http_client():
-    ChatOpenAI(kwargs={"http_client": httpx.AsyncClient()})
+    # This test doesn't use VCR, so use the real ChatOpenAI with explicit key
+    ChatOpenAI(api_key="test", kwargs={"http_client": httpx.AsyncClient()})
 
 
 @pytest.mark.vcr
 def test_openai_list_models():
-    assert_list_models(ChatOpenAI)
+    assert_list_models(TestChatOpenAI)
 
 
 def test_openai_service_tier():
-    chat = ChatOpenAI(service_tier="flex")
+    # This test doesn't use VCR, so use the real ChatOpenAI with explicit key
+    chat = ChatOpenAI(api_key="test", service_tier="flex")
     assert chat.kwargs_chat.get("service_tier") == "flex"
 
 
@@ -126,7 +126,7 @@ def test_openai_service_tier():
 def test_openai_service_tier_affects_pricing():
     from chatlas._tokens import get_token_cost
 
-    chat = ChatOpenAI(service_tier="priority")
+    chat = TestChatOpenAI(service_tier="priority")
     chat.chat("What is 1+1?")
 
     turn = chat.get_last_turn()

@@ -1,9 +1,8 @@
-import os
-
 import pytest
 
 from chatlas import ChatHuggingFace
 
+from ._test_providers import TestChatHuggingFace
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -15,17 +14,10 @@ from .conftest import (
     assert_turns_system,
 )
 
-# I think we would need to pay Hugging Face to actually run these tests?
-api_key = os.getenv("HUGGINGFACE_API_KEY")
-if api_key is None:
-    pytest.skip(
-        "HUGGINGFACE_API_KEY is not set; skipping tests", allow_module_level=True
-    )
-
 
 @pytest.mark.vcr
 def test_huggingface_simple_request():
-    chat = ChatHuggingFace(
+    chat = TestChatHuggingFace(
         system_prompt="Be as terse as possible; no punctuation",
         model="meta-llama/Llama-3.1-8B-Instruct",
     )
@@ -42,7 +34,7 @@ def test_huggingface_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_huggingface_simple_streaming_request():
-    chat = ChatHuggingFace(
+    chat = TestChatHuggingFace(
         system_prompt="Be as terse as possible; no punctuation",
         model="meta-llama/Llama-3.1-8B-Instruct",
     )
@@ -57,15 +49,14 @@ async def test_huggingface_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_huggingface_respects_turns_interface():
-    chat_fun = ChatHuggingFace
-    assert_turns_system(chat_fun)
-    assert_turns_existing(chat_fun)
+    assert_turns_system(TestChatHuggingFace)
+    assert_turns_existing(TestChatHuggingFace)
 
 
 @pytest.mark.vcr
 def test_huggingface_tools():
     def chat_fun(**kwargs):
-        return ChatHuggingFace(model="meta-llama/Llama-3.1-8B-Instruct", **kwargs)
+        return TestChatHuggingFace(model="meta-llama/Llama-3.1-8B-Instruct", **kwargs)
 
     assert_tools_simple(chat_fun)
 
@@ -74,7 +65,7 @@ def test_huggingface_tools():
 @pytest.mark.asyncio
 async def test_huggingface_tools_async():
     def chat_fun(**kwargs):
-        return ChatHuggingFace(model="meta-llama/Llama-3.1-8B-Instruct", **kwargs)
+        return TestChatHuggingFace(model="meta-llama/Llama-3.1-8B-Instruct", **kwargs)
 
     await assert_tools_async(chat_fun)
 
@@ -82,7 +73,7 @@ async def test_huggingface_tools_async():
 @pytest.mark.vcr
 def test_huggingface_data_extraction():
     def chat_fun(**kwargs):
-        return ChatHuggingFace(model="meta-llama/Llama-3.1-8B-Instruct", **kwargs)
+        return TestChatHuggingFace(model="meta-llama/Llama-3.1-8B-Instruct", **kwargs)
 
     assert_data_extraction(chat_fun)
 
@@ -91,7 +82,7 @@ def test_huggingface_data_extraction():
 def test_huggingface_images():
     # Use a vision model that supports images
     def chat_fun(**kwargs):
-        return ChatHuggingFace(model="Qwen/Qwen2.5-VL-7B-Instruct", **kwargs)
+        return TestChatHuggingFace(model="Qwen/Qwen2.5-VL-7B-Instruct", **kwargs)
 
     assert_images_inline(chat_fun)
     assert_images_remote(chat_fun)
@@ -99,14 +90,16 @@ def test_huggingface_images():
 
 @pytest.mark.vcr
 def test_huggingface_model_list():
-    assert_list_models(ChatHuggingFace)
+    assert_list_models(TestChatHuggingFace)
 
 
 def test_huggingface_custom_model():
-    chat = ChatHuggingFace(model="microsoft/DialoGPT-medium")
+    # This test doesn't use VCR, so use explicit dummy key
+    chat = ChatHuggingFace(api_key="test", model="microsoft/DialoGPT-medium")
     assert chat.provider.model == "microsoft/DialoGPT-medium"
 
 
 def test_huggingface_provider_name():
-    chat = ChatHuggingFace()
+    # This test doesn't use VCR, so use explicit dummy key
+    chat = ChatHuggingFace(api_key="test")
     assert chat.provider.name == "HuggingFace"

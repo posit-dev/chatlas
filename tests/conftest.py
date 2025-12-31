@@ -315,47 +315,6 @@ def test_batch_dir():
 # ---------------------------------------------------------------------------
 
 
-# Some providers (Anthropic, Google) validate API keys before making requests,
-# so we need dummy keys for VCR replay mode
-@pytest.fixture(autouse=True, scope="session")
-def set_dummy_api_keys_for_vcr():
-    """Set dummy API keys for providers that validate keys before requests.
-
-    This enables VCR replay mode to work without real API keys.
-    When a real key is set, it takes precedence.
-    """
-    dummy_keys = {
-        "OPENAI_API_KEY": "sk-dummy-openai-key-for-vcr-replay",
-        "ANTHROPIC_API_KEY": "sk-ant-dummy-key-for-vcr-replay",
-        "GOOGLE_API_KEY": "dummy-google-key-for-vcr-replay",
-        "AZURE_OPENAI_API_KEY": "dummy-azure-key-for-vcr-replay",
-        "CLOUDFLARE_API_KEY": "dummy-cloudflare-key-for-vcr-replay",
-        "CLOUDFLARE_ACCOUNT_ID": "dummy-cloudflare-account-for-vcr-replay",
-        "DATABRICKS_HOST": "https://dummy-databricks-host.cloud.databricks.com",
-        "DATABRICKS_TOKEN": "dummy-databricks-token-for-vcr-replay",
-        "DEEPSEEK_API_KEY": "dummy-deepseek-key-for-vcr-replay",
-        "GITHUB_TOKEN": "dummy-github-token-for-vcr-replay",
-        "HUGGINGFACE_API_KEY": "dummy-huggingface-key-for-vcr-replay",
-        "MISTRAL_API_KEY": "dummy-mistral-key-for-vcr-replay",
-        "OPENROUTER_API_KEY": "dummy-openrouter-key-for-vcr-replay",
-    }
-    original_values = {}
-
-    for key, dummy_value in dummy_keys.items():
-        original_values[key] = os.environ.get(key)
-        if not original_values[key]:
-            os.environ[key] = dummy_value
-
-    yield
-
-    # Restore original values
-    for key, original_value in original_values.items():
-        if original_value is None:
-            os.environ.pop(key, None)
-        else:
-            os.environ[key] = original_value
-
-
 def _filter_response_headers(response):
     """Remove sensitive headers from response before recording."""
     headers_to_remove = [
