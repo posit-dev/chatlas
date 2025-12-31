@@ -32,21 +32,21 @@ interactions:
         \\\"author\\\": \\\"Hadley Wickham\\\"}\"\n          }\n        ],\n        \"role\":
         \"model\"\n      },\n      \"finishReason\": \"STOP\",\n      \"index\": 0\n
         \   }\n  ],\n  \"usageMetadata\": {\n    \"promptTokenCount\": 40,\n    \"candidatesTokenCount\":
-        18,\n    \"totalTokenCount\": 160,\n    \"promptTokensDetails\": [\n      {\n
+        18,\n    \"totalTokenCount\": 190,\n    \"promptTokensDetails\": [\n      {\n
         \       \"modality\": \"TEXT\",\n        \"tokenCount\": 40\n      }\n    ],\n
-        \   \"thoughtsTokenCount\": 102\n  },\n  \"modelVersion\": \"gemini-2.5-flash\",\n
-        \ \"responseId\": \"NIpVaY6SD62r_uMPpZqE4Qw\"\n}\n"
+        \   \"thoughtsTokenCount\": 132\n  },\n  \"modelVersion\": \"gemini-2.5-flash\",\n
+        \ \"responseId\": \"drBVafPsGrq9_uMPkfWTyQg\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Content-Type:
       - application/json; charset=UTF-8
       Date:
-      - Wed, 31 Dec 2025 20:40:20 GMT
+      - Wed, 31 Dec 2025 23:23:34 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=1014
+      - gfet4t7; dur=1031
       Transfer-Encoding:
       - chunked
       Vary:
@@ -102,18 +102,18 @@ interactions:
         {\n    \"promptTokenCount\": 96,\n    \"candidatesTokenCount\": 15,\n    \"totalTokenCount\":
         175,\n    \"promptTokensDetails\": [\n      {\n        \"modality\": \"TEXT\",\n
         \       \"tokenCount\": 96\n      }\n    ],\n    \"thoughtsTokenCount\": 64\n
-        \ },\n  \"modelVersion\": \"gemini-2.5-flash\",\n  \"responseId\": \"NYpVaefEEuOi_uMPvcOsqQs\"\n}\n"
+        \ },\n  \"modelVersion\": \"gemini-2.5-flash\",\n  \"responseId\": \"d7BVaeudGu6p_uMPycCNyAg\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Content-Type:
       - application/json; charset=UTF-8
       Date:
-      - Wed, 31 Dec 2025 20:40:21 GMT
+      - Wed, 31 Dec 2025 23:23:35 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=823
+      - gfet4t7; dur=754
       Transfer-Encoding:
       - chunked
       Vary:
@@ -171,18 +171,18 @@ interactions:
         123,\n    \"candidatesTokenCount\": 11,\n    \"totalTokenCount\": 172,\n    \"promptTokensDetails\":
         [\n      {\n        \"modality\": \"TEXT\",\n        \"tokenCount\": 123\n
         \     }\n    ],\n    \"thoughtsTokenCount\": 38\n  },\n  \"modelVersion\":
-        \"gemini-2.5-flash\",\n  \"responseId\": \"NopVaenuC7TQ_uMP_vPbaQ\"\n}\n"
+        \"gemini-2.5-flash\",\n  \"responseId\": \"eLBVaerkFa6n_uMP8-yp-Ao\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Content-Type:
       - application/json; charset=UTF-8
       Date:
-      - Wed, 31 Dec 2025 20:40:22 GMT
+      - Wed, 31 Dec 2025 23:23:36 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=678
+      - gfet4t7; dur=679
       Transfer-Encoding:
       - chunked
       Vary:
@@ -196,7 +196,7 @@ interactions:
       X-XSS-Protection:
       - '0'
       content-length:
-      - '581'
+      - '582'
     status:
       code: 200
       message: OK
@@ -235,7 +235,7 @@ interactions:
         Smith\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
         {\"promptTokenCount\": 144,\"candidatesTokenCount\": 2,\"totalTokenCount\":
         146,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 144}]},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"NopVab-5K7iSjMcP34bCiQo\"}\r\n\r\n"
+        \"gemini-2.5-flash\",\"responseId\": \"ebBVabjnAtKT_uMP792-mAc\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -244,11 +244,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 20:40:22 GMT
+      - Wed, 31 Dec 2025 23:23:37 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=291
+      - gfet4t7; dur=343
       Transfer-Encoding:
       - chunked
       Vary:
