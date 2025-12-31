@@ -24,12 +24,13 @@ interactions:
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"The
-        image is a solid, uniform block of bright red color. There are no discernible
-        objects, shapes, text, or patterns within it.\"}],\"role\": \"model\"},\"finishReason\":
-        \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 266,\"candidatesTokenCount\":
-        28,\"totalTokenCount\": 773,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        image is a solid, uniform field of **red**.\\n\\nThere are no discernible
+        objects, patterns, textures, or variations in color within the image; it is
+        simply a flat, vibrant red.\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\":
+        0}],\"usageMetadata\": {\"promptTokenCount\": 266,\"candidatesTokenCount\":
+        40,\"totalTokenCount\": 795,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
         8},{\"modality\": \"IMAGE\",\"tokenCount\": 258}],\"thoughtsTokenCount\":
-        479},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"7xZUaYniOLWi_uMP757joAY\"}\r\n\r\n"
+        489},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"VU5VacHXC7OsjMcPhsfl4Ao\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -38,11 +39,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Tue, 30 Dec 2025 18:16:18 GMT
+      - Wed, 31 Dec 2025 16:24:55 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=3047
+      - gfet4t7; dur=3351
       Transfer-Encoding:
       - chunked
       Vary:

@@ -1,5 +1,4 @@
 import os
-import tempfile
 from pathlib import Path
 from typing import Callable
 
@@ -14,7 +13,6 @@ from chatlas import (
     content_image_url,
     content_pdf_file,
 )
-from PIL import Image
 from pydantic import BaseModel
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -235,17 +233,15 @@ def assert_data_extraction(chat_fun: ChatFun):
 
 
 def assert_images_inline(chat_fun: ChatFun, stream: bool = True):
-    img = Image.new("RGB", (60, 30), color="red")
-    with tempfile.TemporaryDirectory() as tmpdir:
-        img_path = Path(tmpdir) / "test_image.png"
-        img.save(img_path)
-        chat = chat_fun()
-        response = chat.chat(
-            "What's in this image?",
-            content_image_file(str(img_path), resize="low"),
-            stream=stream,
-        )
-        assert "red" in str(response).lower()
+    # Use a fixture image to ensure deterministic VCR cassette matching
+    img_path = Path(__file__).parent / "images" / "red_test.png"
+    chat = chat_fun()
+    response = chat.chat(
+        "What's in this image?",
+        content_image_file(str(img_path), resize="low"),
+        stream=stream,
+    )
+    assert "red" in str(response).lower()
 
 
 def assert_images_remote(chat_fun: ChatFun, stream: bool = True):
