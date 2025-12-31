@@ -246,15 +246,18 @@ def assert_images_inline(chat_fun: ChatFun, stream: bool = True):
     assert "red" in str(response).lower()
 
 
-def assert_images_remote(chat_fun: ChatFun, stream: bool = True):
+def assert_images_remote(
+    chat_fun: ChatFun, stream: bool = True, test_shape: bool = True
+):
     chat = chat_fun()
     response = chat.chat(
         "What's in this image? (Be sure to mention the outside shape)",
         content_image_url("https://httr2.r-lib.org/logo.png"),
         stream=stream,
     )
-    assert "hex" in str(response).lower()
     assert "baseball" in str(response).lower()
+    if test_shape:
+        assert "hex" in str(response).lower()
 
 
 def assert_images_remote_error(
