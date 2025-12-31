@@ -88,6 +88,28 @@ You'll learn more about this in [custom displays](../tool-calling/displays.qmd) 
 :::
 
 
+### Built-in tools
+
+Some providers offer built-in tools that run on their servers, such as web search and URL fetching.
+chatlas provides provider-agnostic access to these capabilities via [`tool_web_search()`](../reference/tool_web_search.qmd) and [`tool_web_fetch()`](../reference/tool_web_fetch.qmd):
+
+```python
+from chatlas import ChatOpenAI, tool_web_search
+
+chat = ChatOpenAI()
+chat.register_tool(tool_web_search())
+chat.chat("What are the top news stories today?")
+```
+
+These tools translate to each provider's native format automatically.
+See the function reference for supported providers and configuration options.
+
+::: callout-note
+For providers without native fetch support (like OpenAI), you can use the [MCP Fetch server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch) via `register_mcp_tools_stdio_async()`.
+See the [MCP tools guide](../misc/mcp-tools.qmd) for more details.
+:::
+
+
 ### Tool errors
 
 When a tool function is called, it may fail for various reasons, such as network issues, invalid input, or unexpected exceptions.
