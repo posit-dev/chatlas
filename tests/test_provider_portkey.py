@@ -1,6 +1,12 @@
 import os
 
 import pytest
+
+# Skip if PORTKEY_API_KEY is not set or empty
+api_key = os.getenv("PORTKEY_API_KEY", "")
+if not api_key:
+    pytest.skip("PORTKEY_API_KEY is not set; skipping tests", allow_module_level=True)
+
 from chatlas import ChatPortkey
 
 from .conftest import (
@@ -16,10 +22,6 @@ from .conftest import (
     assert_turns_system,
 )
 
-api_key = os.getenv("PORTKEY_API_KEY")
-if api_key is None:
-    pytest.skip("PORTKEY_API_KEY is not set; skipping tests", allow_module_level=True)
-
 
 def _chat_portkey_test(**kwargs):
     model = kwargs.pop("model", "@openai/gpt-4o-mini")
@@ -29,7 +31,6 @@ def _chat_portkey_test(**kwargs):
     return ChatPortkey(model=model, system_prompt=system_prompt, **kwargs)
 
 
-@pytest.mark.vcr
 def test_portkey_simple_request():
     chat = _chat_portkey_test()
     response = chat.chat("What is 1 + 1?")
@@ -42,7 +43,6 @@ def test_portkey_simple_request():
     assert all(token > 0 for token in turn.tokens[:2])
 
 
-@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_portkey_simple_streaming_request():
     chat = _chat_portkey_test()
@@ -52,7 +52,6 @@ async def test_portkey_simple_streaming_request():
     assert "2" in "".join(res)
 
 
-@pytest.mark.vcr
 def test_portkey_respects_turns_interface():
     def chat_fun(**kwargs):
         return _chat_portkey_test(**kwargs)
@@ -61,7 +60,6 @@ def test_portkey_respects_turns_interface():
     assert_turns_existing(chat_fun)
 
 
-@pytest.mark.vcr
 def test_portkey_tool_variations():
     def chat_fun(**kwargs):
         return _chat_portkey_test(**kwargs)
@@ -72,7 +70,6 @@ def test_portkey_tool_variations():
     assert_tools_sequential(chat_fun, total_calls=6)
 
 
-@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_portkey_tool_variations_async():
     def chat_fun(**kwargs):
@@ -81,7 +78,6 @@ async def test_portkey_tool_variations_async():
     await assert_tools_async(chat_fun)
 
 
-@pytest.mark.vcr
 def test_portkey_data_extraction():
     def chat_fun(**kwargs):
         return _chat_portkey_test(**kwargs)
@@ -89,7 +85,6 @@ def test_portkey_data_extraction():
     assert_data_extraction(chat_fun)
 
 
-@pytest.mark.vcr
 def test_portkey_images():
     def chat_fun(**kwargs):
         return _chat_portkey_test(**kwargs)
