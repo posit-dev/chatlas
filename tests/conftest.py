@@ -284,13 +284,16 @@ def assert_data_extraction(chat_fun: ChatFun):
         title: str
         author: str
 
-    article = """
-    # Apples are tasty
-
-    By Hadley Wickham
-    Apples are delicious and tasty and I like to eat them.
-    Except for red delicious, that is. They are NOT delicious.
-    """
+    # fmt: off
+    article = (
+        "\n"
+        "# Apples are tasty\n"
+        "\n"
+        "By Hadley Wickham\n"
+        "Apples are delicious and tasty and I like to eat them.\n"
+        "Except for red delicious, that is. They are NOT delicious.\n"
+    )
+    # fmt: on
 
     chat = chat_fun()
     data = chat.chat_structured(article, data_model=ArticleSummary)
