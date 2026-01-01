@@ -178,6 +178,8 @@ chatlas.Provider.model py:attribute 1 reference/Provider.html#chatlas.Provider.m
 chatlas._provider.Provider.model py:attribute 1 reference/Provider.html#chatlas.Provider.model chatlas.Provider.model
 chatlas.Provider.name py:attribute 1 reference/Provider.html#chatlas.Provider.name -
 chatlas._provider.Provider.name py:attribute 1 reference/Provider.html#chatlas.Provider.name chatlas.Provider.name
+chatlas.Provider.value_cost py:function 1 reference/Provider.html#chatlas.Provider.value_cost -
+chatlas._provider.Provider.value_cost py:function 1 reference/Provider.html#chatlas.Provider.value_cost chatlas.Provider.value_cost
 chatlas.Provider py:class 1 reference/Provider.html#chatlas.Provider -
 chatlas._provider.Provider py:class 1 reference/Provider.html#chatlas.Provider chatlas.Provider
 chatlas.types.Content py:class 1 reference/types.Content.html#chatlas.types.Content -

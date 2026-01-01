@@ -679,7 +679,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="chatlas.ChatGoogle" class="level1">
 <h1>ChatGoogle</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ChatGoogle(system_prompt<span class="op">=</span><span class="va">None</span>, model<span class="op">=</span><span class="va">None</span>, api_key<span class="op">=</span><span class="va">None</span>, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ChatGoogle(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    reasoning<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    api_key<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Chat with a Google Gemini model.</p>
 <section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
 <h2 class="doc-section doc-section-prerequisites anchored" data-anchor-id="prerequisites">Prerequisites</h2>
@@ -743,12 +749,18 @@ Python requirements
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
+<td>reasoning</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['int | ThinkingConfigDict']</td>
+<td>If provided, enables reasoning (a.k.a. “thoughts”) in the model’s responses. This can be an integer number of tokens to use for reasoning, or a full <code>ThinkingConfigDict</code> to customize the reasoning behavior.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
 <td>api_key</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
 <td>The API key to use for authentication. You generally should not supply this directly, but instead set the <code>GOOGLE_API_KEY</code> environment variable.</td>
 <td><code>None</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>kwargs</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['ChatClientArgs']</td>
 <td>Additional arguments to pass to the <code>genai.Client</code> constructor.</td>

@@ -672,6 +672,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#chatlas.Provider.batch_submit" id="toc-chatlas.Provider.batch_submit" class="nav-link" data-scroll-target="#chatlas.Provider.batch_submit">batch_submit</a></li>
   <li><a href="#chatlas.Provider.has_batch_support" id="toc-chatlas.Provider.has_batch_support" class="nav-link" data-scroll-target="#chatlas.Provider.has_batch_support">has_batch_support</a></li>
   <li><a href="#chatlas.Provider.list_models" id="toc-chatlas.Provider.list_models" class="nav-link" data-scroll-target="#chatlas.Provider.list_models">list_models</a></li>
+  <li><a href="#chatlas.Provider.value_cost" id="toc-chatlas.Provider.value_cost" class="nav-link" data-scroll-target="#chatlas.Provider.value_cost">value_cost</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -748,6 +749,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><a href="#chatlas.Provider.list_models">list_models</a></td>
 <td>List all available models for the provider.</td>
 </tr>
+<tr class="even">
+<td><a href="#chatlas.Provider.value_cost">value_cost</a></td>
+<td>Compute the cost for a completion.</td>
+</tr>
 </tbody>
 </table>
 <section id="chatlas.Provider.batch_poll" class="level3">
@@ -794,8 +799,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="chatlas.Provider.list_models">list_models</h3>
 <div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Provider.list_models()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>List all available models for the provider.</p>
+</section>
+<section id="chatlas.Provider.value_cost" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Provider.value_cost">value_cost</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Provider.value_cost(completion, tokens<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Compute the cost for a completion.</p>
+<section id="parameters" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>completion</td>
+<td><code>ChatCompletionT</code></td>
+<td>The completion object from the provider.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>tokens</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#tuple">tuple</a>[<a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>, <a href="https://docs.python.org/3/library/functions.html#int">int</a>] | None</td>
+<td>Optional pre-computed tokens tuple. If not provided, will be extracted from the completion.</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td><a href="https://docs.python.org/3/library/functions.html#float">float</a> | None</td>
+<td>The cost in USD, or None if cost cannot be computed.</td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 </section>
 </section>
 </section>

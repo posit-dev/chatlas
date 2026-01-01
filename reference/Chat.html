@@ -1570,7 +1570,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="chatlas.Chat.get_cost" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.get_cost">get_cost</h3>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Chat.get_cost(options<span class="op">=</span><span class="st">'all'</span>, token_price<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Chat.get_cost(include<span class="op">=</span><span class="st">'all'</span>, token_price<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Estimate the cost of the chat.</p>
 <section id="note-1" class="level4 doc-section doc-section-note">
 <h4 class="doc-section doc-section-note anchored" data-anchor-id="note-1">Note</h4>
@@ -1589,7 +1589,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td>options</td>
+<td>include</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['all', 'last']</td>
 <td>One of the following (default is “all”): - <code>"all"</code>: Return the total cost of all turns in the chat. - <code>"last"</code>: Return the cost of the last turn in the chat.</td>
 <td><code>'all'</code></td>
@@ -1709,8 +1709,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td></td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool">Tool</a>]</td>
-<td>A list of <code>Tool</code> instances that are currently registered with the chat.</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool">Tool</a> | <code>ToolBuiltIn</code>]</td>
+<td>A list of <code>Tool</code> or <code>ToolBuiltIn</code> instances that are currently registered with the chat.</td>
 </tr>
 </tbody>
 </table>
