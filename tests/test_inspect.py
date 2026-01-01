@@ -20,6 +20,33 @@ from chatlas._inspect import (
 
 pytest.importorskip("inspect_ai")
 
+
+# Override VCR config for inspect tests - don't match on body since inspect_ai
+# includes dynamic IDs in the request body that change between runs
+@pytest.fixture(scope="module")
+def vcr_config():
+    return {
+        "filter_headers": [
+            "authorization",
+            "x-api-key",
+            "api-key",
+            "openai-organization",
+            "x-goog-api-key",
+            "x-stainless-arch",
+            "x-stainless-lang",
+            "x-stainless-os",
+            "x-stainless-package-version",
+            "x-stainless-runtime",
+            "x-stainless-runtime-version",
+            "x-stainless-retry-count",
+            "user-agent",
+        ],
+        "filter_post_data_parameters": ["api_key"],
+        "decode_compressed_response": True,
+        # Don't match on body - inspect_ai includes dynamic IDs
+        "match_on": ["method", "scheme", "host", "port", "path"],
+    }
+
 import inspect_ai.model as i_model
 from inspect_ai import Task
 from inspect_ai import eval as inspect_eval
@@ -252,6 +279,7 @@ class TestExportEval:
 
 
 class TestInspectIntegration:
+    @pytest.mark.vcr
     def test_basic_eval(self):
         chat = chat_func(system_prompt=SYSTEM_DEFAULT)
 
@@ -266,6 +294,7 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
+    @pytest.mark.vcr
     def test_system_prompt_override(self):
         chat = chat_func(system_prompt="You are Chuck Norris.")
 
@@ -285,6 +314,7 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
+    @pytest.mark.vcr
     def test_existing_turns(self):
         chat = chat_func(system_prompt=SYSTEM_DEFAULT)
 
@@ -311,6 +341,7 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
+    @pytest.mark.vcr
     def test_tool_calling(self):
         chat = chat_func(system_prompt=SYSTEM_DEFAULT)
 
@@ -336,6 +367,7 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
+    @pytest.mark.vcr
     def test_multiple_samples_state_management(self):
         """Test that solver has independent state across multiple samples."""
 
@@ -367,6 +399,7 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
+    @pytest.mark.vcr
     def test_multiple_tools_multiple_samples(self):
         def get_weather():
             """Get current weather data for various cities."""

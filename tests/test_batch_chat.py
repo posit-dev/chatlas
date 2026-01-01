@@ -13,6 +13,32 @@ from chatlas._provider import BatchStatus
 from pydantic import BaseModel
 
 
+# Override VCR config for batch tests - don't match on body since temp filenames are dynamic
+@pytest.fixture(scope="module")
+def vcr_config():
+    return {
+        "filter_headers": [
+            "authorization",
+            "x-api-key",
+            "api-key",
+            "openai-organization",
+            "x-goog-api-key",
+            "x-stainless-arch",
+            "x-stainless-lang",
+            "x-stainless-os",
+            "x-stainless-package-version",
+            "x-stainless-runtime",
+            "x-stainless-runtime-version",
+            "x-stainless-retry-count",
+            "user-agent",
+        ],
+        "filter_post_data_parameters": ["api_key"],
+        "decode_compressed_response": True,
+        # Don't match on body - temp file names are dynamic
+        "match_on": ["method", "scheme", "host", "port", "path"],
+    }
+
+
 class CountryCapital(BaseModel):
     name: str
 
@@ -72,6 +98,7 @@ def test_can_submit_openai_batch():
         assert job.stage == "waiting"
 
 
+@pytest.mark.vcr
 def test_can_submit_anthropic_batch():
     with tempfile.NamedTemporaryFile() as temp_file:
         chat = ChatAnthropic()
