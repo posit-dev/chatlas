@@ -7,13 +7,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The project uses `uv` for package management and Make for common tasks:
 
 - **Setup environment**: `make setup` (installs all dependencies with `uv sync --all-extras`)
-- **Run tests**: `make check-tests` or `uv run pytest`
+- **Run tests**: `make check-tests` or `uv run pytest` (uses VCR cassettes by default)
 - **Type checking**: `make check-types` or `uv run pyright`
 - **Linting/formatting**: `make check-format` (check) or `make format` (fix)
 - **Full checks**: `make check` (runs format, type, and test checks)
 - **Build package**: `make build` (creates dist/ with built package)
 - **Run single test**: `uv run pytest tests/test_specific_file.py::TestClass::test_method -v`
 - **Update snapshots**: `make update-snaps` (for syrupy snapshot tests)
+- **Update VCR cassettes**: `make update-snaps-vcr` (re-records HTTP interactions, requires API keys)
+- **Check VCR secrets**: `make check-vcr-secrets` (scans cassettes for leaked credentials)
 - **Documentation**: `make docs` (build) or `make docs-preview` (serve locally)
 
 ## Project Architecture
@@ -55,6 +57,46 @@ The project uses `uv` for package management and Make for common tasks:
 - Snapshot testing with `syrupy` for response validation
 - MCP server tests use local test servers in `tests/mcp_servers/`
 - Async tests configured via `pytest.ini` with `asyncio_mode=strict`
+
+### VCR Testing (HTTP Recording/Replay)
+
+Tests use [pytest-recording](https://github.com/kiwicom/pytest-recording) (wrapping vcrpy) to record and replay HTTP interactions:
+
+- **Cassettes**: YAML files stored in `tests/_vcr/` organized by test module
+- **Default mode**: Tests replay cassettes without making live API calls
+- **Recording**: Use `make update-snaps-vcr` or `uv run pytest --record-mode=rewrite` (requires real API keys)
+- **Dummy credentials**: Auto-set by `conftest.py` when env vars are missing, enabling VCR replay without secrets
+
+**Adding VCR to tests**:
+```python
+from .conftest import make_vcr_config, VCR_MATCH_ON_WITHOUT_BODY
+
+# Most tests use default config (matches on request body)
+@pytest.mark.vcr
+def test_provider_simple():
+    ...
+
+# For tests with dynamic request bodies (temp files, generated IDs)
+@pytest.fixture(scope="module")
+def vcr_config():
+    return make_vcr_config(match_on=VCR_MATCH_ON_WITHOUT_BODY)
+```
+
+**Tests requiring live API** (skip in VCR mode):
+```python
+from .conftest import is_dummy_credential
+
+@pytest.mark.skipif(
+    is_dummy_credential("ANTHROPIC_API_KEY"),
+    reason="This test requires live API calls",
+)
+def test_multi_sample():
+    ...
+```
+
+**Providers incompatible with VCR**: Bedrock and Snowflake require live API tests due to auth mechanisms.
+
+See `docs/dev/vcr-tests.md` for comprehensive documentation.
 
 ### Documentation
 
@@ -112,18 +154,31 @@ When implementing a new LLM provider, follow this systematic approach:
    ```python
    import os
    import pytest
-   
+
    do_test = os.getenv("TEST_[NAME]", "true")
    if do_test.lower() == "false":
        pytest.skip("Skipping [Name] tests", allow_module_level=True)
    ```
-3. **Use standard test patterns**:
+3. **Add VCR support** (for most providers):
+   ```python
+   @pytest.mark.vcr
+   def test_[name]_simple_request():
+       ...
+   ```
+   For async tests, put `@pytest.mark.vcr` before `@pytest.mark.asyncio`.
+4. **Use standard test patterns**:
    - `test_[name]_simple_request()`
-   - `test_[name]_simple_streaming_request()`  
+   - `test_[name]_simple_streaming_request()`
    - `test_[name]_respects_turns_interface()`
    - `test_[name]_tool_variations()` (if supported)
    - `test_data_extraction()`
    - `test_[name]_images()` (if vision supported)
+5. **Record VCR cassettes**:
+   ```bash
+   # Set real API key, then record
+   export [PROVIDER]_API_KEY="..."
+   uv run pytest tests/test_provider_[name].py -v --record-mode=rewrite
+   ```
 
 ### 4. Package Integration
 1. **Update `chatlas/__init__.py`**:
@@ -133,8 +188,9 @@ When implementing a new LLM provider, follow this systematic approach:
 2. **Run validation**:
    ```bash
    uv run pyright chatlas/_provider_[name].py
-   TEST_[NAME]=false uv run pytest tests/test_provider_[name].py -v
+   uv run pytest tests/test_provider_[name].py -v  # Replays VCR cassettes
    uv run python -c "from chatlas import Chat[Name]; print('Import successful')"
+   make check-vcr-secrets  # Ensure no secrets leaked in cassettes
    ```
 
 ### 5. Provider-Specific Customizations
