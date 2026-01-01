@@ -1,6 +1,7 @@
 import pytest
 from chatlas import ChatBedrockAnthropic
 
+from ._vcr_helpers_aws import _filter_aws_response, _scrub_aws_request
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -12,7 +13,17 @@ from .conftest import (
     assert_tools_simple,
     assert_turns_existing,
     assert_turns_system,
+    make_vcr_config,
 )
+
+
+@pytest.fixture(scope="module")
+def vcr_config():
+    """AWS-specific VCR configuration with credential scrubbing."""
+    config = make_vcr_config()
+    config["before_record_response"] = _filter_aws_response
+    config["before_record_request"] = _scrub_aws_request
+    return config
 
 try:
     chat = ChatBedrockAnthropic()
