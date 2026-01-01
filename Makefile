@@ -71,6 +71,20 @@ update-snaps-vcr:
 	@echo "📼 Updating VCR cassettes"
 	uv run pytest --record-mode=rewrite
 
+.PHONY: check-vcr-secrets
+check-vcr-secrets:  ## [py] Check VCR cassettes for leaked secrets
+	@echo "🔍 Checking VCR cassettes for potential secrets..."
+	@if grep -rE "sk-[a-zA-Z0-9]{20,}" tests/_vcr/ 2>/dev/null; then \
+		echo "❌ Found potential OpenAI API key!"; exit 1; \
+	fi
+	@if grep -rE "key-[a-zA-Z0-9]{20,}" tests/_vcr/ 2>/dev/null; then \
+		echo "❌ Found potential API key!"; exit 1; \
+	fi
+	@if grep -rE "Bearer [a-zA-Z0-9_-]{20,}" tests/_vcr/ 2>/dev/null; then \
+		echo "❌ Found potential Bearer token!"; exit 1; \
+	fi
+	@echo "✅ No secrets found in VCR cassettes"
+
 .PHONY: update-types
 update-types:
 	@echo "📝 Updating chat provider types"

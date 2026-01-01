@@ -143,15 +143,31 @@ def vcr_config():
 Some tests involve multiple API calls where response ordering matters. These should skip VCR and run live only:
 
 ```python
-import os
+from .conftest import is_dummy_credential
 
 @pytest.mark.skipif(
-    os.environ.get("ANTHROPIC_API_KEY", "").startswith("dummy"),
+    is_dummy_credential("ANTHROPIC_API_KEY"),
     reason="Multi-sample tests require live API (VCR response ordering is unreliable)",
 )
 def test_multiple_samples():
     ...
 ```
+
+### For flaky API tests
+
+Some API tests may fail intermittently due to rate limiting or transient errors. Use the `retry_api_call` decorator:
+
+```python
+from .conftest import retry_api_call
+
+@pytest.mark.vcr
+@retry_api_call
+def test_flaky_api_call():
+    # This will retry up to 3 times with exponential backoff
+    ...
+```
+
+The decorator uses exponential backoff (1-60 seconds) and stops after 3 attempts.
 
 ## Provider Status
 
@@ -184,19 +200,24 @@ The VCR configuration automatically filters sensitive data:
 - Various `x-stainless-*` headers
 - AWS headers (`x-amz-sso_bearer_token`, etc.)
 
-### Always verify before committing
+### Verify before committing
+
+Always check for leaked secrets before committing cassettes:
 
 ```bash
-# Check for API keys
-grep -r "sk-" tests/_vcr/
-grep -r "api_key" tests/_vcr/
+# Quick check using make target
+make check-vcr-secrets
+
+# Or manually
+grep -rE "sk-[a-zA-Z0-9]{20,}" tests/_vcr/
+grep -rE "key-[a-zA-Z0-9]{20,}" tests/_vcr/
 ```
 
 ## CI Workflows
 
 ### `test.yml` (VCR replay)
 - Runs on every PR/push
-- Uses dummy API keys set in the workflow
+- Uses dummy API keys (set automatically by `conftest.py` if not in environment)
 - Replays cassettes, no live API calls
 
 ### `test-live.yml` (live API)
