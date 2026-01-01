@@ -96,10 +96,10 @@ class HTTPSessionInfo(SessionInfo):
 
     async def open_session(self):
         mcp = try_import_mcp()
-        from mcp.client.streamable_http import streamablehttp_client
+        from mcp.client.streamable_http import streamable_http_client
 
         read, write, _ = await self.exit_stack.enter_async_context(
-            streamablehttp_client(
+            streamable_http_client(
                 self.url,
                 **self.transport_kwargs,
             )
