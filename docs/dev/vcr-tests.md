@@ -205,13 +205,21 @@ The VCR configuration automatically filters sensitive data:
 Always check for leaked secrets before committing cassettes:
 
 ```bash
-# Quick check using make target
+# Quick grep check for common patterns
 make check-vcr-secrets
 
-# Or manually
-grep -rE "sk-[a-zA-Z0-9]{20,}" tests/_vcr/
-grep -rE "key-[a-zA-Z0-9]{20,}" tests/_vcr/
+# Thorough Claude-based scan (catches unknown key formats)
+make check-vcr-secrets-ai
 ```
+
+The Claude-based scan is especially useful when adding new providers, as it can identify credential patterns that grep might miss.
+
+### CI secret scanning
+
+The `check-vcr-secrets.yml` workflow automatically scans cassettes when they change:
+- Runs on PRs and pushes that modify `tests/_vcr/`
+- First runs quick grep patterns (no API key needed)
+- Then runs Claude-based scan (requires `ANTHROPIC_API_KEY` secret)
 
 ## CI Workflows
 

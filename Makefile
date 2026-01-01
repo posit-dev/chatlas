@@ -72,8 +72,8 @@ update-snaps-vcr:
 	uv run pytest --record-mode=rewrite
 
 .PHONY: check-vcr-secrets
-check-vcr-secrets:  ## [py] Check VCR cassettes for leaked secrets
-	@echo "🔍 Checking VCR cassettes for potential secrets..."
+check-vcr-secrets:  ## [py] Quick grep check for common secret patterns
+	@echo "🔍 Quick check for common secret patterns..."
 	@if grep -rE "sk-[a-zA-Z0-9]{20,}" tests/_vcr/ 2>/dev/null; then \
 		echo "❌ Found potential OpenAI API key!"; exit 1; \
 	fi
@@ -83,7 +83,12 @@ check-vcr-secrets:  ## [py] Check VCR cassettes for leaked secrets
 	@if grep -rE "Bearer [a-zA-Z0-9_-]{20,}" tests/_vcr/ 2>/dev/null; then \
 		echo "❌ Found potential Bearer token!"; exit 1; \
 	fi
-	@echo "✅ No secrets found in VCR cassettes"
+	@echo "✅ No common secret patterns found"
+
+.PHONY: check-vcr-secrets-ai
+check-vcr-secrets-ai:  ## [py] Thorough Claude-based secret scan (requires ANTHROPIC_API_KEY)
+	@echo "🤖 Running Claude-based secret scan..."
+	uv run python scripts/check_vcr_secrets.py
 
 .PHONY: update-types
 update-types:
