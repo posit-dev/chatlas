@@ -4,12 +4,15 @@ import inspect
 import warnings
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     AsyncGenerator,
     Awaitable,
     Callable,
     Optional,
     cast,
+    get_args,
+    get_origin,
 )
 
 import openai
@@ -331,11 +334,15 @@ def func_to_schema(
 
 
 def func_to_basemodel(func: Callable) -> type[BaseModel]:
+    from pydantic.fields import FieldInfo
+    from pydantic_core import PydanticUndefined
+
     params = inspect.signature(func).parameters
     fields = {}
 
     for name, param in params.items():
         annotation = param.annotation
+        annotated_field: Optional[FieldInfo] = None
 
         if annotation == inspect.Parameter.empty:
             warnings.warn(
@@ -343,6 +350,15 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
                 "Using `Any` as a fallback."
             )
             annotation = Any
+        # Check if annotation is Annotated[...] and extract Field metadata
+        elif get_origin(annotation) is Annotated:
+            args = get_args(annotation)
+            # First arg is the actual type, rest are metadata
+            annotation = args[0]
+            for metadata in args[1:]:
+                if isinstance(metadata, FieldInfo):
+                    annotated_field = metadata
+                    break
 
         # create_model() will error if the field name starts with `_` (since Pydantic
         # uses this to indicate private fields). We can work around this by using an alias.
@@ -352,7 +368,32 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
         else:
             field_name, alias = (name, None)
 
-        if param.default != inspect.Parameter.empty:
+        # Build the field, merging Annotated metadata with function signature defaults
+        if annotated_field is not None:
+            # Start with the annotated field and potentially override alias/default
+            field_kwargs: dict[str, Any] = {}
+
+            # Copy over important properties from the annotated field
+            if annotated_field.description is not None:
+                field_kwargs["description"] = annotated_field.description
+            if annotated_field.default is not PydanticUndefined:
+                field_kwargs["default"] = annotated_field.default
+            if annotated_field.default_factory is not None:
+                field_kwargs["default_factory"] = annotated_field.default_factory
+
+            # Handle alias: prefer explicit alias from param name (for _prefix handling)
+            # but if no alias needed and annotated field has one, use that
+            if alias is not None:
+                field_kwargs["alias"] = alias
+            elif annotated_field.alias is not None:
+                field_kwargs["alias"] = annotated_field.alias
+
+            # Function signature default takes precedence
+            if param.default != inspect.Parameter.empty:
+                field_kwargs["default"] = param.default
+
+            field = Field(**field_kwargs)
+        elif param.default != inspect.Parameter.empty:
             field = Field(default=param.default, alias=alias)
         else:
             field = Field(alias=alias)

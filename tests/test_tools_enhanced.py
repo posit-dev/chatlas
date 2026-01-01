@@ -1,3 +1,5 @@
+from typing import Annotated
+
 import pytest
 from chatlas import ChatOpenAI
 from chatlas._content import ToolInfo
@@ -212,6 +214,170 @@ class TestToolFromFunc:
         assert tool._is_async is True
         func = tool.schema["function"]
         assert func.get("description") == "Add two numbers asynchronously."
+
+
+class TestAnnotatedParameters:
+    """Test support for typing.Annotated with pydantic.Field for parameter descriptions."""
+
+    def test_annotated_field_descriptions(self):
+        """Test that Field descriptions in Annotated types are extracted."""
+
+        def add_numbers(
+            x: Annotated[int, Field(description="The first number to be added")],
+            y: Annotated[int, Field(description="The second number to be added")],
+        ) -> int:
+            """Add two numbers"""
+            return x + y
+
+        tool = Tool.from_func(add_numbers)
+
+        assert tool.name == "add_numbers"
+        func = tool.schema["function"]
+        assert func.get("description") == "Add two numbers"
+
+        params = func.get("parameters", {})
+        props = params["properties"]
+        assert props["x"]["description"] == "The first number to be added"
+        assert props["y"]["description"] == "The second number to be added"
+        assert props["x"]["type"] == "integer"
+        assert props["y"]["type"] == "integer"
+
+    def test_annotated_with_default_value(self):
+        """Test Annotated parameters with default values in function signature."""
+
+        def greet(
+            name: Annotated[str, Field(description="Name to greet")],
+            greeting: Annotated[str, Field(description="Greeting phrase")] = "Hello",
+        ) -> str:
+            """Generate a greeting"""
+            return f"{greeting}, {name}!"
+
+        tool = Tool.from_func(greet)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+
+        # Check descriptions are preserved
+        props = params["properties"]
+        assert props["name"]["description"] == "Name to greet"
+        assert props["greeting"]["description"] == "Greeting phrase"
+        # Default value is preserved in schema
+        assert props["greeting"]["default"] == "Hello"
+
+    def test_annotated_with_field_default(self):
+        """Test Annotated parameters with default in Field (not function signature)."""
+
+        def process(
+            value: Annotated[int, Field(description="Value to process", default=42)],
+        ) -> int:
+            """Process a value"""
+            return value * 2
+
+        tool = Tool.from_func(process)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+
+        props = params["properties"]
+        assert props["value"]["description"] == "Value to process"
+        assert props["value"]["default"] == 42
+
+    def test_annotated_function_default_overrides_field_default(self):
+        """Test that function signature default takes precedence over Field default."""
+
+        def example(
+            x: Annotated[int, Field(description="A number", default=10)] = 20,
+        ) -> int:
+            """Example function"""
+            return x
+
+        tool = Tool.from_func(example)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+
+        props = params["properties"]
+        # Function signature default (20) should override Field default (10)
+        assert props["x"]["default"] == 20
+
+    def test_mixed_annotated_and_regular_parameters(self):
+        """Test functions with both Annotated and regular parameters."""
+
+        def mixed_func(
+            described: Annotated[str, Field(description="A described parameter")],
+            plain: int,
+        ) -> str:
+            """Function with mixed parameter styles"""
+            return f"{described}: {plain}"
+
+        tool = Tool.from_func(mixed_func)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+        props = params["properties"]
+
+        # Annotated param should have description
+        assert props["described"]["description"] == "A described parameter"
+
+        # Plain param should not have description
+        assert "description" not in props["plain"]
+
+    def test_annotated_with_underscore_prefix(self):
+        """Test Annotated parameters with underscore prefix (private-style names)."""
+
+        def func_with_private(
+            _private: Annotated[int, Field(description="A private-style param")],
+        ) -> int:
+            """Function with underscore-prefixed param"""
+            return _private
+
+        tool = Tool.from_func(func_with_private)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+        props = params["properties"]
+
+        # Schema uses the alias (_private) as the property key
+        assert "_private" in props
+        assert props["_private"]["description"] == "A private-style param"
+
+    def test_annotated_registration_via_chat(self):
+        """Test that Annotated tools work when registered via Chat.register_tool()."""
+        chat = ChatOpenAI()
+
+        def add_numbers(
+            x: Annotated[int, Field(description="The first number")],
+            y: Annotated[int, Field(description="The second number")],
+        ) -> int:
+            """Add two numbers"""
+            return x + y
+
+        chat.register_tool(add_numbers)
+
+        tools = chat.get_tools()
+        assert len(tools) == 1
+
+        tool = tools[0]
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+        props = params["properties"]
+
+        assert props["x"]["description"] == "The first number"
+        assert props["y"]["description"] == "The second number"
+
+    def test_annotated_with_complex_types(self):
+        """Test Annotated with more complex types."""
+        from typing import Optional
+
+        def search(
+            query: Annotated[str, Field(description="Search query string")],
+            limit: Annotated[Optional[int], Field(description="Maximum results")] = None,
+        ) -> str:
+            """Search for items"""
+            return f"Searching: {query}"
+
+        tool = Tool.from_func(search)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+        props = params["properties"]
+
+        assert props["query"]["description"] == "Search query string"
+        assert props["limit"]["description"] == "Maximum results"
 
 
 class TestChatGetSetTools:
