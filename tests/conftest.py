@@ -3,6 +3,20 @@ from pathlib import Path
 from typing import Callable
 
 import pytest
+from chatlas import (
+    AssistantTurn,
+    Chat,
+    ContentToolRequest,
+    ContentToolResult,
+    UserTurn,
+    content_image_file,
+    content_image_url,
+    content_pdf_file,
+)
+from pydantic import BaseModel
+from tenacity import retry, stop_after_attempt, wait_exponential
+
+ChatFun = Callable[..., Chat]
 
 # ---------------------------------------------------------------------------
 # Dummy API keys for VCR replay testing
@@ -28,11 +42,39 @@ _DUMMY_CREDENTIALS = {
 }
 
 
+# Pytest initialization hook to fallback to dummy credentials
+# (this is needed since some SDKs will fail before preparing the request if no key is set)
 def pytest_configure(config):
-    """Set dummy API keys for VCR replay if not already set."""
     for key, value in _DUMMY_CREDENTIALS.items():
         if key not in os.environ:
             os.environ[key] = value
+
+
+# Pytest hook to provide helpful message when VCR cassette is missing.
+# https://docs.pytest.org/en/latest/reference/reference.html#pytest.hookspec.pytest_exception_interact
+def pytest_exception_interact(node, call, report):
+    if call.excinfo is not None:
+        exc_str = str(call.excinfo.value)
+        if (
+            "CannotOverwriteExistingCassetteException" in exc_str
+            or "Can't find" in exc_str
+        ):
+            print("\n" + "=" * 60)
+            print("VCR CASSETTE MISSING OR OUTDATED")
+            print("=" * 60)
+            print("To record/update all cassettes, run locally with API keys:")
+            print("  make update-snaps-vcr")
+            print("")
+            print("Or record a specific test file:")
+            print(
+                "  uv run pytest tests/test_provider_openai.py -v --record-mode=rewrite"
+            )
+            print("")
+            print("Or record a single test:")
+            print(
+                "  uv run pytest tests/test_provider_openai.py::test_openai_simple_request -v --record-mode=rewrite"
+            )
+            print("=" * 60 + "\n")
 
 
 def is_dummy_credential(env_var: str) -> bool:
@@ -50,41 +92,13 @@ def is_dummy_credential(env_var: str) -> bool:
         def test_something():
             ...
     """
+    if env_var not in _DUMMY_CREDENTIALS:
+        raise ValueError(
+            f"No dummy credential defined for environment variable: {env_var}"
+        )
+    dummy_value = _DUMMY_CREDENTIALS[env_var]
     value = os.environ.get(env_var, "")
-    dummy_value = _DUMMY_CREDENTIALS.get(env_var, "")
-    return value == dummy_value or value.startswith("dummy")
-
-
-from chatlas import (
-    AssistantTurn,
-    Chat,
-    ContentToolRequest,
-    ContentToolResult,
-    UserTurn,
-    content_image_file,
-    content_image_url,
-    content_pdf_file,
-)
-from pydantic import BaseModel
-from tenacity import retry, stop_after_attempt, wait_exponential
-
-ChatFun = Callable[..., Chat]
-
-
-class ArticleSummary(BaseModel):
-    """Summary of the article"""
-
-    title: str
-    author: str
-
-
-article = """
-# Apples are tasty
-
-By Hadley Wickham
-Apples are delicious and tasty and I like to eat them.
-Except for red delicious, that is. They are NOT delicious.
-"""
+    return value == dummy_value
 
 
 def assert_turns_system(chat_fun: ChatFun):
@@ -264,6 +278,20 @@ def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = 
 
 
 def assert_data_extraction(chat_fun: ChatFun):
+    class ArticleSummary(BaseModel):
+        """Summary of the article"""
+
+        title: str
+        author: str
+
+    article = """
+    # Apples are tasty
+
+    By Hadley Wickham
+    Apples are delicious and tasty and I like to eat them.
+    Except for red delicious, that is. They are NOT delicious.
+    """
+
     chat = chat_fun()
     data = chat.chat_structured(article, data_model=ArticleSummary)
     assert isinstance(data, ArticleSummary)
@@ -427,7 +455,7 @@ def make_vcr_config(match_on: list[str] = VCR_MATCH_ON_DEFAULT) -> dict:
             "x-stainless-runtime-version",
             "x-stainless-retry-count",
             "user-agent",
-            # AWS Bedrock headers (kept here for convenience, harmless for non-AWS tests)
+            # AWS Bedrock headers
             "x-amz-sso_bearer_token",
             "X-Amz-Security-Token",
             "amz-sdk-invocation-id",
@@ -451,25 +479,3 @@ def vcr_cassette_dir(request):
     """Store cassettes in per-module directories."""
     module_name = request.module.__name__.split(".")[-1]
     return os.path.join(os.path.dirname(__file__), "_vcr", module_name)
-
-
-def pytest_exception_interact(node, call, report):
-    """Provide helpful message when VCR cassette is missing."""
-    if call.excinfo is not None:
-        exc_str = str(call.excinfo.value)
-        if (
-            "CannotOverwriteExistingCassetteException" in exc_str
-            or "Can't find" in exc_str
-        ):
-            print("\n" + "=" * 60)
-            print("VCR CASSETTE MISSING OR OUTDATED")
-            print("=" * 60)
-            print("To record/update all cassettes, run locally with API keys:")
-            print("  make update-snaps-vcr")
-            print("")
-            print("Or record a specific test file:")
-            print("  uv run pytest tests/test_provider_openai.py -v --record-mode=rewrite")
-            print("")
-            print("Or record a single test:")
-            print("  uv run pytest tests/test_provider_openai.py::test_openai_simple_request -v --record-mode=rewrite")
-            print("=" * 60 + "\n")

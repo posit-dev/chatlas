@@ -17,7 +17,6 @@ import sys
 from pathlib import Path
 
 import anthropic
-
 from chatlas import ChatAnthropic
 
 VCR_DIR = Path(__file__).parent.parent / "tests" / "_vcr"
@@ -104,16 +103,14 @@ def main():
 
     print("Scanning VCR cassettes for potential secrets...")
 
-    # Read all cassettes
     file_contents = read_cassettes(args.vcr_dir, args.verbose)
 
     if not file_contents:
         print("No cassette files found.")
         return 0
 
-    # Scan with Claude
     chat = ChatAnthropic(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-5",
         system_prompt=SYSTEM_PROMPT,
     )
 
