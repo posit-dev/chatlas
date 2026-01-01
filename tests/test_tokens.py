@@ -13,6 +13,16 @@ from chatlas._tokens import (
 )
 from pydantic import BaseModel
 
+from .conftest import make_vcr_config
+
+
+# Allow tiktoken to download encoding files from openaipublic.blob.core.windows.net
+@pytest.fixture(scope="module")
+def vcr_config():
+    config = make_vcr_config()
+    config["ignore_hosts"] = ["openaipublic.blob.core.windows.net"]
+    return config
+
 
 def test_tokens_method():
     chat = ChatOpenAI(api_key="fake_key")
