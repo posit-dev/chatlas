@@ -1,4 +1,4 @@
-import tempfile
+import os
 from pathlib import Path
 from typing import Callable
 
@@ -13,27 +13,92 @@ from chatlas import (
     content_image_url,
     content_pdf_file,
 )
-from PIL import Image
 from pydantic import BaseModel
-from tenacity import retry, wait_exponential
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 ChatFun = Callable[..., Chat]
 
+# ---------------------------------------------------------------------------
+# Dummy API keys for VCR replay testing
+# ---------------------------------------------------------------------------
+# These are set if not already present, allowing VCR tests to run without
+# real credentials. When recording cassettes, set real API keys in your env.
 
-class ArticleSummary(BaseModel):
-    """Summary of the article"""
+_DUMMY_CREDENTIALS = {
+    "ANTHROPIC_API_KEY": "dummy-anthropic-key",
+    "AZURE_OPENAI_API_KEY": "dummy-azure-key",
+    "CLOUDFLARE_API_KEY": "dummy-cloudflare-key",
+    "CLOUDFLARE_ACCOUNT_ID": "dummy-cloudflare-id",
+    "DATABRICKS_HOST": "dummy-databricks-host",
+    "DATABRICKS_TOKEN": "dummy-databricks-token",
+    "DEEPSEEK_API_KEY": "dummy-deepseek-key",
+    "GH_TOKEN": "dummy-github-token",
+    "GOOGLE_API_KEY": "dummy-google-key",
+    "GROQ_API_KEY": "dummy-groq-key",
+    "HUGGINGFACE_API_KEY": "dummy-huggingface-key",
+    "MISTRAL_API_KEY": "dummy-mistral-key",
+    "OPENAI_API_KEY": "dummy-openai-key",
+    "OPENROUTER_API_KEY": "dummy-openrouter-key",
+}
 
-    title: str
-    author: str
+
+# Pytest initialization hook to fallback to dummy credentials
+# (this is needed since some SDKs will fail before preparing the request if no key is set)
+def pytest_configure(config):
+    for key, value in _DUMMY_CREDENTIALS.items():
+        if key not in os.environ:
+            os.environ[key] = value
 
 
-article = """
-# Apples are tasty
+# Pytest hook to provide helpful message when VCR cassette is missing.
+# https://docs.pytest.org/en/latest/reference/reference.html#pytest.hookspec.pytest_exception_interact
+def pytest_exception_interact(node, call, report):
+    if call.excinfo is not None:
+        exc_str = str(call.excinfo.value)
+        if (
+            "CannotOverwriteExistingCassetteException" in exc_str
+            or "Can't find" in exc_str
+        ):
+            print("\n" + "=" * 60)
+            print("VCR CASSETTE MISSING OR OUTDATED")
+            print("=" * 60)
+            print("To record/update all cassettes, run locally with API keys:")
+            print("  make update-snaps-vcr")
+            print("")
+            print("Or record a specific test file:")
+            print(
+                "  uv run pytest tests/test_provider_openai.py -v --record-mode=rewrite"
+            )
+            print("")
+            print("Or record a single test:")
+            print(
+                "  uv run pytest tests/test_provider_openai.py::test_openai_simple_request -v --record-mode=rewrite"
+            )
+            print("=" * 60 + "\n")
 
-By Hadley Wickham
-Apples are delicious and tasty and I like to eat them.
-Except for red delicious, that is. They are NOT delicious.
-"""
+
+def is_dummy_credential(env_var: str) -> bool:
+    """
+    Check if an environment variable contains a dummy credential.
+
+    Use this to skip tests that require live API calls (e.g., multi-sample tests
+    where VCR response ordering is unreliable).
+
+    Example:
+        @pytest.mark.skipif(
+            is_dummy_credential("ANTHROPIC_API_KEY"),
+            reason="This test requires live API calls",
+        )
+        def test_something():
+            ...
+    """
+    if env_var not in _DUMMY_CREDENTIALS:
+        raise ValueError(
+            f"No dummy credential defined for environment variable: {env_var}"
+        )
+    dummy_value = _DUMMY_CREDENTIALS[env_var]
+    value = os.environ.get(env_var, "")
+    return value == dummy_value
 
 
 def assert_turns_system(chat_fun: ChatFun):
@@ -213,6 +278,23 @@ def assert_tools_sequential(chat_fun: ChatFun, total_calls: int, stream: bool = 
 
 
 def assert_data_extraction(chat_fun: ChatFun):
+    class ArticleSummary(BaseModel):
+        """Summary of the article"""
+
+        title: str
+        author: str
+
+    # fmt: off
+    article = (
+        "\n"
+        "# Apples are tasty\n"
+        "\n"
+        "By Hadley Wickham\n"
+        "Apples are delicious and tasty and I like to eat them.\n"
+        "Except for red delicious, that is. They are NOT delicious.\n"
+    )
+    # fmt: on
+
     chat = chat_fun()
     data = chat.chat_structured(article, data_model=ArticleSummary)
     assert isinstance(data, ArticleSummary)
@@ -234,35 +316,39 @@ def assert_data_extraction(chat_fun: ChatFun):
 
 
 def assert_images_inline(chat_fun: ChatFun, stream: bool = True):
-    img = Image.new("RGB", (60, 30), color="red")
-    with tempfile.TemporaryDirectory() as tmpdir:
-        img_path = Path(tmpdir) / "test_image.png"
-        img.save(img_path)
-        chat = chat_fun()
-        response = chat.chat(
-            "What's in this image?",
-            content_image_file(str(img_path), resize="low"),
-            stream=stream,
-        )
-        assert "red" in str(response).lower()
+    # Use a fixture image with resize="none" to ensure deterministic VCR cassette
+    # matching (resize can produce different bytes across platforms/PIL versions)
+    img_path = Path(__file__).parent / "images" / "red_test.png"
+    chat = chat_fun()
+    response = chat.chat(
+        "What's in this image?",
+        content_image_file(str(img_path), resize="none"),
+        stream=stream,
+    )
+    assert "red" in str(response).lower()
 
 
-def assert_images_remote(chat_fun: ChatFun, stream: bool = True):
+def assert_images_remote(
+    chat_fun: ChatFun, stream: bool = True, test_shape: bool = True
+):
     chat = chat_fun()
     response = chat.chat(
         "What's in this image? (Be sure to mention the outside shape)",
         content_image_url("https://httr2.r-lib.org/logo.png"),
         stream=stream,
     )
-    assert "hex" in str(response).lower()
     assert "baseball" in str(response).lower()
+    if test_shape:
+        assert "hex" in str(response).lower()
 
 
-def assert_images_remote_error(chat_fun: ChatFun):
+def assert_images_remote_error(
+    chat_fun: ChatFun, message: str = "Remote images aren't supported"
+):
     chat = chat_fun()
     image_remote = content_image_url("https://httr2.r-lib.org/logo.png")
 
-    with pytest.raises(Exception, match="Remote images aren't supported"):
+    with pytest.raises(Exception, match=message):
         chat.chat("What's in this image?", image_remote)
 
     assert len(chat.get_turns()) == 0
@@ -297,6 +383,7 @@ def assert_list_models(chat_fun: ChatFun):
 
 retry_api_call = retry(
     wait=wait_exponential(min=1, max=60),
+    stop=stop_after_attempt(3),
     reraise=True,
 )
 
@@ -309,3 +396,89 @@ def test_images_dir():
 @pytest.fixture
 def test_batch_dir():
     return Path(__file__).parent / "batch"
+
+
+# ---------------------------------------------------------------------------
+# VCR Configuration for HTTP recording/replay
+# ---------------------------------------------------------------------------
+
+
+def _filter_response_headers(response):
+    """Remove sensitive headers from response before recording."""
+    headers_to_remove = [
+        "openai-organization",
+        "openai-project",
+        "anthropic-organization-id",
+        "set-cookie",
+        "cf-ray",
+        "x-request-id",
+        "request-id",
+    ]
+    headers = response.get("headers", {})
+    for header in headers_to_remove:
+        # Headers can be stored as lowercase or original case
+        headers.pop(header, None)
+        headers.pop(header.title(), None)
+        headers.pop(header.lower(), None)
+        # Also handle capitalization variations
+        headers.pop(header.replace("-", "").lower(), None)
+    return response
+
+
+# Default matchers for VCR - most tests should match on body
+VCR_MATCH_ON_DEFAULT = ["method", "scheme", "host", "port", "path", "body"]
+# Some tests have dynamic request bodies (temp filenames, dynamic IDs) - skip body matching
+VCR_MATCH_ON_WITHOUT_BODY = ["method", "scheme", "host", "port", "path"]
+
+
+def make_vcr_config(match_on: list[str] = VCR_MATCH_ON_DEFAULT) -> dict:
+    """
+    Create a VCR configuration dictionary.
+
+    Args:
+        match_on: List of request attributes to match on. Use VCR_MATCH_ON_DEFAULT
+                  for most tests, or VCR_MATCH_ON_WITHOUT_BODY for tests with
+                  dynamic request bodies (e.g., temp filenames, generated IDs).
+
+    Returns:
+        VCR configuration dictionary suitable for pytest-recording.
+    """
+    return {
+        "filter_headers": [
+            "authorization",
+            "x-api-key",
+            "api-key",
+            "openai-organization",
+            "x-goog-api-key",
+            "x-stainless-arch",
+            "x-stainless-lang",
+            "x-stainless-os",
+            "x-stainless-package-version",
+            "x-stainless-runtime",
+            "x-stainless-runtime-version",
+            "x-stainless-retry-count",
+            "user-agent",
+            # AWS Bedrock headers
+            "x-amz-sso_bearer_token",
+            "X-Amz-Security-Token",
+            "amz-sdk-invocation-id",
+            "amz-sdk-request",
+        ],
+        "filter_post_data_parameters": ["api_key"],
+        "decode_compressed_response": True,
+        "match_on": match_on,
+        "before_record_response": _filter_response_headers,
+    }
+
+
+@pytest.fixture(scope="module")
+def vcr_config():
+    """Global VCR configuration for pytest-recording."""
+    return make_vcr_config()
+
+
+@pytest.fixture(scope="module")
+def vcr_cassette_dir(request):
+    """Store cassettes in per-module directories."""
+    module_name = request.module.__name__.split(".")[-1]
+    return os.path.join(os.path.dirname(__file__), "_vcr", module_name)

@@ -1,0 +1,62 @@
+interactions:
+- request:
+    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
+      "Say ''A''"}]}], "model": "gpt-4-invalid-12345", "store": false, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '137'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"error\": {\n    \"message\": \"Incorrect API key provided: test.
+        You can find your API key at https://platform.openai.com/account/api-keys.\",\n
+        \   \"type\": \"invalid_request_error\",\n    \"param\": null,\n    \"code\":
+        \"invalid_api_key\"\n  }\n}"
+    headers:
+      CF-RAY:
+      - 9b6c8ed76cf061d2-ORD
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '233'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:34:32 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      openai-processing-ms:
+      - '205'
+      openai-version:
+      - '2020-10-01'
+      www-authenticate:
+      - Bearer realm="OpenAI API"
+      x-envoy-upstream-service-time:
+      - '2849'
+    status:
+      code: 401
+      message: Unauthorized
+version: 1

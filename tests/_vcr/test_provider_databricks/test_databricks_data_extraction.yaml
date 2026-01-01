@@ -1,0 +1,362 @@
+interactions:
+- request:
+    body: '{"messages":[{"content":[{"type":"text","text":"\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","response_format":{"type":"json_schema","json_schema":{"name":"structured_data","description":"Summary
+      of the article","schema":{"description":"Summary of the article","properties":{"title":{"type":"string"},"author":{"type":"string"}},"required":["title","author"],"type":"object","additionalProperties":false},"strict":true}},"stream":false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '609'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAEA1yQy07DMBBFf6WadVLl0Qf1jl3FiseCIoIi1xlqk8SO7EmhRPl3JgW1Equxru+c
+        uTMDtK7CBgT0YS4tae86o+aqkX2FcR6v4+CsRYqzJFsmWbqJj6lIIAKlnVEYQLwO0GII8oAgBvCu
+        4QoyBBOIeZPTWUJ+CRgKIEMNFiAKuO26BsNMepyRDHQqICpA9qSdP/9vZdXgafZsVK1lW8AIYwTG
+        VvgFIong3VgTdOlRckBmB3IdjG8R7/EXRUmlcTJUpbFdTyW5Gi0n5m7lWp5OxtmLumK586xfjYvl
+        TQTkSDYX1zJl6ZesGH0m/KNzTLf/QDVtrLSk+XUYX8NULLfhUO4rX5dJ+mhedu5B7zZPn9+LU94d
+        77ce76azTXhkd7perbM0X+Sb8QcAAP//AwB2Lmo+rgEAAA==
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json
+      date:
+      - Wed, 31 Dec 2025 20:37:19 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="ce20e1b0-5843-4bc0-b0d6-b7a796f29a0a", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-amzn-bedrock-input-token-count:
+      - '458'
+      x-amzn-bedrock-invocation-latency:
+      - '1111'
+      x-amzn-bedrock-output-token-count:
+      - '60'
+      x-amzn-requestid:
+      - 6696563d-3ccf-4fa4-bb8e-c25ddd8be44f
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+      x-request-id:
+      - ce20e1b0-5843-4bc0-b0d6-b7a796f29a0a
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages":[{"content":[{"type":"text","text":"\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
+      are tasty\",\"author\":\"Hadley Wickham\"}"}]},{"content":[{"type":"text","text":"\n#
+      Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and I
+      like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","response_format":{"type":"json_schema","json_schema":{"name":"structured_data","description":"Summary
+      of the article","schema":{"description":"Summary of the article","properties":{"title":{"type":"string"},"author":{"type":"string"}},"required":["title","author"],"type":"object","additionalProperties":false},"strict":true}},"stream":false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '943'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAEA1yQQW+DMAyF/0rlM1RAaatyq3qptuuqHcaE0sQjGZCwxFSrEP99pptaaSdHL8+f
+        nz1C5xS2UMAQlsKS9q43cilbMSiMV/E2Ds5apDhLsnWSpbv4khYJRCC1MxIDFG8jdBiCqBGKEbxr
+        uYIIwQRi3ux0lpBfBYwlkKEWSyhK2Pd9i2EhPC5IBLqWEJUgBtLO3/6PQrV4Xbwa2WjRlTDBFIGx
+        Cr+hSCL4MNYEXXkUHJDZgVwP03vEe/xFkUJqnA2qMrYfqCLXoOXE3C1dx9PJOHtXNyz3nvWHcb3K
+        IyBHor271juWfsmS0TfCPzrHdOdPlPPGUgtaPobxNYxiuQt1dVa+qZI098+Xw/70cviy+KRUc7oe
+        azvMZ5vxyO50u9lm6SrPk+kHAAD//wMA2+13+K4BAAA=
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json
+      date:
+      - Wed, 31 Dec 2025 20:37:20 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="9c54b922-02f6-469b-ad78-427b8aed6625", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-amzn-bedrock-input-token-count:
+      - '534'
+      x-amzn-bedrock-invocation-latency:
+      - '1042'
+      x-amzn-bedrock-output-token-count:
+      - '60'
+      x-amzn-requestid:
+      - 93c12238-83ee-43ec-bfd7-b9944b6ba79f
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+      x-request-id:
+      - 9c54b922-02f6-469b-ad78-427b8aed6625
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages":[{"content":[{"type":"text","text":"\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
+      are tasty\",\"author\":\"Hadley Wickham\"}"}]},{"content":[{"type":"text","text":"\n#
+      Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and I
+      like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
+      are tasty\",\"author\":\"Hadley Wickham\"}"}]},{"content":[{"type":"text","text":"Generate
+      the name and age of a random person."}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","response_format":{"type":"json_schema","json_schema":{"name":"structured_data","description":"","schema":{"properties":{"name":{"type":"string"},"age":{"type":"integer"}},"required":["name","age"],"type":"object","additionalProperties":false},"strict":true}},"stream":false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1095'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: !!binary |
+        H4sIAAAAAAAEA1yQwU7DMBBEfwXtOakSJ22pbxwQEuUI4kBQ5NrbxCTxhtgt0Cj/zqZCrcTJ1nj2
+        zaxH6MhgCxIOfqFcqAfqrV7oVh0Mxlm8jj05hyEWiVgmIt3Ex1QmEIGuyWr0IN9G6NB7VSHIEQZq
+        +QTlvfWBebOTXEC+SRgLcKrDAmQB951tf24eqXYcUEBUABP4JcsnmCKwzuA3yCSCvXXW1+WAio0M
+        8YF6mN4jLvyXqZWucTaY0rr+EMpADTquxtOaur7FYMld1GUaQT+wfjUuZy1QUO3FtUoET5/JmtFn
+        wj8616TdB+p5NV2rsLiG8drWsNz5qtyZoSmT9HlvPt3pq3l4fbm9U6dqezxuN0/z/8x4ZHe6Xq1F
+        muW5mH4BAAD//wMABNCWYJcBAAA=
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-encoding:
+      - gzip
+      content-type:
+      - application/json
+      date:
+      - Wed, 31 Dec 2025 20:37:22 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="7cfad3e7-9953-4072-94f5-926b06a3186d", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-amzn-bedrock-input-token-count:
+      - '551'
+      x-amzn-bedrock-invocation-latency:
+      - '1143'
+      x-amzn-bedrock-output-token-count:
+      - '51'
+      x-amzn-requestid:
+      - 5a4623ce-935e-414f-87cf-6cd90ab19e90
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+      x-request-id:
+      - 7cfad3e7-9953-4072-94f5-926b06a3186d
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages":[{"content":[{"type":"text","text":"\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
+      are tasty\",\"author\":\"Hadley Wickham\"}"}]},{"content":[{"type":"text","text":"\n#
+      Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and I
+      like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
+      are tasty\",\"author\":\"Hadley Wickham\"}"}]},{"content":[{"type":"text","text":"Generate
+      the name and age of a random person."}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"{\"name\":\"Emily
+      Johnson\",\"age\":34}"}]},{"content":[{"type":"text","text":"What is the name
+      of the person?"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1017'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"The"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":193,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01CUa5dm5VYh57HQ3ZgPykcg","created":1767213443}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        name of the randomly"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":193,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01CUa5dm5VYh57HQ3ZgPykcg","created":1767213443}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        generated person is Emily"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":193,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01CUa5dm5VYh57HQ3ZgPykcg","created":1767213443}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        Johnson."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":193,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01CUa5dm5VYh57HQ3ZgPykcg","created":1767213443}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":14,"prompt_tokens":193,"total_tokens":207,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01CUa5dm5VYh57HQ3ZgPykcg","created":1767213443}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Wed, 31 Dec 2025 20:37:23 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="46a7f3a6-35a5-4480-9550-152461397a63", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - f4a8422b-b2d8-4fce-85fa-70a603b41458
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+      x-request-id:
+      - 46a7f3a6-35a5-4480-9550-152461397a63
+    status:
+      code: 200
+      message: OK
+version: 1

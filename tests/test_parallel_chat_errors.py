@@ -1,27 +1,19 @@
 """Tests for parallel_chat error handling."""
 
-import os
-
 import pytest
-from pydantic import BaseModel
-
 from chatlas import (
     ChatOpenAI,
     parallel_chat,
     parallel_chat_structured,
     parallel_chat_text,
 )
-
-# Skip these tests if not running OpenAI tests
-do_test = os.getenv("TEST_OPENAI", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping OpenAI tests", allow_module_level=True)
+from pydantic import BaseModel
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_error_return_mode():
     """Test that on_error='return' stops new requests but completes in-flight ones."""
-    # Use an invalid model to trigger an error
     chat = ChatOpenAI(model="gpt-4-does-not-exist-12345")
 
     prompts = [
@@ -45,10 +37,10 @@ async def test_parallel_chat_error_return_mode():
     assert results[2] is None  # Not submitted
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_error_continue_mode():
     """Test that on_error='continue' processes all requests despite errors."""
-    # Use an invalid model to trigger an error
     chat = ChatOpenAI(model="gpt-4-does-not-exist-12345")
 
     prompts = [
@@ -69,10 +61,10 @@ async def test_parallel_chat_error_continue_mode():
     assert all(isinstance(r, Exception) for r in results)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_error_stop_mode():
     """Test that on_error='stop' raises immediately on first error."""
-    # Use an invalid model to trigger an error
     chat = ChatOpenAI(model="gpt-4-invalid-12345")
 
     prompts = [
@@ -91,6 +83,7 @@ async def test_parallel_chat_error_stop_mode():
         )
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_text_error_handling():
     """Test that parallel_chat_text handles errors correctly."""
@@ -111,6 +104,7 @@ async def test_parallel_chat_text_error_handling():
     # Second one may or may not run depending on timing
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_structured_error_handling():
     """Test that parallel_chat_structured handles errors correctly."""

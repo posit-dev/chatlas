@@ -1,0 +1,1172 @@
+interactions:
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What''s the current date in YYYY-MM-DD format?", "type": "text", "cache_control":
+      {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001",
+      "stream": true, "system": [{"type": "text", "text": "Always use a tool to help
+      you answer. Reply with ''It is ____.''.", "cache_control": {"type": "ephemeral",
+      "ttl": "5m"}}], "tools": [{"name": "get_date", "input_schema": {"type": "object",
+      "properties": {}}, "description": "Gets the current date"}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '494'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_01BUNqV7CBiFHcZ93HZVUNaP","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":574,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":25,"service_tier":"standard"}}      }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"tool_use","id":"toolu_015huZJpvnEWtFcnczKyKPvJ","name":"get_date","input":{}}               }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":""}        }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0             }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"tool_use","stop_sequence":null},"usage":{"input_tokens":574,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":37}              }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"             }
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c8fe19b1d3d6a-DEN
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:35:12 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-ratelimit-input-tokens-limit:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2025-12-31T20:35:12Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '800000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '800000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2025-12-31T20:35:12Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2025-12-31T20:35:12Z'
+      anthropic-ratelimit-tokens-limit:
+      - '4800000'
+      anthropic-ratelimit-tokens-remaining:
+      - '4800000'
+      anthropic-ratelimit-tokens-reset:
+      - '2025-12-31T20:35:12Z'
+      cf-cache-status:
+      - DYNAMIC
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '593'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role":
+      "assistant", "content": [{"type": "tool_use", "id": "toolu_015huZJpvnEWtFcnczKyKPvJ",
+      "name": "get_date", "input": {}}]}, {"role": "user", "content": [{"type": "tool_result",
+      "tool_use_id": "toolu_015huZJpvnEWtFcnczKyKPvJ", "is_error": false, "content":
+      "2024-01-01", "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model":
+      "claude-haiku-4-5-20251001", "stream": true, "system": [{"type": "text", "text":
+      "Always use a tool to help you answer. Reply with ''It is ____.''.", "cache_control":
+      {"type": "ephemeral", "ttl": "5m"}}], "tools": [{"name": "get_date", "input_schema":
+      {"type": "object", "properties": {}}, "description": "Gets the current date"}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '752'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_01TM9iJ8qqcXenqDkdCYmUYg","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":629,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard"}}           }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"It"}               }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        is 2024-01-01"}            }
+
+
+        event: ping
+
+        data: {"type": "ping"}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"."}             }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0     }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":629,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":13}        }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"  }
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c8fe75d715209-DEN
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:35:13 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-ratelimit-input-tokens-limit:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2025-12-31T20:35:13Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '800000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '800000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2025-12-31T20:35:13Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2025-12-31T20:35:13Z'
+      anthropic-ratelimit-tokens-limit:
+      - '4800000'
+      anthropic-ratelimit-tokens-remaining:
+      - '4800000'
+      anthropic-ratelimit-tokens-reset:
+      - '2025-12-31T20:35:13Z'
+      cf-cache-status:
+      - DYNAMIC
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '699'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role":
+      "assistant", "content": [{"type": "tool_use", "id": "toolu_015huZJpvnEWtFcnczKyKPvJ",
+      "name": "get_date", "input": {}}]}, {"role": "user", "content": [{"type": "tool_result",
+      "tool_use_id": "toolu_015huZJpvnEWtFcnczKyKPvJ", "is_error": false, "content":
+      "2024-01-01"}]}, {"role": "assistant", "content": [{"text": "It is 2024-01-01.",
+      "type": "text"}]}, {"role": "user", "content": [{"text": "What month is it?
+      Provide the full name.", "type": "text", "cache_control": {"type": "ephemeral",
+      "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001", "stream": true, "system":
+      [{"type": "text", "text": "Always use a tool to help you answer. Reply with
+      ''It is ____.''.", "cache_control": {"type": "ephemeral", "ttl": "5m"}}], "tools":
+      [{"name": "get_date", "input_schema": {"type": "object", "properties": {}},
+      "description": "Gets the current date"}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '922'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_012bLhqqYHHL5rcqpL89d16c","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":656,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard"}}            }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Base"}      }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"d
+        on the current date I"}              }
+
+
+        event: ping
+
+        data: {"type": "ping"}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        just retrieved (2024-01-"}}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"01),
+        it is **"}  }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"January**."}          }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0         }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":656,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":24}          }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"         }
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c8ff148f2e750-DEN
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:35:15 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-ratelimit-input-tokens-limit:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2025-12-31T20:35:14Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '800000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '800000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2025-12-31T20:35:14Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2025-12-31T20:35:14Z'
+      anthropic-ratelimit-tokens-limit:
+      - '4800000'
+      anthropic-ratelimit-tokens-remaining:
+      - '4800000'
+      anthropic-ratelimit-tokens-reset:
+      - '2025-12-31T20:35:14Z'
+      cf-cache-status:
+      - DYNAMIC
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '397'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What''s the current date in YYYY-MM-DD format?", "type": "text", "cache_control":
+      {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001",
+      "stream": true, "system": [{"type": "text", "text": "Be very terse, not even
+      punctuation.", "cache_control": {"type": "ephemeral", "ttl": "5m"}}], "tools":
+      [{"name": "get_date", "input_schema": {"type": "object", "properties": {}},
+      "description": "Gets the current date"}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '467'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_01FQYMJ1rrMK3Hdb1qVuTm3n","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":566,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":25,"service_tier":"standard"}}        }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"tool_use","id":"toolu_01RTT93aWH3d3jMuUKzDg7v9","name":"get_date","input":{}}}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":""}           }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0         }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"tool_use","stop_sequence":null},"usage":{"input_tokens":566,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":37}        }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"    }
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c8ff7cbb7e659-DEN
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:35:16 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-ratelimit-input-tokens-limit:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2025-12-31T20:35:15Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '800000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '800000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2025-12-31T20:35:15Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2025-12-31T20:35:15Z'
+      anthropic-ratelimit-tokens-limit:
+      - '4800000'
+      anthropic-ratelimit-tokens-remaining:
+      - '4800000'
+      anthropic-ratelimit-tokens-reset:
+      - '2025-12-31T20:35:15Z'
+      cf-cache-status:
+      - DYNAMIC
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '450'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role":
+      "assistant", "content": [{"type": "tool_use", "id": "toolu_01RTT93aWH3d3jMuUKzDg7v9",
+      "name": "get_date", "input": {}}]}, {"role": "user", "content": [{"type": "tool_result",
+      "tool_use_id": "toolu_01RTT93aWH3d3jMuUKzDg7v9", "is_error": false, "content":
+      "2024-01-01", "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model":
+      "claude-haiku-4-5-20251001", "stream": true, "system": [{"type": "text", "text":
+      "Be very terse, not even punctuation.", "cache_control": {"type": "ephemeral",
+      "ttl": "5m"}}], "tools": [{"name": "get_date", "input_schema": {"type": "object",
+      "properties": {}}, "description": "Gets the current date"}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '725'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_01D1Mvm3S8egDYjrr2Jxb5Nn","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":621,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard"}}     }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}              }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"2"}               }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"024-01-01"}               }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0              }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":621,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":9}              }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"  }
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c8ffcab3eba49-DEN
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:35:17 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-ratelimit-input-tokens-limit:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2025-12-31T20:35:16Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '800000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '800000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2025-12-31T20:35:16Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2025-12-31T20:35:16Z'
+      anthropic-ratelimit-tokens-limit:
+      - '4800000'
+      anthropic-ratelimit-tokens-remaining:
+      - '4800000'
+      anthropic-ratelimit-tokens-reset:
+      - '2025-12-31T20:35:16Z'
+      cf-cache-status:
+      - DYNAMIC
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '632'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What should I pack for New York this weekend?", "type": "text", "cache_control":
+      {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001",
+      "stream": true, "system": [{"type": "text", "text": "\n        Be very terse,
+      not even punctuation. If asked for equipment to pack,\n        first use the
+      weather_forecast tool provided to you. Then, use the\n        equipment tool
+      provided to you.\n        ", "cache_control": {"type": "ephemeral", "ttl": "5m"}}],
+      "tools": [{"name": "weather_forecast", "input_schema": {"type": "object", "properties":
+      {"city": {"type": "string"}}}, "description": "Gets the weather forecast for
+      a city"}, {"name": "equipment", "input_schema": {"type": "object", "properties":
+      {"weather": {"type": "string"}}}, "description": "Gets the equipment needed
+      for a weather condition"}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '846'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_01DKwC18EQs92dWsSFV9ffSU","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":656,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":8,"service_tier":"standard"}}               }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}            }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"I''ll
+        check the weather forecast for New"}            }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        York this weekend an"}            }
+
+
+        event: ping
+
+        data: {"type": "ping"}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"d
+        then"}           }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        tell"}         }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        you what to"}     }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        pack"}           }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0          }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":1,"content_block":{"type":"tool_use","id":"toolu_01PTLP6YK5w8ZJWUGYTxmrB3","name":"weather_forecast","input":{}}               }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":""}  }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"{\"city\""}     }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":":
+        \"N"}       }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"ew
+        Yor"}          }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"k\"}"}   }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":1               }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"tool_use","stop_sequence":null},"usage":{"input_tokens":656,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":73}           }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"              }
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c90050d30e669-DEN
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:35:18 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-ratelimit-input-tokens-limit:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2025-12-31T20:35:18Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '800000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '800000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2025-12-31T20:35:18Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2025-12-31T20:35:18Z'
+      anthropic-ratelimit-tokens-limit:
+      - '4800000'
+      anthropic-ratelimit-tokens-remaining:
+      - '4800000'
+      anthropic-ratelimit-tokens-reset:
+      - '2025-12-31T20:35:18Z'
+      cf-cache-status:
+      - DYNAMIC
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '461'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What should I pack for New York this weekend?", "type": "text"}]}, {"role":
+      "assistant", "content": [{"text": "I''ll check the weather forecast for New
+      York this weekend and then tell you what to pack", "type": "text"}, {"type":
+      "tool_use", "id": "toolu_01PTLP6YK5w8ZJWUGYTxmrB3", "name": "weather_forecast",
+      "input": {"city": "New York"}}]}, {"role": "user", "content": [{"type": "tool_result",
+      "tool_use_id": "toolu_01PTLP6YK5w8ZJWUGYTxmrB3", "is_error": false, "content":
+      "rainy", "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001",
+      "stream": true, "system": [{"type": "text", "text": "\n        Be very terse,
+      not even punctuation. If asked for equipment to pack,\n        first use the
+      weather_forecast tool provided to you. Then, use the\n        equipment tool
+      provided to you.\n        ", "cache_control": {"type": "ephemeral", "ttl": "5m"}}],
+      "tools": [{"name": "weather_forecast", "input_schema": {"type": "object", "properties":
+      {"city": {"type": "string"}}}, "description": "Gets the weather forecast for
+      a city"}, {"name": "equipment", "input_schema": {"type": "object", "properties":
+      {"weather": {"type": "string"}}}, "description": "Gets the equipment needed
+      for a weather condition"}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1238'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_011E4LJatwzm5i2E8mifbFiN","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":743,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard"}}              }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}
+        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Now"}               }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        let me get the equipment recommendations"}              }
+
+
+        event: ping
+
+        data: {"type": "ping"}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        for ra"}      }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"iny
+        weather"}             }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0     }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":1,"content_block":{"type":"tool_use","id":"toolu_01EWxPdPDd54RRhEoDE3MTv1","name":"equipment","input":{}}             }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":""}          }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"{\"weather\":"}             }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"
+        \"r"}      }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"ainy"}            }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"\"}"}    }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":1      }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"tool_use","stop_sequence":null},"usage":{"input_tokens":743,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":64}  }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"     }
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c900c2c58e65d-DEN
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:35:19 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-ratelimit-input-tokens-limit:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2025-12-31T20:35:19Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '800000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '800000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2025-12-31T20:35:19Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2025-12-31T20:35:19Z'
+      anthropic-ratelimit-tokens-limit:
+      - '4800000'
+      anthropic-ratelimit-tokens-remaining:
+      - '4800000'
+      anthropic-ratelimit-tokens-reset:
+      - '2025-12-31T20:35:19Z'
+      cf-cache-status:
+      - DYNAMIC
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '511'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "What should I pack for New York this weekend?", "type": "text"}]}, {"role":
+      "assistant", "content": [{"text": "I''ll check the weather forecast for New
+      York this weekend and then tell you what to pack", "type": "text"}, {"type":
+      "tool_use", "id": "toolu_01PTLP6YK5w8ZJWUGYTxmrB3", "name": "weather_forecast",
+      "input": {"city": "New York"}}]}, {"role": "user", "content": [{"type": "tool_result",
+      "tool_use_id": "toolu_01PTLP6YK5w8ZJWUGYTxmrB3", "is_error": false, "content":
+      "rainy"}]}, {"role": "assistant", "content": [{"text": "Now let me get the equipment
+      recommendations for rainy weather", "type": "text"}, {"type": "tool_use", "id":
+      "toolu_01EWxPdPDd54RRhEoDE3MTv1", "name": "equipment", "input": {"weather":
+      "rainy"}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id":
+      "toolu_01EWxPdPDd54RRhEoDE3MTv1", "is_error": false, "content": "umbrella",
+      "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001",
+      "stream": true, "system": [{"type": "text", "text": "\n        Be very terse,
+      not even punctuation. If asked for equipment to pack,\n        first use the
+      weather_forecast tool provided to you. Then, use the\n        equipment tool
+      provided to you.\n        ", "cache_control": {"type": "ephemeral", "ttl": "5m"}}],
+      "tools": [{"name": "weather_forecast", "input_schema": {"type": "object", "properties":
+      {"city": {"type": "string"}}}, "description": "Gets the weather forecast for
+      a city"}, {"name": "equipment", "input_schema": {"type": "object", "properties":
+      {"weather": {"type": "string"}}}, "description": "Gets the equipment needed
+      for a weather condition"}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1600'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_01Mzdkod1xTHJfZLNkmsV4Tb","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":821,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":2,"service_tier":"standard"}}         }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}
+        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Ra"}}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"iny
+        weather in"}      }
+
+
+        event: ping
+
+        data: {"type": "ping"}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        New York"}            }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"\n\nPack"}        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        umbre"}               }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"lla"}          }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0    }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":821,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":14}           }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"              }
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c90131e58e66f-DEN
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:35:20 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-ratelimit-input-tokens-limit:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2025-12-31T20:35:20Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '800000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '800000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2025-12-31T20:35:20Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2025-12-31T20:35:20Z'
+      anthropic-ratelimit-tokens-limit:
+      - '4800000'
+      anthropic-ratelimit-tokens-remaining:
+      - '4800000'
+      anthropic-ratelimit-tokens-reset:
+      - '2025-12-31T20:35:20Z'
+      cf-cache-status:
+      - DYNAMIC
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '361'
+    status:
+      code: 200
+      message: OK
+version: 1

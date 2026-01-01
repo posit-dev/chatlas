@@ -1,0 +1,272 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "What''s in this image?
+      (Be sure to mention the outside shape)"}, {"type": "image_url", "image_url":
+      {"url": "https://httr2.r-lib.org/logo.png", "detail": "auto"}}], "role": "user"}],
+      "model": "mistral-large-latest", "stream": true, "random_seed": 1014}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '284'
+      Content-Type:
+      - application/json
+      Host:
+      - api.mistral.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.mistral.ai/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"The"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        image is"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        set"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        within a hexagonal"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        ("},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"six"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"-sided)"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        shape. Inside"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        the"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        hex"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"agon,
+        there is"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        a graphic"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        design featuring:\n\n"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"1"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":".
+        A high-he"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"eled
+        shoe"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        in"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        a"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        bright red color.\n"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"2.
+        A ping"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        p"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"ong
+        paddle"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        positioned"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        above the shoe"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":","},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        with the paddle"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"''s
+        handle"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        pointing"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        towards the shoe"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"''s
+        toe"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":".\n3.
+        The"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        text \"ht"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"tr2"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"\"
+        prominently"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        displayed at the top"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        of the design"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        in a stylized"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        font"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":".\n\nThe
+        overall"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        design seems"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        to be a logo"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        or emblem"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":","},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        possibly representing"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        a brand"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        or a"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        specific theme"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        related"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        to the combination"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        of fashion"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        and table"},"finish_reason":null}]}
+
+
+        data: {"id":"20e32172fdff499b8ca3b5d3cf7043a4","object":"chat.completion.chunk","created":1767220788,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"
+        tennis."},"finish_reason":"stop"}],"usage":{"prompt_tokens":118,"total_tokens":233,"completion_tokens":115}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6d46660cfbb4c1-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 22:39:49 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-origin:
+      - '*'
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      mistral-correlation-id:
+      - 019b7691-3c10-76af-8089-e064c582d1b0
+      x-envoy-upstream-service-time:
+      - '872'
+      x-kong-proxy-latency:
+      - '6'
+      x-kong-request-id:
+      - 019b7691-3c10-76af-8089-e064c582d1b0
+      x-kong-upstream-latency:
+      - '874'
+    status:
+      code: 200
+      message: OK
+version: 1

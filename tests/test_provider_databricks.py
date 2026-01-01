@@ -1,5 +1,4 @@
 import pytest
-
 from chatlas import ChatDatabricks
 
 from .conftest import (
@@ -9,10 +8,22 @@ from .conftest import (
     assert_tools_simple,
     assert_turns_existing,
     assert_turns_system,
+    make_vcr_config,
 )
 
 
-def test_openai_simple_request():
+# Override VCR config to ignore host - Databricks host varies by environment
+# but cassettes were recorded with a specific host
+@pytest.fixture(scope="module")
+def vcr_config():
+    config = make_vcr_config()
+    # Remove "host" from match_on since Databricks host varies by environment
+    config["match_on"] = ["method", "scheme", "port", "path", "body"]
+    return config
+
+
+@pytest.mark.vcr
+def test_databricks_simple_request():
     chat = ChatDatabricks(
         system_prompt="Be as terse as possible; no punctuation",
     )
@@ -26,8 +37,9 @@ def test_openai_simple_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
-async def test_openai_simple_streaming_request():
+async def test_databricks_simple_streaming_request():
     chat = ChatDatabricks(
         system_prompt="Be as terse as possible; no punctuation",
     )
@@ -40,34 +52,40 @@ async def test_openai_simple_streaming_request():
     assert turn.finish_reason == "stop"
 
 
-def test_openai_respects_turns_interface():
+@pytest.mark.vcr
+def test_databricks_respects_turns_interface():
     chat_fun = ChatDatabricks
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
-def test_anthropic_empty_response():
+@pytest.mark.vcr
+def test_databricks_empty_response():
     chat = ChatDatabricks()
     chat.chat("Respond with only two blank lines")
     resp = chat.chat("What's 1+1? Just give me the number")
     assert "2" == str(resp).strip()
 
 
-def test_openai_tool_variations():
+@pytest.mark.vcr
+def test_databricks_tool_variations():
     chat_fun = ChatDatabricks
     assert_tools_simple(chat_fun)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
-async def test_openai_tool_variations_async():
+async def test_databricks_tool_variations_async():
     await assert_tools_async(ChatDatabricks)
 
 
-def test_data_extraction():
+@pytest.mark.vcr
+def test_databricks_data_extraction():
     assert_data_extraction(ChatDatabricks)
 
 
-def test_openai_images():
+@pytest.mark.vcr
+def test_databricks_images():
     chat_fun = ChatDatabricks
     assert_images_inline(chat_fun)
     # Remote images don't seem to be supported yet
@@ -76,7 +94,7 @@ def test_openai_images():
 
 # PDF doesn't seem to be supported yet
 #
-# def test_openai_pdf():
+# def test_databricks_pdf():
 #     chat_fun = ChatDatabricks
 #     assert_pdf_local(chat_fun)
 

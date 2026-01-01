@@ -12,6 +12,14 @@ from chatlas._batch_chat import (
 from chatlas._provider import BatchStatus
 from pydantic import BaseModel
 
+from .conftest import VCR_MATCH_ON_WITHOUT_BODY, make_vcr_config
+
+
+# Don't match on body - temp file names are dynamic
+@pytest.fixture(scope="module")
+def vcr_config():
+    return make_vcr_config(match_on=VCR_MATCH_ON_WITHOUT_BODY)
+
 
 class CountryCapital(BaseModel):
     name: str
@@ -61,6 +69,7 @@ def test_can_retrieve_batch(test_batch_dir):
     assert capitals[1].name == "Berlin"
 
 
+@pytest.mark.vcr
 def test_can_submit_openai_batch():
     with tempfile.NamedTemporaryFile() as temp_file:
         chat = ChatOpenAI()
@@ -71,6 +80,7 @@ def test_can_submit_openai_batch():
         assert job.stage == "waiting"
 
 
+@pytest.mark.vcr
 def test_can_submit_anthropic_batch():
     with tempfile.NamedTemporaryFile() as temp_file:
         chat = ChatAnthropic()

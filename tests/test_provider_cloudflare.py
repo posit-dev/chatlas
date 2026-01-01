@@ -5,19 +5,21 @@ from chatlas import ChatCloudflare
 
 from .conftest import assert_data_extraction, assert_turns_existing, assert_turns_system
 
-api_key = os.getenv("CLOUDFLARE_API_KEY")
-account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID")
-if api_key is None or account_id is None:
-    pytest.skip(
-        "CLOUDFLARE_API_KEY and CLOUDFLARE_ACCOUNT_ID are not set; skipping tests",
-        allow_module_level=True,
-    )
+
+def chat_fun(**kwargs):
+    return ChatCloudflare(model="@cf/meta/llama-3.3-70b-instruct-fp8-fast", **kwargs)
 
 
+try:
+    chat = chat_fun()
+    chat.chat("What is 1 + 1?")
+except Exception:
+    pytest.skip("Cloudflare credentials aren't configured", allow_module_level=True)
+
+
+@pytest.mark.vcr
 def test_cloudflare_simple_request():
-    chat = ChatCloudflare(
-        model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-    )
+    chat = chat_fun()
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None
@@ -28,11 +30,10 @@ def test_cloudflare_simple_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_cloudflare_simple_streaming_request():
-    chat = ChatCloudflare(
-        model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
-    )
+    chat = chat_fun()
     res = []
     async for x in await chat.stream_async("What is 1 + 1?"):
         res.append(x)
@@ -42,23 +43,22 @@ async def test_cloudflare_simple_streaming_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 def test_cloudflare_respects_turns_interface():
-    chat_fun = ChatCloudflare
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
+@pytest.mark.vcr
 def test_cloudflare_data_extraction():
-    def chat_fun(**kwargs):
-        return ChatCloudflare(
-            model="@cf/meta/llama-3.3-70b-instruct-fp8-fast", **kwargs
-        )
-
     assert_data_extraction(chat_fun)
 
 
 def test_cloudflare_custom_model():
-    chat = ChatCloudflare(model="@cf/meta/llama-3.3-70b-instruct-fp8-fast")
+    chat = ChatCloudflare(
+        account="test-account",
+        model="@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+    )
     assert chat.provider.model == "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
 
 

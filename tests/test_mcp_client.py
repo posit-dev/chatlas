@@ -186,6 +186,7 @@ async def test_register_multiple_mcp_servers():
         await chat.cleanup_mcp_tools()
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_call_http_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
@@ -207,6 +208,7 @@ async def test_call_http_mcp_tool():
         await chat.cleanup_mcp_tools()
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_call_stdio_mcp_tool():
     chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")

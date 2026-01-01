@@ -1,0 +1,94 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "Hi"}], "role": "user"}],
+      "model": "gpt-4.1", "logprobs": true, "seed": 1014, "stream": true, "stream_options":
+      {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '170'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "data: {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\",\"refusal\":null},\"logprobs\":{\"content\":[],\"refusal\":null},\"finish_reason\":null}],\"usage\":null,\"obfuscation\":\"9GS6\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Hello\"},\"logprobs\":{\"content\":[{\"token\":\"Hello\",\"logprob\":-0.004078401252627373,\"bytes\":[72,101,108,108,111],\"top_logprobs\":[]}],\"refusal\":null},\"finish_reason\":null}],\"usage\":null,\"obfuscation\":\"h\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"!\"},\"logprobs\":{\"content\":[{\"token\":\"!\",\"logprob\":-7.941850526549388e-6,\"bytes\":[33],\"top_logprobs\":[]}],\"refusal\":null},\"finish_reason\":null}],\"usage\":null,\"obfuscation\":\"DRkJRkrQs\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        How\"},\"logprobs\":{\"content\":[{\"token\":\" How\",\"logprob\":-0.0020377261098474264,\"bytes\":[32,72,111,119],\"top_logprobs\":[]}],\"refusal\":null},\"finish_reason\":null}],\"usage\":null,\"obfuscation\":\"xnfmp1B\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        can\"},\"logprobs\":{\"content\":[{\"token\":\" can\",\"logprob\":0.0,\"bytes\":[32,99,97,110],\"top_logprobs\":[]}],\"refusal\":null},\"finish_reason\":null}],\"usage\":null,\"obfuscation\":\"ReAgNQQvEdJ\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        I\"},\"logprobs\":{\"content\":[{\"token\":\" I\",\"logprob\":0.0,\"bytes\":[32,73],\"top_logprobs\":[]}],\"refusal\":null},\"finish_reason\":null}],\"usage\":null,\"obfuscation\":\"5zevjh\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        help\"},\"logprobs\":{\"content\":[{\"token\":\" help\",\"logprob\":-0.02324547804892063,\"bytes\":[32,104,101,108,112],\"top_logprobs\":[]}],\"refusal\":null},\"finish_reason\":null}],\"usage\":null,\"obfuscation\":\"gf\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        you\"},\"logprobs\":{\"content\":[{\"token\":\" you\",\"logprob\":0.0,\"bytes\":[32,121,111,117],\"top_logprobs\":[]}],\"refusal\":null},\"finish_reason\":null}],\"usage\":null,\"obfuscation\":\"8VeVqiMm8\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        today\"},\"logprobs\":{\"content\":[{\"token\":\" today\",\"logprob\":0.0,\"bytes\":[32,116,111,100,97,121],\"top_logprobs\":[]}],\"refusal\":null},\"finish_reason\":null}],\"usage\":null,\"obfuscation\":\"yhFrqizX7Huf5G\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"?\"},\"logprobs\":{\"content\":[{\"token\":\"?\",\"logprob\":-7.896309739408025e-7,\"bytes\":[63],\"top_logprobs\":[]}],\"refusal\":null},\"finish_reason\":null}],\"usage\":null,\"obfuscation\":\"e61LfXKit\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        \U0001F60A\"},\"logprobs\":{\"content\":[{\"token\":\" \U0001F60A\",\"logprob\":-0.16023895144462585,\"bytes\":[32,240,159,152,138],\"top_logprobs\":[]}],\"refusal\":null},\"finish_reason\":null}],\"usage\":null,\"obfuscation\":\"QkrUKkic\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[{\"index\":0,\"delta\":{},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":null,\"obfuscation\":\"ryxeOd59o\"}\n\ndata:
+        {\"id\":\"chatcmpl-CsxIvHy9zaFaJz2Gf8MhW2PG0Zy3X\",\"object\":\"chat.completion.chunk\",\"created\":1767213713,\"model\":\"gpt-4.1-2025-04-14\",\"service_tier\":\"default\",\"system_fingerprint\":\"fp_1a2c4a5ede\",\"choices\":[],\"usage\":{\"prompt_tokens\":8,\"completion_tokens\":10,\"total_tokens\":18,\"prompt_tokens_details\":{\"cached_tokens\":0,\"audio_tokens\":0},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"audio_tokens\":0,\"accepted_prediction_tokens\":0,\"rejected_prediction_tokens\":0}},\"obfuscation\":\"89gdiDUGT7cz670\"}\n\ndata:
+        [DONE]\n\n"
+    headers:
+      CF-RAY:
+      - 9b6c99aa2b69e266-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:41:53 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      openai-processing-ms:
+      - '180'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '195'
+      x-openai-proxy-wasm:
+      - v0.1
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999997'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+version: 1

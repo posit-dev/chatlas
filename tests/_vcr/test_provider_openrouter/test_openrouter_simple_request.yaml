@@ -1,0 +1,80 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Be as terse as possible; no punctuation", "role":
+      "system"}, {"content": [{"type": "text", "text": "What is 1 + 1?"}], "role":
+      "user"}], "model": "openai/gpt-4o-mini-2024-07-18", "seed": 1014, "stream":
+      true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '258'
+      Content-Type:
+      - application/json
+      HTTP-Referer:
+      - https://posit-dev.github.io/chatlas
+      Host:
+      - openrouter.ai
+      X-Stainless-Async:
+      - 'false'
+      X-Title:
+      - chatlas
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://openrouter.ai/api/v1/chat/completions
+  response:
+    body:
+      string: ': OPENROUTER PROCESSING
+
+
+        data: {"id":"gen-1767213717-dGUNCjIaPNYaUL5NzhXU","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767213717,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_8bbc38b4db"}
+
+
+        data: {"id":"gen-1767213717-dGUNCjIaPNYaUL5NzhXU","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767213717,"choices":[{"index":0,"delta":{"role":"assistant","content":"2"},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"system_fingerprint":"fp_8bbc38b4db"}
+
+
+        data: {"id":"gen-1767213717-dGUNCjIaPNYaUL5NzhXU","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767213717,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":"stop","native_finish_reason":"stop","logprobs":null}],"system_fingerprint":"fp_8bbc38b4db"}
+
+
+        data: {"id":"gen-1767213717-dGUNCjIaPNYaUL5NzhXU","provider":"OpenAI","model":"openai/gpt-4o-mini-2024-07-18","object":"chat.completion.chunk","created":1767213717,"choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null,"native_finish_reason":null,"logprobs":null}],"usage":{"prompt_tokens":27,"completion_tokens":1,"total_tokens":28,"cost":0.00000465,"is_byok":false,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0,"video_tokens":0},"cost_details":{"upstream_inference_cost":null,"upstream_inference_prompt_cost":0.00000405,"upstream_inference_completions_cost":6e-7},"completion_tokens_details":{"reasoning_tokens":0,"image_tokens":0}}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      CF-RAY:
+      - 9b6c99c75c96222b-ORD
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Wed, 31 Dec 2025 20:41:58 GMT
+      Permissions-Policy:
+      - payment=(self "https://checkout.stripe.com" "https://connect-js.stripe.com"
+        "https://js.stripe.com" "https://*.js.stripe.com" "https://hooks.stripe.com")
+      Referrer-Policy:
+      - no-referrer, strict-origin-when-cross-origin
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+    status:
+      code: 200
+      message: OK
+version: 1

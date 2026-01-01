@@ -1,7 +1,4 @@
-import os
-
 import pytest
-
 from chatlas import ChatDeepSeek
 
 from .conftest import (
@@ -12,11 +9,8 @@ from .conftest import (
     assert_turns_system,
 )
 
-api_key = os.getenv("DEEPSEEK_API_KEY")
-if api_key is None:
-    pytest.skip("DEEPSEEK_API_KEY is not set; skipping tests", allow_module_level=True)
 
-
+@pytest.mark.vcr
 def test_deepseek_simple_request():
     chat = ChatDeepSeek(
         system_prompt="Be as terse as possible; no punctuation",
@@ -30,6 +24,7 @@ def test_deepseek_simple_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_deepseek_simple_streaming_request():
     chat = ChatDeepSeek(
@@ -44,17 +39,20 @@ async def test_deepseek_simple_streaming_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 def test_deepseek_respects_turns_interface():
     chat_fun = ChatDeepSeek
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
+@pytest.mark.vcr
 def test_deepseek_tool_variations():
     chat_fun = ChatDeepSeek
     assert_tools_simple(chat_fun)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_deepseek_tool_variations_async():
     chat_fun = ChatDeepSeek
@@ -64,5 +62,6 @@ async def test_deepseek_tool_variations_async():
 # Doesn't seem to support data extraction or images
 
 
+@pytest.mark.vcr
 def test_deepseek_list_models():
     assert_list_models(ChatDeepSeek)

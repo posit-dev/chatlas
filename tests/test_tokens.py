@@ -1,5 +1,6 @@
 from typing import Optional
 
+import pytest
 from chatlas import AssistantTurn, ChatAnthropic, ChatGoogle, ChatOpenAI, UserTurn
 from chatlas._provider_openai import OpenAIProvider
 from chatlas._provider_openai_azure import OpenAIAzureProvider
@@ -11,6 +12,16 @@ from chatlas._tokens import (
     tokens_reset,
 )
 from pydantic import BaseModel
+
+from .conftest import make_vcr_config
+
+
+# Allow tiktoken to download encoding files from openaipublic.blob.core.windows.net
+@pytest.fixture(scope="module")
+def vcr_config():
+    config = make_vcr_config()
+    config["ignore_hosts"] = ["openaipublic.blob.core.windows.net"]
+    return config
 
 
 def test_tokens_method():
@@ -64,6 +75,7 @@ def test_tokens_method():
     ]
 
 
+@pytest.mark.vcr
 def test_token_count_method():
     chat = ChatOpenAI(model="gpt-4o-mini")
     assert chat.token_count("What is 1 + 1?") == 32

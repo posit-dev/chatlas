@@ -1,12 +1,5 @@
-import os
-
 import pytest
-
 from chatlas import ChatAzureOpenAI
-
-do_test = os.getenv("TEST_AZURE", "true")
-if do_test.lower() == "false":
-    pytest.skip("Skipping Azure tests", allow_module_level=True)
 
 
 def chat_func(system_prompt: str = "Be as terse as possible; no punctuation"):
@@ -18,6 +11,7 @@ def chat_func(system_prompt: str = "Be as terse as possible; no punctuation"):
     )
 
 
+@pytest.mark.vcr
 def test_azure_simple_request():
     chat = chat_func()
     response = chat.chat("What is 1 + 1?")
@@ -29,6 +23,7 @@ def test_azure_simple_request():
     assert chat.provider.name == "Azure/OpenAI"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_azure_simple_request_async():
     chat = chat_func()

@@ -1,0 +1,272 @@
+interactions:
+- request:
+    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
+      "Say ''Hello''"}]}], "model": "gpt-4.1", "store": false, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '129'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_00e03c1e9202fd3d01695588f701a0819eace7cfa8c752c7a2\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213303,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1767213303,\n  \"error\": null,\n
+        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
+        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_00e03c1e9202fd3d01695588f734fc819e852fb845da053f6b\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"Hello! \\ud83d\\udc4b
+        How can I help you today?\"\n        }\n      ],\n      \"role\": \"assistant\"\n
+        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n
+        \ \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
+        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
+        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n
+        \   \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
+        [],\n  \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n
+        \ \"usage\": {\n    \"input_tokens\": 11,\n    \"input_tokens_details\": {\n
+        \     \"cached_tokens\": 0\n    },\n    \"output_tokens\": 12,\n    \"output_tokens_details\":
+        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 23\n  },\n
+        \ \"user\": null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 9b6c8fa77f8d253a-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:35:03 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1515'
+      openai-processing-ms:
+      - '407'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '411'
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '30000000'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
+      "Say ''World''"}]}], "model": "gpt-4.1", "store": false, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '129'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_0927a23059962e8801695588f72ff88192b204e5f63b335991\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213303,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1767213303,\n  \"error\": null,\n
+        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
+        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0927a23059962e8801695588f75df481929f8344b1bee17e93\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"World\"\n        }\n
+        \     ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
+        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
+        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
+        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
+        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
+        \   \"format\": {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
+        0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
+        11,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
+        \   \"output_tokens\": 2,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 13\n  },\n  \"user\": null,\n  \"metadata\":
+        {}\n}"
+    headers:
+      CF-RAY:
+      - 9b6c8fa8ad1589ef-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:35:03 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1474'
+      openai-processing-ms:
+      - '226'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '230'
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '30000000'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
+      "Say ''Test''"}]}], "model": "gpt-4.1", "store": false, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '128'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_0eea567502e1651d01695588f723988197981f3f968988d504\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213303,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1767213303,\n  \"error\": null,\n
+        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
+        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0eea567502e1651d01695588f77b308197aa660230a95da0f7\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"Test\"\n        }\n
+        \     ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
+        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
+        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
+        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
+        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
+        \   \"format\": {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
+        0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
+        11,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
+        \   \"output_tokens\": 2,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 13\n  },\n  \"user\": null,\n  \"metadata\":
+        {}\n}"
+    headers:
+      CF-RAY:
+      - 9b6c8fa858cc1855-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:35:03 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1473'
+      openai-processing-ms:
+      - '409'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '413'
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '30000000'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+version: 1

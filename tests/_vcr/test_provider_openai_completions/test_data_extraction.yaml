@@ -1,0 +1,392 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "gpt-4.1", "response_format": {"type": "json_schema", "json_schema":
+      {"name": "structured_data", "description": "Summary of the article", "schema":
+      {"description": "Summary of the article", "properties": {"title": {"type": "string"},
+      "author": {"type": "string"}}, "required": ["title", "author"], "type": "object",
+      "additionalProperties": false}, "strict": true}}, "seed": 1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '600'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n  \"id\": \"chatcmpl-CsxImN3LNJ3W9SCQI5oZhYYnBOzJ0\",\n  \"object\":
+        \"chat.completion\",\n  \"created\": 1767213704,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\":
+        \"assistant\",\n        \"content\": \"{\\\"title\\\":\\\"Apples are tasty\\\",\\\"author\\\":\\\"Hadley
+        Wickham\\\"}\",\n        \"refusal\": null,\n        \"annotations\": []\n
+        \     },\n      \"logprobs\": null,\n      \"finish_reason\": \"stop\"\n    }\n
+        \ ],\n  \"usage\": {\n    \"prompt_tokens\": 95,\n    \"completion_tokens\":
+        15,\n    \"total_tokens\": 110,\n    \"prompt_tokens_details\": {\n      \"cached_tokens\":
+        0,\n      \"audio_tokens\": 0\n    },\n    \"completion_tokens_details\":
+        {\n      \"reasoning_tokens\": 0,\n      \"audio_tokens\": 0,\n      \"accepted_prediction_tokens\":
+        0,\n      \"rejected_prediction_tokens\": 0\n    }\n  },\n  \"service_tier\":
+        \"default\",\n  \"system_fingerprint\": \"fp_1a2c4a5ede\"\n}\n"
+    headers:
+      CF-RAY:
+      - 9b6c9975a8997815-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:41:44 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '866'
+      openai-processing-ms:
+      - '273'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '297'
+      x-openai-proxy-wasm:
+      - v0.1
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999959'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "gpt-4.1", "response_format": {"type": "json_schema", "json_schema":
+      {"name": "structured_data", "description": "Summary of the article", "schema":
+      {"description": "Summary of the article", "properties": {"title": {"type": "string"},
+      "author": {"type": "string"}}, "required": ["title", "author"], "type": "object",
+      "additionalProperties": false}, "strict": true}}, "seed": 1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '934'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=81iyVdKUXqmNCjJCB2IBLImU3wXlUHZUvQWNEQb5uS4-1767213704-1.0.1.1-MDuf13G3boFpPc6DHXVVQ.8RmopnEgpFi415hTmpcZGKmt62LSUkIk1AAv8U7rmciw1nCAT4.S2CtruwM9Aufhg.4.egvnHNCI74FCjbIto;
+        _cfuvid=KwmRrTnVKjpU6aNyR8l2x_JXM4Spkjbv.U3nT0KPv5s-1767213704939-0.0.1.1-604800000
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n  \"id\": \"chatcmpl-CsxInBpnylaEhvXX0SFpw7T6pJItL\",\n  \"object\":
+        \"chat.completion\",\n  \"created\": 1767213705,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\":
+        \"assistant\",\n        \"content\": \"{\\\"title\\\":\\\"Apples are tasty\\\",\\\"author\\\":\\\"Hadley
+        Wickham\\\"}\",\n        \"refusal\": null,\n        \"annotations\": []\n
+        \     },\n      \"logprobs\": null,\n      \"finish_reason\": \"stop\"\n    }\n
+        \ ],\n  \"usage\": {\n    \"prompt_tokens\": 160,\n    \"completion_tokens\":
+        15,\n    \"total_tokens\": 175,\n    \"prompt_tokens_details\": {\n      \"cached_tokens\":
+        0,\n      \"audio_tokens\": 0\n    },\n    \"completion_tokens_details\":
+        {\n      \"reasoning_tokens\": 0,\n      \"audio_tokens\": 0,\n      \"accepted_prediction_tokens\":
+        0,\n      \"rejected_prediction_tokens\": 0\n    }\n  },\n  \"service_tier\":
+        \"default\",\n  \"system_fingerprint\": \"fp_1a2c4a5ede\"\n}\n"
+    headers:
+      CF-RAY:
+      - 9b6c997918f19bf6-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:41:45 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '867'
+      openai-processing-ms:
+      - '302'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '315'
+      x-openai-proxy-wasm:
+      - v0.1
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999906'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}], "model": "gpt-4.1", "response_format":
+      {"type": "json_schema", "json_schema": {"name": "structured_data", "description":
+      "", "schema": {"properties": {"name": {"type": "string"}, "age": {"type": "integer"}},
+      "required": ["name", "age"], "type": "object", "additionalProperties": false},
+      "strict": true}}, "seed": 1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1086'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=81iyVdKUXqmNCjJCB2IBLImU3wXlUHZUvQWNEQb5uS4-1767213704-1.0.1.1-MDuf13G3boFpPc6DHXVVQ.8RmopnEgpFi415hTmpcZGKmt62LSUkIk1AAv8U7rmciw1nCAT4.S2CtruwM9Aufhg.4.egvnHNCI74FCjbIto;
+        _cfuvid=KwmRrTnVKjpU6aNyR8l2x_JXM4Spkjbv.U3nT0KPv5s-1767213704939-0.0.1.1-604800000
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: "{\n  \"id\": \"chatcmpl-CsxInjNMcC8uFSfEIzgWwyeywg28y\",\n  \"object\":
+        \"chat.completion\",\n  \"created\": 1767213705,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\":
+        \"assistant\",\n        \"content\": \"{\\\"name\\\":\\\"Sarah Lin\\\",\\\"age\\\":29}\",\n
+        \       \"refusal\": null,\n        \"annotations\": []\n      },\n      \"logprobs\":
+        null,\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\":
+        184,\n    \"completion_tokens\": 10,\n    \"total_tokens\": 194,\n    \"prompt_tokens_details\":
+        {\n      \"cached_tokens\": 0,\n      \"audio_tokens\": 0\n    },\n    \"completion_tokens_details\":
+        {\n      \"reasoning_tokens\": 0,\n      \"audio_tokens\": 0,\n      \"accepted_prediction_tokens\":
+        0,\n      \"rejected_prediction_tokens\": 0\n    }\n  },\n  \"service_tier\":
+        \"default\",\n  \"system_fingerprint\": \"fp_1a2c4a5ede\"\n}\n"
+    headers:
+      CF-RAY:
+      - 9b6c997caacf9e4c-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:41:46 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '840'
+      openai-processing-ms:
+      - '298'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '313'
+      x-openai-proxy-wasm:
+      - v0.1
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999879'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}, {"role": "assistant", "content":
+      [{"type": "text", "text": "{\"name\":\"Sarah Lin\",\"age\":29}"}]}, {"content":
+      [{"type": "text", "text": "What is the name of the person?"}], "role": "user"}],
+      "model": "gpt-4.1", "seed": 1014, "stream": true, "stream_options": {"include_usage":
+      true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1044'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=81iyVdKUXqmNCjJCB2IBLImU3wXlUHZUvQWNEQb5uS4-1767213704-1.0.1.1-MDuf13G3boFpPc6DHXVVQ.8RmopnEgpFi415hTmpcZGKmt62LSUkIk1AAv8U7rmciw1nCAT4.S2CtruwM9Aufhg.4.egvnHNCI74FCjbIto;
+        _cfuvid=KwmRrTnVKjpU6aNyR8l2x_JXM4Spkjbv.U3nT0KPv5s-1767213704939-0.0.1.1-604800000
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"chatcmpl-CsxIp9MMQUMCNP0Lz4ssyWBN1MxbS","object":"chat.completion.chunk","created":1767213707,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_1a2c4a5ede","choices":[{"index":0,"delta":{"role":"assistant","content":"","refusal":null},"logprobs":null,"finish_reason":null}],"usage":null,"obfuscation":"2rojCM3dKWbMB"}
+
+
+        data: {"id":"chatcmpl-CsxIp9MMQUMCNP0Lz4ssyWBN1MxbS","object":"chat.completion.chunk","created":1767213707,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_1a2c4a5ede","choices":[{"index":0,"delta":{"content":"Sarah"},"logprobs":null,"finish_reason":null}],"usage":null,"obfuscation":"4aKvImUtz6"}
+
+
+        data: {"id":"chatcmpl-CsxIp9MMQUMCNP0Lz4ssyWBN1MxbS","object":"chat.completion.chunk","created":1767213707,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_1a2c4a5ede","choices":[{"index":0,"delta":{"content":"
+        Lin"},"logprobs":null,"finish_reason":null}],"usage":null,"obfuscation":"TDd5kKYxBVv"}
+
+
+        data: {"id":"chatcmpl-CsxIp9MMQUMCNP0Lz4ssyWBN1MxbS","object":"chat.completion.chunk","created":1767213707,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_1a2c4a5ede","choices":[{"index":0,"delta":{},"logprobs":null,"finish_reason":"stop"}],"usage":null,"obfuscation":"JEJurzNCm"}
+
+
+        data: {"id":"chatcmpl-CsxIp9MMQUMCNP0Lz4ssyWBN1MxbS","object":"chat.completion.chunk","created":1767213707,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_1a2c4a5ede","choices":[],"usage":{"prompt_tokens":165,"completion_tokens":2,"total_tokens":167,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}},"obfuscation":"ZLp2dWLoTQIew"}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c998008cee277-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:41:47 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-expose-headers:
+      - X-Request-ID
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      openai-processing-ms:
+      - '328'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '674'
+      x-openai-proxy-wasm:
+      - v0.1
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '29999861'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+version: 1

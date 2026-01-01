@@ -1,7 +1,6 @@
 import httpx
 import pytest
-
-from chatlas import ChatOpenAICompletions as ChatOpenAI
+from chatlas import ChatOpenAICompletions
 
 from .conftest import (
     assert_data_extraction,
@@ -19,8 +18,9 @@ from .conftest import (
 )
 
 
+@pytest.mark.vcr
 def test_openai_simple_request():
-    chat = ChatOpenAI(
+    chat = ChatOpenAICompletions(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -33,9 +33,10 @@ def test_openai_simple_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_simple_streaming_request():
-    chat = ChatOpenAI(
+    chat = ChatOpenAICompletions(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -47,38 +48,41 @@ async def test_openai_simple_streaming_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 def test_openai_respects_turns_interface():
-    chat_fun = ChatOpenAI
-    assert_turns_system(chat_fun)
-    assert_turns_existing(chat_fun)
+    assert_turns_system(ChatOpenAICompletions)
+    assert_turns_existing(ChatOpenAICompletions)
 
 
+@pytest.mark.vcr
 def test_openai_tool_variations():
-    chat_fun = ChatOpenAI
-    assert_tools_simple(chat_fun)
-    assert_tools_simple_stream_content(chat_fun)
-    assert_tools_parallel(chat_fun)
-    assert_tools_sequential(chat_fun, total_calls=6)
+    assert_tools_simple(ChatOpenAICompletions)
+    assert_tools_simple_stream_content(ChatOpenAICompletions)
+    assert_tools_parallel(ChatOpenAICompletions)
+    assert_tools_sequential(ChatOpenAICompletions, total_calls=6)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_tool_variations_async():
-    await assert_tools_async(ChatOpenAI)
+    await assert_tools_async(ChatOpenAICompletions)
 
 
+@pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(ChatOpenAI)
+    assert_data_extraction(ChatOpenAICompletions)
 
 
+@pytest.mark.vcr
 def test_openai_images():
-    chat_fun = ChatOpenAI
-    assert_images_inline(chat_fun)
-    assert_images_remote(chat_fun)
+    assert_images_inline(ChatOpenAICompletions)
+    assert_images_remote(ChatOpenAICompletions)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_logprobs():
-    chat = ChatOpenAI()
+    chat = ChatOpenAICompletions()
     chat.set_model_params(log_probs=True)
 
     pieces = []
@@ -94,14 +98,15 @@ async def test_openai_logprobs():
     assert len(logprobs) == len(pieces)
 
 
+@pytest.mark.vcr
 def test_openai_pdf():
-    chat_fun = ChatOpenAI
-    assert_pdf_local(chat_fun)
+    assert_pdf_local(ChatOpenAICompletions)
 
 
 def test_openai_custom_http_client():
-    ChatOpenAI(kwargs={"http_client": httpx.AsyncClient()})
+    ChatOpenAICompletions(kwargs={"http_client": httpx.AsyncClient()})
 
 
+@pytest.mark.vcr
 def test_openai_list_models():
-    assert_list_models(ChatOpenAI)
+    assert_list_models(ChatOpenAICompletions)

@@ -1,0 +1,231 @@
+interactions:
+- request:
+    body: '{"contents": [{"parts": [{"text": "What is the name of Winnie the Pooh''s
+      human friend?"}], "role": "user"}], "systemInstruction": {"parts": [{"text":
+      "Return very minimal output, AND ONLY USE UPPERCASE."}], "role": "user"}, "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '263'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"CHRISTOPHER
+        ROBIN\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 27,\"candidatesTokenCount\": 5,\"totalTokenCount\":
+        67,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 27}],\"thoughtsTokenCount\":
+        35},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"w7FVaf77JODQjMcP3NDmyQw\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Wed, 31 Dec 2025 23:29:07 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=564
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What is the name of Winnie the Pooh''s
+      human friend?"}], "role": "user"}], "systemInstruction": {"parts": [{"text":
+      "Return very minimal output, AND ONLY USE UPPERCASE."}], "role": "user"}, "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '263'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"CHRISTOPHER
+        ROBIN\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 27,\"candidatesTokenCount\": 5,\"totalTokenCount\":
+        67,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 27}],\"thoughtsTokenCount\":
+        35},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"YbpVaaStDqbP_uMP1PvVgQU\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Thu, 01 Jan 2026 00:05:53 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=571
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What is the name of Winnie the Pooh''s
+      human friend?"}], "role": "user"}], "systemInstruction": {"parts": [{"text":
+      "Return very minimal output, AND ONLY USE UPPERCASE."}], "role": "user"}, "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '263'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"CHRISTOPHER
+        ROBIN\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 27,\"candidatesTokenCount\": 5,\"totalTokenCount\":
+        67,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 27}],\"thoughtsTokenCount\":
+        35},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"YrpVafm5Au7pjMcPwozHqAo\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Thu, 01 Jan 2026 00:05:54 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=614
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "My name is Steve"}], "role": "user"},
+      {"parts": [{"text": "Hello Steve, how can I help you today?"}], "role": "model"},
+      {"parts": [{"text": "What is my name?"}], "role": "user"}], "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '254'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Your
+        name is Steve.\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\":
+        0}],\"usageMetadata\": {\"promptTokenCount\": 22,\"candidatesTokenCount\":
+        5,\"totalTokenCount\": 50,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        22}],\"thoughtsTokenCount\": 23},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
+        \"YrpVadufNebc_uMPmcHq6Q8\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Thu, 01 Jan 2026 00:05:55 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=518
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,0 +1,54 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.deepseek.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: GET
+    uri: https://api.deepseek.com/models
+  response:
+    body:
+      string: '{"object":"list","data":[{"id":"deepseek-chat","object":"model","owned_by":"deepseek"},{"id":"deepseek-reasoner","object":"model","owned_by":"deepseek"}]}'
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '154'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:37:50 GMT
+      Server:
+      - elb
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - origin
+      Via:
+      - 1.1 2f51a381830e231f6bc2b46fda74f69e.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - mgFFCx8JBolTTjH52ADc1GUHPZssINDzDxG2pABqc5djt5OUrlCTbQ==
+      X-Amz-Cf-Pop:
+      - ORD56-P7
+      X-Cache:
+      - Miss from cloudfront
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-credentials:
+      - 'true'
+      x-ds-trace-id:
+      - e9649652e269daf0ffdd27df13056a22
+    status:
+      code: 200
+      message: OK
+version: 1

@@ -1,4 +1,4 @@
-name: Test - Python
+name: Test
 
 on:
   workflow_dispatch:
@@ -15,63 +15,32 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
-        config:
-          - { python-version: "3.9", test_google: false, test_azure: false }
-          - { python-version: "3.10", test_google: false, test_azure: false }
-          - { python-version: "3.11", test_google: false, test_azure: false }
-          - { python-version: "3.12", test_google: true, test_azure: true }
-          - { python-version: "3.13", test_google: false, test_azure: false }
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
 
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-      AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
-      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-      # Free tier of Google is rate limited, so we only test on 3.12
-      TEST_GOOGLE: ${{ matrix.config.test_google }}
-      # Free tier of Azure is rate limited, so we only test on 3.12
-      TEST_AZURE: ${{ matrix.config.test_azure }}
+    # Note: Dummy API keys for VCR replay testing are set in the Makefile.
+    # This workflow will not make any live API calls; those are reserved for
+    # the test-live.yml workflow.
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: 🚀 Install uv
+      - name: Install uv
         uses: astral-sh/setup-uv@v3
 
-      - name: 🐍 Set up Python ${{ matrix.config.python-version }}
-        run: uv python install ${{matrix.config.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }}
 
-      - name: 📦 Install the project
-        run: uv sync --python ${{ matrix.config.python-version }} --all-extras
+      - name: Install the project
+        run: uv sync --python ${{ matrix.python-version }} --all-extras
 
-      - name: Create Snowflake connections.toml file
-        run: |
-          mkdir -p ~/.ssh
-          echo '${{ secrets.SNOWFLAKE_SSH_PUBLIC_KEY }}' > ~/.ssh/snowflake_key.pub
-          echo '${{ secrets.SNOWFLAKE_SSH_PRIVATE_KEY }}' > ~/.ssh/snowflake_key.p8
-          chmod 644 ~/.ssh/snowflake_key.pub
-          chmod 600 ~/.ssh/snowflake_key.p8
-          chmod 700 ~/.ssh
-
-          mkdir -p ~/.snowflake
-          cat > ~/.snowflake/connections.toml << 'EOF'
-          [posit]
-          account="duloftf-posit-software-pbc-dev"
-          user="carson@posit.co"
-          private_key_file="/home/runner/.ssh/snowflake_key.p8"
-          private_key_file_pwd="${{ secrets.SNOWFLAKE_SSH_PRIVATE_KEY_PASSWORD }}"
-          EOF
-
-      - name: 🧪 Check tests
+      - name: Check tests
         run: make check-tests
 
-      - name: 📝 Check types
-        if: ${{ matrix.config.python-version != '3.9' }}
+      - name: Check types
         run: make check-types
 
-      - name: 📐 Check formatting
+      - name: Check formatting
         run: make check-format

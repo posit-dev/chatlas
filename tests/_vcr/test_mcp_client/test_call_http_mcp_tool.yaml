@@ -1,0 +1,472 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - localhost:8081
+    method: GET
+    uri: http://localhost:8081/
+  response:
+    body:
+      string: Not Found
+    headers:
+      content-length:
+      - '9'
+      content-type:
+      - text/plain; charset=utf-8
+      date:
+      - Thu, 01 Jan 2026 00:05:31 GMT
+      server:
+      - uvicorn
+    status:
+      code: 404
+      message: Not Found
+- request:
+    body: '{"method": "initialize", "params": {"protocolVersion": "2025-11-25", "capabilities":
+      {}, "clientInfo": {"name": "mcp", "version": "0.1.0"}}, "jsonrpc": "2.0", "id":
+      0}'
+    headers:
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '152'
+      Host:
+      - localhost:8081
+      accept:
+      - application/json, text/event-stream
+      content-type:
+      - application/json
+    method: POST
+    uri: http://localhost:8081/mcp
+  response:
+    body:
+      string: "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":0,\"result\":{\"protocolVersion\":\"2025-11-25\",\"capabilities\":{\"experimental\":{},\"prompts\":{\"listChanged\":false},\"resources\":{\"subscribe\":false,\"listChanged\":false},\"tools\":{\"listChanged\":false}},\"serverInfo\":{\"name\":\"test\",\"version\":\"1.25.0\"}}}\r\n\r\n"
+    headers:
+      Transfer-Encoding:
+      - chunked
+      cache-control:
+      - no-cache, no-transform
+      connection:
+      - keep-alive
+      content-type:
+      - text/event-stream
+      date:
+      - Thu, 01 Jan 2026 00:05:31 GMT
+      mcp-session-id:
+      - 2e520530e2984ca3b66432e343f683e7
+      server:
+      - uvicorn
+      x-accel-buffering:
+      - 'no'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"method": "notifications/initialized", "jsonrpc": "2.0"}'
+    headers:
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '54'
+      Host:
+      - localhost:8081
+      accept:
+      - application/json, text/event-stream
+      content-type:
+      - application/json
+      mcp-protocol-version:
+      - '2025-11-25'
+      mcp-session-id:
+      - 2e520530e2984ca3b66432e343f683e7
+    method: POST
+    uri: http://localhost:8081/mcp
+  response:
+    body:
+      string: ''
+    headers:
+      content-length:
+      - '0'
+      content-type:
+      - application/json
+      date:
+      - Thu, 01 Jan 2026 00:05:31 GMT
+      mcp-session-id:
+      - 2e520530e2984ca3b66432e343f683e7
+      server:
+      - uvicorn
+    status:
+      code: 202
+      message: Accepted
+- request:
+    body: '{"method": "tools/list", "jsonrpc": "2.0", "id": 1}'
+    headers:
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '46'
+      Host:
+      - localhost:8081
+      accept:
+      - application/json, text/event-stream
+      content-type:
+      - application/json
+      mcp-protocol-version:
+      - '2025-11-25'
+      mcp-session-id:
+      - 2e520530e2984ca3b66432e343f683e7
+    method: POST
+    uri: http://localhost:8081/mcp
+  response:
+    body:
+      string: "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":1,\"result\":{\"tools\":[{\"name\":\"get_current_date\",\"description\":\"Gets
+        the current date\",\"inputSchema\":{\"properties\":{},\"title\":\"get_current_dateArguments\",\"type\":\"object\"}}]}}\r\n\r\n"
+    headers:
+      Transfer-Encoding:
+      - chunked
+      cache-control:
+      - no-cache, no-transform
+      connection:
+      - keep-alive
+      content-type:
+      - text/event-stream
+      date:
+      - Thu, 01 Jan 2026 00:05:31 GMT
+      mcp-session-id:
+      - 2e520530e2984ca3b66432e343f683e7
+      server:
+      - uvicorn
+      x-accel-buffering:
+      - 'no'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
+      "Be very terse, not even punctuation."}]}, {"role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YMD format?"}]}], "model":
+      "gpt-4.1", "store": false, "stream": true, "tools": [{"type": "function", "name":
+      "get_current_date", "description": "Gets the current date", "parameters": {"properties":
+      {}, "type": "object", "additionalProperties": false}, "strict": true}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '437'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: 'event: response.created
+
+        data: {"type":"response.created","sequence_number":0,"response":{"id":"resp_008bb0b72212341c016955ba4c15c08190a0bc1affc590771b","object":"response","created_at":1767225932,"status":"in_progress","background":false,"completed_at":null,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}}}
+
+
+        event: response.in_progress
+
+        data: {"type":"response.in_progress","sequence_number":1,"response":{"id":"resp_008bb0b72212341c016955ba4c15c08190a0bc1affc590771b","object":"response","created_at":1767225932,"status":"in_progress","background":false,"completed_at":null,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}}}
+
+
+        event: response.output_item.added
+
+        data: {"type":"response.output_item.added","sequence_number":2,"output_index":0,"item":{"id":"fc_008bb0b72212341c016955ba4d43f08190a0cac726caf120ad","type":"function_call","status":"in_progress","arguments":"","call_id":"call_cbQ8EVAPwbiazOAMvpqingxC","name":"get_current_date"}}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","sequence_number":3,"item_id":"fc_008bb0b72212341c016955ba4d43f08190a0cac726caf120ad","output_index":0,"delta":"{}","obfuscation":"ldPIxKXReGb9mI"}
+
+
+        event: response.function_call_arguments.done
+
+        data: {"type":"response.function_call_arguments.done","sequence_number":4,"item_id":"fc_008bb0b72212341c016955ba4d43f08190a0cac726caf120ad","output_index":0,"arguments":"{}"}
+
+
+        event: response.output_item.done
+
+        data: {"type":"response.output_item.done","sequence_number":5,"output_index":0,"item":{"id":"fc_008bb0b72212341c016955ba4d43f08190a0cac726caf120ad","type":"function_call","status":"completed","arguments":"{}","call_id":"call_cbQ8EVAPwbiazOAMvpqingxC","name":"get_current_date"}}
+
+
+        event: response.completed
+
+        data: {"type":"response.completed","sequence_number":6,"response":{"id":"resp_008bb0b72212341c016955ba4c15c08190a0bc1affc590771b","object":"response","created_at":1767225932,"status":"completed","background":false,"completed_at":1767225933,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[{"id":"fc_008bb0b72212341c016955ba4d43f08190a0cac726caf120ad","type":"function_call","status":"completed","arguments":"{}","call_id":"call_cbQ8EVAPwbiazOAMvpqingxC","name":"get_current_date"}],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":{"input_tokens":52,"input_tokens_details":{"cached_tokens":0},"output_tokens":12,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":64},"user":null,"metadata":{}}}
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6dc3fb1816462e-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Thu, 01 Jan 2026 00:05:32 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      openai-processing-ms:
+      - '191'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '202'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"method": "tools/call", "params": {"name": "get_current_date", "arguments":
+      {}}, "jsonrpc": "2.0", "id": 2}'
+    headers:
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '98'
+      Host:
+      - localhost:8081
+      accept:
+      - application/json, text/event-stream
+      content-type:
+      - application/json
+      mcp-protocol-version:
+      - '2025-11-25'
+      mcp-session-id:
+      - 2e520530e2984ca3b66432e343f683e7
+    method: POST
+    uri: http://localhost:8081/mcp
+  response:
+    body:
+      string: "event: message\r\ndata: {\"jsonrpc\":\"2.0\",\"id\":2,\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"2024-01-01\"}],\"isError\":false}}\r\n\r\n"
+    headers:
+      Transfer-Encoding:
+      - chunked
+      cache-control:
+      - no-cache, no-transform
+      connection:
+      - keep-alive
+      content-type:
+      - text/event-stream
+      date:
+      - Thu, 01 Jan 2026 00:05:33 GMT
+      mcp-session-id:
+      - 2e520530e2984ca3b66432e343f683e7
+      server:
+      - uvicorn
+      x-accel-buffering:
+      - 'no'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
+      "Be very terse, not even punctuation."}]}, {"role": "user", "content": [{"type":
+      "input_text", "text": "What''s the current date in YMD format?"}]}, {"type":
+      "function_call", "call_id": "fc_008bb0b72212341c016955ba4d43f08190a0cac726caf120ad",
+      "name": "get_current_date", "arguments": "{}"}, {"type": "function_call_output",
+      "call_id": "fc_008bb0b72212341c016955ba4d43f08190a0cac726caf120ad", "output":
+      "2024-01-01"}], "model": "gpt-4.1", "store": false, "stream": true, "tools":
+      [{"type": "function", "name": "get_current_date", "description": "Gets the current
+      date", "parameters": {"properties": {}, "type": "object", "additionalProperties":
+      false}, "strict": true}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '691'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=gZeXQYZAmyWeOy1Y0_UCJS2IOxflv8RRFGiHnub8E_8-1767225932-1.0.1.1-V7BT4u69Gcu5ilqcbBA1yHpx_.QyqMUYFdJ0lKT086k2FdjODrF_g8fxt8txqUj0pCUdkH0k_o3Tk6HayyOkaSs1KcnUr4Akt_atpj24gKM;
+        _cfuvid=fHxZi1hZdw7VaTm37yUe4U7n7mu_Tmag16y1zQt18Pw-1767225932242-0.0.1.1-604800000
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: 'event: response.created
+
+        data: {"type":"response.created","sequence_number":0,"response":{"id":"resp_0cad4219bedde86d016955ba4e7bac81978dcd399769688614","object":"response","created_at":1767225935,"status":"in_progress","background":false,"completed_at":null,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}}}
+
+
+        event: response.in_progress
+
+        data: {"type":"response.in_progress","sequence_number":1,"response":{"id":"resp_0cad4219bedde86d016955ba4e7bac81978dcd399769688614","object":"response","created_at":1767225935,"status":"in_progress","background":false,"completed_at":null,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}}}
+
+
+        event: response.output_item.added
+
+        data: {"type":"response.output_item.added","sequence_number":2,"output_index":0,"item":{"id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","type":"message","status":"in_progress","content":[],"role":"assistant"}}
+
+
+        event: response.content_part.added
+
+        data: {"type":"response.content_part.added","sequence_number":3,"item_id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","output_index":0,"content_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""}}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":4,"item_id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","output_index":0,"content_index":0,"delta":"202","logprobs":[],"obfuscation":"pceWgYjCagU5B"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":5,"item_id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","output_index":0,"content_index":0,"delta":"4","logprobs":[],"obfuscation":"YuYVC6Tb3mIuNEV"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":6,"item_id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","output_index":0,"content_index":0,"delta":"-","logprobs":[],"obfuscation":"8O1bEmmu49cLKVD"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":7,"item_id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","output_index":0,"content_index":0,"delta":"01","logprobs":[],"obfuscation":"GpRnWrRCjTXG4r"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":8,"item_id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","output_index":0,"content_index":0,"delta":"-","logprobs":[],"obfuscation":"xaHGoFrTS1QJPgb"}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","sequence_number":9,"item_id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","output_index":0,"content_index":0,"delta":"01","logprobs":[],"obfuscation":"uitWaKKVHPFLSH"}
+
+
+        event: response.output_text.done
+
+        data: {"type":"response.output_text.done","sequence_number":10,"item_id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","output_index":0,"content_index":0,"text":"2024-01-01","logprobs":[]}
+
+
+        event: response.content_part.done
+
+        data: {"type":"response.content_part.done","sequence_number":11,"item_id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","output_index":0,"content_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"2024-01-01"}}
+
+
+        event: response.output_item.done
+
+        data: {"type":"response.output_item.done","sequence_number":12,"output_index":0,"item":{"id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"2024-01-01"}],"role":"assistant"}}
+
+
+        event: response.completed
+
+        data: {"type":"response.completed","sequence_number":13,"response":{"id":"resp_0cad4219bedde86d016955ba4e7bac81978dcd399769688614","object":"response","created_at":1767225935,"status":"completed","background":false,"completed_at":1767225938,"error":null,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[{"id":"msg_0cad4219bedde86d016955ba50ea248197a951a47689209b57","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"2024-01-01"}],"role":"assistant"}],"parallel_tool_calls":true,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":{"input_tokens":76,"input_tokens_details":{"cached_tokens":0},"output_tokens":8,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":84},"user":null,"metadata":{}}}
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6dc406cb7a2238-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Thu, 01 Jan 2026 00:05:35 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      openai-processing-ms:
+      - '1512'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '1638'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - localhost:8081
+      accept:
+      - application/json, text/event-stream
+      content-type:
+      - application/json
+      mcp-protocol-version:
+      - '2025-11-25'
+      mcp-session-id:
+      - 2e520530e2984ca3b66432e343f683e7
+    method: DELETE
+    uri: http://localhost:8081/mcp
+  response:
+    body:
+      string: ''
+    headers:
+      content-length:
+      - '0'
+      content-type:
+      - application/json
+      date:
+      - Thu, 01 Jan 2026 00:05:38 GMT
+      mcp-session-id:
+      - 2e520530e2984ca3b66432e343f683e7
+      server:
+      - uvicorn
+    status:
+      code: 200
+      message: OK
+version: 1

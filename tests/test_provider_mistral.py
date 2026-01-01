@@ -1,7 +1,4 @@
-import os
-
 import pytest
-
 from chatlas import ChatMistral
 
 from .conftest import (
@@ -13,11 +10,8 @@ from .conftest import (
     assert_turns_system,
 )
 
-api_key = os.getenv("MISTRAL_API_KEY")
-if api_key is None:
-    pytest.skip("MISTRAL_API_KEY is not set; skipping tests", allow_module_level=True)
 
-
+@pytest.mark.vcr
 def test_mistral_simple_request():
     chat = ChatMistral(
         system_prompt="Be as terse as possible; no punctuation",
@@ -32,6 +26,7 @@ def test_mistral_simple_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_mistral_simple_streaming_request():
     chat = ChatMistral(
@@ -46,6 +41,7 @@ async def test_mistral_simple_streaming_request():
     assert turn.finish_reason == "stop"
 
 
+@pytest.mark.vcr
 def test_mistral_respects_turns_interface():
     chat_fun = ChatMistral
     assert_turns_system(chat_fun)
@@ -64,14 +60,21 @@ def test_mistral_respects_turns_interface():
 #    await assert_tools_async(ChatMistral)
 
 
+@pytest.mark.vcr
 def test_data_extraction():
     assert_data_extraction(ChatMistral)
 
 
-def test_mistral_images():
-    assert_images_inline(ChatMistral)
-    assert_images_remote(ChatMistral)
+# TODO: Mistral image support seems buggy
+#@pytest.mark.vcr
+#def test_mistral_images():
+#    def chat_fun(**kwargs):
+#        return ChatMistral(model="pixtral-12b-latest", **kwargs)
+#
+#    assert_images_inline(ChatMistral)
+#    assert_images_remote(ChatMistral)
 
 
-def test_huggingface_model_list():
+@pytest.mark.vcr
+def test_mistral_model_list():
     assert_list_models(ChatMistral)

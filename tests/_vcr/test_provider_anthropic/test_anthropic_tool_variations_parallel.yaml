@@ -1,0 +1,310 @@
+interactions:
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "\n        What are Joe and Hadley''s favourite colours?\n        Answer like
+      name1: colour1, name2: colour2\n    ", "type": "text", "cache_control": {"type":
+      "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001", "stream":
+      true, "system": [{"type": "text", "text": "Be very terse, not even punctuation.",
+      "cache_control": {"type": "ephemeral", "ttl": "5m"}}], "tools": [{"name": "favorite_color",
+      "input_schema": {"type": "object", "properties": {"_person": {"type": "string"}}},
+      "description": "Returns a person''s favourite colour"}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '581'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_018V2wsqbk6Fr9K19db9BDsS","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":594,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":25,"service_tier":"standard"}}      }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"tool_use","id":"toolu_01GKy6Ya9D5YwfAQNTnXe2xA","name":"favorite_color","input":{}}
+        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":""}  }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"{\"_"}  }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"person\":
+        \"Jo"}  }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"e\"}"}       }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0  }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":1,"content_block":{"type":"tool_use","id":"toolu_01EHdQ2CdyNZ2G1GB84ZorxJ","name":"favorite_color","input":{}}        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":""}       }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"{\"_"}          }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":"person\""}
+        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":1,"delta":{"type":"input_json_delta","partial_json":":
+        \"Hadley\"}"}}
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":1     }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"tool_use","stop_sequence":null},"usage":{"input_tokens":594,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":94}               }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"            }
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c90194ffe7c1a-DEN
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:35:21 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-ratelimit-input-tokens-limit:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2025-12-31T20:35:21Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '800000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '800000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2025-12-31T20:35:21Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2025-12-31T20:35:21Z'
+      anthropic-ratelimit-tokens-limit:
+      - '4800000'
+      anthropic-ratelimit-tokens-remaining:
+      - '4800000'
+      anthropic-ratelimit-tokens-reset:
+      - '2025-12-31T20:35:21Z'
+      cf-cache-status:
+      - DYNAMIC
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '407'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "\n        What are Joe and Hadley''s favourite colours?\n        Answer like
+      name1: colour1, name2: colour2\n    ", "type": "text"}]}, {"role": "assistant",
+      "content": [{"type": "tool_use", "id": "toolu_01GKy6Ya9D5YwfAQNTnXe2xA", "name":
+      "favorite_color", "input": {"_person": "Joe"}}, {"type": "tool_use", "id": "toolu_01EHdQ2CdyNZ2G1GB84ZorxJ",
+      "name": "favorite_color", "input": {"_person": "Hadley"}}]}, {"role": "user",
+      "content": [{"type": "tool_result", "tool_use_id": "toolu_01GKy6Ya9D5YwfAQNTnXe2xA",
+      "is_error": false, "content": "sage green"}, {"type": "tool_result", "tool_use_id":
+      "toolu_01EHdQ2CdyNZ2G1GB84ZorxJ", "is_error": false, "content": "red", "cache_control":
+      {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001",
+      "stream": true, "system": [{"type": "text", "text": "Be very terse, not even
+      punctuation.", "cache_control": {"type": "ephemeral", "ttl": "5m"}}], "tools":
+      [{"name": "favorite_color", "input_schema": {"type": "object", "properties":
+      {"_person": {"type": "string"}}}, "description": "Returns a person''s favourite
+      colour"}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1074'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_014E1atwGTkcriCJ22o9BdNU","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":752,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard"}}      }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Joe"}       }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":":"}    }
+
+
+        event: ping
+
+        data: {"type": "ping"}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        sage green,"}           }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
+        Hadley: red"}           }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0}
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":752,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":13}    }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"}
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c901efa3f7b03-DEN
+      Cache-Control:
+      - no-cache
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:35:22 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-ratelimit-input-tokens-limit:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '4000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2025-12-31T20:35:22Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '800000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '800000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2025-12-31T20:35:22Z'
+      anthropic-ratelimit-requests-limit:
+      - '4000'
+      anthropic-ratelimit-requests-remaining:
+      - '3999'
+      anthropic-ratelimit-requests-reset:
+      - '2025-12-31T20:35:22Z'
+      anthropic-ratelimit-tokens-limit:
+      - '4800000'
+      anthropic-ratelimit-tokens-remaining:
+      - '4800000'
+      anthropic-ratelimit-tokens-reset:
+      - '2025-12-31T20:35:22Z'
+      cf-cache-status:
+      - DYNAMIC
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '394'
+    status:
+      code: 200
+      message: OK
+version: 1

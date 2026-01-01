@@ -20,6 +20,15 @@ from chatlas._inspect import (
 
 pytest.importorskip("inspect_ai")
 
+from .conftest import VCR_MATCH_ON_WITHOUT_BODY, is_dummy_credential, make_vcr_config
+
+
+# Don't match on body - inspect_ai includes dynamic IDs in request bodies
+@pytest.fixture(scope="module")
+def vcr_config():
+    return make_vcr_config(match_on=VCR_MATCH_ON_WITHOUT_BODY)
+
+
 import inspect_ai.model as i_model
 from inspect_ai import Task
 from inspect_ai import eval as inspect_eval
@@ -252,6 +261,7 @@ class TestExportEval:
 
 
 class TestInspectIntegration:
+    @pytest.mark.vcr
     def test_basic_eval(self):
         chat = chat_func(system_prompt=SYSTEM_DEFAULT)
 
@@ -266,6 +276,7 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
+    @pytest.mark.vcr
     def test_system_prompt_override(self):
         chat = chat_func(system_prompt="You are Chuck Norris.")
 
@@ -285,6 +296,7 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
+    @pytest.mark.vcr
     def test_existing_turns(self):
         chat = chat_func(system_prompt=SYSTEM_DEFAULT)
 
@@ -311,6 +323,7 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
+    @pytest.mark.vcr
     def test_tool_calling(self):
         chat = chat_func(system_prompt=SYSTEM_DEFAULT)
 
@@ -336,6 +349,12 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
+    # Skip VCR for multi-sample tests - response ordering with VCR is unreliable
+    # when body matching is disabled (required due to dynamic IDs in requests)
+    @pytest.mark.skipif(
+        is_dummy_credential("ANTHROPIC_API_KEY"),
+        reason="Multi-sample tests require live API (VCR response ordering is unreliable)",
+    )
     def test_multiple_samples_state_management(self):
         """Test that solver has independent state across multiple samples."""
 
@@ -367,6 +386,12 @@ class TestInspectIntegration:
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
 
+    # Skip VCR for multi-sample tests - response ordering with VCR is unreliable
+    # when body matching is disabled (required due to dynamic IDs in requests)
+    @pytest.mark.skipif(
+        is_dummy_credential("ANTHROPIC_API_KEY"),
+        reason="Multi-sample tests require live API (VCR response ordering is unreliable)",
+    )
     def test_multiple_tools_multiple_samples(self):
         def get_weather():
             """Get current weather data for various cities."""

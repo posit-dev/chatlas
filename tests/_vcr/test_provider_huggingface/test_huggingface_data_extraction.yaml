@@ -1,0 +1,392 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "meta-llama/Llama-3.1-8B-Instruct", "response_format": {"type": "json_schema",
+      "json_schema": {"name": "structured_data", "description": "Summary of the article",
+      "schema": {"description": "Summary of the article", "properties": {"title":
+      {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "stream":
+      false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '613'
+      Content-Type:
+      - application/json
+      Host:
+      - router.huggingface.co
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://router.huggingface.co/v1/chat/completions
+  response:
+    body:
+      string: '{"id":"chatcmpl-57a03339-427c-4d75-9f77-eb4e7ba049e5","choices":[{"finish_reason":"stop","index":0,"message":{"content":"{\"title\":
+        \"Apples are tasty\", \"author\": \"Hadley Wickham\"}","role":"assistant"}}],"created":1767213636,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion","usage":{"total_tokens":228,"completion_tokens":19,"prompt_tokens":209,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.793755075,"prompt_time":0.014493838,"completion_time":0.007847275,"total_time":0.8178763389587402,"created":1767213636.881173}}'
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Expose-Headers:
+      - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:40:37 GMT
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      Via:
+      - 1.1 602ee531a7853a19c56cb957462f11be.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - Ox_37rYBrFrtyBJupNxlMidApGJuiKEQp7w2AXgAk-J6Ov0QKFXElQ==
+      X-Amz-Cf-Pop:
+      - MSP50-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Powered-By:
+      - huggingface-moon
+      X-Robots-Tag:
+      - none
+      cf-cache-status:
+      - DYNAMIC
+      cross-origin-opener-policy:
+      - same-origin
+      inference-id:
+      - chatcmpl-57a03339-427c-4d75-9f77-eb4e7ba049e5
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=3600; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-inference-provider:
+      - cerebras
+      x-ratelimit-remaining-requests-day:
+      - '2879998'
+      x-ratelimit-remaining-requests-hour:
+      - '119998'
+      x-ratelimit-remaining-requests-minute:
+      - '1998'
+      x-ratelimit-remaining-tokens-day:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-hour:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-minute:
+      - '9223372036854767616'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "meta-llama/Llama-3.1-8B-Instruct", "response_format": {"type": "json_schema",
+      "json_schema": {"name": "structured_data", "description": "Summary of the article",
+      "schema": {"description": "Summary of the article", "properties": {"title":
+      {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "stream":
+      false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '947'
+      Content-Type:
+      - application/json
+      Host:
+      - router.huggingface.co
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://router.huggingface.co/v1/chat/completions
+  response:
+    body:
+      string: '{"id":"chatcmpl-61958873-506f-49bb-9ee1-0010c40b550b","choices":[{"finish_reason":"stop","index":0,"message":{"content":"{\"title\":
+        \"Apples are tasty\", \"author\": \"Hadley Wickham\"}","role":"assistant"}}],"created":1767213640,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion","usage":{"total_tokens":291,"completion_tokens":19,"prompt_tokens":272,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.763031647,"prompt_time":0.015083473,"completion_time":0.007532592,"total_time":0.7871401309967041,"created":1767213640.0957575}}'
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Expose-Headers:
+      - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:40:39 GMT
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      Via:
+      - 1.1 55111e952110eb701257618e8e013998.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - zPy3mAwp2ZRuR3nwOV48_CYgdNwNR6KwPna0Vk6Ub-1rZ_F8HN4IKw==
+      X-Amz-Cf-Pop:
+      - MSP50-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Powered-By:
+      - huggingface-moon
+      X-Robots-Tag:
+      - none
+      cf-cache-status:
+      - DYNAMIC
+      cross-origin-opener-policy:
+      - same-origin
+      inference-id:
+      - chatcmpl-61958873-506f-49bb-9ee1-0010c40b550b
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=3600; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-inference-provider:
+      - cerebras
+      x-ratelimit-remaining-requests-day:
+      - '2879999'
+      x-ratelimit-remaining-requests-hour:
+      - '119999'
+      x-ratelimit-remaining-requests-minute:
+      - '1999'
+      x-ratelimit-remaining-tokens-day:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-hour:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-minute:
+      - '9223372036854767616'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}], "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "response_format": {"type": "json_schema", "json_schema": {"name": "structured_data",
+      "description": "", "schema": {"properties": {"name": {"type": "string"}, "age":
+      {"type": "integer"}}, "required": ["name", "age"], "type": "object", "additionalProperties":
+      false}, "strict": true}}, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1099'
+      Content-Type:
+      - application/json
+      Host:
+      - router.huggingface.co
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://router.huggingface.co/v1/chat/completions
+  response:
+    body:
+      string: '{"id":"chatcmpl-dd91944e-f6db-47cd-957b-b0682d437d71","choices":[{"finish_reason":"stop","index":0,"message":{"content":"{\"name\":
+        \"Eleanor Thompson\", \"age\": 28}","role":"assistant"}}],"created":1767213639,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion","usage":{"total_tokens":309,"completion_tokens":15,"prompt_tokens":294,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.736799182,"prompt_time":0.013590869,"completion_time":0.00623192,"total_time":0.7583961486816406,"created":1767213639.5980492}}'
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Expose-Headers:
+      - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:40:40 GMT
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      Via:
+      - 1.1 c77aeab3024e2cd98690f252e49562ac.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - pHJfHLDd9m6kwlzQRN8vhrSA3OLCdOHhjRijb_nq0ePslvITz5p6Gw==
+      X-Amz-Cf-Pop:
+      - MSP50-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Powered-By:
+      - huggingface-moon
+      X-Robots-Tag:
+      - none
+      cf-cache-status:
+      - DYNAMIC
+      cross-origin-opener-policy:
+      - same-origin
+      inference-id:
+      - chatcmpl-dd91944e-f6db-47cd-957b-b0682d437d71
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=3600; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-inference-provider:
+      - cerebras
+      x-ratelimit-remaining-requests-day:
+      - '2879998'
+      x-ratelimit-remaining-requests-hour:
+      - '119998'
+      x-ratelimit-remaining-requests-minute:
+      - '1998'
+      x-ratelimit-remaining-tokens-day:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-hour:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-minute:
+      - '9223372036854767616'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}, {"role": "assistant", "content":
+      [{"type": "text", "text": "{\"name\":\"Eleanor Thompson\",\"age\":28}"}]}, {"content":
+      [{"type": "text", "text": "What is the name of the person?"}], "role": "user"}],
+      "model": "meta-llama/Llama-3.1-8B-Instruct", "stream": true, "stream_options":
+      {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1064'
+      Content-Type:
+      - application/json
+      Host:
+      - router.huggingface.co
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://router.huggingface.co/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"chatcmpl-f2e1d13e-bafe-44ec-a651-cf732e3e20cb","choices":[{"delta":{"role":"assistant"},"index":0}],"created":1767213642,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-f2e1d13e-bafe-44ec-a651-cf732e3e20cb","choices":[{"delta":{"content":"The"},"index":0}],"created":1767213642,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-f2e1d13e-bafe-44ec-a651-cf732e3e20cb","choices":[{"delta":{"content":"
+        person''s name is Eleanor Thompson."},"index":0}],"created":1767213642,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-f2e1d13e-bafe-44ec-a651-cf732e3e20cb","choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1767213642,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk","usage":{"total_tokens":209,"completion_tokens":9,"prompt_tokens":200,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.0001279,"prompt_time":0.011141347,"completion_time":0.003520405,"total_time":0.016063690185546875,"created":1767213642.6176653}}
+
+
+        '
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Expose-Headers:
+      - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:40:40 GMT
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      Via:
+      - 1.1 6c3e4f2d2e30b2082194f1fdc14299e8.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - XWN65sgyhz6WCUFdh6DYIG2dRnnVIcy5EfkKt8omByb_i9DDc2NXsA==
+      X-Amz-Cf-Pop:
+      - MSP50-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Powered-By:
+      - huggingface-moon
+      X-Robots-Tag:
+      - none
+      cf-cache-status:
+      - DYNAMIC
+      cross-origin-opener-policy:
+      - same-origin
+      inference-id:
+      - chatcmpl-f2e1d13e-bafe-44ec-a651-cf732e3e20cb
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=3600; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-inference-provider:
+      - cerebras
+      x-ratelimit-remaining-requests-day:
+      - '2879999'
+      x-ratelimit-remaining-requests-hour:
+      - '119999'
+      x-ratelimit-remaining-requests-minute:
+      - '1999'
+      x-ratelimit-remaining-tokens-day:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-hour:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-minute:
+      - '9223372036854767616'
+    status:
+      code: 200
+      message: OK
+version: 1

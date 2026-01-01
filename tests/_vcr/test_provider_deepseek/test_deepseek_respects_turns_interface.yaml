@@ -1,0 +1,274 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
+      "role": "system"}, {"content": "What is the name of Winnie the Pooh''s human
+      friend?", "role": "user"}], "model": "deepseek-chat", "seed": 1014, "stream":
+      true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '266'
+      Content-Type:
+      - application/json
+      Host:
+      - api.deepseek.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.deepseek.com/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"f19b7258-1ddb-41d4-a0c7-53a8c5c17630","object":"chat.completion.chunk","created":1767213449,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"f19b7258-1ddb-41d4-a0c7-53a8c5c17630","object":"chat.completion.chunk","created":1767213449,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"CH"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"f19b7258-1ddb-41d4-a0c7-53a8c5c17630","object":"chat.completion.chunk","created":1767213449,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"RIST"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"f19b7258-1ddb-41d4-a0c7-53a8c5c17630","object":"chat.completion.chunk","created":1767213449,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"OP"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"f19b7258-1ddb-41d4-a0c7-53a8c5c17630","object":"chat.completion.chunk","created":1767213449,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"HER"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"f19b7258-1ddb-41d4-a0c7-53a8c5c17630","object":"chat.completion.chunk","created":1767213449,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"
+        ROB"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"f19b7258-1ddb-41d4-a0c7-53a8c5c17630","object":"chat.completion.chunk","created":1767213449,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"IN"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"f19b7258-1ddb-41d4-a0c7-53a8c5c17630","object":"chat.completion.chunk","created":1767213449,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"."},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"f19b7258-1ddb-41d4-a0c7-53a8c5c17630","object":"chat.completion.chunk","created":1767213449,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":31,"completion_tokens":7,"total_tokens":38,"prompt_tokens_details":{"cached_tokens":0},"prompt_cache_hit_tokens":0,"prompt_cache_miss_tokens":31}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:37:29 GMT
+      Server:
+      - elb
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 2bb4560ed08e22695c5989511be7b43e.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - -AGSeiz9Jf0psjbz_vkk830jbPtjc7f9fYdDUkOtCax04Yswt-A_PA==
+      X-Amz-Cf-Pop:
+      - ORD58-P3
+      X-Cache:
+      - Miss from cloudfront
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-credentials:
+      - 'true'
+      cache-control:
+      - no-cache
+      vary:
+      - origin, access-control-request-method, access-control-request-headers
+      x-ds-trace-id:
+      - 71e8d0be004f2c7ed25d220ae66ccedf
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
+      "role": "system"}, {"content": "What is the name of Winnie the Pooh''s human
+      friend?", "role": "user"}], "model": "deepseek-chat", "seed": 1014, "stream":
+      true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '266'
+      Content-Type:
+      - application/json
+      Host:
+      - api.deepseek.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.deepseek.com/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"6e4dbdd4-d8c2-4ed1-8d69-3a9f139359bc","object":"chat.completion.chunk","created":1767213451,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"6e4dbdd4-d8c2-4ed1-8d69-3a9f139359bc","object":"chat.completion.chunk","created":1767213451,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"CH"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"6e4dbdd4-d8c2-4ed1-8d69-3a9f139359bc","object":"chat.completion.chunk","created":1767213451,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"RIST"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"6e4dbdd4-d8c2-4ed1-8d69-3a9f139359bc","object":"chat.completion.chunk","created":1767213451,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"OP"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"6e4dbdd4-d8c2-4ed1-8d69-3a9f139359bc","object":"chat.completion.chunk","created":1767213451,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"HER"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"6e4dbdd4-d8c2-4ed1-8d69-3a9f139359bc","object":"chat.completion.chunk","created":1767213451,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"
+        ROB"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"6e4dbdd4-d8c2-4ed1-8d69-3a9f139359bc","object":"chat.completion.chunk","created":1767213451,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"IN"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"6e4dbdd4-d8c2-4ed1-8d69-3a9f139359bc","object":"chat.completion.chunk","created":1767213451,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"."},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"6e4dbdd4-d8c2-4ed1-8d69-3a9f139359bc","object":"chat.completion.chunk","created":1767213451,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":31,"completion_tokens":7,"total_tokens":38,"prompt_tokens_details":{"cached_tokens":0},"prompt_cache_hit_tokens":0,"prompt_cache_miss_tokens":31}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:37:31 GMT
+      Server:
+      - elb
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 ff70d2ed51497e957e0d0413c2211f6a.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - s6KRaxXF_MAq32Em4q3uWIDK_qumJQOGMqzhhVUq4tzicn0n0vVKDA==
+      X-Amz-Cf-Pop:
+      - ORD56-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-credentials:
+      - 'true'
+      cache-control:
+      - no-cache
+      vary:
+      - origin, access-control-request-method, access-control-request-headers
+      x-ds-trace-id:
+      - 8cd48a4ff9fe853f630cf4f97672241e
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": "My name is Steve", "role": "user"}, {"role":
+      "assistant", "content": "Hello Steve, how can I help you today?"}, {"content":
+      "What is my name?", "role": "user"}], "model": "deepseek-chat", "seed": 1014,
+      "stream": true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '266'
+      Content-Type:
+      - application/json
+      Host:
+      - api.deepseek.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.deepseek.com/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"782ac5f5-fa5e-4798-ba4f-e5b62cfe9fb0","object":"chat.completion.chunk","created":1767213452,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"role":"assistant","content":""},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"782ac5f5-fa5e-4798-ba4f-e5b62cfe9fb0","object":"chat.completion.chunk","created":1767213452,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"Your"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"782ac5f5-fa5e-4798-ba4f-e5b62cfe9fb0","object":"chat.completion.chunk","created":1767213452,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"
+        name"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"782ac5f5-fa5e-4798-ba4f-e5b62cfe9fb0","object":"chat.completion.chunk","created":1767213452,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"
+        is"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"782ac5f5-fa5e-4798-ba4f-e5b62cfe9fb0","object":"chat.completion.chunk","created":1767213452,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"
+        Steve"},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"782ac5f5-fa5e-4798-ba4f-e5b62cfe9fb0","object":"chat.completion.chunk","created":1767213452,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":"."},"logprobs":null,"finish_reason":null}],"usage":null}
+
+
+        data: {"id":"782ac5f5-fa5e-4798-ba4f-e5b62cfe9fb0","object":"chat.completion.chunk","created":1767213452,"model":"deepseek-chat","system_fingerprint":"fp_eaab8d114b_prod0820_fp8_kvcache","choices":[{"index":0,"delta":{"content":""},"logprobs":null,"finish_reason":"stop"}],"usage":{"prompt_tokens":27,"completion_tokens":5,"total_tokens":32,"prompt_tokens_details":{"cached_tokens":0},"prompt_cache_hit_tokens":0,"prompt_cache_miss_tokens":27}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:37:32 GMT
+      Server:
+      - elb
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      Via:
+      - 1.1 8234e78a434fe9974fdac3eb5b59a35e.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - TyHXrbONKVG_Un2Uuvp2IDtHpST4EZgjKrvu_41hKf4r-XG8uoVFIg==
+      X-Amz-Cf-Pop:
+      - ORD56-P5
+      X-Cache:
+      - Miss from cloudfront
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-credentials:
+      - 'true'
+      cache-control:
+      - no-cache
+      vary:
+      - origin, access-control-request-method, access-control-request-headers
+      x-ds-trace-id:
+      - b3ad315eaf7c5142d7ef93c61c33bb55
+    status:
+      code: 200
+      message: OK
+version: 1

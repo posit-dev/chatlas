@@ -1,0 +1,62 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: GET
+    uri: https://api.anthropic.com/v1/models
+  response:
+    body:
+      string: '{"data":[{"type":"model","id":"claude-opus-4-5-20251101","display_name":"Claude
+        Opus 4.5","created_at":"2025-11-24T00:00:00Z"},{"type":"model","id":"claude-haiku-4-5-20251001","display_name":"Claude
+        Haiku 4.5","created_at":"2025-10-15T00:00:00Z"},{"type":"model","id":"claude-sonnet-4-5-20250929","display_name":"Claude
+        Sonnet 4.5","created_at":"2025-09-29T00:00:00Z"},{"type":"model","id":"claude-opus-4-1-20250805","display_name":"Claude
+        Opus 4.1","created_at":"2025-08-05T00:00:00Z"},{"type":"model","id":"claude-opus-4-20250514","display_name":"Claude
+        Opus 4","created_at":"2025-05-22T00:00:00Z"},{"type":"model","id":"claude-sonnet-4-20250514","display_name":"Claude
+        Sonnet 4","created_at":"2025-05-22T00:00:00Z"},{"type":"model","id":"claude-3-7-sonnet-20250219","display_name":"Claude
+        Sonnet 3.7","created_at":"2025-02-24T00:00:00Z"},{"type":"model","id":"claude-3-5-haiku-20241022","display_name":"Claude
+        Haiku 3.5","created_at":"2024-10-22T00:00:00Z"},{"type":"model","id":"claude-3-haiku-20240307","display_name":"Claude
+        Haiku 3","created_at":"2024-03-07T00:00:00Z"},{"type":"model","id":"claude-3-opus-20240229","display_name":"Claude
+        Opus 3","created_at":"2024-02-29T00:00:00Z"}],"has_more":false,"first_id":"claude-opus-4-5-20251101","last_id":"claude-3-opus-20240229"}'
+    headers:
+      CF-RAY:
+      - 9b6c90c1de5ee673-DEN
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:35:48 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1282'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '35'
+    status:
+      code: 200
+      message: OK
+version: 1

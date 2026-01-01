@@ -1,6 +1,7 @@
 import pytest
 from chatlas import ChatBedrockAnthropic
 
+from ._vcr_helpers_aws import _filter_aws_response, _scrub_aws_request
 from .conftest import (
     assert_data_extraction,
     assert_images_inline,
@@ -12,7 +13,17 @@ from .conftest import (
     assert_tools_simple,
     assert_turns_existing,
     assert_turns_system,
+    make_vcr_config,
 )
+
+
+@pytest.fixture(scope="module")
+def vcr_config():
+    """AWS-specific VCR configuration with credential scrubbing."""
+    config = make_vcr_config()
+    config["before_record_response"] = _filter_aws_response
+    config["before_record_request"] = _scrub_aws_request
+    return config
 
 try:
     chat = ChatBedrockAnthropic()
@@ -21,6 +32,7 @@ except Exception:
     pytest.skip("Bedrock credentials aren't configured", allow_module_level=True)
 
 
+@pytest.mark.vcr
 def test_anthropic_simple_request():
     chat = ChatBedrockAnthropic(
         system_prompt="Be as terse as possible; no punctuation",
@@ -31,6 +43,7 @@ def test_anthropic_simple_request():
     assert turn.tokens == (26, 5, 0)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_anthropic_simple_streaming_request():
     chat = ChatBedrockAnthropic(
@@ -46,12 +59,14 @@ async def test_anthropic_simple_streaming_request():
     assert turn.finish_reason == "end_turn"
 
 
+@pytest.mark.vcr
 def test_anthropic_respects_turns_interface():
     chat_fun = ChatBedrockAnthropic
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
+@pytest.mark.vcr
 def test_anthropic_tool_variations():
     chat_fun = ChatBedrockAnthropic
     assert_tools_simple(chat_fun)
@@ -59,20 +74,24 @@ def test_anthropic_tool_variations():
     assert_tools_sequential(chat_fun, total_calls=6)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_anthropic_tool_variations_async():
     await assert_tools_async(ChatBedrockAnthropic)
 
 
+@pytest.mark.vcr
 def test_data_extraction():
     assert_data_extraction(ChatBedrockAnthropic)
 
 
+@pytest.mark.vcr
 def test_anthropic_images():
     chat_fun = ChatBedrockAnthropic
     assert_images_inline(chat_fun)
     assert_images_remote_error(chat_fun)
 
 
+@pytest.mark.vcr
 def test_anthropic_models():
     assert_list_models(ChatBedrockAnthropic)
