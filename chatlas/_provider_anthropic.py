@@ -405,12 +405,22 @@ class AnthropicProvider(
 
             data_model_tool = Tool.from_func(_structured_tool_call)
 
-            data_model_tool.schema["function"]["parameters"] = {
+            data_model_schema = basemodel_to_param_schema(data_model)
+
+            # Extract $defs from the nested schema and place at top level
+            # JSON Schema $ref pointers like "#/$defs/..." need $defs at the root
+            defs = data_model_schema.pop("$defs", None)
+
+            params: dict[str, Any] = {
                 "type": "object",
                 "properties": {
-                    "data": basemodel_to_param_schema(data_model),
+                    "data": data_model_schema,
                 },
             }
+            if defs:
+                params["$defs"] = defs
+
+            data_model_tool.schema["function"]["parameters"] = params
 
             tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
 
@@ -707,10 +717,9 @@ class AnthropicProvider(
             res["description"] = fn["description"]
 
         if "parameters" in fn:
-            props = fn["parameters"]["properties"]
             res["input_schema"] = {
-                **res["input_schema"],
-                "properties": props,
+                "type": "object",
+                **fn["parameters"],
             }
 
         return res

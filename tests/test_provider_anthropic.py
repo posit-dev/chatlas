@@ -1,7 +1,9 @@
-from typing import cast
+from typing import Literal, cast
 
 import httpx
 import pytest
+from pydantic import BaseModel, Field
+
 from chatlas import AssistantTurn, ChatAnthropic, UserTurn, content_image_file
 from chatlas._provider_anthropic import AnthropicProvider
 
@@ -157,3 +159,49 @@ def test_anthropic_removes_empty_assistant_turns():
     assert len(turns_json) == 1
     assert turns_json[0]["role"] == "user"
     assert turns_json[0]["content"][0]["text"] == "Don't say anything"  # type: ignore
+
+
+@pytest.mark.vcr
+def test_anthropic_nested_data_model_extraction():
+    """
+    Test that nested Pydantic models work for structured data extraction.
+
+    This is a regression test for issue #100 where data extraction failed with
+    nested models because $defs was placed inside the 'data' property instead
+    of at the root of input_schema, breaking $ref JSON pointer references.
+
+    See: https://github.com/posit-dev/chatlas/issues/100
+    """
+
+    # Models from issue #100
+    class Classification(BaseModel):
+        name: Literal[
+            "Politics", "Sports", "Technology", "Entertainment", "Business", "Other"
+        ] = Field(description="The category name")
+        score: float = Field(
+            description="The classification score for the category, ranging from 0.0 to 1.0."
+        )
+
+    class Classifications(BaseModel):
+        """Array of classification results. The scores should sum to 1."""
+
+        classifications: list[Classification]
+
+    text = "The new quantum computing breakthrough could revolutionize the tech industry."
+
+    chat = chat_func(system_prompt="You are a friendly but terse assistant.")
+    data = chat.chat_structured(text, data_model=Classifications)
+
+    # Verify we got a valid response with the nested structure
+    assert isinstance(data, Classifications)
+    assert len(data.classifications) > 0
+
+    # Check that at least one classification is Technology (the obvious choice)
+    categories = [c.name for c in data.classifications]
+    assert "Technology" in categories, f"Expected 'Technology' in {categories}"
+
+    # Verify scores are valid floats between 0 and 1
+    for classification in data.classifications:
+        assert 0.0 <= classification.score <= 1.0, (
+            f"Score {classification.score} should be between 0 and 1"
+        )
