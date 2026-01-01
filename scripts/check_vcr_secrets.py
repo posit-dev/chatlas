@@ -20,6 +20,8 @@ from chatlas import ChatAnthropic
 
 VCR_DIR = Path(__file__).parent.parent / "tests" / "_vcr"
 
+MODEL = "claude-sonnet-4-5"
+
 SYSTEM_PROMPT = """\
 You are a security auditor scanning HTTP recording files (VCR cassettes) for leaked secrets.
 
@@ -114,7 +116,7 @@ def scan_with_claude(chunks: list[str], verbose: bool = False) -> tuple[bool, li
     Returns (secrets_found, findings).
     """
     chat = ChatAnthropic(
-        model="claude-sonnet-4-20250514",
+        model=MODEL,
         system_prompt=SYSTEM_PROMPT,
     )
 
@@ -136,7 +138,7 @@ def scan_with_claude(chunks: list[str], verbose: bool = False) -> tuple[bool, li
 
         # Reset chat for next chunk (independent analysis)
         chat = ChatAnthropic(
-            model="claude-sonnet-4-20250514",
+            model=MODEL,
             system_prompt=SYSTEM_PROMPT,
         )
 
