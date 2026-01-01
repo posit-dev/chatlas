@@ -16,11 +16,11 @@ import argparse
 import sys
 from pathlib import Path
 
+import anthropic
+
 from chatlas import ChatAnthropic
 
 VCR_DIR = Path(__file__).parent.parent / "tests" / "_vcr"
-
-MODEL = "claude-sonnet-4-5"
 
 SYSTEM_PROMPT = """\
 You are a security auditor scanning HTTP recording files (VCR cassettes) for leaked secrets.
@@ -64,102 +64,24 @@ Files to scan:
 """
 
 
-def read_cassettes(vcr_dir: Path, verbose: bool = False) -> dict[str, str]:
-    """Read all VCR cassette files."""
-    cassettes = {}
-
+def read_cassettes(vcr_dir: Path, verbose: bool = False) -> str:
+    """Read all VCR cassette files and return as a single string."""
     if not vcr_dir.exists():
         print(f"Warning: VCR directory not found: {vcr_dir}")
-        return cassettes
+        return ""
 
-    for yaml_file in vcr_dir.rglob("*.yaml"):
+    parts = []
+    count = 0
+    for yaml_file in sorted(vcr_dir.rglob("*.yaml")):
         rel_path = yaml_file.relative_to(vcr_dir)
         if verbose:
             print(f"Reading: {rel_path}")
-        cassettes[str(rel_path)] = yaml_file.read_text()
+        content = yaml_file.read_text()
+        parts.append(f"=== FILE: {rel_path} ===\n{content}\n")
+        count += 1
 
-    return cassettes
-
-
-def chunk_cassettes(cassettes: dict[str, str], max_chars: int = 30000) -> list[str]:
-    """
-    Split cassettes into chunks that fit within context limits.
-
-    Large files are split into multiple chunks. Returns formatted strings
-    ready for the prompt.
-    """
-    chunks = []
-    current_chunk = []
-    current_size = 0
-
-    for path, content in cassettes.items():
-        # If a single file is too large, split it into pieces
-        if len(content) > max_chars:
-            # Flush current chunk first
-            if current_chunk:
-                chunks.append("\n".join(current_chunk))
-                current_chunk = []
-                current_size = 0
-
-            # Split large file into pieces
-            for i in range(0, len(content), max_chars):
-                piece = content[i : i + max_chars]
-                part_num = i // max_chars + 1
-                entry = f"=== FILE: {path} (part {part_num}) ===\n{piece}\n"
-                chunks.append(entry)
-            continue
-
-        entry = f"=== FILE: {path} ===\n{content}\n"
-        entry_size = len(entry)
-
-        if current_size + entry_size > max_chars and current_chunk:
-            chunks.append("\n".join(current_chunk))
-            current_chunk = []
-            current_size = 0
-
-        current_chunk.append(entry)
-        current_size += entry_size
-
-    if current_chunk:
-        chunks.append("\n".join(current_chunk))
-
-    return chunks
-
-
-def scan_with_claude(chunks: list[str], verbose: bool = False) -> tuple[bool, list[str]]:
-    """
-    Scan cassette chunks using Claude.
-
-    Returns (secrets_found, findings).
-    """
-    chat = ChatAnthropic(
-        model=MODEL,
-        system_prompt=SYSTEM_PROMPT,
-    )
-
-    all_findings = []
-    secrets_found = False
-
-    for i, chunk in enumerate(chunks, 1):
-        if verbose:
-            print(f"Scanning chunk {i}/{len(chunks)}...")
-
-        prompt = USER_PROMPT_TEMPLATE.format(file_contents=chunk)
-        response = str(chat.chat(prompt))
-
-        if "SECRETS_FOUND: YES" in response:
-            secrets_found = True
-            all_findings.append(f"--- Chunk {i} findings ---\n{response}")
-        elif verbose:
-            print(f"  Chunk {i}: Clean")
-
-        # Reset chat for next chunk (independent analysis)
-        chat = ChatAnthropic(
-            model=MODEL,
-            system_prompt=SYSTEM_PROMPT,
-        )
-
-    return secrets_found, all_findings
+    print(f"Found {count} cassette files")
+    return "\n".join(parts)
 
 
 def main():
@@ -167,42 +89,50 @@ def main():
         description="Scan VCR cassettes for leaked secrets using Claude"
     )
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
-        help="Print verbose output"
+        help="Print verbose output",
     )
     parser.add_argument(
         "--vcr-dir",
         type=Path,
         default=VCR_DIR,
-        help=f"Path to VCR cassettes directory (default: {VCR_DIR})"
+        help=f"Path to VCR cassettes directory (default: {VCR_DIR})",
     )
     args = parser.parse_args()
 
     print("Scanning VCR cassettes for potential secrets...")
 
     # Read all cassettes
-    cassettes = read_cassettes(args.vcr_dir, args.verbose)
+    file_contents = read_cassettes(args.vcr_dir, args.verbose)
 
-    if not cassettes:
+    if not file_contents:
         print("No cassette files found.")
         return 0
 
-    print(f"Found {len(cassettes)} cassette files")
-
-    # Chunk for API limits
-    chunks = chunk_cassettes(cassettes)
-    print(f"Split into {len(chunks)} chunks for analysis")
-
     # Scan with Claude
-    secrets_found, findings = scan_with_claude(chunks, args.verbose)
+    chat = ChatAnthropic(
+        model="claude-sonnet-4-20250514",
+        system_prompt=SYSTEM_PROMPT,
+    )
 
-    if secrets_found:
+    prompt = USER_PROMPT_TEMPLATE.format(file_contents=file_contents)
+
+    try:
+        response = str(chat.chat(prompt))
+    except anthropic.BadRequestError as e:
+        if "prompt is too long" in str(e):
+            print(f"\nWarning: Cassettes too large to scan in one request ({e})")
+            print("Skipping secret scan. Please review cassettes manually if needed.")
+            return 0
+        raise
+
+    if "SECRETS_FOUND: YES" in response:
         print("\n" + "=" * 60)
         print("POTENTIAL SECRETS FOUND!")
         print("=" * 60)
-        for finding in findings:
-            print(finding)
+        print(response)
         print("=" * 60)
         print("\nPlease review the findings above and update make_vcr_config()")
         print("in tests/conftest.py to filter any new sensitive headers.")
