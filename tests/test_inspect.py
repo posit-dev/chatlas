@@ -20,32 +20,14 @@ from chatlas._inspect import (
 
 pytest.importorskip("inspect_ai")
 
+from .conftest import VCR_MATCH_ON_WITHOUT_BODY, make_vcr_config
 
-# Override VCR config for inspect tests - don't match on body since inspect_ai
-# includes dynamic IDs in the request body that change between runs
+
+# Don't match on body - inspect_ai includes dynamic IDs in request bodies
 @pytest.fixture(scope="module")
 def vcr_config():
-    return {
-        "filter_headers": [
-            "authorization",
-            "x-api-key",
-            "api-key",
-            "openai-organization",
-            "x-goog-api-key",
-            "x-stainless-arch",
-            "x-stainless-lang",
-            "x-stainless-os",
-            "x-stainless-package-version",
-            "x-stainless-runtime",
-            "x-stainless-runtime-version",
-            "x-stainless-retry-count",
-            "user-agent",
-        ],
-        "filter_post_data_parameters": ["api_key"],
-        "decode_compressed_response": True,
-        # Don't match on body - inspect_ai includes dynamic IDs
-        "match_on": ["method", "scheme", "host", "port", "path"],
-    }
+    return make_vcr_config(match_on=VCR_MATCH_ON_WITHOUT_BODY)
+
 
 import inspect_ai.model as i_model
 from inspect_ai import Task

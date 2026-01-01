@@ -12,31 +12,13 @@ from chatlas._batch_chat import (
 from chatlas._provider import BatchStatus
 from pydantic import BaseModel
 
+from .conftest import VCR_MATCH_ON_WITHOUT_BODY, make_vcr_config
 
-# Override VCR config for batch tests - don't match on body since temp filenames are dynamic
+
+# Don't match on body - temp file names are dynamic
 @pytest.fixture(scope="module")
 def vcr_config():
-    return {
-        "filter_headers": [
-            "authorization",
-            "x-api-key",
-            "api-key",
-            "openai-organization",
-            "x-goog-api-key",
-            "x-stainless-arch",
-            "x-stainless-lang",
-            "x-stainless-os",
-            "x-stainless-package-version",
-            "x-stainless-runtime",
-            "x-stainless-runtime-version",
-            "x-stainless-retry-count",
-            "user-agent",
-        ],
-        "filter_post_data_parameters": ["api_key"],
-        "decode_compressed_response": True,
-        # Don't match on body - temp file names are dynamic
-        "match_on": ["method", "scheme", "host", "port", "path"],
-    }
+    return make_vcr_config(match_on=VCR_MATCH_ON_WITHOUT_BODY)
 
 
 class CountryCapital(BaseModel):

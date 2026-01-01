@@ -425,9 +425,24 @@ def _scrub_aws_request(request):
     return request
 
 
-@pytest.fixture(scope="module")
-def vcr_config():
-    """Global VCR configuration for pytest-recording."""
+# Default matchers for VCR - most tests should match on body
+VCR_MATCH_ON_DEFAULT = ["method", "scheme", "host", "port", "path", "body"]
+# Some tests have dynamic request bodies (temp filenames, dynamic IDs) - skip body matching
+VCR_MATCH_ON_WITHOUT_BODY = ["method", "scheme", "host", "port", "path"]
+
+
+def make_vcr_config(match_on: list[str] = VCR_MATCH_ON_DEFAULT) -> dict:
+    """
+    Create a VCR configuration dictionary.
+
+    Args:
+        match_on: List of request attributes to match on. Use VCR_MATCH_ON_DEFAULT
+                  for most tests, or VCR_MATCH_ON_WITHOUT_BODY for tests with
+                  dynamic request bodies (e.g., temp filenames, generated IDs).
+
+    Returns:
+        VCR configuration dictionary suitable for pytest-recording.
+    """
     return {
         "filter_headers": [
             "authorization",
@@ -451,10 +466,16 @@ def vcr_config():
         ],
         "filter_post_data_parameters": ["api_key"],
         "decode_compressed_response": True,
-        "match_on": ["method", "scheme", "host", "port", "path", "body"],
+        "match_on": match_on,
         "before_record_response": _filter_aws_response,
         "before_record_request": _scrub_aws_request,
     }
+
+
+@pytest.fixture(scope="module")
+def vcr_config():
+    """Global VCR configuration for pytest-recording."""
+    return make_vcr_config()
 
 
 @pytest.fixture(scope="module")
