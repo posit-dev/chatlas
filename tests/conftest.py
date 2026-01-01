@@ -4,6 +4,38 @@ from pathlib import Path
 from typing import Callable
 
 import pytest
+
+# ---------------------------------------------------------------------------
+# Dummy API keys for VCR replay testing
+# ---------------------------------------------------------------------------
+# These are set if not already present, allowing VCR tests to run without
+# real credentials. When recording cassettes, set real API keys in your env.
+
+_DUMMY_CREDENTIALS = {
+    "ANTHROPIC_API_KEY": "dummy-anthropic-key",
+    "AZURE_OPENAI_API_KEY": "dummy-azure-key",
+    "CLOUDFLARE_API_KEY": "dummy-cloudflare-key",
+    "CLOUDFLARE_ACCOUNT_ID": "dummy-cloudflare-id",
+    "DATABRICKS_HOST": "dummy-databricks-host",
+    "DATABRICKS_TOKEN": "dummy-databricks-token",
+    "DEEPSEEK_API_KEY": "dummy-deepseek-key",
+    "GH_TOKEN": "dummy-github-token",
+    "GOOGLE_API_KEY": "dummy-google-key",
+    "GROQ_API_KEY": "dummy-groq-key",
+    "HUGGINGFACE_API_KEY": "dummy-huggingface-key",
+    "MISTRAL_API_KEY": "dummy-mistral-key",
+    "OPENAI_API_KEY": "dummy-openai-key",
+    "OPENROUTER_API_KEY": "dummy-openrouter-key",
+}
+
+
+def pytest_configure(config):
+    """Set dummy API keys for VCR replay if not already set."""
+    for key, value in _DUMMY_CREDENTIALS.items():
+        if key not in os.environ:
+            os.environ[key] = value
+
+
 from chatlas import (
     AssistantTurn,
     Chat,
@@ -496,13 +528,12 @@ def pytest_exception_interact(node, call, report):
             print("\n" + "=" * 60)
             print("VCR CASSETTE MISSING OR OUTDATED")
             print("=" * 60)
-            print("To record/update cassettes, run locally with API keys:")
-            print("  make record-vcr")
-            print("Or for a specific provider:")
-            print("  make record-vcr-openai")
-            print("  make record-vcr-anthropic")
-            print("  make record-vcr-google")
+            print("To record/update all cassettes, run locally with API keys:")
+            print("  make update-snaps-vcr")
             print("")
-            print("Or directly with pytest:")
-            print("  uv run pytest --record-mode=all tests/test_provider_openai.py -v")
+            print("Or record a specific test file:")
+            print("  uv run pytest tests/test_provider_openai.py -v --record-mode=rewrite")
+            print("")
+            print("Or record a single test:")
+            print("  uv run pytest tests/test_provider_openai.py::test_openai_simple_request -v --record-mode=rewrite")
             print("=" * 60 + "\n")
