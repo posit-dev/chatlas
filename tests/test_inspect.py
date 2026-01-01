@@ -1,5 +1,4 @@
 import datetime
-import os
 import sys
 from unittest.mock import patch
 
@@ -21,7 +20,7 @@ from chatlas._inspect import (
 
 pytest.importorskip("inspect_ai")
 
-from .conftest import VCR_MATCH_ON_WITHOUT_BODY, make_vcr_config
+from .conftest import VCR_MATCH_ON_WITHOUT_BODY, is_dummy_credential, make_vcr_config
 
 
 # Don't match on body - inspect_ai includes dynamic IDs in request bodies
@@ -353,7 +352,7 @@ class TestInspectIntegration:
     # Skip VCR for multi-sample tests - response ordering with VCR is unreliable
     # when body matching is disabled (required due to dynamic IDs in requests)
     @pytest.mark.skipif(
-        os.environ.get("ANTHROPIC_API_KEY", "").startswith("dummy"),
+        is_dummy_credential("ANTHROPIC_API_KEY"),
         reason="Multi-sample tests require live API (VCR response ordering is unreliable)",
     )
     def test_multiple_samples_state_management(self):
@@ -390,7 +389,7 @@ class TestInspectIntegration:
     # Skip VCR for multi-sample tests - response ordering with VCR is unreliable
     # when body matching is disabled (required due to dynamic IDs in requests)
     @pytest.mark.skipif(
-        os.environ.get("ANTHROPIC_API_KEY", "").startswith("dummy"),
+        is_dummy_credential("ANTHROPIC_API_KEY"),
         reason="Multi-sample tests require live API (VCR response ordering is unreliable)",
     )
     def test_multiple_tools_multiple_samples(self):

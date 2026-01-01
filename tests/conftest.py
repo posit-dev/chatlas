@@ -36,6 +36,26 @@ def pytest_configure(config):
             os.environ[key] = value
 
 
+def is_dummy_credential(env_var: str) -> bool:
+    """
+    Check if an environment variable contains a dummy credential.
+
+    Use this to skip tests that require live API calls (e.g., multi-sample tests
+    where VCR response ordering is unreliable).
+
+    Example:
+        @pytest.mark.skipif(
+            is_dummy_credential("ANTHROPIC_API_KEY"),
+            reason="This test requires live API calls",
+        )
+        def test_something():
+            ...
+    """
+    value = os.environ.get(env_var, "")
+    dummy_value = _DUMMY_CREDENTIALS.get(env_var, "")
+    return value == dummy_value or value.startswith("dummy")
+
+
 from chatlas import (
     AssistantTurn,
     Chat,
