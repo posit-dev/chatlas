@@ -81,17 +81,34 @@ def read_cassettes(vcr_dir: Path, verbose: bool = False) -> dict[str, str]:
     return cassettes
 
 
-def chunk_cassettes(cassettes: dict[str, str], max_chars: int = 50000) -> list[str]:
+def chunk_cassettes(cassettes: dict[str, str], max_chars: int = 30000) -> list[str]:
     """
     Split cassettes into chunks that fit within context limits.
 
-    Returns formatted strings ready for the prompt.
+    Large files are split into multiple chunks. Returns formatted strings
+    ready for the prompt.
     """
     chunks = []
     current_chunk = []
     current_size = 0
 
     for path, content in cassettes.items():
+        # If a single file is too large, split it into pieces
+        if len(content) > max_chars:
+            # Flush current chunk first
+            if current_chunk:
+                chunks.append("\n".join(current_chunk))
+                current_chunk = []
+                current_size = 0
+
+            # Split large file into pieces
+            for i in range(0, len(content), max_chars):
+                piece = content[i : i + max_chars]
+                part_num = i // max_chars + 1
+                entry = f"=== FILE: {path} (part {part_num}) ===\n{piece}\n"
+                chunks.append(entry)
+            continue
+
         entry = f"=== FILE: {path} ===\n{content}\n"
         entry_size = len(entry)
 
