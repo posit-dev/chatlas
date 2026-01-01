@@ -11,10 +11,38 @@ build:   ## [py] Build python package
 .PHONY: check
 check: check-format check-types check-tests ## [py] Run python checks
 
+# Default dummy API keys for VCR replay testing (only used if not already set)
+ANTHROPIC_API_KEY ?= dummy-api-key
+AZURE_OPENAI_API_KEY ?= dummy-api-key
+CLOUDFLARE_API_KEY ?= dummy-api-key
+CLOUDFLARE_ACCOUNT_ID ?= dummy-id
+DATABRICKS_HOST ?= dummy-api-key
+DATABRICKS_TOKEN ?= dummy-api-key
+DEEPSEEK_API_KEY ?= dummy-api-key
+GH_TOKEN ?= dummy-api-key
+GOOGLE_API_KEY ?= dummy-api-key
+GROQ_API_KEY ?= dummy-api-key
+HUGGINGFACE_API_KEY ?= dummy-api-key
+MISTRAL_API_KEY ?= dummy-api-key
+OPENAI_API_KEY ?= dummy-api-key
+
 .PHONY: check-tests
 check-tests:  ## [py] Run python tests
 	@echo ""
 	@echo "🧪 Running tests with pytest"
+	ANTHROPIC_API_KEY=$(ANTHROPIC_API_KEY) \
+	AZURE_OPENAI_API_KEY=$(AZURE_OPENAI_API_KEY) \
+	CLOUDFLARE_API_KEY=$(CLOUDFLARE_API_KEY) \
+	CLOUDFLARE_ACCOUNT_ID=$(CLOUDFLARE_ACCOUNT_ID) \
+	DATABRICKS_HOST=$(DATABRICKS_HOST) \
+	DATABRICKS_TOKEN=$(DATABRICKS_TOKEN) \
+	DEEPSEEK_API_KEY=$(DEEPSEEK_API_KEY) \
+	GH_TOKEN=$(GH_TOKEN) \
+	GOOGLE_API_KEY=$(GOOGLE_API_KEY) \
+	GROQ_API_KEY=$(GROQ_API_KEY) \
+	HUGGINGFACE_API_KEY=$(HUGGINGFACE_API_KEY) \
+	MISTRAL_API_KEY=$(MISTRAL_API_KEY) \
+	OPENAI_API_KEY=$(OPENAI_API_KEY) \
 	uv run pytest
 
 .PHONY: check-types
@@ -66,7 +94,7 @@ update-snaps:
 	@echo "📸 Updating pytest snapshots"
 	uv run pytest --snapshot-update
 
-.PHONY: record-vcr
+.PHONY: update-snaps-vcr
 update-snaps-vcr:
 	@echo "📼 Updating VCR cassettes"
 	uv run pytest --record-mode=rewrite

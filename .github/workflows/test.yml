@@ -19,26 +19,10 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
-    
-    env:
-      # This workflow will not make any live API calls; those are reserved for 
-      # the test-live.yml workflow. Instead, we rely on the VCR cassettes to
-      # simulate API responses. However, we still set dummy API keys here
-      # so that, if the SDK makes pre-emptive checks for the presence of
-      # an API key, those checks will pass.
-      ANTHROPIC_API_KEY: dummy-api-key
-      AZURE_OPENAI_API_KEY: dummy-api-key
-      CLOUDFLARE_API_KEY: dummy-api-key
-      CLOUDFLARE_ACCOUNT_ID: dummy-id
-      DATABRICKS_HOST: dummy-api-key
-      DATABRICKS_TOKEN: dummy-api-key
-      DEEPSEEK_API_KEY: dummy-api-key
-      GH_TOKEN: dummy-api-key
-      GOOGLE_API_KEY: dummy-api-key
-      GROQ_API_KEY: dummy-api-key
-      HUGGINGFACE_API_KEY: dummy-api-key
-      MISTRAL_API_KEY: dummy-api-key
-      OPENAI_API_KEY: dummy-api-key
+
+    # Note: Dummy API keys for VCR replay testing are set in the Makefile.
+    # This workflow will not make any live API calls; those are reserved for
+    # the test-live.yml workflow.
 
     steps:
       - uses: actions/checkout@v4

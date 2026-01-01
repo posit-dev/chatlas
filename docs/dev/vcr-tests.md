@@ -1,6 +1,6 @@
 # VCR Test Recording Guide
 
-This document explains how HTTP recording/replay works for chatlas provider tests using [pytest-recording](https://github.com/kiwicom/pytest-recording) (which wraps [vcrpy](https://vcrpy.readthedocs.io/)).
+This document explains how HTTP recording/replay works for chatlas tests using [pytest-recording](https://github.com/kiwicom/pytest-recording) (which wraps [vcrpy](https://vcrpy.readthedocs.io/)).
 
 ## Overview
 
@@ -24,6 +24,135 @@ tests/
 └── test_provider_*.py   # Test files
 ```
 
+## Recording Cassettes
+
+### Record all cassettes
+
+```bash
+# Set your API keys
+export OPENAI_API_KEY="sk-..."
+export ANTHROPIC_API_KEY="..."
+
+# Record with --record-mode=rewrite (overwrites existing)
+make update-snaps-vcr
+
+# Or directly with pytest
+uv run pytest --record-mode=rewrite
+```
+
+### Record cassettes for a specific test file
+
+```bash
+uv run pytest tests/test_provider_openai.py -v --record-mode=rewrite
+```
+
+### Record a single test
+
+```bash
+uv run pytest tests/test_provider_openai.py::test_openai_simple_request -v --record-mode=rewrite
+```
+
+### Record modes
+
+- `rewrite` - Delete and re-record all cassettes (recommended for updates)
+- `new_episodes` - Record new interactions, keep existing
+- `none` - Only replay, fail if cassette missing (CI default)
+- `all` - Record everything, even if cassette exists
+
+## VCR Configuration
+
+The VCR configuration is centralized in `tests/conftest.py` using a helper function:
+
+```python
+from .conftest import make_vcr_config, VCR_MATCH_ON_DEFAULT, VCR_MATCH_ON_WITHOUT_BODY
+
+# Default config - matches on body (most tests)
+@pytest.fixture(scope="module")
+def vcr_config():
+    return make_vcr_config()
+
+# Skip body matching for tests with dynamic request bodies
+@pytest.fixture(scope="module")
+def vcr_config():
+    return make_vcr_config(match_on=VCR_MATCH_ON_WITHOUT_BODY)
+
+# Allow specific hosts to bypass VCR (e.g., for tiktoken downloads)
+@pytest.fixture(scope="module")
+def vcr_config():
+    config = make_vcr_config()
+    config["ignore_hosts"] = ["openaipublic.blob.core.windows.net"]
+    return config
+```
+
+### Match-on options
+
+- `VCR_MATCH_ON_DEFAULT` = `["method", "scheme", "host", "port", "path", "body"]`
+  - Use for most tests where request bodies are deterministic
+- `VCR_MATCH_ON_WITHOUT_BODY` = `["method", "scheme", "host", "port", "path"]`
+  - Use when request bodies contain dynamic data (temp filenames, generated IDs)
+
+## Adding VCR to Tests
+
+### Basic usage
+
+```python
+@pytest.mark.vcr
+def test_provider_simple_request():
+    chat = ChatProvider()
+    chat.chat("Hello")
+```
+
+### For async tests, put `@pytest.mark.vcr` first
+
+```python
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_provider_async():
+    ...
+```
+
+### For tests with dynamic request bodies
+
+Some tests have request bodies that change between runs (e.g., temp filenames, framework-generated IDs). Use a module-level VCR config override:
+
+```python
+from .conftest import VCR_MATCH_ON_WITHOUT_BODY, make_vcr_config
+
+# Don't match on body - temp file names are dynamic
+@pytest.fixture(scope="module")
+def vcr_config():
+    return make_vcr_config(match_on=VCR_MATCH_ON_WITHOUT_BODY)
+```
+
+### For tests that need external downloads
+
+Some tests require downloading external resources (e.g., tiktoken encodings). Allow specific hosts to bypass VCR:
+
+```python
+from .conftest import make_vcr_config
+
+@pytest.fixture(scope="module")
+def vcr_config():
+    config = make_vcr_config()
+    config["ignore_hosts"] = ["openaipublic.blob.core.windows.net"]
+    return config
+```
+
+### For multi-sample tests that are flaky with VCR
+
+Some tests involve multiple API calls where response ordering matters. These should skip VCR and run live only:
+
+```python
+import os
+
+@pytest.mark.skipif(
+    os.environ.get("ANTHROPIC_API_KEY", "").startswith("dummy"),
+    reason="Multi-sample tests require live API (VCR response ordering is unreliable)",
+)
+def test_multiple_samples():
+    ...
+```
+
 ## Provider Status
 
 | Provider | VCR Status | Notes |
@@ -42,80 +171,10 @@ tests/
 | Cloudflare | Supported | |
 | Bedrock | **Live only** | AWS SSO credential fetching is incompatible with VCR |
 | Snowflake | **Live only** | Requires special auth setup |
-| Portkey | **Live only** | API issues during recording |
-
-## Recording Cassettes
-
-### Record all cassettes for a provider
-
-```bash
-# Set your API key
-export OPENAI_API_KEY="sk-..."
-
-# Record with --record-mode=rewrite (overwrites existing)
-uv run pytest tests/test_provider_openai.py -v --record-mode=rewrite
-```
-
-### Record a single test
-
-```bash
-uv run pytest tests/test_provider_openai.py::test_openai_simple_request -v --record-mode=rewrite
-```
-
-### Record modes
-
-- `rewrite` - Delete and re-record all cassettes (recommended for updates)
-- `new_episodes` - Record new interactions, keep existing
-- `none` - Only replay, fail if cassette missing (CI default)
-- `all` - Record everything, even if cassette exists
-
-## Adding VCR to a New Provider
-
-1. **Add `@pytest.mark.vcr` to each test function**:
-
-```python
-@pytest.mark.vcr
-def test_provider_simple_request():
-    chat = ChatProvider()
-    chat.chat("Hello")
-```
-
-2. **For async tests, put `@pytest.mark.vcr` first**:
-
-```python
-@pytest.mark.vcr
-@pytest.mark.asyncio
-async def test_provider_async():
-    ...
-```
-
-3. **Add dummy API key to `conftest.py`** (if needed for client initialization):
-
-```python
-dummy_keys = {
-    ...
-    "NEW_PROVIDER_API_KEY": "dummy-key-for-vcr-replay",
-}
-```
-
-4. **Record the cassettes**:
-
-```bash
-export NEW_PROVIDER_API_KEY="real-key"
-uv run pytest tests/test_provider_new.py -v --record-mode=rewrite
-```
-
-5. **Verify no sensitive data** in cassettes (see Security section)
-
-6. **Commit the cassettes**:
-
-```bash
-git add tests/_vcr/test_provider_new/
-```
 
 ## Security: Filtered Data
 
-The VCR configuration in `conftest.py` automatically filters sensitive data:
+The VCR configuration automatically filters sensitive data:
 
 ### Filtered request headers
 - `authorization`
@@ -123,44 +182,27 @@ The VCR configuration in `conftest.py` automatically filters sensitive data:
 - `x-goog-api-key`
 - `user-agent`
 - Various `x-stainless-*` headers
-
-### Filtered response headers
-- `openai-organization`, `openai-project`
-- `anthropic-organization-id`
-- `set-cookie`
-- `cf-ray`, `x-request-id`, `request-id`
+- AWS headers (`x-amz-sso_bearer_token`, etc.)
 
 ### Always verify before committing
 
 ```bash
 # Check for API keys
-grep -r "sk-" tests/_vcr/test_provider_new/
-grep -r "api_key" tests/_vcr/test_provider_new/
-
-# Check for account/org IDs
-grep -ri "org-" tests/_vcr/test_provider_new/
-grep -ri "account" tests/_vcr/test_provider_new/
+grep -r "sk-" tests/_vcr/
+grep -r "api_key" tests/_vcr/
 ```
 
 ## CI Workflows
 
 ### `test.yml` (VCR replay)
 - Runs on every PR/push
-- Uses dummy API keys from `conftest.py`
+- Uses dummy API keys set in the workflow
 - Replays cassettes, no live API calls
-- Skips providers without VCR support via env vars:
-  ```yaml
-  env:
-    TEST_BEDROCK: "false"
-    TEST_SNOWFLAKE: "false"
-    PORTKEY_API_KEY: ""
-  ```
 
 ### `test-live.yml` (live API)
-- Runs on demand or for releases
+- Runs on pushes to main and PRs to main
 - Uses real API keys from GitHub secrets
 - Makes actual API calls
-- Tests providers that can't use VCR
 
 ## Troubleshooting
 
@@ -174,7 +216,7 @@ uv run pytest tests/test_provider_x.py::test_name -v --record-mode=rewrite
 
 ### Request not matching existing cassette
 
-VCR matches on: `method`, `scheme`, `host`, `port`, `path`, `body`
+VCR matches on: `method`, `scheme`, `host`, `port`, `path`, `body` (by default)
 
 If the request body changed (e.g., different model parameters), re-record:
 
@@ -195,49 +237,3 @@ Some providers have authentication that happens before HTTP requests (e.g., AWS 
    if not os.getenv("PROVIDER_API_KEY"):
        pytest.skip("PROVIDER_API_KEY not set", allow_module_level=True)
    ```
-3. Add to CI skip list in `test.yml`
-
-### Cassettes contain sensitive data
-
-If you accidentally committed sensitive data:
-
-1. Delete the cassettes
-2. Add filtering to `conftest.py` if needed
-3. Re-record with filtering in place
-4. Consider rotating the exposed credentials
-
-## Makefile Targets
-
-```bash
-# Record all providers (requires all API keys set)
-make record-vcr-providers
-
-# Record specific provider
-make record-vcr-openai
-make record-vcr-anthropic
-make record-vcr-google
-# ... etc
-```
-
-## Configuration Reference
-
-The VCR configuration lives in `tests/conftest.py`:
-
-```python
-@pytest.fixture(scope="module")
-def vcr_config():
-    return {
-        "filter_headers": [...],           # Headers to redact
-        "filter_post_data_parameters": [], # POST params to redact
-        "decode_compressed_response": True,
-        "record_mode": "once",             # Default mode
-        "match_on": ["method", "scheme", "host", "port", "path", "body"],
-        "before_record_response": _filter_response_headers,
-    }
-
-@pytest.fixture(scope="module")
-def vcr_cassette_dir(request):
-    # Stores cassettes in tests/_vcr/{module_name}/
-    module_name = request.module.__name__.split(".")[-1]
-    return os.path.join(os.path.dirname(__file__), "_vcr", module_name)
-```
