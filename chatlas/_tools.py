@@ -335,7 +335,6 @@ def func_to_schema(
 
 def func_to_basemodel(func: Callable) -> type[BaseModel]:
     from pydantic.fields import FieldInfo
-    from pydantic_core import PydanticUndefined
 
     params = inspect.signature(func).parameters
     fields = {}
@@ -368,35 +367,15 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
         else:
             field_name, alias = (name, None)
 
-        # Build the field, merging Annotated metadata with function signature defaults
-        if annotated_field is not None:
-            # Start with the annotated field and potentially override alias/default
-            field_kwargs: dict[str, Any] = {}
-
-            # Copy over important properties from the annotated field
-            if annotated_field.description is not None:
-                field_kwargs["description"] = annotated_field.description
-            if annotated_field.default is not PydanticUndefined:
-                field_kwargs["default"] = annotated_field.default
-            if annotated_field.default_factory is not None:
-                field_kwargs["default_factory"] = annotated_field.default_factory
-
-            # Handle alias: prefer explicit alias from param name (for _prefix handling)
-            # but if no alias needed and annotated field has one, use that
-            if alias is not None:
-                field_kwargs["alias"] = alias
-            elif annotated_field.alias is not None:
-                field_kwargs["alias"] = annotated_field.alias
-
-            # Function signature default takes precedence
-            if param.default != inspect.Parameter.empty:
-                field_kwargs["default"] = param.default
-
-            field = Field(**field_kwargs)
-        elif param.default != inspect.Parameter.empty:
+        # Create the pydantic Field from a "normal" parameter
+        if param.default != inspect.Parameter.empty:
             field = Field(default=param.default, alias=alias)
         else:
             field = Field(alias=alias)
+
+        # If we have an Annotated FieldInfo, merge it with alias/default overrides
+        if annotated_field is not None:
+            field = FieldInfo.merge_field_infos(annotated_field, field)
 
         # Add the field to our fields dict
         fields[field_name] = (annotation, field)
