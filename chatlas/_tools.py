@@ -17,6 +17,7 @@ from typing import (
 
 import openai
 from pydantic import BaseModel, Field, create_model
+from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
 
 from . import _utils
@@ -334,8 +335,6 @@ def func_to_schema(
 
 
 def func_to_basemodel(func: Callable) -> type[BaseModel]:
-    from pydantic.fields import FieldInfo
-
     params = inspect.signature(func).parameters
     fields = {}
 
