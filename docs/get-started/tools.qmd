@@ -106,7 +106,7 @@ See the function reference for supported providers and configuration options.
 
 ::: callout-note
 For providers without native fetch support (like OpenAI), you can use the [MCP Fetch server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch) via `register_mcp_tools_stdio_async()`.
-See the [MCP tools guide](../misc/mcp-tools.qmd#quick-start) for a working example.
+See the [MCP tools guide](../misc/mcp-tools.qmd) for more information.
 :::
 
 

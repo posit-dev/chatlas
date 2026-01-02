@@ -71,26 +71,19 @@ class Tool:
         description: str,
         parameters: dict[str, Any],
         annotations: "Optional[ToolAnnotations]" = None,
-        strict: Optional[bool] = None,
     ):
         self.name = name
         self.func = func
         self.annotations = annotations
         self._is_async = _utils.is_async_callable(func)
-        func_schema: dict[str, Any] = {
-            "name": name,
-            "description": description,
-            "parameters": parameters,
-        }
-        if strict is not None:
-            func_schema["strict"] = strict
-        self.schema: "ChatCompletionToolParam" = cast(
-            "ChatCompletionToolParam",
-            {
-                "type": "function",
-                "function": func_schema,
+        self.schema: "ChatCompletionToolParam" = {
+            "type": "function",
+            "function": {
+                "name": name,
+                "description": description,
+                "parameters": parameters,
             },
-        )
+        }
 
     @classmethod
     def from_func(
@@ -233,9 +226,6 @@ class Tool:
             description=mcp_tool.description or "",
             parameters=params,
             annotations=annotations,
-            # MCP tools use standard JSON Schema conventions for optional params
-            # (not in required array), which requires strict=False for OpenAI
-            strict=False,
         )
 
 
@@ -451,7 +441,7 @@ def _validate_model_vs_function(model: type[BaseModel], func: Callable) -> None:
 def mcp_tool_input_schema_to_param_schema(
     input_schema: dict[str, Any],
 ) -> dict[str, object]:
-    params = sanitize_schema(input_schema)
+    params = rm_param_titles(input_schema)
 
     if "additionalProperties" not in params:
         params["additionalProperties"] = False
@@ -459,29 +449,17 @@ def mcp_tool_input_schema_to_param_schema(
     return params
 
 
-def sanitize_schema(
+def rm_param_titles(
     params: dict[str, object],
 ) -> dict[str, object]:
-    """
-    Sanitize JSON Schema for provider compatibility.
-
-    - `title`: Pydantic includes titles at model/field level, but they're not needed
-    - `format`: JSON Schema format hints (e.g., "uri", "date-time") that some
-      providers like OpenAI reject
-    """
+    # For some reason, pydantic wants to include a title at the model and field
+    # level. I don't think we actually need or want this.
     if "title" in params:
         del params["title"]
 
-    if "format" in params:
-        del params["format"]
-
     if "properties" in params and isinstance(params["properties"], dict):
         for prop in params["properties"].values():
-            if isinstance(prop, dict):
-                sanitize_schema(prop)
+            if "title" in prop:
+                del prop["title"]
 
     return params
-
-
-# Keep for backwards compatibility
-rm_param_titles = sanitize_schema
