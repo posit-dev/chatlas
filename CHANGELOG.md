@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* `Tool.from_func()` now validates that function parameter defaults match model field defaults when a custom `BaseModel` is provided. Previously, defaults in the function signature were silently ignored if the model didn't include them, leading to schemas that didn't reflect the function's actual defaults. (#253)
 * Fixed structured data extraction with `ChatAnthropic()` failing for Pydantic models containing nested types (e.g., `list[NestedModel]`). The issue was that `$defs` (containing nested type definitions) was incorrectly placed inside the schema, breaking JSON `$ref` pointer references. (#100)
 
 ## [0.14.0] - 2025-12-09
