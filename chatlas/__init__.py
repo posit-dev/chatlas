@@ -10,10 +10,6 @@ from ._chat import Chat
 from ._content import (
     ContentToolRequest,
     ContentToolResult,
-    ContentWebFetchRequest,
-    ContentWebFetchResults,
-    ContentWebSearchRequest,
-    ContentWebSearchResults,
 )
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._content_pdf import content_pdf_file, content_pdf_url
@@ -84,10 +80,6 @@ __all__ = (
     "content_pdf_url",
     "ContentToolRequest",
     "ContentToolResult",
-    "ContentWebFetchRequest",
-    "ContentWebFetchResults",
-    "ContentWebSearchRequest",
-    "ContentWebSearchResults",
     "interpolate",
     "interpolate_file",
     "Provider",
