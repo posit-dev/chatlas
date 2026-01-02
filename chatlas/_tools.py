@@ -71,19 +71,26 @@ class Tool:
         description: str,
         parameters: dict[str, Any],
         annotations: "Optional[ToolAnnotations]" = None,
+        strict: Optional[bool] = None,
     ):
         self.name = name
         self.func = func
         self.annotations = annotations
         self._is_async = _utils.is_async_callable(func)
-        self.schema: "ChatCompletionToolParam" = {
-            "type": "function",
-            "function": {
-                "name": name,
-                "description": description,
-                "parameters": parameters,
-            },
+        func_schema: dict[str, Any] = {
+            "name": name,
+            "description": description,
+            "parameters": parameters,
         }
+        if strict is not None:
+            func_schema["strict"] = strict
+        self.schema: "ChatCompletionToolParam" = cast(
+            "ChatCompletionToolParam",
+            {
+                "type": "function",
+                "function": func_schema,
+            },
+        )
 
     @classmethod
     def from_func(
@@ -226,6 +233,9 @@ class Tool:
             description=mcp_tool.description or "",
             parameters=params,
             annotations=annotations,
+            # MCP tools use standard JSON Schema conventions for optional params
+            # (not in required array), which requires strict=False for OpenAI
+            strict=False,
         )
 
 
@@ -452,14 +462,18 @@ def mcp_tool_input_schema_to_param_schema(
 def rm_param_titles(
     params: dict[str, object],
 ) -> dict[str, object]:
-    # For some reason, pydantic wants to include a title at the model and field
-    # level. I don't think we actually need or want this.
+    """
+    Remove title fields from JSON Schema.
+
+    Pydantic includes titles at model/field level, but they're not needed
+    and just add noise to the schema.
+    """
     if "title" in params:
         del params["title"]
 
     if "properties" in params and isinstance(params["properties"], dict):
         for prop in params["properties"].values():
-            if "title" in prop:
-                del prop["title"]
+            if isinstance(prop, dict):
+                rm_param_titles(prop)
 
     return params
