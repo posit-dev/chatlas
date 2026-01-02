@@ -421,13 +421,15 @@ class OpenAIProvider(
                     )
 
             elif output.type == "web_search_call":
+                if output.action.type != "search":
+                    raise ValueError(
+                        f"Unsupported web search action type: {output.action.type}"
+                        "Please file a feature request if you need this supported."
+                    )
                 # https://platform.openai.com/docs/guides/tools-web-search#output-and-citations
-                query = ""
-                if hasattr(output, "action") and output.action:
-                    query = getattr(output.action, "query", "")
                 contents.append(
                     ContentWebSearchRequest(
-                        query=query,
+                        query=output.action.query,
                         extra=output.model_dump(),
                     )
                 )
