@@ -531,16 +531,20 @@ class TestMCPTransportKwargs:
     @pytest.mark.asyncio
     async def test_http_transport_kwargs(self):
         """Test passing transport_kwargs to HTTP client."""
+        import httpx
+
         chat = ChatOpenAI()
 
         async with http_mcp_server("http_add.py"):
-            await chat.register_mcp_tools_http_stream_async(
-                url=SERVER_URL,
-                transport_kwargs={"timeout": 30.0},
-            )
+            # The streamable_http_client accepts an http_client param for custom configuration
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                await chat.register_mcp_tools_http_stream_async(
+                    url=SERVER_URL,
+                    transport_kwargs={"http_client": client},
+                )
 
-            # Should successfully register tools
-            tools = chat.get_tools()
-            assert len(tools) == 1
+                # Should successfully register tools
+                tools = chat.get_tools()
+                assert len(tools) == 1
 
-            await chat.cleanup_mcp_tools()
+                await chat.cleanup_mcp_tools()
