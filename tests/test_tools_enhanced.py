@@ -119,6 +119,31 @@ class TestToolFromFunc:
         assert props["x"]["description"] == "First number"  # type: ignore
         assert props["y"]["description"] == "Second number"  # type: ignore
 
+    def test_from_func_with_annotated_model(self):
+        """Test creating a Tool with a model using Annotated fields."""
+
+        class AddParams(BaseModel):
+            """Parameters for adding numbers."""
+
+            x: Annotated[int, Field(description="First number", ge=0)]
+            y: Annotated[int, Field(description="Second number", le=100)]
+
+        def add(x: int, y: int) -> int:
+            return x + y
+
+        tool = Tool.from_func(add, model=AddParams)
+
+        assert tool.name == "AddParams"
+        func = tool.schema["function"]
+
+        # Check that Annotated Field descriptions and constraints are preserved
+        params = func.get("parameters", {})
+        props = params["properties"]
+        assert props["x"]["description"] == "First number"
+        assert props["x"]["minimum"] == 0
+        assert props["y"]["description"] == "Second number"
+        assert props["y"]["maximum"] == 100
+
     def test_from_func_with_model_missing_default_error(self):
         """Test that error is raised when function has default but model doesn't.
 
