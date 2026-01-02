@@ -554,6 +554,8 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
             "name": content.name,
             "arguments": orjson.dumps(content.arguments).decode("utf-8"),
         }
+    elif isinstance(content, ContentWebSearchRequest):
+        return cast("ResponseInputItemParam", content.extra)
     else:
         raise ValueError(f"Unsupported content type: {type(content)}")
 
