@@ -181,8 +181,11 @@ class SnowflakeProvider(
             )
         super().__init__(name=name, model=model)
 
-        # Use SF_PARTNER env var for partner identification, defaulting to "py_chatlas"
-        # https://docs.snowflake.com/en/developer-guide/logging-tracing/tracing-parameters#label-tracing-params-application
+        # Snowflake uses the User Agent header to identify "partner applications",
+        # and this application parameter seems to be the best way to set it.
+        # This will identify requests as coming from "py_chatlas" (unless an explicit
+        # partner application is set via the ambient SF_PARTNER environment variable).
+        # https://docs.snowflake.com/en/developer-guide/python-connector/python-connector-api#functions
         application = os.environ.get("SF_PARTNER", "py_chatlas")
 
         configs: dict[str, str | int] = drop_none(
