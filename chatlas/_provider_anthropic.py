@@ -727,7 +727,8 @@ class AnthropicProvider(
         if isinstance(tool, ToolWebSearch):
             return tool.get_definition("anthropic")
         if isinstance(tool, ToolWebFetch):
-            # TODO: why is this not apart of ToolUnionParam?
+            # N.B. seems the return type here (BetaWebFetchTool20250910Param) is
+            # not a member of ToolUnionParam since it's still in beta?
             return tool.get_definition("anthropic")  # type: ignore
         if isinstance(tool, ToolBuiltIn):
             return tool.definition  # type: ignore
@@ -787,35 +788,36 @@ class AnthropicProvider(
                     )
                 )
             elif content.type == "server_tool_use":
-                # Handle built-in server tools (web_search, web_fetch)
-                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
-                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
-                # Note: content.input can be a dict or string depending on streaming
-                input_data = content.input
-                input_dict = (
-                    input_data
-                    if isinstance(input_data, dict)
-                    else orjson.loads(input_data)
-                )
-                # Store only fields needed for API input (not model_dump which
-                # includes output-only fields)
+                # Unfortunately, content.model_dump() includes fields like "url"
+                # that aren't acceptable as API input, so we manually construct
+                # the extra dict
+                if isinstance(content.input, str):
+                    input_data = orjson.loads(content.input)
+                else:
+                    input_data = content.input
+
                 extra = {
                     "type": content.type,
                     "id": content.id,
                     "name": content.name,
-                    "input": input_dict,
+                    "input": input_data,
                 }
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
                 if content.name == "web_search":
                     contents.append(
                         ContentWebSearchRequest(
-                            query=str(input_dict.get("query", "")),
+                            query=str(input_data.get("query", "")),
                             extra=extra,
                         )
                     )
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
                 elif content.name == "web_fetch":
+                    # N.B. type checker thinks this is unreachable due to
+                    # ToolUnionParam not including BetaWebFetchTool20250910Param
+                    # yet
                     contents.append(
                         ContentWebFetchRequest(
-                            url=str(input_dict.get("url", "")),
+                            url=str(input_data.get("url", "")),
                             extra=extra,
                         )
                     )
@@ -823,34 +825,35 @@ class AnthropicProvider(
                     raise ValueError(f"Unknown server tool: {content.name}")
             elif content.type == "web_search_tool_result":
                 # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
-                # content.content is Union[WebSearchToolResultError, list[WebSearchResultBlock]]
                 urls: list[str] = []
-                result_content: list[dict] = []
                 if isinstance(content.content, list):
                     urls = [x.url for x in content.content]
-                    result_content = [x.model_dump() for x in content.content]
-                # Store only fields needed for API input
-                extra = {
-                    "type": content.type,
-                    "tool_use_id": content.tool_use_id,
-                    "content": result_content,
-                }
-                contents.append(ContentWebSearchResults(urls=urls, extra=extra))
+                contents.append(
+                    ContentWebSearchResults(
+                        urls=urls,
+                        extra=content.model_dump(),
+                    )
+                )
             elif content.type == "web_fetch_tool_result":
-                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
-                # Store only fields needed for API input (url is output-only at top level)
-                fetch_content = getattr(content, "content", None)
-                # Serialize if it's a Pydantic model (for consistency with web_search handling)
-                if hasattr(fetch_content, "model_dump"):
-                    fetch_content = fetch_content.model_dump()
+                # N.B. type checker thinks this is unreachable due to
+                # ToolUnionParam not including BetaWebFetchTool20250910Param
+                # yet. Also, at run-time, the SDK is currently giving non-sense
+                # of type(content) == TextBlock, but it doesn't even fit that
+                # shape?!? Anyway, content.content has a dict with the content
+                # we want.
+                content_fetch = cast("dict", getattr(content, "content", {}))
+                if not content_fetch:
+                    raise ValueError(
+                        "web_fetch_tool_result content is empty. Please report this issue."
+                    )
                 extra = {
-                    "type": content.type,
-                    "tool_use_id": content.tool_use_id,
-                    "content": fetch_content,
+                    "type": "web_fetch_tool_result",
+                    "tool_use_id": content.tool_use_id,  # type: ignore
+                    "content": content_fetch,
                 }
                 contents.append(
                     ContentWebFetchResults(
-                        url=getattr(content, "url", None) or "failed",
+                        url=content_fetch.get("url", "failed"),
                         extra=extra,
                     )
                 )
