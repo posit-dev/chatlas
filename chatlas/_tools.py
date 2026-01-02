@@ -14,6 +14,7 @@ from typing import (
 
 import openai
 from pydantic import BaseModel, Field, create_model
+from pydantic_core import PydanticUndefined
 
 from . import _utils
 from ._content import (
@@ -122,16 +123,7 @@ class Tool:
         if model is None:
             model = func_to_basemodel(func)
 
-        # Throw if there is a mismatch between the model and the function parameters
-        params = inspect.signature(func).parameters
-        fields = model.model_fields
-        fields_alias = [val.alias if val.alias else key for key, val in fields.items()]
-        diff = set(params) ^ set(fields_alias)
-        if diff:
-            raise ValueError(
-                f"`model` fields must match tool function parameters exactly. "
-                f"Fields found in one but not the other: {diff}"
-            )
+        _validate_model_vs_function(model, func)
 
         params = basemodel_to_param_schema(model)
 
@@ -384,6 +376,47 @@ def basemodel_to_param_schema(model: type[BaseModel]) -> dict[str, object]:
     params = rm_param_titles(fn["parameters"])
 
     return params
+
+
+def _validate_model_vs_function(model: type[BaseModel], func: Callable) -> None:
+    """Validate that model fields match function parameters."""
+
+    sig_params = inspect.signature(func).parameters
+    fields = model.model_fields
+
+    param_names: set[str] = set()
+
+    for field_name, field_info in fields.items():
+        param_name = field_info.alias if field_info.alias else field_name
+
+        if param_name not in sig_params:
+            raise ValueError(
+                f"`model` field `{field_name}` (param name `{param_name}`) "
+                f"has no corresponding function parameter."
+            )
+
+        param_names.add(param_name)
+        param = sig_params[param_name]
+        func_has_default = param.default != inspect.Parameter.empty
+
+        if func_has_default and param.default != field_info.default:
+            model_default = (
+                "no default"
+                if field_info.default is PydanticUndefined
+                else repr(field_info.default)
+            )
+            raise ValueError(
+                f"Function parameter `{param_name}` has default `{param.default!r}`, "
+                f"but model field `{field_name}` has {model_default}. "
+                f"These must match in order to create a Tool."
+            )
+
+    # Check for function params without corresponding model fields
+    extra_params = set(sig_params) - param_names
+    if extra_params:
+        raise ValueError(
+            f"Function parameters {extra_params} have no corresponding model fields."
+        )
 
 
 def mcp_tool_input_schema_to_param_schema(

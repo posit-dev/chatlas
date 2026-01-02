@@ -225,7 +225,7 @@ class TestRegisterToolWithBaseModels:
 
         chat = ChatOpenAI()
 
-        with pytest.raises(ValueError, match="Fields found in one but not the other"):
+        with pytest.raises(ValueError, match="has no corresponding"):
             chat.register_tool(correct_function, model=MismatchedModel)
 
     def test_alias_field_matching(self):
@@ -298,7 +298,7 @@ class TestRegisterToolWithBaseModels:
 
         chat = ChatOpenAI()
 
-        with pytest.raises(ValueError, match="Fields found in one but not the other"):
+        with pytest.raises(ValueError, match="has no corresponding"):
             chat.register_tool(function_missing_params, model=ExtraFieldsModel)
 
     def test_missing_model_fields_error(self):
@@ -316,7 +316,7 @@ class TestRegisterToolWithBaseModels:
 
         chat = ChatOpenAI()
 
-        with pytest.raises(ValueError, match="Fields found in one but not the other"):
+        with pytest.raises(ValueError, match="have no corresponding model fields"):
             chat.register_tool(function_with_extra_params, model=MissingFieldsModel)
 
     def test_alias_mismatch_error(self):
@@ -335,5 +335,5 @@ class TestRegisterToolWithBaseModels:
 
         chat = ChatOpenAI()
 
-        with pytest.raises(ValueError, match="Fields found in one but not the other"):
+        with pytest.raises(ValueError, match="has no corresponding"):
             chat.register_tool(function_with_correct_params, model=AliasMismatchModel)

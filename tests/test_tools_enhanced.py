@@ -117,6 +117,62 @@ class TestToolFromFunc:
         assert props["x"]["description"] == "First number"  # type: ignore
         assert props["y"]["description"] == "Second number"  # type: ignore
 
+    def test_from_func_with_model_missing_default_error(self):
+        """Test that error is raised when function has default but model doesn't.
+
+        Regression test for https://github.com/posit-dev/chatlas/issues/253
+        """
+
+        class AddParams(BaseModel):
+            """Add two numbers together."""
+
+            a: int = Field(description="The first number to add.")
+            b: int = Field(description="The second number to add.")
+
+        def add(a, b=1) -> int:
+            return a + b
+
+        with pytest.raises(ValueError, match="has no default"):
+            Tool.from_func(add, model=AddParams)
+
+    def test_from_func_with_model_defaults_match(self):
+        """Test that matching defaults in function and model work correctly."""
+
+        class AddParams(BaseModel):
+            """Add two numbers together."""
+
+            a: int = Field(description="The first number to add.")
+            b: int = Field(default=1, description="The second number to add.")
+
+        def add(a, b=1) -> int:
+            return a + b
+
+        tool = Tool.from_func(add, model=AddParams)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+        props = params["properties"]
+
+        # Model default should be in schema
+        assert props["b"]["default"] == 1
+
+        # Parameter without default should not have a default
+        assert "default" not in props["a"]
+
+    def test_from_func_with_model_defaults_conflict_error(self):
+        """Test that error is raised when function and model have different defaults."""
+
+        class AddParams(BaseModel):
+            """Add two numbers together."""
+
+            a: int = Field(description="The first number to add.")
+            b: int = Field(default=99, description="The second number to add.")
+
+        def add(a, b=1) -> int:
+            return a + b
+
+        with pytest.raises(ValueError, match="These must match"):
+            Tool.from_func(add, model=AddParams)
+
     def test_from_func_model_mismatch_error(self):
         """Test that mismatched model fields and function parameters raise error."""
 
@@ -127,7 +183,7 @@ class TestToolFromFunc:
         def add(x: int, y: int) -> int:
             return x + y
 
-        with pytest.raises(ValueError, match="Fields found in one but not the other"):
+        with pytest.raises(ValueError, match="has no corresponding"):
             Tool.from_func(add, model=WrongParams)
 
     def test_from_func_no_docstring(self):
