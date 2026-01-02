@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+
 * `ChatOpenAI()`, `ChatAnthropic()`, and `ChatGoogle()` gain a new `reasoning` parameter to easily opt-into, and fully customize, reasoning capabilities. (#202) 
     * A new `ContentThinking` content type was added and captures the "thinking" portion of a reasoning model. (#192)
 * Added support for built-in provider tools via a new `ToolBuiltIn` class. This enables provider-specific functionality like OpenAI's image generation to be registered and used as tools. Built-in tools pass raw provider definitions directly to the API rather than wrapping Python functions. (#214)
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `repr()` now generally gives the same result as `str()` for many classes (`Chat`, `Turn`, `Content`, etc). This leads to a more human-readable result (and is closer to the result that gets `echo`ed by `.chat()`). (#245)
 * The `Chat.get_cost()` method's `options` parameter was renamed to `include`. (#244)
+* When supplying a `model` to `.register_tool(tool_func, model=ToolModel)`, the defaults for the `model` must match the `tool_func` defaults. Previously, if `tool_func` had defaults, but `ToolModel` didn't, those defaults would get silently ignored. (#253)
 
 ### Improvements
 
@@ -29,8 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
-* `Tool.from_func()` now validates that function parameter defaults match model field defaults when a custom `BaseModel` is provided. Previously, defaults in the function signature were silently ignored if the model didn't include them, leading to schemas that didn't reflect the function's actual defaults. (#253)
 * Fixed structured data extraction with `ChatAnthropic()` failing for Pydantic models containing nested types (e.g., `list[NestedModel]`). The issue was that `$defs` (containing nested type definitions) was incorrectly placed inside the schema, breaking JSON `$ref` pointer references. (#100)
+* Tool functions parameters that are `typing.Annotated` with a `pydantic.Field` (e.g., `def add(x: Annotated[int, Field(description="First number")])`) are now handled correctly. (#251)
 
 ## [0.14.0] - 2025-12-09
 

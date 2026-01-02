@@ -4,16 +4,20 @@ import inspect
 import warnings
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     AsyncGenerator,
     Awaitable,
     Callable,
     Optional,
     cast,
+    get_args,
+    get_origin,
 )
 
 import openai
 from pydantic import BaseModel, Field, create_model
+from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
 
 from . import _utils
@@ -336,6 +340,7 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
 
     for name, param in params.items():
         annotation = param.annotation
+        annotated_field: Optional[FieldInfo] = None
 
         if annotation == inspect.Parameter.empty:
             warnings.warn(
@@ -343,6 +348,15 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
                 "Using `Any` as a fallback."
             )
             annotation = Any
+        # Check if annotation is Annotated[...] and extract Field metadata
+        elif get_origin(annotation) is Annotated:
+            args = get_args(annotation)
+            # First arg is the actual type, rest are metadata
+            annotation = args[0]
+            for metadata in args[1:]:
+                if isinstance(metadata, FieldInfo):
+                    annotated_field = metadata
+                    break
 
         # create_model() will error if the field name starts with `_` (since Pydantic
         # uses this to indicate private fields). We can work around this by using an alias.
@@ -352,10 +366,15 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
         else:
             field_name, alias = (name, None)
 
+        # Create the pydantic Field from a "normal" parameter
         if param.default != inspect.Parameter.empty:
             field = Field(default=param.default, alias=alias)
         else:
             field = Field(alias=alias)
+
+        # If we have an Annotated FieldInfo, merge it with alias/default overrides
+        if annotated_field is not None:
+            field = FieldInfo.merge_field_infos(annotated_field, field)
 
         # Add the field to our fields dict
         fields[field_name] = (annotation, field)
