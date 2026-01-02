@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* Tool functions now support `typing.Annotated` with `pydantic.Field` for parameter descriptions, matching the FastMCP annotation pattern. For example: `def add(x: Annotated[int, Field(description="First number")]) -> int`. (#236)
 * `ChatOpenAI()`, `ChatAnthropic()`, and `ChatGoogle()` gain a new `reasoning` parameter to easily opt-into, and fully customize, reasoning capabilities. (#202) 
     * A new `ContentThinking` content type was added and captures the "thinking" portion of a reasoning model. (#192)
 * Added support for built-in provider tools via a new `ToolBuiltIn` class. This enables provider-specific functionality like OpenAI's image generation to be registered and used as tools. Built-in tools pass raw provider definitions directly to the API rather than wrapping Python functions. (#214)
