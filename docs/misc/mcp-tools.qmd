@@ -5,15 +5,16 @@ callout-appearance: simple
 
 [Model Context Protocol (MCP)](https://modelcontextprotocol.io) provides a standard
 way to build services that LLMs can use to gain context.
-Most significantly, MCP provides a standard way to serve [tools](../get-started/tools.qmd) (i.e., functions) for an LLM to call from another program or machine.
-As a result, there are now [many useful MCP server implementations available](https://glama.ai/mcp/servers) to help extend the capabilities of your chat application.
-In this article, you'll learn the basics of using and implementing MCP tools in chatlas.
+This includes a standard way to provide [tools](../get-started/tools.qmd) (i.e., functions) for an LLM to call from another program or machine.
+There are now [many useful MCP server implementations available](https://glama.ai/mcp/servers) to help extend the capabilities of your chat application with minimal effort.
+
+In this article, you'll learn how to both register existing MCP tools with chatlas as well as author your own custom MCP tools.
 
 
 ::: callout-note
 ## Prerequisites
 
-To leverage MCP tools from chatlas, you'll need to install the `mcp` library.
+To leverage MCP tools from chatlas, you'll want to install the `mcp` extra.
 
 ```bash
 pip install 'chatlas[mcp]'
@@ -21,10 +22,14 @@ pip install 'chatlas[mcp]'
 :::
 
 
-## Quick start {#quick-start}
+## Registering tools
+
+### Quick start {#quick-start}
 
 Let's start with a practical example: using the [MCP Fetch server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch) to give an LLM the ability to fetch and read web pages.
 This server is maintained by Anthropic and can be run via `uvx` (which comes with [uv](https://docs.astral.sh/uv/)).
+
+For simplicity and convenience, we'll use the [`.register_mcp_tools_stdio_async()`](../reference/Chat.qmd#register_mcp_tools_stdio_async) method to both run the MCP Fetch server locally and register its tools with our `ChatOpenAI` instance:
 
 ```python
 import asyncio
@@ -50,54 +55,30 @@ asyncio.run(main())
 fetch(url="https://en.wikipedia.org/wiki/Python_(programming_language)")
 ```
 
-```python
-# ✅ tool result
-contents: ...
-```
-
 Python is a high-level, general-purpose programming language known for its emphasis on code readability through significant indentation. It supports multiple programming paradigms including structured, object-oriented, and functional programming, and is dynamically typed with garbage collection.
 :::
 
 ::: callout-tip
-### Built-in alternatives
+### Built-in fetch/search tools
 
-For providers with native web fetch support (Claude, Google), consider using [`tool_web_fetch()`](../reference/tool_web_fetch.qmd) instead—it's simpler and doesn't require MCP setup.
+For providers with native web fetch support (Claude, Google), consider using [`tool_web_fetch()`](../reference/tool_web_fetch.qmd) instead -- it's simpler and doesn't require MCP setup.
 Similarly, [`tool_web_search()`](../reference/tool_web_search.qmd) provides native web search for OpenAI, Claude, and Google.
 :::
 
 
-## Finding MCP servers
+### Basic usage {#basic-usage}
 
-The [awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) repository maintains a comprehensive list of available MCP servers.
-Common categories include:
+Chatlas provides three ways to register MCP tools: 
 
-- **Web**: Fetch URLs, search the web, browse pages
-- **Filesystem**: Read/write files, search directories
-- **Databases**: Query SQL databases, access data stores
-- **Code execution**: Run Python, JavaScript, or other code safely
-- **APIs**: Connect to GitHub, Slack, and other services
+1. Stdio ([`.register_mcp_tools_stdio_async()`](../reference/Chat.qmd#register_mcp_tools_stdio_async)) 
+2. Streamble HTTP [`.register_mcp_tools_http_stream_async()`](../reference/Chat.qmd#register_mcp_tools_http_stream_async).
+3. JSON configuration file [`.register_mcp_tools_from_config_async()`](../reference/Chat.qmd#register_mcp_tools_from_config_async).
 
-Most servers can be run via `npx` (for JavaScript-based servers) or other package managers, making them easy to integrate with chatlas.
+The main difference is how they communicate with the MCP server: the former (Stdio) executes a system command to run the server locally, while the latter (HTTP) connects to an already running HTTP server.
 
-
-## Connection methods
-
-Chatlas provides two ways to register MCP tools: [`.register_mcp_tools_http_stream_async()`](../reference/Chat.qmd#register_mcp_tools_http_stream_async) and [`.register_mcp_tools_stdio_async()`](../reference/Chat.qmd#register_mcp_tools_stdio_async).
-
-The main difference is how they interact with the MCP server: the former connects to an already running HTTP server, while the latter executes a system command to run the server locally.
-Roughly speaking, usage looks something like this:
-
-::: panel-tabset
-
-### Stdio (Standard Input/Output)
-
-Use this when running a server locally via a command. This is the most common approach for 3rd party servers.
+This makes the Stdio method more ergonomic for local development and testing. For instance, recall the example above, which runs `uvx mcp-server-fetch` locally to provide web fetching capabilities to the chat instance:
 
 ```python
-from chatlas import ChatOpenAI
-
-chat = ChatOpenAI()
-
 # Run a server via uvx, npx, or any other command
 await chat.register_mcp_tools_stdio_async(
     command="uvx",
@@ -105,22 +86,17 @@ await chat.register_mcp_tools_stdio_async(
 )
 ```
 
-### Streaming HTTP
-
-Use this when connecting to an already-running HTTP server.
+On the other hand, the HTTP method is better for production environments where the server is hosted remotely or in a longer-running process.
+For example, if you have an MCP server already running at `http://localhost:8000/mcp`, you can connect to it as follows:
 
 ```python
-from chatlas import ChatOpenAI
-
-chat = ChatOpenAI()
-
 # Connect to a server already running at the specified URL
 await chat.register_mcp_tools_http_stream_async(
     url="http://localhost:8000/mcp",
 )
 ```
 
-:::
+Later on in this article, you'll learn 
 
 ::: callout-warning
 ### Async methods
@@ -146,7 +122,7 @@ This is done by calling [`.cleanup_mcp_tools()`](../reference/Chat.qmd#cleanup_m
 :::
 
 
-## Building your own server
+## Authoring tools
 
 If existing MCP servers don't meet your needs, you can implement your own.
 Let's walk through a full-fledged example, including implementing a simple MCP server.

@@ -626,7 +626,7 @@ class ContentThinking(Content):
         return HTML(html)
 
 
-class ContentWebSearchRequest(Content):
+class ContentToolRequestSearch(Content):
     """
     A web search request from the model.
 
@@ -650,7 +650,7 @@ class ContentWebSearchRequest(Content):
         return f"[web search request]: {self.query!r}"
 
 
-class ContentWebSearchResults(Content):
+class ContentToolResponseSearch(Content):
     """
     Web search results from the model.
 
@@ -675,7 +675,7 @@ class ContentWebSearchResults(Content):
         return f"[web search results]:\n{url_list}"
 
 
-class ContentWebFetchRequest(Content):
+class ContentToolRequestFetch(Content):
     """
     A web fetch request from the model.
 
@@ -699,7 +699,7 @@ class ContentWebFetchRequest(Content):
         return f"[web fetch request]: {self.url}"
 
 
-class ContentWebFetchResults(Content):
+class ContentToolResponseFetch(Content):
     """
     Web fetch results from the model.
 
@@ -732,10 +732,10 @@ ContentUnion = Union[
     ContentJson,
     ContentPDF,
     ContentThinking,
-    ContentWebSearchRequest,
-    ContentWebSearchResults,
-    ContentWebFetchRequest,
-    ContentWebFetchResults,
+    ContentToolRequestSearch,
+    ContentToolResponseSearch,
+    ContentToolRequestFetch,
+    ContentToolResponseFetch,
 ]
 
 
@@ -767,13 +767,13 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
     elif ct == "thinking":
         return ContentThinking.model_validate(data)
     elif ct == "web_search_request":
-        return ContentWebSearchRequest.model_validate(data)
+        return ContentToolRequestSearch.model_validate(data)
     elif ct == "web_search_results":
-        return ContentWebSearchResults.model_validate(data)
+        return ContentToolResponseSearch.model_validate(data)
     elif ct == "web_fetch_request":
-        return ContentWebFetchRequest.model_validate(data)
+        return ContentToolRequestFetch.model_validate(data)
     elif ct == "web_fetch_results":
-        return ContentWebFetchResults.model_validate(data)
+        return ContentToolResponseFetch.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
 

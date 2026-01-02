@@ -203,10 +203,10 @@ quartodoc:
         - types.ContentText
         - types.ContentToolRequest
         - types.ContentToolResult
-        - types.ContentWebSearchRequest
-        - types.ContentWebSearchResults
-        - types.ContentWebFetchRequest
-        - types.ContentWebFetchResults
+        - types.ContentToolRequestSearch
+        - types.ContentToolResponseSearch
+        - types.ContentToolRequestFetch
+        - types.ContentToolResponseFetch
         - types.ChatResponse
         - types.ChatResponseAsync
         - types.ImageContentTypes

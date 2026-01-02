@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * New `tool_web_search()` and `tool_web_fetch()` functions provide provider-agnostic access to built-in web search and URL fetch tools:
     * `tool_web_search()` is supported by OpenAI, Claude (Anthropic), and Google (Gemini).
     * `tool_web_fetch()` is supported by Claude (requires beta header) and Google.
-    * New content types `ContentWebSearchRequest`, `ContentWebSearchResults`, `ContentWebFetchRequest`, and `ContentWebFetchResults` capture web tool interactions.
+    * New content types `ContentToolRequestSearch`, `ContentToolResponseSearch`, `ContentToolRequestFetch`, and `ContentToolResponseFetch` capture web tool interactions.
 * `ChatOpenAI()` and `ChatAzureOpenAI()` gain a new `service_tier` parameter to request a specific service tier (e.g., `"flex"` for slower/cheaper or `"priority"` for faster/more expensive). (#204)
 * `Chat` and `Turn` now have a `_repr_markdown_` method and an overall improved `repr()` experience. (#245)
 

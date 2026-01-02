@@ -28,10 +28,10 @@ from ._content import (
     ContentThinking,
     ContentToolRequest,
     ContentToolResult,
-    ContentWebFetchRequest,
-    ContentWebFetchResults,
-    ContentWebSearchRequest,
-    ContentWebSearchResults,
+    ContentToolRequestFetch,
+    ContentToolResponseFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseSearch,
 )
 from ._logging import log_model_default
 from ._provider import (
@@ -711,10 +711,10 @@ class AnthropicProvider(
         elif isinstance(
             content,
             (
-                ContentWebSearchRequest,
-                ContentWebSearchResults,
-                ContentWebFetchRequest,
-                ContentWebFetchResults,
+                ContentToolRequestSearch,
+                ContentToolResponseSearch,
+                ContentToolRequestFetch,
+                ContentToolResponseFetch,
             ),
         ):
             # extra contains the full original content block param
@@ -805,7 +805,7 @@ class AnthropicProvider(
                 # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
                 if content.name == "web_search":
                     contents.append(
-                        ContentWebSearchRequest(
+                        ContentToolRequestSearch(
                             query=str(input_data.get("query", "")),
                             extra=extra,
                         )
@@ -816,7 +816,7 @@ class AnthropicProvider(
                     # ToolUnionParam not including BetaWebFetchTool20250910Param
                     # yet
                     contents.append(
-                        ContentWebFetchRequest(
+                        ContentToolRequestFetch(
                             url=str(input_data.get("url", "")),
                             extra=extra,
                         )
@@ -829,7 +829,7 @@ class AnthropicProvider(
                 if isinstance(content.content, list):
                     urls = [x.url for x in content.content]
                 contents.append(
-                    ContentWebSearchResults(
+                    ContentToolResponseSearch(
                         urls=urls,
                         extra=content.model_dump(),
                     )
@@ -852,7 +852,7 @@ class AnthropicProvider(
                     "content": content_fetch,
                 }
                 contents.append(
-                    ContentWebFetchResults(
+                    ContentToolResponseFetch(
                         url=content_fetch.get("url", "failed"),
                         extra=extra,
                     )

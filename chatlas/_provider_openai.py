@@ -19,7 +19,7 @@ from ._content import (
     ContentThinking,
     ContentToolRequest,
     ContentToolResult,
-    ContentWebSearchRequest,
+    ContentToolRequestSearch,
 )
 from ._logging import log_model_default
 from ._provider import StandardModelParamNames, StandardModelParams
@@ -427,7 +427,7 @@ class OpenAIProvider(
                     )
                 # https://platform.openai.com/docs/guides/tools-web-search#output-and-citations
                 contents.append(
-                    ContentWebSearchRequest(
+                    ContentToolRequestSearch(
                         query=output.action.query,
                         extra=output.model_dump(),
                     )
@@ -554,7 +554,7 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
             "name": content.name,
             "arguments": orjson.dumps(content.arguments).decode("utf-8"),
         }
-    elif isinstance(content, ContentWebSearchRequest):
+    elif isinstance(content, ContentToolRequestSearch):
         return cast("ResponseInputItemParam", content.extra)
     else:
         raise ValueError(f"Unsupported content type: {type(content)}")
