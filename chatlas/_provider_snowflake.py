@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import (
     TYPE_CHECKING,
     Generator,
@@ -180,6 +181,10 @@ class SnowflakeProvider(
             )
         super().__init__(name=name, model=model)
 
+        # Use SF_PARTNER env var for partner identification, defaulting to "py_chatlas"
+        # https://docs.snowflake.com/en/developer-guide/logging-tracing/tracing-parameters#label-tracing-params-application
+        application = os.environ.get("SF_PARTNER", "py_chatlas")
+
         configs: dict[str, str | int] = drop_none(
             {
                 "connection_name": connection_name,
@@ -188,6 +193,7 @@ class SnowflakeProvider(
                 "password": password,
                 "private_key_file": private_key_file,
                 "private_key_file_pwd": private_key_file_pwd,
+                "application": application,
                 **(kwargs or {}),
             }
         )
