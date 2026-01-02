@@ -1,6 +1,6 @@
 import pytest
 import requests
-from chatlas import ChatGoogle, ChatVertex
+from chatlas import ChatGoogle, ChatVertex, tool_web_fetch, tool_web_search
 from google.genai.errors import APIError
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
@@ -10,6 +10,8 @@ from .conftest import (
     assert_images_remote_error,
     assert_list_models,
     assert_pdf_local,
+    assert_tool_web_fetch,
+    assert_tool_web_search,
     assert_tools_parallel,
     assert_tools_sequential,
     assert_tools_simple,
@@ -151,6 +153,18 @@ def test_tools_sequential():
 @retry_gemini_call
 def test_data_extraction():
     assert_data_extraction(chat_func)
+
+
+@pytest.mark.vcr
+@retry_gemini_call
+def test_google_web_fetch():
+    assert_tool_web_fetch(chat_func, tool_web_fetch())
+
+
+@pytest.mark.vcr
+@retry_gemini_call
+def test_google_web_search():
+    assert_tool_web_search(chat_func, tool_web_search())
 
 
 @pytest.mark.vcr

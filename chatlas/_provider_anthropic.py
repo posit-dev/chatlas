@@ -708,6 +708,17 @@ class AnthropicProvider(
                 "thinking": content.thinking,
                 "signature": extra.get("signature", ""),
             }
+        elif isinstance(
+            content,
+            (
+                ContentWebSearchRequest,
+                ContentWebSearchResults,
+                ContentWebFetchRequest,
+                ContentWebFetchResults,
+            ),
+        ):
+            # extra contains the full original content block param
+            return cast("ContentBlockParam", content.extra)
 
         raise ValueError(f"Unknown content type: {type(content)}")
 
@@ -779,19 +790,33 @@ class AnthropicProvider(
                 # Handle built-in server tools (web_search, web_fetch)
                 # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
                 # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
-                input_dict = cast(dict, content.input)
+                # Note: content.input can be a dict or string depending on streaming
+                input_data = content.input
+                input_dict = (
+                    input_data
+                    if isinstance(input_data, dict)
+                    else orjson.loads(input_data)
+                )
+                # Store only fields needed for API input (not model_dump which
+                # includes output-only fields)
+                extra = {
+                    "type": content.type,
+                    "id": content.id,
+                    "name": content.name,
+                    "input": input_dict,
+                }
                 if content.name == "web_search":
                     contents.append(
                         ContentWebSearchRequest(
                             query=str(input_dict.get("query", "")),
-                            extra=content.model_dump(),
+                            extra=extra,
                         )
                     )
                 elif content.name == "web_fetch":
                     contents.append(
                         ContentWebFetchRequest(
                             url=str(input_dict.get("url", "")),
-                            extra=content.model_dump(),
+                            extra=extra,
                         )
                     )
                 else:
@@ -800,20 +825,33 @@ class AnthropicProvider(
                 # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
                 # content.content is Union[WebSearchToolResultError, list[WebSearchResultBlock]]
                 urls: list[str] = []
+                result_content: list[dict] = []
                 if isinstance(content.content, list):
                     urls = [x.url for x in content.content]
-                contents.append(
-                    ContentWebSearchResults(
-                        urls=urls,
-                        extra=content.model_dump(),
-                    )
-                )
+                    result_content = [x.model_dump() for x in content.content]
+                # Store only fields needed for API input
+                extra = {
+                    "type": content.type,
+                    "tool_use_id": content.tool_use_id,
+                    "content": result_content,
+                }
+                contents.append(ContentWebSearchResults(urls=urls, extra=extra))
             elif content.type == "web_fetch_tool_result":
                 # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
+                # Store only fields needed for API input (url is output-only at top level)
+                fetch_content = getattr(content, "content", None)
+                # Serialize if it's a Pydantic model (for consistency with web_search handling)
+                if hasattr(fetch_content, "model_dump"):
+                    fetch_content = fetch_content.model_dump()
+                extra = {
+                    "type": content.type,
+                    "tool_use_id": content.tool_use_id,
+                    "content": fetch_content,
+                }
                 contents.append(
                     ContentWebFetchResults(
                         url=getattr(content, "url", None) or "failed",
-                        extra=content.model_dump(),
+                        extra=extra,
                     )
                 )
 

@@ -1,6 +1,6 @@
 import httpx
 import pytest
-from chatlas import ChatOpenAI
+from chatlas import ChatOpenAI, tool_web_search
 from openai.types.responses import ResponseOutputMessage, ResponseOutputText
 
 from .conftest import (
@@ -9,6 +9,7 @@ from .conftest import (
     assert_images_remote,
     assert_list_models,
     assert_pdf_local,
+    assert_tool_web_search,
     assert_tools_async,
     assert_tools_parallel,
     assert_tools_sequential,
@@ -72,6 +73,18 @@ async def test_openai_tool_variations_async():
 @pytest.mark.vcr
 def test_data_extraction():
     assert_data_extraction(ChatOpenAI)
+
+
+@pytest.mark.vcr
+def test_openai_web_search():
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-4.1", **kwargs)
+
+    assert_tool_web_search(
+        chat_fun,
+        tool_web_search(),
+        hint="The CRAN archive page has this info.",
+    )
 
 
 @pytest.mark.vcr

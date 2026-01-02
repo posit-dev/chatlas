@@ -2,10 +2,16 @@ from typing import Literal, cast
 
 import httpx
 import pytest
-from pydantic import BaseModel, Field
-
-from chatlas import AssistantTurn, ChatAnthropic, UserTurn, content_image_file
+from chatlas import (
+    AssistantTurn,
+    ChatAnthropic,
+    UserTurn,
+    content_image_file,
+    tool_web_fetch,
+    tool_web_search,
+)
 from chatlas._provider_anthropic import AnthropicProvider
+from pydantic import BaseModel, Field
 
 from .conftest import (
     assert_data_extraction,
@@ -13,6 +19,8 @@ from .conftest import (
     assert_images_remote,
     assert_list_models,
     assert_pdf_local,
+    assert_tool_web_fetch,
+    assert_tool_web_search,
     assert_tools_async,
     assert_tools_parallel,
     assert_tools_sequential,
@@ -85,6 +93,23 @@ def test_anthropic_tool_variations_parallel():
 @retry_api_call
 async def test_anthropic_tool_variations_async():
     await assert_tools_async(chat_func)
+
+
+@pytest.mark.vcr
+def test_anthropic_web_fetch():
+    def chat_fun(**kwargs):
+        return ChatAnthropic(
+            model="claude-haiku-4-5-20251001",
+            kwargs={"default_headers": {"anthropic-beta": "web-fetch-2025-09-10"}},
+            **kwargs,
+        )
+
+    assert_tool_web_fetch(chat_fun, tool_web_fetch())
+
+
+@pytest.mark.vcr
+def test_anthropic_web_search():
+    assert_tool_web_search(chat_func, tool_web_search())
 
 
 @pytest.mark.vcr
