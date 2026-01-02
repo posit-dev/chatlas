@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from typing import (
     TYPE_CHECKING,
     Generator,
@@ -180,6 +181,13 @@ class SnowflakeProvider(
             )
         super().__init__(name=name, model=model)
 
+        # Snowflake uses the User Agent header to identify "partner applications",
+        # and this application parameter seems to be the best way to set it.
+        # This will identify requests as coming from "py_chatlas" (unless an explicit
+        # partner application is set via the ambient SF_PARTNER environment variable).
+        # https://docs.snowflake.com/en/developer-guide/python-connector/python-connector-api#functions
+        application = os.environ.get("SF_PARTNER", "py_chatlas")
+
         configs: dict[str, str | int] = drop_none(
             {
                 "connection_name": connection_name,
@@ -188,6 +196,7 @@ class SnowflakeProvider(
                 "password": password,
                 "private_key_file": private_key_file,
                 "private_key_file_pwd": private_key_file_pwd,
+                "application": application,
                 **(kwargs or {}),
             }
         )

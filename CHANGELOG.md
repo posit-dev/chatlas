@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `repr()` now generally gives the same result as `str()` for many classes (`Chat`, `Turn`, `Content`, etc). This leads to a more human-readable result (and is closer to the result that gets `echo`ed by `.chat()`). (#245)
 * The `Chat.get_cost()` method's `options` parameter was renamed to `include`. (#244)
 
+### Improvements
+
+* `ChatSnowflake()` now sets the `application` config parameter for partner identification. Defaults to `"py_chatlas"` but can be overridden via the `SF_PARTNER` environment variable. (#209)
+
 ### Bug fixes
 
 * Fixed structured data extraction with `ChatAnthropic()` failing for Pydantic models containing nested types (e.g., `list[NestedModel]`). The issue was that `$defs` (containing nested type definitions) was incorrectly placed inside the schema, breaking JSON `$ref` pointer references. (#100)
