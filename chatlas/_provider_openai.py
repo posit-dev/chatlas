@@ -241,9 +241,8 @@ class OpenAIProvider(
                 tool_params.append(tool.get_definition("openai"))
             elif isinstance(tool, ToolWebFetch):
                 raise ValueError(
-                    "Web fetch is not supported by OpenAI. "
-                    "Use the MCP Fetch server instead via "
-                    "chat.register_mcp_tools_stdio_async(). "
+                    "Web fetch is currently not natively supported by OpenAI. "
+                    "Consider using the MCP Fetch server instead via chat.register_mcp_tools_stdio_async(). "
                     "See help(tool_web_fetch) for details."
                 )
             elif isinstance(tool, ToolBuiltIn):
