@@ -502,11 +502,8 @@ class AnthropicProvider(
             elif chunk.delta.type == "citations_delta":
                 # https://docs.claude.com/en/docs/build-with-claude/citations#streaming-support
                 # Accumulate citations on the content block
-                citations = getattr(this_content, "citations", None)
-                if citations is None:
-                    citations = []
-                    setattr(this_content, "citations", citations)
-                citations.append(chunk.delta.citation)
+                if hasattr(this_content, "citations"):
+                    this_content.citations.append(chunk.delta.citation)  # type: ignore
         elif chunk.type == "content_block_stop":
             this_content = completion.content[chunk.index]
             if this_content.type == "tool_use" and isinstance(this_content.input, str):
