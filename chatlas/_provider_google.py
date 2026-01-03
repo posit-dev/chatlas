@@ -299,6 +299,7 @@ class GoogleProvider(
         from google.genai.types import (
             FunctionDeclaration,
             GenerateContentConfig,
+            Schema,
             ToolListUnion,
         )
         from google.genai.types import Tool as GoogleTool
@@ -336,11 +337,18 @@ class GoogleProvider(
                     gtool = GoogleTool.model_validate(tool.definition)
                     google_tools.append(gtool)
                 else:
+                    func = tool.schema["function"]
+                    params = func.get("parameters")
                     gtool = GoogleTool(
                         function_declarations=[
-                            FunctionDeclaration.from_callable(
-                                client=self._client._api_client,
-                                callable=tool.func,
+                            FunctionDeclaration(
+                                name=func["name"],
+                                description=func.get("description", ""),
+                                parameters=Schema.model_validate(
+                                    _strip_additional_properties(params)
+                                )
+                                if params
+                                else None,
                             )
                         ]
                     )
@@ -726,3 +734,24 @@ def ChatVertex(
         ),
         system_prompt=system_prompt,
     )
+
+
+def _strip_additional_properties(params: dict[str, Any]) -> dict[str, Any]:
+    """
+    Recursively remove additionalProperties from JSON schema.
+
+    Google's API doesn't accept additionalProperties in tool schemas,
+    so we strip it before passing to Schema.model_validate().
+    """
+    result = {k: v for k, v in params.items() if k != "additionalProperties"}
+
+    if "properties" in result and isinstance(result["properties"], dict):
+        result["properties"] = {
+            k: _strip_additional_properties(v) if isinstance(v, dict) else v
+            for k, v in result["properties"].items()
+        }
+
+    if "items" in result and isinstance(result["items"], dict):
+        result["items"] = _strip_additional_properties(result["items"])
+
+    return result
