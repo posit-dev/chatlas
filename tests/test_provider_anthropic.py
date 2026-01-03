@@ -113,6 +113,31 @@ def test_anthropic_web_search():
 
 
 @pytest.mark.vcr
+def test_anthropic_web_search_citations():
+    """Test that citations from web search are preserved on the completion."""
+    chat = chat_func()
+    chat.register_tool(tool_web_search())
+    chat.chat(
+        "When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format."
+    )
+
+    # Get the turn and verify citations are on the completion
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert turn.completion is not None
+
+    # Find a text content block that should have citations
+    text_blocks = [c for c in turn.completion.content if c.type == "text"]
+    assert len(text_blocks) > 0
+
+    # At least one text block should have citations from web search
+    has_citations = any(
+        getattr(block, "citations", None) for block in text_blocks
+    )
+    assert has_citations, "Expected citations on text blocks from web search"
+
+
+@pytest.mark.vcr
 def test_data_extraction():
     assert_data_extraction(chat_func)
 
