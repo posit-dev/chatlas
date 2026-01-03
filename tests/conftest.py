@@ -381,6 +381,42 @@ def assert_list_models(chat_fun: ChatFun):
     assert "id" in models[0]
 
 
+# ---------------------------------------------------------------------------
+# Built-in tools (web search/fetch)
+# ---------------------------------------------------------------------------
+
+
+def assert_tool_web_fetch(chat_fun: ChatFun, tool, stream: bool = True):
+    """Test web fetch tool functionality."""
+    chat = chat_fun()
+    chat.register_tool(tool)
+
+    url = "https://rvest.tidyverse.org/articles/starwars.html"
+    response = chat.chat(f"What's the first movie listed on {url}?", stream=stream)
+    assert "The Phantom Menace" in str(response)
+
+    response = chat.chat("Who directed it?", stream=stream)
+    assert "George Lucas" in str(response)
+
+
+def assert_tool_web_search(chat_fun: ChatFun, tool, hint: str = "", stream: bool = True):
+    """Test web search tool functionality."""
+    chat = chat_fun()
+    chat.register_tool(tool)
+
+    prompt = "When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format."
+    if hint:
+        prompt += f" {hint}"
+
+    response = chat.chat(prompt, stream=stream)
+    # Replace non-breaking hyphens with regular hyphens (for OpenAI)
+    result = str(response).replace("\u2011", "-")
+    assert "2014-05-21" in result
+
+    response = chat.chat("What month was that?", stream=stream)
+    assert "May" in str(response)
+
+
 retry_api_call = retry(
     wait=wait_exponential(min=1, max=60),
     stop=stop_after_attempt(3),

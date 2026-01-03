@@ -27,6 +27,10 @@ from ._content import (
     ContentText,
     ContentThinking,
     ContentToolRequest,
+    ContentToolRequestFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
     ContentToolResult,
 )
 from ._logging import log_model_default
@@ -39,6 +43,7 @@ from ._provider import (
 )
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
+from ._tools_builtin import ToolWebFetch, ToolWebSearch
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
@@ -494,6 +499,11 @@ class AnthropicProvider(
             elif chunk.delta.type == "signature_delta":
                 this_content = cast("ThinkingBlock", this_content)
                 this_content.signature += chunk.delta.signature
+            elif chunk.delta.type == "citations_delta":
+                # https://docs.claude.com/en/docs/build-with-claude/citations#streaming-support
+                # Accumulate citations on the content block
+                if hasattr(this_content, "citations"):
+                    this_content.citations.append(chunk.delta.citation)  # type: ignore
         elif chunk.type == "content_block_stop":
             this_content = completion.content[chunk.index]
             if this_content.type == "tool_use" and isinstance(this_content.input, str):
@@ -695,11 +705,28 @@ class AnthropicProvider(
                 "thinking": content.thinking,
                 "signature": extra.get("signature", ""),
             }
+        elif isinstance(
+            content,
+            (
+                ContentToolRequestSearch,
+                ContentToolResponseSearch,
+                ContentToolRequestFetch,
+                ContentToolResponseFetch,
+            ),
+        ):
+            # extra contains the full original content block param
+            return cast("ContentBlockParam", content.extra)
 
         raise ValueError(f"Unknown content type: {type(content)}")
 
     @staticmethod
     def _anthropic_tool_schema(tool: "Tool | ToolBuiltIn") -> "ToolUnionParam":
+        if isinstance(tool, ToolWebSearch):
+            return tool.get_definition("anthropic")
+        if isinstance(tool, ToolWebFetch):
+            # N.B. seems the return type here (BetaWebFetchTool20250910Param) is
+            # not a member of ToolUnionParam since it's still in beta?
+            return tool.get_definition("anthropic")  # type: ignore
         if isinstance(tool, ToolBuiltIn):
             return tool.definition  # type: ignore
 
@@ -755,6 +782,76 @@ class AnthropicProvider(
                     ContentThinking(
                         thinking=content.thinking,
                         extra={"signature": content.signature},
+                    )
+                )
+            elif content.type == "server_tool_use":
+                # Unfortunately, content.model_dump() includes fields like "url"
+                # that aren't acceptable as API input, so we manually construct
+                # the extra dict
+                if isinstance(content.input, str):
+                    input_data = orjson.loads(content.input)
+                else:
+                    input_data = content.input
+
+                extra = {
+                    "type": content.type,
+                    "id": content.id,
+                    "name": content.name,
+                    "input": input_data,
+                }
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
+                if content.name == "web_search":
+                    contents.append(
+                        ContentToolRequestSearch(
+                            query=str(input_data.get("query", "")),
+                            extra=extra,
+                        )
+                    )
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
+                elif content.name == "web_fetch":
+                    # N.B. type checker thinks this is unreachable due to
+                    # ToolUnionParam not including BetaWebFetchTool20250910Param
+                    # yet
+                    contents.append(
+                        ContentToolRequestFetch(
+                            url=str(input_data.get("url", "")),
+                            extra=extra,
+                        )
+                    )
+                else:
+                    raise ValueError(f"Unknown server tool: {content.name}")
+            elif content.type == "web_search_tool_result":
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
+                urls: list[str] = []
+                if isinstance(content.content, list):
+                    urls = [x.url for x in content.content]
+                contents.append(
+                    ContentToolResponseSearch(
+                        urls=urls,
+                        extra=content.model_dump(),
+                    )
+                )
+            elif content.type == "web_fetch_tool_result":
+                # N.B. type checker thinks this is unreachable due to
+                # ToolUnionParam not including BetaWebFetchTool20250910Param
+                # yet. Also, at run-time, the SDK is currently giving non-sense
+                # of type(content) == TextBlock, but it doesn't even fit that
+                # shape?!? Anyway, content.content has a dict with the content
+                # we want.
+                content_fetch = cast("dict", getattr(content, "content", {}))
+                if not content_fetch:
+                    raise ValueError(
+                        "web_fetch_tool_result content is empty. Please report this issue."
+                    )
+                extra = {
+                    "type": "web_fetch_tool_result",
+                    "tool_use_id": content.tool_use_id,  # type: ignore
+                    "content": content_fetch,
+                }
+                contents.append(
+                    ContentToolResponseFetch(
+                        url=content_fetch.get("url", "failed"),
+                        extra=extra,
                     )
                 )
 

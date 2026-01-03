@@ -18,6 +18,7 @@ from ._content import (
     ContentText,
     ContentThinking,
     ContentToolRequest,
+    ContentToolRequestSearch,
     ContentToolResult,
 )
 from ._logging import log_model_default
@@ -25,6 +26,7 @@ from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
+from ._tools_builtin import ToolWebFetch, ToolWebSearch
 from ._turn import AssistantTurn, Turn
 
 if TYPE_CHECKING:
@@ -235,7 +237,15 @@ class OpenAIProvider(
 
         tool_params: list["ToolParam"] = []
         for tool in tools.values():
-            if isinstance(tool, ToolBuiltIn):
+            if isinstance(tool, ToolWebSearch):
+                tool_params.append(tool.get_definition("openai"))
+            elif isinstance(tool, ToolWebFetch):
+                raise ValueError(
+                    "Web fetch is currently not natively supported by OpenAI. "
+                    "Consider using the MCP Fetch server instead via chat.register_mcp_tools_stdio_async(). "
+                    "See help(tool_web_fetch) for details."
+                )
+            elif isinstance(tool, ToolBuiltIn):
                 tool_params.append(cast("ToolParam", tool.definition))
             else:
                 schema = tool.schema
@@ -409,6 +419,20 @@ class OpenAIProvider(
                         )
                     )
 
+            elif output.type == "web_search_call":
+                if output.action.type != "search":
+                    raise ValueError(
+                        f"Unsupported web search action type: {output.action.type}"
+                        "Please file a feature request if you need this supported."
+                    )
+                # https://platform.openai.com/docs/guides/tools-web-search#output-and-citations
+                contents.append(
+                    ContentToolRequestSearch(
+                        query=output.action.query,
+                        extra=output.model_dump(),
+                    )
+                )
+
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
 
@@ -530,6 +554,8 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
             "name": content.name,
             "arguments": orjson.dumps(content.arguments).decode("utf-8"),
         }
+    elif isinstance(content, ContentToolRequestSearch):
+        return cast("ResponseInputItemParam", content.extra)
     else:
         raise ValueError(f"Unsupported content type: {type(content)}")
 
