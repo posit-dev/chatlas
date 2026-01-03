@@ -25,19 +25,19 @@ interactions:
       Host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/1.56.0 gl-python/3.12.11
     method: POST
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
         {\"name\": \"weather_forecast\",\"args\": {\"city\": \"New York\"}},\"thoughtSignature\":
-        \"CiQBcsjafLhyUDj0UNUR/Cle08w8Gwk26TZE39p3vyKt16OwRUkKeQFyyNp8KBHPrbClayUb6w5qB/Vr5z4YB6hR1eVzthcXhg+nexjB+21eNjT3QXlDXIzZeEK5rHvh4L+PvoszJLCqsSCufU1ttqY2kV6oBfoRncFHrGXXDqdULOfaFUO7mZLlSWbH2+o2+bKv/XQYchOcVJojiD/iVQcKjAIBcsjafDNI0ijQGMe/V/Z7Gc8stGncDaoRPehWfgBWbr07kpSS2mYD6/S0x1dbcWFOUIiymmK9faP1iPyJAuh326GxuE3XlDDNcNjPkz8RzfvJq3VqKDU2bDqwQOYLdSxmc+/EUyhRF7gB9TI4UTi5uf5hlxsJESjUd7eVRzSxAZfPziu4+9XvKFcmoWSRcEc/mWtymikz2+vYsFmI8Hwxn+1nLBgX5RIOIz99TRCOtSXrWfu12r92oywUWQEq8jiAc3UzdRLUEh3U+v+U+fJhVKAZ0Jf1PM+vcrUZsG6tfnrZfZyO6J4/3m+KkGPkW9KTQHHMA6UR0pA55fVUN6Od1YBX/lrZ7uaUfhtCCl8BcsjafBkxjGNoR7pmBJraAR391rBQqiNlVuXKGKXe/4iRBx4Gd3gXMt6qWVsfebU5aOnPKxnFJOgRT22ER7usCEax7TPQnVh0vWon4VAUdX7DVtlX90tT0NLrCtTSag==\"}],\"role\":
+        \"CiQBcsjafACpV7G9rvFg/YUqr5jwsRi6YjR7sTD//u+elmtbYfgKbwFyyNp80DDvuelFbpI07IdJJg6JXLe8HyyCT3JxStjPiQ6P5zPGi85/67m0EHDE6+ynjzMGTkiwiUHe01H8Kj+FtopqVp+zMfE9IbuVBH/m0zYejdyEyo97gsgMnMWZGxM7vrCTNl/4KKRkVoNN5Qr9AQFyyNp8UZoxx1q/Fm3u67QEFP6lLXbyiFpDokV6Drcbwh74alJhpU14jqqiAO2/iuMdr+470VrEUpbyyeUS8/3UnahOKmdsfLUf2TNeYa9dncg5QuSe6nFwf5GCs2vTcC2Wmy6Yi9tvd63BEnEdMhJYGkk/62gKKIzGHofZW/Q93mUAIpjEFU9WTAcP4CZfMov91pNHBsJb9OGyzWc1dZKB6OhpIlAVAXmY4wpGzpXtx1wxxPGU7LSvYNNyHwmeI03IPdjUbiLFb96vZGZlb5b4qcffddrT6zHC/benaxpVLOW/gbV3OxQn8OMcjAzL46zI7KrFRbLnDYiQb6AKSgFyyNp8EizpyAaDFRQaEC2Iun1ljFL7UbERZwi4J338Abg5xkFWUZfZIAHfFwkBfQDj+fCGnwt1dCIUzCF0+1b5HUsVSMMWBg58\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
         generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
-        133,\"candidatesTokenCount\": 16,\"totalTokenCount\": 232,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 133}],\"thoughtsTokenCount\": 83},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"crBVab6fBe6p_uMPycCNyAg\"}\r\n\r\n"
+        133,\"candidatesTokenCount\": 16,\"totalTokenCount\": 226,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 133}],\"thoughtsTokenCount\": 77},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"AXFYaf3jA7qj_uMPuYjYCQ\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -46,11 +46,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 23:23:30 GMT
+      - Sat, 03 Jan 2026 01:29:37 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=781
+      - gfet4t7; dur=741
       Transfer-Encoding:
       - chunked
       Vary:
@@ -94,7 +94,7 @@ interactions:
       Host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/1.56.0 gl-python/3.12.11
     method: POST
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
   response:
@@ -104,7 +104,7 @@ interactions:
         \"STOP\",\"index\": 0,\"finishMessage\": \"Model generated function call(s).\"}],\"usageMetadata\":
         {\"promptTokenCount\": 165,\"candidatesTokenCount\": 14,\"totalTokenCount\":
         179,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 165}]},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"dLBVaZqVHs2n_uMPx4K9wAw\"}\r\n\r\n"
+        \"gemini-2.5-flash\",\"responseId\": \"AnFYab6FA-6p_uMPycCNyAg\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -113,11 +113,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 23:23:32 GMT
+      - Sat, 03 Jan 2026 01:29:38 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=1731
+      - gfet4t7; dur=443
       Transfer-Encoding:
       - chunked
       Vary:
@@ -164,7 +164,7 @@ interactions:
       Host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/1.56.0 gl-python/3.12.11
     method: POST
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
   response:
@@ -173,7 +173,7 @@ interactions:
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
         192,\"candidatesTokenCount\": 1,\"totalTokenCount\": 193,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 192}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"dbBVaY62Au6p_uMPycCNyAg\"}\r\n\r\n"
+        \"AnFYaZCxLt63_uMP172v6Q0\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -182,11 +182,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 23:23:33 GMT
+      - Sat, 03 Jan 2026 01:29:38 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=242
+      - gfet4t7; dur=413
       Transfer-Encoding:
       - chunked
       Vary:

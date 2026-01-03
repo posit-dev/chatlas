@@ -4,7 +4,8 @@ interactions:
       format?"}], "role": "user"}], "systemInstruction": {"parts": [{"text": "Always
       use a tool to help you answer. Reply with ''It is ____.''."}], "role": "user"},
       "tools": [{"functionDeclarations": [{"description": "Gets the current date",
-      "name": "get_date"}]}], "generationConfig": {"temperature": 0}}'
+      "name": "get_date", "parameters": {"properties": {}, "required": [], "type":
+      "OBJECT"}}]}], "generationConfig": {"temperature": 0}}'
     headers:
       Accept:
       - '*/*'
@@ -13,24 +14,24 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '370'
+      - '438'
       Content-Type:
       - application/json
       Host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/1.56.0 gl-python/3.12.11
     method: POST
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
-        {\"name\": \"get_date\",\"args\": {}},\"thoughtSignature\": \"CiQBcsjafNzESZdveMDmEjkE4qZnXmMa4sKyx4nyK57kkMnMH0IKZgFyyNp8yapbuMORCnjXYdyDmkV6zHmsIknDw6Fm5Py9MHRx66rHsX0LyMfEo80UU7zKwexioAHVFk0Ktlsk/XjMcoob7NB2ld/vpjlVt/Mzk67cAHm40YRbBHujxD4zNcu1LyYO0wqsAQFyyNp8AwTnk9hjMzfVZqoyplhzZ4Z/BPOLQ/kzpgqi3fJi5iFO095CR/sbBjo777rBECEuThdD7g943BCr0Zu1ygpksPBCbrObFxXFoF+5Py0kx7cPOlFiLzHtdW4XOsrCtfwMbXrd7RJ4dq9HcM5oh0eF9WuEn3fqvL44QXJFVurH+5UD7p8u9CN+/Z874BpfpjE2H6PanXFVEAZBPUyXmLb4HSs20dbKiUw=\"}],\"role\":
+        {\"name\": \"get_date\",\"args\": {}},\"thoughtSignature\": \"CiQBcsjafE7XPE0RQxyTvgCFswdQFU+EG9GWSChIJlKXLIqiMjUKZgFyyNp8W6kOEPWtocqXw6xuZnGXYc0YNk3Kq9ktgW1PfjBa9MJ4g0/NFec20pA5eX7tyfxjvxhmUfrTQme5rUDlhpccdoywGtu/KOX22VjRLTZ2KpEeeowbiSL2Sot/aUSSOAYBwAqsAQFyyNp8q0dCYfjVC3NY1QOBXVK3DBJHAgbMBqVeQvSWH581gBtcMY4DIIdfeDxADL5aOm/OwsWG5LmbYXRWMnmByOR1+h2kl8A0ZgCZyrAcp7oP+YayMzTZ8FfD7qrGYf4cB9YTwuf74IQHse4jOuU5MjAP0iX6cym0dVqpVOhYhLhVkNmHG2uX9lZWLM71ApS/fABI/IZbqo54Cnd2mzZTgQcFkukBR0XZADw=\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
         generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
         59,\"candidatesTokenCount\": 10,\"totalTokenCount\": 118,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 59}],\"thoughtsTokenCount\": 49},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"arBVacjXN4KV_uMP_ZfUmQI\"}\r\n\r\n"
+        \"gemini-2.5-flash\",\"responseId\": \"-nBYaaf-BZmg_PUP5e-68Qo\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -39,11 +40,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 23:23:23 GMT
+      - Sat, 03 Jan 2026 01:29:30 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=624
+      - gfet4t7; dur=604
       Transfer-Encoding:
       - chunked
       Vary:
@@ -66,8 +67,8 @@ interactions:
       "response": {"result": "2024-01-01"}}}], "role": "user"}], "systemInstruction":
       {"parts": [{"text": "Always use a tool to help you answer. Reply with ''It is
       ____.''."}], "role": "user"}, "tools": [{"functionDeclarations": [{"description":
-      "Gets the current date", "name": "get_date"}]}], "generationConfig": {"temperature":
-      0}}'
+      "Gets the current date", "name": "get_date", "parameters": {"properties": {},
+      "required": [], "type": "OBJECT"}}]}], "generationConfig": {"temperature": 0}}'
     headers:
       Accept:
       - '*/*'
@@ -76,23 +77,23 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '563'
+      - '631'
       Content-Type:
       - application/json
       Host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/1.56.0 gl-python/3.12.11
     method: POST
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"It
-        is 2024-01-01.\",\"thoughtSignature\": \"CikBcsjafGgEqBjN+08sHu/3MdzQ74/+8Grbvn3eEiXxPWumfFzdlnIpvApWAXLI2nwkO9g646klKXjWrf5cjSHiUn9rAo17DQ6N8cl21Wd/tWO3jsnW+WYysnPKUayN4ASfhVRWromaJ9mcwMZ/g8tevRH2J7rDY6aEoasK2+RYh9AKtwEBcsjafDNQC7HsaSojz3d65iz8dWYnMZpl4I2+J8kbIcHHiOZYVbE+0/nLYL5L8mqRkoABLRWnF04rJlINheb1YjVz0dVTECq1otXAmxrAbFQ/WTPVcXtWZn3Zwvb9hQqdNTe0jCyv2Yf0FWhPL0d39gUhxeRshRildfOtVWzplrW+ABkg5G0VqvbPe0KgkGFgxDWq0tx7s4NjQ4i7fhhIL0cfpbIsGGXFQoXHL6aB6x9CXrSqaBIKqwEBcsjafNgWOpdgULf13wXACOdZoggNPFF8zsuXgtZJ6iIQRx3YP1L88iULEGrZp2jKKAEPLhC9p4H4UNyrTjbRF8KhLlpQrbV+e3XQc9EIfH2V34whtFTfZGvo1QbeYizvWy0MsnbhHPDNQ2Ioq8zuKJCSu2tr0eo+sQEWxwDecm8ZxkffwUUkrsiYCvLJkCOuuEZGitqkkfUn4mXS7959h8XZNJX9UaSscVI=\"}],\"role\":
+        is 2024-01-01.\",\"thoughtSignature\": \"CikBcsjafCp7ZFHWd9i1Blcv9Lbyfql1wNhD+z8VnVTR7dNpkWRwm0kxZQpWAXLI2nyLvkf3bY4vU9D8AEHXBjsoSNVq0Ub0r1T6/XlX/crjFn9WF97nqspN/zXjWfSgQXWLXGYAcSDZ5zTO0giFsImUOGZOSrQnCdwIZX1NO24BspsKtwEBcsjafGAu6GHMb9zLOF99G3oFcvj/86BuUx3D9rFSDrdJ2k/fXM7La96PhsGCA+xO8gCnZGO7G2+TMQlU9b6n2g4Sxmv555NDdjOV6aBq1cOsZnvp15uDRtzY8IARJZ99duNRfszb/lGkEhTqmDk6hqW/CstTqYabGhCym7KqaotDG6198/KFJe5pJUFHLYcVPi0UBUCFxt37b8VNa93ojQy8q1y1+UKSZLAiqn5LTEnjz7tt6dIKqwEBcsjafNLxM7j3/bzcyD5/ABl94TUZl0TxXk8dukb9U8H0CmvfstpGcpl0geMR4plKjYBXUNYer1P/AiNMjTYOBEEu8ZVIiXkpuEOztWoq0Pn/OJqAj8sCSpx5Q8WHWBYS6GFVfdDsUr2ZOJtl4mK5KUorl/quEtewdMi2eqdTb4a97gzxXsI+fdoMitc4jhk9xueGOJtKJgsX9v2mSnm+R59i4UlbdUaN+8k=\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
         93,\"candidatesTokenCount\": 14,\"totalTokenCount\": 207,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 93}],\"thoughtsTokenCount\": 100},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"a7BVae-nLNql_uMPt9e6qAw\"}\r\n\r\n"
+        \"gemini-2.5-flash\",\"responseId\": \"-nBYafSNOdCT_uMP8oG9kQk\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -101,11 +102,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 23:23:24 GMT
+      - Sat, 03 Jan 2026 01:29:31 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=881
+      - gfet4t7; dur=897
       Transfer-Encoding:
       - chunked
       Vary:
@@ -130,7 +131,8 @@ interactions:
       it? Provide the full name."}], "role": "user"}], "systemInstruction": {"parts":
       [{"text": "Always use a tool to help you answer. Reply with ''It is ____.''."}],
       "role": "user"}, "tools": [{"functionDeclarations": [{"description": "Gets the
-      current date", "name": "get_date"}]}], "generationConfig": {"temperature": 0}}'
+      current date", "name": "get_date", "parameters": {"properties": {}, "required":
+      [], "type": "OBJECT"}}]}], "generationConfig": {"temperature": 0}}'
     headers:
       Accept:
       - '*/*'
@@ -139,24 +141,24 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '707'
+      - '775'
       Content-Type:
       - application/json
       Host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/1.56.0 gl-python/3.12.11
     method: POST
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
-        {\"name\": \"get_date\",\"args\": {}},\"thoughtSignature\": \"CiQBcsjafBsfUuO13AFKM7nfkhjI3trRWF0ulst74WWDkxtV5I0KXQFyyNp8VfB3QCh5gvvMB/Tsru+mX15WurBIciDHwcsN+S4+a62D4ypLIq2jn0bNhKvVukd6IM9Dx7CA7OSYRM5CtS52Z+YWYH9HSL04dTmboSBBwUy4i0qGDQFxQQqiAQFyyNp8IoV85jyHgyxvvJtYUQOSVkK0Ia3gTH/GEIakcsYys1YxbXYHBljcepg/gol6l4MPShsQ+eEXea8/tSZNwSE/XxbDOwj+G/BElf/+et8nq6klSHs1y9G7p227baKh4LbFgmi4CfUHDDYSEtQgSa1cFW8oaEf/1QPhkQeS1scOc2wh3ez1h1/BDPGJ7k/1zJ85rFmKuZtY8y4hFi0r+w==\"}],\"role\":
+        {\"name\": \"get_date\",\"args\": {}},\"thoughtSignature\": \"CiQBcsjafNPaW/gDVL24E4Svh5E8oWrZj6UKroG4Pihc7FyLtc0KXQFyyNp8b22yjq52P1nFo/gyUMfST90SFFPZCMYjgedCLUguPk5tLhgEdhmITyRXx8F32qZ5/35oCwSCiCLVK+v63+Dpegrv/dRcnaQE7fqt6f3HZ8vCwfdycg8rrAquAQFyyNp84irYpOOL7ITQPAGgkNl+oi/TgZzN7/3A56+4in6mKVH57F0bOXDJPykqpgtphOlSctQ5Q9fxRHDklw8bvMS6/kY7FJ1ySaZtXJpFdB/S4/n+JmRin/V40zRODNRGlZcdl6sOw1967rewNjECyc0Rj2Ltm0UxEuVeHLSUwR6eGO/HYIg0N9/zbQl+WkLsSSmSSzO4CDfly9hGmNBN2ODCjyMk4WHZ9Kbbow==\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
         generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
         119,\"candidatesTokenCount\": 10,\"totalTokenCount\": 180,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 119}],\"thoughtsTokenCount\": 51},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"bLBVadftOM26_uMPx_uNmAI\"}\r\n\r\n"
+        \"gemini-2.5-flash\",\"responseId\": \"-3BYaeuzOfCm_uMPxYvX0AI\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -165,11 +167,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 23:23:25 GMT
+      - Sat, 03 Jan 2026 01:29:32 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=717
+      - gfet4t7; dur=556
       Transfer-Encoding:
       - chunked
       Vary:
@@ -196,7 +198,8 @@ interactions:
       {"name": "get_date", "response": {"result": "2024-01-01"}}}], "role": "user"}],
       "systemInstruction": {"parts": [{"text": "Always use a tool to help you answer.
       Reply with ''It is ____.''."}], "role": "user"}, "tools": [{"functionDeclarations":
-      [{"description": "Gets the current date", "name": "get_date"}]}], "generationConfig":
+      [{"description": "Gets the current date", "name": "get_date", "parameters":
+      {"properties": {}, "required": [], "type": "OBJECT"}}]}], "generationConfig":
       {"temperature": 0}}'
     headers:
       Accept:
@@ -206,13 +209,13 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '900'
+      - '968'
       Content-Type:
       - application/json
       Host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/1.56.0 gl-python/3.12.11
     method: POST
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
   response:
@@ -221,11 +224,11 @@ interactions:
         is January.\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
         153,\"candidatesTokenCount\": 4,\"totalTokenCount\": 157,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 153}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"bbBVaejXMpmn_uMP-r6TOA\"}\r\n\r\ndata: {\"candidates\": [{\"content\": {\"role\":
-        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
-        153,\"candidatesTokenCount\": 4,\"totalTokenCount\": 157,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 153}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"bbBVaejXMpmn_uMP-r6TOA\"}\r\n\r\n"
+        \"_HBYaZqqK4eU_uMP3LyzuQ4\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        {\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 153,\"candidatesTokenCount\": 4,\"totalTokenCount\":
+        157,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 153}]},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"_HBYaZqqK4eU_uMP3LyzuQ4\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -234,11 +237,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 23:23:25 GMT
+      - Sat, 03 Jan 2026 01:29:32 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=314
+      - gfet4t7; dur=266
       Transfer-Encoding:
       - chunked
       Vary:
