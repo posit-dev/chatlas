@@ -370,14 +370,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#basic-usage" id="toc-basic-usage" class="nav-link active" data-scroll-target="#basic-usage">Basic usage</a></li>
-  <li><a href="#basic-example" id="toc-basic-example" class="nav-link" data-scroll-target="#basic-example">Basic example</a>
+  <li><a href="#registering-tools" id="toc-registering-tools" class="nav-link active" data-scroll-target="#registering-tools">Registering tools</a>
   <ul class="collapse">
-  <li><a href="#basic-server" id="toc-basic-server" class="nav-link" data-scroll-target="#basic-server">Basic server</a></li>
+  <li><a href="#quick-start" id="toc-quick-start" class="nav-link" data-scroll-target="#quick-start">Quick start</a></li>
+  <li><a href="#basic-usage" id="toc-basic-usage" class="nav-link" data-scroll-target="#basic-usage">Basic usage</a></li>
+  </ul></li>
+  <li><a href="#authoring-tools" id="toc-authoring-tools" class="nav-link" data-scroll-target="#authoring-tools">Authoring tools</a>
+  <ul class="collapse">
   <li><a href="#http-stream" id="toc-http-stream" class="nav-link" data-scroll-target="#http-stream">HTTP Stream</a></li>
   <li><a href="#stdio" id="toc-stdio" class="nav-link" data-scroll-target="#stdio">Stdio</a></li>
   </ul></li>
-  <li><a href="#motivating-example" id="toc-motivating-example" class="nav-link" data-scroll-target="#motivating-example">Motivating example</a></li>
+  <li><a href="#advanced-example-code-execution" id="toc-advanced-example-code-execution" class="nav-link" data-scroll-target="#advanced-example-code-execution">Advanced example: Code execution</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/misc/mcp-tools.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
@@ -403,7 +406,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p><a href="https://modelcontextprotocol.io">Model Context Protocol (MCP)</a> provides a standard way to build services that LLMs can use to gain context. Most significantly, MCP provides a standard way to serve <a href="../get-started/tools.html">tools</a> (i.e., functions) for an LLM to call from another program or machine. As a result, there are now <a href="https://github.com/punkpeye/awesome-mcp-servers?tab=readme-ov-file#server-implementations">many useful MCP server implementations available</a> to help extend the capabilities of your chat application. In this article, you’ll learn the basics of implementing and using MCP tools in chatlas.</p>
+<p><a href="https://modelcontextprotocol.io">Model Context Protocol (MCP)</a> provides a standard way to build services that LLMs can use to gain context. This includes a standard way to provide <a href="../get-started/tools.html">tools</a> (i.e., functions) for an LLM to call from another program or machine. There are now <a href="https://glama.ai/mcp/servers">many useful MCP server implementations available</a> to help extend the capabilities of your chat application with minimal effort.</p>
+<p>In this article, you’ll learn how to both register existing MCP tools with chatlas as well as author your own custom MCP tools.</p>
 <div class="callout callout-style-simple callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -414,40 +418,69 @@ Prerequisites
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>To leverage MCP tools from chatlas, you’ll need to install the <code>mcp</code> library.</p>
+<p>To leverage MCP tools from chatlas, you’ll want to install the <code>mcp</code> extra.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="st">'chatlas[mcp]'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
-<section id="basic-usage" class="level2">
-<h2 class="anchored" data-anchor-id="basic-usage">Basic usage</h2>
-<p>Chatlas provides two ways to register MCP tools: <a href="../reference/Chat.html#register_mcp_tools_http_stream_async"><code>.register_mcp_tools_http_stream_async()</code></a> and <a href="../reference/Chat.html#register_mcp_tools_stdio_async"><code>.register_mcp_tools_stdio_async()</code></a>.</p>
-<p>The main difference is how they interact with the MCP server: the former connects to an already running HTTP server, while the latter executes a system command to run the server locally. Roughly speaking, usage looks something like this:</p>
-<div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true" aria-current="page">Streaming HTTP</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Stdio (Standard Input/Output)</a></li></ul>
-<div class="tab-content">
-<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming you have an MCP server running at the specified URL</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> chat.register_mcp_tools_http_stream_async(</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    url<span class="op">=</span><span class="st">"http://localhost:8000/mcp"</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="registering-tools" class="level2">
+<h2 class="anchored" data-anchor-id="registering-tools">Registering tools</h2>
+<section id="quick-start" class="level3">
+<h3 class="anchored" data-anchor-id="quick-start">Quick start</h3>
+<p>Let’s start with a practical example: using the <a href="https://github.com/modelcontextprotocol/servers/tree/main/src/fetch">MCP Fetch server</a> to give an LLM the ability to fetch and read web pages. This server is maintained by Anthropic and can be run via <code>uvx</code> (which comes with <a href="https://docs.astral.sh/uv/">uv</a>).</p>
+<p>For simplicity and convenience, we’ll use the <a href="../reference/Chat.html#register_mcp_tools_stdio_async"><code>.register_mcp_tools_stdio_async()</code></a> method to both run the MCP Fetch server locally and register its tools with our <code>ChatOpenAI</code> instance:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> main():</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    chat <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.register_mcp_tools_stdio_async(</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        command<span class="op">=</span><span class="st">"uvx"</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        args<span class="op">=</span>[<span class="st">"mcp-server-fetch"</span>],</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.chat_async(</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Summarize the first paragraph of https://en.wikipedia.org/wiki/Python_(programming_language)"</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.cleanup_mcp_tools()</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>asyncio.run(main())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="chatlas-response-container">
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 🔧 tool request</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fetch(url<span class="op">=</span><span class="st">"https://en.wikipedia.org/wiki/Python_(programming_language)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Python is a high-level, general-purpose programming language known for its emphasis on code readability through significant indentation. It supports multiple programming paradigms including structured, object-oriented, and functional programming, and is dynamically typed with garbage collection.</p>
 </div>
-<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming my_mcp_server.py is a valid MCP server script</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> chat.register_mcp_tools_stdio_async(</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    command<span class="op">=</span><span class="st">"mcp"</span>,</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>[<span class="st">"run"</span>, <span class="st">"my_mcp_server.py"</span>],</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-style-simple callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Built-in fetch/search tools
 </div>
 </div>
+<div class="callout-body-container callout-body">
+<p>For providers with native web fetch support (Claude, Google), consider using <a href="../reference/tool_web_fetch.html"><code>tool_web_fetch()</code></a> instead – it’s simpler and doesn’t require MCP setup. Similarly, <a href="../reference/tool_web_search.html"><code>tool_web_search()</code></a> provides native web search for OpenAI, Claude, and Google.</p>
 </div>
+</div>
+</section>
+<section id="basic-usage" class="level3">
+<h3 class="anchored" data-anchor-id="basic-usage">Basic usage</h3>
+<p>Chatlas provides two ways to register MCP tools:</p>
+<ol type="1">
+<li>Stdio (<a href="../reference/Chat.html#register_mcp_tools_stdio_async"><code>.register_mcp_tools_stdio_async()</code></a>)</li>
+<li>Streamble HTTP <a href="../reference/Chat.html#register_mcp_tools_http_stream_async"><code>.register_mcp_tools_http_stream_async()</code></a>.</li>
+</ol>
+<p>The main difference is how they communicate with the MCP server: the former (Stdio) executes a system command to run the server locally, while the latter (HTTP) connects to an already running HTTP server.</p>
+<p>This makes the Stdio method more ergonomic for local development and testing. For instance, recall the example above, which runs <code>uvx mcp-server-fetch</code> locally to provide web fetching capabilities to the chat instance:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run a server via uvx, npx, or any other command</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> chat.register_mcp_tools_stdio_async(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    command<span class="op">=</span><span class="st">"uvx"</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    args<span class="op">=</span>[<span class="st">"mcp-server-fetch"</span>],</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>On the other hand, the HTTP method is better for production environments where the server is hosted remotely or in a longer-running process. For example, if you have an MCP server already running at <code>http://localhost:8000/mcp</code>, you can connect to it as follows:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Connect to a server already running at the specified URL</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">await</span> chat.register_mcp_tools_http_stream_async(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    url<span class="op">=</span><span class="st">"http://localhost:8000/mcp"</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-simple callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -458,7 +491,7 @@ Async methods
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>For performance reasons, the methods for registering MCP tools are asynchronous, so you’ll need to use <code>await</code> when calling them. In some environments, such as Jupyter notebooks and the <a href="https://positron.posit.co/">Positron IDE</a> console, you can simply use <code>await</code> directly (as is done above). However, in other environments, you may need to wrap your code in an <code>async</code> function and use <code>asyncio.run()</code> to execute it. The examples below use <code>asyncio.run()</code> to run the asynchronous code, but you can adapt them to your environment as needed.</p>
+<p>For performance, the methods for registering MCP tools are asynchronous, so you’ll need to use <code>await</code> when calling them. In some environments, such as Jupyter notebooks and the <a href="https://positron.posit.co/">Positron IDE</a> console, you can simply use <code>await</code> directly (as is done above). However, in other environments, you may need to wrap your code in an <code>async</code> function and use <code>asyncio.run()</code> to execute it. The examples below use <code>asyncio.run()</code> to run the asynchronous code, but you can adapt them to your environment as needed.</p>
 </div>
 </div>
 <p>Note that these methods work by:</p>
@@ -467,126 +500,113 @@ Async methods
 <li>Requesting the available tools and making them available to the chat instance</li>
 <li>Keeping the connection open for tool calls during the chat session</li>
 </ol>
-<div class="callout callout-style-simple callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Cleanup
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>When you no longer need the MCP tools, it’s important to clean up the connection to the MCP server, as well <code>Chat</code>’s tool state. This is done by calling <a href="../reference/Chat.html#cleanup_mcp_tools"><code>.cleanup_mcp_tools()</code></a> at the end of your chat session (the examples demonstrate how to do this).</p>
-</div>
-</div>
+<p>This means, when you no longer need the MCP tools, it’s good practice to clean up the connection to the MCP server, as well <code>Chat</code>’s tool state. This is done by calling <a href="../reference/Chat.html#cleanup_mcp_tools"><code>.cleanup_mcp_tools()</code></a> at the end of your chat session (the examples demonstrate how to do this).</p>
 </section>
-<section id="basic-example" class="level2">
-<h2 class="anchored" data-anchor-id="basic-example">Basic example</h2>
-<p>Let’s walk through a full-fledged example of using MCP tools in chatlas, including implementing our own MCP server.</p>
-<section id="basic-server" class="level3">
-<h3 class="anchored" data-anchor-id="basic-server">Basic server</h3>
-<p>Below is a basic MCP server with a simple <code>add</code> tool to add two numbers together. This particular server is implemented in Python (via <a href="https://pypi.org/project/mcp/">mcp</a>), but remember that MCP servers can be implemented in any programming language.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mcp.server.fastmcp <span class="im">import</span> FastMCP</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> FastMCP(<span class="st">"my_server"</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">@app.tool</span>(description<span class="op">=</span><span class="st">"Add two numbers."</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(x: <span class="bu">int</span>, y: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">+</span> y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
+<section id="authoring-tools" class="level2">
+<h2 class="anchored" data-anchor-id="authoring-tools">Authoring tools</h2>
+<p>If existing MCP servers don’t meet your needs, you can implement your own without much effort thanks to the <a href="https://pypi.org/project/mcp/">mcp</a> Python library (you can also <a href="https://modelcontextprotocol.io/docs/sdk">work in other languages</a>, if you like).</p>
+<p>Below is a basic MCP server with a simple <code>add</code> tool to add two numbers together.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> mcp.server.fastmcp <span class="im">import</span> FastMCP</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>app <span class="op">=</span> FastMCP(<span class="st">"my_server"</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="at">@app.tool</span>(description<span class="op">=</span><span class="st">"Add two numbers."</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(x: <span class="bu">int</span>, y: <span class="bu">int</span>) <span class="op">-&gt;</span> <span class="bu">int</span>:</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">+</span> y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>That’s it! You can now run this server through the streaming HTTP or Stdio protocols and connect its tools to chatlas.</p>
 <section id="http-stream" class="level3">
 <h3 class="anchored" data-anchor-id="http-stream">HTTP Stream</h3>
 <p>The <code>mcp</code> library provides a CLI tool to run the MCP server over HTTP transport. As long as you have <code>mcp</code> installed, and the <a href="#basic-server">server above</a> saved as <code>my_mcp_server.py</code>, this can be done as follows:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mcp run <span class="at">-t</span> sse my_mcp_server.py </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Started server process <span class="pp">[</span><span class="ss">19144</span><span class="pp">]</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Waiting for application startup.</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Application startup complete.</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Uvicorn running on http://127.0.0.1:8000 <span class="er">(</span><span class="ex">Press</span> CTRL+C to quit<span class="kw">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mcp run <span class="at">-t</span> sse my_mcp_server.py</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Started server process <span class="pp">[</span><span class="ss">19144</span><span class="pp">]</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Waiting for application startup.</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Application startup complete.</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">INFO:</span>     Uvicorn running on http://127.0.0.1:8000 <span class="er">(</span><span class="ex">Press</span> CTRL+C to quit<span class="kw">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>With the server now running at <code>http://localhost:8000/mcp</code>, let’s connect to it from chatlas and prompt it to use the <code>add</code> tool to demonstrate it’s working.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> do_chat(prompt: <span class="bu">str</span>):</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    chat <span class="op">=</span> ChatOpenAI(</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        system_prompt<span class="op">=</span><span class="st">"Always use tools available to you, even if the answer is simple."</span>,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.register_mcp_tools_http_stream_async(</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        url<span class="op">=</span><span class="st">"http://localhost:8000/mcp"</span>,</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.chat_async(prompt)</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.cleanup_mcp_tools()</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>asyncio.run(do_chat(<span class="st">"What is 5 - 3?"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> do_chat(prompt: <span class="bu">str</span>):</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    chat <span class="op">=</span> ChatOpenAI(</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        system_prompt<span class="op">=</span><span class="st">"Always use tools available to you, even if the answer is simple."</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.register_mcp_tools_http_stream_async(</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        url<span class="op">=</span><span class="st">"http://localhost:8000/mcp"</span>,</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.chat_async(prompt)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.cleanup_mcp_tools()</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>asyncio.run(do_chat(<span class="st">"What is 5 - 3?"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="chatlas-response-container">
-<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 🔧 tool request                        </span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>add(x<span class="op">=</span><span class="dv">5</span>, y<span class="op">=-</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ tool result                  </span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 🔧 tool request</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>add(x<span class="op">=</span><span class="dv">5</span>, y<span class="op">=-</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ tool result</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>5 - 3 equals 2.</p>
 </div>
 </section>
 <section id="stdio" class="level3">
 <h3 class="anchored" data-anchor-id="stdio">Stdio</h3>
 <p>Another way to run the MCP server is to use the Stdio protocol, which allows you to run the server as a local process. The command used to run the server must be specified in the <code>command</code> argument, and any additional arguments can be passed in the <code>args</code> list. In our case, since we are using the <code>mcp</code> library, we can run the server using the <code>mcp</code> command with the <code>run</code> subcommand and the path to our server script. So, as long as you have <code>mcp</code> installed, and the <a href="#basic-server">basic server</a> saved as <code>my_mcp_server.py</code>, you can run the MCP server and connect its tools to chatlas, as follows:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="st">"Always use tools available to you, even if the answer is simple."</span>,</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> do_chat(prompt: <span class="bu">str</span>):</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.register_mcp_tools_stdio_async(</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        command<span class="op">=</span><span class="st">"mcp"</span>,</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>        args<span class="op">=</span>[<span class="st">"run"</span>, <span class="st">"my_mcp_server.py"</span>],</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.chat_async(prompt)</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.cleanup_mcp_tools()</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>asyncio.run(do_chat(<span class="st">"What is 5 - 3?"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="st">"Always use tools available to you, even if the answer is simple."</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> do_chat(prompt: <span class="bu">str</span>):</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.register_mcp_tools_stdio_async(</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        command<span class="op">=</span><span class="st">"mcp"</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        args<span class="op">=</span>[<span class="st">"run"</span>, <span class="st">"my_mcp_server.py"</span>],</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.chat_async(prompt)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.cleanup_mcp_tools()</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>asyncio.run(do_chat(<span class="st">"What is 5 - 3?"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="chatlas-response-container">
-<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 🔧 tool request                        </span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>add(x<span class="op">=</span><span class="dv">5</span>, y<span class="op">=-</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ tool result                  </span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 🔧 tool request</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>add(x<span class="op">=</span><span class="dv">5</span>, y<span class="op">=-</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># ✅ tool result</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>5 - 3 equals 2.</p>
 </div>
 </section>
 </section>
-<section id="motivating-example" class="level2">
-<h2 class="anchored" data-anchor-id="motivating-example">Motivating example</h2>
+<section id="advanced-example-code-execution" class="level2">
+<h2 class="anchored" data-anchor-id="advanced-example-code-execution">Advanced example: Code execution</h2>
 <p>Let’s look at a more compelling use case for MCP tools: code execution. A tool that can execute code and return the results is a powerful way to extend the capabilities of an LLM. This way, LLMs can generate code based on natural language prompts (which they are quite good at!) and then execute that code to get precise and reliable results from data (which LLMs are not so good at!). However, allowing an LLM to execute arbitrary code is risky, as the generated code could potentially be destructive, harmful, or even malicious.</p>
 <p>To mitigate these risks, it’s important to implement safeguards around code execution. This can include running code in isolated environments, restricting access to sensitive resources, and carefully validating and sanitizing inputs to the code execution tool. One such implementation is Pydantic’s <a href="https://github.com/pydantic/pydantic-ai/tree/main/mcp-run-python">Run Python MCP server</a>, which provides a sandboxed environment for executing Python code safely via <a href="https://pyodide.org/en/stable/">Pyodide</a> and <a href="https://deno.com/">Deno</a>.</p>
 <p>Below is a Shiny <a href="../get-started/chatbots.html">chatbot</a> example that uses the Pydantic Run Python MCP server to execute Python code safely. Notice how, when tool calls are made, both the tool request (i.e., the code to be executed) and result (i.e., the output of the code execution) are displayed in the chat, making it much easier to understand what the LLM is doing and how it arrived at its answer. This is a great way to build trust in the LLM’s responses, as users can see exactly what code was executed and what the results were.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> shiny <span class="im">import</span> reactive</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> shiny.express <span class="im">import</span> ui</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>chat_client <span class="op">=</span> ChatOpenAI()</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="at">@reactive.effect</span></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> _():</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat_client.register_mcp_tools_stdio_async(</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>        command<span class="op">=</span><span class="st">"deno"</span>,</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        args<span class="op">=</span>[<span class="st">"run"</span>, <span class="st">"-N"</span>, <span class="st">"-R=node_modules"</span>, <span class="st">"-W=node_modules"</span>, <span class="st">"--node-modules-dir=auto"</span>, <span class="st">"jsr:@pydantic/mcp-run-python"</span>, <span class="st">"stdio"</span>],</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ui.Chat(<span class="st">"chat"</span>)</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>chat.ui(</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[<span class="st">"Hi! Try asking me a question that can be answered by executing Python code."</span>],</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>chat.update_user_input(value<span class="op">=</span><span class="st">"What's the 47th number in the Fibonacci sequence?"</span>)</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="at">@chat.on_user_submit</span></span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> _(user_input: <span class="bu">str</span>):</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    stream <span class="op">=</span> <span class="cf">await</span> chat_client.stream_async(user_input, content<span class="op">=</span><span class="st">"all"</span>)</span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.append_message_stream(stream)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> shiny <span class="im">import</span> reactive</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> shiny.express <span class="im">import</span> ui</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>chat_client <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="at">@reactive.effect</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> _():</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat_client.register_mcp_tools_stdio_async(</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        command<span class="op">=</span><span class="st">"deno"</span>,</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        args<span class="op">=</span>[<span class="st">"run"</span>, <span class="st">"-N"</span>, <span class="st">"-R=node_modules"</span>, <span class="st">"-W=node_modules"</span>, <span class="st">"--node-modules-dir=auto"</span>, <span class="st">"jsr:@pydantic/mcp-run-python"</span>, <span class="st">"stdio"</span>],</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ui.Chat(<span class="st">"chat"</span>)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>chat.ui(</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    messages<span class="op">=</span>[<span class="st">"Hi! Try asking me a question that can be answered by executing Python code."</span>],</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>chat.update_user_input(value<span class="op">=</span><span class="st">"What's the 47th number in the Fibonacci sequence?"</span>)</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="at">@chat.on_user_submit</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> _(user_input: <span class="bu">str</span>):</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    stream <span class="op">=</span> <span class="cf">await</span> chat_client.stream_async(user_input, content<span class="op">=</span><span class="st">"all"</span>)</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">await</span> chat.append_message_stream(stream)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><a href="../images/shiny-mcp-run-python.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Screenshot of a LLM executing Python code via a tool call in a Shiny chatbot"><img src="../images/shiny-mcp-run-python.png" class="shadow rounded img-fluid figure-img" alt="Screenshot of a LLM executing Python code via a tool call in a Shiny chatbot"></a></p>
@@ -1044,7 +1064,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     </div>
   </div>
 </footer>
-<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","openEffect":"zoom","loop":false,"selector":".lightbox","closeEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"openEffect":"zoom","closeEffect":"zoom","descPosition":"bottom","selector":".lightbox","loop":false});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

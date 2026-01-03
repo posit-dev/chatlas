@@ -727,7 +727,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="chatlas.Tool" class="level1">
 <h1>Tool</h1>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Tool(func, name, description, parameters, annotations<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Tool(func, name, description, parameters, annotations<span class="op">=</span><span class="va">None</span>, strict<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Define a tool</p>
 <p>Define a Python function for use by a chatbot. The function will always be invoked in the current Python process.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
@@ -770,6 +770,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>annotations</td>
 <td>'Optional[ToolAnnotations]'</td>
 <td>Additional properties that describe the tool and its behavior.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>strict</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#bool">bool</a>]</td>
+<td>Whether to enable strict mode.</td>
 <td><code>None</code></td>
 </tr>
 </tbody>
