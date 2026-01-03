@@ -59,6 +59,8 @@ class Tool:
         A dictionary describing the input parameters and their types.
     annotations
         Additional properties that describe the tool and its behavior.
+    strict
+        Whether to enable strict mode.
     """
 
     func: Callable[..., Any] | Callable[..., Awaitable[Any]]
@@ -77,20 +79,19 @@ class Tool:
         self.func = func
         self.annotations = annotations
         self._is_async = _utils.is_async_callable(func)
-        func_schema: dict[str, Any] = {
-            "name": name,
-            "description": description,
-            "parameters": parameters,
-        }
-        if strict is not None:
-            func_schema["strict"] = strict
-        self.schema: "ChatCompletionToolParam" = cast(
-            "ChatCompletionToolParam",
-            {
-                "type": "function",
-                "function": func_schema,
+        schema: "ChatCompletionToolParam" = {
+            "type": "function",
+            "function": {
+                "name": name,
+                "description": description,
+                "parameters": parameters,
+                "strict": strict,
             },
-        )
+        }
+        if strict is None:
+            # Remove strict from schema to let provider decide
+            del schema["function"]["strict"]
+        self.schema = schema
 
     @classmethod
     def from_func(
