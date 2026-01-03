@@ -128,6 +128,10 @@ chatlas.Tool py:class 1 reference/Tool.html#chatlas.Tool -
 chatlas._tools.Tool py:class 1 reference/Tool.html#chatlas.Tool chatlas.Tool
 chatlas.ToolRejectError py:class 1 reference/ToolRejectError.html#chatlas.ToolRejectError -
 chatlas._tools.ToolRejectError py:class 1 reference/ToolRejectError.html#chatlas.ToolRejectError chatlas.ToolRejectError
+chatlas.tool_web_search py:function 1 reference/tool_web_search.html#chatlas.tool_web_search -
+chatlas._tools_builtin.tool_web_search py:function 1 reference/tool_web_search.html#chatlas.tool_web_search chatlas.tool_web_search
+chatlas.tool_web_fetch py:function 1 reference/tool_web_fetch.html#chatlas.tool_web_fetch -
+chatlas._tools_builtin.tool_web_fetch py:function 1 reference/tool_web_fetch.html#chatlas.tool_web_fetch chatlas.tool_web_fetch
 chatlas.parallel_chat py:function 1 reference/parallel_chat.html#chatlas.parallel_chat -
 chatlas._parallel.parallel_chat py:function 1 reference/parallel_chat.html#chatlas.parallel_chat chatlas.parallel_chat
 chatlas.parallel_chat_text py:function 1 reference/parallel_chat_text.html#chatlas.parallel_chat_text -
@@ -204,6 +208,14 @@ chatlas.types.ContentToolResult.tagify py:function 1 reference/types.ContentTool
 chatlas._content.ContentToolResult.tagify py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.tagify chatlas.types.ContentToolResult.tagify
 chatlas.types.ContentToolResult py:class 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult -
 chatlas._content.ContentToolResult py:class 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult chatlas.types.ContentToolResult
+chatlas.types.ContentToolRequestSearch py:class 1 reference/types.ContentToolRequestSearch.html#chatlas.types.ContentToolRequestSearch -
+chatlas._content.ContentToolRequestSearch py:class 1 reference/types.ContentToolRequestSearch.html#chatlas.types.ContentToolRequestSearch chatlas.types.ContentToolRequestSearch
+chatlas.types.ContentToolResponseSearch py:class 1 reference/types.ContentToolResponseSearch.html#chatlas.types.ContentToolResponseSearch -
+chatlas._content.ContentToolResponseSearch py:class 1 reference/types.ContentToolResponseSearch.html#chatlas.types.ContentToolResponseSearch chatlas.types.ContentToolResponseSearch
+chatlas.types.ContentToolRequestFetch py:class 1 reference/types.ContentToolRequestFetch.html#chatlas.types.ContentToolRequestFetch -
+chatlas._content.ContentToolRequestFetch py:class 1 reference/types.ContentToolRequestFetch.html#chatlas.types.ContentToolRequestFetch chatlas.types.ContentToolRequestFetch
+chatlas.types.ContentToolResponseFetch py:class 1 reference/types.ContentToolResponseFetch.html#chatlas.types.ContentToolResponseFetch -
+chatlas._content.ContentToolResponseFetch py:class 1 reference/types.ContentToolResponseFetch.html#chatlas.types.ContentToolResponseFetch chatlas.types.ContentToolResponseFetch
 chatlas.types.ChatResponse.get_content py:function 1 reference/types.ChatResponse.html#chatlas.types.ChatResponse.get_content -
 chatlas._chat.ChatResponse.get_content py:function 1 reference/types.ChatResponse.html#chatlas.types.ChatResponse.get_content chatlas.types.ChatResponse.get_content
 chatlas.types.ChatResponse py:class 1 reference/types.ChatResponse.html#chatlas.types.ChatResponse -
