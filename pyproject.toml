@@ -104,8 +104,8 @@ perplexity = []
 snowflake = ["snowflake-ml-python<=1.9.0"]
 vertex = ["google-genai>=1.14.0"]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "ruff>=0.6.5",
     "tox-uv>=1.11.4",
 ]
