@@ -6,7 +6,7 @@ from openai import AsyncAzureOpenAI, AzureOpenAI
 from openai.types.chat import ChatCompletion
 
 from ._chat import Chat
-from ._provider_openai import OpenAIProvider
+from ._provider_openai import OpenAIProvider, is_reasoning_model
 from ._provider_openai_completions import OpenAICompletionsProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
 
@@ -98,7 +98,12 @@ def ChatAzureOpenAI(
 
     kwargs_chat: "ResponsesSubmitInputArgs" = {}
 
-    is_reasoning_model = reasoning is not None
+    # Detect reasoning models by checking if:
+    # 1. The user explicitly passed reasoning parameter, OR
+    # 2. The deployment_id matches a known reasoning model pattern (o*, gpt-5*)
+    # This allows automatic detection when deployment names match model names,
+    # while also supporting custom deployment names via the reasoning parameter.
+    detected_reasoning = reasoning is not None or is_reasoning_model(deployment_id)
     if reasoning is not None:
         if isinstance(reasoning, str):
             reasoning = {"effort": reasoning, "summary": "auto"}
@@ -114,7 +119,7 @@ def ChatAzureOpenAI(
         api_key=api_key,
         kwargs=kwargs,
     )
-    provider._is_reasoning_model = is_reasoning_model
+    provider._is_reasoning_model = detected_reasoning
 
     return Chat(
         provider=provider,
