@@ -228,6 +228,18 @@ def test_provider_instances(monkeypatch):
     assert isinstance(chat.provider, GoogleProvider)
 
 
+def test_claude_alias_for_anthropic():
+    """Test that 'claude' works as an alias for 'anthropic'."""
+    chat = ChatAuto("claude")
+    assert isinstance(chat, Chat)
+    assert isinstance(chat.provider, AnthropicProvider)
+
+    chat = ChatAuto("claude/claude-sonnet-4-5-20250514")
+    assert isinstance(chat, Chat)
+    assert isinstance(chat.provider, AnthropicProvider)
+    assert chat.provider.model == "claude-sonnet-4-5-20250514"
+
+
 def test_kwargs_priority_over_env_args(monkeypatch):
     """Test that direct kwargs override CHATLAS_CHAT_ARGS."""
     monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "openai")
