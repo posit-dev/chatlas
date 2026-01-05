@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * `tool_web_fetch()` is supported by Claude (requires beta header) and Google.
     * New content types `ContentToolRequestSearch`, `ContentToolResponseSearch`, `ContentToolRequestFetch`, and `ContentToolResponseFetch` capture web tool interactions.
 * `ChatOpenAI()` and `ChatAzureOpenAI()` gain a new `service_tier` parameter to request a specific service tier (e.g., `"flex"` for slower/cheaper or `"priority"` for faster/more expensive). (#204)
+* `ChatAzureOpenAI()` gains a `reasoning` parameter. (#260)
 * `Chat` and `Turn` now have a `_repr_markdown_` method and an overall improved `repr()` experience. (#245)
 * `ChatAuto()` now accepts `"claude"` as an alias for `"anthropic"`, reflecting Anthropic's rebranding of developer tools under the Claude name. (#239)
 
@@ -39,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed MCP tools failing with OpenAI providers due to strict mode schema validation. OpenAI's strict mode rejects standard JSON Schema features like `format: "uri"` and requires all properties in the `required` array. MCP tools now set `strict=false` to use standard JSON Schema conventions. (#255)
 * Fixed MCP tools not working with `ChatGoogle()`. (#257)
 * Tool functions parameters that are `typing.Annotated` with a `pydantic.Field` (e.g., `def add(x: Annotated[int, Field(description="First number")])`) are now handled correctly. (#251)
+
 
 ## [0.14.0] - 2025-12-09
 

@@ -11,7 +11,15 @@ from ._provider_openai_completions import OpenAICompletionsProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
 
 if TYPE_CHECKING:
-    from .types.openai import ChatAzureClientArgs, SubmitInputArgs
+    from openai.types.responses import Response
+    from openai.types.shared.reasoning_effort import ReasoningEffort
+    from openai.types.shared_params.reasoning import Reasoning
+
+    from .types.openai import (
+        ChatAzureClientArgs,
+        ResponsesSubmitInputArgs,
+        SubmitInputArgs,
+    )
 
 
 def ChatAzureOpenAI(
@@ -21,11 +29,12 @@ def ChatAzureOpenAI(
     api_version: str,
     api_key: Optional[str] = None,
     system_prompt: Optional[str] = None,
+    reasoning: "Optional[ReasoningEffort | Reasoning]" = None,
     service_tier: Optional[
         Literal["auto", "default", "flex", "scale", "priority"]
     ] = None,
     kwargs: Optional["ChatAzureClientArgs"] = None,
-) -> Chat["SubmitInputArgs", ChatCompletion]:
+) -> "Chat[ResponsesSubmitInputArgs, Response]":
     """
     Chat with a model hosted on Azure OpenAI.
 
@@ -65,6 +74,11 @@ def ChatAzureOpenAI(
         variable.
     system_prompt
         A system prompt to set the behavior of the assistant.
+    reasoning
+        The reasoning effort (e.g., `"low"`, `"medium"`, `"high"`) for
+        reasoning-capable models like the o and gpt-5 series. To use the default
+        reasoning settings in a way that will work for multi-turn conversations,
+        set this to an empty dictionary `{}`.
     service_tier
         Request a specific service tier. Options:
         - `"auto"` (default): uses the service tier configured in Project settings.
@@ -81,7 +95,13 @@ def ChatAzureOpenAI(
         A Chat object.
     """
 
-    kwargs_chat: "SubmitInputArgs" = {}
+    kwargs_chat: "ResponsesSubmitInputArgs" = {}
+
+    if reasoning is not None:
+        if isinstance(reasoning, str):
+            reasoning = {"effort": reasoning, "summary": "auto"}
+        kwargs_chat["reasoning"] = reasoning
+
     if service_tier is not None:
         kwargs_chat["service_tier"] = service_tier
 

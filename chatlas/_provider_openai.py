@@ -279,7 +279,7 @@ class OpenAIProvider(
 
         # Request reasoning content for reasoning models
         include = []
-        if is_reasoning_model(self.model):
+        if "reasoning" in kwargs_full or is_reasoning_model(self.model):
             include.append("reasoning.encrypted_content")
 
         if "log_probs" in kwargs_full:
