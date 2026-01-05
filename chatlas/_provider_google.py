@@ -343,7 +343,7 @@ class GoogleProvider(
                         function_declarations=[
                             FunctionDeclaration(
                                 name=func["name"],
-                                description=func.get("description", ""),
+                                description=func.get("description"),
                                 parameters=Schema.model_validate(
                                     _strip_additional_properties(params)
                                 )
