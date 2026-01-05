@@ -11,7 +11,15 @@ from ._provider_openai_completions import OpenAICompletionsProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
 
 if TYPE_CHECKING:
-    from .types.openai import ChatAzureClientArgs, SubmitInputArgs
+    from openai.types.responses import Response
+    from openai.types.shared.reasoning_effort import ReasoningEffort
+    from openai.types.shared_params.reasoning import Reasoning
+
+    from .types.openai import (
+        ChatAzureClientArgs,
+        ResponsesSubmitInputArgs,
+        SubmitInputArgs,
+    )
 
 
 def ChatAzureOpenAI(
@@ -21,11 +29,12 @@ def ChatAzureOpenAI(
     api_version: str,
     api_key: Optional[str] = None,
     system_prompt: Optional[str] = None,
+    reasoning: "Optional[ReasoningEffort | Reasoning]" = None,
     service_tier: Optional[
         Literal["auto", "default", "flex", "scale", "priority"]
     ] = None,
     kwargs: Optional["ChatAzureClientArgs"] = None,
-) -> Chat["SubmitInputArgs", ChatCompletion]:
+) -> "Chat[ResponsesSubmitInputArgs, Response]":
     """
     Chat with a model hosted on Azure OpenAI.
 
@@ -65,6 +74,12 @@ def ChatAzureOpenAI(
         variable.
     system_prompt
         A system prompt to set the behavior of the assistant.
+    reasoning
+        The reasoning effort to use. Set this for reasoning-capable models
+        (like the o-series). Since Azure uses custom deployment names rather
+        than model names, chatlas cannot automatically detect reasoning models.
+        Pass a reasoning effort string (e.g., "low", "medium", "high") or a
+        Reasoning dict to enable reasoning features.
     service_tier
         Request a specific service tier. Options:
         - `"auto"` (default): uses the service tier configured in Project settings.
@@ -81,18 +96,28 @@ def ChatAzureOpenAI(
         A Chat object.
     """
 
-    kwargs_chat: "SubmitInputArgs" = {}
+    kwargs_chat: "ResponsesSubmitInputArgs" = {}
+
+    is_reasoning_model = reasoning is not None
+    if reasoning is not None:
+        if isinstance(reasoning, str):
+            reasoning = {"effort": reasoning, "summary": "auto"}
+        kwargs_chat["reasoning"] = reasoning
+
     if service_tier is not None:
         kwargs_chat["service_tier"] = service_tier
 
+    provider = OpenAIAzureProvider(
+        endpoint=endpoint,
+        deployment_id=deployment_id,
+        api_version=api_version,
+        api_key=api_key,
+        kwargs=kwargs,
+    )
+    provider._is_reasoning_model = is_reasoning_model
+
     return Chat(
-        provider=OpenAIAzureProvider(
-            endpoint=endpoint,
-            deployment_id=deployment_id,
-            api_version=api_version,
-            api_key=api_key,
-            kwargs=kwargs,
-        ),
+        provider=provider,
         system_prompt=system_prompt,
         kwargs_chat=kwargs_chat,
     )

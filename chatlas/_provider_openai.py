@@ -175,13 +175,16 @@ def ChatOpenAI(
     if service_tier is not None:
         kwargs_chat["service_tier"] = service_tier
 
+    provider = OpenAIProvider(
+        api_key=api_key,
+        model=model,
+        base_url=base_url,
+        kwargs=kwargs,
+    )
+    provider._is_reasoning_model = is_reasoning_model(model)
+
     return Chat(
-        provider=OpenAIProvider(
-            api_key=api_key,
-            model=model,
-            base_url=base_url,
-            kwargs=kwargs,
-        ),
+        provider=provider,
         system_prompt=system_prompt,
         kwargs_chat=kwargs_chat,
     )
@@ -195,6 +198,8 @@ class OpenAIProvider(
         "SubmitInputArgs",
     ]
 ):
+    _is_reasoning_model: bool = False
+
     def chat_perform(
         self,
         *,
@@ -279,7 +284,7 @@ class OpenAIProvider(
 
         # Request reasoning content for reasoning models
         include = []
-        if is_reasoning_model(self.model):
+        if self._is_reasoning_model:
             include.append("reasoning.encrypted_content")
 
         if "log_probs" in kwargs_full:
