@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     * New content types `ContentToolRequestSearch`, `ContentToolResponseSearch`, `ContentToolRequestFetch`, and `ContentToolResponseFetch` capture web tool interactions.
 * `ChatOpenAI()` and `ChatAzureOpenAI()` gain a new `service_tier` parameter to request a specific service tier (e.g., `"flex"` for slower/cheaper or `"priority"` for faster/more expensive). (#204)
 * `Chat` and `Turn` now have a `_repr_markdown_` method and an overall improved `repr()` experience. (#245)
+* `ChatAuto()` now accepts `"claude"` as an alias for `"anthropic"`, reflecting Anthropic's rebranding of developer tools under the Claude name. (#239)
 
 ### Changes
 

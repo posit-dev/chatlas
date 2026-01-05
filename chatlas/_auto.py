@@ -29,6 +29,7 @@ from ._utils import MISSING_TYPE as DEPRECATED_TYPE
 AutoProviders = Literal[
     "anthropic",
     "bedrock-anthropic",
+    "claude",
     "cloudflare",
     "databricks",
     "deep-seek",
@@ -52,6 +53,7 @@ AutoProviders = Literal[
 _provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
     "anthropic": ChatAnthropic,
     "bedrock-anthropic": ChatBedrockAnthropic,
+    "claude": ChatAnthropic,
     "cloudflare": ChatCloudflare,
     "databricks": ChatDatabricks,
     "deep-seek": ChatDeepSeek,
