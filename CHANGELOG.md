@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Fixed structured data extraction with `ChatAnthropic()` failing for Pydantic models containing nested types (e.g., `list[NestedModel]`). The issue was that `$defs` (containing nested type definitions) was incorrectly placed inside the schema, breaking JSON `$ref` pointer references. (#100)
 * Fixed MCP tools failing with OpenAI providers due to strict mode schema validation. OpenAI's strict mode rejects standard JSON Schema features like `format: "uri"` and requires all properties in the `required` array. MCP tools now set `strict=false` to use standard JSON Schema conventions. (#255)
+* Fixed MCP tools not working with `ChatGoogle()`. (#257)
 * Tool functions parameters that are `typing.Annotated` with a `pydantic.Field` (e.g., `def add(x: Annotated[int, Field(description="First number")])`) are now handled correctly. (#251)
 
 ## [0.14.0] - 2025-12-09
