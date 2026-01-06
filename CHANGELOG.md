@@ -7,21 +7,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
-## [UNRELEASED]
+## [0.15.0] - 2026-01-06
 
 ### New features
 
-* `ChatOpenAI()`, `ChatAnthropic()`, and `ChatGoogle()` gain a new `reasoning` parameter to easily opt-into, and fully customize, reasoning capabilities. (#202)
+* `ChatOpenAI()`, `ChatAnthropic()`, and `ChatGoogle()` gain a new `reasoning` parameter to easily opt-into, and fully customize, reasoning capabilities. (#202, #260)
     * A new `ContentThinking` content type was added and captures the "thinking" portion of a reasoning model. (#192)
-* Added support for built-in provider tools via a new `ToolBuiltIn` class. This enables provider-specific functionality like OpenAI's image generation to be registered and used as tools. Built-in tools pass raw provider definitions directly to the API rather than wrapping Python functions. (#214)
-* `ChatGoogle()` gains basic support for image generation. (#214)
-* New `tool_web_search()` and `tool_web_fetch()` functions provide provider-agnostic access to built-in web search and URL fetch tools:
+* Added "built-in" web search and URL fetch tools `tool_web_search()` and `tool_web_fetch()`:
     * `tool_web_search()` is supported by OpenAI, Claude (Anthropic), and Google (Gemini).
     * `tool_web_fetch()` is supported by Claude (requires beta header) and Google.
     * New content types `ContentToolRequestSearch`, `ContentToolResponseSearch`, `ContentToolRequestFetch`, and `ContentToolResponseFetch` capture web tool interactions.
+* Added `ToolBuiltIn` class to assist with specifying provider-specific built-in tools. This enables provider-specific functionality like OpenAI's image generation to be registered and used as tools. Built-in tools pass raw provider definitions directly to the API rather than wrapping Python functions. (#214)
 * `ChatOpenAI()` and `ChatAzureOpenAI()` gain a new `service_tier` parameter to request a specific service tier (e.g., `"flex"` for slower/cheaper or `"priority"` for faster/more expensive). (#204)
-* `ChatAzureOpenAI()` gains a `reasoning` parameter. (#260)
-* `Chat` and `Turn` now have a `_repr_markdown_` method and an overall improved `repr()` experience. (#245)
 * `ChatAuto()` now accepts `"claude"` as an alias for `"anthropic"`, reflecting Anthropic's rebranding of developer tools under the Claude name. (#239)
 
 ### Changes
@@ -32,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
+* `Chat` and `Turn` now have a `_repr_markdown_` method and an overall improved `repr()` experience. (#245)
 * `ChatSnowflake()` now sets the `application` config parameter for partner identification. Defaults to `"py_chatlas"` but can be overridden via the `SF_PARTNER` environment variable. (#209)
 
 ### Bug fixes
