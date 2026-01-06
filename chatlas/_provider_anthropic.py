@@ -47,29 +47,22 @@ from ._tools_builtin import ToolWebFetch, ToolWebSearch
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
-# Models that support the new structured outputs API (output_format parameter)
-# https://platform.claude.com/docs/en/build-with-claude/structured-outputs
-STRUCTURED_OUTPUT_MODELS = {
-    "claude-sonnet-4-5",
-    "claude-opus-4-1",
-    "claude-opus-4-5",
-    "claude-haiku-4-5",
-}
-
 STRUCTURED_OUTPUTS_BETA = "structured-outputs-2025-11-13"
 
 
-def use_beta_structured_output(model: str, data_model: Optional[type[BaseModel]]) -> bool:
+def _supports_structured_outputs(model: str) -> bool:
     """
-    Check if we should use the beta structured outputs API.
+    Check if the model supports the beta structured outputs API.
 
-    Returns True if data_model is provided and the model supports the new API.
+    https://platform.claude.com/docs/en/build-with-claude/structured-outputs
     """
-    if data_model is None:
-        return False
-    # Handle dated model versions like "claude-sonnet-4-5-20250514"
-    # by checking if any supported model is a prefix
-    for supported in STRUCTURED_OUTPUT_MODELS:
+    supported_models = {
+        "claude-sonnet-4-5",
+        "claude-opus-4-1",
+        "claude-opus-4-5",
+        "claude-haiku-4-5",
+    }
+    for supported in supported_models:
         if model.startswith(supported):
             return True
     return False
@@ -382,8 +375,7 @@ class AnthropicProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         api_kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        if use_beta_structured_output(self.model, data_model):
-            # Beta API has slightly different type signatures but is runtime compatible
+        if data_model is not None and _supports_structured_outputs(self.model):
             return self._client.beta.messages.create(
                 betas=[STRUCTURED_OUTPUTS_BETA],
                 **api_kwargs,  # type: ignore[arg-type]
@@ -422,8 +414,7 @@ class AnthropicProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         api_kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        if use_beta_structured_output(self.model, data_model):
-            # Beta API has slightly different type signatures but is runtime compatible
+        if data_model is not None and _supports_structured_outputs(self.model):
             return await self._async_client.beta.messages.create(
                 betas=[STRUCTURED_OUTPUTS_BETA],
                 **api_kwargs,  # type: ignore[arg-type]
@@ -441,22 +432,13 @@ class AnthropicProvider(
         """Build kwargs for the Anthropic messages API."""
         tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
 
-        use_beta = use_beta_structured_output(self.model, data_model)
+        use_beta = _supports_structured_outputs(self.model)
         data_model_tool: Tool | None = None
 
         if data_model is not None and not use_beta:
             # Fall back to the old tool-based approach for older models
             data_model_tool = self.create_data_model_tool(data_model)
             tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
-
-            if stream:
-                stream = False
-                warnings.warn(
-                    "Anthropic does not support structured data extraction in "
-                    "streaming mode for older models. Consider using a newer model "
-                    f"like {', '.join(sorted(STRUCTURED_OUTPUT_MODELS))}.",
-                    stacklevel=4,
-                )
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
@@ -495,7 +477,8 @@ class AnthropicProvider(
 
         return kwargs_full
 
-    def create_data_model_tool(self, data_model: type[BaseModel]) -> Tool:
+    @staticmethod
+    def create_data_model_tool(data_model: type[BaseModel]) -> Tool:
         """Create a fake tool for structured data extraction (old approach)."""
 
         def _structured_tool_call(**kwargs: Any):
@@ -636,7 +619,7 @@ class AnthropicProvider(
     ) -> dict[str, Any]:
         turn = user_turn(*args)
 
-        api_kwargs = self._chat_perform_args(
+        kwargs = self._chat_perform_args(
             stream=False,
             turns=[turn],
             tools=tools,
@@ -651,7 +634,7 @@ class AnthropicProvider(
             "tool_choice",
         ]
 
-        return {arg: api_kwargs[arg] for arg in args_to_keep if arg in api_kwargs}
+        return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
     def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
         res: "SubmitInputArgs" = {}
