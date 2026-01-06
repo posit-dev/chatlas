@@ -834,9 +834,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def to_solver(
         self,
         *,
-        data_model: type[BaseModel] | None = None,
         include_system_prompt: bool = False,
         include_turns: bool = False,
+        data_model: type[BaseModel] | None = None,
     ):
         """
         Create an InspectAI solver from this chat.
