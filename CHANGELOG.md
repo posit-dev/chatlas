@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 
 * `.stream()` and `.stream_async()` now support a `data_model` parameter for structured data extraction while streaming. (#262)
+* `ChatAnthropic()` now uses native structured outputs API for supported models (claude-sonnet-4-5, claude-opus-4-1, claude-opus-4-5, claude-haiku-4-5), enabling streaming with `data_model`. Older models fall back to the tool-based approach. (#263)
 
 ## [0.15.0] - 2026-01-06
 

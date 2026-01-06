@@ -3,20 +3,19 @@ interactions:
     body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
       "The new quantum computing breakthrough could revolutionize the tech industry.",
       "type": "text", "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model":
-      "claude-haiku-4-5-20251001", "stream": false, "system": [{"type": "text", "text":
-      "You are a friendly but terse assistant.", "cache_control": {"type": "ephemeral",
-      "ttl": "5m"}}], "tool_choice": {"type": "tool", "name": "_structured_tool_call"},
-      "tools": [{"name": "_structured_tool_call", "input_schema": {"type": "object",
-      "properties": {"data": {"description": "Array of classification results. The
-      scores should sum to 1.", "properties": {"classifications": {"items": {"$ref":
-      "#/$defs/Classification"}, "type": "array"}}, "required": ["classifications"],
-      "type": "object", "additionalProperties": false}}, "$defs": {"Classification":
-      {"properties": {"name": {"description": "The category name", "enum": ["Politics",
-      "Sports", "Technology", "Entertainment", "Business", "Other"], "title": "Name",
-      "type": "string"}, "score": {"description": "The classification score for the
-      category, ranging from 0.0 to 1.0.", "title": "Score", "type": "number"}}, "required":
-      ["name", "score"], "title": "Classification", "type": "object", "additionalProperties":
-      false}}}, "description": "Extract structured data"}]}'
+      "claude-haiku-4-5-20251001", "output_format": {"type": "json_schema", "schema":
+      {"$defs": {"Classification": {"type": "object", "title": "Classification", "properties":
+      {"name": {"type": "string", "description": "The category name\n\n{enum: [''Politics'',
+      ''Sports'', ''Technology'', ''Entertainment'', ''Business'', ''Other'']}", "title":
+      "Name"}, "score": {"type": "number", "description": "The classification score
+      for the category, ranging from 0.0 to 1.0.", "title": "Score"}}, "additionalProperties":
+      false, "required": ["name", "score"]}}, "type": "object", "description": "Array
+      of classification results. The scores should sum to 1.", "title": "Classifications",
+      "properties": {"classifications": {"type": "array", "title": "Classifications",
+      "items": {"$ref": "#/$defs/Classification"}}}, "additionalProperties": false,
+      "required": ["classifications"]}}, "stream": false, "system": [{"type": "text",
+      "text": "You are a friendly but terse assistant.", "cache_control": {"type":
+      "ephemeral", "ttl": "5m"}}], "tools": []}'
     headers:
       Accept:
       - application/json
@@ -25,13 +24,15 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1251'
+      - '1172'
       Content-Type:
       - application/json
       Host:
       - api.anthropic.com
       X-Stainless-Async:
       - 'false'
+      anthropic-beta:
+      - structured-outputs-2025-11-13
       anthropic-version:
       - '2023-06-01'
       x-stainless-read-timeout:
@@ -39,19 +40,21 @@ interactions:
       x-stainless-timeout:
       - '600'
     method: POST
-    uri: https://api.anthropic.com/v1/messages
+    uri: https://api.anthropic.com/v1/messages?beta=true
   response:
     body:
-      string: '{"model":"claude-haiku-4-5-20251001","id":"msg_012sEhjbSWV1Bi2HHnMLA2Ec","type":"message","role":"assistant","content":[{"type":"tool_use","id":"toolu_01WQtuJ2RRnRgfEyzEnmWSMZ","name":"_structured_tool_call","input":{"data":{"classifications":[{"name":"Technology","score":0.95},{"name":"Business","score":0.05},{"name":"Politics","score":0.0},{"name":"Sports","score":0.0},{"name":"Entertainment","score":0.0},{"name":"Other","score":0.0}]}}}],"stop_reason":"tool_use","stop_sequence":null,"usage":{"input_tokens":855,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":181,"service_tier":"standard"}}'
+      string: '{"model":"claude-haiku-4-5-20251001","id":"msg_01XbxzbDzo96okuCZtSmkJKX","type":"message","role":"assistant","content":[{"type":"text","text":"{\"classifications\":
+        [{\"name\": \"Technology\", \"score\": 0.95}, {\"name\": \"Business\", \"score\":
+        0.05}]}"}],"stop_reason":"end_turn","stop_sequence":null,"usage":{"input_tokens":416,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":36,"service_tier":"standard"}}'
     headers:
       CF-RAY:
-      - 9b653de28d671f38-DEN
+      - 9b9c58811b851f32-DEN
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Tue, 30 Dec 2025 23:15:54 GMT
+      - Tue, 06 Jan 2026 15:46:03 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -63,33 +66,33 @@ interactions:
       anthropic-ratelimit-input-tokens-remaining:
       - '4000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2025-12-30T23:15:53Z'
+      - '2026-01-06T15:46:03Z'
       anthropic-ratelimit-output-tokens-limit:
       - '800000'
       anthropic-ratelimit-output-tokens-remaining:
       - '800000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2025-12-30T23:15:54Z'
+      - '2026-01-06T15:46:03Z'
       anthropic-ratelimit-requests-limit:
       - '4000'
       anthropic-ratelimit-requests-remaining:
       - '3999'
       anthropic-ratelimit-requests-reset:
-      - '2025-12-30T23:15:53Z'
+      - '2026-01-06T15:46:00Z'
       anthropic-ratelimit-tokens-limit:
       - '4800000'
       anthropic-ratelimit-tokens-remaining:
       - '4800000'
       anthropic-ratelimit-tokens-reset:
-      - '2025-12-30T23:15:53Z'
+      - '2026-01-06T15:46:03Z'
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '705'
+      - '517'
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
       x-envoy-upstream-service-time:
-      - '1028'
+      - '3106'
     status:
       code: 200
       message: OK
