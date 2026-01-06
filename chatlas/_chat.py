@@ -1126,6 +1126,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["text"] = "text",
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]: ...
 
@@ -1135,6 +1136,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["all"],
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
 
@@ -1143,6 +1145,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["text", "all"] = "text",
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
         """
@@ -1161,15 +1164,38 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
               - `"output"`: Echo text and tool call content.
               - `"all"`: Echo both the assistant and user turn.
               - `"none"`: Do not echo any content.
+        data_model
+            A Pydantic model describing the structure of the data to extract.
+            When provided, the response will be constrained to match this structure.
+            The streamed chunks will be JSON text that, when concatenated, forms
+            a valid JSON object matching the model. After consuming the stream,
+            use `data_model.model_validate_json("".join(chunks))` to parse the result.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
 
         Returns
         -------
-        ChatResponse
+        Generator
             An (unconsumed) response from the chat. Iterate over this object to
             consume the response.
+
+        Examples
+        --------
+        ```python
+        from chatlas import ChatOpenAI
+        from pydantic import BaseModel
+
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+
+        chat = ChatOpenAI()
+        chunks = list(chat.stream("John is 25 years old", data_model=Person))
+        person = Person.model_validate_json("".join(chunks))
+        ```
         """
         turn = user_turn(*args, prior_turns=self.get_turns())
 
@@ -1181,6 +1207,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             echo=echo,
             content=content,
             kwargs=kwargs,
+            data_model=data_model,
         )
 
         def wrapper() -> Generator[
@@ -1198,6 +1225,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["text"] = "text",
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]: ...
 
@@ -1207,6 +1235,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["all"],
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
 
@@ -1215,6 +1244,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["text", "all"] = "text",
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
         """
@@ -1233,15 +1263,40 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
               - `"output"`: Echo text and tool call content.
               - `"all"`: Echo both the assistant and user turn.
               - `"none"`: Do not echo any content.
+        data_model
+            A Pydantic model describing the structure of the data to extract.
+            When provided, the response will be constrained to match this structure.
+            The streamed chunks will be JSON text that, when concatenated, forms
+            a valid JSON object matching the model. After consuming the stream,
+            use `data_model.model_validate_json("".join(chunks))` to parse the result.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
 
         Returns
         -------
-        ChatResponseAsync
+        AsyncGenerator
             An (unconsumed) response from the chat. Iterate over this object to
             consume the response.
+
+        Examples
+        --------
+        ```python
+        from chatlas import ChatOpenAI
+        from pydantic import BaseModel
+
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+
+        chat = ChatOpenAI()
+        chunks = [chunk async for chunk in await chat.stream_async(
+            "John is 25 years old", data_model=Person
+        )]
+        person = Person.model_validate_json("".join(chunks))
+        ```
         """
         turn = user_turn(*args, prior_turns=self.get_turns())
 
@@ -1257,6 +1312,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     echo=echo,
                     content=content,
                     kwargs=kwargs,
+                    data_model=data_model,
                 ):
                     yield chunk
 
@@ -2396,6 +2452,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content: Literal["text"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> Generator[str, None, None]: ...
 
     @overload
@@ -2406,6 +2463,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content: Literal["all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
 
     def _chat_impl(
@@ -2415,6 +2473,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content: Literal["text", "all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
@@ -2422,6 +2481,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 user_turn_result,
                 echo=echo,
                 stream=stream,
+                data_model=data_model,
                 kwargs=kwargs,
             ):
                 yield chunk
@@ -2459,6 +2519,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content: Literal["text"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
@@ -2469,6 +2530,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content: Literal["all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
 
     async def _chat_impl_async(
@@ -2478,6 +2540,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content: Literal["text", "all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
@@ -2485,6 +2548,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 user_turn_result,
                 echo=echo,
                 stream=stream,
+                data_model=data_model,
                 kwargs=kwargs,
             ):
                 yield chunk

@@ -143,6 +143,58 @@ async def test_chat_structured_async():
 
 
 @pytest.mark.vcr
+def test_stream_with_data_model():
+    from chatlas._content import ContentJson
+
+    chat = ChatOpenAI()
+
+    class Person(BaseModel):
+        name: str
+        age: int
+
+    chunks = list(chat.stream("John, age 15, won first prize", data_model=Person))
+    result = "".join(chunks)
+    person = Person.model_validate_json(result)
+    assert person == Person(name="John", age=15)
+
+    # Verify the last turn contains ContentJson with the structured data
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert len(turn.contents) == 1
+    assert isinstance(turn.contents[0], ContentJson)
+    assert turn.contents[0].value == {"name": "John", "age": 15}
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_stream_async_with_data_model():
+    from chatlas._content import ContentJson
+
+    chat = ChatOpenAI()
+
+    class Person(BaseModel):
+        name: str
+        age: int
+
+    chunks = [
+        chunk
+        async for chunk in await chat.stream_async(
+            "John, age 15, won first prize", data_model=Person
+        )
+    ]
+    result = "".join(chunks)
+    person = Person.model_validate_json(result)
+    assert person == Person(name="John", age=15)
+
+    # Verify the last turn contains ContentJson with the structured data
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert len(turn.contents) == 1
+    assert isinstance(turn.contents[0], ContentJson)
+    assert turn.contents[0].value == {"name": "John", "age": 15}
+
+
+@pytest.mark.vcr
 def test_last_turn_retrieval():
     chat = ChatOpenAI()
     assert chat.get_last_turn(role="user") is None
