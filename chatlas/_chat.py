@@ -984,9 +984,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 input_content = [inspect_content_as_chatlas(x) for x in input_content]
 
                 # Generate the response
-                # When data_model is provided, use chat_structured_async() for
-                # structured output; otherwise use chat_async() which can handle
-                # tool calling loops.
                 structured_result: BaseModel | None = None
                 if data_model is not None:
                     structured_result = await chat_instance.chat_structured_async(
@@ -1016,8 +1013,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         "Expected the last message in InspectAI state to be an assistant message"
                     )
 
-                # Determine completion text: use structured JSON if available,
-                # otherwise use the text from the last turn
                 if structured_result is not None:
                     completion = structured_result.model_dump_json()
                 else:
