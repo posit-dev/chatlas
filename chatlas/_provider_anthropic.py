@@ -802,13 +802,11 @@ class AnthropicProvider(
         for content in completion.content:
             if content.type == "text":
                 if uses_new_output_format:
-                    # New API: JSON response is in text content
                     contents.append(ContentJson(value=orjson.loads(content.text)))
                 else:
                     contents.append(ContentText(text=content.text))
             elif content.type == "tool_use":
                 if uses_old_tool_approach and content.name == "_structured_tool_call":
-                    # Old API: extract from tool input
                     if not isinstance(content.input, dict):
                         raise ValueError(
                             "Expected data extraction tool to return a dictionary."
