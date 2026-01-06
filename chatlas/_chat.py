@@ -987,15 +987,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 # When data_model is provided, use chat_structured_async() for
                 # structured output; otherwise use chat_async() which can handle
                 # tool calling loops.
+                structured_result: BaseModel | None = None
                 if data_model is not None:
-                    result = await chat_instance.chat_structured_async(
+                    structured_result = await chat_instance.chat_structured_async(
                         *input_content, data_model=data_model, echo="none"
                     )
-                    completion_text = result.model_dump_json()
                 else:
-                    # This can generate multiple turns via tool calling
                     await chat_instance.chat_async(*input_content, echo="none")
-                    completion_text = None  # Will be set from turns[-1].text
 
                 # Map change in chatlas Turn state back to Inspect message.state
                 # (Note: we skip the user prompt turn since it's already included)
@@ -1018,14 +1016,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         "Expected the last message in InspectAI state to be an assistant message"
                     )
 
-                # Use the structured JSON output if available, otherwise the text
-                if completion_text is None:
-                    completion_text = turns[-1].text
+                # Determine completion text: use structured JSON if available,
+                # otherwise use the text from the last turn
+                if structured_result is not None:
+                    completion = structured_result.model_dump_json()
+                else:
+                    completion = turns[-1].text
 
                 state.output = imodel.ModelOutput(
                     model=model,
                     choices=[imodel.ChatCompletionChoice(message=last_message)],
-                    completion=completion_text,
+                    completion=completion,
                     usage=usage,
                     time=time.perf_counter() - start_time,
                 )
