@@ -836,6 +836,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         include_system_prompt: bool = False,
         include_turns: bool = False,
+        data_model: type[BaseModel] | None = None,
     ):
         """
         Create an InspectAI solver from this chat.
@@ -847,6 +848,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Parameters
         ----------
+        data_model
+            A Pydantic model describing the structure of the data to extract.
+            When provided, the solver will use `.chat_structured()` instead of
+            `.chat()` to generate responses, and the output completion will be
+            JSON serialized from the model instance.
         include_system_prompt
             Whether to include the system prompt in the solver's starting
             messages.
@@ -977,8 +983,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     input_content = [input_content]
                 input_content = [inspect_content_as_chatlas(x) for x in input_content]
 
-                # Generate the response (this can generate multiple turns!)
-                await chat_instance.chat_async(*input_content, echo="none")
+                # Generate the response
+                structured_result: BaseModel | None = None
+                if data_model is not None:
+                    structured_result = await chat_instance.chat_structured_async(
+                        *input_content, data_model=data_model, echo="none"
+                    )
+                else:
+                    await chat_instance.chat_async(*input_content, echo="none")
 
                 # Map change in chatlas Turn state back to Inspect message.state
                 # (Note: we skip the user prompt turn since it's already included)
@@ -1001,10 +1013,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         "Expected the last message in InspectAI state to be an assistant message"
                     )
 
+                if structured_result is not None:
+                    completion = structured_result.model_dump_json()
+                else:
+                    completion = turns[-1].text
+
                 state.output = imodel.ModelOutput(
                     model=model,
                     choices=[imodel.ChatCompletionChoice(message=last_message)],
-                    completion=turns[-1].text,
+                    completion=completion,
                     usage=usage,
                     time=time.perf_counter() - start_time,
                 )

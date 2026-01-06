@@ -1,8 +1,10 @@
 import datetime
+import json
 import sys
 from unittest.mock import patch
 
 import pytest
+from pydantic import BaseModel
 
 from chatlas import AssistantTurn, Chat, ChatAnthropic, ContentToolRequest, Turn, UserTurn
 from chatlas._content import (
@@ -348,6 +350,44 @@ class TestInspectIntegration:
         assert results is not None
         accuracy = results.scores[0].metrics["accuracy"].value
         assert accuracy == 1, f"Expected accuracy of 1, but got {accuracy}"
+
+    @pytest.mark.vcr
+    def test_structured_output(self):
+        """Test that to_solver() works with data_model for structured output."""
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        chat = chat_func(
+            system_prompt="Extract person information from the text. Return only the structured data."
+        )
+
+        # Create task with data_model parameter
+        task = Task(
+            dataset=[
+                Sample(
+                    input="John Smith is 42 years old.",
+                    target='{"name": "John Smith", "age": 42}',
+                )
+            ],
+            solver=chat.to_solver(data_model=Person),
+            scorer=model_graded_qa(model=SCORER_MODEL),
+        )
+
+        log = inspect_eval(task)[0]
+        results = log.results
+
+        assert results is not None
+        assert log.samples is not None
+
+        # Verify the output is valid JSON matching our model
+        sample = log.samples[0]
+        assert sample.output.completion is not None
+        completion = sample.output.completion
+        parsed = json.loads(completion)
+        assert parsed["name"] == "John Smith"
+        assert parsed["age"] == 42
 
     # Skip VCR for multi-sample tests - response ordering with VCR is unreliable
     # when body matching is disabled (required due to dynamic IDs in requests)
