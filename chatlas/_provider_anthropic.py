@@ -47,27 +47,6 @@ from ._tools_builtin import ToolWebFetch, ToolWebSearch
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
-STRUCTURED_OUTPUTS_BETA = "structured-outputs-2025-11-13"
-
-
-def _supports_structured_outputs(model: str) -> bool:
-    """
-    Check if the model supports the beta structured outputs API.
-
-    https://platform.claude.com/docs/en/build-with-claude/structured-outputs
-    """
-    supported_models = {
-        "claude-sonnet-4-5",
-        "claude-opus-4-1",
-        "claude-opus-4-5",
-        "claude-haiku-4-5",
-    }
-    for supported in supported_models:
-        if model.startswith(supported):
-            return True
-    return False
-
-
 if TYPE_CHECKING:
     from anthropic.types import (
         Message,
@@ -103,6 +82,27 @@ if TYPE_CHECKING:
 else:
     Message = object
     RawMessageStreamEvent = object
+
+
+STRUCTURED_OUTPUTS_BETA = "structured-outputs-2025-11-13"
+
+
+def supports_structured_outputs(model: str) -> bool:
+    """
+    Check if the model supports the beta structured outputs API.
+
+    https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+    """
+    supported_models = {
+        "claude-sonnet-4-5",
+        "claude-opus-4-1",
+        "claude-opus-4-5",
+        "claude-haiku-4-5",
+    }
+    for supported in supported_models:
+        if model.startswith(supported):
+            return True
+    return False
 
 
 def ChatAnthropic(
@@ -375,7 +375,7 @@ class AnthropicProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         api_kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        if data_model is not None and _supports_structured_outputs(self.model):
+        if data_model is not None and supports_structured_outputs(self.model):
             return self._client.beta.messages.create(
                 betas=[STRUCTURED_OUTPUTS_BETA],
                 **api_kwargs,  # type: ignore[arg-type]
@@ -414,7 +414,7 @@ class AnthropicProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         api_kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        if data_model is not None and _supports_structured_outputs(self.model):
+        if data_model is not None and supports_structured_outputs(self.model):
             return await self._async_client.beta.messages.create(
                 betas=[STRUCTURED_OUTPUTS_BETA],
                 **api_kwargs,  # type: ignore[arg-type]
@@ -429,16 +429,7 @@ class AnthropicProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        """Build kwargs for the Anthropic messages API."""
         tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
-
-        use_beta = _supports_structured_outputs(self.model)
-        data_model_tool: Tool | None = None
-
-        if data_model is not None and not use_beta:
-            # Fall back to the old tool-based approach for older models
-            data_model_tool = self.create_data_model_tool(data_model)
-            tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
@@ -449,21 +440,25 @@ class AnthropicProvider(
             **(kwargs or {}),
         }
 
-        if use_beta and data_model is not None:
-            # Use the new output_format parameter for structured outputs
-            from anthropic import transform_schema
+        if data_model is not None:
+            if supports_structured_outputs(self.model):
+                from anthropic import transform_schema
 
-            kwargs_full["output_format"] = {  # type: ignore[typeddict-unknown-key]
-                "type": "json_schema",
-                "schema": transform_schema(data_model),
-            }
-
-        if data_model_tool:
-            # Old approach: force tool use
-            kwargs_full["tool_choice"] = {
-                "type": "tool",
-                "name": data_model_tool.name,
-            }
+                kwargs_full["output_format"] = {  # type: ignore[typeddict-unknown-key]
+                    "type": "json_schema",
+                    "schema": transform_schema(data_model),
+                }
+            else:
+                # TODO: when structured outputs are generally available,
+                # we can remove this legacy tool-based approach
+                data_model_tool = self.create_data_model_tool(data_model)
+                cast(list, kwargs_full["tools"]).append(
+                    self._anthropic_tool_schema(data_model_tool)
+                )
+                kwargs_full["tool_choice"] = {
+                    "type": "tool",
+                    "name": data_model_tool.name,
+                }
 
         if "system" not in kwargs_full:
             if len(turns) > 0 and isinstance(turns[0], SystemTurn):
@@ -479,8 +474,6 @@ class AnthropicProvider(
 
     @staticmethod
     def create_data_model_tool(data_model: type[BaseModel]) -> Tool:
-        """Create a fake tool for structured data extraction (old approach)."""
-
         def _structured_tool_call(**kwargs: Any):
             """Extract structured data"""
             pass
