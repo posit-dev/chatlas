@@ -196,7 +196,7 @@ class OpenAICompletionsProvider(
         if not chunk.choices:
             return None
         text = chunk.choices[0].delta.content
-        if not text:
+        if text is None:
             return None
         return ContentText(text=text)
 

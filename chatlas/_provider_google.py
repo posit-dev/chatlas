@@ -375,7 +375,7 @@ class GoogleProvider(
                 return None
             part = parts[0]
             text = part.text
-            if not text:
+            if text is None:
                 return None
             # Check if this is thinking content
             if getattr(part, "thought", False):

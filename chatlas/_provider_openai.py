@@ -295,12 +295,12 @@ class OpenAIProvider(
     def stream_content(self, chunk):
         if chunk.type == "response.output_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/delta
-            if not chunk.delta:
+            if chunk.delta is None:
                 return None
             return ContentText(text=chunk.delta)
         if chunk.type == "response.reasoning_summary_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/delta
-            if not chunk.delta:
+            if chunk.delta is None:
                 return None
             return ContentThinking(thinking=chunk.delta)
         if chunk.type == "response.reasoning_summary_text.done":

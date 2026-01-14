@@ -363,7 +363,7 @@ class SnowflakeProvider(
         if delta is None or "content" not in delta:
             return None
         text = delta["content"]
-        if not text:
+        if text is None:
             return None
         return ContentText(text=text)
 
