@@ -192,10 +192,13 @@ class OpenAICompletionsProvider(
 
         return kwargs_full
 
-    def stream_text(self, chunk):
+    def stream_content(self, chunk):
         if not chunk.choices:
             return None
-        return chunk.choices[0].delta.content
+        text = chunk.choices[0].delta.content
+        if not text:
+            return None
+        return ContentText(text=text)
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()

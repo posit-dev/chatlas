@@ -14,6 +14,7 @@ from ._content import (
     ContentJson,
     ContentPDF,
     ContentText,
+    ContentThinking,
     ContentToolRequest,
     ContentToolResult,
 )
@@ -361,10 +362,25 @@ class GoogleProvider(
 
         return kwargs_full
 
-    def stream_text(self, chunk) -> Optional[str]:
+    def stream_content(self, chunk):
         try:
-            # Errors if there is no text (e.g., tool request)
-            return chunk.text
+            candidates = chunk.candidates
+            if not candidates:
+                return None
+            content = candidates[0].content
+            if content is None:
+                return None
+            parts = content.parts
+            if not parts:
+                return None
+            part = parts[0]
+            text = part.text
+            if not text:
+                return None
+            # Check if this is thinking content
+            if getattr(part, "thought", False):
+                return ContentThinking(thinking=text)
+            return ContentText(text=text)
         except Exception:
             return None
 
@@ -553,6 +569,8 @@ class GoogleProvider(
             if text:
                 if has_data_model:
                     contents.append(ContentJson(value=orjson.loads(text)))
+                elif part.get("thought"):
+                    contents.append(ContentThinking(thinking=text))
                 else:
                     contents.append(ContentText(text=text))
             function_call = part.get("function_call")
