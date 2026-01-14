@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* Providers now distinguish text content from thinking content while streaming via the new `stream_content()` method. This allows downstream packages like shinychat to provide specific UI for thinking content. (#265)
 * `.stream()` and `.stream_async()` now support a `data_model` parameter for structured data extraction while streaming. (#262)
 * `.to_solver()` now supports a `data_model` parameter for structured data extraction in evals. When provided, the solver uses `.chat_structured()` instead of `.chat()` and outputs JSON-serialized data. (#264)
 

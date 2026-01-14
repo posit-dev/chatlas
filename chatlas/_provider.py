@@ -226,7 +226,25 @@ class Provider(
     ) -> AsyncIterable[ChatCompletionChunkT] | ChatCompletionT: ...
 
     @abstractmethod
-    def stream_text(self, chunk: ChatCompletionChunkT) -> Optional[str]: ...
+    def stream_content(self, chunk: ChatCompletionChunkT) -> Optional[Content]:
+        """
+        Extract content from a streaming chunk.
+
+        Returns a Content object (e.g., ContentText, ContentThinking) representing
+        the content in this chunk, or None if there is no content.
+        """
+        ...
+
+    def stream_text(self, chunk: ChatCompletionChunkT) -> Optional[str]:
+        """
+        Extract text from a streaming chunk.
+
+        This is a convenience method that extracts the text from stream_content().
+        """
+        content = self.stream_content(chunk)
+        if content is None:
+            return None
+        return _content_text(content)
 
     @abstractmethod
     def stream_merge_chunks(
@@ -385,3 +403,20 @@ class Provider(
             Turn object or None if the result was an error
         """
         raise NotImplementedError("This provider does not support batch processing")
+
+
+def _content_text(content: Content) -> str:
+    """
+    Extract text from a Content object.
+
+    This helper function is used by stream_text() to convert Content objects
+    to their string representation for streaming.
+    """
+    from ._content import ContentText, ContentThinking
+
+    if isinstance(content, ContentThinking):
+        return content.thinking
+    elif isinstance(content, ContentText):
+        return content.text
+    else:
+        return str(content)
