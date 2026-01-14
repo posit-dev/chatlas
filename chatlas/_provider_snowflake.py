@@ -363,7 +363,8 @@ class SnowflakeProvider(
         if delta is None or "content" not in delta:
             return None
         text = delta["content"]
-        if text is None:
+        # Filter empty/whitespace to avoid ContentText converting to "[empty string]"
+        if not text or text.isspace():
             return None
         return ContentText(text=text)
 

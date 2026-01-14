@@ -375,7 +375,8 @@ class GoogleProvider(
                 return None
             part = parts[0]
             text = part.text
-            if text is None:
+            # Filter empty/whitespace to avoid ContentText converting to "[empty string]"
+            if not text or text.isspace():
                 return None
             # Check if this is thinking content
             if getattr(part, "thought", False):

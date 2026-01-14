@@ -196,7 +196,8 @@ class OpenAICompletionsProvider(
         if not chunk.choices:
             return None
         text = chunk.choices[0].delta.content
-        if text is None:
+        # Filter empty/whitespace to avoid ContentText converting to "[empty string]"
+        if not text or text.isspace():
             return None
         return ContentText(text=text)
 

@@ -467,12 +467,13 @@ class AnthropicProvider(
         if chunk.type == "content_block_delta":
             if chunk.delta.type == "text_delta":
                 text = chunk.delta.text
-                if text is None:
+                # Filter empty/whitespace to avoid ContentText converting to "[empty string]"
+                if not text or text.isspace():
                     return None
                 return ContentText(text=text)
             if chunk.delta.type == "thinking_delta":
                 thinking = chunk.delta.thinking
-                if thinking is None:
+                if not thinking or thinking.isspace():
                     return None
                 return ContentThinking(thinking=thinking)
         return None
