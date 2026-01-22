@@ -560,3 +560,49 @@ def test_str_unchanged():
 
     assert "👤" in result or "User" in result
     assert "🤖" in result or "Assistant" in result
+
+
+def test_json_serialize_with_tool_failure():
+    """Test that get_turns() is serializable when a tool call results in failure."""
+    # Create a tool request
+    request = ContentToolRequest(
+        id="test-123",
+        name="my_tool",
+        arguments={"x": 1},
+    )
+
+    # Create a tool result with an error (simulating tool failure)
+    error = Exception("Something went wrong")
+    result = ContentToolResult(
+        value=None,
+        error=error,
+        request=request,
+    )
+
+    # Build turns that include the failed tool result
+    chat = ChatOpenAI(api_key="fake_key")
+    chat.set_turns(
+        [
+            UserTurn("Call the tool"),
+            AssistantTurn([request]),
+            UserTurn([result]),
+        ]
+    )
+
+    # Verify serialization works
+    turns = chat.get_turns()
+    turns_json = [x.model_dump_json() for x in turns]
+
+    # Verify we can deserialize them back
+    turns_restored = [Turn.model_validate_json(x) for x in turns_json]
+
+    assert len(turns_restored) == 3
+
+    # Check the tool result turn was properly restored
+    tool_result_turn = turns_restored[2]
+    assert len(tool_result_turn.contents) == 1
+    restored_result = tool_result_turn.contents[0]
+    assert isinstance(restored_result, ContentToolResult)
+    assert restored_result.error is not None
+    # After serialization, the Exception becomes a string representation
+    assert "Something went wrong" in str(restored_result.error)
