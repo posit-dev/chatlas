@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `.stream()` and `.stream_async()` now support a `data_model` parameter for structured data extraction while streaming. (#262)
 * `.to_solver()` now supports a `data_model` parameter for structured data extraction in evals. When provided, the solver uses `.chat_structured()` instead of `.chat()` and outputs JSON-serialized data. (#264)
 
+### Bug fixes
+
+* Fixed `ContentToolResult` with an `error` not being JSON serializable. When a tool call failed, calling `.get_turns()` followed by `.model_dump_json()` would raise a `PydanticSerializationError`. (#267)
+
 ## [0.15.0] - 2026-01-06
 
 ### New features

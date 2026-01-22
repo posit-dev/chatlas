@@ -6,7 +6,7 @@ from pprint import pformat
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast
 
 import orjson
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
 
 from ._typing_extensions import TypedDict
 
@@ -362,6 +362,26 @@ class ContentToolResult(Content):
     # "private"
     request: Optional[ContentToolRequest] = None
     content_type: ContentTypeEnum = "tool_result"
+
+    @field_serializer("error")
+    @classmethod
+    def serialize_error(cls, v: Optional[Exception]) -> Optional[str]:
+        """Serialize Exception to string for JSON compatibility."""
+        if v is None:
+            return None
+        return str(v)
+
+    @field_validator("error", mode="before")
+    @classmethod
+    def validate_error(cls, v: Any) -> Optional[Exception]:
+        """Accept string or Exception for error field."""
+        if v is None:
+            return None
+        if isinstance(v, Exception):
+            return v
+        if isinstance(v, str):
+            return Exception(v)
+        return Exception(str(v))
 
     @property
     def id(self):
