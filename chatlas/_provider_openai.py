@@ -292,16 +292,21 @@ class OpenAIProvider(
 
         return kwargs_full
 
-    def stream_text(self, chunk):
+    def stream_content(self, chunk):
         if chunk.type == "response.output_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/delta
-            return chunk.delta
+            # Filter empty/whitespace to avoid ContentText converting to "[empty string]"
+            if not chunk.delta or chunk.delta.isspace():
+                return None
+            return ContentText(text=chunk.delta)
         if chunk.type == "response.reasoning_summary_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/delta
-            return chunk.delta
+            if not chunk.delta or chunk.delta.isspace():
+                return None
+            return ContentThinking(thinking=chunk.delta)
         if chunk.type == "response.reasoning_summary_text.done":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/done
-            return "\n\n"
+            return None
         return None
 
     def stream_merge_chunks(self, completion, chunk):

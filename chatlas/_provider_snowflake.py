@@ -356,13 +356,17 @@ class SnowflakeProvider(
 
         return req
 
-    def stream_text(self, chunk):
+    def stream_content(self, chunk):
         if not chunk.choices:
             return None
         delta = chunk.choices[0].delta
         if delta is None or "content" not in delta:
             return None
-        return delta["content"]
+        text = delta["content"]
+        # Filter empty/whitespace to avoid ContentText converting to "[empty string]"
+        if not text or text.isspace():
+            return None
+        return ContentText(text=text)
 
     # Snowflake sort-of follows OpenAI/Anthropic streaming formats except they
     # don't have the critical "index" field in the delta that the merge logic
