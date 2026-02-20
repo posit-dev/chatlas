@@ -825,32 +825,45 @@ class AnthropicProvider(
                 urls: list[str] = []
                 if isinstance(content.content, list):
                     urls = [x.url for x in content.content]
+                # Manually construct the extra dict to avoid SDK-internal
+                # fields (e.g., "caller") that the API doesn't accept
+                extra = {
+                    "type": content.type,
+                    "tool_use_id": content.tool_use_id,
+                    "content": [
+                        x.model_dump() for x in content.content
+                    ]
+                    if isinstance(content.content, list)
+                    else content.content.model_dump(),
+                }
                 contents.append(
                     ContentToolResponseSearch(
                         urls=urls,
-                        extra=content.model_dump(),
+                        extra=extra,
                     )
                 )
             elif content.type == "web_fetch_tool_result":
                 # N.B. type checker thinks this is unreachable due to
                 # ToolUnionParam not including BetaWebFetchTool20250910Param
-                # yet. Also, at run-time, the SDK is currently giving non-sense
-                # of type(content) == TextBlock, but it doesn't even fit that
-                # shape?!? Anyway, content.content has a dict with the content
-                # we want.
-                content_fetch = cast("dict", getattr(content, "content", {}))
-                if not content_fetch:
+                # yet.
+                content_fetch = getattr(content, "content", None)
+                if content_fetch is None:
                     raise ValueError(
                         "web_fetch_tool_result content is empty. Please report this issue."
                     )
+                # content_fetch is a BetaWebFetchBlock (has .url) or
+                # BetaWebFetchToolResultErrorBlock (error case)
+                url = getattr(content_fetch, "url", "failed")
+                # Manually construct the extra dict to avoid SDK-internal
+                # fields (e.g., "caller") that the API doesn't accept
                 extra = {
-                    "type": "web_fetch_tool_result",
+                    "type": content.type,
                     "tool_use_id": content.tool_use_id,  # type: ignore
-                    "content": content_fetch,
+                    "content": content_fetch.model_dump(exclude_none=True),
                 }
                 contents.append(
                     ContentToolResponseFetch(
-                        url=content_fetch.get("url", "failed"),
+                        url=url,
                         extra=extra,
                     )
                 )

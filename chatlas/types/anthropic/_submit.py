@@ -6,8 +6,15 @@
 from typing import Iterable, Literal, Mapping, Optional, Sequence, TypedDict, Union
 
 import anthropic
+import anthropic.types.cache_control_ephemeral_param
+import anthropic.types.code_execution_tool_20250522_param
+import anthropic.types.code_execution_tool_20250825_param
+import anthropic.types.code_execution_tool_20260120_param
+import anthropic.types.memory_tool_20250818_param
 import anthropic.types.message_param
+import anthropic.types.output_config_param
 import anthropic.types.text_block_param
+import anthropic.types.thinking_config_adaptive_param
 import anthropic.types.thinking_config_disabled_param
 import anthropic.types.thinking_config_enabled_param
 import anthropic.types.tool_bash_20250124_param
@@ -16,10 +23,15 @@ import anthropic.types.tool_choice_auto_param
 import anthropic.types.tool_choice_none_param
 import anthropic.types.tool_choice_tool_param
 import anthropic.types.tool_param
+import anthropic.types.tool_search_tool_bm25_20251119_param
+import anthropic.types.tool_search_tool_regex_20251119_param
 import anthropic.types.tool_text_editor_20250124_param
 import anthropic.types.tool_text_editor_20250429_param
 import anthropic.types.tool_text_editor_20250728_param
+import anthropic.types.web_fetch_tool_20250910_param
+import anthropic.types.web_fetch_tool_20260209_param
 import anthropic.types.web_search_tool_20250305_param
+import anthropic.types.web_search_tool_20260209_param
 
 
 class SubmitInputArgs(TypedDict, total=False):
@@ -27,6 +39,8 @@ class SubmitInputArgs(TypedDict, total=False):
     messages: Iterable[anthropic.types.message_param.MessageParam]
     model: Union[
         Literal[
+            "claude-opus-4-6",
+            "claude-sonnet-4-6",
             "claude-opus-4-5-20251101",
             "claude-opus-4-5",
             "claude-3-7-sonnet-latest",
@@ -50,6 +64,16 @@ class SubmitInputArgs(TypedDict, total=False):
         ],
         str,
     ]
+    cache_control: Union[
+        anthropic.types.cache_control_ephemeral_param.CacheControlEphemeralParam,
+        None,
+        anthropic.Omit,
+    ]
+    container: Union[str, None, anthropic.Omit]
+    inference_geo: Union[str, None, anthropic.Omit]
+    output_config: (
+        anthropic.types.output_config_param.OutputConfigParam | anthropic.Omit
+    )
     service_tier: Union[Literal["auto", "standard_only"], anthropic.Omit]
     stop_sequences: Union[Sequence[str], anthropic.Omit]
     stream: Union[Literal[False], Literal[True], anthropic.Omit]
@@ -60,6 +84,7 @@ class SubmitInputArgs(TypedDict, total=False):
     thinking: Union[
         anthropic.types.thinking_config_enabled_param.ThinkingConfigEnabledParam,
         anthropic.types.thinking_config_disabled_param.ThinkingConfigDisabledParam,
+        anthropic.types.thinking_config_adaptive_param.ThinkingConfigAdaptiveParam,
         anthropic.Omit,
     ]
     tool_choice: Union[
@@ -74,10 +99,19 @@ class SubmitInputArgs(TypedDict, total=False):
             Union[
                 anthropic.types.tool_param.ToolParam,
                 anthropic.types.tool_bash_20250124_param.ToolBash20250124Param,
+                anthropic.types.code_execution_tool_20250522_param.CodeExecutionTool20250522Param,
+                anthropic.types.code_execution_tool_20250825_param.CodeExecutionTool20250825Param,
+                anthropic.types.code_execution_tool_20260120_param.CodeExecutionTool20260120Param,
+                anthropic.types.memory_tool_20250818_param.MemoryTool20250818Param,
                 anthropic.types.tool_text_editor_20250124_param.ToolTextEditor20250124Param,
                 anthropic.types.tool_text_editor_20250429_param.ToolTextEditor20250429Param,
                 anthropic.types.tool_text_editor_20250728_param.ToolTextEditor20250728Param,
                 anthropic.types.web_search_tool_20250305_param.WebSearchTool20250305Param,
+                anthropic.types.web_fetch_tool_20250910_param.WebFetchTool20250910Param,
+                anthropic.types.web_search_tool_20260209_param.WebSearchTool20260209Param,
+                anthropic.types.web_fetch_tool_20260209_param.WebFetchTool20260209Param,
+                anthropic.types.tool_search_tool_bm25_20251119_param.ToolSearchToolBm25_20251119Param,
+                anthropic.types.tool_search_tool_regex_20251119_param.ToolSearchToolRegex20251119Param,
             ]
         ],
         anthropic.Omit,
