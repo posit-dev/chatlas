@@ -43,6 +43,11 @@ import openai.types.shared_params.reasoning
 
 class SubmitInputArgs(TypedDict, total=False):
     background: Union[bool, None, openai.Omit]
+    context_management: Union[
+        Iterable[openai.types.responses.response_create_params.ContextManagement],
+        None,
+        openai.Omit,
+    ]
     conversation: Union[
         str,
         openai.types.responses.response_conversation_param.ResponseConversationParam,
