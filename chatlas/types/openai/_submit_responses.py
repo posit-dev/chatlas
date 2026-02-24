@@ -16,7 +16,7 @@ import openai.types.responses.function_tool_param
 import openai.types.responses.response_code_interpreter_tool_call_param
 import openai.types.responses.response_compaction_item_param_param
 import openai.types.responses.response_computer_tool_call_param
-import openai.types.responses.response_conversation_param
+import openai.types.responses.response_conversation_param_param
 import openai.types.responses.response_create_params
 import openai.types.responses.response_custom_tool_call_output_param
 import openai.types.responses.response_custom_tool_call_param
@@ -50,7 +50,7 @@ class SubmitInputArgs(TypedDict, total=False):
     ]
     conversation: Union[
         str,
-        openai.types.responses.response_conversation_param.ResponseConversationParam,
+        openai.types.responses.response_conversation_param_param.ResponseConversationParamParam,
         None,
         openai.Omit,
     ]
