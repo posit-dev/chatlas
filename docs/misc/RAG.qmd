@@ -56,7 +56,7 @@ And, as we'll see, there are several moving parts to consider when implementing 
 
 Obviously, in order to retrieve trusted content, we first need some content to retrieve.
 Typically content is retrieved from a **knowledge store** -- essentially a database that stores documents in a way that allows for efficient retrieval based on semantic similarity.
-A knowledge store also often takes the form of a **vector store** or **embedding index** because of it's efficiency in storing and retrieving content based on semantic similarity.
+A knowledge store also often takes the form of a **vector store** or **embedding index** because of its efficiency in storing and retrieving content based on semantic similarity.
 This approach requires embedding the content into numerical vectors, which can be done using various machine learning models.
 
 ### Create store {#create-store}
@@ -68,7 +68,7 @@ It doesn't really matter which one you choose, but due to its popularity, maturi
 pip install llama-index
 ```
 
-With `llama-index`, it's easy to create a knowledge store from a wide variety of input formats, such as text files, [web pages](https://docs.llamaindex.ai/en/stable/examples/data_connectors/WebPageDemo/), and [much more](https://pypi.org/project/llama-index-readers-markitdown/).
+With `llama-index`, it's easy to create a knowledge store from a wide variety of input formats, such as text files, [web pages](https://developers.llamaindex.ai/python/examples/data_connectors/webpagedemo/), and [much more](https://pypi.org/project/llama-index-readers-markitdown/).
 That said, for this example, I'll assume you have a directory (`data`) with some text files that you want to use as trusted content.
 This snippet will ingest the files, embed them, and create a vector store `index` that is ready for [retrieval](#retrieve-content).
 

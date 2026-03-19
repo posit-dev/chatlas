@@ -36,13 +36,12 @@ class ThreadSafeTokenCounter:
         self,
         name: str,
         model: str,
-        input_tokens: int,
-        output_tokens: int,
-        cached_tokens: int,
+        tokens: tuple[int, int, int],
+        variant: str = "",
     ) -> None:
         logger.info(
-            f"Provider '{name}' generated a response of {output_tokens} tokens "
-            f"from an input of {input_tokens} tokens and {cached_tokens} cached input tokens."
+            f"Provider '{name}' generated a response of {tokens[1]} tokens "
+            f"from an input of {tokens[0]} tokens and {tokens[2]} cached input tokens."
         )
 
         with self._lock:
@@ -50,26 +49,22 @@ class ThreadSafeTokenCounter:
                 self._tokens[name] = {
                     "name": name,
                     "model": model,
-                    "input": input_tokens,
-                    "output": output_tokens,
-                    "cached_input": cached_tokens,
-                    "cost": compute_cost(
-                        name, model, input_tokens, output_tokens, cached_tokens
-                    ),
+                    "input": tokens[0],
+                    "output": tokens[1],
+                    "cached_input": tokens[2],
+                    "cost": get_token_cost(name, model, tokens, variant),
                 }
             else:
-                self._tokens[name]["input"] += input_tokens
-                self._tokens[name]["output"] += output_tokens
-                self._tokens[name]["cached_input"] += cached_tokens
-                price = compute_cost(
-                    name, model, input_tokens, output_tokens, cached_tokens
-                )
-                if price is not None:
-                    cost = self._tokens[name]["cost"]
-                    if cost is None:
-                        self._tokens[name]["cost"] = price
+                self._tokens[name]["input"] += tokens[0]
+                self._tokens[name]["output"] += tokens[1]
+                self._tokens[name]["cached_input"] += tokens[2]
+                new_cost = get_token_cost(name, model, tokens, variant)
+                if new_cost is not None:
+                    old_cost = self._tokens[name]["cost"]
+                    if old_cost is None:
+                        self._tokens[name]["cost"] = new_cost
                     else:
-                        self._tokens[name]["cost"] = cost + price
+                        self._tokens[name]["cost"] = old_cost + new_cost
 
     def get_usage(self) -> list[TokenUsage] | None:
         with self._lock:
@@ -83,13 +78,22 @@ class ThreadSafeTokenCounter:
 _token_counter = ThreadSafeTokenCounter()
 
 
-def tokens_log(provider: "Provider", tokens: tuple[int, int, int]) -> None:
+def tokens_log(
+    provider: "Provider", tokens: tuple[int, int, int], variant: str = ""
+) -> None:
     """
     Log token usage for a provider in a thread-safe manner.
+
+    Parameters
+    ----------
+    provider
+        The provider instance
+    tokens
+        A tuple of (input_tokens, output_tokens, cached_tokens)
+    variant
+        The pricing variant (e.g., "flex", "priority"). Defaults to "" (standard pricing).
     """
-    _token_counter.log_tokens(
-        provider.name, provider.model, tokens[0], tokens[1], tokens[2]
-    )
+    _token_counter.log_tokens(provider.name, provider.model, tokens, variant)
 
 
 def tokens_reset() -> None:
@@ -115,6 +119,8 @@ class TokenPrice(TypedDict):
     """The cost per user token in USD per million tokens"""
     output: NotRequired[float]
     """The cost per assistant token in USD per million tokens"""
+    variant: NotRequired[str]
+    """The pricing variant (e.g., "flex", "priority", "batches")"""
 
 
 # Load in pricing pulled from ellmer
@@ -122,7 +128,7 @@ f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="
 pricing_list: list[TokenPrice] = orjson.loads(f)
 
 
-def get_token_pricing(name: str, model: str) -> TokenPrice | None:
+def get_price_info(name: str, model: str, variant: str = "") -> TokenPrice | None:
     """
     Get token pricing information given a provider name and model
 
@@ -131,37 +137,78 @@ def get_token_pricing(name: str, model: str) -> TokenPrice | None:
     Only a subset of providers and models and currently supported.
     The pricing information derives from ellmer.
 
+    Parameters
+    ----------
+    name
+        The provider name (e.g., "OpenAI", "Anthropic", etc.)
+    model
+        The model name (e.g., "gpt-4.1", "claude-3-opus", etc.)
+    variant
+        The pricing variant (e.g., "flex", "priority"). Defaults to "" (standard pricing).
+
     Returns
     -------
     TokenPrice | None
     """
-    return next(
+    # First, try to find an exact match with the variant
+    result = next(
         (
             item
             for item in pricing_list
-            if item["provider"] == name and item["model"] == model
+            if item["provider"] == name
+            and item["model"] == model
+            and item.get("variant", "") == variant
         ),
         None,
     )
 
+    # If no exact match and variant was specified, fall back to baseline (empty variant)
+    if result is None and variant:
+        result = next(
+            (
+                item
+                for item in pricing_list
+                if item["provider"] == name
+                and item["model"] == model
+                and item.get("variant", "") == ""
+            ),
+            None,
+        )
 
-def compute_cost(
-    name: str, model: str, input_tokens: int, output_tokens: int, cached_tokens: int = 0
+    return result
+
+
+def get_token_cost(
+    name: str,
+    model: str,
+    tokens: tuple[int, int, int],
+    variant: str = "",
 ) -> float | None:
     """
     Compute the cost of a turn.
+
+    Parameters
+    ----------
+    name
+        The provider name (e.g., "OpenAI", "Anthropic", etc.)
+    model
+        The model name (e.g., "gpt-4.1", "claude-3-opus", etc.)
+    tokens
+        A tuple of (input_tokens, output_tokens, cached_input_tokens)
+    variant
+        The pricing variant (e.g., "flex", "priority"). Defaults to "" (standard pricing).
 
     Returns
     -------
     float | None
         The cost of the turn in USD, or None if the cost could not be calculated.
     """
-    price = get_token_pricing(name, model)
+    price = get_price_info(name, model, variant)
     if price is None:
         return None
-    input_price = input_tokens * (price["input"] / 1e6)
-    output_price = output_tokens * (price.get("output", 0) / 1e6)
-    cached_price = cached_tokens * (price.get("cached_input", 0) / 1e6)
+    input_price = tokens[0] * (price["input"] / 1e6)
+    output_price = tokens[1] * (price.get("output", 0) / 1e6)
+    cached_price = tokens[2] * (price.get("cached_input", 0) / 1e6)
     return input_price + output_price + cached_price
 
 

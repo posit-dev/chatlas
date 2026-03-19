@@ -1,0 +1,587 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "What''s in this image?"},
+      {"type": "image_url", "image_url": {"url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADwAAAAeCAIAAAD/+uoYAAAVQUlEQVR4AQE2FcnqAf8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsq4BO+gASKcAAAAASUVORK5CYII="}}],
+      "role": "user"}], "model": "Qwen/Qwen2.5-VL-7B-Instruct", "stream": true, "stream_options":
+      {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '7579'
+      Content-Type:
+      - application/json
+      Host:
+      - router.huggingface.co
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://router.huggingface.co/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":""}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"The","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        image","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        is","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        a","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        solid","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        red","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        rectangle","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        with","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        no","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        other","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        elements","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        or","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        details","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        present","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":".","name":"assistant"}}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[{"index":0,"delta":{"role":"assistant","content":"","name":"assistant"},"finish_reason":"stop"}],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3e6faa47f0544175bf304610bb1d4525","choices":[],"created":1767213641,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk","usage":{"prompt_tokens":33,"completion_tokens":16,"total_tokens":49}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Access-Control-Expose-Headers:
+      - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Wed, 31 Dec 2025 20:40:41 GMT
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Transfer-Encoding:
+      - chunked
+      X-Amz-Cf-Id:
+      - B0jQgRV67WCe-5WMuijQBTZryY2gAjHXj56cfaumhXlNoHvKtu_9Vg==
+      X-Amz-Cf-Pop:
+      - MSP50-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Powered-By:
+      - huggingface-moon
+      X-Robots-Tag:
+      - none
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - no-cache
+      cross-origin-opener-policy:
+      - same-origin
+      inference-id:
+      - bb55692973c38b5914252b23b9c4761d
+      ratelimit-limit:
+      - '400'
+      ratelimit-remaining:
+      - '399'
+      ratelimit-reset:
+      - '19'
+      server:
+      - kong/3.9.1
+      vary:
+      - origin, access-control-request-method, access-control-request-headers
+      via:
+      - 1.1 kong/3.9.1, 1.1 kong/3.9.1, 1.1 24f41ad6cec46a6e94a3e850d746e294.cloudfront.net
+        (CloudFront)
+      x-inference-provider:
+      - ovhcloud
+      x-kong-proxy-latency:
+      - '1'
+      x-kong-request-id:
+      - a6aa7b724f146d0859eea1385dbbb841
+      x-kong-upstream-latency:
+      - '36'
+      x-ratelimit-limit-minute:
+      - '400'
+      x-ratelimit-remaining-minute:
+      - '399'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "What''s in this image?
+      (Be sure to mention the outside shape)"}, {"type": "image_url", "image_url":
+      {"url": "https://httr2.r-lib.org/logo.png", "detail": "auto"}}], "role": "user"}],
+      "model": "Qwen/Qwen2.5-VL-7B-Instruct", "stream": true, "stream_options": {"include_usage":
+      true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '312'
+      Content-Type:
+      - application/json
+      Host:
+      - router.huggingface.co
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://router.huggingface.co/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":""}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"The","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        image","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        features","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        a","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        styl","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"ized","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        logo","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        with","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        a","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        baseball","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        theme","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":".","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        The","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        central","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        graphic","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        is","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        a","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        red","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        silhouette","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        of","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        a","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        baseball","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        player","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        mid","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"-s","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"wing","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":",","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        hitting","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        a","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        ball","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":".","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        Above","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        the","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        player","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":",","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        the","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        text","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        \"","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"ht","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"tr","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"2","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"\"","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        is","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        written","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        in","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        white","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        c","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"ursive","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        script","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":".","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        The","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        background","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        is","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        dark","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        blue","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":",","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        and","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        the","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        entire","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        design","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        is","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        framed","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        within","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        an","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        oct","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"agonal","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        shape","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":".","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        The","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        overall","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        aesthetic","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        suggests","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        it","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        might","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        be","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        related","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        to","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        a","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        sports","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        team","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        or","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        a","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        brand","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        associated","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        with","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"
+        baseball","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":".","name":"assistant"}}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[{"index":0,"delta":{"role":"assistant","content":"","name":"assistant"},"finish_reason":"stop"}],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-913dae45f7f747a988d9763625c1321a","choices":[],"created":1767213643,"model":"Qwen2.5-VL-72B-Instruct","object":"chat.completion.chunk","usage":{"prompt_tokens":126,"completion_tokens":88,"total_tokens":214}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Access-Control-Expose-Headers:
+      - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Wed, 31 Dec 2025 20:40:43 GMT
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Transfer-Encoding:
+      - chunked
+      X-Amz-Cf-Id:
+      - x0McEc6SEW7YDUM9k4HxsDUBKXpbGTfsJEOzXQ1WnnPou6yme2hkIQ==
+      X-Amz-Cf-Pop:
+      - MSP50-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Powered-By:
+      - huggingface-moon
+      X-Robots-Tag:
+      - none
+      access-control-allow-origin:
+      - '*'
+      cache-control:
+      - no-cache
+      cross-origin-opener-policy:
+      - same-origin
+      inference-id:
+      - 4768a845b723cc5bbe5b022c7b8bf167
+      ratelimit-limit:
+      - '400'
+      ratelimit-remaining:
+      - '398'
+      ratelimit-reset:
+      - '18'
+      server:
+      - kong/3.9.1
+      vary:
+      - origin, access-control-request-method, access-control-request-headers
+      via:
+      - 1.1 kong/3.9.1, 1.1 kong/3.9.1, 1.1 7e35f09412049c9a6642645fafc6cabe.cloudfront.net
+        (CloudFront)
+      x-inference-provider:
+      - ovhcloud
+      x-kong-proxy-latency:
+      - '2'
+      x-kong-request-id:
+      - bfdd4b25c0583b03dbb62903b02a1800
+      x-kong-upstream-latency:
+      - '179'
+      x-ratelimit-limit-minute:
+      - '400'
+      x-ratelimit-remaining-minute:
+      - '398'
+    status:
+      code: 200
+      message: OK
+version: 1

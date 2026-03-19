@@ -56,7 +56,7 @@ website:
       - text: Reference
         href: reference/index.qmd
       - text: Changelog
-        href: changelog.html
+        href: /CHANGELOG.html
       - icon: github
         href: https://github.com/posit-dev/chatlas
         aria-label: GitHub repository
@@ -67,6 +67,7 @@ website:
       align: left
       contents:
         - index.qmd
+        - misc/vocabulary.qmd
         - section: "Get started"
           contents:
             - get-started/models.qmd
@@ -99,11 +100,14 @@ website:
           contents:
             - misc/RAG.qmd
             - misc/mcp-tools.qmd
-            - misc/vocabulary.qmd
+            - misc/evals.qmd
 
 
 format:
   html:
+    include-in-header:
+      - text: |
+          <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-light-bg="#404041" data-light-fg="#ffffff" data-dark-bg="#ffffff" data-dark-fg="#404041"></script>
     theme:
       - styles.scss
     toc: true
@@ -157,9 +161,17 @@ quartodoc:
       contents:
         - Tool
         - ToolRejectError
-    - title: Batch chat
-      desc: Submit multiple chats in one batch
+    - title: Built-in tools
+      desc: Provider-agnostic access to built-in web search and fetch capabilities.
       contents:
+        - tool_web_search
+        - tool_web_fetch
+    - title: Parallel and batch chat
+      desc: Submit multiple chats in parallel (fast) or one batch (cheap)
+      contents:
+        - parallel_chat
+        - parallel_chat_text
+        - parallel_chat_structured
         - batch_chat
         - batch_chat_text
         - batch_chat_structured
@@ -172,6 +184,9 @@ quartodoc:
     - title: Turns
       desc: A provider-agnostic representation of content generated during an assistant/user turn.
       contents:
+        - AssistantTurn
+        - UserTurn
+        - SystemTurn
         - Turn
     - title: Query token usage
       contents:
@@ -189,6 +204,10 @@ quartodoc:
         - types.ContentText
         - types.ContentToolRequest
         - types.ContentToolResult
+        - types.ContentToolRequestSearch
+        - types.ContentToolResponseSearch
+        - types.ContentToolRequestFetch
+        - types.ContentToolResponseFetch
         - types.ChatResponse
         - types.ChatResponseAsync
         - types.ImageContentTypes

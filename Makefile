@@ -66,6 +66,16 @@ update-snaps:
 	@echo "📸 Updating pytest snapshots"
 	uv run pytest --snapshot-update
 
+.PHONY: update-snaps-vcr
+update-snaps-vcr:
+	@echo "📼 Updating VCR cassettes"
+	uv run pytest --record-mode=rewrite
+
+.PHONY: check-vcr-secrets
+check-vcr-secrets:  ## [py] Scan VCR cassettes for leaked secrets using Claude
+	@echo "🤖 Running Claude-based secret scan..."
+	uv run python scripts/check_vcr_secrets.py
+
 .PHONY: update-types
 update-types:
 	@echo "📝 Updating chat provider types"

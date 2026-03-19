@@ -2,24 +2,27 @@ import re
 import tempfile
 
 import pytest
-from pydantic import BaseModel
-
 from chatlas import (
+    AssistantTurn,
     ChatOpenAI,
     ContentToolRequest,
     ContentToolResult,
     ToolRejectError,
     Turn,
+    UserTurn,
 )
 from chatlas._chat import ToolFailureWarning
+from pydantic import BaseModel
 
 
+@pytest.mark.vcr
 def test_simple_batch_chat():
     chat = ChatOpenAI()
     response = chat.chat("What's 1 + 1. Just give me the answer, no punctuation")
     assert str(response) == "2"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_simple_async_batch_chat():
     chat = ChatOpenAI()
@@ -29,6 +32,7 @@ async def test_simple_async_batch_chat():
     assert "2" == await response.get_content()
 
 
+@pytest.mark.vcr
 def test_simple_streaming_chat():
     chat = ChatOpenAI()
     res = chat.stream(
@@ -48,6 +52,7 @@ def test_simple_streaming_chat():
     assert res == "redorangeyellowgreenblueindigoviolet"
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_simple_streaming_chat_async():
     chat = ChatOpenAI()
@@ -69,12 +74,12 @@ async def test_simple_streaming_chat_async():
 
 def test_basic_repr(snapshot):
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output"
+        system_prompt="You're a helpful assistant that returns very minimal output",
     )
     chat.set_turns(
         [
-            Turn("user", "What's 1 + 1? What's 1 + 2?"),
-            Turn("assistant", "2  3", tokens=(15, 5, 5)),
+            UserTurn("What's 1 + 1? What's 1 + 2?"),
+            AssistantTurn("2  3", tokens=(15, 5, 5), cost=0.001),
         ]
     )
     assert snapshot == repr(chat)
@@ -82,12 +87,12 @@ def test_basic_repr(snapshot):
 
 def test_basic_str(snapshot):
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output"
+        system_prompt="You're a helpful assistant that returns very minimal output",
     )
     chat.set_turns(
         [
-            Turn("user", "What's 1 + 1? What's 1 + 2?"),
-            Turn("assistant", "2  3", tokens=(15, 5, 0)),
+            UserTurn("What's 1 + 1? What's 1 + 2?"),
+            AssistantTurn("2  3", tokens=(15, 5, 0), cost=0.001),
         ]
     )
     assert snapshot == str(chat)
@@ -95,12 +100,12 @@ def test_basic_str(snapshot):
 
 def test_basic_export(snapshot):
     chat = ChatOpenAI(
-        system_prompt="You're a helpful assistant that returns very minimal output"
+        system_prompt="You're a helpful assistant that returns very minimal output",
     )
     chat.set_turns(
         [
-            Turn("user", "What's 1 + 1? What's 1 + 2?"),
-            Turn("assistant", "2  3", tokens=(15, 5, 0)),
+            UserTurn("What's 1 + 1? What's 1 + 2?"),
+            AssistantTurn("2  3", tokens=(15, 5, 0)),
         ]
     )
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -110,6 +115,7 @@ def test_basic_export(snapshot):
             assert snapshot == f.read()
 
 
+@pytest.mark.vcr
 def test_chat_structured():
     chat = ChatOpenAI()
 
@@ -121,6 +127,7 @@ def test_chat_structured():
     assert data == Person(name="John", age=15)
 
 
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_chat_structured_async():
     chat = ChatOpenAI()
@@ -135,6 +142,59 @@ async def test_chat_structured_async():
     assert data == Person(name="John", age=15)
 
 
+@pytest.mark.vcr
+def test_stream_with_data_model():
+    from chatlas._content import ContentJson
+
+    chat = ChatOpenAI()
+
+    class Person(BaseModel):
+        name: str
+        age: int
+
+    chunks = list(chat.stream("John, age 15, won first prize", data_model=Person))
+    result = "".join(chunks)
+    person = Person.model_validate_json(result)
+    assert person == Person(name="John", age=15)
+
+    # Verify the last turn contains ContentJson with the structured data
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert len(turn.contents) == 1
+    assert isinstance(turn.contents[0], ContentJson)
+    assert turn.contents[0].value == {"name": "John", "age": 15}
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_stream_async_with_data_model():
+    from chatlas._content import ContentJson
+
+    chat = ChatOpenAI()
+
+    class Person(BaseModel):
+        name: str
+        age: int
+
+    chunks = [
+        chunk
+        async for chunk in await chat.stream_async(
+            "John, age 15, won first prize", data_model=Person
+        )
+    ]
+    result = "".join(chunks)
+    person = Person.model_validate_json(result)
+    assert person == Person(name="John", age=15)
+
+    # Verify the last turn contains ContentJson with the structured data
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert len(turn.contents) == 1
+    assert isinstance(turn.contents[0], ContentJson)
+    assert turn.contents[0].value == {"name": "John", "age": 15}
+
+
+@pytest.mark.vcr
 def test_last_turn_retrieval():
     chat = ChatOpenAI()
     assert chat.get_last_turn(role="user") is None
@@ -162,8 +222,8 @@ def test_modify_system_prompt():
     chat = ChatOpenAI()
     chat.set_turns(
         [
-            Turn("user", "Hi"),
-            Turn("assistant", "Hello"),
+            UserTurn("Hi"),
+            AssistantTurn("Hello"),
         ]
     )
 
@@ -184,19 +244,39 @@ def test_modify_system_prompt():
     assert chat.system_prompt is None
 
 
+@pytest.mark.vcr
 def test_json_serialize():
     chat = ChatOpenAI()
     chat.chat("Tell me a short joke", echo="none")
     turns = chat.get_turns()
     turns_json = [x.model_dump_json() for x in turns]
     turns_restored = [Turn.model_validate_json(x) for x in turns_json]
+
     assert len(turns) == 2
+    # Verify correct types were restored
+    assert type(turns_restored[0]) == type(turns[0])
+    assert type(turns_restored[1]) == type(turns[1])
+
     # Completion objects, at least of right now, aren't included in the JSON
-    turns[1].completion = None
-    assert turns == turns_restored
+    # Need to create new turn without completion for comparison
+    turns_for_comparison = [turns[0]]
+    if isinstance(turns[1], AssistantTurn):
+        turns_for_comparison.append(
+            AssistantTurn(
+                turns[1].contents,
+                tokens=turns[1].tokens,
+                finish_reason=turns[1].finish_reason,
+                completion=None,
+                cost=turns[1].cost,
+            )
+        )
+    else:
+        turns_for_comparison.append(turns[1])
+    assert turns_for_comparison == turns_restored
 
 
 # Chat can be deepcopied/forked
+@pytest.mark.vcr
 def test_deepcopy_chat():
     import copy
 
@@ -213,6 +293,7 @@ def test_deepcopy_chat():
     assert len(chat_fork.get_turns()) == 4
 
 
+@pytest.mark.vcr
 def test_chat_callbacks():
     chat = ChatOpenAI()
 
@@ -247,6 +328,7 @@ def test_chat_callbacks():
     assert cb_count_result == 2
 
 
+@pytest.mark.vcr
 @pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject():
     chat = ChatOpenAI()
@@ -272,6 +354,7 @@ def test_chat_tool_request_reject():
     assert str(response).lower() == "joe unknown hadley red"
 
 
+@pytest.mark.vcr
 @pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject2(capsys):
     chat = ChatOpenAI()
@@ -298,27 +381,27 @@ def test_get_cost():
     chat = ChatOpenAI(api_key="fake_key")
     chat.set_turns(
         [
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10, 2)),
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(14, 10, 2)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 2)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(14, 10, 2)),
         ]
     )
 
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "Expected `options` to be one of 'all' or 'last', not 'bad_option'"
+            "Expected `include` to be one of 'all' or 'last', not 'bad_option'"
         ),
     ):
-        chat.get_cost(options="bad_option")  # type: ignore
+        chat.get_cost(include="bad_option")  # type: ignore
 
     # Checking that these have the right form vs. the actual calculation because the price may change
-    cost = chat.get_cost(options="all")
+    cost = chat.get_cost(include="all")
     assert isinstance(cost, float)
     assert cost > 0
 
-    last = chat.get_cost(options="last")
+    last = chat.get_cost(include="last")
     assert isinstance(last, float)
     assert last > 0
 
@@ -330,24 +413,196 @@ def test_get_cost():
     expected_cost = (
         (10 * byoc[1] / 1e6) + (2 * byoc[0] / 1e6) + (2 * byoc[2] / 1e6)
     ) + ((10 * byoc[1] / 1e6) + (14 * byoc[0] / 1e6) + (2 * byoc[2] / 1e6))
-    cost2 = chat.get_cost(options="all", token_price=byoc)
+    cost2 = chat.get_cost(include="all", token_price=byoc)
     assert cost2 == expected_cost
 
-    last_expected_cost = 10 * byoc[1] / 1e6  # Only the last turn's assistant tokens
-    last2 = chat.get_cost(options="last", token_price=byoc)
+    # get_cost(include="last") returns the full cost of the last assistant turn
+    # Last turn has tokens=(14, 10, 2) -> input=14, output=10, cached=2
+    last_expected_cost = (
+        (14 * byoc[0] / 1e6) + (10 * byoc[1] / 1e6) + (2 * byoc[2] / 1e6)
+    )
+    last2 = chat.get_cost(include="last", token_price=byoc)
     assert last2 == last_expected_cost
 
     chat2 = ChatOpenAI(api_key="fake_key", model="BADBAD")
     chat2.set_turns(
         [
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(2, 10, 0)),
-            Turn(role="user", contents="Hi"),
-            Turn(role="assistant", contents="Hello", tokens=(14, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(2, 10, 0)),
+            UserTurn("Hi"),
+            AssistantTurn("Hello", tokens=(14, 10, 0)),
         ]
     )
     with pytest.raises(
         KeyError,
         match="We could not locate pricing information for model 'BADBAD' from provider 'OpenAI'. If you know the pricing for this model, specify it in `token_price`.",
     ):
-        chat2.get_cost(options="all")
+        chat2.get_cost(include="all")
+
+
+# -----------------------------------------------------------------------------
+# Tests for repr formatting
+# -----------------------------------------------------------------------------
+
+
+def test_turn_repr_user():
+    """Test that UserTurn repr shows content without header."""
+    turn = UserTurn("Hello, world!")
+    assert repr(turn) == "Hello, world!"
+
+
+def test_turn_repr_system():
+    """Test that SystemTurn repr shows content without header."""
+    from chatlas import SystemTurn
+
+    turn = SystemTurn("You are a helpful assistant.")
+    assert repr(turn) == "You are a helpful assistant."
+
+
+def test_turn_repr_assistant_with_tokens():
+    """Test that AssistantTurn repr shows content without header/token info."""
+    turn = AssistantTurn("The answer is 42.", tokens=(100, 50, 20), cost=0.0025)
+    assert repr(turn) == "The answer is 42."
+
+
+def test_turn_repr_assistant_without_tokens():
+    """Test that AssistantTurn repr works without token info."""
+    turn = AssistantTurn("Hello!")
+    assert repr(turn) == "Hello!"
+
+
+def test_turn_repr_assistant_no_cached_tokens():
+    """Test that AssistantTurn repr shows content without token info."""
+    turn = AssistantTurn("Test", tokens=(100, 50, 0), cost=0.001)
+    assert repr(turn) == "Test"
+
+
+def test_chat_repr_header_format():
+    """Test Chat repr header shows correct format."""
+    chat = ChatOpenAI(api_key="fake_key", system_prompt="Be helpful")
+    chat.set_turns(
+        [
+            UserTurn("Hi"),
+            AssistantTurn("Hello!", tokens=(10, 20, 5), cost=0.001),
+        ]
+    )
+    result = repr(chat)
+
+    first_line = result.split("\n")[0]
+    assert first_line.startswith("<Chat")
+    assert "OpenAI" in first_line
+    assert "turns=3" in first_line
+    assert "input=10+5" in first_line
+    assert "output=20" in first_line
+    assert "cost=" in first_line
+
+
+def test_chat_repr_no_tokens():
+    """Test Chat repr when no token info is available."""
+    chat = ChatOpenAI(api_key="fake_key")
+    chat.set_turns(
+        [
+            UserTurn("Hi"),
+            AssistantTurn("Hello!"),
+        ]
+    )
+    result = repr(chat)
+
+    first_line = result.split("\n")[0]
+    assert "turns=2" in first_line
+    assert "input=" not in first_line
+
+
+def test_turn_repr_with_tool_request():
+    """Test repr formatting for turns with tool requests."""
+    from chatlas import ContentToolRequest
+
+    turn = AssistantTurn(
+        [
+            ContentToolRequest(id="123", name="get_weather", arguments={"city": "NYC"}),
+        ],
+        tokens=(50, 30, 0),
+    )
+    result = repr(turn)
+
+    assert "## Assistant" not in result
+    assert "🔧 tool request (123)" in result
+    assert 'get_weather(city="NYC")' in result
+
+
+def test_turn_repr_with_tool_result():
+    """Test repr formatting for turns with tool results."""
+    request = ContentToolRequest(
+        id="123", name="get_weather", arguments={"city": "NYC"}
+    )
+    turn = UserTurn(
+        [
+            ContentToolResult(value="72°F and sunny", request=request),
+        ]
+    )
+    result = repr(turn)
+
+    assert "## User" not in result
+    assert "✅ tool result (123)" in result
+    assert "72°F and sunny" in result
+
+
+def test_str_unchanged():
+    """Verify that __str__ still uses the original emoji-based format."""
+    chat = ChatOpenAI(api_key="fake_key")
+    chat.set_turns(
+        [
+            UserTurn("Hi"),
+            AssistantTurn("Hello!"),
+        ]
+    )
+    result = str(chat)
+
+    assert "👤" in result or "User" in result
+    assert "🤖" in result or "Assistant" in result
+
+
+def test_json_serialize_with_tool_failure():
+    """Test that get_turns() is serializable when a tool call results in failure."""
+    # Create a tool request
+    request = ContentToolRequest(
+        id="test-123",
+        name="my_tool",
+        arguments={"x": 1},
+    )
+
+    # Create a tool result with an error (simulating tool failure)
+    error = Exception("Something went wrong")
+    result = ContentToolResult(
+        value=None,
+        error=error,
+        request=request,
+    )
+
+    # Build turns that include the failed tool result
+    chat = ChatOpenAI(api_key="fake_key")
+    chat.set_turns(
+        [
+            UserTurn("Call the tool"),
+            AssistantTurn([request]),
+            UserTurn([result]),
+        ]
+    )
+
+    # Verify serialization works
+    turns = chat.get_turns()
+    turns_json = [x.model_dump_json() for x in turns]
+
+    # Verify we can deserialize them back
+    turns_restored = [Turn.model_validate_json(x) for x in turns_json]
+
+    assert len(turns_restored) == 3
+
+    # Check the tool result turn was properly restored
+    tool_result_turn = turns_restored[2]
+    assert len(tool_result_turn.contents) == 1
+    restored_result = tool_result_turn.contents[0]
+    assert isinstance(restored_result, ContentToolResult)
+    assert restored_result.error is not None
+    # After serialization, the Exception becomes a string representation
+    assert "Something went wrong" in str(restored_result.error)

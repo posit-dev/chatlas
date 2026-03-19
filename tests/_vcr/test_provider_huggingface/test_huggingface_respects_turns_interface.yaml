@@ -1,0 +1,297 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
+      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "stream": true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '298'
+      Content-Type:
+      - application/json
+      Host:
+      - router.huggingface.co
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://router.huggingface.co/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"chatcmpl-3938b3f3-b067-4dfa-989b-70e58dd89e80","choices":[{"delta":{"role":"assistant"},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3938b3f3-b067-4dfa-989b-70e58dd89e80","choices":[{"delta":{"content":"CHR"},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3938b3f3-b067-4dfa-989b-70e58dd89e80","choices":[{"delta":{"content":"ISTOPHER
+        ROBIN."},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-3938b3f3-b067-4dfa-989b-70e58dd89e80","choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk","usage":{"total_tokens":70,"completion_tokens":8,"prompt_tokens":62,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.0000397,"prompt_time":0.003675159,"completion_time":0.00311883,"total_time":0.00815582275390625,"created":1767213634.068277}}
+
+
+        '
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Expose-Headers:
+      - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:40:32 GMT
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      Via:
+      - 1.1 43d5c5ecf18f23d15311f4b123f7fa1e.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - UrGNgJgoLn-zcUhgbdpUT0jQZ0mLAcu-KduomXhRKs4fbpQXiZ7xrQ==
+      X-Amz-Cf-Pop:
+      - MSP50-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Powered-By:
+      - huggingface-moon
+      X-Robots-Tag:
+      - none
+      cf-cache-status:
+      - DYNAMIC
+      cross-origin-opener-policy:
+      - same-origin
+      inference-id:
+      - chatcmpl-3938b3f3-b067-4dfa-989b-70e58dd89e80
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=3600; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-inference-provider:
+      - cerebras
+      x-ratelimit-remaining-requests-day:
+      - '2879997'
+      x-ratelimit-remaining-requests-hour:
+      - '119997'
+      x-ratelimit-remaining-requests-minute:
+      - '1997'
+      x-ratelimit-remaining-tokens-day:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-hour:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-minute:
+      - '9223372036854767616'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
+      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "stream": true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '298'
+      Content-Type:
+      - application/json
+      Host:
+      - router.huggingface.co
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://router.huggingface.co/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"chatcmpl-770494fa-4f97-4a6a-94f7-b46a99c3b7ec","choices":[{"delta":{"role":"assistant"},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-770494fa-4f97-4a6a-94f7-b46a99c3b7ec","choices":[{"delta":{"content":"CHR"},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-770494fa-4f97-4a6a-94f7-b46a99c3b7ec","choices":[{"delta":{"content":"ISTOPHER
+        ROBIN."},"index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-770494fa-4f97-4a6a-94f7-b46a99c3b7ec","choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1767213634,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk","usage":{"total_tokens":70,"completion_tokens":8,"prompt_tokens":62,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.000162471,"prompt_time":0.00275803,"completion_time":0.003120066,"total_time":0.007386922836303711,"created":1767213634.6693082}}
+
+
+        '
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Expose-Headers:
+      - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:40:32 GMT
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      Via:
+      - 1.1 8668391dce76a5e01d23980e8e8d3454.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - XZrk9wVTFah0nlBBBzgAU4glR5CV1Sh_9HbQ7EBONgg1ffCwZA12pw==
+      X-Amz-Cf-Pop:
+      - MSP50-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Powered-By:
+      - huggingface-moon
+      X-Robots-Tag:
+      - none
+      cf-cache-status:
+      - DYNAMIC
+      cross-origin-opener-policy:
+      - same-origin
+      inference-id:
+      - chatcmpl-770494fa-4f97-4a6a-94f7-b46a99c3b7ec
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=3600; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-inference-provider:
+      - cerebras
+      x-ratelimit-remaining-requests-day:
+      - '2879996'
+      x-ratelimit-remaining-requests-hour:
+      - '119996'
+      x-ratelimit-remaining-requests-minute:
+      - '1996'
+      x-ratelimit-remaining-tokens-day:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-hour:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-minute:
+      - '9223372036854767616'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "My name is Steve"}],
+      "role": "user"}, {"role": "assistant", "content": [{"type": "text", "text":
+      "Hello Steve, how can I help you today?"}]}, {"content": [{"type": "text", "text":
+      "What is my name?"}], "role": "user"}], "model": "meta-llama/Llama-3.1-8B-Instruct",
+      "stream": true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '348'
+      Content-Type:
+      - application/json
+      Host:
+      - router.huggingface.co
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://router.huggingface.co/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"chatcmpl-6bda916f-edda-4aa4-afbb-721ae7e5f169","choices":[{"delta":{"role":"assistant"},"index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-6bda916f-edda-4aa4-afbb-721ae7e5f169","choices":[{"delta":{"content":"Your"},"index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-6bda916f-edda-4aa4-afbb-721ae7e5f169","choices":[{"delta":{"content":"
+        name is Steve."},"index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk"}
+
+
+        data: {"id":"chatcmpl-6bda916f-edda-4aa4-afbb-721ae7e5f169","choices":[{"delta":{},"finish_reason":"stop","index":0}],"created":1767213635,"model":"llama3.1-8b","system_fingerprint":"fp_2df2c50ce520692a7dce","object":"chat.completion.chunk","usage":{"total_tokens":70,"completion_tokens":6,"prompt_tokens":64,"prompt_tokens_details":{"cached_tokens":0}},"time_info":{"queue_time":0.00013735,"prompt_time":0.003542346,"completion_time":0.002342371,"total_time":0.00757908821105957,"created":1767213635.3406544}}
+
+
+        '
+    headers:
+      Access-Control-Allow-Origin:
+      - '*'
+      Access-Control-Expose-Headers:
+      - X-Repo-Commit,X-Request-Id,X-Error-Code,X-Error-Message,X-Total-Count,ETag,Link,Accept-Ranges,Content-Range,X-Linked-Size,X-Linked-ETag,X-Xet-Hash
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:40:33 GMT
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      Via:
+      - 1.1 24f41ad6cec46a6e94a3e850d746e294.cloudfront.net (CloudFront)
+      X-Amz-Cf-Id:
+      - iMln4YNOYhYEEYPjtv0dHYrDUjBdb0FdSNKkixC9aERUEhAIoTr8Kw==
+      X-Amz-Cf-Pop:
+      - MSP50-P2
+      X-Cache:
+      - Miss from cloudfront
+      X-Powered-By:
+      - huggingface-moon
+      X-Robots-Tag:
+      - none
+      cf-cache-status:
+      - DYNAMIC
+      cross-origin-opener-policy:
+      - same-origin
+      inference-id:
+      - chatcmpl-6bda916f-edda-4aa4-afbb-721ae7e5f169
+      referrer-policy:
+      - strict-origin-when-cross-origin
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=3600; includeSubDomains
+      x-content-type-options:
+      - nosniff
+      x-inference-provider:
+      - cerebras
+      x-ratelimit-remaining-requests-day:
+      - '2879999'
+      x-ratelimit-remaining-requests-hour:
+      - '119999'
+      x-ratelimit-remaining-requests-minute:
+      - '1999'
+      x-ratelimit-remaining-tokens-day:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-hour:
+      - '9223372036854767616'
+      x-ratelimit-remaining-tokens-minute:
+      - '9223372036854767616'
+    status:
+      code: 200
+      message: OK
+version: 1

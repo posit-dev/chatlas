@@ -4,27 +4,33 @@ import inspect
 import warnings
 from typing import (
     TYPE_CHECKING,
+    Annotated,
     Any,
     AsyncGenerator,
     Awaitable,
     Callable,
     Optional,
     cast,
+    get_args,
+    get_origin,
 )
 
 import openai
 from pydantic import BaseModel, Field, create_model
+from pydantic.fields import FieldInfo
+from pydantic_core import PydanticUndefined
 
 from . import _utils
 from ._content import (
+    ContentImageInline,
+    ContentPDF,
     ContentToolResult,
-    ContentToolResultImage,
-    ContentToolResultResource,
     ToolAnnotations,
 )
 
 __all__ = (
     "Tool",
+    "ToolBuiltIn",
     "ToolRejectError",
 )
 
@@ -53,6 +59,8 @@ class Tool:
         A dictionary describing the input parameters and their types.
     annotations
         Additional properties that describe the tool and its behavior.
+    strict
+        Whether to enable strict mode.
     """
 
     func: Callable[..., Any] | Callable[..., Awaitable[Any]]
@@ -65,19 +73,25 @@ class Tool:
         description: str,
         parameters: dict[str, Any],
         annotations: "Optional[ToolAnnotations]" = None,
+        strict: Optional[bool] = None,
     ):
         self.name = name
         self.func = func
         self.annotations = annotations
         self._is_async = _utils.is_async_callable(func)
-        self.schema: "ChatCompletionToolParam" = {
+        schema: "ChatCompletionToolParam" = {
             "type": "function",
             "function": {
                 "name": name,
                 "description": description,
                 "parameters": parameters,
+                "strict": strict,
             },
         }
+        if strict is None:
+            # Remove strict from schema to let provider decide
+            del schema["function"]["strict"]
+        self.schema = schema
 
     @classmethod
     def from_func(
@@ -121,16 +135,7 @@ class Tool:
         if model is None:
             model = func_to_basemodel(func)
 
-        # Throw if there is a mismatch between the model and the function parameters
-        params = inspect.signature(func).parameters
-        fields = model.model_fields
-        fields_alias = [val.alias if val.alias else key for key, val in fields.items()]
-        diff = set(params) ^ set(fields_alias)
-        if diff:
-            raise ValueError(
-                f"`model` fields must match tool function parameters exactly. "
-                f"Fields found in one but not the other: {diff}"
-            )
+        _validate_model_vs_function(model, func)
 
         params = basemodel_to_param_schema(model)
 
@@ -193,10 +198,11 @@ class Tool:
                             f"Unsupported image MIME type: {content.mimeType}"
                         )
 
-                    yield ContentToolResultImage(
-                        value=content.data,
-                        mime_type=content.mimeType,
+                    img = ContentImageInline(
+                        data=content.data,
+                        image_content_type=content.mimeType,
                     )
+                    yield ContentToolResult(value=img)
                 elif content.type == "resource":
                     from mcp.types import TextResourceContents
 
@@ -206,9 +212,12 @@ class Tool:
                     else:
                         blob = resource.blob.encode("utf-8")
 
-                    yield ContentToolResultResource(
-                        value=blob, mime_type=content.resource.mimeType
-                    )
+                    mime_type = content.resource.mimeType
+                    if mime_type != "application/pdf":
+                        raise ValueError(f"Unsupported resource MIME type: {mime_type}")
+
+                    pdf = ContentPDF(data=blob, filename=f"{mcp_tool.name}-result.pdf")
+                    yield ContentToolResult(value=pdf)
                 else:
                     raise RuntimeError(f"Unexpected content type: {content.type}")
 
@@ -225,7 +234,31 @@ class Tool:
             description=mcp_tool.description or "",
             parameters=params,
             annotations=annotations,
+            # MCP tools use standard JSON Schema conventions for optional params
+            # (not in required array), which requires strict=False for OpenAI
+            strict=False,
         )
+
+
+class ToolBuiltIn:
+    """
+    Define a built-in provider-specific tool
+
+    This class represents tools that are built into specific providers (like image
+    generation). Unlike regular Tool objects, ToolBuiltIn instances pass raw
+    provider-specific JSON directly through to the API.
+
+    Parameters
+    ----------
+    name
+        The name of the tool.
+    definition
+        The raw provider-specific tool definition as a dictionary.
+    """
+
+    def __init__(self, *, name: str, definition: dict[str, Any]):
+        self.name = name
+        self.definition = definition
 
 
 class ToolRejectError(Exception):
@@ -318,6 +351,7 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
 
     for name, param in params.items():
         annotation = param.annotation
+        annotated_field: Optional[FieldInfo] = None
 
         if annotation == inspect.Parameter.empty:
             warnings.warn(
@@ -325,6 +359,15 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
                 "Using `Any` as a fallback."
             )
             annotation = Any
+        # Check if annotation is Annotated[...] and extract Field metadata
+        elif get_origin(annotation) is Annotated:
+            args = get_args(annotation)
+            # First arg is the actual type, rest are metadata
+            annotation = args[0]
+            for metadata in args[1:]:
+                if isinstance(metadata, FieldInfo):
+                    annotated_field = metadata
+                    break
 
         # create_model() will error if the field name starts with `_` (since Pydantic
         # uses this to indicate private fields). We can work around this by using an alias.
@@ -334,10 +377,15 @@ def func_to_basemodel(func: Callable) -> type[BaseModel]:
         else:
             field_name, alias = (name, None)
 
+        # Create the pydantic Field from a "normal" parameter
         if param.default != inspect.Parameter.empty:
             field = Field(default=param.default, alias=alias)
         else:
             field = Field(alias=alias)
+
+        # If we have an Annotated FieldInfo, merge it with alias/default overrides
+        if annotated_field is not None:
+            field = FieldInfo.merge_field_infos(annotated_field, field)
 
         # Add the field to our fields dict
         fields[field_name] = (annotation, field)
@@ -360,6 +408,47 @@ def basemodel_to_param_schema(model: type[BaseModel]) -> dict[str, object]:
     return params
 
 
+def _validate_model_vs_function(model: type[BaseModel], func: Callable) -> None:
+    """Validate that model fields match function parameters."""
+
+    sig_params = inspect.signature(func).parameters
+    fields = model.model_fields
+
+    param_names: set[str] = set()
+
+    for field_name, field_info in fields.items():
+        param_name = field_info.alias if field_info.alias else field_name
+
+        if param_name not in sig_params:
+            raise ValueError(
+                f"`model` field `{field_name}` (param name `{param_name}`) "
+                f"has no corresponding function parameter."
+            )
+
+        param_names.add(param_name)
+        param = sig_params[param_name]
+        func_has_default = param.default != inspect.Parameter.empty
+
+        if func_has_default and param.default != field_info.default:
+            model_default = (
+                "no default"
+                if field_info.default is PydanticUndefined
+                else repr(field_info.default)
+            )
+            raise ValueError(
+                f"Function parameter `{param_name}` has default `{param.default!r}`, "
+                f"but model field `{field_name}` has {model_default}. "
+                f"These must match in order to create a Tool."
+            )
+
+    # Check for function params without corresponding model fields
+    extra_params = set(sig_params) - param_names
+    if extra_params:
+        raise ValueError(
+            f"Function parameters {extra_params} have no corresponding model fields."
+        )
+
+
 def mcp_tool_input_schema_to_param_schema(
     input_schema: dict[str, Any],
 ) -> dict[str, object]:
@@ -374,14 +463,18 @@ def mcp_tool_input_schema_to_param_schema(
 def rm_param_titles(
     params: dict[str, object],
 ) -> dict[str, object]:
-    # For some reason, pydantic wants to include a title at the model and field
-    # level. I don't think we actually need or want this.
+    """
+    Remove title fields from JSON Schema.
+
+    Pydantic includes titles at model/field level, but they're not needed
+    and just add noise to the schema.
+    """
     if "title" in params:
         del params["title"]
 
     if "properties" in params and isinstance(params["properties"], dict):
         for prop in params["properties"].values():
-            if "title" in prop:
-                del prop["title"]
+            if isinstance(prop, dict):
+                rm_param_titles(prop)
 
     return params

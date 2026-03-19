@@ -1,0 +1,377 @@
+interactions:
+- request:
+    body: '{"messages":[{"content":"Always use a tool to help you answer. Reply with
+      ''It is ____.''.","role":"system"},{"content":[{"type":"text","text":"What''s
+      the current date in YYYY-MM-DD format?"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true,"tools":[{"type":"function","function":{"name":"get_date","description":"Gets
+      the current date","parameters":{"properties":{},"type":"object","additionalProperties":false,"required":[]}}}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '449'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"I''ll
+        help"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":402,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_012JYpyQ5HcfreGXo94KFBnJ","created":1767213424}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        you get the current date in YYYY"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":402,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_012JYpyQ5HcfreGXo94KFBnJ","created":1767213424}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"-MM-DD
+        format."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":402,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_012JYpyQ5HcfreGXo94KFBnJ","created":1767213424}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"id":"toolu_bdrk_01TPK8QRAHByJ1TANL9PDZQK","type":"function","function":{"name":"get_date","arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":402,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_012JYpyQ5HcfreGXo94KFBnJ","created":1767213424}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"function":{"arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":402,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_012JYpyQ5HcfreGXo94KFBnJ","created":1767213424}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"tool_calls"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":54,"prompt_tokens":402,"total_tokens":456,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_012JYpyQ5HcfreGXo94KFBnJ","created":1767213424}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Wed, 31 Dec 2025 20:37:04 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="ba7ab20e-aa61-45fb-a346-7f90546d1af3", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - e5939088-08f6-46bd-a80e-0a08bdcd89bc
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+      x-request-id:
+      - ba7ab20e-aa61-45fb-a346-7f90546d1af3
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages":[{"content":"Always use a tool to help you answer. Reply with
+      ''It is ____.''.","role":"system"},{"content":[{"type":"text","text":"What''s
+      the current date in YYYY-MM-DD format?"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"I''ll
+      help you get the current date in YYYY-MM-DD format."}],"tool_calls":[{"id":"toolu_bdrk_01TPK8QRAHByJ1TANL9PDZQK","function":{"name":"get_date","arguments":"{}"},"type":"function"}]},{"content":"2024-01-01","tool_call_id":"toolu_bdrk_01TPK8QRAHByJ1TANL9PDZQK","role":"tool"}],"model":"databricks-claude-3-7-sonnet","stream":true,"tools":[{"type":"function","function":{"name":"get_date","description":"Gets
+      the current date","parameters":{"properties":{},"type":"object","additionalProperties":false,"required":[]}}}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '782'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"It"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":473,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01EdepKw4zGACTphCagTDmyq","created":1767213426}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        is 2024-01"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":473,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01EdepKw4zGACTphCagTDmyq","created":1767213426}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"-01."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":473,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01EdepKw4zGACTphCagTDmyq","created":1767213427}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":14,"prompt_tokens":473,"total_tokens":487,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01EdepKw4zGACTphCagTDmyq","created":1767213427}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Wed, 31 Dec 2025 20:37:06 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="1f58af5e-c46f-4ccd-a7ae-57323a746623", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - 1404be18-4451-4fb8-a2f1-95e21b1a7de7
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+      x-request-id:
+      - 1f58af5e-c46f-4ccd-a7ae-57323a746623
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages":[{"content":"Always use a tool to help you answer. Reply with
+      ''It is ____.''.","role":"system"},{"content":[{"type":"text","text":"What''s
+      the current date in YYYY-MM-DD format?"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"I''ll
+      help you get the current date in YYYY-MM-DD format."}],"tool_calls":[{"id":"toolu_bdrk_01TPK8QRAHByJ1TANL9PDZQK","function":{"name":"get_date","arguments":"{}"},"type":"function"}]},{"content":"2024-01-01","tool_call_id":"toolu_bdrk_01TPK8QRAHByJ1TANL9PDZQK","role":"tool"},{"role":"assistant","content":[{"type":"text","text":"It
+      is 2024-01-01."}]},{"content":[{"type":"text","text":"What month is it? Provide
+      the full name."}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true,"tools":[{"type":"function","function":{"name":"get_date","description":"Gets
+      the current date","parameters":{"properties":{},"type":"object","additionalProperties":false,"required":[]}}}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '952'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"I"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":501,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01TPbLTLijhcoNs7aHX6uJNe","created":1767213428}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"''ll
+        help you determine"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":501,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01TPbLTLijhcoNs7aHX6uJNe","created":1767213428}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"
+        the current month by checking the date first"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":501,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01TPbLTLijhcoNs7aHX6uJNe","created":1767213428}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":501,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01TPbLTLijhcoNs7aHX6uJNe","created":1767213428}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"id":"toolu_bdrk_01LsZuAsoHG21xsp4WAXYGAb","type":"function","function":{"name":"get_date","arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":501,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01TPbLTLijhcoNs7aHX6uJNe","created":1767213428}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":null,"tool_calls":[{"index":0,"function":{"arguments":""}}]},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":501,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01TPbLTLijhcoNs7aHX6uJNe","created":1767213428}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"tool_calls"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":51,"prompt_tokens":501,"total_tokens":552,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01TPbLTLijhcoNs7aHX6uJNe","created":1767213428}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Wed, 31 Dec 2025 20:37:08 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="4cf78659-1e41-4a7e-86be-d70a1f76f80c", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - 3a7fb6e0-9d65-46ac-98e8-b77430c8d523
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+      x-request-id:
+      - 4cf78659-1e41-4a7e-86be-d70a1f76f80c
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages":[{"content":"Always use a tool to help you answer. Reply with
+      ''It is ____.''.","role":"system"},{"content":[{"type":"text","text":"What''s
+      the current date in YYYY-MM-DD format?"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"I''ll
+      help you get the current date in YYYY-MM-DD format."}],"tool_calls":[{"id":"toolu_bdrk_01TPK8QRAHByJ1TANL9PDZQK","function":{"name":"get_date","arguments":"{}"},"type":"function"}]},{"content":"2024-01-01","tool_call_id":"toolu_bdrk_01TPK8QRAHByJ1TANL9PDZQK","role":"tool"},{"role":"assistant","content":[{"type":"text","text":"It
+      is 2024-01-01."}]},{"content":[{"type":"text","text":"What month is it? Provide
+      the full name."}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"I''ll
+      help you determine the current month by checking the date first."}],"tool_calls":[{"id":"toolu_bdrk_01LsZuAsoHG21xsp4WAXYGAb","function":{"name":"get_date","arguments":"{}"},"type":"function"}]},{"content":"2024-01-01","tool_call_id":"toolu_bdrk_01LsZuAsoHG21xsp4WAXYGAb","role":"tool"}],"model":"databricks-claude-3-7-sonnet","stream":true,"tools":[{"type":"function","function":{"name":"get_date","description":"Gets
+      the current date","parameters":{"properties":{},"type":"object","additionalProperties":false,"required":[]}}}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1298'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"Base"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":569,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_015MrmtyDSr7V1mbz4LfMTCU","created":1767213430}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"d
+        on the current date (2024-01"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":569,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_015MrmtyDSr7V1mbz4LfMTCU","created":1767213430}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"-01),
+        it is January."},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":569,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_015MrmtyDSr7V1mbz4LfMTCU","created":1767213430}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":21,"prompt_tokens":569,"total_tokens":590,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_015MrmtyDSr7V1mbz4LfMTCU","created":1767213430}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Wed, 31 Dec 2025 20:37:10 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="f284d9eb-ad52-4335-aa10-d04810d110af", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - a187cf6a-3848-47ec-8d94-efd0bda97e9e
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+      x-request-id:
+      - f284d9eb-ad52-4335-aa10-d04810d110af
+    status:
+      code: 200
+      message: OK
+version: 1

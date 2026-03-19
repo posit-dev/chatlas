@@ -1,0 +1,160 @@
+interactions:
+- request:
+    body: '{"messages":[{"content":[{"type":"text","text":"Respond with only two blank
+      lines"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '154'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"\n"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":14,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BJqsmUVrxA7adRU7eLM4F2","created":1767213421}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":4,"prompt_tokens":14,"total_tokens":18,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01BJqsmUVrxA7adRU7eLM4F2","created":1767213421}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Wed, 31 Dec 2025 20:37:01 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="786993c0-6b0d-47cd-9265-c592ed2bdb9e", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - 045da718-b2f3-4db7-a634-a8df8f8d8ff0
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+      x-request-id:
+      - 786993c0-6b0d-47cd-9265-c592ed2bdb9e
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages":[{"content":[{"type":"text","text":"Respond with only two blank
+      lines"}],"role":"user"},{"role":"assistant","content":[{"type":"text","text":"[empty
+      string]"}]},{"content":[{"type":"text","text":"What''s 1+1? Just give me the
+      number"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '316'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - OpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
+      X-Stainless-Async:
+      - 'false'
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"2"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":36,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01XyygXCZRoQyyzN6mEK3M9F","created":1767213422}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":5,"prompt_tokens":36,"total_tokens":41,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01XyygXCZRoQyyzN6mEK3M9F","created":1767213422}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Wed, 31 Dec 2025 20:37:02 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="3fea4d31-688a-4d30-8848-5228f045329b", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - 44b8b348-e04f-4552-823f-c2a48aaf295f
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+      x-request-id:
+      - 3fea4d31-688a-4d30-8848-5228f045329b
+    status:
+      code: 200
+      message: OK
+version: 1

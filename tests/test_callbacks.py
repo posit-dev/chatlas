@@ -5,8 +5,8 @@ from chatlas._callbacks import CallbackManager
 
 def test_callbacks_lifo_order():
     callbacks = CallbackManager()
-    res1 = None
-    res2 = None
+    res1: dict[str, object] | None = None
+    res2: dict[str, object] | None = None
 
     def cb1(value):
         nonlocal res1
@@ -25,6 +25,8 @@ def test_callbacks_lifo_order():
     assert callbacks.invoke({"x": 1, "y": 2}) is None
 
     # Callbacks receive expected arguments
+    assert res1 is not None
+    assert res2 is not None
     assert res1["value"] == {"x": 1, "y": 2}
     assert res2["value"] == ({"x": 1, "y": 2},)
 
@@ -34,8 +36,8 @@ def test_callbacks_lifo_order():
 
 def test_add_callback_removal():
     callbacks = CallbackManager()
-    res1 = None
-    res2 = None
+    res1: float | None = None
+    res2: float | None = None
 
     def cb1():
         nonlocal res1
@@ -52,12 +54,15 @@ def test_add_callback_removal():
     callbacks.invoke()
 
     # Unregistering a callback
+    assert res1 is not None
+    assert res2 is not None
     res1_first = res1
     res2_first = res2
     rm_cb1()
     assert callbacks.count() == 1
     callbacks.invoke()
     assert res1 == res1_first  # first callback result hasn't changed
+    assert res2 is not None
     assert res2 > res2_first  # second callback was evaluated
 
     # Unregistering callbacks are idempotent

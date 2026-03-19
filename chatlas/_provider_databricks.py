@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING, Optional
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._provider_openai import OpenAIProvider
+from ._provider_openai_completions import OpenAICompletionsProvider
 
 if TYPE_CHECKING:
     from databricks.sdk import WorkspaceClient
 
-    from ._provider_openai import ChatCompletion
+    from ._provider_openai_completions import ChatCompletion
     from .types.openai import SubmitInputArgs
 
 
@@ -87,7 +87,7 @@ def ChatDatabricks(
     )
 
 
-class DatabricksProvider(OpenAIProvider):
+class DatabricksProvider(OpenAICompletionsProvider):
     def __init__(
         self,
         *,
@@ -106,7 +106,13 @@ class DatabricksProvider(OpenAIProvider):
         import httpx
         from openai import AsyncOpenAI
 
-        super().__init__(name=name, model=model)
+        super().__init__(
+            name=name,
+            model=model,
+            # The OpenAI() constructor will fail if no API key is present.
+            # However, a dummy value is fine -- WorkspaceClient() handles the auth.
+            api_key="not-used",
+        )
 
         self._seed = None
 

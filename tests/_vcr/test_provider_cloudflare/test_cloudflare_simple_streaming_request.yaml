@@ -1,0 +1,67 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "What is 1 + 1?"}],
+      "role": "user"}], "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast", "seed":
+      1014, "stream": true, "stream_options": {"include_usage": true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '199'
+      Content-Type:
+      - application/json
+      Host:
+      - api.cloudflare.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.cloudflare.com/client/v4/accounts/38bc1f7f09483f93340d366546d47dcd/ai/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"id-1767213405020","created":1767213405,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        + 1"}}]}
+
+
+        data: {"id":"id-1767213405020","created":1767213405,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"
+        = 2"}}]}
+
+
+        data: {"id":"id-1767213405020","created":1767213405,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"."}}]}
+
+
+        data: {"id":"id-1767213405020","object":"chat.completion.chunk","created":1767213405,"model":"@cf/meta/llama-3.3-70b-instruct-fp8-fast","choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":43,"completion_tokens":9,"total_tokens":52}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6c9224fd40eb5a-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Wed, 31 Dec 2025 20:36:45 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Accept-Encoding
+      api-version:
+      - '2025-12-31'
+      cf-auditlog-id:
+      - 019b7620-9327-79a2-ae85-98fd82bd05db
+    status:
+      code: 200
+      message: OK
+version: 1

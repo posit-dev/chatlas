@@ -1,15 +1,17 @@
 from __future__ import annotations
 
+import inspect
+import warnings
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast
 
 import orjson
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
 
 from ._typing_extensions import TypedDict
 
 if TYPE_CHECKING:
-    from ._tools import Tool
+    from ._tools import Tool, ToolBuiltIn
 
 
 class ToolAnnotations(TypedDict, total=False):
@@ -102,15 +104,21 @@ class ToolInfo(BaseModel):
     annotations: Optional[ToolAnnotations] = None
 
     @classmethod
-    def from_tool(cls, tool: "Tool") -> "ToolInfo":
-        """Create a ToolInfo from a Tool instance."""
-        func_schema = tool.schema["function"]
-        return cls(
-            name=tool.name,
-            description=func_schema.get("description", ""),
-            parameters=func_schema.get("parameters", {}),
-            annotations=tool.annotations,
-        )
+    def from_tool(cls, tool: "Tool | ToolBuiltIn") -> "ToolInfo":
+        """Create a ToolInfo from a Tool or ToolBuiltIn instance."""
+        from ._tools import ToolBuiltIn
+
+        if isinstance(tool, ToolBuiltIn):
+            return cls(name=tool.name, description=tool.name, parameters={})
+        else:
+            # For regular tools, extract from schema
+            func_schema = tool.schema["function"]
+            return cls(
+                name=tool.name,
+                description=func_schema.get("description", ""),
+                parameters=func_schema.get("parameters", {}),
+                annotations=tool.annotations,
+            )
 
 
 ContentTypeEnum = Literal[
@@ -123,6 +131,11 @@ ContentTypeEnum = Literal[
     "tool_result_resource",
     "json",
     "pdf",
+    "thinking",
+    "web_search_request",
+    "web_search_results",
+    "web_fetch_request",
+    "web_fetch_results",
 ]
 """
 A discriminated union of all content types.
@@ -140,11 +153,11 @@ class Content(BaseModel):
     def __str__(self):
         raise NotImplementedError
 
-    def _repr_markdown_(self):
-        raise NotImplementedError
+    def __repr__(self):
+        return self.__str__()
 
-    def __repr__(self, indent: int = 0):
-        raise NotImplementedError
+    def _repr_markdown_(self):
+        return self.__str__()
 
 
 class ContentText(Content):
@@ -163,13 +176,6 @@ class ContentText(Content):
 
     def __str__(self):
         return self.text
-
-    def _repr_markdown_(self):
-        return self.text
-
-    def __repr__(self, indent: int = 0):
-        text = self.text[:50] + "..." if len(self.text) > 50 else self.text
-        return " " * indent + f"<ContentText text='{text}'>"
 
 
 class ContentImage(Content):
@@ -207,15 +213,6 @@ class ContentImageRemote(ContentImage):
     def __str__(self):
         return f"![]({self.url})"
 
-    def _repr_markdown_(self):
-        return self.__str__()
-
-    def __repr__(self, indent: int = 0):
-        return (
-            " " * indent
-            + f"<ContentImageRemote url='{self.url}' detail='{self.detail}'>"
-        )
-
 
 class ContentImageInline(ContentImage):
     """
@@ -234,22 +231,12 @@ class ContentImageInline(ContentImage):
     """
 
     image_content_type: ImageContentTypes
-    data: Optional[str] = None
+    data: str
 
     content_type: ContentTypeEnum = "image_inline"
 
     def __str__(self):
         return f"![](data:{self.image_content_type};base64,{self.data})"
-
-    def _repr_markdown_(self):
-        return self.__str__()
-
-    def __repr__(self, indent: int = 0):
-        n_bytes = len(self.data) if self.data else 0
-        return (
-            " " * indent
-            + f"<ContentImageInline content_type='{self.image_content_type}' size={n_bytes}>"
-        )
 
 
 class ContentToolRequest(Content):
@@ -287,22 +274,20 @@ class ContentToolRequest(Content):
         comment = f"# 🔧 tool request ({self.id})"
         return f"```python\n{comment}\n{func_call}\n```\n"
 
-    def _repr_markdown_(self):
-        return self.__str__()
-
-    def __repr__(self, indent: int = 0):
-        args_str = self._arguments_str()
-        return (
-            " " * indent
-            + f"<ContentToolRequest name='{self.name}' arguments='{args_str}' id='{self.id}'>"
-        )
-
     def _arguments_str(self) -> str:
         if isinstance(self.arguments, dict):
-            return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
+            return ", ".join(
+                f"{k}={self._format_arg(v)}" for k, v in self.arguments.items()
+            )
         return str(self.arguments)
 
-    def __repr_html__(self) -> str:
+    @staticmethod
+    def _format_arg(value: object) -> str:
+        if isinstance(value, str):
+            return f'"{value}"'
+        return str(value)
+
+    def _repr_html_(self) -> str:
         return str(self.tagify())
 
     def tagify(self):
@@ -378,6 +363,26 @@ class ContentToolResult(Content):
     request: Optional[ContentToolRequest] = None
     content_type: ContentTypeEnum = "tool_result"
 
+    @field_serializer("error")
+    @classmethod
+    def serialize_error(cls, v: Optional[Exception]) -> Optional[str]:
+        """Serialize Exception to string for JSON compatibility."""
+        if v is None:
+            return None
+        return str(v)
+
+    @field_validator("error", mode="before")
+    @classmethod
+    def validate_error(cls, v: Any) -> Optional[Exception]:
+        """Accept string or Exception for error field."""
+        if v is None:
+            return None
+        if isinstance(v, Exception):
+            return v
+        if isinstance(v, str):
+            return Exception(v)
+        return Exception(str(v))
+
     @property
     def id(self):
         if not self.request:
@@ -398,23 +403,11 @@ class ContentToolResult(Content):
             )
         return self.request.arguments
 
-    # Primarily used for `echo="all"`...
     def __str__(self):
         prefix = "✅ tool result" if not self.error else "❌ tool error"
         comment = f"# {prefix} ({self.id})"
         value = self._get_display_value()
         return f"""```python\n{comment}\n{value}\n```"""
-
-    # ... and for displaying in the notebook
-    def _repr_markdown_(self):
-        return self.__str__()
-
-    def __repr__(self, indent: int = 0):
-        res = " " * indent
-        res += f"<ContentToolResult value='{self.value}' id='{self.id}'"
-        if self.error:
-            res += f" error='{self.error}'"
-        return res + ">"
 
     # Format the value for display purposes
     def _get_display_value(self):
@@ -465,15 +458,43 @@ class ContentToolResult(Content):
 
     @staticmethod
     def _to_json(value: Any) -> object:
+        if hasattr(value, "to_pandas") and callable(value.to_pandas):
+            # Many (most?) df libs (polars, pyarrow, ...) have a .to_pandas()
+            # method, and pandas has a .to_json() method
+            value = value.to_pandas()
+
         if hasattr(value, "to_json") and callable(value.to_json):
-            return value.to_json()
+            # pandas defaults to "columns", which is not ideal for LLMs
+            # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.to_json.html
+            sig = inspect.signature(value.to_json)
+            if "orient" in list(sig.parameters.keys()):
+                return value.to_json(orient="records")
+            else:
+                return value.to_json()
+
+        # Support for df libs (beyond those with a .to_pandas() method)
+        if hasattr(value, "__narwhals_dataframe__"):
+            try:
+                import narwhals
+
+                val = cast(narwhals.DataFrame, narwhals.from_native(value))
+                return val.to_pandas().to_json(orient="records")
+            except ImportError:
+                warnings.warn(
+                    f"Tool result object of type {type(value)} appears to be a "
+                    "narwhals-compatible DataFrame. If you run into issues with "
+                    "the LLM not understanding this value, try installing narwhals: "
+                    "`pip install narwhals`.",
+                    ImportWarning,
+                    stacklevel=2,
+                )
 
         if hasattr(value, "to_dict") and callable(value.to_dict):
             value = value.to_dict()
 
         return orjson.dumps(value).decode("utf-8")
 
-    def __repr_html__(self):
+    def _repr_html_(self):
         return str(self.tagify())
 
     def tagify(self):
@@ -536,68 +557,6 @@ class ContentToolResult(Content):
         return str(self.arguments)
 
 
-class ContentToolResultImage(ContentToolResult):
-    """
-    A tool result that contains an image.
-
-    This is a specialized version of ContentToolResult for returning images.
-    It requires the image data to be base64-encoded (as `value`) and
-    the MIME type of the image (as `mime_type`).
-
-    Parameters
-    ----------
-    value
-        The image data as a base64-encoded string.
-    mime_type
-        The MIME type of the image (e.g., "image/png").
-    """
-
-    value: str
-    model_format: Literal["auto", "json", "str", "as_is"] = "as_is"
-    mime_type: ImageContentTypes
-
-    content_type: ContentTypeEnum = "tool_result_image"
-
-    def __str__(self):
-        return f"<ContentToolResultImage mime_type='{self.mime_type}'>"
-
-    def _repr_markdown_(self):
-        return f"![](data:{self.mime_type};base64,{self.value})"
-
-
-class ContentToolResultResource(ContentToolResult):
-    """
-    A tool result that contains a resource.
-
-    This is a specialized version of ContentToolResult for returning resources
-    (e.g., images, files) as raw bytes. It requires the resource data to be
-    provided as bytes (as `value`) and the MIME type of the resource (as
-    `mime_type`).
-
-    Parameters
-    ----------
-    value
-        The resource data, in bytes.
-    mime_type
-        The MIME type of the image (e.g., "image/png").
-    """
-
-    value: bytes
-    model_format: Literal["auto", "json", "str", "as_is"] = "as_is"
-    mime_type: Optional[str]
-
-    content_type: ContentTypeEnum = "tool_result_resource"
-
-    def __str__(self):
-        return f"<ContentToolResultResource mime_type='{self.mime_type}'>"
-
-    def _repr_mimebundle_(self, include=None, exclude=None):
-        return {
-            self.mime_type: self.value,
-            "text/plain": f"<{self.mime_type} object>",
-        }
-
-
 class ContentJson(Content):
     """
     JSON content
@@ -616,13 +575,8 @@ class ContentJson(Content):
     content_type: ContentTypeEnum = "json"
 
     def __str__(self):
-        return orjson.dumps(self.value, option=orjson.OPT_INDENT_2).decode("utf-8")
-
-    def _repr_markdown_(self):
-        return f"""```json\n{self.__str__()}\n```"""
-
-    def __repr__(self, indent: int = 0):
-        return " " * indent + f"<ContentJson value={self.value}>"
+        val = orjson.dumps(self.value, option=orjson.OPT_INDENT_2).decode("utf-8")
+        return f"""```json\n{val}\n```"""
 
 
 class ContentPDF(Content):
@@ -634,22 +588,159 @@ class ContentPDF(Content):
 
     Parameters
     ----------
-    value
+    data
         The PDF data extracted
+    filename
+        The name of the PDF file
+    url
+        An optional URL where the PDF can be accessed
     """
 
     data: bytes
+    filename: str
+    url: Optional[str] = None
 
     content_type: ContentTypeEnum = "pdf"
 
     def __str__(self):
-        return "<PDF document>"
+        return f"<PDF document file={self.filename} size={len(self.data)} bytes>"
 
-    def _repr_markdown_(self):
-        return self.__str__()
 
-    def __repr__(self, indent: int = 0):
-        return " " * indent + f"<ContentPDF size={len(self.data)}>"
+class ContentThinking(Content):
+    """
+    Thinking/reasoning content
+
+    Captures the model's internal reasoning process.
+
+    Parameters
+    ----------
+    thinking
+        The thinking/reasoning text from the model.
+    extra
+        Additional metadata associated with the thinking content (e.g.,
+        encrypted content, status information).
+    """
+
+    thinking: str
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "thinking"
+
+    def __str__(self):
+        return f"<thinking>\n{self.thinking}\n</thinking>\n"
+
+    def _repr_html_(self):
+        return str(self.tagify())
+
+    def tagify(self):
+        try:
+            from htmltools import HTML
+        except ImportError:
+            raise ImportError(
+                ".tagify() is only intended to be called by htmltools/shiny, ",
+                "but htmltools is not installed. ",
+            )
+
+        html = f"<details><summary>Thinking</summary>{self.thinking}</details>"
+
+        return HTML(html)
+
+
+class ContentToolRequestSearch(Content):
+    """
+    A web search request from the model.
+
+    This content type represents the model's request to search the web.
+    It's automatically generated when a built-in web search tool is used.
+
+    Parameters
+    ----------
+    query
+        The search query.
+    extra
+        The raw provider-specific response data.
+    """
+
+    query: str
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "web_search_request"
+
+    def __str__(self):
+        return f"[web search request]: {self.query!r}"
+
+
+class ContentToolResponseSearch(Content):
+    """
+    Web search results from the model.
+
+    This content type represents the results of a web search.
+    It's automatically generated when a built-in web search tool returns results.
+
+    Parameters
+    ----------
+    urls
+        The URLs returned by the search.
+    extra
+        The raw provider-specific response data.
+    """
+
+    urls: list[str]
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "web_search_results"
+
+    def __str__(self):
+        url_list = "\n".join(f"* {url}" for url in self.urls)
+        return f"[web search results]:\n{url_list}"
+
+
+class ContentToolRequestFetch(Content):
+    """
+    A web fetch request from the model.
+
+    This content type represents the model's request to fetch a URL.
+    It's automatically generated when a built-in web fetch tool is used.
+
+    Parameters
+    ----------
+    url
+        The URL to fetch.
+    extra
+        The raw provider-specific response data.
+    """
+
+    url: str
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "web_fetch_request"
+
+    def __str__(self):
+        return f"[web fetch request]: {self.url}"
+
+
+class ContentToolResponseFetch(Content):
+    """
+    Web fetch results from the model.
+
+    This content type represents the results of fetching a URL.
+    It's automatically generated when a built-in web fetch tool returns results.
+
+    Parameters
+    ----------
+    url
+        The URL that was fetched.
+    extra
+        The raw provider-specific response data.
+    """
+
+    url: str
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "web_fetch_results"
+
+    def __str__(self):
+        return f"[web fetch result]: {self.url}"
 
 
 ContentUnion = Union[
@@ -658,10 +749,13 @@ ContentUnion = Union[
     ContentImageInline,
     ContentToolRequest,
     ContentToolResult,
-    ContentToolResultImage,
-    ContentToolResultResource,
     ContentJson,
     ContentPDF,
+    ContentThinking,
+    ContentToolRequestSearch,
+    ContentToolResponseSearch,
+    ContentToolRequestFetch,
+    ContentToolResponseFetch,
 ]
 
 
@@ -686,14 +780,20 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentToolRequest.model_validate(data)
     elif ct == "tool_result":
         return ContentToolResult.model_validate(data)
-    elif ct == "tool_result_image":
-        return ContentToolResultImage.model_validate(data)
-    elif ct == "tool_result_resource":
-        return ContentToolResultResource.model_validate(data)
     elif ct == "json":
         return ContentJson.model_validate(data)
     elif ct == "pdf":
         return ContentPDF.model_validate(data)
+    elif ct == "thinking":
+        return ContentThinking.model_validate(data)
+    elif ct == "web_search_request":
+        return ContentToolRequestSearch.model_validate(data)
+    elif ct == "web_search_results":
+        return ContentToolResponseSearch.model_validate(data)
+    elif ct == "web_fetch_request":
+        return ContentToolRequestFetch.model_validate(data)
+    elif ct == "web_fetch_results":
+        return ContentToolResponseFetch.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
 

@@ -11,11 +11,16 @@ from .._content import (
     ContentJson,
     ContentText,
     ContentToolRequest,
+    ContentToolRequestFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
     ContentToolResult,
     ImageContentTypes,
     ToolAnnotations,
     ToolInfo,
 )
+from .._parallel import StructuredChatResult
 from .._provider import ModelInfo
 from .._tokens import TokenUsage
 from .._utils import MISSING, MISSING_TYPE
@@ -29,6 +34,11 @@ __all__ = (
     "ContentText",
     "ContentToolRequest",
     "ContentToolResult",
+    "ContentToolRequestFetch",
+    "ContentToolResponseFetch",
+    "ContentToolRequestSearch",
+    "ContentToolResponseSearch",
+    "StructuredChatResult",
     "ChatResponse",
     "ChatResponseAsync",
     "ImageContentTypes",

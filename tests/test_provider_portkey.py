@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from chatlas import ChatPortkey
 
@@ -16,10 +14,6 @@ from .conftest import (
     assert_turns_system,
 )
 
-api_key = os.getenv("PORTKEY_API_KEY")
-if api_key is None:
-    pytest.skip("PORTKEY_API_KEY is not set; skipping tests", allow_module_level=True)
-
 
 def _chat_portkey_test(**kwargs):
     model = kwargs.pop("model", "@openai/gpt-4o-mini")
@@ -27,6 +21,13 @@ def _chat_portkey_test(**kwargs):
         "system_prompt", "Be as terse as possible; no punctuation"
     )
     return ChatPortkey(model=model, system_prompt=system_prompt, **kwargs)
+
+
+try:
+    chat = _chat_portkey_test()
+    chat.chat("What is 1 + 1?")
+except Exception:
+    pytest.skip("Portkey credentials aren't configured", allow_module_level=True)
 
 
 def test_portkey_simple_request():

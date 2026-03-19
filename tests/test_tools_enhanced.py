@@ -1,10 +1,11 @@
-import pytest
-from pydantic import BaseModel, Field
+from typing import Annotated
 
+import pytest
 from chatlas import ChatOpenAI
-from chatlas._content import ContentToolResultImage, ContentToolResultResource, ToolInfo
+from chatlas._content import ToolInfo
 from chatlas._tools import Tool
 from chatlas.types import ContentToolRequest, ContentToolResult
+from pydantic import BaseModel, Field
 
 
 class TestNewToolConstructor:
@@ -118,6 +119,87 @@ class TestToolFromFunc:
         assert props["x"]["description"] == "First number"  # type: ignore
         assert props["y"]["description"] == "Second number"  # type: ignore
 
+    def test_from_func_with_annotated_model(self):
+        """Test creating a Tool with a model using Annotated fields."""
+
+        class AddParams(BaseModel):
+            """Parameters for adding numbers."""
+
+            x: Annotated[int, Field(description="First number", ge=0)]
+            y: Annotated[int, Field(description="Second number", le=100)]
+
+        def add(x: int, y: int) -> int:
+            return x + y
+
+        tool = Tool.from_func(add, model=AddParams)
+
+        assert tool.name == "AddParams"
+        func = tool.schema["function"]
+
+        # Check that Annotated Field descriptions and constraints are preserved
+        params = func.get("parameters", {})
+        props = params["properties"]
+        assert props["x"]["description"] == "First number"
+        assert props["x"]["minimum"] == 0
+        assert props["y"]["description"] == "Second number"
+        assert props["y"]["maximum"] == 100
+
+    def test_from_func_with_model_missing_default_error(self):
+        """Test that error is raised when function has default but model doesn't.
+
+        Regression test for https://github.com/posit-dev/chatlas/issues/253
+        """
+
+        class AddParams(BaseModel):
+            """Add two numbers together."""
+
+            a: int = Field(description="The first number to add.")
+            b: int = Field(description="The second number to add.")
+
+        def add(a, b=1) -> int:
+            return a + b
+
+        with pytest.raises(ValueError, match="has no default"):
+            Tool.from_func(add, model=AddParams)
+
+    def test_from_func_with_model_defaults_match(self):
+        """Test that matching defaults in function and model work correctly."""
+
+        class AddParams(BaseModel):
+            """Add two numbers together."""
+
+            a: int = Field(description="The first number to add.")
+            b: int = Field(default=1, description="The second number to add.")
+
+        def add(a, b=1) -> int:
+            return a + b
+
+        tool = Tool.from_func(add, model=AddParams)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+        props = params["properties"]
+
+        # Model default should be in schema
+        assert props["b"]["default"] == 1
+
+        # Parameter without default should not have a default
+        assert "default" not in props["a"]
+
+    def test_from_func_with_model_defaults_conflict_error(self):
+        """Test that error is raised when function and model have different defaults."""
+
+        class AddParams(BaseModel):
+            """Add two numbers together."""
+
+            a: int = Field(description="The first number to add.")
+            b: int = Field(default=99, description="The second number to add.")
+
+        def add(a, b=1) -> int:
+            return a + b
+
+        with pytest.raises(ValueError, match="These must match"):
+            Tool.from_func(add, model=AddParams)
+
     def test_from_func_model_mismatch_error(self):
         """Test that mismatched model fields and function parameters raise error."""
 
@@ -128,7 +210,7 @@ class TestToolFromFunc:
         def add(x: int, y: int) -> int:
             return x + y
 
-        with pytest.raises(ValueError, match="Fields found in one but not the other"):
+        with pytest.raises(ValueError, match="has no corresponding"):
             Tool.from_func(add, model=WrongParams)
 
     def test_from_func_no_docstring(self):
@@ -159,53 +241,168 @@ class TestToolFromFunc:
         assert func.get("description") == "Add two numbers asynchronously."
 
 
-class TestNewContentClasses:
-    """Test new ContentToolResultImage and ContentToolResultResource classes."""
+class TestAnnotatedParameters:
+    """Test support for typing.Annotated with pydantic.Field for parameter descriptions."""
 
-    def test_content_tool_result_image(self):
-        """Test ContentToolResultImage class."""
-        import base64
+    def test_annotated_field_descriptions(self):
+        """Test that Field descriptions in Annotated types are extracted."""
 
-        # Create dummy base64 image data
-        image_data = base64.b64encode(b"fake image data").decode("utf-8")
+        def add_numbers(
+            x: Annotated[int, Field(description="The first number to be added")],
+            y: Annotated[int, Field(description="The second number to be added")],
+        ) -> int:
+            """Add two numbers"""
+            return x + y
 
-        result = ContentToolResultImage(value=image_data, mime_type="image/png")
+        tool = Tool.from_func(add_numbers)
 
-        assert result.content_type == "tool_result_image"
-        assert result.value == image_data
-        assert result.mime_type == "image/png"
-        assert result.model_format == "as_is"
-        assert "ContentToolResultImage" in str(result)
-        assert "image/png" in str(result)
+        assert tool.name == "add_numbers"
+        func = tool.schema["function"]
+        assert func.get("description") == "Add two numbers"
 
-        # Test markdown representation
-        markdown = result._repr_markdown_()
-        assert f"![](data:image/png;base64,{image_data})" == markdown
+        params = func.get("parameters", {})
+        props = params["properties"]
+        assert props["x"]["description"] == "The first number to be added"
+        assert props["y"]["description"] == "The second number to be added"
+        assert props["x"]["type"] == "integer"
+        assert props["y"]["type"] == "integer"
 
-    def test_content_tool_result_resource(self):
-        """Test ContentToolResultResource class."""
-        resource_data = b"This is some resource data"
+    def test_annotated_with_default_value(self):
+        """Test Annotated parameters with default values in function signature."""
 
-        result = ContentToolResultResource(value=resource_data, mime_type="text/plain")
+        def greet(
+            name: Annotated[str, Field(description="Name to greet")],
+            greeting: Annotated[str, Field(description="Greeting phrase")] = "Hello",
+        ) -> str:
+            """Generate a greeting"""
+            return f"{greeting}, {name}!"
 
-        assert result.content_type == "tool_result_resource"
-        assert result.value == resource_data
-        assert result.mime_type == "text/plain"
-        assert result.model_format == "as_is"
-        assert "ContentToolResultResource" in str(result)
-        assert "text/plain" in str(result)
+        tool = Tool.from_func(greet)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
 
-        # Test MIME bundle representation
-        mime_bundle = result._repr_mimebundle_()
-        assert mime_bundle["text/plain"] == "<text/plain object>"
+        # Check descriptions are preserved
+        props = params["properties"]
+        assert props["name"]["description"] == "Name to greet"
+        assert props["greeting"]["description"] == "Greeting phrase"
+        # Default value is preserved in schema
+        assert props["greeting"]["default"] == "Hello"
 
-    def test_content_tool_result_image_valid_mime_types(self):
-        """Test that valid MIME types work correctly."""
-        valid_types = ["image/png", "image/jpeg", "image/webp", "image/gif"]
+    def test_annotated_with_field_default(self):
+        """Test Annotated parameters with default in Field (not function signature)."""
 
-        for mime_type in valid_types:
-            result = ContentToolResultImage(value="base64data", mime_type=mime_type)
-            assert result.mime_type == mime_type
+        def process(
+            value: Annotated[int, Field(description="Value to process", default=42)],
+        ) -> int:
+            """Process a value"""
+            return value * 2
+
+        tool = Tool.from_func(process)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+
+        props = params["properties"]
+        assert props["value"]["description"] == "Value to process"
+        assert props["value"]["default"] == 42
+
+    def test_annotated_function_default_overrides_field_default(self):
+        """Test that function signature default takes precedence over Field default."""
+
+        def example(
+            x: Annotated[int, Field(description="A number", default=10)] = 20,
+        ) -> int:
+            """Example function"""
+            return x
+
+        tool = Tool.from_func(example)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+
+        props = params["properties"]
+        # Function signature default (20) should override Field default (10)
+        assert props["x"]["default"] == 20
+
+    def test_mixed_annotated_and_regular_parameters(self):
+        """Test functions with both Annotated and regular parameters."""
+
+        def mixed_func(
+            described: Annotated[str, Field(description="A described parameter")],
+            plain: int,
+        ) -> str:
+            """Function with mixed parameter styles"""
+            return f"{described}: {plain}"
+
+        tool = Tool.from_func(mixed_func)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+        props = params["properties"]
+
+        # Annotated param should have description
+        assert props["described"]["description"] == "A described parameter"
+
+        # Plain param should not have description
+        assert "description" not in props["plain"]
+
+    def test_annotated_with_underscore_prefix(self):
+        """Test Annotated parameters with underscore prefix (private-style names)."""
+
+        def func_with_private(
+            _private: Annotated[int, Field(description="A private-style param")],
+        ) -> int:
+            """Function with underscore-prefixed param"""
+            return _private
+
+        tool = Tool.from_func(func_with_private)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+        props = params["properties"]
+
+        # Schema uses the alias (_private) as the property key
+        assert "_private" in props
+        assert props["_private"]["description"] == "A private-style param"
+
+    def test_annotated_registration_via_chat(self):
+        """Test that Annotated tools work when registered via Chat.register_tool()."""
+        chat = ChatOpenAI()
+
+        def add_numbers(
+            x: Annotated[int, Field(description="The first number")],
+            y: Annotated[int, Field(description="The second number")],
+        ) -> int:
+            """Add two numbers"""
+            return x + y
+
+        chat.register_tool(add_numbers)
+
+        tools = chat.get_tools()
+        assert len(tools) == 1
+
+        tool = tools[0]
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+        props = params["properties"]
+
+        assert props["x"]["description"] == "The first number"
+        assert props["y"]["description"] == "The second number"
+
+    def test_annotated_with_complex_types(self):
+        """Test Annotated with more complex types."""
+        from typing import Optional
+
+        def search(
+            query: Annotated[str, Field(description="Search query string")],
+            limit: Annotated[Optional[int], Field(description="Maximum results")] = None,
+        ) -> str:
+            """Search for items"""
+            return f"Searching: {query}"
+
+        tool = Tool.from_func(search)
+        func = tool.schema["function"]
+        params = func.get("parameters", {})
+        props = params["properties"]
+
+        assert props["query"]["description"] == "Search query string"
+        assert props["limit"]["description"] == "Maximum results"
 
 
 class TestChatGetSetTools:

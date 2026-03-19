@@ -1,0 +1,58 @@
+interactions:
+- request:
+    body: '{"contents": [{"parts": [{"text": "What is 1 + 1?"}], "role": "user"}],
+      "systemInstruction": {"parts": [{"text": "Be as terse as possible; no punctuation"}],
+      "role": "user"}, "generationConfig": {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '214'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"2\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        18,\"candidatesTokenCount\": 1,\"totalTokenCount\": 47,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 18}],\"thoughtsTokenCount\": 28},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"wbFVabfhLdql_uMPt9e6qAw\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Wed, 31 Dec 2025 23:29:05 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=510
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

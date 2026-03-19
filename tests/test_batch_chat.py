@@ -1,9 +1,7 @@
 import tempfile
 
 import pytest
-from pydantic import BaseModel
-
-from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI
+from chatlas import AssistantTurn, ChatAnthropic, ChatGoogle, ChatOpenAI
 from chatlas._batch_chat import (
     BatchJob,
     batch_chat,
@@ -12,6 +10,15 @@ from chatlas._batch_chat import (
     batch_chat_text,
 )
 from chatlas._provider import BatchStatus
+from pydantic import BaseModel
+
+from .conftest import VCR_MATCH_ON_WITHOUT_BODY, make_vcr_config
+
+
+# Don't match on body - temp file names are dynamic
+@pytest.fixture(scope="module")
+def vcr_config():
+    return make_vcr_config(match_on=VCR_MATCH_ON_WITHOUT_BODY)
 
 
 class CountryCapital(BaseModel):
@@ -30,6 +37,13 @@ def test_can_retrieve_batch(test_batch_dir):
     assert len(chats) == 2
     assert chats[0] is not None
     assert chats[1] is not None
+    turns1 = chats[0].get_turns()
+    turns2 = chats[1].get_turns()
+    assert len(turns1) == 2
+    assert len(turns2) == 2
+    assert isinstance(turns1[1], AssistantTurn)
+    tokens = turns1[1].tokens or []
+    assert len(tokens) == 3
 
     out = batch_chat_text(
         chat,
@@ -55,6 +69,7 @@ def test_can_retrieve_batch(test_batch_dir):
     assert capitals[1].name == "Berlin"
 
 
+@pytest.mark.vcr
 def test_can_submit_openai_batch():
     with tempfile.NamedTemporaryFile() as temp_file:
         chat = ChatOpenAI()
@@ -65,6 +80,7 @@ def test_can_submit_openai_batch():
         assert job.stage == "waiting"
 
 
+@pytest.mark.vcr
 def test_can_submit_anthropic_batch():
     with tempfile.NamedTemporaryFile() as temp_file:
         chat = ChatAnthropic()

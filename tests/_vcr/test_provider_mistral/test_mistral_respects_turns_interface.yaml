@@ -1,0 +1,248 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
+      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "mistral-large-latest",
+      "stream": true, "random_seed": 1014}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '265'
+      Content-Type:
+      - application/json
+      Host:
+      - api.mistral.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.mistral.ai/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"d6e877217fbe4fe7839c1c50b9e249ba","object":"chat.completion.chunk","created":1767220873,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null}]}
+
+
+        data: {"id":"d6e877217fbe4fe7839c1c50b9e249ba","object":"chat.completion.chunk","created":1767220873,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"CH"},"finish_reason":null}]}
+
+
+        data: {"id":"d6e877217fbe4fe7839c1c50b9e249ba","object":"chat.completion.chunk","created":1767220873,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"RISTOP"},"finish_reason":null}]}
+
+
+        data: {"id":"d6e877217fbe4fe7839c1c50b9e249ba","object":"chat.completion.chunk","created":1767220873,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"H"},"finish_reason":null}]}
+
+
+        data: {"id":"d6e877217fbe4fe7839c1c50b9e249ba","object":"chat.completion.chunk","created":1767220873,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"ER
+        RO"},"finish_reason":null}]}
+
+
+        data: {"id":"d6e877217fbe4fe7839c1c50b9e249ba","object":"chat.completion.chunk","created":1767220873,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"BIN."},"finish_reason":"stop"}],"usage":{"prompt_tokens":32,"total_tokens":43,"completion_tokens":11}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6d487add60e1ff-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 22:41:14 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-origin:
+      - '*'
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      mistral-correlation-id:
+      - 019b7692-8a02-799e-bfff-ea645cf54167
+      x-envoy-upstream-service-time:
+      - '238'
+      x-kong-proxy-latency:
+      - '10'
+      x-kong-request-id:
+      - 019b7692-8a02-799e-bfff-ea645cf54167
+      x-kong-upstream-latency:
+      - '239'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
+      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "mistral-large-latest",
+      "stream": true, "random_seed": 1014}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '265'
+      Content-Type:
+      - application/json
+      Host:
+      - api.mistral.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.mistral.ai/v1/chat/completions
+  response:
+    body:
+      string: 'data: {"id":"fc6eeb8874bc412e9e229aa57d914896","object":"chat.completion.chunk","created":1767220874,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"role":"assistant","content":""},"finish_reason":null}]}
+
+
+        data: {"id":"fc6eeb8874bc412e9e229aa57d914896","object":"chat.completion.chunk","created":1767220874,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"CH"},"finish_reason":null}]}
+
+
+        data: {"id":"fc6eeb8874bc412e9e229aa57d914896","object":"chat.completion.chunk","created":1767220874,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"RISTOP"},"finish_reason":null}]}
+
+
+        data: {"id":"fc6eeb8874bc412e9e229aa57d914896","object":"chat.completion.chunk","created":1767220874,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"H"},"finish_reason":null}]}
+
+
+        data: {"id":"fc6eeb8874bc412e9e229aa57d914896","object":"chat.completion.chunk","created":1767220874,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"ER
+        RO"},"finish_reason":null}]}
+
+
+        data: {"id":"fc6eeb8874bc412e9e229aa57d914896","object":"chat.completion.chunk","created":1767220874,"model":"mistral-large-latest","choices":[{"index":0,"delta":{"content":"BIN."},"finish_reason":"stop"}],"usage":{"prompt_tokens":32,"total_tokens":43,"completion_tokens":11}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      CF-RAY:
+      - 9b6d48816ed461e7-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 22:41:14 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-origin:
+      - '*'
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      mistral-correlation-id:
+      - 019b7692-8d25-78ee-9a3f-f8182aed15dc
+      x-envoy-upstream-service-time:
+      - '216'
+      x-kong-proxy-latency:
+      - '7'
+      x-kong-request-id:
+      - 019b7692-8d25-78ee-9a3f-f8182aed15dc
+      x-kong-upstream-latency:
+      - '216'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "My name is Steve"}],
+      "role": "user"}, {"role": "assistant", "content": [{"type": "text", "text":
+      "Hello Steve, how can I help you today?"}]}, {"content": [{"type": "text", "text":
+      "What is my name?"}], "role": "user"}], "model": "mistral-large-latest", "stream":
+      true, "random_seed": 1014}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '315'
+      Content-Type:
+      - application/json
+      Host:
+      - api.mistral.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.mistral.ai/v1/chat/completions
+  response:
+    body:
+      string: "data: {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\ndata:
+        {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Your\"},\"finish_reason\":null}]}\n\ndata:
+        {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        name is **Steve\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"**\u2014nice\"},\"finish_reason\":null}]}\n\ndata:
+        {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        to meet\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        you!\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        \U0001F60A Let\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        me know if there\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\u2019s
+        anything else you\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\u2019d
+        like to chat\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"
+        about\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"4dd1864028c747ccb7742dcb41dc9559\",\"object\":\"chat.completion.chunk\",\"created\":1767220875,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\".\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":25,\"total_tokens\":56,\"completion_tokens\":31}}\n\ndata:
+        [DONE]\n\n"
+    headers:
+      CF-RAY:
+      - 9b6d4885ceb76e89-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 22:41:15 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=15552000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-origin:
+      - '*'
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      mistral-correlation-id:
+      - 019b7692-8fe4-7e07-b157-80b6f5e267d0
+      x-envoy-upstream-service-time:
+      - '238'
+      x-kong-proxy-latency:
+      - '9'
+      x-kong-request-id:
+      - 019b7692-8fe4-7e07-b157-80b6f5e267d0
+      x-kong-upstream-latency:
+      - '238'
+    status:
+      code: 200
+      message: OK
+version: 1

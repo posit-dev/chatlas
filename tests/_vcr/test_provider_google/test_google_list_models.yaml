@@ -1,0 +1,416 @@
+interactions:
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: GET
+    uri: https://generativelanguage.googleapis.com/v1beta/models
+  response:
+    body:
+      string: "{\n  \"models\": [\n    {\n      \"name\": \"models/embedding-gecko-001\",\n
+        \     \"version\": \"001\",\n      \"displayName\": \"Embedding Gecko\",\n
+        \     \"description\": \"Obtain a distributed representation of a text.\",\n
+        \     \"inputTokenLimit\": 1024,\n      \"outputTokenLimit\": 1,\n      \"supportedGenerationMethods\":
+        [\n        \"embedText\",\n        \"countTextTokens\"\n      ]\n    },\n
+        \   {\n      \"name\": \"models/gemini-2.5-flash\",\n      \"version\": \"001\",\n
+        \     \"displayName\": \"Gemini 2.5 Flash\",\n      \"description\": \"Stable
+        version of Gemini 2.5 Flash, our mid-size multimodal model that supports up
+        to 1 million tokens, released in June of 2025.\",\n      \"inputTokenLimit\":
+        1048576,\n      \"outputTokenLimit\": 65536,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\",\n        \"createCachedContent\",\n
+        \       \"batchGenerateContent\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 64,\n      \"maxTemperature\": 2,\n      \"thinking\":
+        true\n    },\n    {\n      \"name\": \"models/gemini-2.5-pro\",\n      \"version\":
+        \"2.5\",\n      \"displayName\": \"Gemini 2.5 Pro\",\n      \"description\":
+        \"Stable release (June 17th, 2025) of Gemini 2.5 Pro\",\n      \"inputTokenLimit\":
+        1048576,\n      \"outputTokenLimit\": 65536,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\",\n        \"createCachedContent\",\n
+        \       \"batchGenerateContent\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 64,\n      \"maxTemperature\": 2,\n      \"thinking\":
+        true\n    },\n    {\n      \"name\": \"models/gemini-2.0-flash-exp\",\n      \"version\":
+        \"2.0\",\n      \"displayName\": \"Gemini 2.0 Flash Experimental\",\n      \"description\":
+        \"Gemini 2.0 Flash Experimental\",\n      \"inputTokenLimit\": 1048576,\n
+        \     \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\": [\n
+        \       \"generateContent\",\n        \"countTokens\",\n        \"bidiGenerateContent\"\n
+        \     ],\n      \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\":
+        40,\n      \"maxTemperature\": 2\n    },\n    {\n      \"name\": \"models/gemini-2.0-flash\",\n
+        \     \"version\": \"2.0\",\n      \"displayName\": \"Gemini 2.0 Flash\",\n
+        \     \"description\": \"Gemini 2.0 Flash\",\n      \"inputTokenLimit\": 1048576,\n
+        \     \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\": [\n
+        \       \"generateContent\",\n        \"countTokens\",\n        \"createCachedContent\",\n
+        \       \"batchGenerateContent\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 40,\n      \"maxTemperature\": 2\n    },\n    {\n      \"name\":
+        \"models/gemini-2.0-flash-001\",\n      \"version\": \"2.0\",\n      \"displayName\":
+        \"Gemini 2.0 Flash 001\",\n      \"description\": \"Stable version of Gemini
+        2.0 Flash, our fast and versatile multimodal model for scaling across diverse
+        tasks, released in January of 2025.\",\n      \"inputTokenLimit\": 1048576,\n
+        \     \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\": [\n
+        \       \"generateContent\",\n        \"countTokens\",\n        \"createCachedContent\",\n
+        \       \"batchGenerateContent\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 40,\n      \"maxTemperature\": 2\n    },\n    {\n      \"name\":
+        \"models/gemini-2.0-flash-exp-image-generation\",\n      \"version\": \"2.0\",\n
+        \     \"displayName\": \"Gemini 2.0 Flash (Image Generation) Experimental\",\n
+        \     \"description\": \"Gemini 2.0 Flash (Image Generation) Experimental\",\n
+        \     \"inputTokenLimit\": 1048576,\n      \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\",\n        \"bidiGenerateContent\"\n
+        \     ],\n      \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\":
+        40,\n      \"maxTemperature\": 2\n    },\n    {\n      \"name\": \"models/gemini-2.0-flash-lite-001\",\n
+        \     \"version\": \"2.0\",\n      \"displayName\": \"Gemini 2.0 Flash-Lite
+        001\",\n      \"description\": \"Stable version of Gemini 2.0 Flash-Lite\",\n
+        \     \"inputTokenLimit\": 1048576,\n      \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\",\n        \"createCachedContent\",\n
+        \       \"batchGenerateContent\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 40,\n      \"maxTemperature\": 2\n    },\n    {\n      \"name\":
+        \"models/gemini-2.0-flash-lite\",\n      \"version\": \"2.0\",\n      \"displayName\":
+        \"Gemini 2.0 Flash-Lite\",\n      \"description\": \"Gemini 2.0 Flash-Lite\",\n
+        \     \"inputTokenLimit\": 1048576,\n      \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\",\n        \"createCachedContent\",\n
+        \       \"batchGenerateContent\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 40,\n      \"maxTemperature\": 2\n    },\n    {\n      \"name\":
+        \"models/gemini-2.0-flash-lite-preview-02-05\",\n      \"version\": \"preview-02-05\",\n
+        \     \"displayName\": \"Gemini 2.0 Flash-Lite Preview 02-05\",\n      \"description\":
+        \"Preview release (February 5th, 2025) of Gemini 2.0 Flash-Lite\",\n      \"inputTokenLimit\":
+        1048576,\n      \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\",\n        \"createCachedContent\",\n
+        \       \"batchGenerateContent\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 40,\n      \"maxTemperature\": 2\n    },\n    {\n      \"name\":
+        \"models/gemini-2.0-flash-lite-preview\",\n      \"version\": \"preview-02-05\",\n
+        \     \"displayName\": \"Gemini 2.0 Flash-Lite Preview\",\n      \"description\":
+        \"Preview release (February 5th, 2025) of Gemini 2.0 Flash-Lite\",\n      \"inputTokenLimit\":
+        1048576,\n      \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\",\n        \"createCachedContent\",\n
+        \       \"batchGenerateContent\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 40,\n      \"maxTemperature\": 2\n    },\n    {\n      \"name\":
+        \"models/gemini-exp-1206\",\n      \"version\": \"2.5-exp-03-25\",\n      \"displayName\":
+        \"Gemini Experimental 1206\",\n      \"description\": \"Experimental release
+        (March 25th, 2025) of Gemini 2.5 Pro\",\n      \"inputTokenLimit\": 1048576,\n
+        \     \"outputTokenLimit\": 65536,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\",\n        \"createCachedContent\",\n
+        \       \"batchGenerateContent\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 64,\n      \"maxTemperature\": 2,\n      \"thinking\":
+        true\n    },\n    {\n      \"name\": \"models/gemini-2.5-flash-preview-tts\",\n
+        \     \"version\": \"gemini-2.5-flash-exp-tts-2025-05-19\",\n      \"displayName\":
+        \"Gemini 2.5 Flash Preview TTS\",\n      \"description\": \"Gemini 2.5 Flash
+        Preview TTS\",\n      \"inputTokenLimit\": 8192,\n      \"outputTokenLimit\":
+        16384,\n      \"supportedGenerationMethods\": [\n        \"countTokens\",\n
+        \       \"generateContent\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 64,\n      \"maxTemperature\": 2\n    },\n    {\n      \"name\":
+        \"models/gemini-2.5-pro-preview-tts\",\n      \"version\": \"gemini-2.5-pro-preview-tts-2025-05-19\",\n
+        \     \"displayName\": \"Gemini 2.5 Pro Preview TTS\",\n      \"description\":
+        \"Gemini 2.5 Pro Preview TTS\",\n      \"inputTokenLimit\": 8192,\n      \"outputTokenLimit\":
+        16384,\n      \"supportedGenerationMethods\": [\n        \"countTokens\",\n
+        \       \"generateContent\",\n        \"batchGenerateContent\"\n      ],\n
+        \     \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        2\n    },\n    {\n      \"name\": \"models/gemma-3-1b-it\",\n      \"version\":
+        \"001\",\n      \"displayName\": \"Gemma 3 1B\",\n      \"inputTokenLimit\":
+        32768,\n      \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\"\n      ],\n      \"temperature\":
+        1,\n      \"topP\": 0.95,\n      \"topK\": 64\n    },\n    {\n      \"name\":
+        \"models/gemma-3-4b-it\",\n      \"version\": \"001\",\n      \"displayName\":
+        \"Gemma 3 4B\",\n      \"inputTokenLimit\": 32768,\n      \"outputTokenLimit\":
+        8192,\n      \"supportedGenerationMethods\": [\n        \"generateContent\",\n
+        \       \"countTokens\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 64\n    },\n    {\n      \"name\": \"models/gemma-3-12b-it\",\n
+        \     \"version\": \"001\",\n      \"displayName\": \"Gemma 3 12B\",\n      \"inputTokenLimit\":
+        32768,\n      \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\"\n      ],\n      \"temperature\":
+        1,\n      \"topP\": 0.95,\n      \"topK\": 64\n    },\n    {\n      \"name\":
+        \"models/gemma-3-27b-it\",\n      \"version\": \"001\",\n      \"displayName\":
+        \"Gemma 3 27B\",\n      \"inputTokenLimit\": 131072,\n      \"outputTokenLimit\":
+        8192,\n      \"supportedGenerationMethods\": [\n        \"generateContent\",\n
+        \       \"countTokens\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 64\n    },\n    {\n      \"name\": \"models/gemma-3n-e4b-it\",\n
+        \     \"version\": \"001\",\n      \"displayName\": \"Gemma 3n E4B\",\n      \"inputTokenLimit\":
+        8192,\n      \"outputTokenLimit\": 2048,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\"\n      ],\n      \"temperature\":
+        1,\n      \"topP\": 0.95,\n      \"topK\": 64\n    },\n    {\n      \"name\":
+        \"models/gemma-3n-e2b-it\",\n      \"version\": \"001\",\n      \"displayName\":
+        \"Gemma 3n E2B\",\n      \"inputTokenLimit\": 8192,\n      \"outputTokenLimit\":
+        2048,\n      \"supportedGenerationMethods\": [\n        \"generateContent\",\n
+        \       \"countTokens\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 64\n    },\n    {\n      \"name\": \"models/gemini-flash-latest\",\n
+        \     \"version\": \"Gemini Flash Latest\",\n      \"displayName\": \"Gemini
+        Flash Latest\",\n      \"description\": \"Latest release of Gemini Flash\",\n
+        \     \"inputTokenLimit\": 1048576,\n      \"outputTokenLimit\": 65536,\n
+        \     \"supportedGenerationMethods\": [\n        \"generateContent\",\n        \"countTokens\",\n
+        \       \"createCachedContent\",\n        \"batchGenerateContent\"\n      ],\n
+        \     \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        2,\n      \"thinking\": true\n    },\n    {\n      \"name\": \"models/gemini-flash-lite-latest\",\n
+        \     \"version\": \"Gemini Flash-Lite Latest\",\n      \"displayName\": \"Gemini
+        Flash-Lite Latest\",\n      \"description\": \"Latest release of Gemini Flash-Lite\",\n
+        \     \"inputTokenLimit\": 1048576,\n      \"outputTokenLimit\": 65536,\n
+        \     \"supportedGenerationMethods\": [\n        \"generateContent\",\n        \"countTokens\",\n
+        \       \"createCachedContent\",\n        \"batchGenerateContent\"\n      ],\n
+        \     \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        2,\n      \"thinking\": true\n    },\n    {\n      \"name\": \"models/gemini-pro-latest\",\n
+        \     \"version\": \"Gemini Pro Latest\",\n      \"displayName\": \"Gemini
+        Pro Latest\",\n      \"description\": \"Latest release of Gemini Pro\",\n
+        \     \"inputTokenLimit\": 1048576,\n      \"outputTokenLimit\": 65536,\n
+        \     \"supportedGenerationMethods\": [\n        \"generateContent\",\n        \"countTokens\",\n
+        \       \"createCachedContent\",\n        \"batchGenerateContent\"\n      ],\n
+        \     \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        2,\n      \"thinking\": true\n    },\n    {\n      \"name\": \"models/gemini-2.5-flash-lite\",\n
+        \     \"version\": \"001\",\n      \"displayName\": \"Gemini 2.5 Flash-Lite\",\n
+        \     \"description\": \"Stable version of Gemini 2.5 Flash-Lite, released
+        in July of 2025\",\n      \"inputTokenLimit\": 1048576,\n      \"outputTokenLimit\":
+        65536,\n      \"supportedGenerationMethods\": [\n        \"generateContent\",\n
+        \       \"countTokens\",\n        \"createCachedContent\",\n        \"batchGenerateContent\"\n
+        \     ],\n      \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\":
+        64,\n      \"maxTemperature\": 2,\n      \"thinking\": true\n    },\n    {\n
+        \     \"name\": \"models/gemini-2.5-flash-image-preview\",\n      \"version\":
+        \"2.0\",\n      \"displayName\": \"Nano Banana\",\n      \"description\":
+        \"Gemini 2.5 Flash Preview Image\",\n      \"inputTokenLimit\": 32768,\n      \"outputTokenLimit\":
+        32768,\n      \"supportedGenerationMethods\": [\n        \"generateContent\",\n
+        \       \"countTokens\",\n        \"batchGenerateContent\"\n      ],\n      \"temperature\":
+        1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        1\n    },\n    {\n      \"name\": \"models/gemini-2.5-flash-image\",\n      \"version\":
+        \"2.0\",\n      \"displayName\": \"Nano Banana\",\n      \"description\":
+        \"Gemini 2.5 Flash Preview Image\",\n      \"inputTokenLimit\": 32768,\n      \"outputTokenLimit\":
+        32768,\n      \"supportedGenerationMethods\": [\n        \"generateContent\",\n
+        \       \"countTokens\",\n        \"batchGenerateContent\"\n      ],\n      \"temperature\":
+        1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        1\n    },\n    {\n      \"name\": \"models/gemini-2.5-flash-preview-09-2025\",\n
+        \     \"version\": \"Gemini 2.5 Flash Preview 09-2025\",\n      \"displayName\":
+        \"Gemini 2.5 Flash Preview Sep 2025\",\n      \"description\": \"Gemini 2.5
+        Flash Preview Sep 2025\",\n      \"inputTokenLimit\": 1048576,\n      \"outputTokenLimit\":
+        65536,\n      \"supportedGenerationMethods\": [\n        \"generateContent\",\n
+        \       \"countTokens\",\n        \"createCachedContent\",\n        \"batchGenerateContent\"\n
+        \     ],\n      \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\":
+        64,\n      \"maxTemperature\": 2,\n      \"thinking\": true\n    },\n    {\n
+        \     \"name\": \"models/gemini-2.5-flash-lite-preview-09-2025\",\n      \"version\":
+        \"2.5-preview-09-25\",\n      \"displayName\": \"Gemini 2.5 Flash-Lite Preview
+        Sep 2025\",\n      \"description\": \"Preview release (Septempber 25th, 2025)
+        of Gemini 2.5 Flash-Lite\",\n      \"inputTokenLimit\": 1048576,\n      \"outputTokenLimit\":
+        65536,\n      \"supportedGenerationMethods\": [\n        \"generateContent\",\n
+        \       \"countTokens\",\n        \"createCachedContent\",\n        \"batchGenerateContent\"\n
+        \     ],\n      \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\":
+        64,\n      \"maxTemperature\": 2,\n      \"thinking\": true\n    },\n    {\n
+        \     \"name\": \"models/gemini-3-pro-preview\",\n      \"version\": \"3-pro-preview-11-2025\",\n
+        \     \"displayName\": \"Gemini 3 Pro Preview\",\n      \"description\": \"Gemini
+        3 Pro Preview\",\n      \"inputTokenLimit\": 1048576,\n      \"outputTokenLimit\":
+        65536,\n      \"supportedGenerationMethods\": [\n        \"generateContent\",\n
+        \       \"countTokens\",\n        \"createCachedContent\",\n        \"batchGenerateContent\"\n
+        \     ],\n      \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\":
+        64,\n      \"maxTemperature\": 2,\n      \"thinking\": true\n    },\n    {\n
+        \     \"name\": \"models/gemini-3-flash-preview\",\n      \"version\": \"3-flash-preview-12-2025\",\n
+        \     \"displayName\": \"Gemini 3 Flash Preview\",\n      \"description\":
+        \"Gemini 3 Flash Preview\",\n      \"inputTokenLimit\": 1048576,\n      \"outputTokenLimit\":
+        65536,\n      \"supportedGenerationMethods\": [\n        \"generateContent\",\n
+        \       \"countTokens\",\n        \"createCachedContent\",\n        \"batchGenerateContent\"\n
+        \     ],\n      \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\":
+        64,\n      \"maxTemperature\": 2,\n      \"thinking\": true\n    },\n    {\n
+        \     \"name\": \"models/gemini-3-pro-image-preview\",\n      \"version\":
+        \"3.0\",\n      \"displayName\": \"Nano Banana Pro\",\n      \"description\":
+        \"Gemini 3 Pro Image Preview\",\n      \"inputTokenLimit\": 131072,\n      \"outputTokenLimit\":
+        32768,\n      \"supportedGenerationMethods\": [\n        \"generateContent\",\n
+        \       \"countTokens\",\n        \"batchGenerateContent\"\n      ],\n      \"temperature\":
+        1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        1,\n      \"thinking\": true\n    },\n    {\n      \"name\": \"models/nano-banana-pro-preview\",\n
+        \     \"version\": \"3.0\",\n      \"displayName\": \"Nano Banana Pro\",\n
+        \     \"description\": \"Gemini 3 Pro Image Preview\",\n      \"inputTokenLimit\":
+        131072,\n      \"outputTokenLimit\": 32768,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\",\n        \"batchGenerateContent\"\n
+        \     ],\n      \"temperature\": 1,\n      \"topP\": 0.95,\n      \"topK\":
+        64,\n      \"maxTemperature\": 1,\n      \"thinking\": true\n    },\n    {\n
+        \     \"name\": \"models/gemini-robotics-er-1.5-preview\",\n      \"version\":
+        \"1.5-preview\",\n      \"displayName\": \"Gemini Robotics-ER 1.5 Preview\",\n
+        \     \"description\": \"Gemini Robotics-ER 1.5 Preview\",\n      \"inputTokenLimit\":
+        1048576,\n      \"outputTokenLimit\": 65536,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\"\n      ],\n      \"temperature\":
+        1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        2,\n      \"thinking\": true\n    },\n    {\n      \"name\": \"models/gemini-2.5-computer-use-preview-10-2025\",\n
+        \     \"version\": \"Gemini 2.5 Computer Use Preview 10-2025\",\n      \"displayName\":
+        \"Gemini 2.5 Computer Use Preview 10-2025\",\n      \"description\": \"Gemini
+        2.5 Computer Use Preview 10-2025\",\n      \"inputTokenLimit\": 131072,\n
+        \     \"outputTokenLimit\": 65536,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\"\n      ],\n      \"temperature\":
+        1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        2,\n      \"thinking\": true\n    },\n    {\n      \"name\": \"models/deep-research-pro-preview-12-2025\",\n
+        \     \"version\": \"deepthink-exp-05-20\",\n      \"displayName\": \"Deep
+        Research Pro Preview (Dec-12-2025)\",\n      \"description\": \"Preview release
+        (December 12th, 2025) of Deep Research Pro\",\n      \"inputTokenLimit\":
+        131072,\n      \"outputTokenLimit\": 65536,\n      \"supportedGenerationMethods\":
+        [\n        \"generateContent\",\n        \"countTokens\"\n      ],\n      \"temperature\":
+        1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        2,\n      \"thinking\": true\n    },\n    {\n      \"name\": \"models/embedding-001\",\n
+        \     \"version\": \"001\",\n      \"displayName\": \"Embedding 001\",\n      \"description\":
+        \"Obtain a distributed representation of a text.\",\n      \"inputTokenLimit\":
+        2048,\n      \"outputTokenLimit\": 1,\n      \"supportedGenerationMethods\":
+        [\n        \"embedContent\"\n      ]\n    },\n    {\n      \"name\": \"models/text-embedding-004\",\n
+        \     \"version\": \"004\",\n      \"displayName\": \"Text Embedding 004\",\n
+        \     \"description\": \"Obtain a distributed representation of a text.\",\n
+        \     \"inputTokenLimit\": 2048,\n      \"outputTokenLimit\": 1,\n      \"supportedGenerationMethods\":
+        [\n        \"embedContent\"\n      ]\n    },\n    {\n      \"name\": \"models/gemini-embedding-exp-03-07\",\n
+        \     \"version\": \"exp-03-07\",\n      \"displayName\": \"Gemini Embedding
+        Experimental 03-07\",\n      \"description\": \"Obtain a distributed representation
+        of a text.\",\n      \"inputTokenLimit\": 8192,\n      \"outputTokenLimit\":
+        1,\n      \"supportedGenerationMethods\": [\n        \"embedContent\",\n        \"countTextTokens\",\n
+        \       \"countTokens\"\n      ]\n    },\n    {\n      \"name\": \"models/gemini-embedding-exp\",\n
+        \     \"version\": \"exp-03-07\",\n      \"displayName\": \"Gemini Embedding
+        Experimental\",\n      \"description\": \"Obtain a distributed representation
+        of a text.\",\n      \"inputTokenLimit\": 8192,\n      \"outputTokenLimit\":
+        1,\n      \"supportedGenerationMethods\": [\n        \"embedContent\",\n        \"countTextTokens\",\n
+        \       \"countTokens\"\n      ]\n    },\n    {\n      \"name\": \"models/gemini-embedding-001\",\n
+        \     \"version\": \"001\",\n      \"displayName\": \"Gemini Embedding 001\",\n
+        \     \"description\": \"Obtain a distributed representation of a text.\",\n
+        \     \"inputTokenLimit\": 2048,\n      \"outputTokenLimit\": 1,\n      \"supportedGenerationMethods\":
+        [\n        \"embedContent\",\n        \"countTextTokens\",\n        \"countTokens\",\n
+        \       \"asyncBatchEmbedContent\"\n      ]\n    },\n    {\n      \"name\":
+        \"models/aqa\",\n      \"version\": \"001\",\n      \"displayName\": \"Model
+        that performs Attributed Question Answering.\",\n      \"description\": \"Model
+        trained to return answers to questions that are grounded in provided sources,
+        along with estimating answerable probability.\",\n      \"inputTokenLimit\":
+        7168,\n      \"outputTokenLimit\": 1024,\n      \"supportedGenerationMethods\":
+        [\n        \"generateAnswer\"\n      ],\n      \"temperature\": 0.2,\n      \"topP\":
+        1,\n      \"topK\": 40\n    },\n    {\n      \"name\": \"models/imagen-4.0-generate-preview-06-06\",\n
+        \     \"version\": \"01\",\n      \"displayName\": \"Imagen 4 (Preview)\",\n
+        \     \"description\": \"Vertex served Imagen 4.0 model\",\n      \"inputTokenLimit\":
+        480,\n      \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\":
+        [\n        \"predict\"\n      ]\n    },\n    {\n      \"name\": \"models/imagen-4.0-ultra-generate-preview-06-06\",\n
+        \     \"version\": \"01\",\n      \"displayName\": \"Imagen 4 Ultra (Preview)\",\n
+        \     \"description\": \"Vertex served Imagen 4.0 ultra model\",\n      \"inputTokenLimit\":
+        480,\n      \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\":
+        [\n        \"predict\"\n      ]\n    },\n    {\n      \"name\": \"models/imagen-4.0-generate-001\",\n
+        \     \"version\": \"001\",\n      \"displayName\": \"Imagen 4\",\n      \"description\":
+        \"Vertex served Imagen 4.0 model\",\n      \"inputTokenLimit\": 480,\n      \"outputTokenLimit\":
+        8192,\n      \"supportedGenerationMethods\": [\n        \"predict\"\n      ]\n
+        \   },\n    {\n      \"name\": \"models/imagen-4.0-ultra-generate-001\",\n
+        \     \"version\": \"001\",\n      \"displayName\": \"Imagen 4 Ultra\",\n
+        \     \"description\": \"Vertex served Imagen 4.0 ultra model\",\n      \"inputTokenLimit\":
+        480,\n      \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\":
+        [\n        \"predict\"\n      ]\n    },\n    {\n      \"name\": \"models/imagen-4.0-fast-generate-001\",\n
+        \     \"version\": \"001\",\n      \"displayName\": \"Imagen 4 Fast\",\n      \"description\":
+        \"Vertex served Imagen 4.0 Fast model\",\n      \"inputTokenLimit\": 480,\n
+        \     \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\": [\n
+        \       \"predict\"\n      ]\n    },\n    {\n      \"name\": \"models/veo-2.0-generate-001\",\n
+        \     \"version\": \"2.0\",\n      \"displayName\": \"Veo 2\",\n      \"description\":
+        \"Vertex served Veo 2 model. Access to this model requires billing to be enabled
+        on the associated Google Cloud Platform account. Please visit https://console.cloud.google.com/billing
+        to enable it.\",\n      \"inputTokenLimit\": 480,\n      \"outputTokenLimit\":
+        8192,\n      \"supportedGenerationMethods\": [\n        \"predictLongRunning\"\n
+        \     ]\n    },\n    {\n      \"name\": \"models/veo-3.0-generate-001\",\n
+        \     \"version\": \"3.0\",\n      \"displayName\": \"Veo 3\",\n      \"description\":
+        \"Veo 3\",\n      \"inputTokenLimit\": 480,\n      \"outputTokenLimit\": 8192,\n
+        \     \"supportedGenerationMethods\": [\n        \"predictLongRunning\"\n
+        \     ]\n    },\n    {\n      \"name\": \"models/veo-3.0-fast-generate-001\",\n
+        \     \"version\": \"3.0\",\n      \"displayName\": \"Veo 3 fast\",\n      \"description\":
+        \"Veo 3 fast\",\n      \"inputTokenLimit\": 480,\n      \"outputTokenLimit\":
+        8192,\n      \"supportedGenerationMethods\": [\n        \"predictLongRunning\"\n
+        \     ]\n    },\n    {\n      \"name\": \"models/veo-3.1-generate-preview\",\n
+        \     \"version\": \"3.1\",\n      \"displayName\": \"Veo 3.1\",\n      \"description\":
+        \"Veo 3.1\",\n      \"inputTokenLimit\": 480,\n      \"outputTokenLimit\":
+        8192,\n      \"supportedGenerationMethods\": [\n        \"predictLongRunning\"\n
+        \     ]\n    }\n  ],\n  \"nextPageToken\": \"Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3\"\n}\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Type:
+      - application/json; charset=UTF-8
+      Date:
+      - Wed, 31 Dec 2025 23:23:44 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=18
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+      content-length:
+      - '22403'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: ''
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.11.13
+    method: GET
+    uri: https://generativelanguage.googleapis.com/v1beta/models?pageToken=Ch9tb2RlbHMvdmVvLTMuMS1nZW5lcmF0ZS1wcmV2aWV3
+  response:
+    body:
+      string: "{\n  \"models\": [\n    {\n      \"name\": \"models/veo-3.1-fast-generate-preview\",\n
+        \     \"version\": \"3.1\",\n      \"displayName\": \"Veo 3.1 fast\",\n      \"description\":
+        \"Veo 3.1 fast\",\n      \"inputTokenLimit\": 480,\n      \"outputTokenLimit\":
+        8192,\n      \"supportedGenerationMethods\": [\n        \"predictLongRunning\"\n
+        \     ]\n    },\n    {\n      \"name\": \"models/gemini-2.5-flash-native-audio-latest\",\n
+        \     \"version\": \"Gemini 2.5 Flash Native Audio Latest\",\n      \"displayName\":
+        \"Gemini 2.5 Flash Native Audio Latest\",\n      \"description\": \"Latest
+        release of Gemini 2.5 Flash Native Audio\",\n      \"inputTokenLimit\": 131072,\n
+        \     \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\": [\n
+        \       \"countTokens\",\n        \"bidiGenerateContent\"\n      ],\n      \"temperature\":
+        1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        2,\n      \"thinking\": true\n    },\n    {\n      \"name\": \"models/gemini-2.5-flash-native-audio-preview-09-2025\",\n
+        \     \"version\": \"gemini-2.5-flash-preview-native-audio-dialog-2025-05-19\",\n
+        \     \"displayName\": \"Gemini 2.5 Flash Native Audio Preview 09-2025\",\n
+        \     \"description\": \"Gemini 2.5 Flash Native Audio Preview 09-2025\",\n
+        \     \"inputTokenLimit\": 131072,\n      \"outputTokenLimit\": 8192,\n      \"supportedGenerationMethods\":
+        [\n        \"countTokens\",\n        \"bidiGenerateContent\"\n      ],\n      \"temperature\":
+        1,\n      \"topP\": 0.95,\n      \"topK\": 64,\n      \"maxTemperature\":
+        2,\n      \"thinking\": true\n    },\n    {\n      \"name\": \"models/gemini-2.5-flash-native-audio-preview-12-2025\",\n
+        \     \"version\": \"12-2025\",\n      \"displayName\": \"Gemini 2.5 Flash
+        Native Audio Preview 12-2025\",\n      \"description\": \"Gemini 2.5 Flash
+        Native Audio Preview 12-2025\",\n      \"inputTokenLimit\": 131072,\n      \"outputTokenLimit\":
+        8192,\n      \"supportedGenerationMethods\": [\n        \"countTokens\",\n
+        \       \"bidiGenerateContent\"\n      ],\n      \"temperature\": 1,\n      \"topP\":
+        0.95,\n      \"topK\": 64,\n      \"maxTemperature\": 2,\n      \"thinking\":
+        true\n    }\n  ]\n}\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Type:
+      - application/json; charset=UTF-8
+      Date:
+      - Wed, 31 Dec 2025 23:23:44 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=22
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+      content-length:
+      - '1968'
+    status:
+      code: 200
+      message: OK
+version: 1

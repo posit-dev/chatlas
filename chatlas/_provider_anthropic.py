@@ -3,10 +3,18 @@ from __future__ import annotations
 import base64
 import re
 import warnings
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Optional,
+    Sequence,
+    Union,
+    cast,
+    overload,
+)
 
 import orjson
-from openai.types.chat import ChatCompletionToolParam
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -17,10 +25,13 @@ from ._content import (
     ContentJson,
     ContentPDF,
     ContentText,
+    ContentThinking,
     ContentToolRequest,
+    ContentToolRequestFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
     ContentToolResult,
-    ContentToolResultImage,
-    ContentToolResultResource,
 )
 from ._logging import log_model_default
 from ._provider import (
@@ -30,9 +41,10 @@ from ._provider import (
     StandardModelParamNames,
     StandardModelParams,
 )
-from ._tokens import get_token_pricing, tokens_log
-from ._tools import Tool, basemodel_to_param_schema
-from ._turn import Turn, user_turn
+from ._tokens import get_price_info
+from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
+from ._tools_builtin import ToolWebFetch, ToolWebSearch
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -41,15 +53,19 @@ if TYPE_CHECKING:
         MessageParam,
         RawMessageStreamEvent,
         TextBlock,
-        ToolParam,
+        ThinkingBlock,
+        ThinkingBlockParam,
+        ToolUnionParam,
         ToolUseBlock,
     )
+    from anthropic.types.cache_control_ephemeral_param import CacheControlEphemeralParam
     from anthropic.types.document_block_param import DocumentBlockParam
     from anthropic.types.image_block_param import ImageBlockParam
     from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
     from anthropic.types.messages.batch_create_params import Request as BatchRequest
     from anthropic.types.model_param import ModelParam
     from anthropic.types.text_block_param import TextBlockParam
+    from anthropic.types.thinking_config_enabled_param import ThinkingConfigEnabledParam
     from anthropic.types.tool_result_block_param import ToolResultBlockParam
     from anthropic.types.tool_use_block_param import ToolUseBlockParam
 
@@ -61,6 +77,7 @@ if TYPE_CHECKING:
         ToolUseBlockParam,
         ToolResultBlockParam,
         DocumentBlockParam,
+        ThinkingBlockParam,
     ]
 else:
     Message = object
@@ -71,8 +88,10 @@ def ChatAnthropic(
     *,
     system_prompt: Optional[str] = None,
     model: "Optional[ModelParam]" = None,
-    api_key: Optional[str] = None,
     max_tokens: int = 4096,
+    reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
+    cache: Literal["5m", "1h", "none"] = "5m",
+    api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
     """
@@ -119,12 +138,23 @@ def ChatAnthropic(
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly
         choosing a model for all but the most casual use.
+    max_tokens
+        Maximum number of tokens to generate before stopping.
+    reasoning
+        Determines how many tokens Claude can be allocated to reasoning. Must be
+        ≥1024 and less than `max_tokens`. Larger budgets can enable more
+        thorough analysis for complex problems, improving response quality.  See
+        [extended
+        thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
+        for details.
+    cache
+        How long to cache inputs? Defaults to "5m" (five minutes).
+        Set to "none" to disable caching or "1h" to cache for one hour.
+        See the Caching section for details.
     api_key
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `ANTHROPIC_API_KEY` environment
         variable.
-    max_tokens
-        Maximum number of tokens to generate before stopping.
     kwargs
         Additional arguments to pass to the `anthropic.Anthropic()` client
         constructor.
@@ -169,19 +199,67 @@ def ChatAnthropic(
     ```shell
     export ANTHROPIC_API_KEY=...
     ```
+
+    Caching
+    -------
+
+    Caching with Claude is a bit more complicated than other providers but we
+    believe that on average it will save you both money and time, so we have
+    enabled it by default. With other providers, like OpenAI and Google,
+    you only pay for cache reads, which cost 10% of the normal price. With
+    Claude, you also pay for cache writes, which cost 125% of the normal price
+    for 5 minute caching and 200% of the normal price for 1 hour caching.
+
+    How does this affect the total cost of a conversation? Imagine the first
+    turn sends 1000 input tokens and receives 200 output tokens. The second
+    turn must first send both the input and output from the previous turn
+    (1200 tokens). It then sends a further 1000 tokens and receives 200 tokens
+    back.
+
+    To compare the prices of these two approaches we can ignore the cost of
+    output tokens, because they are the same for both. How much will the input
+    tokens cost? If we don't use caching, we send 1000 tokens in the first turn
+    and 2200 (1000 + 200 + 1000) tokens in the second turn for a total of 3200
+    tokens. If we use caching, we'll send (the equivalent of) 1000 * 1.25 = 1250
+    tokens in the first turn. In the second turn, 1000 of the input tokens will
+    be cached so the total cost is 1000 * 0.1 + (200 + 1000) * 1.25 = 1600
+    tokens. That makes a total of 2850 tokens, i.e. 11% fewer tokens,
+    decreasing the overall cost.
+
+    Obviously, the details will vary from conversation to conversation, but
+    if you have a large system prompt that you re-use many times you should
+    expect to see larger savings. You can see exactly how many input and
+    cache input tokens each turn uses, along with the total cost,
+    with `chat.get_tokens()`. If you don't see savings for your use case, you can
+    suppress caching with `cache="none"`.
+
+    Note: Claude will only cache longer prompts, with caching requiring at least
+    1024-4096 tokens, depending on the model. So don't be surprised if you
+    don't see any differences with caching if you have a short prompt.
+
+    See all the details at
+    <https://docs.claude.com/en/docs/build-with-claude/prompt-caching>.
     """
 
     if model is None:
-        model = log_model_default("claude-sonnet-4-0")
+        model = log_model_default("claude-sonnet-4-5")
+
+    kwargs_chat: "SubmitInputArgs" = {}
+    if reasoning is not None:
+        if isinstance(reasoning, int):
+            reasoning = {"type": "enabled", "budget_tokens": reasoning}
+        kwargs_chat = {"thinking": reasoning}
 
     return Chat(
         provider=AnthropicProvider(
             api_key=api_key,
             model=model,
             max_tokens=max_tokens,
+            cache=cache,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+        kwargs_chat=kwargs_chat,
     )
 
 
@@ -195,6 +273,7 @@ class AnthropicProvider(
         model: str,
         api_key: Optional[str] = None,
         name: str = "Anthropic",
+        cache: Literal["5m", "1h", "none"] = "5m",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)
@@ -206,6 +285,7 @@ class AnthropicProvider(
                 "You can install it with 'pip install anthropic'."
             )
         self._max_tokens = max_tokens
+        self._cache: Literal["5m", "1h", "none"] = cache
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
@@ -223,7 +303,7 @@ class AnthropicProvider(
 
         res: list[ModelInfo] = []
         for m in models:
-            pricing = get_token_pricing(self.name, m.id) or {}
+            pricing = get_price_info(self.name, m.id) or {}
             info: ModelInfo = {
                 "id": m.id,
                 "name": m.display_name,
@@ -248,7 +328,7 @@ class AnthropicProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -259,7 +339,7 @@ class AnthropicProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -269,7 +349,7 @@ class AnthropicProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -282,7 +362,7 @@ class AnthropicProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -293,7 +373,7 @@ class AnthropicProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -303,7 +383,7 @@ class AnthropicProvider(
         *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -314,13 +394,11 @@ class AnthropicProvider(
         self,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        tool_schemas = [
-            self._anthropic_tool_schema(tool.schema) for tool in tools.values()
-        ]
+        tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
 
         # If data extraction is requested, add a "mock" tool with parameters inferred from the data model
         data_model_tool: Tool | None = None
@@ -332,14 +410,24 @@ class AnthropicProvider(
 
             data_model_tool = Tool.from_func(_structured_tool_call)
 
-            data_model_tool.schema["function"]["parameters"] = {
+            data_model_schema = basemodel_to_param_schema(data_model)
+
+            # Extract $defs from the nested schema and place at top level
+            # JSON Schema $ref pointers like "#/$defs/..." need $defs at the root
+            defs = data_model_schema.pop("$defs", None)
+
+            params: dict[str, Any] = {
                 "type": "object",
                 "properties": {
-                    "data": basemodel_to_param_schema(data_model),
+                    "data": data_model_schema,
                 },
             }
+            if defs:
+                params["$defs"] = defs
 
-            tool_schemas.append(self._anthropic_tool_schema(data_model_tool.schema))
+            data_model_tool.schema["function"]["parameters"] = params
+
+            tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
 
             if stream:
                 stream = False
@@ -364,14 +452,23 @@ class AnthropicProvider(
             }
 
         if "system" not in kwargs_full:
-            if len(turns) > 0 and turns[0].role == "system":
-                kwargs_full["system"] = turns[0].text
+            if len(turns) > 0 and isinstance(turns[0], SystemTurn):
+                sys_param: "TextBlockParam" = {
+                    "type": "text",
+                    "text": turns[0].text,
+                }
+                if self._cache_control():
+                    sys_param["cache_control"] = self._cache_control()
+                kwargs_full["system"] = [sys_param]
 
         return kwargs_full
 
     def stream_text(self, chunk) -> Optional[str]:
-        if chunk.type == "content_block_delta" and chunk.delta.type == "text_delta":
-            return chunk.delta.text
+        if chunk.type == "content_block_delta":
+            if chunk.delta.type == "text_delta":
+                return chunk.delta.text
+            if chunk.delta.type == "thinking_delta":
+                return chunk.delta.thinking
         return None
 
     def stream_merge_chunks(self, completion, chunk):
@@ -388,9 +485,25 @@ class AnthropicProvider(
                 this_content.text += chunk.delta.text
             elif chunk.delta.type == "input_json_delta":
                 this_content = cast("ToolUseBlock", this_content)
+                json_delta = chunk.delta.partial_json
+                # For some reason Anthropic recently changed .input's type from
+                # object to dict, but it doesn't seem to contain anything
+                # useful. Maybe there is a better way to get at this streaming info,
+                # but for now, we'll just accumulate the JSON string delta.
                 if not isinstance(this_content.input, str):
-                    this_content.input = ""
-                this_content.input += chunk.delta.partial_json
+                    this_content.input = ""  # type: ignore
+                this_content.input += json_delta  # type: ignore
+            elif chunk.delta.type == "thinking_delta":
+                this_content = cast("ThinkingBlock", this_content)
+                this_content.thinking += chunk.delta.thinking
+            elif chunk.delta.type == "signature_delta":
+                this_content = cast("ThinkingBlock", this_content)
+                this_content.signature += chunk.delta.signature
+            elif chunk.delta.type == "citations_delta":
+                # https://docs.claude.com/en/docs/build-with-claude/citations#streaming-support
+                # Accumulate citations on the content block
+                if hasattr(this_content, "citations"):
+                    this_content.citations.append(chunk.delta.citation)  # type: ignore
         elif chunk.type == "content_block_stop":
             this_content = completion.content[chunk.index]
             if this_content.type == "tool_use" and isinstance(this_content.input, str):
@@ -405,16 +518,32 @@ class AnthropicProvider(
 
         return completion
 
-    def stream_turn(self, completion, has_data_model) -> Turn:
+    def stream_turn(self, completion, has_data_model):
         return self._as_turn(completion, has_data_model)
 
-    def value_turn(self, completion, has_data_model) -> Turn:
+    def value_turn(self, completion, has_data_model):
         return self._as_turn(completion, has_data_model)
+
+    def value_tokens(self, completion):
+        usage = completion.usage
+        input_tokens = completion.usage.input_tokens
+
+        # Account for cache writes by adjusting input tokens
+        # Cache writes cost 125% for 5m and 200% for 1h
+        # https://docs.claude.com/en/docs/build-with-claude/prompt-caching
+        cache_input = usage.cache_creation_input_tokens or 0
+        cache_mult = 2.0 if self._cache == "1h" else 1.25
+
+        return (
+            input_tokens + int(cache_input * cache_mult),
+            completion.usage.output_tokens,
+            usage.cache_read_input_tokens if usage.cache_read_input_tokens else 0,
+        )
 
     def token_count(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         kwargs = self._token_count_args(
@@ -428,7 +557,7 @@ class AnthropicProvider(
     async def token_count_async(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
         kwargs = self._token_count_args(
@@ -442,7 +571,7 @@ class AnthropicProvider(
     def _token_count_args(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> dict[str, Any]:
         turn = user_turn(*args)
@@ -492,16 +621,30 @@ class AnthropicProvider(
             "stop_sequences",
         }
 
-    def _as_message_params(self, turns: list[Turn]) -> list["MessageParam"]:
+    def _as_message_params(self, turns: Sequence[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
-        for turn in turns:
-            if turn.role == "system":
+        for i, turn in enumerate(turns):
+            if isinstance(turn, SystemTurn):
                 continue  # system prompt passed as separate arg
-            if turn.role not in ["user", "assistant"]:
+            if not isinstance(turn, (UserTurn, AssistantTurn)):
                 raise ValueError(f"Unknown role {turn.role}")
 
             content = [self._as_content_block(c) for c in turn.contents]
-            role = "user" if turn.role == "user" else "assistant"
+
+            # Drop empty assistant turns to avoid an API error
+            # (all messages must have non-empty content)
+            if turn.role == "assistant" and len(content) == 0:
+                continue
+
+            # Add cache control to the last content block in the last turn
+            # https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-automatic-prefix-checking-works
+            is_last_turn = i == len(turns) - 1
+            if self._cache_control() and is_last_turn and len(content) > 0:
+                # Note: ThinkingBlockParam (i.e., type: "thinking") doesn't support cache_control
+                if content[-1].get("type") != "thinking":
+                    content[-1]["cache_control"] = self._cache_control()  # type: ignore
+
+            role = "user" if isinstance(turn, UserTurn) else "assistant"
             messages.append({"role": role, "content": content})
         return messages
 
@@ -510,7 +653,8 @@ class AnthropicProvider(
         if isinstance(content, ContentText):
             return {"text": content.text, "type": "text"}
         elif isinstance(content, ContentJson):
-            return {"text": "<structured data/>", "type": "text"}
+            text = orjson.dumps(content.value).decode("utf-8")
+            return {"text": text, "type": "text"}
         elif isinstance(content, ContentPDF):
             return {
                 "type": "document",
@@ -542,44 +686,54 @@ class AnthropicProvider(
                 "type": "tool_use",
                 "id": content.id,
                 "name": content.name,
-                "input": content.arguments,
+                "input": cast(dict, content.arguments),
             }
         elif isinstance(content, ContentToolResult):
             res: ToolResultBlockParam = {
                 "type": "tool_result",
                 "tool_use_id": content.id,
                 "is_error": content.error is not None,
+                # Anthropic supports non-text contents like ImageBlockParam
+                "content": content.get_model_value(),  # type: ignore
             }
 
-            if isinstance(content, ContentToolResultImage):
-                res["content"] = [
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": content.mime_type,
-                            "data": content.value,
-                        },
-                    }
-                ]
-            elif isinstance(content, ContentToolResultResource):
-                raise NotImplementedError(
-                    "ContentToolResultResource is not currently supported by Anthropic."
-                )
-            else:
-                # Anthropic supports non-text contents like ImageBlockParam
-                res["content"] = content.get_model_value()  # type: ignore
-
             return res
+        elif isinstance(content, ContentThinking):
+            extra = content.extra or {}
+            return {
+                "type": "thinking",
+                "thinking": content.thinking,
+                "signature": extra.get("signature", ""),
+            }
+        elif isinstance(
+            content,
+            (
+                ContentToolRequestSearch,
+                ContentToolResponseSearch,
+                ContentToolRequestFetch,
+                ContentToolResponseFetch,
+            ),
+        ):
+            # extra contains the full original content block param
+            return cast("ContentBlockParam", content.extra)
 
         raise ValueError(f"Unknown content type: {type(content)}")
 
     @staticmethod
-    def _anthropic_tool_schema(schema: "ChatCompletionToolParam") -> "ToolParam":
-        fn = schema["function"]
+    def _anthropic_tool_schema(tool: "Tool | ToolBuiltIn") -> "ToolUnionParam":
+        if isinstance(tool, ToolWebSearch):
+            return tool.get_definition("anthropic")
+        if isinstance(tool, ToolWebFetch):
+            # N.B. seems the return type here (BetaWebFetchTool20250910Param) is
+            # not a member of ToolUnionParam since it's still in beta?
+            return tool.get_definition("anthropic")  # type: ignore
+        if isinstance(tool, ToolBuiltIn):
+            return tool.definition  # type: ignore
+
+        fn = tool.schema["function"]
         name = fn["name"]
 
-        res: "ToolParam" = {
+        res: "ToolUnionParam" = {
             "name": name,
             "input_schema": {
                 "type": "object",
@@ -590,11 +744,14 @@ class AnthropicProvider(
             res["description"] = fn["description"]
 
         if "parameters" in fn:
-            res["input_schema"]["properties"] = fn["parameters"]["properties"]
+            res["input_schema"] = {
+                "type": "object",
+                **fn["parameters"],
+            }
 
         return res
 
-    def _as_turn(self, completion: Message, has_data_model=False) -> Turn:
+    def _as_turn(self, completion: Message, has_data_model=False) -> AssistantTurn:
         contents = []
         for content in completion.content:
             if content.type == "text":
@@ -609,7 +766,9 @@ class AnthropicProvider(
                         raise ValueError(
                             "Expected data extraction tool to return a 'data' field."
                         )
-                    contents.append(ContentJson(value=content.input["data"]))
+                    else:
+                        d = cast(dict, content.input["data"])
+                        contents.append(ContentJson(value=d))
                 else:
                     contents.append(
                         ContentToolRequest(
@@ -618,24 +777,99 @@ class AnthropicProvider(
                             arguments=content.input,
                         )
                     )
+            elif content.type == "thinking":
+                contents.append(
+                    ContentThinking(
+                        thinking=content.thinking,
+                        extra={"signature": content.signature},
+                    )
+                )
+            elif content.type == "server_tool_use":
+                # Unfortunately, content.model_dump() includes fields like "url"
+                # that aren't acceptable as API input, so we manually construct
+                # the extra dict
+                if isinstance(content.input, str):
+                    input_data = orjson.loads(content.input)
+                else:
+                    input_data = content.input
 
-        usage = completion.usage
-        # N.B. Currently, Anthropic doesn't cache by default and we currently do not support
-        # manual caching in chatlas. Note also that this only tracks reads, NOT writes, which
-        # have their own cost. To track that properly, we would need another caching category and per-token cost.
+                extra = {
+                    "type": content.type,
+                    "id": content.id,
+                    "name": content.name,
+                    "input": input_data,
+                }
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
+                if content.name == "web_search":
+                    contents.append(
+                        ContentToolRequestSearch(
+                            query=str(input_data.get("query", "")),
+                            extra=extra,
+                        )
+                    )
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
+                elif content.name == "web_fetch":
+                    # N.B. type checker thinks this is unreachable due to
+                    # ToolUnionParam not including BetaWebFetchTool20250910Param
+                    # yet
+                    contents.append(
+                        ContentToolRequestFetch(
+                            url=str(input_data.get("url", "")),
+                            extra=extra,
+                        )
+                    )
+                else:
+                    raise ValueError(f"Unknown server tool: {content.name}")
+            elif content.type == "web_search_tool_result":
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
+                urls: list[str] = []
+                if isinstance(content.content, list):
+                    urls = [x.url for x in content.content]
+                # Manually construct the extra dict to avoid SDK-internal
+                # fields (e.g., "caller") that the API doesn't accept
+                extra = {
+                    "type": content.type,
+                    "tool_use_id": content.tool_use_id,
+                    "content": [
+                        x.model_dump() for x in content.content
+                    ]
+                    if isinstance(content.content, list)
+                    else content.content.model_dump(),
+                }
+                contents.append(
+                    ContentToolResponseSearch(
+                        urls=urls,
+                        extra=extra,
+                    )
+                )
+            elif content.type == "web_fetch_tool_result":
+                # N.B. type checker thinks this is unreachable due to
+                # ToolUnionParam not including BetaWebFetchTool20250910Param
+                # yet.
+                content_fetch = getattr(content, "content", None)
+                if content_fetch is None:
+                    raise ValueError(
+                        "web_fetch_tool_result content is empty. Please report this issue."
+                    )
+                # content_fetch is a BetaWebFetchBlock (has .url) or
+                # BetaWebFetchToolResultErrorBlock (error case)
+                url = getattr(content_fetch, "url", "failed")
+                # Manually construct the extra dict to avoid SDK-internal
+                # fields (e.g., "caller") that the API doesn't accept
+                extra = {
+                    "type": content.type,
+                    "tool_use_id": content.tool_use_id,  # type: ignore
+                    "content": content_fetch.model_dump(exclude_none=True),
+                }
+                contents.append(
+                    ContentToolResponseFetch(
+                        url=url,
+                        extra=extra,
+                    )
+                )
 
-        tokens = (
-            completion.usage.input_tokens,
-            completion.usage.output_tokens,
-            usage.cache_read_input_tokens if usage.cache_read_input_tokens else 0,
-        )
-
-        tokens_log(self, tokens)
-
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
-            tokens=tokens,
             finish_reason=completion.stop_reason,
             completion=completion,
         )
@@ -721,7 +955,7 @@ class AnthropicProvider(
 
         return results
 
-    def batch_result_turn(self, result, has_data_model: bool = False) -> Turn | None:
+    def batch_result_turn(self, result, has_data_model: bool = False):
         from anthropic.types.messages.message_batch_individual_response import (
             MessageBatchIndividualResponse,
         )
@@ -735,11 +969,20 @@ class AnthropicProvider(
         message = result.result.message
         return self._as_turn(message, has_data_model)
 
+    def _cache_control(self) -> "Optional[CacheControlEphemeralParam]":
+        if self._cache == "none":
+            return None
+        return {
+            "type": "ephemeral",
+            "ttl": self._cache,
+        }
+
 
 def ChatBedrockAnthropic(
     *,
     model: Optional[str] = None,
     max_tokens: int = 4096,
+    cache: Literal["5m", "1h", "none"] = "none",
     aws_secret_key: Optional[str] = None,
     aws_access_key: Optional[str] = None,
     aws_region: Optional[str] = None,
@@ -795,6 +1038,10 @@ def ChatBedrockAnthropic(
         The model to use for the chat.
     max_tokens
         Maximum number of tokens to generate before stopping.
+    cache
+        How long to cache inputs? Defaults to "5m" (five minutes).
+        Set to "none" to disable caching or "1h" to cache for one hour.
+        See the Caching section of `ChatAnthropic` for details.
     aws_secret_key
         The AWS secret key to use for authentication.
     aws_access_key
@@ -870,12 +1117,13 @@ def ChatBedrockAnthropic(
     """
 
     if model is None:
-        model = log_model_default("us.anthropic.claude-sonnet-4-20250514-v1:0")
+        model = log_model_default("us.anthropic.claude-sonnet-4-5-20250929-v1:0")
 
     return Chat(
         provider=AnthropicBedrockProvider(
             model=model,
             max_tokens=max_tokens,
+            cache=cache,
             aws_secret_key=aws_secret_key,
             aws_access_key=aws_access_key,
             aws_region=aws_region,
@@ -899,11 +1147,17 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_profile: str | None,
         aws_session_token: str | None,
         max_tokens: int = 4096,
+        cache: Literal["5m", "1h", "none"] = "none",
         base_url: str | None,
         name: str = "AWS/Bedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
-        super().__init__(name=name, model=model, max_tokens=max_tokens)
+        super().__init__(
+            name=name,
+            model=model,
+            max_tokens=max_tokens,
+            cache=cache,
+        )
 
         try:
             from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
@@ -936,7 +1190,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
 
         res: list[ModelInfo] = []
         for m in models:
-            pricing = get_token_pricing(self.name, m["modelId"]) or {}
+            pricing = get_price_info(self.name, m["modelId"]) or {}
             info: ModelInfo = {
                 "id": m["modelId"],
                 "name": m["modelName"],

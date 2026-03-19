@@ -4,6 +4,7 @@ import copy
 import inspect
 import os
 import sys
+import time
 import traceback
 import warnings
 from pathlib import Path
@@ -22,6 +23,7 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
+    cast,
     overload,
 )
 
@@ -46,13 +48,16 @@ from ._display import (
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
-from ._tokens import compute_cost, get_token_pricing
-from ._tools import Tool, ToolRejectError
-from ._turn import Turn, user_turn
+from ._tokens import tokens_log
+from ._tools import Tool, ToolBuiltIn, ToolRejectError
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._typing_extensions import TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
 if TYPE_CHECKING:
+    from inspect_ai.model import ChatMessage as InspectChatMessage
+    from inspect_ai.solver import TaskState as InspectTaskState
+
     from ._content import ToolAnnotations
 
 
@@ -104,6 +109,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self,
         provider: Provider,
         system_prompt: Optional[str] = None,
+        kwargs_chat: Optional[SubmitInputArgsT] = None,
     ):
         """
         Create a new chat object.
@@ -114,12 +120,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A [](`~chatlas.Provider`) object.
         system_prompt
             A system prompt to set the behavior of the assistant.
+        kwargs_chat
+            Additional arguments to pass to the provider when submitting input.
+            These arguments persist across all chat interactions and will be
+            merged with any kwargs passed to individual methods like `chat()` or
+            `stream()`. They also take precedence over any parameters set via
+            `set_model_params()`.
         """
         self.provider = provider
         self._turns: list[Turn] = []
         self.system_prompt = system_prompt
+        self.kwargs_chat: SubmitInputArgsT = kwargs_chat or {}
 
-        self._tools: dict[str, Tool] = {}
+        self._tools: dict[str, Tool | ToolBuiltIn] = {}
         self._on_tool_request_callbacks = CallbackManager()
         self._on_tool_result_callbacks = CallbackManager()
         self._current_display: Optional[MarkdownDisplay] = None
@@ -132,7 +145,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         # Chat input parameters from `set_model_params()`
         self._standard_model_params: StandardModelParams = {}
-        self._submit_input_kwargs: Optional[SubmitInputArgsT] = None
 
     def list_models(self) -> list[ModelInfo]:
         """
@@ -211,7 +223,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         include_system_prompt: bool = False,
         tool_result_role: Literal["assistant", "user"] = "user",
-    ) -> list[Turn[CompletionT]]:
+    ) -> list[Turn]:
         """
         Get all the turns (i.e., message contents) in the chat.
 
@@ -232,7 +244,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if not self._turns:
             return self._turns
 
-        if not include_system_prompt and self._turns[0].role == "system":
+        if not include_system_prompt and isinstance(self._turns[0], SystemTurn):
             turns = self._turns[1:]
         else:
             turns = self._turns
@@ -246,13 +258,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         # If a turn is purely a tool result, change its role
-        turns2 = copy.deepcopy(turns)
-        for turn in turns2:
+        turns2: list[Turn] = []
+        for turn in turns:
+            turn2 = turn
             if all(isinstance(c, ContentToolResult) for c in turn.contents):
-                turn.role = tool_result_role
+                if tool_result_role == "assistant":
+                    turn2 = AssistantTurn(contents=turn.contents)
+            turns2.append(turn2)
 
         # If two consecutive turns have the same role (i.e., assistant), collapse them into one
-        final_turns: list[Turn[CompletionT]] = []
+        final_turns: list[Turn] = []
         for x in turns2:
             if not final_turns:
                 final_turns.append(x)
@@ -264,11 +279,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return final_turns
 
+    @overload
+    def get_last_turn(self) -> AssistantTurn[CompletionT] | None: ...
+
+    @overload
+    def get_last_turn(
+        self, *, role: Literal["assistant"]
+    ) -> AssistantTurn[CompletionT] | None: ...
+
+    @overload
+    def get_last_turn(self, *, role: Literal["user"]) -> UserTurn | None: ...
+
+    @overload
+    def get_last_turn(self, *, role: Literal["system"]) -> SystemTurn | None: ...
+
     def get_last_turn(
         self,
         *,
         role: Literal["assistant", "user", "system"] = "assistant",
-    ) -> Turn[CompletionT] | None:
+    ) -> Turn | None:
         """
         Get the last turn in the chat with a specific role.
 
@@ -296,8 +325,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         turns
             The turns to set. Turns with the role "system" are not allowed.
         """
-        if any(x.role == "system" for x in turns):
-            idx = next(i for i, x in enumerate(turns) if x.role == "system")
+        if any(isinstance(x, SystemTurn) for x in turns):
+            idx = next(i for i, x in enumerate(turns) if isinstance(x, SystemTurn))
             raise ValueError(
                 f"Turn {idx} has a role 'system', which is not allowed. "
                 "The system prompt must be set separately using the `.system_prompt` property. "
@@ -307,7 +336,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         turns_list = list(turns)
         # Preserve the system prompt if it exists
-        if self._turns and self._turns[0].role == "system":
+        if self._turns and isinstance(self._turns[0], SystemTurn):
             turns_list.insert(0, self._turns[0])
         self._turns = turns_list
 
@@ -320,7 +349,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         turn
             The turn to add. Turns with the role "system" are not allowed.
         """
-        if turn.role == "system":
+        if isinstance(turn, SystemTurn):
             raise ValueError(
                 "Turns with the role 'system' are not allowed. "
                 "The system prompt must be set separately using the `.system_prompt` property."
@@ -337,16 +366,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         str | None
             The system prompt (if any).
         """
-        if self._turns and self._turns[0].role == "system":
+        if self._turns and isinstance(self._turns[0], SystemTurn):
             return self._turns[0].text
         return None
 
     @system_prompt.setter
     def system_prompt(self, value: str | None):
-        if self._turns and self._turns[0].role == "system":
+        if self._turns and isinstance(self._turns[0], SystemTurn):
             self._turns.pop(0)
         if value is not None:
-            self._turns.insert(0, Turn("system", value))
+            self._turns.insert(0, SystemTurn(value))
 
     def get_tokens(self) -> list[TokensDict]:
         """
@@ -394,7 +423,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 "Expected the 1st non-system turn to have role='user'. " + err_info
             )
 
-        if turns[1].role != "assistant":
+        if not isinstance(turns[1], AssistantTurn):
             raise ValueError(
                 "Expected the 2nd turn non-system to have role='assistant'. " + err_info
             )
@@ -425,7 +454,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         for i in range(1, len(turns) - 1, 2):
             ti = turns[i]
             tj = turns[i + 2]
-            if ti.role != "assistant" or tj.role != "assistant":
+            if not isinstance(ti, AssistantTurn) or not isinstance(tj, AssistantTurn):
                 raise ValueError(
                     "Expected even turns to have role='assistant'." + err_info
                 )
@@ -461,7 +490,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def get_cost(
         self,
-        options: Literal["all", "last"] = "all",
+        include: Literal["all", "last"] = "all",
         token_price: Optional[tuple[float, float, float]] = None,
     ) -> float:
         """
@@ -474,7 +503,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Parameters
         ----------
-        options
+        include
             One of the following (default is "all"):
               - `"all"`: Return the total cost of all turns in the chat.
               - `"last"`: Return the cost of the last turn in the chat.
@@ -494,63 +523,58 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             The cost of the chat, in USD.
         """
 
-        # Look up token cost for user and input tokens based on the provider and model
-        turns_tokens = self.get_tokens()
-        if token_price:
-            input_token_price = token_price[0] / 1e6
-            output_token_price = token_price[1] / 1e6
-            cached_token_price = token_price[2] / 1e6
-        else:
-            price_token = get_token_pricing(self.provider.name, self.provider.model)
-            if not price_token:
+        assistant_turns = [t for t in self._turns if isinstance(t, AssistantTurn)]
+
+        if len(assistant_turns) == 0:
+            return 0.0
+
+        if include not in ("all", "last"):
+            raise ValueError(
+                f"Expected `include` to be one of 'all' or 'last', not '{include}'"
+            )
+
+        def compute_turn_cost(turn: AssistantTurn) -> float:
+            from ._tokens import get_token_cost
+
+            tokens = turn.tokens
+
+            # When user provides token_price, only tokens are required
+            if token_price:
+                if tokens is None:
+                    raise ValueError(
+                        "Can't compute cost with `token_price` without `AssistantTurn` "
+                        "having `.tokens` information."
+                    )
+                return (
+                    (tokens[0] * token_price[0] / 1e6)
+                    + (tokens[1] * token_price[1] / 1e6)
+                    + (tokens[2] * token_price[2] / 1e6)
+                )
+
+            # Use pre-computed cost if available
+            if turn.cost is not None:
+                return turn.cost
+
+            # Try to compute cost from pricing database
+            if tokens is not None:
+                cost = get_token_cost(self.provider.name, self.provider.model, tokens)
+                if cost is not None:
+                    return cost
                 raise KeyError(
-                    f"We could not locate pricing information for model '{self.provider.model}'"
-                    f" from provider '{self.provider.name}'. "
+                    f"We could not locate pricing information for model "
+                    f"'{self.provider.model}' from provider '{self.provider.name}'. "
                     "If you know the pricing for this model, specify it in `token_price`."
                 )
 
-            input_token_price = price_token["input"] / 1e6
-            output_token_price = price_token.get("output", 0) / 1e6
-            cached_token_price = price_token.get("cached_input", 0) / 1e6
-
-        if len(turns_tokens) == 0:
-            return 0.0
-
-        if options not in ("all", "last"):
             raise ValueError(
-                f"Expected `options` to be one of 'all' or 'last', not '{options}'"
+                "Don't know how to compute cost without `AssistantTurn` "
+                "having `.tokens` or `.cost` information."
             )
 
-        if options == "all":
-            asst_tokens = sum(
-                u["tokens_total"] for u in turns_tokens if u["role"] == "assistant"
-            )
-            user_tokens = sum(
-                u["tokens_total"] for u in turns_tokens if u["role"] == "user"
-            )
-            # We add the cached tokens here because for relevant providers they have already been subtracted
-            # from the user tokens. This assumes the provider uses (reads) the cache each time.
-            cached_token_reads = sum(
-                u["tokens_cached"] for u in turns_tokens if u["role"] == "user"
-            )
+        if include == "all":
+            return sum(compute_turn_cost(turn) for turn in assistant_turns)
 
-            cost = (
-                (asst_tokens * output_token_price)
-                + (user_tokens * input_token_price)
-                + (cached_token_reads * cached_token_price)
-            )
-            return cost
-
-        last_turn = turns_tokens[-1]
-        if last_turn["role"] == "assistant":
-            return last_turn["tokens"] * output_token_price
-        if last_turn["role"] == "user":
-            return (last_turn["tokens_total"] * input_token_price) + (
-                last_turn["tokens_cached"] * cached_token_price
-            )
-        raise ValueError(
-            f"Expected last turn to have a role of 'user' or `'assistant'`, not '{last_turn['role']}'"
-        )
+        return compute_turn_cost(assistant_turns[-1])
 
     def token_count(
         self,
@@ -807,6 +831,206 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             self.chat(user_input, echo=echo, stream=stream, kwargs=kwargs)
             print("")
 
+    def to_solver(
+        self,
+        *,
+        include_system_prompt: bool = False,
+        include_turns: bool = False,
+        data_model: type[BaseModel] | None = None,
+    ):
+        """
+        Create an InspectAI solver from this chat.
+
+        Translates this Chat instance into an InspectAI solver function that can
+        be used with InspectAI's evaluation framework. This solver will capture
+        (and translate) important state from the chat, including the model,
+        system prompt, previous turns, registered tools, model parameters, etc.
+
+        Parameters
+        ----------
+        data_model
+            A Pydantic model describing the structure of the data to extract.
+            When provided, the solver will use `.chat_structured()` instead of
+            `.chat()` to generate responses, and the output completion will be
+            JSON serialized from the model instance.
+        include_system_prompt
+            Whether to include the system prompt in the solver's starting
+            messages.
+        include_turns
+            Whether to include the chat's existing turns in the solver's
+            starting messages.
+
+        Note
+        ----
+        Both `include_system_prompt` and `include_turns` default to `False` since
+        `.export_eval()` captures this information already. Therefore,
+        including them here would lead to duplication of context in the
+        evaluation. However, in some cases you may want to include them, for
+        example if you are manually constructing an evaluation dataset that
+        does not include this information. Or, if you want to always have the
+        same starting context regardless of the evaluation dataset.
+
+        Returns
+        -------
+        An [InspectAI solver](https://inspect.ai-safety-institute.org.uk/solvers.html)
+        function that can be used with InspectAI's evaluation framework.
+
+        Examples
+        --------
+        First, put this code in a python script, perhaps named `eval_chat.py`
+
+        ```{.python filename="eval_chat.py"}
+        from chatlas import ChatOpenAI
+        from inspect_ai import Task, task
+        from inspect_ai.dataset import csv_dataset
+        from inspect_ai.scorer import model_graded_qa
+
+        chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
+
+        @task
+        def my_eval(grader_model: str = "openai/gpt-4o"):
+            return Task(
+                dataset=csv_dataset("my_eval_dataset.csv"),
+                solver=chat.to_solver(),
+                scorer=model_graded_qa(model=grader_model)
+            )
+        ```
+
+        Then run the evaluation with InspectAI's CLI:
+
+        ```bash
+        inspect eval eval_chat.py -T --grader-model openai/gpt-4o
+        ```
+
+        Note
+        ----
+        Learn more about this method and InspectAI's evaluation framework
+        in the [Chatlas documentation](https://posit-dev.github.io/chatlas/misc/evals.html).
+        """
+
+        from ._inspect import (
+            inspect_content_as_chatlas,
+            inspect_messages_as_turns,
+            try_import_inspect,
+        )
+
+        (imodel, isolver, _) = try_import_inspect()
+
+        model = self.provider.model
+
+        @isolver.solver(f"chatlas_{self.provider.name}_{model}")
+        def _solver():
+            async def solve(state: InspectTaskState, generate):
+                start_time = time.perf_counter()
+
+                # Fork the chat to avoid mutating the original
+                chat_instance = copy.deepcopy(self)
+
+                # Ignore initial turns (by default)
+                if not include_turns:
+                    chat_instance.set_turns([])
+
+                # Map initial chatlas turns to Inspect message state
+                initial_turns = chat_instance.get_turns(
+                    include_system_prompt=include_system_prompt
+                )
+                initial_messages: list["InspectChatMessage"] = []
+                for turn in initial_turns:
+                    initial_messages.extend(turn.to_inspect_messages(model))
+
+                # N.B. at this point, state.messages can include non-trivial
+                # input (e.g., System messages, etc) from the eval dataset
+                state.messages = initial_messages + state.messages
+
+                # Separate out system/user/other messages in order to
+                # map them appropriately to chatlas state
+                system_messages: list["InspectChatMessage"] = []
+                other_messages: list["InspectChatMessage"] = []
+                user_prompt: "InspectChatMessage | None" = None
+                for x in reversed(state.messages):
+                    if x.role == "user" and user_prompt is None:
+                        user_prompt = x
+                    elif x.role == "system":
+                        system_messages.append(x)
+                    else:
+                        other_messages.append(x)
+
+                other_messages.reverse()
+
+                # Sanity check
+                if user_prompt is None:
+                    raise ValueError("No user prompt found in InspectAI state messages")
+
+                # Set the system prompt on the chat instance
+                if len(system_messages) == 1:
+                    chat_instance.system_prompt = str(system_messages[0])
+                elif len(system_messages) > 1:
+                    raise ValueError(
+                        "Multiple system prompts detected in `.to_solver()`, but chatlas only "
+                        "supports a single system prompt. This usually indicates that the system "
+                        "prompt is mistakenly included in both the eval dataset (via `.export_eval()`) "
+                        "and on the chat instance. Consider dropping the system prompt from "
+                        "the chat instance by setting `.to_solver(include_system_prompt=False)`."
+                    )
+
+                # Map Inspect message state back to chatlas state
+                initial_turns = inspect_messages_as_turns(other_messages)
+                chat_instance.set_turns(initial_turns)
+
+                # Map Inspect dataset input to chatlas input content
+                input_content = user_prompt.content
+                if isinstance(input_content, str):
+                    input_content = [input_content]
+                input_content = [inspect_content_as_chatlas(x) for x in input_content]
+
+                # Generate the response
+                structured_result: BaseModel | None = None
+                if data_model is not None:
+                    structured_result = await chat_instance.chat_structured_async(
+                        *input_content, data_model=data_model, echo="none"
+                    )
+                else:
+                    await chat_instance.chat_async(*input_content, echo="none")
+
+                # Map change in chatlas Turn state back to Inspect message.state
+                # (Note: we skip the user prompt turn since it's already included)
+                turns = chat_instance.get_turns(include_system_prompt=False)
+                usage = imodel.ModelUsage()
+                for i in range(len(initial_turns) + 1, len(turns)):
+                    turn = turns[i]
+                    state.messages.extend(turn.to_inspect_messages(model))
+                    if isinstance(turn, AssistantTurn) and turn.tokens:
+                        usage += imodel.ModelUsage(
+                            input_tokens=turn.tokens[0],
+                            output_tokens=turn.tokens[1],
+                            total_tokens=turn.tokens[0] + turn.tokens[1],
+                            input_tokens_cache_read=turn.tokens[2],
+                        )
+
+                last_message = state.messages[-1]
+                if not isinstance(last_message, imodel.ChatMessageAssistant):
+                    raise ValueError(
+                        "Expected the last message in InspectAI state to be an assistant message"
+                    )
+
+                if structured_result is not None:
+                    completion = structured_result.model_dump_json()
+                else:
+                    completion = turns[-1].text
+
+                state.output = imodel.ModelOutput(
+                    model=model,
+                    choices=[imodel.ChatCompletionChoice(message=last_message)],
+                    completion=completion,
+                    usage=usage,
+                    time=time.perf_counter() - start_time,
+                )
+                return state
+
+            return solve
+
+        return _solver()
+
     def chat(
         self,
         *args: Content | str,
@@ -840,7 +1064,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A (consumed) response from the chat. Apply `str()` to this object to
             get the text content of the response.
         """
-        turn = user_turn(*args)
+        turn = user_turn(*args, prior_turns=self.get_turns())
 
         display = self._markdown_display(echo=echo)
 
@@ -893,7 +1117,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             A (consumed) response from the chat. Apply `str()` to this object to
             get the text content of the response.
         """
-        turn = user_turn(*args)
+        turn = user_turn(*args, prior_turns=self.get_turns())
 
         display = self._markdown_display(echo=echo)
 
@@ -919,6 +1143,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["text"] = "text",
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]: ...
 
@@ -928,6 +1153,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["all"],
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
 
@@ -936,6 +1162,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["text", "all"] = "text",
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
         """
@@ -954,17 +1181,40 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
               - `"output"`: Echo text and tool call content.
               - `"all"`: Echo both the assistant and user turn.
               - `"none"`: Do not echo any content.
+        data_model
+            A Pydantic model describing the structure of the data to extract.
+            When provided, the response will be constrained to match this structure.
+            The streamed chunks will be JSON text that, when concatenated, forms
+            a valid JSON object matching the model. After consuming the stream,
+            use `data_model.model_validate_json("".join(chunks))` to parse the result.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
 
         Returns
         -------
-        ChatResponse
+        Generator
             An (unconsumed) response from the chat. Iterate over this object to
             consume the response.
+
+        Examples
+        --------
+        ```python
+        from chatlas import ChatOpenAI
+        from pydantic import BaseModel
+
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+
+        chat = ChatOpenAI()
+        chunks = list(chat.stream("John is 25 years old", data_model=Person))
+        person = Person.model_validate_json("".join(chunks))
+        ```
         """
-        turn = user_turn(*args)
+        turn = user_turn(*args, prior_turns=self.get_turns())
 
         display = self._markdown_display(echo=echo)
 
@@ -974,6 +1224,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             echo=echo,
             content=content,
             kwargs=kwargs,
+            data_model=data_model,
         )
 
         def wrapper() -> Generator[
@@ -991,6 +1242,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["text"] = "text",
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str, None]: ...
 
@@ -1000,6 +1252,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["all"],
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
 
@@ -1008,6 +1261,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *args: Content | str,
         content: Literal["text", "all"] = "text",
         echo: EchoOptions = "none",
+        data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
         """
@@ -1026,17 +1280,42 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
               - `"output"`: Echo text and tool call content.
               - `"all"`: Echo both the assistant and user turn.
               - `"none"`: Do not echo any content.
+        data_model
+            A Pydantic model describing the structure of the data to extract.
+            When provided, the response will be constrained to match this structure.
+            The streamed chunks will be JSON text that, when concatenated, forms
+            a valid JSON object matching the model. After consuming the stream,
+            use `data_model.model_validate_json("".join(chunks))` to parse the result.
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
 
         Returns
         -------
-        ChatResponseAsync
+        AsyncGenerator
             An (unconsumed) response from the chat. Iterate over this object to
             consume the response.
+
+        Examples
+        --------
+        ```python
+        from chatlas import ChatOpenAI
+        from pydantic import BaseModel
+
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+
+        chat = ChatOpenAI()
+        chunks = [chunk async for chunk in await chat.stream_async(
+            "John is 25 years old", data_model=Person
+        )]
+        person = Person.model_validate_json("".join(chunks))
+        ```
         """
-        turn = user_turn(*args)
+        turn = user_turn(*args, prior_turns=self.get_turns())
 
         display = self._markdown_display(echo=echo)
 
@@ -1050,6 +1329,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     echo=echo,
                     content=content,
                     kwargs=kwargs,
+                    data_model=data_model,
                 ):
                     yield chunk
 
@@ -1061,6 +1341,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModelT],
         echo: EchoOptions = "none",
         stream: bool = False,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> BaseModelT:
         """
         Extract structured data.
@@ -1081,6 +1362,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
               - `"none"`: Do not echo any content.
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
+        kwargs
+            Additional keyword arguments to pass to the method used for requesting
+            the response.
 
         Returns
         -------
@@ -1092,6 +1376,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             data_model=data_model,
             echo=echo,
             stream=stream,
+            kwargs=kwargs,
         )
         return data_model.model_validate(dat)
 
@@ -1124,15 +1409,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> dict[str, Any]:
         display = self._markdown_display(echo=echo)
 
         response = ChatResponse(
             self._submit_turns(
-                user_turn(*args),
+                user_turn(*args, prior_turns=self.get_turns()),
                 data_model=data_model,
                 echo=echo,
                 stream=stream,
+                kwargs=kwargs,
             )
         )
 
@@ -1151,6 +1438,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModelT],
         echo: EchoOptions = "none",
         stream: bool = False,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> BaseModelT:
         """
         Extract structured data from the given input asynchronously.
@@ -1172,6 +1460,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream
             Whether to stream the response (i.e., have the response appear in chunks).
             Defaults to `True` if `echo` is not "none".
+        kwargs
+            Additional keyword arguments to pass to the method used for requesting
+            the response.
 
         Returns
         -------
@@ -1183,6 +1474,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             data_model=data_model,
             echo=echo,
             stream=stream,
+            kwargs=kwargs,
         )
         return data_model.model_validate(dat)
 
@@ -1192,6 +1484,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> dict[str, Any]:
         """
         Deprecated: use `.chat_structured_async()` instead.
@@ -1207,6 +1500,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             data_model=data_model,
             echo=echo,
             stream=stream,
+            kwargs=kwargs,
         )
 
     async def _submit_and_extract_data_async(
@@ -1215,15 +1509,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel],
         echo: EchoOptions = "none",
         stream: bool = False,
+        kwargs: Optional[SubmitInputArgsT] = None,
     ) -> dict[str, Any]:
         display = self._markdown_display(echo=echo)
 
         response = ChatResponseAsync(
             self._submit_turns_async(
-                user_turn(*args),
+                user_turn(*args, prior_turns=self.get_turns()),
                 data_model=data_model,
                 echo=echo,
                 stream=stream,
+                kwargs=kwargs,
             )
         )
 
@@ -1237,7 +1533,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return Chat._extract_turn_json(turn)
 
     @staticmethod
-    def _extract_turn_json(turn: Turn) -> dict[str, Any]:
+    def _extract_turn_json(turn: AssistantTurn) -> dict[str, Any]:
         res: list[ContentJson] = []
         for x in turn.contents:
             if isinstance(x, ContentJson):
@@ -1263,7 +1559,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         max_tokens: int | None | MISSING_TYPE = MISSING,
         log_probs: bool | None | MISSING_TYPE = MISSING,
         stop_sequences: list[str] | None | MISSING_TYPE = MISSING,
-        kwargs: SubmitInputArgsT | None | MISSING_TYPE = MISSING,
     ):
         """
         Set common model parameters for the chat.
@@ -1297,10 +1592,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             Include the log probabilities in the output?
         stop_sequences
             A character vector of tokens to stop generation on.
-        kwargs
-            Additional keyword arguments to use when submitting input to the
-            model. When calling this method repeatedly with different parameters,
-            only the parameters from the last call will be used.
         """
 
         params: StandardModelParams = {}
@@ -1365,13 +1656,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         # Update the standard model parameters
         self._standard_model_params.update(params)
-
-        # Update the submit input kwargs
-        if kwargs is None:
-            self._submit_input_kwargs = None
-
-        if is_present(kwargs):
-            self._submit_input_kwargs = kwargs
 
     async def register_mcp_tools_http_stream_async(
         self,
@@ -1664,7 +1948,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     def register_tool(
         self,
-        func: Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool,
+        func: Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool | ToolBuiltIn,
         *,
         force: bool = False,
         name: Optional[str] = None,
@@ -1766,8 +2050,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     func.func, name=name, model=model, annotations=annotations
                 )
             func = func.func
+            tool = Tool.from_func(func, name=name, model=model, annotations=annotations)
+        else:
+            if isinstance(func, ToolBuiltIn):
+                tool = func
+            else:
+                tool = Tool.from_func(
+                    func, name=name, model=model, annotations=annotations
+                )
 
-        tool = Tool.from_func(func, name=name, model=model, annotations=annotations)
         if tool.name in self._tools and not force:
             raise ValueError(
                 f"Tool with name '{tool.name}' is already registered. "
@@ -1775,14 +2066,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
         self._tools[tool.name] = tool
 
-    def get_tools(self) -> list[Tool]:
+    def get_tools(self) -> list[Tool | ToolBuiltIn]:
         """
         Get the list of registered tools.
 
         Returns
         -------
-        list[Tool]
-            A list of `Tool` instances that are currently registered with the chat.
+        list[Tool | ToolBuiltIn]
+            A list of `Tool` or `ToolBuiltIn` instances that are currently registered with the chat.
         """
         return list(self._tools.values())
 
@@ -1882,7 +2173,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             "Get the current weather given a latitude and longitude."
 
             lat_lng = f"latitude={latitude}&longitude={longitude}"
-            url = f"https://api.open-meteo.com/v1/forecast?{lat_lng}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+            url = (
+                "https://api.open-meteo.com/v1/forecast?"
+                f"{lat_lng}&current=temperature_2m,wind_speed_10m"
+                "&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+            )
             response = requests.get(url)
             json = response.json()
             if chat.current_display:
@@ -1974,7 +2269,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 ]
             )
             if is_html:
-                msg_type = "user" if turn.role == "user" else "chat"
+                msg_type = "user" if isinstance(turn, UserTurn) else "chat"
                 content_attr = html_escape(turn_content)
                 turn_content = f"<shiny-{msg_type}-message content='{content_attr}'></shiny-{msg_type}-message>"
             else:
@@ -2030,40 +2325,180 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         </html>
         """
 
+    def export_eval(
+        self,
+        filename: str | Path,
+        *,
+        target: Optional[str] = None,
+        include_system_prompt: bool = True,
+        turns: Optional[list[Turn]] = None,
+        overwrite: Literal["append", True, False] = "append",
+        **kwargs: Any,
+    ):
+        """
+        Creates an Inspect AI eval dataset sample from the current chat.
+
+        Creates an Inspect AI eval
+        [Sample](https://inspect.aisi.org.uk/reference/inspect_ai.dataset.html#sample)
+        from the current chat and appends it to a JSONL file. In Inspect, a eval
+        dataset is a collection of Samples, where each Sample represents a
+        single `input` (i.e., user prompt) and the expected `target` (i.e., the
+        target answer and/or grading guidance for it). Note that each `input` of
+        a particular sample can contain a series of messages (from both the user
+        and assistant).
+
+        Note
+        ----
+        Each call to this method appends a single Sample as a new line in the
+        specified JSONL file. If the file does not exist, it will be created.
+
+        Parameters
+        ----------
+        filename
+            The filename to export the chat to. Currently this must
+            be a `.jsonl` file.
+        target
+            The target output for the eval sample. By default, this is
+            taken to be the content of the last assistant turn.
+        include_system_prompt
+            Whether to include the system prompt (if any) as the
+            first turn in the eval sample.
+        turns
+            The input turns for the eval sample. By default, this is
+            taken to be all turns except the last (assistant) turn.
+            Note that system prompts are not allowed here, but controlled
+            separately via the `include_system_prompt` parameter.
+        overwrite
+            Behavior when the file already exists:
+              - `"append"` (default): Append to the existing file.
+              - `True`: Overwrite the existing file.
+              - `False`: Raise an error if the file already exists.
+        kwargs
+            Additional keyword arguments to pass to the `Sample()` constructor.
+            This is primarily useful for setting an ID or metadata on the sample.
+
+        Examples
+        --------
+
+        Step 1: export the chat to an eval JSONL file
+
+        ```python
+        from chatlas import ChatOpenAI
+
+        chat = ChatOpenAI(system_prompt="You are a helpful assistant.")
+        chat.chat("Hello, how are you?")
+
+        chat.export_eval("my_eval_1.jsonl")
+        ```
+
+        Step 2: load the eval JSONL file into an Inspect AI eval task
+
+        ```python
+        from chatlas import ChatOpenAI
+        from inspect_ai import Task, task
+        from inspect_ai.dataset import json_dataset
+        from inspect_ai.scorer import model_graded_qa
+
+        # No need to load in system prompt -- it's included in the eval JSONL file by default
+        chat = ChatOpenAI()
+
+
+        @task
+        def my_eval():
+            return Task(
+                dataset=json_dataset("my_eval.jsonl"),
+                solver=chat.to_solver(),
+                scorer=model_graded_qa(model="openai/gpt-4o-mini"),
+            )
+        ```
+        """
+
+        if isinstance(filename, str):
+            filename = Path(filename)
+
+        filename = filename.resolve()
+        if filename.exists() and overwrite is False:
+            raise ValueError(
+                f"File {filename} already exists. Set `overwrite=True` to overwrite or `overwrite='append'` to append."
+            )
+
+        if filename.suffix not in {".jsonl"}:
+            raise ValueError("The filename must have a `.jsonl` extension.")
+
+        if turns is None:
+            turns = cast(list[Turn], self.get_turns(include_system_prompt=False))
+
+        if any(isinstance(x, SystemTurn) for x in turns):
+            raise ValueError("System prompts are not allowed in eval input turns.")
+
+        if not any(isinstance(x, UserTurn) for x in turns):
+            raise ValueError("At least one user turn is required in eval input turns.")
+
+        if include_system_prompt:
+            system_turn = self.get_last_turn(role="system")
+            if system_turn:
+                turns = [system_turn] + turns
+
+        input_turns, target_turn = turns[:-1], turns[-1]
+        if target_turn.role != "assistant":
+            raise ValueError("The last turn must be an assistant turn.")
+
+        if target is None:
+            target = str(target_turn)
+
+        input_messages = []
+        for x in input_turns:
+            input_messages.extend(x.to_inspect_messages(self.provider.model))
+
+        from inspect_ai.dataset import Sample
+
+        sample = Sample(input=input_messages, target=target, **kwargs)
+        sample_json = sample.model_dump_json(exclude_none=True)
+
+        mode = "a" if overwrite == "append" and filename.exists() else "w"
+        with open(filename, mode) as f:
+            f.write(sample_json + "\n")
+
+        return filename
+
     @overload
     def _chat_impl(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> Generator[str, None, None]: ...
 
     @overload
     def _chat_impl(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
 
     def _chat_impl(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text", "all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
-        user_turn_result: Turn | None = user_turn
+        user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             for chunk in self._submit_turns(
                 user_turn_result,
                 echo=echo,
                 stream=stream,
+                data_model=data_model,
                 kwargs=kwargs,
             ):
                 yield chunk
@@ -2091,42 +2526,46 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         all_results.append(res)
 
             if all_results:
-                user_turn_result = Turn("user", all_results)
+                user_turn_result = UserTurn(all_results)
 
     @overload
     def _chat_impl_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
     def _chat_impl_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
 
     async def _chat_impl_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         content: Literal["text", "all"],
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
+        data_model: Optional[type[BaseModel]] = None,
     ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
-        user_turn_result: Turn | None = user_turn
+        user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             async for chunk in self._submit_turns_async(
                 user_turn_result,
                 echo=echo,
                 stream=stream,
+                data_model=data_model,
                 kwargs=kwargs,
             ):
                 yield chunk
@@ -2156,17 +2595,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         all_results.append(res)
 
             if all_results:
-                user_turn_result = Turn("user", all_results)
+                user_turn_result = UserTurn(all_results)
 
     def _submit_turns(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[str, None, None]:
-        if any(x._is_async for x in self._tools.values()):
+        if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
         def emit(text: str | Content):
@@ -2178,16 +2617,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             emit_user_contents(user_turn, emit)
 
         # Start collecting additional keyword args (from model parameters)
-        all_kwargs = self.provider.translate_model_params(
-            params=self._standard_model_params,
-        )
-
-        # Add any additional kwargs provided by the user
-        if self._submit_input_kwargs:
-            all_kwargs.update(self._submit_input_kwargs)
-
-        if kwargs:
-            all_kwargs.update(kwargs)
+        all_kwargs = self._collect_all_kwargs(kwargs)
 
         if stream:
             response = self.provider.chat_perform(
@@ -2233,11 +2663,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
+        if not isinstance(turn, AssistantTurn):
+            raise TypeError(
+                f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+            )
+        if turn.tokens is None and turn.completion:
+            turn.tokens = self.provider.value_tokens(turn.completion)
+        if turn.cost is None and turn.completion:
+            turn.cost = self.provider.value_cost(turn.completion, turn.tokens)
+        if turn.tokens is not None:
+            tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
 
     async def _submit_turns_async(
         self,
-        user_turn: Turn,
+        user_turn: UserTurn,
         echo: EchoOptions,
         stream: bool,
         data_model: type[BaseModel] | None = None,
@@ -2251,13 +2691,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if echo == "all":
             emit_user_contents(user_turn, emit)
 
+        # Start collecting additional keyword args (from model parameters)
+        all_kwargs = self._collect_all_kwargs(kwargs)
+
         if stream:
             response = await self.provider.chat_perform_async(
                 stream=True,
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
                 data_model=data_model,
-                kwargs=kwargs,
+                kwargs=all_kwargs,
             )
 
             result = None
@@ -2282,7 +2725,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turns=[*self._turns, user_turn],
                 tools=self._tools,
                 data_model=data_model,
-                kwargs=kwargs,
+                kwargs=all_kwargs,
             )
 
             turn = self.provider.value_turn(
@@ -2295,16 +2738,53 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
+        if not isinstance(turn, AssistantTurn):
+            raise TypeError(
+                f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+            )
+        if turn.tokens is None and turn.completion:
+            turn.tokens = self.provider.value_tokens(turn.completion)
+        if turn.cost is None and turn.completion:
+            turn.cost = self.provider.value_cost(turn.completion, turn.tokens)
+        if turn.tokens is not None:
+            tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
+
+    def _collect_all_kwargs(
+        self,
+        kwargs: Optional[SubmitInputArgsT],
+    ) -> SubmitInputArgsT:
+        # Start collecting additional keyword args (from model parameters)
+        all_kwargs = self.provider.translate_model_params(
+            params=self._standard_model_params,
+        )
+
+        # Add any additional kwargs provided by the user
+        if self.kwargs_chat:
+            all_kwargs.update(self.kwargs_chat)
+
+        if kwargs:
+            all_kwargs.update(kwargs)
+
+        return all_kwargs
 
     def _invoke_tool(self, request: ContentToolRequest):
         tool = self._tools.get(request.name)
-        func = tool.func if tool is not None else None
 
-        if func is None:
+        if tool is None:
             yield self._handle_tool_error_result(
                 request,
                 error=RuntimeError("Unknown tool."),
+            )
+            return
+
+        if isinstance(tool, ToolBuiltIn):
+            yield self._handle_tool_error_result(
+                request,
+                error=RuntimeError(
+                    f"Built-in tool '{request.name}' cannot be invoked directly. "
+                    "It should be handled by the provider."
+                ),
             )
             return
 
@@ -2319,9 +2799,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         try:
             if isinstance(request.arguments, dict):
-                res = func(**request.arguments)
+                res = tool.func(**request.arguments)
             else:
-                res = func(request.arguments)
+                res = tool.func(request.arguments)
 
             # Normalize res as a generator of results.
             if not inspect.isgenerator(res):
@@ -2355,10 +2835,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
             return
 
-        if tool._is_async:
-            func = tool.func
-        else:
-            func = wrap_async(tool.func)
+        if isinstance(tool, ToolBuiltIn):
+            yield self._handle_tool_error_result(
+                request,
+                error=RuntimeError(
+                    f"Built-in tool '{request.name}' cannot be invoked directly. "
+                    "It should be handled by the provider."
+                ),
+            )
+            return
 
         # First, invoke the request callbacks. If a ToolRejectError is raised,
         # treat it like a tool failure (i.e., gracefully handle it).
@@ -2368,6 +2853,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         except ToolRejectError as e:
             yield self._handle_tool_error_result(request, e)
             return
+
+        if tool._is_async:
+            func = tool.func
+        else:
+            func = wrap_async(tool.func)
 
         # Invoke the tool (if it hasn't been rejected).
         try:
@@ -2463,40 +2953,44 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         }
 
     def __str__(self):
-        turns = self.get_turns(include_system_prompt=False)
-        res = ""
+        from ._repr import format_tokens
+
+        turns = self.get_turns(include_system_prompt=True)
+        assistant_turns = [t for t in turns if isinstance(t, AssistantTurn)]
+
+        # Sum tokens across assistant turns
+        tokens: tuple[int, int, int] | None = None
+        if any(t.tokens for t in assistant_turns):
+            tokens = (
+                sum(t.tokens[0] for t in assistant_turns if t.tokens),
+                sum(t.tokens[1] for t in assistant_turns if t.tokens),
+                sum(t.tokens[2] for t in assistant_turns if t.tokens),
+            )
+
+        costs = [t.cost for t in assistant_turns if t.cost is not None]
+        total_cost = sum(costs) if costs else None
+
+        res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)}"
+        token_info = format_tokens(tokens, total_cost)
+        if token_info:
+            res += f" {token_info}"
+        res += ">"
+
         for turn in turns:
-            icon = "👤" if turn.role == "user" else "🤖"
-            res += f"## {icon} {turn.role.capitalize()} turn:\n\n{str(turn)}\n\n"
-        return res
+            header = f"## {turn.role.capitalize()}"
+            if isinstance(turn, AssistantTurn):
+                token_info = format_tokens(turn.tokens, turn.cost)
+                if token_info:
+                    header += f" [{token_info}]"
+            res += f"\n\n{header}\n\n{str(turn)}"
+
+        return res + "\n"
 
     def __repr__(self):
-        turns = self.get_turns(include_system_prompt=True)
-        tokens = self.get_tokens()
-        tokens_asst = sum(u["tokens_total"] for u in tokens if u["role"] == "assistant")
-        tokens_user = sum(u["tokens_total"] for u in tokens if u["role"] == "user")
-        tokens_cached = sum(u["tokens_cached"] for u in tokens if u["role"] == "user")
+        return self.__str__()
 
-        res = (
-            f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)}"
-            f" tokens={tokens_user + tokens_cached}/{tokens_asst}"
-        )
-
-        # Add cost info only if we can compute it
-        cost = compute_cost(
-            self.provider.name,
-            self.provider.model,
-            tokens_user,
-            tokens_asst,
-            tokens_cached,
-        )
-        if cost is not None:
-            res += f" ${round(cost, ndigits=2)}"
-
-        res += ">"
-        for turn in turns:
-            res += "\n" + turn.__repr__(indent=2)
-        return res + "\n"
+    def _repr_markdown_(self) -> str:
+        return self.__str__()
 
     def __deepcopy__(self, memo):
         result = self.__class__.__new__(self.__class__)
@@ -2640,7 +3134,7 @@ def emit_other_contents(
     # Gather other content to emit in _reverse_ order
     to_emit: list[str] = []
 
-    if x.finish_reason:
+    if isinstance(x, AssistantTurn) and x.finish_reason:
         to_emit.append(f"\n\n<< 🤖 finish reason: {x.finish_reason} \\>\\>\n\n")
 
     has_text = False
@@ -2653,7 +3147,7 @@ def emit_other_contents(
             to_emit.append(str(content))
 
     if has_text and has_other:
-        if x.role == "user":
+        if isinstance(x, UserTurn):
             to_emit.append("<< 👤 other content >>")
         else:
             to_emit.append("<< 🤖 other content >>")

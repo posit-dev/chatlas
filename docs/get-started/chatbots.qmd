@@ -90,7 +90,7 @@ To workaround this, you can use the `st.session_state` object to store the chat 
 
 ```python
 import streamlit as st
-from chatlas import ChatOpenAI, Turn
+from chatlas import ChatOpenAI, AssistantTurn
 
 with st.sidebar:
     openai_api_key = st.text_input(
@@ -103,7 +103,7 @@ st.title("💬 Chatbot")
 
 if "turns" not in st.session_state:
     st.session_state["turns"] = [
-        Turn(role="assistant", contents="How can I help you?"),
+        AssistantTurn("How can I help you?"),
     ]
 
 turns: list[Turn] = st.session_state.turns

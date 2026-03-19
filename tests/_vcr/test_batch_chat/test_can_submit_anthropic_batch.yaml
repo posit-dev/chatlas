@@ -1,0 +1,66 @@
+interactions:
+- request:
+    body: '{"requests": [{"custom_id": "request-0", "params": {"messages": [{"role":
+      "user", "content": [{"text": "What''s the capital of France?", "type": "text",
+      "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-sonnet-4-5",
+      "max_tokens": 4096}}, {"custom_id": "request-1", "params": {"messages": [{"role":
+      "user", "content": [{"text": "What''s the capital of Germany?", "type": "text",
+      "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-sonnet-4-5",
+      "max_tokens": 4096}}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '469'
+      Content-Type:
+      - application/json
+      Host:
+      - api.anthropic.com
+      X-Stainless-Async:
+      - 'false'
+      anthropic-version:
+      - '2023-06-01'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages/batches
+  response:
+    body:
+      string: '{"id":"msgbatch_01UdG5AjbCDxdmiyZTybPbWT","type":"message_batch","processing_status":"in_progress","request_counts":{"processing":2,"succeeded":0,"errored":0,"canceled":0,"expired":0},"ended_at":null,"created_at":"2026-01-01T00:05:23.250396+00:00","expires_at":"2026-01-02T00:05:23.250396+00:00","archived_at":null,"cancel_initiated_at":null,"results_url":null}'
+    headers:
+      CF-RAY:
+      - 9b6dc3c368f14e6a-DEN
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 01 Jan 2026 00:05:23 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Robots-Tag:
+      - none
+      anthropic-organization-id:
+      - 5367cc48-7960-496e-992a-dba1e4d05b42
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '361'
+      request-id:
+      - req_011CWfgTxvZTs8ocP6cAyx6S
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-envoy-upstream-service-time:
+      - '215'
+    status:
+      code: 200
+      message: OK
+version: 1

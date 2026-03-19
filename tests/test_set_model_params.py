@@ -1,7 +1,9 @@
 """Tests for the set_model_params() feature."""
 
 import pytest
-from chatlas import ChatAnthropic, ChatGoogle, ChatOpenAI
+
+from chatlas import ChatAnthropic, ChatGoogle
+from chatlas import ChatOpenAICompletions as ChatOpenAI
 from chatlas._provider import StandardModelParams
 from chatlas._utils import MISSING
 
@@ -51,20 +53,6 @@ def test_set_model_params_none_reset():
     chat.set_model_params(temperature=None)
     assert "temperature" not in params
     assert "top_p" in params  # Should still be there
-
-
-def test_set_model_params_kwargs():
-    """Test setting provider-specific kwargs."""
-    chat = ChatOpenAI()
-
-    chat.set_model_params(kwargs={"frequency_penalty": 0.1, "presence_penalty": 0.2})
-    kwargs = getattr(chat, "_submit_input_kwargs", {})
-    assert kwargs == {"frequency_penalty": 0.1, "presence_penalty": 0.2}
-
-    # Reset kwargs to None
-    chat.set_model_params(kwargs=None)
-    kwargs = getattr(chat, "_submit_input_kwargs", {})
-    assert kwargs is None
 
 
 def test_set_model_params_all_parameters():
@@ -260,23 +248,6 @@ def test_set_model_params_updates_existing():
     assert params["top_p"] == 0.9  # New
 
 
-def test_set_model_params_kwargs_replacement():
-    """Test that kwargs are completely replaced, not merged."""
-    chat = ChatOpenAI()
-
-    # Set initial kwargs
-    chat.set_model_params(kwargs={"frequency_penalty": 0.1, "presence_penalty": 0.2})
-    kwargs = getattr(chat, "_submit_input_kwargs", {})
-    assert kwargs == {"frequency_penalty": 0.1, "presence_penalty": 0.2}
-
-    # Set new kwargs - should completely replace
-    chat.set_model_params(kwargs={"seed": 42})
-    kwargs = getattr(chat, "_submit_input_kwargs", {})
-    assert kwargs == {"seed": 42}
-    assert "frequency_penalty" not in kwargs
-    assert "presence_penalty" not in kwargs
-
-
 def test_set_model_params_invalid_temperature():
     """Test validation of temperature parameter ranges."""
     chat = ChatOpenAI()
@@ -320,7 +291,6 @@ def test_set_model_params_empty_call():
 
     # Should not change anything
     assert chat._standard_model_params == {}
-    assert chat._submit_input_kwargs is None
 
 
 def test_set_model_params_type_validation():
@@ -386,27 +356,6 @@ def test_set_model_params_reset_specific_param():
     assert "max_tokens" not in params
     assert "seed" not in params
     assert params["top_p"] == 0.95
-
-
-def test_model_params_kwargs_priority():
-    """Test that submit_input_kwargs override model_params."""
-    chat = ChatOpenAI()
-
-    # Set model parameters
-    chat.set_model_params(temperature=0.1, max_tokens=100)
-
-    # Set submit input kwargs that override some model params
-    chat.set_model_params(kwargs={"temperature": 0.5, "seed": 42})
-
-    # Verify that kwargs are set correctly
-    kwargs = getattr(chat, "_submit_input_kwargs", {})
-    params = getattr(chat, "_standard_model_params", {})
-    assert kwargs["temperature"] == 0.5
-    assert kwargs["seed"] == 42
-
-    # Model params should still be stored
-    assert params["temperature"] == 0.1
-    assert params["max_tokens"] == 100
 
 
 def test_is_present_function():
@@ -576,3 +525,22 @@ def test_parameter_validation_edge_cases():
 
     assert params["max_tokens"] == 1000000
     assert params["seed"] == 999999999
+
+
+def test_chat_kwargs_with_model_params():
+    """Test that Chat kwargs work alongside set_model_params."""
+    chat = ChatOpenAI()
+
+    # Set model parameters
+    chat.set_model_params(temperature=0.7, max_tokens=100)
+
+    # Set persistent chat kwargs
+    chat.kwargs_chat = {"frequency_penalty": 0.1, "presence_penalty": 0.2}
+
+    # Collect all kwargs for a chat call
+    kwargs = chat._collect_all_kwargs({"presence_penalty": 0.3})
+
+    assert kwargs.get("temperature") == 0.7
+    assert kwargs.get("max_tokens") == 100
+    assert kwargs.get("frequency_penalty") == 0.1
+    assert kwargs.get("presence_penalty") == 0.3  # Should override chat.chat_kwargs

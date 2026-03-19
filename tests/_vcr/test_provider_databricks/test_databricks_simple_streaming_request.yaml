@@ -1,0 +1,80 @@
+interactions:
+- request:
+    body: '{"messages":[{"content":"Be as terse as possible; no punctuation","role":"system"},{"content":[{"type":"text","text":"What
+      is 1 + 1?"}],"role":"user"}],"model":"databricks-claude-3-7-sonnet","stream":true}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '205'
+      Content-Type:
+      - application/json
+      Host:
+      - adb-138962681435081.1.azuredatabricks.net
+      User-Agent:
+      - AsyncOpenAI/Python 2.14.0
+      X-Stainless-Arch:
+      - arm64
+      X-Stainless-Async:
+      - async:asyncio
+      X-Stainless-Lang:
+      - python
+      X-Stainless-OS:
+      - MacOS
+      X-Stainless-Package-Version:
+      - 2.14.0
+      X-Stainless-Runtime:
+      - CPython
+      X-Stainless-Runtime-Version:
+      - 3.11.13
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+    method: POST
+    uri: https://adb-138962681435081.1.azuredatabricks.net/serving-endpoints/chat/completions
+  response:
+    body:
+      string: 'data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":"2"},"index":0,"finish_reason":null}],"usage":{"cache_read_input_tokens":0,"completion_tokens":null,"prompt_tokens":26,"total_tokens":null,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01GpDsRZCKgdVLhpd3z1Bk76","created":1767213416}
+
+
+        data: {"model":"us.anthropic.claude-3-7-sonnet-20250219-v1:0","choices":[{"delta":{"role":"assistant","content":""},"index":0,"finish_reason":"stop"}],"usage":{"cache_read_input_tokens":0,"completion_tokens":5,"prompt_tokens":26,"total_tokens":31,"cache_creation_input_tokens":0},"object":"chat.completion.chunk","id":"msg_bdrk_01GpDsRZCKgdVLhpd3z1Bk76","created":1767213416}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      alt-svc:
+      - h3=":443"; ma=86400, h3-29=":443"; ma=86400
+      content-type:
+      - text/event-stream
+      date:
+      - Wed, 31 Dec 2025 20:36:56 GMT
+      server:
+      - databricks
+      server-timing:
+      - request_id;dur=0;desc="e74dbc41-3897-4617-9456-a241ec119e7c", client_protocol;dur=0;desc="HTTP/1.1"
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-amzn-bedrock-content-type:
+      - application/json
+      x-amzn-requestid:
+      - 56c38b6e-27e7-4747-ba07-c42ede5573f9
+      x-content-type-options:
+      - nosniff
+      x-databricks-org-id:
+      - '138962681435081'
+      x-request-id:
+      - e74dbc41-3897-4617-9456-a241ec119e7c
+    status:
+      code: 200
+      message: OK
+version: 1

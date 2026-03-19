@@ -1,0 +1,141 @@
+interactions:
+- request:
+    body: "--3e64028332d7a89e7298781b7148e321\r\nContent-Disposition: form-data; name=\"purpose\"\r\n\r\nbatch\r\n--3e64028332d7a89e7298781b7148e321\r\nContent-Disposition:
+      form-data; name=\"file\"; filename=\"tmp0_oud_qc.jsonl\"\r\nContent-Type: application/octet-stream\r\n\r\n{\"custom_id\":\"request-0\",\"method\":\"POST\",\"url\":\"/v1/responses\",\"body\":{\"stream\":false,\"input\":[{\"role\":\"user\",\"content\":[{\"type\":\"input_text\",\"text\":\"What's
+      the capital of France?\"}]}],\"model\":\"gpt-4.1\",\"store\":false}}\n{\"custom_id\":\"request-1\",\"method\":\"POST\",\"url\":\"/v1/responses\",\"body\":{\"stream\":false,\"input\":[{\"role\":\"user\",\"content\":[{\"type\":\"input_text\",\"text\":\"What's
+      the capital of Germany?\"}]}],\"model\":\"gpt-4.1\",\"store\":false}}\n\r\n--3e64028332d7a89e7298781b7148e321--\r\n"
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '725'
+      Content-Type:
+      - multipart/form-data; boundary=3e64028332d7a89e7298781b7148e321
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/files
+  response:
+    body:
+      string: "{\n  \"object\": \"file\",\n  \"id\": \"file-GfNAcZRtfYLf7dND85Jxdp\",\n
+        \ \"purpose\": \"batch\",\n  \"filename\": \"tmp0_oud_qc.jsonl\",\n  \"bytes\":
+        439,\n  \"created_at\": 1767224340,\n  \"expires_at\": 1769816340,\n  \"status\":
+        \"processed\",\n  \"status_details\": null\n}\n"
+    headers:
+      CF-RAY:
+      - 9b6d9d20acc1f608-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 23:39:01 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      access-control-allow-origin:
+      - '*'
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '242'
+      openai-processing-ms:
+      - '464'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '470'
+      x-openai-proxy-wasm:
+      - v0.1
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"completion_window": "24h", "endpoint": "/v1/responses", "input_file_id":
+      "file-GfNAcZRtfYLf7dND85Jxdp"}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '100'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=zoHWSdPPqw_JpSgCe77fvVoBtSt1buzJzmoSIc3XdVU-1767224341-1.0.1.1-fc3_ia_hfE3kkUzbolsDJAA_NYJVA.gW2T3tWkOhzEuO6u8LHqfrl67rXiQ0msiqE9k54_pEgWibPS15vveRDzvSlueEQP8I7Oa2ms1b1jU;
+        _cfuvid=mUtsZPQO0R3JxtvzfO7_P0f6tT0DzehraZPaf..AF1E-1767224341139-0.0.1.1-604800000
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/batches
+  response:
+    body:
+      string: "{\n  \"id\": \"batch_6955b415634481908ded45de11a2531a\",\n  \"object\":
+        \"batch\",\n  \"endpoint\": \"/v1/responses\",\n  \"model\": null,\n  \"errors\":
+        null,\n  \"input_file_id\": \"file-GfNAcZRtfYLf7dND85Jxdp\",\n  \"completion_window\":
+        \"24h\",\n  \"status\": \"validating\",\n  \"output_file_id\": null,\n  \"error_file_id\":
+        null,\n  \"created_at\": 1767224341,\n  \"in_progress_at\": null,\n  \"expires_at\":
+        1767310741,\n  \"finalizing_at\": null,\n  \"completed_at\": null,\n  \"failed_at\":
+        null,\n  \"expired_at\": null,\n  \"cancelling_at\": null,\n  \"cancelled_at\":
+        null,\n  \"request_counts\": {\n    \"total\": 0,\n    \"completed\": 0,\n
+        \   \"failed\": 0\n  },\n  \"usage\": {\n    \"input_tokens\": 0,\n    \"output_tokens\":
+        0,\n    \"total_tokens\": 0,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n
+        \   }\n  },\n  \"metadata\": null\n}"
+    headers:
+      CF-RAY:
+      - 9b6d9d255bee6204-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 23:39:01 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '833'
+      openai-processing-ms:
+      - '132'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '135'
+      x-openai-proxy-wasm:
+      - v0.1
+    status:
+      code: 200
+      message: OK
+version: 1

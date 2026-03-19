@@ -1,0 +1,466 @@
+interactions:
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "gpt-4.1", "response_format": {"type": "json_schema", "json_schema":
+      {"name": "structured_data", "description": "Summary of the article", "schema":
+      {"description": "Summary of the article", "properties": {"title": {"type": "string"},
+      "author": {"type": "string"}}, "required": ["title", "author"], "type": "object",
+      "additionalProperties": false}, "strict": true}}, "seed": 1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '600'
+      Content-Type:
+      - application/json
+      Host:
+      - models.github.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://models.github.ai/inference/chat/completions
+  response:
+    body:
+      string: '{"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"protected_material_code":{"filtered":false,"detected":false},"protected_material_text":{"filtered":false,"detected":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"finish_reason":"stop","index":0,"logprobs":null,"message":{"annotations":[],"content":"{\"author\":\"Hadley
+        Wickham\",\"title\":\"Apples are tasty\"}","refusal":null,"role":"assistant"}}],"created":1767213546,"id":"chatcmpl-CsxGEc99U1hYf6iw3Y6PcupXpVZIt","model":"gpt-4.1-2025-04-14","object":"chat.completion","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"filtered":false,"detected":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}}}],"system_fingerprint":"fp_f99638a8d7","usage":{"completion_tokens":16,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens":95,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":111}}
+
+        '
+    headers:
+      Content-Length:
+      - '1270'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:39:06 GMT
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Origin,Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Request-Id:
+      - 626E:BDD4C:7AB020A:9C2B38F:695589E9
+      apim-request-id:
+      - b6a0632f-51a5-4c07-b2e2-86db38a45429
+      azureml-model-session:
+      - d20251214155453-23b03381681f42df
+      azureml-served-by-cluster:
+      - vienna-westus-01
+      request-context:
+      - appId=
+      x-github-backend:
+      - Kubernetes
+      x-ms-client-request-id:
+      - Not-Set
+      x-ms-deployment-name:
+      - gpt-4.1
+      x-ms-rai-invoked:
+      - 'true'
+      x-ms-region:
+      - East US 2
+      x-ratelimit-limit-requests:
+      - '1000'
+      x-ratelimit-limit-tokens:
+      - '1000000'
+      x-ratelimit-remaining-requests:
+      - '990'
+      x-ratelimit-remaining-tokens:
+      - '998841'
+      x-request-time:
+      - '0.866'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"author\":\"Hadley Wickham\",\"title\":\"Apples
+      are tasty\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "gpt-4.1", "response_format": {"type": "json_schema", "json_schema":
+      {"name": "structured_data", "description": "Summary of the article", "schema":
+      {"description": "Summary of the article", "properties": {"title": {"type": "string"},
+      "author": {"type": "string"}}, "required": ["title", "author"], "type": "object",
+      "additionalProperties": false}, "strict": true}}, "seed": 1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '934'
+      Content-Type:
+      - application/json
+      Host:
+      - models.github.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://models.github.ai/inference/chat/completions
+  response:
+    body:
+      string: 'Too many requests. For more on scraping GitHub and how it may affect
+        your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
+
+        '
+    headers:
+      Content-Length:
+      - '196'
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:39:07 GMT
+      Retry-After:
+      - '44'
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Request-Id:
+      - 393C:88998:74E7AD3:967975D:695589EA
+      azureml-served-by-cluster:
+      - vienna-westus-01
+      request-context:
+      - appId=
+      x-github-backend:
+      - Kubernetes
+      x-ms-error-code:
+      - RateLimitReached
+      x-ratelimit-timeremaining:
+      - '44'
+      x-ratelimit-type:
+      - UserByModelByMinute
+      x-request-time:
+      - '0.011'
+    status:
+      code: 429
+      message: Too Many Requests
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"author\":\"Hadley Wickham\",\"title\":\"Apples
+      are tasty\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}],
+      "model": "gpt-4.1", "response_format": {"type": "json_schema", "json_schema":
+      {"name": "structured_data", "description": "Summary of the article", "schema":
+      {"description": "Summary of the article", "properties": {"title": {"type": "string"},
+      "author": {"type": "string"}}, "required": ["title", "author"], "type": "object",
+      "additionalProperties": false}, "strict": true}}, "seed": 1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '934'
+      Content-Type:
+      - application/json
+      Host:
+      - models.github.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://models.github.ai/inference/chat/completions
+  response:
+    body:
+      string: '{"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"protected_material_code":{"filtered":false,"detected":false},"protected_material_text":{"filtered":false,"detected":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"finish_reason":"stop","index":0,"logprobs":null,"message":{"annotations":[],"content":"{\"author\":\"Hadley
+        Wickham\",\"title\":\"Apples are tasty\"}","refusal":null,"role":"assistant"}}],"created":1767213592,"id":"chatcmpl-CsxGywtqkY4Ky1yXQXgyHmYT9TTcx","model":"gpt-4.1-2025-04-14","object":"chat.completion","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"filtered":false,"detected":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}}}],"system_fingerprint":"fp_f99638a8d7","usage":{"completion_tokens":16,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens":160,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":176}}
+
+        '
+    headers:
+      Content-Length:
+      - '1271'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:39:52 GMT
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Origin,Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Request-Id:
+      - 391B:D8D1B:4E68AE7:657F06C:69558A17
+      apim-request-id:
+      - 2fe6e3b6-dcdb-483a-b036-f015d29e1c03
+      azureml-model-session:
+      - d20251214155453-23b03381681f42df
+      azureml-served-by-cluster:
+      - vienna-westus-02
+      request-context:
+      - appId=
+      x-github-backend:
+      - Kubernetes
+      x-ms-client-request-id:
+      - Not-Set
+      x-ms-deployment-name:
+      - gpt-4.1
+      x-ms-rai-invoked:
+      - 'true'
+      x-ms-region:
+      - East US 2
+      x-ratelimit-limit-requests:
+      - '1000'
+      x-ratelimit-limit-tokens:
+      - '1000000'
+      x-ratelimit-remaining-requests:
+      - '989'
+      x-ratelimit-remaining-tokens:
+      - '998454'
+      x-request-time:
+      - '0.976'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"author\":\"Hadley Wickham\",\"title\":\"Apples
+      are tasty\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"author\":\"Hadley Wickham\",\"title\":\"Apples
+      are tasty\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}], "model": "gpt-4.1", "response_format":
+      {"type": "json_schema", "json_schema": {"name": "structured_data", "description":
+      "", "schema": {"properties": {"name": {"type": "string"}, "age": {"type": "integer"}},
+      "required": ["name", "age"], "type": "object", "additionalProperties": false},
+      "strict": true}}, "seed": 1014, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1086'
+      Content-Type:
+      - application/json
+      Host:
+      - models.github.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://models.github.ai/inference/chat/completions
+  response:
+    body:
+      string: '{"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"protected_material_code":{"filtered":false,"detected":false},"protected_material_text":{"filtered":false,"detected":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"finish_reason":"stop","index":0,"logprobs":null,"message":{"annotations":[],"content":"{\"age\":34,\"name\":\"Jessica
+        Thompson\"}","refusal":null,"role":"assistant"}}],"created":1767213593,"id":"chatcmpl-CsxGzjvvNuoCJUvG5L5peh0JGNEyP","model":"gpt-4.1-2025-04-14","object":"chat.completion","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"filtered":false,"detected":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}}}],"system_fingerprint":"fp_f99638a8d7","usage":{"completion_tokens":11,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens":184,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":195}}
+
+        '
+    headers:
+      Content-Length:
+      - '1251'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:39:54 GMT
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Vary:
+      - Origin,Accept-Encoding
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Request-Id:
+      - 041C:1C76BF:51823C3:688C88D:69558A18
+      apim-request-id:
+      - 3ab3c43e-f3ad-472a-ba9a-a158e03b0ac3
+      azureml-model-session:
+      - d20251214155453-23b03381681f42df
+      azureml-served-by-cluster:
+      - vienna-westus-01
+      request-context:
+      - appId=
+      x-github-backend:
+      - Kubernetes
+      x-ms-client-request-id:
+      - Not-Set
+      x-ms-deployment-name:
+      - gpt-4.1
+      x-ms-rai-invoked:
+      - 'true'
+      x-ms-region:
+      - East US 2
+      x-ratelimit-limit-requests:
+      - '1000'
+      x-ratelimit-limit-tokens:
+      - '1000000'
+      x-ratelimit-remaining-requests:
+      - '988'
+      x-ratelimit-remaining-tokens:
+      - '998275'
+      x-request-time:
+      - '0.911'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"messages": [{"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"author\":\"Hadley Wickham\",\"title\":\"Apples
+      are tasty\"}"}]}, {"content": [{"type": "text", "text": "\n# Apples are tasty\n\nBy
+      Hadley Wickham\nApples are delicious and tasty and I like to eat them.\nExcept
+      for red delicious, that is. They are NOT delicious.\n"}], "role": "user"}, {"role":
+      "assistant", "content": [{"type": "text", "text": "{\"author\":\"Hadley Wickham\",\"title\":\"Apples
+      are tasty\"}"}]}, {"content": [{"type": "text", "text": "Generate the name and
+      age of a random person."}], "role": "user"}, {"role": "assistant", "content":
+      [{"type": "text", "text": "{\"age\":34,\"name\":\"Jessica Thompson\"}"}]}, {"content":
+      [{"type": "text", "text": "What is the name of the person?"}], "role": "user"}],
+      "model": "gpt-4.1", "seed": 1014, "stream": true, "stream_options": {"include_usage":
+      true}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1051'
+      Content-Type:
+      - application/json
+      Host:
+      - models.github.ai
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://models.github.ai/inference/chat/completions
+  response:
+    body:
+      string: 'data: {"choices":[],"created":0,"id":"","model":"","object":"","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"filtered":false,"detected":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}}}]}
+
+
+        data: {"choices":[{"content_filter_results":{},"delta":{"content":"","refusal":null,"role":"assistant"},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"eUVanz","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+
+
+        data: {"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"delta":{"content":"The"},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"WL91L","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+
+
+        data: {"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"delta":{"content":"
+        name"},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"aYQ","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+
+
+        data: {"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"delta":{"content":"
+        of"},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"ZtgBs","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+
+
+        data: {"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"delta":{"content":"
+        the"},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"U5TJ","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+
+
+        data: {"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"delta":{"content":"
+        person"},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"7","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+
+
+        data: {"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"delta":{"content":"
+        is"},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"a56cZ","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+
+
+        data: {"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"delta":{"content":"
+        Jessica"},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+
+
+        data: {"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"delta":{"content":"
+        Thompson"},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"uFueNMwhKQXTJ1M","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+
+
+        data: {"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"delta":{"content":"."},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"eol6WK8","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+
+
+        data: {"choices":[{"content_filter_results":{},"delta":{},"finish_reason":"stop","index":0,"logprobs":null}],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"9X","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+
+
+        data: {"choices":[],"created":1767213595,"id":"chatcmpl-CsxH1zYmPZn0ldtBxdOGYeAhI2ZfE","model":"gpt-4.1-2025-04-14","obfuscation":"t2RTu","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":{"completion_tokens":10,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens":165,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":175}}
+
+
+        data: [DONE]
+
+
+        '
+    headers:
+      Content-Type:
+      - text/event-stream; charset=utf-8
+      Date:
+      - Wed, 31 Dec 2025 20:39:55 GMT
+      Server:
+      - github.com
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Request-Id:
+      - 6250:2885DE:5442223:6B49945:69558A1A
+      apim-request-id:
+      - 488d34ba-bf61-41de-b51d-bbe8d4d92a82
+      azureml-model-session:
+      - d20251214155453-23b03381681f42df
+      azureml-served-by-cluster:
+      - vienna-westus-01
+      request-context:
+      - appId=
+      x-github-backend:
+      - Kubernetes
+      x-ms-client-request-id:
+      - Not-Set
+      x-ms-deployment-name:
+      - gpt-4.1
+      x-ms-rai-invoked:
+      - 'true'
+      x-ms-region:
+      - East US 2
+      x-ratelimit-limit-requests:
+      - '1000'
+      x-ratelimit-limit-tokens:
+      - '1000000'
+      x-ratelimit-remaining-requests:
+      - '988'
+      x-ratelimit-remaining-tokens:
+      - '998241'
+      x-request-time:
+      - '0.417'
+    status:
+      code: 200
+      message: OK
+version: 1

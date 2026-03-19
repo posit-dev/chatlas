@@ -1,0 +1,541 @@
+interactions:
+- request:
+    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
+      "Be terse. Follow instructions exactly."}]}, {"role": "user", "content": [{"type":
+      "input_text", "text": "First call step_one, wait for the result, then call step_two,
+      and tell me when both are done"}]}], "model": "gpt-4.1", "store": false, "stream":
+      false, "tools": [{"type": "function", "name": "step_one", "description": "First
+      step.", "parameters": {"properties": {}, "type": "object", "additionalProperties":
+      false, "required": []}, "strict": true}, {"type": "function", "name": "step_two",
+      "description": "Second step.", "parameters": {"properties": {}, "type": "object",
+      "additionalProperties": false, "required": []}, "strict": true}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '661'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_0de0eedf9abbba8e01695588dee61081a094c9139363717b4f\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213278,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1767213279,\n  \"error\": null,\n
+        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
+        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"output\": [\n    {\n      \"id\": \"fc_0de0eedf9abbba8e01695588df828c81a0b45419fd233fb5d0\",\n
+        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
+        \"{}\",\n      \"call_id\": \"call_OCvTa1W61xxoZeEtTW7m34i5\",\n      \"name\":
+        \"step_one\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n
+        \ \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
+        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
+        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n
+        \   \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
+        [\n    {\n      \"type\": \"function\",\n      \"description\": \"First step.\",\n
+        \     \"name\": \"step_one\",\n      \"parameters\": {\n        \"properties\":
+        {},\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n
+        \       \"required\": []\n      },\n      \"strict\": true\n    },\n    {\n
+        \     \"type\": \"function\",\n      \"description\": \"Second step.\",\n
+        \     \"name\": \"step_two\",\n      \"parameters\": {\n        \"properties\":
+        {},\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n
+        \       \"required\": []\n      },\n      \"strict\": true\n    }\n  ],\n
+        \ \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n
+        \ \"usage\": {\n    \"input_tokens\": 72,\n    \"input_tokens_details\": {\n
+        \     \"cached_tokens\": 0\n    },\n    \"output_tokens\": 11,\n    \"output_tokens_details\":
+        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 83\n  },\n
+        \ \"user\": null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 9b6c8f10da5a0d35-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:34:39 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1929'
+      openai-processing-ms:
+      - '664'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '666'
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '30000000'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
+      "Be terse. Follow instructions exactly."}]}, {"role": "user", "content": [{"type":
+      "input_text", "text": "Just call step_one and tell me when it''s done"}]}],
+      "model": "gpt-4.1", "store": false, "stream": false, "tools": [{"type": "function",
+      "name": "step_one", "description": "First step.", "parameters": {"properties":
+      {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
+      true}, {"type": "function", "name": "step_two", "description": "Second step.",
+      "parameters": {"properties": {}, "type": "object", "additionalProperties": false,
+      "required": []}, "strict": true}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '614'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_03362c591142706a01695588df06548190a1217283a5acba08\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213279,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1767213279,\n  \"error\": null,\n
+        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
+        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"output\": [\n    {\n      \"id\": \"fc_03362c591142706a01695588dfc3d88190a1dd0f13c2022115\",\n
+        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
+        \"{}\",\n      \"call_id\": \"call_pzBmxpmc0vXqsxskUc2fkarC\",\n      \"name\":
+        \"step_one\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n
+        \ \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
+        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
+        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n
+        \   \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
+        [\n    {\n      \"type\": \"function\",\n      \"description\": \"First step.\",\n
+        \     \"name\": \"step_one\",\n      \"parameters\": {\n        \"properties\":
+        {},\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n
+        \       \"required\": []\n      },\n      \"strict\": true\n    },\n    {\n
+        \     \"type\": \"function\",\n      \"description\": \"Second step.\",\n
+        \     \"name\": \"step_two\",\n      \"parameters\": {\n        \"properties\":
+        {},\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n
+        \       \"required\": []\n      },\n      \"strict\": true\n    }\n  ],\n
+        \ \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n
+        \ \"usage\": {\n    \"input_tokens\": 60,\n    \"input_tokens_details\": {\n
+        \     \"cached_tokens\": 0\n    },\n    \"output_tokens\": 11,\n    \"output_tokens_details\":
+        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 71\n  },\n
+        \ \"user\": null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 9b6c8f119a1de819-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:34:39 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1929'
+      openai-processing-ms:
+      - '794'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '796'
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '30000000'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
+      "Be terse. Follow instructions exactly."}]}, {"role": "user", "content": [{"type":
+      "input_text", "text": "First call step_one, wait for the result, then call step_two,
+      and tell me when both are done"}]}, {"type": "function_call", "call_id": "fc_0de0eedf9abbba8e01695588df828c81a0b45419fd233fb5d0",
+      "name": "step_one", "arguments": "{}"}, {"type": "function_call_output", "call_id":
+      "fc_0de0eedf9abbba8e01695588df828c81a0b45419fd233fb5d0", "output": "Step 1 complete"}],
+      "model": "gpt-4.1", "store": false, "stream": false, "tools": [{"type": "function",
+      "name": "step_one", "description": "First step.", "parameters": {"properties":
+      {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
+      true}, {"type": "function", "name": "step_two", "description": "Second step.",
+      "parameters": {"properties": {}, "type": "object", "additionalProperties": false,
+      "required": []}, "strict": true}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '912'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=IDwKAiDYQ.k9PVr34hUJTHFdtMrFdfkg.ZChz8.Vq0Q-1767213279-1.0.1.1-NSjpDfe6DCtgDXc1LAZEb2CMJbDuD2mk7n8f3XEauiOBBQfpD7oemVayB9l0S0XNMVLm0LYhywSTCn.095wyTUURblHBqL6I7i0kbK8lBm8;
+        _cfuvid=Mm3FLzrWgSv1xkIPnqQDoc3cDcYWL5rbkE_Q68zKnaU-1767213279829-0.0.1.1-604800000
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_0cb7928f1dc5e80701695588e00c04819ea011e66843bc5f78\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213280,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1767213280,\n  \"error\": null,\n
+        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
+        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"output\": [\n    {\n      \"id\": \"fc_0cb7928f1dc5e80701695588e05a94819ebcc3ce52307aebef\",\n
+        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
+        \"{}\",\n      \"call_id\": \"call_Gro32WsZ9ZNck9GbDs6oteZn\",\n      \"name\":
+        \"step_two\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n
+        \ \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
+        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
+        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n
+        \   \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
+        [\n    {\n      \"type\": \"function\",\n      \"description\": \"First step.\",\n
+        \     \"name\": \"step_one\",\n      \"parameters\": {\n        \"properties\":
+        {},\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n
+        \       \"required\": []\n      },\n      \"strict\": true\n    },\n    {\n
+        \     \"type\": \"function\",\n      \"description\": \"Second step.\",\n
+        \     \"name\": \"step_two\",\n      \"parameters\": {\n        \"properties\":
+        {},\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n
+        \       \"required\": []\n      },\n      \"strict\": true\n    }\n  ],\n
+        \ \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n
+        \ \"usage\": {\n    \"input_tokens\": 92,\n    \"input_tokens_details\": {\n
+        \     \"cached_tokens\": 0\n    },\n    \"output_tokens\": 11,\n    \"output_tokens_details\":
+        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 103\n  },\n
+        \ \"user\": null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 9b6c8f180cdde894-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:34:40 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1930'
+      openai-processing-ms:
+      - '352'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '355'
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '30000000'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
+      "Be terse. Follow instructions exactly."}]}, {"role": "user", "content": [{"type":
+      "input_text", "text": "Just call step_one and tell me when it''s done"}]}, {"type":
+      "function_call", "call_id": "fc_03362c591142706a01695588dfc3d88190a1dd0f13c2022115",
+      "name": "step_one", "arguments": "{}"}, {"type": "function_call_output", "call_id":
+      "fc_03362c591142706a01695588dfc3d88190a1dd0f13c2022115", "output": "Step 1 complete"}],
+      "model": "gpt-4.1", "store": false, "stream": false, "tools": [{"type": "function",
+      "name": "step_one", "description": "First step.", "parameters": {"properties":
+      {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
+      true}, {"type": "function", "name": "step_two", "description": "Second step.",
+      "parameters": {"properties": {}, "type": "object", "additionalProperties": false,
+      "required": []}, "strict": true}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '865'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=IDwKAiDYQ.k9PVr34hUJTHFdtMrFdfkg.ZChz8.Vq0Q-1767213279-1.0.1.1-NSjpDfe6DCtgDXc1LAZEb2CMJbDuD2mk7n8f3XEauiOBBQfpD7oemVayB9l0S0XNMVLm0LYhywSTCn.095wyTUURblHBqL6I7i0kbK8lBm8;
+        _cfuvid=Mm3FLzrWgSv1xkIPnqQDoc3cDcYWL5rbkE_Q68zKnaU-1767213279829-0.0.1.1-604800000
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_0c85e190305b393d01695588e02df48195863dada154f29ec9\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213280,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1767213280,\n  \"error\": null,\n
+        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
+        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_0c85e190305b393d01695588e0741c8195ad17f1cd0978ff52\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"Step one is done.\"\n
+        \       }\n      ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
+        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
+        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
+        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
+        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
+        \   \"format\": {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\":
+        \"function\",\n      \"description\": \"First step.\",\n      \"name\": \"step_one\",\n
+        \     \"parameters\": {\n        \"properties\": {},\n        \"type\": \"object\",\n
+        \       \"additionalProperties\": false,\n        \"required\": []\n      },\n
+        \     \"strict\": true\n    },\n    {\n      \"type\": \"function\",\n      \"description\":
+        \"Second step.\",\n      \"name\": \"step_two\",\n      \"parameters\": {\n
+        \       \"properties\": {},\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false,\n        \"required\": []\n      },\n      \"strict\": true\n    }\n
+        \ ],\n  \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n
+        \ \"usage\": {\n    \"input_tokens\": 80,\n    \"input_tokens_details\": {\n
+        \     \"cached_tokens\": 0\n    },\n    \"output_tokens\": 7,\n    \"output_tokens_details\":
+        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 87\n  },\n
+        \ \"user\": null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 9b6c8f18cecee273-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:34:40 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '2023'
+      openai-processing-ms:
+      - '380'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '383'
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '30000000'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
+      "Be terse. Follow instructions exactly."}]}, {"role": "user", "content": [{"type":
+      "input_text", "text": "First call step_one, wait for the result, then call step_two,
+      and tell me when both are done"}]}, {"type": "function_call", "call_id": "fc_0de0eedf9abbba8e01695588df828c81a0b45419fd233fb5d0",
+      "name": "step_one", "arguments": "{}"}, {"type": "function_call_output", "call_id":
+      "fc_0de0eedf9abbba8e01695588df828c81a0b45419fd233fb5d0", "output": "Step 1 complete"},
+      {"type": "function_call", "call_id": "fc_0cb7928f1dc5e80701695588e05a94819ebcc3ce52307aebef",
+      "name": "step_two", "arguments": "{}"}, {"type": "function_call_output", "call_id":
+      "fc_0cb7928f1dc5e80701695588e05a94819ebcc3ce52307aebef", "output": "Step 2 complete"}],
+      "model": "gpt-4.1", "store": false, "stream": false, "tools": [{"type": "function",
+      "name": "step_one", "description": "First step.", "parameters": {"properties":
+      {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
+      true}, {"type": "function", "name": "step_two", "description": "Second step.",
+      "parameters": {"properties": {}, "type": "object", "additionalProperties": false,
+      "required": []}, "strict": true}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1163'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=IDwKAiDYQ.k9PVr34hUJTHFdtMrFdfkg.ZChz8.Vq0Q-1767213279-1.0.1.1-NSjpDfe6DCtgDXc1LAZEb2CMJbDuD2mk7n8f3XEauiOBBQfpD7oemVayB9l0S0XNMVLm0LYhywSTCn.095wyTUURblHBqL6I7i0kbK8lBm8;
+        _cfuvid=Mm3FLzrWgSv1xkIPnqQDoc3cDcYWL5rbkE_Q68zKnaU-1767213279829-0.0.1.1-604800000
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_06d4ad63f2b9f33101695588e0d2a48192be079e8750aef863\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1767213280,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1767213281,\n  \"error\": null,\n
+        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
+        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+        \ \"output\": [\n    {\n      \"id\": \"msg_06d4ad63f2b9f33101695588e10fa08192b95477bf927db574\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"Step one done. Step
+        two done. Both are complete.\"\n        }\n      ],\n      \"role\": \"assistant\"\n
+        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n
+        \ \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
+        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
+        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n
+        \   \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
+        [\n    {\n      \"type\": \"function\",\n      \"description\": \"First step.\",\n
+        \     \"name\": \"step_one\",\n      \"parameters\": {\n        \"properties\":
+        {},\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n
+        \       \"required\": []\n      },\n      \"strict\": true\n    },\n    {\n
+        \     \"type\": \"function\",\n      \"description\": \"Second step.\",\n
+        \     \"name\": \"step_two\",\n      \"parameters\": {\n        \"properties\":
+        {},\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n
+        \       \"required\": []\n      },\n      \"strict\": true\n    }\n  ],\n
+        \ \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n
+        \ \"usage\": {\n    \"input_tokens\": 112,\n    \"input_tokens_details\":
+        {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 14,\n    \"output_tokens_details\":
+        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 126\n  },\n
+        \ \"user\": null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 9b6c8f1cc97ff862-ORD
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 31 Dec 2025 20:34:41 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '2057'
+      openai-processing-ms:
+      - '389'
+      openai-version:
+      - '2020-10-01'
+      x-envoy-upstream-service-time:
+      - '392'
+      x-ratelimit-limit-requests:
+      - '10000'
+      x-ratelimit-limit-tokens:
+      - '30000000'
+      x-ratelimit-remaining-requests:
+      - '9999'
+      x-ratelimit-remaining-tokens:
+      - '30000000'
+      x-ratelimit-reset-requests:
+      - 6ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+version: 1

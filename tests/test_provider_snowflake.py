@@ -11,15 +11,25 @@ from .conftest import (
     assert_turns_system,
 )
 
-CONNECTION = "posit"
-MODEL = "claude-3-7-sonnet"
+
+def chat_fun(**kwargs):
+    return ChatSnowflake(
+        connection_name="posit",
+        model="claude-3-7-sonnet",
+        **kwargs,
+    )
+
+
+try:
+    chat = chat_fun()
+    chat.chat("What is 1 + 1?")
+except Exception:
+    pytest.skip("Snowflake credentials aren't configured", allow_module_level=True)
 
 
 @pytest.mark.filterwarnings("ignore")
 def test_openai_simple_request():
-    chat = ChatSnowflake(
-        connection_name=CONNECTION,
-        model=MODEL,
+    chat = chat_fun(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -38,9 +48,7 @@ def test_openai_simple_request():
 @pytest.mark.asyncio
 @pytest.mark.filterwarnings("ignore")
 async def test_openai_simple_streaming_request():
-    chat = ChatSnowflake(
-        connection_name=CONNECTION,
-        model=MODEL,
+    chat = chat_fun(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -53,19 +61,15 @@ async def test_openai_simple_streaming_request():
     # No token / finish_reason info available
     # assert turn.finish_reason == "stop"
 
+
 @pytest.mark.filterwarnings("ignore")
 def test_respects_turns_interface():
-    def chat_fun(**kwargs):
-        return ChatSnowflake(connection_name=CONNECTION, model=MODEL, **kwargs)
-
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
+
 @pytest.mark.filterwarnings("ignore")
 def test_tool_variations():
-    def chat_fun(**kwargs):
-        return ChatSnowflake(connection_name=CONNECTION, model=MODEL, **kwargs)
-
     assert_tools_simple(chat_fun)
     assert_tools_simple_stream_content(chat_fun)
     # Seems parallel tools are not supported by Snowflake?
@@ -77,29 +81,18 @@ def test_tool_variations():
 @pytest.mark.asyncio
 @pytest.mark.filterwarnings("ignore")
 async def test_tool_variations_async():
-    def chat_fun(**kwargs):
-        return ChatSnowflake(connection_name=CONNECTION, model=MODEL, **kwargs)
-
     await assert_tools_async(chat_fun)
+
 
 @pytest.mark.filterwarnings("ignore")
 def test_data_extraction():
-    def chat_fun():
-        return ChatSnowflake(connection_name=CONNECTION, model=MODEL)
-
     assert_data_extraction(chat_fun)
 
 
 # def test_images():
-#     def chat_fun(**kwargs):
-#         return ChatSnowflake(connection_name=CONNECTION, **kwargs)
-#
 #     assert_images_inline(chat_fun)
 #     assert_images_remote(chat_fun)
 #
 #
 # def test_pdf():
-#     def chat_fun(**kwargs):
-#         return ChatSnowflake(connection_name=CONNECTION, **kwargs)
-#
 #     assert_pdf_local(chat_fun)

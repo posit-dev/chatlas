@@ -16,15 +16,14 @@ from ._content import (
     ContentText,
     ContentToolRequest,
     ContentToolResult,
-    ContentToolResultImage,
-    ContentToolResultResource,
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
-from ._tokens import get_token_pricing, tokens_log
-from ._tools import Tool
-from ._turn import Turn, user_turn
+from ._tokens import get_price_info
+from ._tools import Tool, ToolBuiltIn
+from ._tools_builtin import ToolWebFetch, ToolWebSearch
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 
 if TYPE_CHECKING:
     from google.genai.types import Content as GoogleContent
@@ -34,6 +33,7 @@ if TYPE_CHECKING:
         GenerateContentResponseDict,
         Part,
         PartDict,
+        ThinkingConfigDict,
     )
 
     from .types.google import ChatClientArgs, SubmitInputArgs
@@ -45,6 +45,7 @@ def ChatGoogle(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
+    reasoning: Optional["int | ThinkingConfigDict"] = None,
     api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", GenerateContentResponse]:
@@ -86,6 +87,10 @@ def ChatGoogle(
         The model to use for the chat. The default, None, will pick a reasonable
         default, and warn you about it. We strongly recommend explicitly choosing
         a model for all but the most casual use.
+    reasoning
+        If provided, enables reasoning (a.k.a. "thoughts") in the model's
+        responses. This can be an integer number of tokens to use for reasoning,
+        or a full `ThinkingConfigDict` to customize the reasoning behavior.
     api_key
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `GOOGLE_API_KEY` environment variable.
@@ -137,14 +142,20 @@ def ChatGoogle(
     if model is None:
         model = log_model_default("gemini-2.5-flash")
 
+    kwargs_chat: "SubmitInputArgs" = {}
+    if reasoning is not None:
+        if isinstance(reasoning, int):
+            reasoning = {"thinking_budget": reasoning, "include_thoughts": True}
+        kwargs_chat["config"] = {"thinking_config": reasoning}
+
     return Chat(
         provider=GoogleProvider(
             model=model,
             api_key=api_key,
-            name="Google/Gemini",
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+        kwargs_chat=kwargs_chat,
     )
 
 
@@ -186,7 +197,7 @@ class GoogleProvider(
         res: list[ModelInfo] = []
         for m in models:
             name = m.name or "[unknown]"
-            pricing = get_token_pricing(self.name, name) or {}
+            pricing = get_price_info(self.name, name) or {}
             info: ModelInfo = {
                 "id": name,
                 "name": m.display_name or "[unknown]",
@@ -210,7 +221,7 @@ class GoogleProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -221,16 +232,17 @@ class GoogleProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     def chat_perform(
         self,
+        *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -246,7 +258,7 @@ class GoogleProvider(
         *,
         stream: Literal[False],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
@@ -257,16 +269,17 @@ class GoogleProvider(
         *,
         stream: Literal[True],
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ): ...
 
     async def chat_perform_async(
         self,
+        *,
         stream: bool,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
@@ -279,11 +292,16 @@ class GoogleProvider(
     def _chat_perform_args(
         self,
         turns: list[Turn],
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-        from google.genai.types import FunctionDeclaration, GenerateContentConfig
+        from google.genai.types import (
+            FunctionDeclaration,
+            GenerateContentConfig,
+            Schema,
+            ToolListUnion,
+        )
         from google.genai.types import Tool as GoogleTool
 
         kwargs_full: "SubmitInputArgs" = {
@@ -299,7 +317,7 @@ class GoogleProvider(
             config = GenerateContentConfig.model_construct(**config)
 
         if config.system_instruction is None:
-            if len(turns) > 0 and turns[0].role == "system":
+            if len(turns) > 0 and isinstance(turns[0], SystemTurn):
                 config.system_instruction = turns[0].text
 
         if data_model:
@@ -307,17 +325,37 @@ class GoogleProvider(
             config.response_mime_type = "application/json"
 
         if tools:
-            config.tools = [
-                GoogleTool(
-                    function_declarations=[
-                        FunctionDeclaration.from_callable(
-                            client=self._client._api_client,
-                            callable=tool.func,
-                        )
-                        for tool in tools.values()
-                    ]
-                )
-            ]
+            google_tools: ToolListUnion = []
+            for tool in tools.values():
+                if isinstance(tool, ToolWebSearch):
+                    gtool = GoogleTool(google_search=tool.get_definition("google"))
+                    google_tools.append(gtool)
+                elif isinstance(tool, ToolWebFetch):
+                    gtool = GoogleTool(url_context=tool.get_definition("google"))
+                    google_tools.append(gtool)
+                elif isinstance(tool, ToolBuiltIn):
+                    gtool = GoogleTool.model_validate(tool.definition)
+                    google_tools.append(gtool)
+                else:
+                    func = tool.schema["function"]
+                    params = func.get("parameters")
+                    gtool = GoogleTool(
+                        function_declarations=[
+                            FunctionDeclaration(
+                                name=func["name"],
+                                description=func.get("description"),
+                                parameters=Schema.model_validate(
+                                    _strip_additional_properties(params)
+                                )
+                                if params
+                                else None,
+                            )
+                        ]
+                    )
+                    google_tools.append(gtool)
+
+            if google_tools:
+                config.tools = google_tools
 
         kwargs_full["config"] = config
 
@@ -339,20 +377,40 @@ class GoogleProvider(
             merge_dicts(completion, chunkd),  # type: ignore
         )
 
-    def stream_turn(self, completion, has_data_model) -> Turn:
+    def stream_turn(self, completion, has_data_model):
         return self._as_turn(
             completion,
             has_data_model,
         )
 
-    def value_turn(self, completion, has_data_model) -> Turn:
+    def value_turn(self, completion, has_data_model):
         completion = cast("GenerateContentResponseDict", completion.model_dump())
         return self._as_turn(completion, has_data_model)
+
+    def value_tokens(self, completion):
+        if isinstance(completion, dict):
+            # Currently value_turn() attached a dict completion
+            from google.genai.types import GenerateContentResponseUsageMetadata
+
+            usage = GenerateContentResponseUsageMetadata.model_validate(
+                completion.get("usage_metadata", {})
+            )
+        else:
+            usage = completion.usage_metadata
+
+        if usage is None:
+            return None
+        cached = usage.cached_content_token_count or 0
+        return (
+            (usage.prompt_token_count or 0) - cached,
+            (usage.candidates_token_count or 0) + (usage.thoughts_token_count or 0),
+            usage.cached_content_token_count or 0,
+        )
 
     def token_count(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ):
         kwargs = self._token_count_args(
@@ -367,7 +425,7 @@ class GoogleProvider(
     async def token_count_async(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ):
         kwargs = self._token_count_args(
@@ -382,7 +440,7 @@ class GoogleProvider(
     def _token_count_args(
         self,
         *args: Content | str,
-        tools: dict[str, Tool],
+        tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> dict[str, Any]:
         turn = user_turn(*args)
@@ -402,12 +460,12 @@ class GoogleProvider(
 
         contents: list["GoogleContent"] = []
         for turn in turns:
-            if turn.role == "system":
+            if isinstance(turn, SystemTurn):
                 continue  # System messages are handled separately
-            elif turn.role == "user":
+            elif isinstance(turn, UserTurn):
                 parts = [self._as_part_type(c) for c in turn.contents]
                 contents.append(GoogleContent(role=turn.role, parts=parts))
-            elif turn.role == "assistant":
+            elif isinstance(turn, AssistantTurn):
                 parts = [self._as_part_type(c) for c in turn.contents]
                 contents.append(GoogleContent(role="model", parts=parts))
             else:
@@ -420,7 +478,8 @@ class GoogleProvider(
         if isinstance(content, ContentText):
             return Part.from_text(text=content.text)
         elif isinstance(content, ContentJson):
-            return Part.from_text(text="<structured data/>")
+            text = orjson.dumps(content.value).decode("utf-8")
+            return Part.from_text(text=text)
         elif isinstance(content, ContentPDF):
             from google.genai.types import Blob
 
@@ -428,6 +487,8 @@ class GoogleProvider(
                 inline_data=Blob(
                     data=content.data,
                     mime_type="application/pdf",
+                    # Not supported?
+                    # display_name=content.filename,
                 )
             )
         elif isinstance(content, ContentImageInline) and content.data:
@@ -450,11 +511,6 @@ class GoogleProvider(
                 )
             )
         elif isinstance(content, ContentToolResult):
-            if isinstance(content, (ContentToolResultImage, ContentToolResultResource)):
-                raise NotImplementedError(
-                    "Tool results with images or resources aren't supported by Google (Gemini). "
-                )
-
             if content.error:
                 resp = {"error": content.error}
             else:
@@ -474,12 +530,12 @@ class GoogleProvider(
         self,
         message: "GenerateContentResponseDict",
         has_data_model: bool,
-    ) -> Turn:
+    ) -> AssistantTurn:
         from google.genai.types import FinishReason
 
         candidates = message.get("candidates")
         if not candidates:
-            return Turn("assistant", "")
+            return AssistantTurn("")
 
         parts: list["PartDict"] = []
         finish_reason = None
@@ -527,26 +583,23 @@ class GoogleProvider(
                             ),
                         )
                     )
-
-        usage = message.get("usage_metadata")
-        tokens = (0, 0, 0)
-        if usage:
-            cached = usage.get("cached_content_token_count") or 0
-            tokens = (
-                (usage.get("prompt_token_count") or 0) - cached,
-                usage.get("candidates_token_count") or 0,
-                usage.get("cached_content_token_count") or 0,
-            )
-
-        tokens_log(self, tokens)
+            inline_data = part.get("inline_data")
+            if inline_data:
+                mime_type = inline_data.get("mime_type")
+                data = inline_data.get("data")
+                if mime_type and data:
+                    contents.append(
+                        ContentImageInline(
+                            data=data.decode("utf-8"),
+                            image_content_type=mime_type,  # type: ignore
+                        )
+                    )
 
         if isinstance(finish_reason, FinishReason):
             finish_reason = finish_reason.name
 
-        return Turn(
-            "assistant",
+        return AssistantTurn(
             contents,
-            tokens=tokens,
             finish_reason=finish_reason,
             completion=message,
         )
@@ -681,3 +734,24 @@ def ChatVertex(
         ),
         system_prompt=system_prompt,
     )
+
+
+def _strip_additional_properties(params: dict[str, Any]) -> dict[str, Any]:
+    """
+    Recursively remove additionalProperties from JSON schema.
+
+    Google's API doesn't accept additionalProperties in tool schemas,
+    so we strip it before passing to Schema.model_validate().
+    """
+    result = {k: v for k, v in params.items() if k != "additionalProperties"}
+
+    if "properties" in result and isinstance(result["properties"], dict):
+        result["properties"] = {
+            k: _strip_additional_properties(v) if isinstance(v, dict) else v
+            for k, v in result["properties"].items()
+        }
+
+    if "items" in result and isinstance(result["items"], dict):
+        result["items"] = _strip_additional_properties(result["items"])
+
+    return result

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional, cast
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._provider_openai import OpenAIProvider
+from ._provider_openai_completions import OpenAICompletionsProvider
 from ._turn import Turn
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
@@ -143,15 +143,15 @@ def ChatDeepSeek(
     )
 
 
-class DeepSeekProvider(OpenAIProvider):
+class DeepSeekProvider(OpenAICompletionsProvider):
     @staticmethod
-    def _as_message_param(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
+    def _turns_as_inputs(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
         from openai.types.chat import (
             ChatCompletionAssistantMessageParam,
             ChatCompletionUserMessageParam,
         )
 
-        params = OpenAIProvider._as_message_param(turns)
+        params = OpenAICompletionsProvider._turns_as_inputs(turns)
 
         # Content must be a string
         for i, param in enumerate(params):

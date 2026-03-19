@@ -7,6 +7,106 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [UNRELEASED]
+
+
+
+## [0.15.1] -- 2026-01-22
+
+### New features
+
+* `.stream()` and `.stream_async()` now support a `data_model` parameter for structured data extraction while streaming. (#262)
+* `.to_solver()` now supports a `data_model` parameter for structured data extraction in evals. When provided, the solver uses `.chat_structured()` instead of `.chat()` and outputs JSON-serialized data. (#264)
+
+### Bug fixes
+
+* Fixed `ContentToolResult` with an `error` not being JSON serializable. When a tool call failed, calling `.get_turns()` followed by `.model_dump_json()` would raise a `PydanticSerializationError`. (#267)
+
+## [0.15.0] - 2026-01-06
+
+### New features
+
+* `ChatOpenAI()`, `ChatAnthropic()`, and `ChatGoogle()` gain a new `reasoning` parameter to easily opt-into, and fully customize, reasoning capabilities. (#202, #260)
+    * A new `ContentThinking` content type was added and captures the "thinking" portion of a reasoning model. (#192)
+* Added "built-in" web search and URL fetch tools `tool_web_search()` and `tool_web_fetch()`:
+    * `tool_web_search()` is supported by OpenAI, Claude (Anthropic), and Google (Gemini).
+    * `tool_web_fetch()` is supported by Claude (requires beta header) and Google.
+    * New content types `ContentToolRequestSearch`, `ContentToolResponseSearch`, `ContentToolRequestFetch`, and `ContentToolResponseFetch` capture web tool interactions.
+* Added `ToolBuiltIn` class to assist with specifying provider-specific built-in tools. This enables provider-specific functionality like OpenAI's image generation to be registered and used as tools. Built-in tools pass raw provider definitions directly to the API rather than wrapping Python functions. (#214)
+* `ChatOpenAI()` and `ChatAzureOpenAI()` gain a new `service_tier` parameter to request a specific service tier (e.g., `"flex"` for slower/cheaper or `"priority"` for faster/more expensive). (#204)
+* `ChatAuto()` now accepts `"claude"` as an alias for `"anthropic"`, reflecting Anthropic's rebranding of developer tools under the Claude name. (#239)
+
+### Changes
+
+* `repr()` now generally gives the same result as `str()` for many classes (`Chat`, `Turn`, `Content`, etc). This leads to a more human-readable result (and is closer to the result that gets `echo`ed by `.chat()`). (#245)
+* The `Chat.get_cost()` method's `options` parameter was renamed to `include`. (#244)
+* When supplying a `model` to `.register_tool(tool_func, model=ToolModel)`, the defaults for the `model` must match the `tool_func` defaults. Previously, if `tool_func` had defaults, but `ToolModel` didn't, those defaults would get silently ignored. (#253)
+
+### Improvements
+
+* `Chat` and `Turn` now have a `_repr_markdown_` method and an overall improved `repr()` experience. (#245)
+* `ChatSnowflake()` now sets the `application` config parameter for partner identification. Defaults to `"py_chatlas"` but can be overridden via the `SF_PARTNER` environment variable. (#209)
+
+### Bug fixes
+
+* Fixed structured data extraction with `ChatAnthropic()` failing for Pydantic models containing nested types (e.g., `list[NestedModel]`). The issue was that `$defs` (containing nested type definitions) was incorrectly placed inside the schema, breaking JSON `$ref` pointer references. (#100)
+* Fixed MCP tools failing with OpenAI providers due to strict mode schema validation. OpenAI's strict mode rejects standard JSON Schema features like `format: "uri"` and requires all properties in the `required` array. MCP tools now set `strict=false` to use standard JSON Schema conventions. (#255)
+* Fixed MCP tools not working with `ChatGoogle()`. (#257)
+* Tool functions parameters that are `typing.Annotated` with a `pydantic.Field` (e.g., `def add(x: Annotated[int, Field(description="First number")])`) are now handled correctly. (#251)
+
+
+## [0.14.0] - 2025-12-09
+
+### New features
+
+* `ChatOpenAI()` (and `ChatAzureOpenAI()`) gain access to latest models, built-in tools, etc. as a result of moving to the new [Responses API](https://platform.openai.com/docs/api-reference/responses). (#192)
+* Added new family of functions (`parallel_chat()`, `parallel_chat_text()`, and `parallel_chat_structured()`) for submitting multiple prompts at once with some basic rate limiting toggles. (#188)
+* Tools can now return image or PDF content types, with `content_image_file()` or `content_pdf_file()` (#231).
+    * As a result, the experimental `ContentToolResultImage` and `ContentToolResultResource` were removed since this new support for generally supporting `ContentImage` and `ContentPDF` renders those content types redundant.
+* Added support for systematic evaluation via [Inspect AI](https://inspect.aisi.org.uk/). This includes:
+    * A new `.export_eval()` method for exporting conversation history as an Inspect eval dataset sample. This supports multi-turn conversations, tool calls, images, PDFs, and structured data.
+    * A new `.to_solver()` method for translating chat instances into Inspect solvers that can be used with Inspect's evaluation framework.
+    * A new `Turn.to_inspect_messages()` method for converting turns to Inspect's message format.
+    * Comprehensive documentation in the [Evals guide](https://posit-dev.github.io/chatlas/misc/evals.html).
+* `ChatAnthropic()` and `ChatBedrockAnthropic()` gain new `cache` parameter to control caching. For `ChatAnthropic()`, it defaults to `"5m"`, which should (on average) reduce the cost of your chats. For `ChatBedrockAnthropic()`, it defaults to `"none"`, since caching isn't guaranteed to be widely supported (#215)
+* Added rudimentary support for a new `ContentThinking` type. (#192)
+
+### Changes
+
+* `ChatOpenAI()` (and `ChatAzureOpenAI()`) move from OpenAI's Completions API to [Responses API](https://platform.openai.com/docs/api-reference/responses). If this happens to break behavior, change `ChatOpenAI()` -> `ChatOpenAICompletions()` (or `ChatAzureOpenAI()` -> `ChatAzureOpenAICompletions()`). (#192)
+* The `Turn` class is now a base class with three specialized subclasses: `UserTurn`, `AssistantTurn`, and `SystemTurn`. Use these new classes to construct turns by hand. (#224)
+* The `.set_model_params()` method no longer accepts `kwargs`. Instead, use the new `chat.kwargs_chat` attribute to set chat input parameters that persist across the chat session. (#212)
+* `Provider` implementations now require an additional `.value_tokens()` method. Previously, it was assumed that token info was logged and attached to the `Turn` as part of the `.value_turn()` method. The logging and attaching is now handled automatically. (#194)
+
+### Improvements
+
+* `ChatAnthropic()` and `ChatBedrockAnthropic()` now default to Claude Sonnet 4.5.
+* `ChatGroq()` now defaults to llama-3.1-8b-instant.
+* `Chat.chat()`, `Chat.stream()`, and related methods now automatically complete dangling tool requests when a chat is interrupted during a tool call loop, allowing the conversation to be resumed without causing API errors (#230).
+* `content_pdf_file()` and `content_pdf_url()` now include relevant `filename` information. (#199)
+
+### Bug fixes
+
+* `.set_model_params()` now works correctly for `.*_async()` methods. (#198)
+* `.chat_structured()` results are now included correctly into the multi-turn conversation history. (#203)
+* `ChatAnthropic()` now drops empty assistant turns to avoid API errors when tools return side-effect only results. (#226)
+
+## [0.13.2] - 2025-10-02
+
+### Improvements
+
+* `ContentToolResult`'s `.get_model_value()` method now calls `.to_json(orient="record")` (instead of `.to_json()`) when relevant. As a result, if a tool call returns a Pandas `DataFrame` (or similar), the model now receives a less confusing (and smaller) JSON format. (#183)
+
+### Bug fixes
+
+* `ChatAzureOpenAI()` and `ChatDatabricks()` now work as expected when a `OPENAI_API_KEY` environment variable isn't present. (#185)
+
+## [0.13.1] - 2025-09-18
+
+### Bug fixes
+
+* `ChatGithub()` once again uses the appropriate `base_url` when generating reponses (problem introduced in v0.11.0). (#182)
+
 ## [0.13.0] - 2025-09-10
 
 ### New features

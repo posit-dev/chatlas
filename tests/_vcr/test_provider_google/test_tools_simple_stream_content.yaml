@@ -1,0 +1,128 @@
+interactions:
+- request:
+    body: '{"contents": [{"parts": [{"text": "What''s the current date in YYYY-MM-DD
+      format?"}], "role": "user"}], "systemInstruction": {"parts": [{"text": "Be very
+      terse, not even punctuation."}], "role": "user"}, "tools": [{"functionDeclarations":
+      [{"description": "Gets the current date", "name": "get_date", "parameters":
+      {"properties": {}, "required": [], "type": "OBJECT"}}]}], "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '411'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.12.11
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"get_date\",\"args\": {}},\"thoughtSignature\": \"CiQBcsjafE9eWGiadGJJTJOL/qzQ8PR+U2+tUgjiMrMZ7XHKr9YKcAFyyNp8+AqF+TpTbQOQwoLL0EHvfR1ZTS1toVSmjVsdUIeV7CdQkhtv8aMOpIXLE+FQQy0/Lk7nNZ8CW7Ei5tc0JfS+LApvnXn7PP+8B3r7EJZdRFcFC4YZdqWkrKWTwaz35COYxXuv8taX3nhB2GQKlQEBcsjafDrxMBZDDt/PXsp4UQgCR0yXNu2QDG18urPBwgIDR6a/OHVWGhZUuRYxkk4wjHg+E2ABeGbGgQ/5w90LsrgAylwUVDbUCr7Qzd+c12ZjI44YLXaeIwHsjGZcYcmAfYxFCRswf/NNXP4FewXBVVc/XPQ+q1P/yvLZG4cmf2tk1FXFdpj95+g0fcwOzZ/QlwUEgw==\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
+        generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
+        51,\"candidatesTokenCount\": 10,\"totalTokenCount\": 104,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 51}],\"thoughtsTokenCount\": 43},\"modelVersion\":
+        \"gemini-2.5-flash\",\"responseId\": \"_XBYabbFCfrO_uMP34qY-Qw\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Sat, 03 Jan 2026 01:29:33 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=779
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What''s the current date in YYYY-MM-DD
+      format?"}], "role": "user"}, {"parts": [{"functionCall": {"args": {}, "name":
+      "get_date"}}], "role": "model"}, {"parts": [{"functionResponse": {"name": "get_date",
+      "response": {"result": "2024-01-01"}}}], "role": "user"}], "systemInstruction":
+      {"parts": [{"text": "Be very terse, not even punctuation."}], "role": "user"},
+      "tools": [{"functionDeclarations": [{"description": "Gets the current date",
+      "name": "get_date", "parameters": {"properties": {}, "required": [], "type":
+      "OBJECT"}}]}], "generationConfig": {"temperature": 0}}'
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '604'
+      Content-Type:
+      - application/json
+      Host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/1.56.0 gl-python/3.12.11
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"2024\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 85,\"candidatesTokenCount\":
+        4,\"totalTokenCount\": 89,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        85}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"_nBYabfUGO7X_uMPwtnYgAo\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"-01-01\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        85,\"candidatesTokenCount\": 10,\"totalTokenCount\": 95,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 85}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
+        \"_nBYabfUGO7X_uMPwtnYgAo\"}\r\n\r\n"
+    headers:
+      Alt-Svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      Content-Disposition:
+      - attachment
+      Content-Type:
+      - text/event-stream
+      Date:
+      - Sat, 03 Jan 2026 01:29:34 GMT
+      Server:
+      - scaffolding on HTTPServer2
+      Server-Timing:
+      - gfet4t7; dur=330
+      Transfer-Encoding:
+      - chunked
+      Vary:
+      - Origin
+      - X-Origin
+      - Referer
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1
