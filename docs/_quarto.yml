@@ -108,6 +108,7 @@ format:
       - styles.scss
     toc: true
     toc-depth: 3
+    include-in-header: "include-in-header.html"
 
 quartodoc:
   package: chatlas
