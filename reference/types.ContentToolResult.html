@@ -75,7 +75,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-441cf8784b515adac1424855ab078ac0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-3e3c66d980b5d59377b1453b0aeb60cc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-5c356ce55c5068c377a94633e77e7c48.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -103,6 +103,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<!-- Privacy-friendly analytics by Plausible -->
+<script async="" src="https://plausible.io/js/pa-pN3x5-t50CqjdU3JPOYbw.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
 <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-light-bg="#404041" data-light-fg="#ffffff" data-dark-bg="#ffffff" data-dark-fg="#404041"></script>
 
 
@@ -714,7 +720,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
   <ul class="collapse">
   <li><a href="#chatlas.types.ContentToolResult.get_model_value" id="toc-chatlas.types.ContentToolResult.get_model_value" class="nav-link" data-scroll-target="#chatlas.types.ContentToolResult.get_model_value">get_model_value</a></li>
+  <li><a href="#chatlas.types.ContentToolResult.serialize_error" id="toc-chatlas.types.ContentToolResult.serialize_error" class="nav-link" data-scroll-target="#chatlas.types.ContentToolResult.serialize_error">serialize_error</a></li>
   <li><a href="#chatlas.types.ContentToolResult.tagify" id="toc-chatlas.types.ContentToolResult.tagify" class="nav-link" data-scroll-target="#chatlas.types.ContentToolResult.tagify">tagify</a></li>
+  <li><a href="#chatlas.types.ContentToolResult.validate_error" id="toc-chatlas.types.ContentToolResult.validate_error" class="nav-link" data-scroll-target="#chatlas.types.ContentToolResult.validate_error">validate_error</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -802,8 +810,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Get the actual value sent to the model.</td>
 </tr>
 <tr class="even">
+<td><a href="#chatlas.types.ContentToolResult.serialize_error">serialize_error</a></td>
+<td>Serialize Exception to string for JSON compatibility.</td>
+</tr>
+<tr class="odd">
 <td><a href="#chatlas.types.ContentToolResult.tagify">tagify</a></td>
 <td>A method for rendering this object via htmltools/shiny.</td>
+</tr>
+<tr class="even">
+<td><a href="#chatlas.types.ContentToolResult.validate_error">validate_error</a></td>
+<td>Accept string or Exception for error field.</td>
 </tr>
 </tbody>
 </table>
@@ -812,10 +828,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>types.ContentToolResult.get_model_value()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Get the actual value sent to the model.</p>
 </section>
+<section id="chatlas.types.ContentToolResult.serialize_error" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.types.ContentToolResult.serialize_error">serialize_error</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>types.ContentToolResult.serialize_error(v)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Serialize Exception to string for JSON compatibility.</p>
+</section>
 <section id="chatlas.types.ContentToolResult.tagify" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.types.ContentToolResult.tagify">tagify</h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>types.ContentToolResult.tagify()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>types.ContentToolResult.tagify()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>A method for rendering this object via htmltools/shiny.</p>
+</section>
+<section id="chatlas.types.ContentToolResult.validate_error" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.types.ContentToolResult.validate_error">validate_error</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>types.ContentToolResult.validate_error(v)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Accept string or Exception for error field.</p>
 
 
 </section>

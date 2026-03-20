@@ -204,8 +204,12 @@ chatlas.types.ContentToolRequest py:class 1 reference/types.ContentToolRequest.h
 chatlas._content.ContentToolRequest py:class 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest chatlas.types.ContentToolRequest
 chatlas.types.ContentToolResult.get_model_value py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.get_model_value -
 chatlas._content.ContentToolResult.get_model_value py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.get_model_value chatlas.types.ContentToolResult.get_model_value
+chatlas.types.ContentToolResult.serialize_error py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.serialize_error -
+chatlas._content.ContentToolResult.serialize_error py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.serialize_error chatlas.types.ContentToolResult.serialize_error
 chatlas.types.ContentToolResult.tagify py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.tagify -
 chatlas._content.ContentToolResult.tagify py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.tagify chatlas.types.ContentToolResult.tagify
+chatlas.types.ContentToolResult.validate_error py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.validate_error -
+chatlas._content.ContentToolResult.validate_error py:function 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult.validate_error chatlas.types.ContentToolResult.validate_error
 chatlas.types.ContentToolResult py:class 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult -
 chatlas._content.ContentToolResult py:class 1 reference/types.ContentToolResult.html#chatlas.types.ContentToolResult chatlas.types.ContentToolResult
 chatlas.types.ContentToolRequestSearch py:class 1 reference/types.ContentToolRequestSearch.html#chatlas.types.ContentToolRequestSearch -

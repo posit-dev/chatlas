@@ -75,7 +75,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-441cf8784b515adac1424855ab078ac0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-3e3c66d980b5d59377b1453b0aeb60cc.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-5c356ce55c5068c377a94633e77e7c48.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -103,6 +103,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<!-- Privacy-friendly analytics by Plausible -->
+<script async="" src="https://plausible.io/js/pa-pN3x5-t50CqjdU3JPOYbw.js"></script>
+<script>
+  window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+  plausible.init()
+</script>
 <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-light-bg="#404041" data-light-fg="#ffffff" data-dark-bg="#ffffff" data-dark-fg="#404041"></script>
 
 
@@ -2473,7 +2479,7 @@ Note
 </section>
 <section id="chatlas.Chat.stream" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.stream">stream</h3>
-<div class="sourceCode" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>Chat.stream(<span class="op">*</span>args, content<span class="op">=</span><span class="st">'text'</span>, echo<span class="op">=</span><span class="st">'none'</span>, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>Chat.stream(<span class="op">*</span>args, content<span class="op">=</span><span class="st">'text'</span>, echo<span class="op">=</span><span class="st">'none'</span>, data_model<span class="op">=</span><span class="va">None</span>, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Generate a response from the chat in a streaming fashion.</p>
 <section id="parameters-22" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-22">Parameters</h4>
@@ -2506,6 +2512,12 @@ Note
 <td><code>'none'</code></td>
 </tr>
 <tr class="even">
+<td>data_model</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
+<td>A Pydantic model describing the structure of the data to extract. When provided, the response will be constrained to match this structure. The streamed chunks will be JSON text that, when concatenated, forms a valid JSON object matching the model. After consuming the stream, use <code>data_model.model_validate_json("".join(chunks))</code> to parse the result.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
 <td>kwargs</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
 <td>Additional keyword arguments to pass to the method used for requesting the response.</td>
@@ -2527,16 +2539,37 @@ Note
 <tbody>
 <tr class="odd">
 <td></td>
-<td><a href="https://posit-dev.github.io/chatlas/reference/types.ChatResponse.html#chatlas.types.ChatResponse">ChatResponse</a></td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Generator">Generator</a></td>
 <td>An (unconsumed) response from the chat. Iterate over this object to consume the response.</td>
 </tr>
 </tbody>
 </table>
 </section>
+<section id="examples-5" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-5">Examples</h4>
+<div class="sourceCode" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person(BaseModel):</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    age: <span class="bu">int</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>chunks <span class="op">=</span> <span class="bu">list</span>(chat.stream(<span class="st">"John is 25 years old"</span>, data_model<span class="op">=</span>Person))</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>person <span class="op">=</span> Person.model_validate_json(<span class="st">""</span>.join(chunks))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
 </section>
 <section id="chatlas.Chat.stream_async" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.stream_async">stream_async</h3>
-<div class="sourceCode" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>Chat.stream_async(<span class="op">*</span>args, content<span class="op">=</span><span class="st">'text'</span>, echo<span class="op">=</span><span class="st">'none'</span>, kwargs<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>Chat.stream_async(</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>args,</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>    content<span class="op">=</span><span class="st">'text'</span>,</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    echo<span class="op">=</span><span class="st">'none'</span>,</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    data_model<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Generate a response from the chat in a streaming fashion asynchronously.</p>
 <section id="parameters-23" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-23">Parameters</h4>
@@ -2569,6 +2602,12 @@ Note
 <td><code>'none'</code></td>
 </tr>
 <tr class="even">
+<td>data_model</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
+<td>A Pydantic model describing the structure of the data to extract. When provided, the response will be constrained to match this structure. The streamed chunks will be JSON text that, when concatenated, forms a valid JSON object matching the model. After consuming the stream, use <code>data_model.model_validate_json("".join(chunks))</code> to parse the result.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
 <td>kwargs</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT">SubmitInputArgsT</a>]</td>
 <td>Additional keyword arguments to pass to the method used for requesting the response.</td>
@@ -2590,16 +2629,37 @@ Note
 <tbody>
 <tr class="odd">
 <td></td>
-<td><a href="https://posit-dev.github.io/chatlas/reference/types.ChatResponseAsync.html#chatlas.types.ChatResponseAsync">ChatResponseAsync</a></td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.AsyncGenerator">AsyncGenerator</a></td>
 <td>An (unconsumed) response from the chat. Iterate over this object to consume the response.</td>
 </tr>
 </tbody>
 </table>
 </section>
+<section id="examples-6" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-6">Examples</h4>
+<div class="sourceCode" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person(BaseModel):</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>    age: <span class="bu">int</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>chunks <span class="op">=</span> [chunk <span class="cf">async</span> <span class="cf">for</span> chunk <span class="kw">in</span> <span class="cf">await</span> chat.stream_async(</span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"John is 25 years old"</span>, data_model<span class="op">=</span>Person</span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>)]</span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>person <span class="op">=</span> Person.model_validate_json(<span class="st">""</span>.join(chunks))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
 </section>
 <section id="chatlas.Chat.to_solver" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.to_solver">to_solver</h3>
-<div class="sourceCode" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>Chat.to_solver(include_system_prompt<span class="op">=</span><span class="va">False</span>, include_turns<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>Chat.to_solver(</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    include_system_prompt<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>    include_turns<span class="op">=</span><span class="va">False</span>,</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>    data_model<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Create an InspectAI solver from this chat.</p>
 <p>Translates this Chat instance into an InspectAI solver function that can be used with InspectAI’s evaluation framework. This solver will capture (and translate) important state from the chat, including the model, system prompt, previous turns, registered tools, model parameters, etc.</p>
 <section id="parameters-24" class="level4 doc-section doc-section-parameters">
@@ -2615,12 +2675,18 @@ Note
 </thead>
 <tbody>
 <tr class="odd">
+<td>data_model</td>
+<td><a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel">BaseModel</a>] | None</td>
+<td>A Pydantic model describing the structure of the data to extract. When provided, the solver will use <code>.chat_structured()</code> instead of <code>.chat()</code> to generate responses, and the output completion will be JSON serialized from the model instance.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
 <td>include_system_prompt</td>
 <td><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></td>
 <td>Whether to include the system prompt in the solver’s starting messages.</td>
 <td><code>False</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>include_turns</td>
 <td><a href="https://docs.python.org/3/library/functions.html#bool">bool</a></td>
 <td>Whether to include the chat’s existing turns in the solver’s starting messages.</td>
@@ -2662,30 +2728,30 @@ Note
 </tbody>
 </table>
 </section>
-<section id="examples-5" class="level4 doc-section doc-section-examples">
-<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-5">Examples</h4>
+<section id="examples-7" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-7">Examples</h4>
 <p>First, put this code in a python script, perhaps named <code>eval_chat.py</code></p>
 <div class="code-with-filename">
 <div class="code-with-filename-file">
 <pre><strong>eval_chat.py</strong></pre>
 </div>
-<div class="sourceCode" id="cb46" data-filename="eval_chat.py"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai <span class="im">import</span> Task, task</span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai.dataset <span class="im">import</span> csv_dataset</span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai.scorer <span class="im">import</span> model_graded_qa</span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(system_prompt<span class="op">=</span><span class="st">"You are a helpful assistant."</span>)</span>
-<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="at">@task</span></span>
-<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> my_eval(grader_model: <span class="bu">str</span> <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>):</span>
-<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Task(</span>
-<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>        dataset<span class="op">=</span>csv_dataset(<span class="st">"my_eval_dataset.csv"</span>),</span>
-<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>        solver<span class="op">=</span>chat.to_solver(),</span>
-<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>        scorer<span class="op">=</span>model_graded_qa(model<span class="op">=</span>grader_model)</span>
-<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb48" data-filename="eval_chat.py"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai <span class="im">import</span> Task, task</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai.dataset <span class="im">import</span> csv_dataset</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> inspect_ai.scorer <span class="im">import</span> model_graded_qa</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(system_prompt<span class="op">=</span><span class="st">"You are a helpful assistant."</span>)</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a><span class="at">@task</span></span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> my_eval(grader_model: <span class="bu">str</span> <span class="op">=</span> <span class="st">"openai/gpt-4o"</span>):</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Task(</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>        dataset<span class="op">=</span>csv_dataset(<span class="st">"my_eval_dataset.csv"</span>),</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>        solver<span class="op">=</span>chat.to_solver(),</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>        scorer<span class="op">=</span>model_graded_qa(model<span class="op">=</span>grader_model)</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Then run the evaluation with InspectAI’s CLI:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">inspect</span> eval eval_chat.py <span class="at">-T</span> <span class="at">--grader-model</span> openai/gpt-4o</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="ex">inspect</span> eval eval_chat.py <span class="at">-T</span> <span class="at">--grader-model</span> openai/gpt-4o</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="note-5" class="level4 doc-section doc-section-note">
 <h4 class="doc-section doc-section-note anchored" data-anchor-id="note-5">Note</h4>
@@ -2694,7 +2760,7 @@ Note
 </section>
 <section id="chatlas.Chat.token_count" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.token_count">token_count</h3>
-<div class="sourceCode" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>Chat.token_count(<span class="op">*</span>args, data_model<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>Chat.token_count(<span class="op">*</span>args, data_model<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Get an estimated token count for the given input.</p>
 <p>Estimate the token size of input content. This can help determine whether input(s) and/or conversation history (i.e., <code>.get_turns()</code>) should be reduced in size before sending it to the model.</p>
 <section id="parameters-25" class="level4 doc-section doc-section-parameters">
@@ -2747,23 +2813,23 @@ Note
 <h4 class="doc-section doc-section-note anchored" data-anchor-id="note-6">Note</h4>
 <p>Remember that the token count is an estimate. Also, models based on <code>ChatOpenAI()</code> currently does not take tools into account when estimating token counts.</p>
 </section>
-<section id="examples-6" class="level4 doc-section doc-section-examples">
-<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-6">Examples</h4>
-<div class="sourceCode" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatAnthropic</span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatAnthropic()</span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate the token count before sending the input</span></span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(chat.token_count(<span class="st">"What is 2 + 2?"</span>))</span>
-<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Once input is sent, you can get the actual input and output</span></span>
-<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a><span class="co"># token counts from the chat object</span></span>
-<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is 2 + 2?"</span>, echo<span class="op">=</span><span class="st">"none"</span>)</span>
-<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(chat.token_usage())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="examples-8" class="level4 doc-section doc-section-examples">
+<h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-8">Examples</h4>
+<div class="sourceCode" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatAnthropic</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatAnthropic()</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Estimate the token count before sending the input</span></span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(chat.token_count(<span class="st">"What is 2 + 2?"</span>))</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Once input is sent, you can get the actual input and output</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a><span class="co"># token counts from the chat object</span></span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is 2 + 2?"</span>, echo<span class="op">=</span><span class="st">"none"</span>)</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(chat.token_usage())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
 <section id="chatlas.Chat.token_count_async" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.token_count_async">token_count_async</h3>
-<div class="sourceCode" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>Chat.token_count_async(<span class="op">*</span>args, data_model<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>Chat.token_count_async(<span class="op">*</span>args, data_model<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Get an estimated token count for the given input asynchronously.</p>
 <p>Estimate the token size of input content. This can help determine whether input(s) and/or conversation history (i.e., <code>.get_turns()</code>) should be reduced in size before sending it to the model.</p>
 <section id="parameters-26" class="level4 doc-section doc-section-parameters">
