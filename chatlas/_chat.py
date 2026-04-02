@@ -37,6 +37,7 @@ from ._content import (
     ContentThinking,
     ContentToolRequest,
     ContentToolResult,
+    ContentUnion,
     ToolInfo,
 )
 from ._display import (
@@ -2684,7 +2685,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         text = content_text(content)
                         if text:
                             emit(text)
-                            self._turns[turn_idx].contents.append(content)
+                            self._turns[turn_idx].contents.append(
+                                cast(ContentUnion, content)
+                            )
                             if content_mode == "all" and isinstance(
                                 content, ContentThinking
                             ):
@@ -2692,31 +2695,37 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             else:
                                 yield text
                     result = self.provider.stream_merge_chunks(result, chunk)
-                else:
-                    # Normal completion — replace partial with full turn
-                    turn = self.provider.stream_turn(
-                        result,
-                        has_data_model=data_model is not None,
+
+                # Normal completion — replace partial with full turn
+                turn = self.provider.stream_turn(
+                    result,
+                    has_data_model=data_model is not None,
+                )
+                if echo == "all":
+                    emit_other_contents(turn, emit)
+                if not isinstance(turn, AssistantTurn):
+                    raise TypeError(
+                        f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
                     )
-                    if echo == "all":
-                        emit_other_contents(turn, emit)
-                    if not isinstance(turn, AssistantTurn):
-                        raise TypeError(
-                            f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
-                        )
-                    if turn.tokens is None and turn.completion:
-                        turn.tokens = self.provider.value_tokens(turn.completion)
-                    if turn.cost is None and turn.completion:
-                        turn.cost = self.provider.value_cost(
-                            turn.completion, turn.tokens
-                        )
-                    if turn.tokens is not None:
-                        tokens_log(self.provider, turn.tokens)
-                    self._turns[turn_idx] = turn
+                if turn.tokens is None and turn.completion:
+                    turn.tokens = self.provider.value_tokens(turn.completion)
+                if turn.cost is None and turn.completion:
+                    turn.cost = self.provider.value_cost(
+                        turn.completion, turn.tokens
+                    )
+                if turn.tokens is not None:
+                    tokens_log(self.provider, turn.tokens)
+                self._turns[turn_idx] = turn
             finally:
-                turn = self._turns[turn_idx]
-                if turn.is_partial:
-                    turn.contents = merge_content_text(turn.contents)
+                final_turn = self._turns[turn_idx]
+                if (
+                    isinstance(final_turn, AssistantTurn)
+                    and final_turn.is_partial
+                ):
+                    final_turn.contents = cast(
+                        list[ContentUnion],
+                        merge_content_text(final_turn.contents),
+                    )
 
         else:
             response = self.provider.chat_perform(
@@ -2815,7 +2824,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         text = content_text(content)
                         if text:
                             emit(text)
-                            self._turns[turn_idx].contents.append(content)
+                            self._turns[turn_idx].contents.append(
+                                cast(ContentUnion, content)
+                            )
                             if content_mode == "all" and isinstance(
                                 content, ContentThinking
                             ):
@@ -2823,31 +2834,37 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             else:
                                 yield text
                     result = self.provider.stream_merge_chunks(result, chunk)
-                else:
-                    # Normal completion — replace partial with full turn
-                    turn = self.provider.stream_turn(
-                        result,
-                        has_data_model=data_model is not None,
+
+                # Normal completion — replace partial with full turn
+                turn = self.provider.stream_turn(
+                    result,
+                    has_data_model=data_model is not None,
+                )
+                if echo == "all":
+                    emit_other_contents(turn, emit)
+                if not isinstance(turn, AssistantTurn):
+                    raise TypeError(
+                        f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
                     )
-                    if echo == "all":
-                        emit_other_contents(turn, emit)
-                    if not isinstance(turn, AssistantTurn):
-                        raise TypeError(
-                            f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
-                        )
-                    if turn.tokens is None and turn.completion:
-                        turn.tokens = self.provider.value_tokens(turn.completion)
-                    if turn.cost is None and turn.completion:
-                        turn.cost = self.provider.value_cost(
-                            turn.completion, turn.tokens
-                        )
-                    if turn.tokens is not None:
-                        tokens_log(self.provider, turn.tokens)
-                    self._turns[turn_idx] = turn
+                if turn.tokens is None and turn.completion:
+                    turn.tokens = self.provider.value_tokens(turn.completion)
+                if turn.cost is None and turn.completion:
+                    turn.cost = self.provider.value_cost(
+                        turn.completion, turn.tokens
+                    )
+                if turn.tokens is not None:
+                    tokens_log(self.provider, turn.tokens)
+                self._turns[turn_idx] = turn
             finally:
-                turn = self._turns[turn_idx]
-                if turn.is_partial:
-                    turn.contents = merge_content_text(turn.contents)
+                final_turn = self._turns[turn_idx]
+                if (
+                    isinstance(final_turn, AssistantTurn)
+                    and final_turn.is_partial
+                ):
+                    final_turn.contents = cast(
+                        list[ContentUnion],
+                        merge_content_text(final_turn.contents),
+                    )
 
         else:
             response = await self.provider.chat_perform_async(
