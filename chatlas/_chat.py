@@ -1083,6 +1083,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
+        controller = StreamController()
         response = ChatResponse(
             self._chat_impl(
                 turn,
@@ -1090,6 +1091,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 content="text",
                 stream=stream,
                 kwargs=kwargs,
+                controller=controller,
             )
         )
 
@@ -1136,6 +1138,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
+        controller = StreamController()
         response = ChatResponseAsync(
             self._chat_impl_async(
                 turn,
@@ -1143,6 +1146,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 content="text",
                 stream=stream,
                 kwargs=kwargs,
+                controller=controller,
             ),
         )
 
