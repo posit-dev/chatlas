@@ -34,6 +34,7 @@ from ._content import (
     Content,
     ContentJson,
     ContentText,
+    ContentThinking,
     ContentToolRequest,
     ContentToolResult,
     ToolInfo,
@@ -1155,7 +1156,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
+    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]: ...
 
     def stream(
         self,
@@ -1164,7 +1165,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
+    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]:
         """
         Generate a response from the chat in a streaming fashion.
 
@@ -1228,7 +1229,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
 
         def wrapper() -> Generator[
-            str | ContentToolRequest | ContentToolResult, None, None
+            str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
         ]:
             with display:
                 for chunk in generator:
@@ -1254,7 +1255,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
+    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]: ...
 
     async def stream_async(
         self,
@@ -1263,7 +1264,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
+    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]:
         """
         Generate a response from the chat in a streaming fashion asynchronously.
 
@@ -1309,9 +1310,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
 
         chat = ChatOpenAI()
-        chunks = [chunk async for chunk in await chat.stream_async(
-            "John is 25 years old", data_model=Person
-        )]
+        chunks = [
+            chunk
+            async for chunk in await chat.stream_async(
+                "John is 25 years old", data_model=Person
+            )
+        ]
         person = Person.model_validate_json("".join(chunks))
         ```
         """
@@ -1320,7 +1324,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         display = self._markdown_display(echo=echo)
 
         async def wrapper() -> AsyncGenerator[
-            str | ContentToolRequest | ContentToolResult, None
+            str | ContentThinking | ContentToolRequest | ContentToolResult, None
         ]:
             with display:
                 async for chunk in self._chat_impl_async(
@@ -2481,7 +2485,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
-    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
+    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]: ...
 
     def _chat_impl(
         self,
@@ -2491,7 +2495,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
-    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
+    ) -> Generator[str | Content, None, None]:
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             for chunk in self._submit_turns(
@@ -2500,6 +2504,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 stream=stream,
                 data_model=data_model,
                 kwargs=kwargs,
+                content_mode=content,
             ):
                 yield chunk
 
@@ -2548,7 +2553,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
-    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
+    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]: ...
 
     async def _chat_impl_async(
         self,
@@ -2558,7 +2563,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
-    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
+    ) -> AsyncGenerator[str | Content, None]:
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             async for chunk in self._submit_turns_async(
@@ -2567,6 +2572,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 stream=stream,
                 data_model=data_model,
                 kwargs=kwargs,
+                content_mode=content,
             ):
                 yield chunk
 
@@ -2597,6 +2603,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if all_results:
                 user_turn_result = UserTurn(all_results)
 
+    @overload
     def _submit_turns(
         self,
         user_turn: UserTurn,
@@ -2604,7 +2611,30 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> Generator[str, None, None]:
+        content_mode: Literal["text"] = "text",
+    ) -> Generator[str, None, None]: ...
+
+    @overload
+    def _submit_turns(
+        self,
+        user_turn: UserTurn,
+        echo: EchoOptions,
+        stream: bool,
+        data_model: type[BaseModel] | None = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
+        *,
+        content_mode: Literal["all"],
+    ) -> Generator[str | Content, None, None]: ...
+
+    def _submit_turns(
+        self,
+        user_turn: UserTurn,
+        echo: EchoOptions,
+        stream: bool,
+        data_model: type[BaseModel] | None = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
+        content_mode: Literal["text", "all"] = "text",
+    ) -> Generator[str | Content, None, None]:
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
@@ -2630,10 +2660,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             result = None
             for chunk in response:
-                text = self.provider.stream_text(chunk)
-                if text:
-                    emit(text)
-                    yield text
+                content = self.provider.stream_content(chunk)
+                if content is not None:
+                    text = content_text(content)
+                    if text:
+                        emit(text)
+                        if content_mode == "all" and isinstance(
+                            content, ContentThinking
+                        ):
+                            yield content
+                        else:
+                            yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
             turn = self.provider.stream_turn(
@@ -2675,6 +2712,29 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
 
+    @overload
+    def _submit_turns_async(
+        self,
+        user_turn: UserTurn,
+        echo: EchoOptions,
+        stream: bool,
+        data_model: type[BaseModel] | None = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
+        content_mode: Literal["text"] = "text",
+    ) -> AsyncGenerator[str, None]: ...
+
+    @overload
+    def _submit_turns_async(
+        self,
+        user_turn: UserTurn,
+        echo: EchoOptions,
+        stream: bool,
+        data_model: type[BaseModel] | None = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
+        *,
+        content_mode: Literal["all"],
+    ) -> AsyncGenerator[str | Content, None]: ...
+
     async def _submit_turns_async(
         self,
         user_turn: UserTurn,
@@ -2682,7 +2742,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> AsyncGenerator[str, None]:
+        content_mode: Literal["text", "all"] = "text",
+    ) -> AsyncGenerator[str | Content, None]:
         def emit(text: str | Content):
             self._echo_content(str(text))
 
@@ -2705,10 +2766,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             result = None
             async for chunk in response:
-                text = self.provider.stream_text(chunk)
-                if text:
-                    emit(text)
-                    yield text
+                content = self.provider.stream_content(chunk)
+                if content is not None:
+                    text = content_text(content)
+                    if text:
+                        emit(text)
+                        if content_mode == "all" and isinstance(
+                            content, ContentThinking
+                        ):
+                            yield content
+                        else:
+                            yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
             turn = self.provider.stream_turn(
@@ -3182,6 +3250,15 @@ class ToolFailureWarning(RuntimeWarning):
 
 # By default warnings are shown once; we want to always show them.
 warnings.simplefilter("always", ToolFailureWarning)
+
+
+def content_text(content: Content) -> str:
+    """Extract displayable text from a Content object."""
+    if isinstance(content, ContentThinking):
+        return content.thinking
+    if isinstance(content, ContentText):
+        return content.text
+    return str(content)
 
 
 def is_quarto():
