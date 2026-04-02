@@ -511,13 +511,6 @@ class AnthropicProvider(
                     this_content.input = orjson.loads(this_content.input or "{}")
                 except orjson.JSONDecodeError as e:
                     raise ValueError(f"Invalid JSON input: {e}")
-            elif getattr(this_content, "type", None) == "server_tool_use" and isinstance(
-                getattr(this_content, "input", None), str
-            ):
-                try:
-                    this_content.input = orjson.loads(this_content.input or "{}")  # type: ignore
-                except orjson.JSONDecodeError as e:
-                    raise ValueError(f"Invalid JSON input: {e}")
         elif chunk.type == "message_delta":
             completion.stop_reason = chunk.delta.stop_reason
             completion.stop_sequence = chunk.delta.stop_sequence
