@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### Bug fixes
+
+* OpenAI's `web_search_call` no longer errors on non-search action types like `open_page` and `find_in_page`. (#277)
 
 
 ## [0.15.1] -- 2026-01-22
