@@ -608,6 +608,61 @@ def test_json_serialize_with_tool_failure():
     assert "Something went wrong" in str(restored_result.error)
 
 
+@pytest.mark.vcr
+def test_partial_turn_preserved_on_close():
+    """Closing a streaming generator mid-response preserves the partial turn."""
+    chat = ChatOpenAI()
+    gen = chat.stream(
+        """
+        What are the canonical colors of the ROYGBIV rainbow?
+        Put each colour on its own line. Don't use punctuation.
+    """
+    )
+    # Consume a few chunks then close
+    chunks = []
+    for chunk in gen:
+        chunks.append(chunk)
+        if len(chunks) >= 3:
+            break
+    gen.close()
+
+    turns = chat.get_turns()
+    assert len(turns) == 2  # user + partial assistant
+    assistant_turn = turns[1]
+    assert isinstance(assistant_turn, AssistantTurn)
+    assert assistant_turn.is_partial
+    assert assistant_turn.partial_reason == "interrupted"
+    assert len(assistant_turn.text) > 0
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_partial_turn_preserved_on_close_async():
+    """Closing an async streaming generator mid-response preserves the partial turn."""
+    chat = ChatOpenAI()
+    gen = await chat.stream_async(
+        """
+        What are the canonical colors of the ROYGBIV rainbow?
+        Put each colour on its own line. Don't use punctuation.
+    """
+    )
+    # Consume a few chunks then close
+    chunks = []
+    async for chunk in gen:
+        chunks.append(chunk)
+        if len(chunks) >= 3:
+            break
+    await gen.aclose()
+
+    turns = chat.get_turns()
+    assert len(turns) == 2  # user + partial assistant
+    assistant_turn = turns[1]
+    assert isinstance(assistant_turn, AssistantTurn)
+    assert assistant_turn.is_partial
+    assert assistant_turn.partial_reason == "interrupted"
+    assert len(assistant_turn.text) > 0
+
+
 def test_merge_content_text():
     from chatlas._chat import merge_content_text
     from chatlas._content import ContentText, ContentThinking

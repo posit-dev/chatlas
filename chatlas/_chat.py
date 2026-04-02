@@ -2658,28 +2658,53 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 kwargs=all_kwargs,
             )
 
-            result = None
-            for chunk in response:
-                content = self.provider.stream_content(chunk)
-                if content is not None:
-                    text = content_text(content)
-                    if text:
-                        emit(text)
-                        if content_mode == "all" and isinstance(
-                            content, ContentThinking
-                        ):
-                            yield content
-                        else:
-                            yield text
-                result = self.provider.stream_merge_chunks(result, chunk)
-
-            turn = self.provider.stream_turn(
-                result,
-                has_data_model=data_model is not None,
+            partial_turn: AssistantTurn = AssistantTurn(
+                [], partial_reason="interrupted"
             )
+            self._turns.extend([user_turn, partial_turn])
+            turn_idx = len(self._turns) - 1
 
-            if echo == "all":
-                emit_other_contents(turn, emit)
+            try:
+                result = None
+                for chunk in response:
+                    content = self.provider.stream_content(chunk)
+                    if content is not None:
+                        text = content_text(content)
+                        if text:
+                            emit(text)
+                            self._turns[turn_idx].contents.append(content)
+                            if content_mode == "all" and isinstance(
+                                content, ContentThinking
+                            ):
+                                yield content
+                            else:
+                                yield text
+                    result = self.provider.stream_merge_chunks(result, chunk)
+                else:
+                    # Normal completion — replace partial with full turn
+                    turn = self.provider.stream_turn(
+                        result,
+                        has_data_model=data_model is not None,
+                    )
+                    if echo == "all":
+                        emit_other_contents(turn, emit)
+                    if not isinstance(turn, AssistantTurn):
+                        raise TypeError(
+                            f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+                        )
+                    if turn.tokens is None and turn.completion:
+                        turn.tokens = self.provider.value_tokens(turn.completion)
+                    if turn.cost is None and turn.completion:
+                        turn.cost = self.provider.value_cost(
+                            turn.completion, turn.tokens
+                        )
+                    if turn.tokens is not None:
+                        tokens_log(self.provider, turn.tokens)
+                    self._turns[turn_idx] = turn
+            finally:
+                turn = self._turns[turn_idx]
+                if turn.is_partial:
+                    turn.contents = merge_content_text(turn.contents)
 
         else:
             response = self.provider.chat_perform(
@@ -2700,17 +2725,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
-        if not isinstance(turn, AssistantTurn):
-            raise TypeError(
-                f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
-            )
-        if turn.tokens is None and turn.completion:
-            turn.tokens = self.provider.value_tokens(turn.completion)
-        if turn.cost is None and turn.completion:
-            turn.cost = self.provider.value_cost(turn.completion, turn.tokens)
-        if turn.tokens is not None:
-            tokens_log(self.provider, turn.tokens)
-        self._turns.extend([user_turn, turn])
+            if not isinstance(turn, AssistantTurn):
+                raise TypeError(
+                    f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+                )
+            if turn.tokens is None and turn.completion:
+                turn.tokens = self.provider.value_tokens(turn.completion)
+            if turn.cost is None and turn.completion:
+                turn.cost = self.provider.value_cost(turn.completion, turn.tokens)
+            if turn.tokens is not None:
+                tokens_log(self.provider, turn.tokens)
+            self._turns.extend([user_turn, turn])
 
     @overload
     def _submit_turns_async(
@@ -2764,28 +2789,53 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 kwargs=all_kwargs,
             )
 
-            result = None
-            async for chunk in response:
-                content = self.provider.stream_content(chunk)
-                if content is not None:
-                    text = content_text(content)
-                    if text:
-                        emit(text)
-                        if content_mode == "all" and isinstance(
-                            content, ContentThinking
-                        ):
-                            yield content
-                        else:
-                            yield text
-                result = self.provider.stream_merge_chunks(result, chunk)
-
-            turn = self.provider.stream_turn(
-                result,
-                has_data_model=data_model is not None,
+            partial_turn: AssistantTurn = AssistantTurn(
+                [], partial_reason="interrupted"
             )
+            self._turns.extend([user_turn, partial_turn])
+            turn_idx = len(self._turns) - 1
 
-            if echo == "all":
-                emit_other_contents(turn, emit)
+            try:
+                result = None
+                async for chunk in response:
+                    content = self.provider.stream_content(chunk)
+                    if content is not None:
+                        text = content_text(content)
+                        if text:
+                            emit(text)
+                            self._turns[turn_idx].contents.append(content)
+                            if content_mode == "all" and isinstance(
+                                content, ContentThinking
+                            ):
+                                yield content
+                            else:
+                                yield text
+                    result = self.provider.stream_merge_chunks(result, chunk)
+                else:
+                    # Normal completion — replace partial with full turn
+                    turn = self.provider.stream_turn(
+                        result,
+                        has_data_model=data_model is not None,
+                    )
+                    if echo == "all":
+                        emit_other_contents(turn, emit)
+                    if not isinstance(turn, AssistantTurn):
+                        raise TypeError(
+                            f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+                        )
+                    if turn.tokens is None and turn.completion:
+                        turn.tokens = self.provider.value_tokens(turn.completion)
+                    if turn.cost is None and turn.completion:
+                        turn.cost = self.provider.value_cost(
+                            turn.completion, turn.tokens
+                        )
+                    if turn.tokens is not None:
+                        tokens_log(self.provider, turn.tokens)
+                    self._turns[turn_idx] = turn
+            finally:
+                turn = self._turns[turn_idx]
+                if turn.is_partial:
+                    turn.contents = merge_content_text(turn.contents)
 
         else:
             response = await self.provider.chat_perform_async(
@@ -2806,17 +2856,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
-        if not isinstance(turn, AssistantTurn):
-            raise TypeError(
-                f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
-            )
-        if turn.tokens is None and turn.completion:
-            turn.tokens = self.provider.value_tokens(turn.completion)
-        if turn.cost is None and turn.completion:
-            turn.cost = self.provider.value_cost(turn.completion, turn.tokens)
-        if turn.tokens is not None:
-            tokens_log(self.provider, turn.tokens)
-        self._turns.extend([user_turn, turn])
+            if not isinstance(turn, AssistantTurn):
+                raise TypeError(
+                    f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+                )
+            if turn.tokens is None and turn.completion:
+                turn.tokens = self.provider.value_tokens(turn.completion)
+            if turn.cost is None and turn.completion:
+                turn.cost = self.provider.value_cost(turn.completion, turn.tokens)
+            if turn.tokens is not None:
+                tokens_log(self.provider, turn.tokens)
+            self._turns.extend([user_turn, turn])
 
     def _collect_all_kwargs(
         self,
