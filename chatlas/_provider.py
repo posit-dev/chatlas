@@ -226,10 +226,7 @@ class Provider(
     ) -> AsyncIterable[ChatCompletionChunkT] | ChatCompletionT: ...
 
     @abstractmethod
-    def stream_content(
-        self, chunk: ChatCompletionChunkT
-    ) -> Optional["Content"]:
-        ...
+    def stream_content(self, chunk: ChatCompletionChunkT) -> Optional["Content"]: ...
 
     def stream_text(self, chunk: ChatCompletionChunkT) -> Optional[str]:
         content = self.stream_content(chunk)

@@ -1310,9 +1310,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
 
         chat = ChatOpenAI()
-        chunks = [chunk async for chunk in await chat.stream_async(
-            "John is 25 years old", data_model=Person
-        )]
+        chunks = [
+            chunk
+            async for chunk in await chat.stream_async(
+                "John is 25 years old", data_model=Person
+            )
+        ]
         person = Person.model_validate_json("".join(chunks))
         ```
         """

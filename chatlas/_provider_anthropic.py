@@ -830,9 +830,7 @@ class AnthropicProvider(
                 extra = {
                     "type": content.type,
                     "tool_use_id": content.tool_use_id,
-                    "content": [
-                        x.model_dump() for x in content.content
-                    ]
+                    "content": [x.model_dump() for x in content.content]
                     if isinstance(content.content, list)
                     else content.content.model_dump(),
                 }
