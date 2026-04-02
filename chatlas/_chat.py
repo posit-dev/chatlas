@@ -34,6 +34,7 @@ from ._content import (
     Content,
     ContentJson,
     ContentText,
+    ContentThinking,
     ContentToolRequest,
     ContentToolResult,
     ToolInfo,
@@ -2500,6 +2501,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 stream=stream,
                 data_model=data_model,
                 kwargs=kwargs,
+                content_mode=content,
             ):
                 yield chunk
 
@@ -2567,6 +2569,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 stream=stream,
                 data_model=data_model,
                 kwargs=kwargs,
+                content_mode=content,
             ):
                 yield chunk
 
@@ -2604,7 +2607,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> Generator[str, None, None]:
+        content_mode: Literal["text", "all"] = "text",
+    ) -> Generator[str | Content, None, None]:
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
@@ -2630,10 +2634,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             result = None
             for chunk in response:
-                text = self.provider.stream_text(chunk)
-                if text:
-                    emit(text)
-                    yield text
+                content = self.provider.stream_content(chunk)
+                if content is not None:
+                    text = content_text(content)
+                    if text:
+                        emit(text)
+                        if content_mode == "all" and isinstance(
+                            content, ContentThinking
+                        ):
+                            yield content
+                        else:
+                            yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
             turn = self.provider.stream_turn(
@@ -2682,7 +2693,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> AsyncGenerator[str, None]:
+        content_mode: Literal["text", "all"] = "text",
+    ) -> AsyncGenerator[str | Content, None]:
         def emit(text: str | Content):
             self._echo_content(str(text))
 
@@ -2705,10 +2717,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             result = None
             async for chunk in response:
-                text = self.provider.stream_text(chunk)
-                if text:
-                    emit(text)
-                    yield text
+                content = self.provider.stream_content(chunk)
+                if content is not None:
+                    text = content_text(content)
+                    if text:
+                        emit(text)
+                        if content_mode == "all" and isinstance(
+                            content, ContentThinking
+                        ):
+                            yield content
+                        else:
+                            yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
             turn = self.provider.stream_turn(
@@ -3182,6 +3201,15 @@ class ToolFailureWarning(RuntimeWarning):
 
 # By default warnings are shown once; we want to always show them.
 warnings.simplefilter("always", ToolFailureWarning)
+
+
+def content_text(content: Content) -> str:
+    """Extract displayable text from a Content object."""
+    if isinstance(content, ContentThinking):
+        return content.thinking
+    if isinstance(content, ContentText):
+        return content.text
+    return str(content)
 
 
 def is_quarto():

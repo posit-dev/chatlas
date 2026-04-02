@@ -375,7 +375,7 @@ class GoogleProvider(
             return None
         if getattr(part, "thought", None):
             return ContentThinking(thinking=text)
-        return ContentText(text=text)
+        return ContentText.model_construct(text=text)
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()

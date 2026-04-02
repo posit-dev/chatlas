@@ -466,7 +466,7 @@ class AnthropicProvider(
     def stream_content(self, chunk) -> Optional[Content]:
         if chunk.type == "content_block_delta":
             if chunk.delta.type == "text_delta":
-                return ContentText(text=chunk.delta.text)
+                return ContentText.model_construct(text=chunk.delta.text)
             if chunk.delta.type == "thinking_delta":
                 return ContentThinking(thinking=chunk.delta.thinking)
         return None

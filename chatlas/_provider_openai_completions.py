@@ -198,7 +198,7 @@ class OpenAICompletionsProvider(
         text = chunk.choices[0].delta.content
         if text is None:
             return None
-        return ContentText(text=text)
+        return ContentText.model_construct(text=text)
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()
