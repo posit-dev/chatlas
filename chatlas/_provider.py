@@ -15,7 +15,7 @@ from typing import (
 
 from pydantic import BaseModel
 
-from ._content import Content
+from ._content import Content, ContentText, ContentThinking
 from ._tools import Tool, ToolBuiltIn
 from ._turn import AssistantTurn, Turn
 from ._typing_extensions import NotRequired, TypedDict
@@ -226,7 +226,17 @@ class Provider(
     ) -> AsyncIterable[ChatCompletionChunkT] | ChatCompletionT: ...
 
     @abstractmethod
-    def stream_text(self, chunk: ChatCompletionChunkT) -> Optional[str]: ...
+    def stream_content(self, chunk: ChatCompletionChunkT) -> Optional["Content"]: ...
+
+    def stream_text(self, chunk: ChatCompletionChunkT) -> Optional[str]:
+        content = self.stream_content(chunk)
+        if content is None:
+            return None
+        if isinstance(content, ContentThinking):
+            return content.thinking
+        if isinstance(content, ContentText):
+            return content.text
+        return str(content)
 
     @abstractmethod
     def stream_merge_chunks(
