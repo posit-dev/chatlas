@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* Providers now distinguish text from thinking content during streaming via the new `stream_content()` method. This allows downstream packages like shinychat to provide specific UI for thinking content. (#276)
+* The `.stream()` and `.stream_async()` methods now yield `ContentThinking` objects (instead of plain strings) for thinking/reasoning content when `content="all"`. This allows downstream packages like shinychat to provide specific UI for thinking content. (#276)
 
 ### Bug fixes
 
