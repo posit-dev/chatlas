@@ -52,9 +52,9 @@ from ._mcp_manager import MCPSessionManager
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
 from ._stream_controller import StreamController
 from ._tokens import tokens_log
-from ._turn_accumulator import TurnAccumulator
 from ._tools import Tool, ToolBuiltIn, ToolRejectError
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
+from ._turn_accumulator import TurnAccumulator
 from ._typing_extensions import TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 
@@ -1175,7 +1175,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]: ...
+    ) -> Generator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
+    ]: ...
 
     def stream(
         self,
@@ -1185,7 +1187,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]:
+    ) -> Generator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
+    ]:
         """
         Generate a response from the chat in a streaming fashion.
 
@@ -1289,7 +1293,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]: ...
+    ) -> AsyncGenerator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None
+    ]: ...
 
     async def stream_async(
         self,
@@ -1299,7 +1305,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]:
+    ) -> AsyncGenerator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None
+    ]:
         """
         Generate a response from the chat in a streaming fashion asynchronously.
 
@@ -2534,7 +2542,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
         controller: StreamController | None = None,
-    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]: ...
+    ) -> Generator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
+    ]: ...
 
     def _chat_impl(
         self,
@@ -2613,7 +2623,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
         controller: StreamController | None = None,
-    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]: ...
+    ) -> AsyncGenerator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None
+    ]: ...
 
     async def _chat_impl_async(
         self,
