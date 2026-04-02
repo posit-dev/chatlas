@@ -40,6 +40,7 @@ from ._content import (
     ContentUnion,
     ToolInfo,
 )
+from ._stream_controller import StreamController
 from ._display import (
     EchoDisplayOptions,
     IPyMarkdownDisplay,
@@ -1159,6 +1160,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
+        controller: StreamController | None = None,
     ) -> Generator[str, None, None]: ...
 
     @overload
@@ -1169,6 +1171,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
+        controller: StreamController | None = None,
     ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]: ...
 
     def stream(
@@ -1178,6 +1181,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
+        controller: StreamController | None = None,
     ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]:
         """
         Generate a response from the chat in a streaming fashion.
@@ -1239,6 +1243,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             content=content,
             kwargs=kwargs,
             data_model=data_model,
+            controller=controller,
         )
 
         def wrapper() -> Generator[
@@ -1258,6 +1263,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
+        controller: StreamController | None = None,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
@@ -1268,6 +1274,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
+        controller: StreamController | None = None,
     ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]: ...
 
     async def stream_async(
@@ -1277,6 +1284,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
+        controller: StreamController | None = None,
     ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]:
         """
         Generate a response from the chat in a streaming fashion asynchronously.
@@ -1347,6 +1355,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     content=content,
                     kwargs=kwargs,
                     data_model=data_model,
+                    controller=controller,
                 ):
                     yield chunk
 
@@ -2487,6 +2496,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
+        controller: StreamController | None = None,
     ) -> Generator[str, None, None]: ...
 
     @overload
@@ -2498,6 +2508,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
+        controller: StreamController | None = None,
     ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]: ...
 
     def _chat_impl(
@@ -2508,6 +2519,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
+        controller: StreamController | None = None,
     ) -> Generator[str | Content, None, None]:
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
@@ -2518,12 +2530,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 data_model=data_model,
                 kwargs=kwargs,
                 content_mode=content,
+                controller=controller,
             ):
                 yield chunk
 
             turn = self.get_last_turn(role="assistant")
             assert turn is not None
             user_turn_result = None
+
+            # Don't invoke tools if the stream was cancelled
+            if controller is not None and controller.cancelled:
+                break
 
             all_results: list[ContentToolResult] = []
             for x in turn.contents:
@@ -2555,6 +2572,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
+        controller: StreamController | None = None,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
@@ -2566,6 +2584,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
+        controller: StreamController | None = None,
     ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]: ...
 
     async def _chat_impl_async(
@@ -2576,6 +2595,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
+        controller: StreamController | None = None,
     ) -> AsyncGenerator[str | Content, None]:
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
@@ -2586,12 +2606,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 data_model=data_model,
                 kwargs=kwargs,
                 content_mode=content,
+                controller=controller,
             ):
                 yield chunk
 
             turn = self.get_last_turn(role="assistant")
             assert turn is not None
             user_turn_result = None
+
+            # Don't invoke tools if the stream was cancelled
+            if controller is not None and controller.cancelled:
+                break
 
             all_results: list[ContentToolResult] = []
             for x in turn.contents:
@@ -2647,6 +2672,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         content_mode: Literal["text", "all"] = "text",
+        controller: StreamController | None = None,
     ) -> Generator[str | Content, None, None]:
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
@@ -2694,34 +2720,43 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                                 yield content
                             else:
                                 yield text
+                            if (
+                                controller is not None
+                                and controller.cancelled
+                            ):
+                                break
                     result = self.provider.stream_merge_chunks(result, chunk)
-
-                # Normal completion — replace partial with full turn
-                turn = self.provider.stream_turn(
-                    result,
-                    has_data_model=data_model is not None,
-                )
-                if echo == "all":
-                    emit_other_contents(turn, emit)
-                if not isinstance(turn, AssistantTurn):
-                    raise TypeError(
-                        f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+                else:
+                    # Normal completion — replace partial with full turn
+                    turn = self.provider.stream_turn(
+                        result,
+                        has_data_model=data_model is not None,
                     )
-                if turn.tokens is None and turn.completion:
-                    turn.tokens = self.provider.value_tokens(turn.completion)
-                if turn.cost is None and turn.completion:
-                    turn.cost = self.provider.value_cost(
-                        turn.completion, turn.tokens
-                    )
-                if turn.tokens is not None:
-                    tokens_log(self.provider, turn.tokens)
-                self._turns[turn_idx] = turn
+                    if echo == "all":
+                        emit_other_contents(turn, emit)
+                    if not isinstance(turn, AssistantTurn):
+                        raise TypeError(
+                            f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+                        )
+                    if turn.tokens is None and turn.completion:
+                        turn.tokens = self.provider.value_tokens(
+                            turn.completion
+                        )
+                    if turn.cost is None and turn.completion:
+                        turn.cost = self.provider.value_cost(
+                            turn.completion, turn.tokens
+                        )
+                    if turn.tokens is not None:
+                        tokens_log(self.provider, turn.tokens)
+                    self._turns[turn_idx] = turn
             finally:
                 final_turn = self._turns[turn_idx]
                 if (
                     isinstance(final_turn, AssistantTurn)
                     and final_turn.is_partial
                 ):
+                    if controller is not None and controller.cancelled:
+                        final_turn.partial_reason = controller.reason
                     final_turn.contents = cast(
                         list[ContentUnion],
                         merge_content_text(final_turn.contents),
@@ -2789,6 +2824,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         content_mode: Literal["text", "all"] = "text",
+        controller: StreamController | None = None,
     ) -> AsyncGenerator[str | Content, None]:
         def emit(text: str | Content):
             self._echo_content(str(text))
@@ -2833,34 +2869,43 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                                 yield content
                             else:
                                 yield text
+                            if (
+                                controller is not None
+                                and controller.cancelled
+                            ):
+                                break
                     result = self.provider.stream_merge_chunks(result, chunk)
-
-                # Normal completion — replace partial with full turn
-                turn = self.provider.stream_turn(
-                    result,
-                    has_data_model=data_model is not None,
-                )
-                if echo == "all":
-                    emit_other_contents(turn, emit)
-                if not isinstance(turn, AssistantTurn):
-                    raise TypeError(
-                        f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+                else:
+                    # Normal completion — replace partial with full turn
+                    turn = self.provider.stream_turn(
+                        result,
+                        has_data_model=data_model is not None,
                     )
-                if turn.tokens is None and turn.completion:
-                    turn.tokens = self.provider.value_tokens(turn.completion)
-                if turn.cost is None and turn.completion:
-                    turn.cost = self.provider.value_cost(
-                        turn.completion, turn.tokens
-                    )
-                if turn.tokens is not None:
-                    tokens_log(self.provider, turn.tokens)
-                self._turns[turn_idx] = turn
+                    if echo == "all":
+                        emit_other_contents(turn, emit)
+                    if not isinstance(turn, AssistantTurn):
+                        raise TypeError(
+                            f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+                        )
+                    if turn.tokens is None and turn.completion:
+                        turn.tokens = self.provider.value_tokens(
+                            turn.completion
+                        )
+                    if turn.cost is None and turn.completion:
+                        turn.cost = self.provider.value_cost(
+                            turn.completion, turn.tokens
+                        )
+                    if turn.tokens is not None:
+                        tokens_log(self.provider, turn.tokens)
+                    self._turns[turn_idx] = turn
             finally:
                 final_turn = self._turns[turn_idx]
                 if (
                     isinstance(final_turn, AssistantTurn)
                     and final_turn.is_partial
                 ):
+                    if controller is not None and controller.cancelled:
+                        final_turn.partial_reason = controller.reason
                     final_turn.contents = cast(
                         list[ContentUnion],
                         merge_content_text(final_turn.contents),

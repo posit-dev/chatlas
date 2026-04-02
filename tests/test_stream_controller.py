@@ -1,4 +1,6 @@
-from chatlas import StreamController
+import pytest
+
+from chatlas import ChatOpenAI, StreamController
 
 
 def test_stream_controller_initial_state():
@@ -27,3 +29,52 @@ def test_stream_controller_reset():
     ctrl.reset()
     assert ctrl.cancelled is False
     assert ctrl.reason is None
+
+
+@pytest.mark.vcr
+def test_stream_cancel_after_chunks():
+    chat = ChatOpenAI()
+    ctrl = StreamController()
+
+    chunks = []
+    for chunk in chat.stream(
+        """
+        What are the canonical colors of the ROYGBIV rainbow?
+        Put each colour on its own line. Don't use punctuation.
+    """,
+        controller=ctrl,
+    ):
+        chunks.append(chunk)
+        if len(chunks) >= 3:
+            ctrl.cancel()
+
+    turns = chat.get_turns()
+    assert len(turns) == 2
+    assert turns[1].is_partial
+    assert turns[1].partial_reason == "cancelled"
+    assert len(turns[1].text) > 0
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_stream_cancel_after_chunks_async():
+    chat = ChatOpenAI()
+    ctrl = StreamController()
+
+    chunks = []
+    async for chunk in await chat.stream_async(
+        """
+        What are the canonical colors of the ROYGBIV rainbow?
+        Put each colour on its own line. Don't use punctuation.
+    """,
+        controller=ctrl,
+    ):
+        chunks.append(chunk)
+        if len(chunks) >= 3:
+            ctrl.cancel()
+
+    turns = chat.get_turns()
+    assert len(turns) == 2
+    assert turns[1].is_partial
+    assert turns[1].partial_reason == "cancelled"
+    assert len(turns[1].text) > 0
