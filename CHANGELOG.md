@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 
 * The `.stream()` and `.stream_async()` methods now yield `ContentThinking` objects (instead of plain strings) for thinking/reasoning content when `content="all"`. This allows downstream packages like shinychat to provide specific UI for thinking content. (#276)
+* New `StreamController` class for cooperative stream cancellation. Pass a controller to `.stream()` or `.stream_async()` and call `controller.cancel()` to stop the stream cleanly (e.g., from a Shiny "stop generating" button). The partial response is preserved in conversation history. (#279)
+* When a stream is interrupted (closed early, cancelled, or errors), the accumulated content is now saved as a partial `AssistantTurn` so conversation state isn't lost. Partial turns display `[interrupted]` (or the cancellation reason) in the `Chat` repr and are excluded from token/cost accounting. (#279)
 
 ### Bug fixes
 
