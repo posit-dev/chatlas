@@ -14,6 +14,7 @@ from ._content import (
     ContentJson,
     ContentPDF,
     ContentText,
+    ContentThinking,
     ContentToolRequest,
     ContentToolResult,
 )
@@ -361,12 +362,20 @@ class GoogleProvider(
 
         return kwargs_full
 
-    def stream_text(self, chunk) -> Optional[str]:
+    def stream_content(self, chunk) -> Optional[Content]:
         try:
-            # Errors if there is no text (e.g., tool request)
-            return chunk.text
-        except Exception:
+            parts = chunk.candidates[0].content.parts
+        except (AttributeError, IndexError):
             return None
+        if not parts:
+            return None
+        part = parts[0]
+        text = getattr(part, "text", None)
+        if text is None:
+            return None
+        if getattr(part, "thought", None):
+            return ContentThinking(thinking=text)
+        return ContentText(text=text)
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()
