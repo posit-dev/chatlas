@@ -2603,6 +2603,29 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if all_results:
                 user_turn_result = UserTurn(all_results)
 
+    @overload
+    def _submit_turns(
+        self,
+        user_turn: UserTurn,
+        echo: EchoOptions,
+        stream: bool,
+        data_model: type[BaseModel] | None = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
+        content_mode: Literal["text"] = "text",
+    ) -> Generator[str, None, None]: ...
+
+    @overload
+    def _submit_turns(
+        self,
+        user_turn: UserTurn,
+        echo: EchoOptions,
+        stream: bool,
+        data_model: type[BaseModel] | None = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
+        *,
+        content_mode: Literal["all"],
+    ) -> Generator[str | Content, None, None]: ...
+
     def _submit_turns(
         self,
         user_turn: UserTurn,
@@ -2688,6 +2711,29 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if turn.tokens is not None:
             tokens_log(self.provider, turn.tokens)
         self._turns.extend([user_turn, turn])
+
+    @overload
+    def _submit_turns_async(
+        self,
+        user_turn: UserTurn,
+        echo: EchoOptions,
+        stream: bool,
+        data_model: type[BaseModel] | None = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
+        content_mode: Literal["text"] = "text",
+    ) -> AsyncGenerator[str, None]: ...
+
+    @overload
+    def _submit_turns_async(
+        self,
+        user_turn: UserTurn,
+        echo: EchoOptions,
+        stream: bool,
+        data_model: type[BaseModel] | None = None,
+        kwargs: Optional[SubmitInputArgsT] = None,
+        *,
+        content_mode: Literal["all"],
+    ) -> AsyncGenerator[str | Content, None]: ...
 
     async def _submit_turns_async(
         self,

@@ -363,10 +363,13 @@ class GoogleProvider(
         return kwargs_full
 
     def stream_content(self, chunk) -> Optional[Content]:
-        try:
-            parts = chunk.candidates[0].content.parts
-        except (AttributeError, IndexError):
+        candidates = getattr(chunk, "candidates", None)
+        if not candidates:
             return None
+        content = candidates[0].content
+        if content is None:
+            return None
+        parts = content.parts
         if not parts:
             return None
         part = parts[0]
