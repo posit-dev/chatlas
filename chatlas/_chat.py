@@ -3086,18 +3086,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         from ._repr import format_tokens
 
         turns = self.get_turns(include_system_prompt=True)
-        assistant_turns = [t for t in turns if isinstance(t, AssistantTurn)]
+        complete_assistant_turns = [
+            t
+            for t in turns
+            if isinstance(t, AssistantTurn) and not t.is_partial
+        ]
 
-        # Sum tokens across assistant turns
+        # Sum tokens across complete assistant turns
         tokens: tuple[int, int, int] | None = None
-        if any(t.tokens for t in assistant_turns):
+        if any(t.tokens for t in complete_assistant_turns):
             tokens = (
-                sum(t.tokens[0] for t in assistant_turns if t.tokens),
-                sum(t.tokens[1] for t in assistant_turns if t.tokens),
-                sum(t.tokens[2] for t in assistant_turns if t.tokens),
+                sum(t.tokens[0] for t in complete_assistant_turns if t.tokens),
+                sum(t.tokens[1] for t in complete_assistant_turns if t.tokens),
+                sum(t.tokens[2] for t in complete_assistant_turns if t.tokens),
             )
 
-        costs = [t.cost for t in assistant_turns if t.cost is not None]
+        costs = [t.cost for t in complete_assistant_turns if t.cost is not None]
         total_cost = sum(costs) if costs else None
 
         res = f"<Chat {self.provider.name}/{self.provider.model} turns={len(turns)}"
@@ -3108,7 +3112,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         for turn in turns:
             header = f"## {turn.role.capitalize()}"
-            if isinstance(turn, AssistantTurn):
+            if isinstance(turn, AssistantTurn) and turn.is_partial:
+                header += f" [{turn.partial_reason}]"
+            elif isinstance(turn, AssistantTurn):
                 token_info = format_tokens(turn.tokens, turn.cost)
                 if token_info:
                     header += f" [{token_info}]"

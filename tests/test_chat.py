@@ -663,6 +663,19 @@ async def test_partial_turn_preserved_on_close_async():
     assert len(assistant_turn.text) > 0
 
 
+def test_partial_turn_display(snapshot):
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("hello"),
+            AssistantTurn("response", tokens=(10, 5, 0), cost=0.001),
+            UserTurn("more"),
+            AssistantTurn("partial response", partial_reason="interrupted"),
+        ]
+    )
+    assert snapshot == repr(chat)
+
+
 def test_partial_turns_excluded_from_cost():
     chat = ChatOpenAI()
     chat.set_turns(

@@ -66,3 +66,25 @@
   
   '''
 # ---
+# name: test_partial_turn_display
+  '''
+  <Chat OpenAI/gpt-4.1 turns=4 input=10 output=5 cost=$0.0010>
+  
+  ## User
+  
+  hello
+  
+  ## Assistant [input=10 output=5 cost=$0.0010]
+  
+  response
+  
+  ## User
+  
+  more
+  
+  ## Assistant [interrupted]
+  
+  partial response
+  
+  '''
+# ---
