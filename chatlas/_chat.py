@@ -399,6 +399,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         turns = self.get_turns(include_system_prompt=False)
 
+        # Exclude trailing partial turn (and its preceding user turn)
+        while (
+            len(turns) >= 2
+            and isinstance(turns[-1], AssistantTurn)
+            and turns[-1].is_partial
+        ):
+            turns = turns[:-2]
+
         if len(turns) == 0:
             return []
 
@@ -524,7 +532,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             The cost of the chat, in USD.
         """
 
-        assistant_turns = [t for t in self._turns if isinstance(t, AssistantTurn)]
+        assistant_turns = [
+            t
+            for t in self._turns
+            if isinstance(t, AssistantTurn) and not t.is_partial
+        ]
 
         if len(assistant_turns) == 0:
             return 0.0

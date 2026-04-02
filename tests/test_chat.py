@@ -663,6 +663,25 @@ async def test_partial_turn_preserved_on_close_async():
     assert len(assistant_turn.text) > 0
 
 
+def test_partial_turns_excluded_from_cost():
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("hello"),
+            AssistantTurn("response", tokens=(10, 5, 0), cost=0.001),
+            UserTurn("more"),
+            AssistantTurn("partial", partial_reason="interrupted"),
+        ]
+    )
+    # Cost should only include the complete turn
+    cost = chat.get_cost()
+    assert cost == 0.001
+
+    # get_tokens should skip partial
+    tokens = chat.get_tokens()
+    assert len(tokens) == 2  # user + assistant from the complete turn only
+
+
 def test_merge_content_text():
     from chatlas._chat import merge_content_text
     from chatlas._content import ContentText, ContentThinking
