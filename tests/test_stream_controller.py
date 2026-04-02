@@ -1,3 +1,5 @@
+import warnings
+
 import pytest
 
 from chatlas import ChatOpenAI, StreamController
@@ -29,6 +31,27 @@ def test_stream_controller_reset():
     ctrl.reset()
     assert ctrl.cancelled is False
     assert ctrl.reason is None
+
+
+def test_stream_controller_ensure_ready_warns_and_resets():
+    ctrl = StreamController()
+    ctrl.cancel(reason="stale")
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        ctrl._ensure_ready()
+        assert len(w) == 1
+        assert "already cancelled" in str(w[0].message)
+    assert ctrl.cancelled is False
+    assert ctrl.reason is None
+
+
+def test_stream_controller_ensure_ready_noop_when_not_cancelled():
+    ctrl = StreamController()
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        ctrl._ensure_ready()
+        assert len(w) == 0
+    assert ctrl.cancelled is False
 
 
 @pytest.mark.vcr

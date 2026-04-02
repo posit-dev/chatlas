@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ._content import ContentText, ContentThinking, ContentUnion
+from ._content import Content, ContentText, ContentThinking, ContentUnion
 from ._stream_controller import StreamController
 from ._turn import AssistantTurn, Turn, UserTurn
 
@@ -51,11 +51,14 @@ class TurnAccumulator:
         self._turns.extend([user_turn, partial])
         self._turn_idx = len(self._turns) - 1
 
-    def update_turn(self, content: ContentUnion) -> None:
+    def update_turn(self, content: Content) -> None:
         """Append streamed content to the partial turn."""
         if self._turn_idx is None:
             raise RuntimeError("update_turn called before begin_turn")
-        self._turns[self._turn_idx].contents.append(content)
+        # Content is the base class; contents is typed as list[ContentUnion]
+        # (discriminated union). At runtime all Content subclasses are ContentUnion
+        # members, so the append is safe.
+        self._turns[self._turn_idx].contents.append(content)  # type: ignore[arg-type]
 
     def complete_turn(self, turn: AssistantTurn) -> None:
         """Replace the partial turn with the completed turn (no-op if cancelled)."""

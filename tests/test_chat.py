@@ -695,6 +695,26 @@ def test_partial_turns_excluded_from_cost():
     assert len(tokens) == 2  # user + assistant from the complete turn only
 
 
+def test_partial_turns_excluded_from_tokens_mid_conversation():
+    """Partial turns in the middle of history (not just trailing) are excluded."""
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("hello"),
+            AssistantTurn("partial", partial_reason="interrupted"),
+            UserTurn("retry"),
+            AssistantTurn("response", tokens=(10, 5, 0), cost=0.001),
+        ]
+    )
+    # Cost should only include the complete turn
+    cost = chat.get_cost()
+    assert cost == 0.001
+
+    # get_tokens should skip the partial pair entirely
+    tokens = chat.get_tokens()
+    assert len(tokens) == 2  # user + assistant from the complete turn only
+
+
 def test_merge_content_text():
     from chatlas._turn_accumulator import merge_content_text
     from chatlas._content import ContentText, ContentThinking

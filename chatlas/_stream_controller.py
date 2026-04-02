@@ -53,6 +53,18 @@ class StreamController:
         self._cancelled = False
         self._reason = None
 
+    def _ensure_ready(self) -> None:
+        """Auto-reset if already cancelled (prevents stale controller bugs)."""
+        if self._cancelled:
+            import warnings
+
+            warnings.warn(
+                "StreamController was already cancelled — resetting automatically. "
+                "Call controller.reset() explicitly to avoid this warning.",
+                stacklevel=3,
+            )
+            self.reset()
+
     @property
     def cancelled(self) -> bool:
         """Whether the controller has been cancelled."""

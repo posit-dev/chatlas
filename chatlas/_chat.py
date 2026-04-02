@@ -37,7 +37,6 @@ from ._content import (
     ContentThinking,
     ContentToolRequest,
     ContentToolResult,
-    ContentUnion,
     ToolInfo,
 )
 from ._display import (
@@ -402,13 +401,18 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         turns = self.get_turns(include_system_prompt=False)
 
-        # Exclude trailing partial turn (and its preceding user turn)
-        while (
-            len(turns) >= 2
-            and isinstance(turns[-1], AssistantTurn)
-            and turns[-1].is_partial
-        ):
-            turns = turns[:-2]
+        # Exclude partial assistant turns and their preceding user turns
+        # (partial turns have no token data)
+        filtered: list[Turn] = []
+        i = 0
+        while i < len(turns):
+            next_turn = turns[i + 1] if i + 1 < len(turns) else None
+            if isinstance(next_turn, AssistantTurn) and next_turn.is_partial:
+                i += 2  # skip user + partial assistant pair
+            else:
+                filtered.append(turns[i])
+                i += 1
+        turns = filtered
 
         if len(turns) == 0:
             return []
@@ -1251,8 +1255,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
-        if controller is None:
-            controller = StreamController()
+        controller = _as_controller(controller)
 
         generator = self._chat_impl(
             turn,
@@ -1374,8 +1377,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
-        if controller is None:
-            controller = StreamController()
+        controller = _as_controller(controller)
 
         async def wrapper() -> AsyncGenerator[
             str | ContentThinking | ContentToolRequest | ContentToolResult, None
@@ -2556,8 +2558,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         controller: StreamController | None = None,
     ) -> Generator[str | Content, None, None]:
-        if controller is None:
-            controller = StreamController()
+        controller = _as_controller(controller)
 
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
@@ -2637,8 +2638,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         controller: StreamController | None = None,
     ) -> AsyncGenerator[str | Content, None]:
-        if controller is None:
-            controller = StreamController()
+        controller = _as_controller(controller)
 
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
@@ -2719,8 +2719,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content_mode: Literal["text", "all"] = "text",
         controller: StreamController | None = None,
     ) -> Generator[str | Content, None, None]:
-        if controller is None:
-            controller = StreamController()
+        controller = _as_controller(controller)
 
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
@@ -2753,7 +2752,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 for chunk in response:
                     content = self.provider.stream_content(chunk)
                     if content is not None:
-                        acc.update_turn(cast(ContentUnion, content))
+                        acc.update_turn(content)
                         text = content_text(content)
                         if text:
                             emit(text)
@@ -2841,8 +2840,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content_mode: Literal["text", "all"] = "text",
         controller: StreamController | None = None,
     ) -> AsyncGenerator[str | Content, None]:
-        if controller is None:
-            controller = StreamController()
+        controller = _as_controller(controller)
 
         def emit(text: str | Content):
             self._echo_content(str(text))
@@ -2872,7 +2870,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 async for chunk in response:
                     content = self.provider.stream_content(chunk)
                     if content is not None:
-                        acc.update_turn(cast(ContentUnion, content))
+                        acc.update_turn(content)
                         text = content_text(content)
                         if text:
                             emit(text)
@@ -3375,6 +3373,14 @@ def content_text(content: Content) -> str:
     if isinstance(content, ContentText):
         return content.text
     return str(content)
+
+
+def _as_controller(controller: StreamController | None) -> StreamController:
+    """Ensure a non-None, ready-to-use StreamController."""
+    if controller is None:
+        return StreamController()
+    controller._ensure_ready()
+    return controller
 
 
 def resolve_assistant_turn(provider: Provider, turn: Turn) -> AssistantTurn:
