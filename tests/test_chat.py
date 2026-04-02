@@ -696,7 +696,7 @@ def test_partial_turns_excluded_from_cost():
 
 
 def test_merge_content_text():
-    from chatlas._chat import merge_content_text
+    from chatlas._turn_accumulator import merge_content_text
     from chatlas._content import ContentText, ContentThinking
 
     # Adjacent ContentText fragments merge

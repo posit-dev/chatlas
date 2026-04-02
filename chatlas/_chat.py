@@ -52,6 +52,7 @@ from ._mcp_manager import MCPSessionManager
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
 from ._stream_controller import StreamController
 from ._tokens import tokens_log
+from ._turn_accumulator import TurnAccumulator
 from ._tools import Tool, ToolBuiltIn, ToolRejectError
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
 from ._typing_extensions import TypedDict, TypeGuard
@@ -2732,23 +2733,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 kwargs=all_kwargs,
             )
 
-            partial_turn: AssistantTurn = AssistantTurn(
-                [], partial_reason="interrupted"
-            )
-            self._turns.extend([user_turn, partial_turn])
-            turn_idx = len(self._turns) - 1
+            acc = TurnAccumulator(self._turns, controller)
+            acc.begin_turn(user_turn)
 
             try:
                 result = None
-                # Note: this for/else relies on the fact that GeneratorExit
-                # (from gen.close()) is an exception, not a break — so it
-                # skips the else clause while still running the finally block.
                 for chunk in response:
                     content = self.provider.stream_content(chunk)
                     if content is not None:
-                        self._turns[turn_idx].contents.append(
-                            cast(ContentUnion, content)
-                        )
+                        acc.update_turn(cast(ContentUnion, content))
                         text = content_text(content)
                         if text:
                             emit(text)
@@ -2758,11 +2751,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                                 yield content
                             else:
                                 yield text
-                        if controller.cancelled:
-                            break
+                    if controller.cancelled:
+                        break
                     result = self.provider.stream_merge_chunks(result, chunk)
-                else:
-                    # Normal completion — replace partial with full turn
+
+                if not controller.cancelled:
                     turn = self.provider.stream_turn(
                         result,
                         has_data_model=data_model is not None,
@@ -2781,13 +2774,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         )
                     if turn.tokens is not None:
                         tokens_log(self.provider, turn.tokens)
-                    self._turns[turn_idx] = turn
+                    acc.complete_turn(turn)
             finally:
-                final_turn = self._turns[turn_idx]
-                if isinstance(final_turn, AssistantTurn) and final_turn.is_partial:
-                    if controller.cancelled:
-                        final_turn.partial_reason = controller.reason
-                    final_turn.contents = merge_content_text(final_turn.contents)
+                acc.finalize_turn()
+                # response type is Iterable[Unknown]; hasattr guards runtime safety,
+                # cast(Any) needed because Pyright can't narrow through hasattr.
+                _r: Any = response
+                if hasattr(_r, "close"):
+                    _r.close()
 
         else:
             response = self.provider.chat_perform(
@@ -2878,23 +2872,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 kwargs=all_kwargs,
             )
 
-            partial_turn: AssistantTurn = AssistantTurn(
-                [], partial_reason="interrupted"
-            )
-            self._turns.extend([user_turn, partial_turn])
-            turn_idx = len(self._turns) - 1
+            acc = TurnAccumulator(self._turns, controller)
+            acc.begin_turn(user_turn)
 
             try:
                 result = None
-                # Note: this for/else relies on the fact that GeneratorExit
-                # (from gen.aclose()) is an exception, not a break — so it
-                # skips the else clause while still running the finally block.
                 async for chunk in response:
                     content = self.provider.stream_content(chunk)
                     if content is not None:
-                        self._turns[turn_idx].contents.append(
-                            cast(ContentUnion, content)
-                        )
+                        acc.update_turn(cast(ContentUnion, content))
                         text = content_text(content)
                         if text:
                             emit(text)
@@ -2904,11 +2890,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                                 yield content
                             else:
                                 yield text
-                        if controller.cancelled:
-                            break
+                    if controller.cancelled:
+                        break
                     result = self.provider.stream_merge_chunks(result, chunk)
-                else:
-                    # Normal completion — replace partial with full turn
+
+                if not controller.cancelled:
                     turn = self.provider.stream_turn(
                         result,
                         has_data_model=data_model is not None,
@@ -2927,13 +2913,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         )
                     if turn.tokens is not None:
                         tokens_log(self.provider, turn.tokens)
-                    self._turns[turn_idx] = turn
+                    acc.complete_turn(turn)
             finally:
-                final_turn = self._turns[turn_idx]
-                if isinstance(final_turn, AssistantTurn) and final_turn.is_partial:
-                    if controller.cancelled:
-                        final_turn.partial_reason = controller.reason
-                    final_turn.contents = merge_content_text(final_turn.contents)
+                acc.finalize_turn()
+                # response type is AsyncIterable[Unknown]; hasattr guards runtime
+                # safety, cast(Any) needed because Pyright can't narrow through hasattr.
+                _r: Any = response
+                if hasattr(_r, "aclose"):
+                    await _r.aclose()
+                elif hasattr(_r, "close"):
+                    if inspect.iscoroutinefunction(_r.close):
+                        await _r.close()
+                    else:
+                        _r.close()
 
         else:
             response = await self.provider.chat_perform_async(
@@ -3411,22 +3403,6 @@ def content_text(content: Content) -> str:
     if isinstance(content, ContentText):
         return content.text
     return str(content)
-
-
-def merge_content_text(contents: Sequence[Content]) -> list[ContentUnion]:
-    """Merge adjacent ContentText (and ContentThinking) fragments."""
-    if not contents:
-        return []
-    merged: list[ContentUnion] = [cast(ContentUnion, contents[0])]
-    for item in contents[1:]:
-        last = merged[-1]
-        if isinstance(last, ContentText) and isinstance(item, ContentText):
-            merged[-1] = ContentText.model_construct(text=last.text + item.text)
-        elif isinstance(last, ContentThinking) and isinstance(item, ContentThinking):
-            merged[-1] = ContentThinking(thinking=last.thinking + item.thinking)
-        else:
-            merged.append(cast(ContentUnion, item))
-    return merged
 
 
 def is_quarto():
