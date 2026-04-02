@@ -1,4 +1,4 @@
-from chatlas._content import ContentText, ContentThinking, ContentToolRequest
+from chatlas._content import ContentText, ContentThinking
 from chatlas._turn import AssistantTurn, UserTurn
 from chatlas._turn_accumulator import TurnAccumulator
 from chatlas._stream_controller import StreamController

@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing import cast
-
-from ._content import Content, ContentText, ContentThinking, ContentUnion
+from ._content import ContentText, ContentThinking, ContentUnion
 from ._stream_controller import StreamController
 from ._turn import AssistantTurn, Turn, UserTurn
 
@@ -17,7 +15,9 @@ def merge_content_text(contents: list[ContentUnion]) -> list[ContentUnion]:
         if isinstance(last, ContentText) and isinstance(item, ContentText):
             merged[-1] = ContentText.model_construct(text=last.text + item.text)
         elif isinstance(last, ContentThinking) and isinstance(item, ContentThinking):
-            merged[-1] = ContentThinking(thinking=last.thinking + item.thinking)
+            merged[-1] = ContentThinking.model_construct(
+                thinking=last.thinking + item.thinking
+            )
         else:
             merged.append(item)
     return merged
@@ -51,14 +51,16 @@ class TurnAccumulator:
         self._turns.extend([user_turn, partial])
         self._turn_idx = len(self._turns) - 1
 
-    def update_turn(self, content: Content) -> None:
+    def update_turn(self, content: ContentUnion) -> None:
         """Append streamed content to the partial turn."""
-        assert self._turn_idx is not None
-        self._turns[self._turn_idx].contents.append(cast(ContentUnion, content))
+        if self._turn_idx is None:
+            raise RuntimeError("update_turn called before begin_turn")
+        self._turns[self._turn_idx].contents.append(content)
 
     def complete_turn(self, turn: AssistantTurn) -> None:
         """Replace the partial turn with the completed turn (no-op if cancelled)."""
-        assert self._turn_idx is not None
+        if self._turn_idx is None:
+            raise RuntimeError("complete_turn called before begin_turn")
         if self._controller.cancelled:
             return
         self._turns[self._turn_idx] = turn
