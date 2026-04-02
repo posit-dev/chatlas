@@ -563,6 +563,8 @@ class GoogleProvider(
             if text:
                 if has_data_model:
                     contents.append(ContentJson(value=orjson.loads(text)))
+                elif part.get("thought"):
+                    contents.append(ContentThinking(thinking=text))
                 else:
                     contents.append(ContentText(text=text))
             function_call = part.get("function_call")

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### New features
+
+* Providers now distinguish text from thinking content during streaming via the new `stream_content()` method. This allows downstream packages like shinychat to provide specific UI for thinking content. (#276)
+
 ### Bug fixes
 
 * Fixed tool calling with Google thinking models (e.g., `gemini-3-flash-preview`) failing with a 400 `INVALID_ARGUMENT` error about a missing `thought_signature`. The signature is now preserved and forwarded in subsequent turns. (#274)
