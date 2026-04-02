@@ -606,3 +606,44 @@ def test_json_serialize_with_tool_failure():
     assert restored_result.error is not None
     # After serialization, the Exception becomes a string representation
     assert "Something went wrong" in str(restored_result.error)
+
+
+def test_merge_content_text():
+    from chatlas._chat import merge_content_text
+    from chatlas._content import ContentText, ContentThinking
+
+    # Adjacent ContentText fragments merge
+    contents = [
+        ContentText.model_construct(text="a"),
+        ContentText.model_construct(text="b"),
+        ContentText.model_construct(text="c"),
+    ]
+    merged = merge_content_text(contents)
+    assert len(merged) == 1
+    assert isinstance(merged[0], ContentText)
+    assert merged[0].text == "abc"
+
+    # Non-text breaks the merge
+    contents = [
+        ContentText.model_construct(text="a"),
+        ContentThinking(thinking="thought"),
+        ContentText.model_construct(text="b"),
+    ]
+    merged = merge_content_text(contents)
+    assert len(merged) == 3
+    assert merged[0].text == "a"
+    assert isinstance(merged[1], ContentThinking)
+    assert merged[2].text == "b"
+
+    # Adjacent ContentThinking fragments merge
+    contents = [
+        ContentThinking(thinking="a"),
+        ContentThinking(thinking="b"),
+    ]
+    merged = merge_content_text(contents)
+    assert len(merged) == 1
+    assert isinstance(merged[0], ContentThinking)
+    assert merged[0].thinking == "ab"
+
+    # Empty list
+    assert merge_content_text([]) == []

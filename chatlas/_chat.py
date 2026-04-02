@@ -3261,6 +3261,22 @@ def content_text(content: Content) -> str:
     return str(content)
 
 
+def merge_content_text(contents: Sequence[Content]) -> list[Content]:
+    """Merge adjacent ContentText (and ContentThinking) fragments."""
+    if not contents:
+        return []
+    merged: list[Content] = [contents[0]]
+    for item in contents[1:]:
+        last = merged[-1]
+        if isinstance(last, ContentText) and isinstance(item, ContentText):
+            merged[-1] = ContentText.model_construct(text=last.text + item.text)
+        elif isinstance(last, ContentThinking) and isinstance(item, ContentThinking):
+            merged[-1] = ContentThinking(thinking=last.thinking + item.thinking)
+        else:
+            merged.append(item)
+    return merged
+
+
 def is_quarto():
     return os.getenv("QUARTO_PYTHON", None) is not None
 
