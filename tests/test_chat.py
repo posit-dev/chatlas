@@ -606,3 +606,151 @@ def test_json_serialize_with_tool_failure():
     assert restored_result.error is not None
     # After serialization, the Exception becomes a string representation
     assert "Something went wrong" in str(restored_result.error)
+
+
+@pytest.mark.vcr
+def test_partial_turn_preserved_on_close():
+    """Closing a streaming generator mid-response preserves the partial turn."""
+    chat = ChatOpenAI()
+    gen = chat.stream(
+        """
+        What are the canonical colors of the ROYGBIV rainbow?
+        Put each colour on its own line. Don't use punctuation.
+    """
+    )
+    # Consume a few chunks then close
+    chunks = []
+    for chunk in gen:
+        chunks.append(chunk)
+        if len(chunks) >= 3:
+            break
+    gen.close()
+
+    turns = chat.get_turns()
+    assert len(turns) == 2  # user + partial assistant
+    assistant_turn = turns[1]
+    assert isinstance(assistant_turn, AssistantTurn)
+    assert assistant_turn.is_partial
+    assert assistant_turn.partial_reason == "interrupted"
+    assert len(assistant_turn.text) > 0
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_partial_turn_preserved_on_close_async():
+    """Closing an async streaming generator mid-response preserves the partial turn."""
+    chat = ChatOpenAI()
+    gen = await chat.stream_async(
+        """
+        What are the canonical colors of the ROYGBIV rainbow?
+        Put each colour on its own line. Don't use punctuation.
+    """
+    )
+    # Consume a few chunks then close
+    chunks = []
+    async for chunk in gen:
+        chunks.append(chunk)
+        if len(chunks) >= 3:
+            break
+    await gen.aclose()
+
+    turns = chat.get_turns()
+    assert len(turns) == 2  # user + partial assistant
+    assistant_turn = turns[1]
+    assert isinstance(assistant_turn, AssistantTurn)
+    assert assistant_turn.is_partial
+    assert assistant_turn.partial_reason == "interrupted"
+    assert len(assistant_turn.text) > 0
+
+
+def test_partial_turn_display(snapshot):
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("hello"),
+            AssistantTurn("response", tokens=(10, 5, 0), cost=0.001),
+            UserTurn("more"),
+            AssistantTurn("partial response", partial_reason="interrupted"),
+        ]
+    )
+    assert snapshot == repr(chat)
+
+
+def test_partial_turns_excluded_from_cost():
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("hello"),
+            AssistantTurn("response", tokens=(10, 5, 0), cost=0.001),
+            UserTurn("more"),
+            AssistantTurn("partial", partial_reason="interrupted"),
+        ]
+    )
+    # Cost should only include the complete turn
+    cost = chat.get_cost()
+    assert cost == 0.001
+
+    # get_tokens should skip partial
+    tokens = chat.get_tokens()
+    assert len(tokens) == 2  # user + assistant from the complete turn only
+
+
+def test_partial_turns_excluded_from_tokens_mid_conversation():
+    """Partial turns in the middle of history (not just trailing) are excluded."""
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("hello"),
+            AssistantTurn("partial", partial_reason="interrupted"),
+            UserTurn("retry"),
+            AssistantTurn("response", tokens=(10, 5, 0), cost=0.001),
+        ]
+    )
+    # Cost should only include the complete turn
+    cost = chat.get_cost()
+    assert cost == 0.001
+
+    # get_tokens should skip the partial pair entirely
+    tokens = chat.get_tokens()
+    assert len(tokens) == 2  # user + assistant from the complete turn only
+
+
+def test_merge_content_text():
+    from chatlas._turn_accumulator import merge_content_text
+    from chatlas._content import ContentText, ContentThinking
+
+    # Adjacent ContentText fragments merge
+    contents = [
+        ContentText.model_construct(text="a"),
+        ContentText.model_construct(text="b"),
+        ContentText.model_construct(text="c"),
+    ]
+    merged = merge_content_text(contents)
+    assert len(merged) == 1
+    assert isinstance(merged[0], ContentText)
+    assert merged[0].text == "abc"
+
+    # Non-text breaks the merge
+    contents = [
+        ContentText.model_construct(text="a"),
+        ContentThinking(thinking="thought"),
+        ContentText.model_construct(text="b"),
+    ]
+    merged = merge_content_text(contents)
+    assert len(merged) == 3
+    assert merged[0].text == "a"
+    assert isinstance(merged[1], ContentThinking)
+    assert merged[2].text == "b"
+
+    # Adjacent ContentThinking fragments merge
+    contents = [
+        ContentThinking(thinking="a"),
+        ContentThinking(thinking="b"),
+    ]
+    merged = merge_content_text(contents)
+    assert len(merged) == 1
+    assert isinstance(merged[0], ContentThinking)
+    assert merged[0].thinking == "ab"
+
+    # Empty list
+    assert merge_content_text([]) == []

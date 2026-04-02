@@ -321,6 +321,25 @@ def test_get_turns_tool_result_role_with_system_prompt():
     assert turns_without_system[1].role == "assistant"
 
 
+def test_assistant_turn_partial_reason():
+    from chatlas._turn import AssistantTurn
+
+    # Default: not partial
+    turn = AssistantTurn("hello")
+    assert turn.partial_reason is None
+    assert turn.is_partial is False
+
+    # Partial turn
+    partial = AssistantTurn("partial", partial_reason="interrupted")
+    assert partial.partial_reason == "interrupted"
+    assert partial.is_partial is True
+
+    # Custom reason
+    cancelled = AssistantTurn("cancelled", partial_reason="cancelled")
+    assert cancelled.partial_reason == "cancelled"
+    assert cancelled.is_partial is True
+
+
 def test_get_turns_tool_result_role_empty_chat():
     """Test tool_result_role with empty chat"""
     chat = ChatAnthropic()
