@@ -421,15 +421,20 @@ class OpenAIProvider(
                     )
 
             elif output.type == "web_search_call":
-                if output.action.type != "search":
-                    raise ValueError(
-                        f"Unsupported web search action type: {output.action.type}"
-                        "Please file a feature request if you need this supported."
-                    )
                 # https://platform.openai.com/docs/guides/tools-web-search#output-and-citations
+                # Not all action types have a query field (e.g., open_page, find_in_page)
+                action = output.action
+                query = getattr(action, "query", None) or None
+                if not query:
+                    queries = getattr(action, "queries", None) or []
+                    query = queries[0] if queries else None
+                if not query:
+                    query = getattr(action, "pattern", None) or None
+                if not query:
+                    query = getattr(action, "url", None) or "web search"
                 contents.append(
                     ContentToolRequestSearch(
-                        query=output.action.query,
+                        query=query,
                         extra=output.model_dump(),
                     )
                 )
