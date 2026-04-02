@@ -11,6 +11,7 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING, Literal, Optional, overload
 
+from ._content import ToolAnnotations
 from ._tools import ToolBuiltIn
 
 if TYPE_CHECKING:
@@ -103,9 +104,17 @@ class ToolWebSearch(ToolBuiltIn):
         self.user_location = user_location
         self.max_uses = max_uses
 
-        # Initialize ToolBuiltIn with placeholder definition
-        # (providers will use get_definition() to get the actual definition)
-        super().__init__(name="web_search", definition={})
+        _annotations: ToolAnnotations = {
+            "title": "Web search",
+            "readOnlyHint": True,
+            "openWorldHint": True,
+        }
+        super().__init__(
+            name="web_search",
+            definition={},
+            description="Search the web for up-to-date information.",
+            annotations=_annotations,
+        )
 
     @overload
     def get_definition(
@@ -321,8 +330,17 @@ class ToolWebFetch(ToolBuiltIn):
         self.blocked_domains = blocked_domains
         self.max_uses = max_uses
 
-        # Initialize ToolBuiltIn with placeholder definition
-        super().__init__(name="web_fetch", definition={})
+        _annotations: ToolAnnotations = {
+            "title": "Web fetch",
+            "readOnlyHint": True,
+            "openWorldHint": True,
+        }
+        super().__init__(
+            name="web_fetch",
+            definition={},
+            description="Fetch and analyze content from a web URL.",
+            annotations=_annotations,
+        )
 
     @overload
     def get_definition(
