@@ -6,7 +6,7 @@ from pprint import pformat
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast
 
 import orjson
-from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
 
 from ._typing_extensions import TypedDict
 
@@ -265,6 +265,7 @@ class ContentToolRequest(Content):
     name: str
     arguments: object
     tool: Optional[ToolInfo] = None
+    extra: dict[str, object] = Field(default_factory=dict)
 
     content_type: ContentTypeEnum = "tool_request"
 

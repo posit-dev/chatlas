@@ -508,7 +508,8 @@ class GoogleProvider(
                     name=content.name,
                     # Goes in a dict, so should come out as a dict
                     args=cast(dict[str, Any], content.arguments),
-                )
+                ),
+                thought_signature=content.extra.get("thought_signature"),  # type: ignore
             )
         elif isinstance(content, ContentToolResult):
             if content.error:
@@ -560,11 +561,16 @@ class GoogleProvider(
                 # Seems name is required but id is optional?
                 name = function_call.get("name")
                 if name:
+                    extra: dict[str, object] = {}
+                    thought_signature = part.get("thought_signature")
+                    if thought_signature is not None:
+                        extra["thought_signature"] = thought_signature
                     contents.append(
                         ContentToolRequest(
                             id=function_call.get("id") or name,
                             name=name,
                             arguments=function_call.get("args"),
+                            extra=extra,
                         )
                     )
             function_response = part.get("function_response")

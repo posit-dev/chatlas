@@ -30,6 +30,7 @@ import anthropic.types.tool_text_editor_20250429_param
 import anthropic.types.tool_text_editor_20250728_param
 import anthropic.types.web_fetch_tool_20250910_param
 import anthropic.types.web_fetch_tool_20260209_param
+import anthropic.types.web_fetch_tool_20260309_param
 import anthropic.types.web_search_tool_20250305_param
 import anthropic.types.web_search_tool_20260209_param
 
@@ -41,25 +42,18 @@ class SubmitInputArgs(TypedDict, total=False):
         Literal[
             "claude-opus-4-6",
             "claude-sonnet-4-6",
-            "claude-opus-4-5-20251101",
-            "claude-opus-4-5",
-            "claude-3-7-sonnet-latest",
-            "claude-3-7-sonnet-20250219",
-            "claude-3-5-haiku-latest",
-            "claude-3-5-haiku-20241022",
             "claude-haiku-4-5",
             "claude-haiku-4-5-20251001",
-            "claude-sonnet-4-20250514",
-            "claude-sonnet-4-0",
-            "claude-4-sonnet-20250514",
+            "claude-opus-4-5",
+            "claude-opus-4-5-20251101",
             "claude-sonnet-4-5",
             "claude-sonnet-4-5-20250929",
+            "claude-opus-4-1",
+            "claude-opus-4-1-20250805",
             "claude-opus-4-0",
             "claude-opus-4-20250514",
-            "claude-4-opus-20250514",
-            "claude-opus-4-1-20250805",
-            "claude-3-opus-latest",
-            "claude-3-opus-20240229",
+            "claude-sonnet-4-0",
+            "claude-sonnet-4-20250514",
             "claude-3-haiku-20240307",
         ],
         str,
@@ -110,6 +104,7 @@ class SubmitInputArgs(TypedDict, total=False):
                 anthropic.types.web_fetch_tool_20250910_param.WebFetchTool20250910Param,
                 anthropic.types.web_search_tool_20260209_param.WebSearchTool20260209Param,
                 anthropic.types.web_fetch_tool_20260209_param.WebFetchTool20260209Param,
+                anthropic.types.web_fetch_tool_20260309_param.WebFetchTool20260309Param,
                 anthropic.types.tool_search_tool_bm25_20251119_param.ToolSearchToolBm25_20251119Param,
                 anthropic.types.tool_search_tool_regex_20251119_param.ToolSearchToolRegex20251119Param,
             ]

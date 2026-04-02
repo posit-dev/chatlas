@@ -8,11 +8,13 @@ from typing import Iterable, Literal, Mapping, Optional, TypedDict, Union
 import openai
 import openai.types.responses.apply_patch_tool_param
 import openai.types.responses.computer_tool_param
+import openai.types.responses.computer_use_preview_tool_param
 import openai.types.responses.custom_tool_param
 import openai.types.responses.easy_input_message_param
 import openai.types.responses.file_search_tool_param
 import openai.types.responses.function_shell_tool_param
 import openai.types.responses.function_tool_param
+import openai.types.responses.namespace_tool_param
 import openai.types.responses.response_code_interpreter_tool_call_param
 import openai.types.responses.response_compaction_item_param_param
 import openai.types.responses.response_computer_tool_call_param
@@ -28,6 +30,7 @@ import openai.types.responses.response_output_message_param
 import openai.types.responses.response_prompt_param
 import openai.types.responses.response_reasoning_item_param
 import openai.types.responses.response_text_config_param
+import openai.types.responses.response_tool_search_output_item_param_param
 import openai.types.responses.tool_choice_allowed_param
 import openai.types.responses.tool_choice_apply_patch_param
 import openai.types.responses.tool_choice_custom_param
@@ -36,6 +39,7 @@ import openai.types.responses.tool_choice_mcp_param
 import openai.types.responses.tool_choice_shell_param
 import openai.types.responses.tool_choice_types_param
 import openai.types.responses.tool_param
+import openai.types.responses.tool_search_tool_param
 import openai.types.responses.web_search_preview_tool_param
 import openai.types.responses.web_search_tool_param
 import openai.types.shared_params.reasoning
@@ -83,6 +87,8 @@ class SubmitInputArgs(TypedDict, total=False):
                 openai.types.responses.response_function_web_search_param.ResponseFunctionWebSearchParam,
                 openai.types.responses.response_function_tool_call_param.ResponseFunctionToolCallParam,
                 openai.types.responses.response_input_param.FunctionCallOutput,
+                openai.types.responses.response_input_param.ToolSearchCall,
+                openai.types.responses.response_tool_search_output_item_param_param.ResponseToolSearchOutputItemParamParam,
                 openai.types.responses.response_reasoning_item_param.ResponseReasoningItemParam,
                 openai.types.responses.response_compaction_item_param_param.ResponseCompactionItemParamParam,
                 openai.types.responses.response_input_param.ImageGenerationCall,
@@ -111,6 +117,12 @@ class SubmitInputArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "gpt-5.4",
+            "gpt-5.4-mini",
+            "gpt-5.4-nano",
+            "gpt-5.4-mini-2026-03-17",
+            "gpt-5.4-nano-2026-03-17",
+            "gpt-5.3-chat-latest",
             "gpt-5.2",
             "gpt-5.2-2025-12-11",
             "gpt-5.2-chat-latest",
@@ -243,6 +255,7 @@ class SubmitInputArgs(TypedDict, total=False):
                 openai.types.responses.function_tool_param.FunctionToolParam,
                 openai.types.responses.file_search_tool_param.FileSearchToolParam,
                 openai.types.responses.computer_tool_param.ComputerToolParam,
+                openai.types.responses.computer_use_preview_tool_param.ComputerUsePreviewToolParam,
                 openai.types.responses.web_search_tool_param.WebSearchToolParam,
                 openai.types.responses.tool_param.Mcp,
                 openai.types.responses.tool_param.CodeInterpreter,
@@ -250,6 +263,8 @@ class SubmitInputArgs(TypedDict, total=False):
                 openai.types.responses.tool_param.LocalShell,
                 openai.types.responses.function_shell_tool_param.FunctionShellToolParam,
                 openai.types.responses.custom_tool_param.CustomToolParam,
+                openai.types.responses.namespace_tool_param.NamespaceToolParam,
+                openai.types.responses.tool_search_tool_param.ToolSearchToolParam,
                 openai.types.responses.web_search_preview_tool_param.WebSearchPreviewToolParam,
                 openai.types.responses.apply_patch_tool_param.ApplyPatchToolParam,
             ]
