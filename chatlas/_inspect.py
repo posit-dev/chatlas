@@ -208,7 +208,7 @@ def inspect_content_as_chatlas(content: str | InspectContent) -> Content:
         return ContentText(text=content.text)
     if isinstance(content, itool.ContentImage):
         if content.image.startswith("http://") or content.image.startswith("https://"):
-            return ContentImageRemote(url=content.image, detail=content.detail)
+            return ContentImageRemote(url=content.image, detail=content.detail)  # type: ignore[arg-type]
         else:
             # Parse data URL to extract content type and base64 data
             # e.g., data:image/png;base64,....
