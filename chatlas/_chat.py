@@ -1156,7 +1156,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
+    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]: ...
 
     def stream(
         self,
@@ -1165,7 +1165,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
+    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]:
         """
         Generate a response from the chat in a streaming fashion.
 
@@ -1229,7 +1229,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
 
         def wrapper() -> Generator[
-            str | ContentToolRequest | ContentToolResult, None, None
+            str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
         ]:
             with display:
                 for chunk in generator:
@@ -1255,7 +1255,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
+    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]: ...
 
     async def stream_async(
         self,
@@ -1264,7 +1264,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
+    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]:
         """
         Generate a response from the chat in a streaming fashion asynchronously.
 
@@ -1324,7 +1324,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         display = self._markdown_display(echo=echo)
 
         async def wrapper() -> AsyncGenerator[
-            str | ContentToolRequest | ContentToolResult, None
+            str | ContentThinking | ContentToolRequest | ContentToolResult, None
         ]:
             with display:
                 async for chunk in self._chat_impl_async(
@@ -2485,7 +2485,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
-    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]: ...
+    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]: ...
 
     def _chat_impl(
         self,
@@ -2495,7 +2495,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
-    ) -> Generator[str | ContentToolRequest | ContentToolResult, None, None]:
+    ) -> Generator[str | Content, None, None]:
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             for chunk in self._submit_turns(
@@ -2553,7 +2553,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
-    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]: ...
+    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]: ...
 
     async def _chat_impl_async(
         self,
@@ -2563,7 +2563,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
-    ) -> AsyncGenerator[str | ContentToolRequest | ContentToolResult, None]:
+    ) -> AsyncGenerator[str | Content, None]:
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             async for chunk in self._submit_turns_async(

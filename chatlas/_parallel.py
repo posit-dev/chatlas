@@ -38,7 +38,6 @@ __all__ = (
 ChatT = TypeVar("ChatT", bound=Chat)
 BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
 
-
 @dataclass
 class StructuredChatResult(Generic[BaseModelT, ChatT]):
     """Holds the result of a structured parallel chat request."""
@@ -396,7 +395,6 @@ async def parallel_chat_structured(
     ```python
     import chatlas as ctl
     from pydantic import BaseModel
-
 
     class Person(BaseModel):
         name: str
