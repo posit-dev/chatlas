@@ -2774,18 +2774,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     )
                     if echo == "all":
                         emit_other_contents(turn, emit)
-                    if not isinstance(turn, AssistantTurn):
-                        raise TypeError(
-                            f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
-                        )
-                    if turn.tokens is None and turn.completion:
-                        turn.tokens = self.provider.value_tokens(turn.completion)
-                    if turn.cost is None and turn.completion:
-                        turn.cost = self.provider.value_cost(
-                            turn.completion, turn.tokens
-                        )
-                    if turn.tokens is not None:
-                        tokens_log(self.provider, turn.tokens)
+                    turn = resolve_assistant_turn(self.provider, turn)
                     acc.complete_turn(turn)
             finally:
                 acc.finalize_turn()
@@ -2814,16 +2803,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
-            if not isinstance(turn, AssistantTurn):
-                raise TypeError(
-                    f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
-                )
-            if turn.tokens is None and turn.completion:
-                turn.tokens = self.provider.value_tokens(turn.completion)
-            if turn.cost is None and turn.completion:
-                turn.cost = self.provider.value_cost(turn.completion, turn.tokens)
-            if turn.tokens is not None:
-                tokens_log(self.provider, turn.tokens)
+            turn = resolve_assistant_turn(self.provider, turn)
             self._turns.extend([user_turn, turn])
 
     @overload
@@ -2913,18 +2893,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     )
                     if echo == "all":
                         emit_other_contents(turn, emit)
-                    if not isinstance(turn, AssistantTurn):
-                        raise TypeError(
-                            f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
-                        )
-                    if turn.tokens is None and turn.completion:
-                        turn.tokens = self.provider.value_tokens(turn.completion)
-                    if turn.cost is None and turn.completion:
-                        turn.cost = self.provider.value_cost(
-                            turn.completion, turn.tokens
-                        )
-                    if turn.tokens is not None:
-                        tokens_log(self.provider, turn.tokens)
+                    turn = resolve_assistant_turn(self.provider, turn)
                     acc.complete_turn(turn)
             finally:
                 acc.finalize_turn()
@@ -2958,16 +2927,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if echo == "all":
                 emit_other_contents(turn, emit)
 
-            if not isinstance(turn, AssistantTurn):
-                raise TypeError(
-                    f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
-                )
-            if turn.tokens is None and turn.completion:
-                turn.tokens = self.provider.value_tokens(turn.completion)
-            if turn.cost is None and turn.completion:
-                turn.cost = self.provider.value_cost(turn.completion, turn.tokens)
-            if turn.tokens is not None:
-                tokens_log(self.provider, turn.tokens)
+            turn = resolve_assistant_turn(self.provider, turn)
             self._turns.extend([user_turn, turn])
 
     def _collect_all_kwargs(
@@ -3415,6 +3375,21 @@ def content_text(content: Content) -> str:
     if isinstance(content, ContentText):
         return content.text
     return str(content)
+
+
+def resolve_assistant_turn(provider: Provider, turn: Turn) -> AssistantTurn:
+    """Validate turn type, compute tokens and cost, and log usage."""
+    if not isinstance(turn, AssistantTurn):
+        raise TypeError(
+            f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
+        )
+    if turn.tokens is None and turn.completion:
+        turn.tokens = provider.value_tokens(turn.completion)
+    if turn.cost is None and turn.completion:
+        turn.cost = provider.value_cost(turn.completion, turn.tokens)
+    if turn.tokens is not None:
+        tokens_log(provider, turn.tokens)
+    return turn
 
 
 def is_quarto():
