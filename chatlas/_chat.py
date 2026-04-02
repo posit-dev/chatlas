@@ -40,7 +40,6 @@ from ._content import (
     ContentUnion,
     ToolInfo,
 )
-from ._stream_controller import StreamController
 from ._display import (
     EchoDisplayOptions,
     IPyMarkdownDisplay,
@@ -51,6 +50,7 @@ from ._display import (
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
+from ._stream_controller import StreamController
 from ._tokens import tokens_log
 from ._tools import Tool, ToolBuiltIn, ToolRejectError
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
@@ -535,9 +535,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         assistant_turns = [
-            t
-            for t in self._turns
-            if isinstance(t, AssistantTurn) and not t.is_partial
+            t for t in self._turns if isinstance(t, AssistantTurn) and not t.is_partial
         ]
 
         if len(assistant_turns) == 0:
@@ -2654,6 +2652,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         content_mode: Literal["text"] = "text",
+        controller: StreamController | None = None,
     ) -> Generator[str, None, None]: ...
 
     @overload
@@ -2666,6 +2665,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         kwargs: Optional[SubmitInputArgsT] = None,
         *,
         content_mode: Literal["all"],
+        controller: StreamController | None = None,
     ) -> Generator[str | Content, None, None]: ...
 
     def _submit_turns(
@@ -2724,10 +2724,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                                 yield content
                             else:
                                 yield text
-                            if (
-                                controller is not None
-                                and controller.cancelled
-                            ):
+                            if controller is not None and controller.cancelled:
                                 break
                     result = self.provider.stream_merge_chunks(result, chunk)
                 else:
@@ -2743,9 +2740,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
                         )
                     if turn.tokens is None and turn.completion:
-                        turn.tokens = self.provider.value_tokens(
-                            turn.completion
-                        )
+                        turn.tokens = self.provider.value_tokens(turn.completion)
                     if turn.cost is None and turn.completion:
                         turn.cost = self.provider.value_cost(
                             turn.completion, turn.tokens
@@ -2755,10 +2750,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     self._turns[turn_idx] = turn
             finally:
                 final_turn = self._turns[turn_idx]
-                if (
-                    isinstance(final_turn, AssistantTurn)
-                    and final_turn.is_partial
-                ):
+                if isinstance(final_turn, AssistantTurn) and final_turn.is_partial:
                     if controller is not None and controller.cancelled:
                         final_turn.partial_reason = controller.reason
                     final_turn.contents = cast(
@@ -2806,6 +2798,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         content_mode: Literal["text"] = "text",
+        controller: StreamController | None = None,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
@@ -2818,6 +2811,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         kwargs: Optional[SubmitInputArgsT] = None,
         *,
         content_mode: Literal["all"],
+        controller: StreamController | None = None,
     ) -> AsyncGenerator[str | Content, None]: ...
 
     async def _submit_turns_async(
@@ -2873,10 +2867,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                                 yield content
                             else:
                                 yield text
-                            if (
-                                controller is not None
-                                and controller.cancelled
-                            ):
+                            if controller is not None and controller.cancelled:
                                 break
                     result = self.provider.stream_merge_chunks(result, chunk)
                 else:
@@ -2892,9 +2883,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             f"Expected turn to be AssistantTurn, got {type(turn).__name__}"
                         )
                     if turn.tokens is None and turn.completion:
-                        turn.tokens = self.provider.value_tokens(
-                            turn.completion
-                        )
+                        turn.tokens = self.provider.value_tokens(turn.completion)
                     if turn.cost is None and turn.completion:
                         turn.cost = self.provider.value_cost(
                             turn.completion, turn.tokens
@@ -2904,10 +2893,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     self._turns[turn_idx] = turn
             finally:
                 final_turn = self._turns[turn_idx]
-                if (
-                    isinstance(final_turn, AssistantTurn)
-                    and final_turn.is_partial
-                ):
+                if isinstance(final_turn, AssistantTurn) and final_turn.is_partial:
                     if controller is not None and controller.cancelled:
                         final_turn.partial_reason = controller.reason
                     final_turn.contents = cast(
@@ -3153,9 +3139,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         turns = self.get_turns(include_system_prompt=True)
         complete_assistant_turns = [
-            t
-            for t in turns
-            if isinstance(t, AssistantTurn) and not t.is_partial
+            t for t in turns if isinstance(t, AssistantTurn) and not t.is_partial
         ]
 
         # Sum tokens across complete assistant turns
