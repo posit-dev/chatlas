@@ -178,3 +178,71 @@ def test_can_extract_custom_id_from_malformed_json():
         "custom_id": "request-123",
         "response": {"status_code": 500},
     }
+
+
+def test_openai_web_search_call_action_types():
+    """Handle non-search web_search_call action types (open_page, find_in_page)."""
+    from chatlas._content import ContentToolRequestSearch
+    from chatlas._provider_openai import OpenAIProvider
+
+    chat = ChatOpenAI()
+    provider = chat.provider
+    assert isinstance(provider, OpenAIProvider)
+
+    def make_response(action: dict):
+        """Create a minimal Response with a web_search_call output."""
+        from openai.types.responses import Response
+
+        return Response.model_validate(
+            {
+                "id": "resp_1",
+                "created_at": 0,
+                "model": "gpt-4.1",
+                "object": "response",
+                "output": [
+                    {
+                        "id": "ws_1",
+                        "type": "web_search_call",
+                        "status": "completed",
+                        "action": action,
+                    }
+                ],
+                "parallel_tool_calls": True,
+                "tool_choice": "auto",
+                "tools": [],
+            }
+        )
+
+    # search action with query
+    resp = make_response({"type": "search", "query": "test query"})
+    turn = provider._response_as_turn(resp, has_data_model=False)
+    assert isinstance(turn.contents[0], ContentToolRequestSearch)
+    assert turn.contents[0].query == "test query"
+
+    # open_page action with url
+    resp = make_response({"type": "open_page", "url": "https://example.com"})
+    turn = provider._response_as_turn(resp, has_data_model=False)
+    assert isinstance(turn.contents[0], ContentToolRequestSearch)
+    assert turn.contents[0].query == "https://example.com"
+
+    # find_in_page action with pattern
+    resp = make_response(
+        {"type": "find_in_page", "pattern": "find this", "url": "https://example.com"}
+    )
+    turn = provider._response_as_turn(resp, has_data_model=False)
+    assert isinstance(turn.contents[0], ContentToolRequestSearch)
+    assert turn.contents[0].query == "find this"
+
+    # search action without query but with queries
+    resp = make_response(
+        {"type": "search", "query": "", "queries": ["first query"]}
+    )
+    turn = provider._response_as_turn(resp, has_data_model=False)
+    assert isinstance(turn.contents[0], ContentToolRequestSearch)
+    assert turn.contents[0].query == "first query"
+
+    # fallback to "web search" when no useful info
+    resp = make_response({"type": "search", "query": ""})
+    turn = provider._response_as_turn(resp, has_data_model=False)
+    assert isinstance(turn.contents[0], ContentToolRequestSearch)
+    assert turn.contents[0].query == "web search"

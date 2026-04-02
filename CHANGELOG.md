@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 
 * Fixed tool calling with Google thinking models (e.g., `gemini-3-flash-preview`) failing with a 400 `INVALID_ARGUMENT` error about a missing `thought_signature`. The signature is now preserved and forwarded in subsequent turns. (#274)
+* OpenAI's `web_search_call` no longer errors on non-search action types like `open_page` and `find_in_page`. (#277)
 
 
 ## [0.15.1] -- 2026-01-22
