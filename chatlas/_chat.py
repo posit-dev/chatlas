@@ -1246,6 +1246,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         display = self._markdown_display(echo=echo)
 
+        if controller is None:
+            controller = StreamController()
+
         generator = self._chat_impl(
             turn,
             stream=True,
@@ -1361,6 +1364,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         turn = user_turn(*args, prior_turns=self.get_turns())
 
         display = self._markdown_display(echo=echo)
+
+        if controller is None:
+            controller = StreamController()
 
         async def wrapper() -> AsyncGenerator[
             str | ContentThinking | ContentToolRequest | ContentToolResult, None
@@ -2539,6 +2545,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         controller: StreamController | None = None,
     ) -> Generator[str | Content, None, None]:
+        if controller is None:
+            controller = StreamController()
+
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             for chunk in self._submit_turns(
@@ -2557,7 +2566,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             user_turn_result = None
 
             # Don't invoke tools if the stream was cancelled
-            if controller is not None and controller.cancelled:
+            if controller.cancelled:
                 break
 
             all_results: list[ContentToolResult] = []
@@ -2615,6 +2624,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         controller: StreamController | None = None,
     ) -> AsyncGenerator[str | Content, None]:
+        if controller is None:
+            controller = StreamController()
+
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
             async for chunk in self._submit_turns_async(
@@ -2633,7 +2645,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             user_turn_result = None
 
             # Don't invoke tools if the stream was cancelled
-            if controller is not None and controller.cancelled:
+            if controller.cancelled:
                 break
 
             all_results: list[ContentToolResult] = []
@@ -2694,6 +2706,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content_mode: Literal["text", "all"] = "text",
         controller: StreamController | None = None,
     ) -> Generator[str | Content, None, None]:
+        if controller is None:
+            controller = StreamController()
+
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
@@ -2725,23 +2740,26 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             try:
                 result = None
+                # Note: this for/else relies on the fact that GeneratorExit
+                # (from gen.close()) is an exception, not a break — so it
+                # skips the else clause while still running the finally block.
                 for chunk in response:
                     content = self.provider.stream_content(chunk)
                     if content is not None:
+                        self._turns[turn_idx].contents.append(
+                            cast(ContentUnion, content)
+                        )
                         text = content_text(content)
                         if text:
                             emit(text)
-                            self._turns[turn_idx].contents.append(
-                                cast(ContentUnion, content)
-                            )
                             if content_mode == "all" and isinstance(
                                 content, ContentThinking
                             ):
                                 yield content
                             else:
                                 yield text
-                            if controller is not None and controller.cancelled:
-                                break
+                        if controller.cancelled:
+                            break
                     result = self.provider.stream_merge_chunks(result, chunk)
                 else:
                     # Normal completion — replace partial with full turn
@@ -2767,12 +2785,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             finally:
                 final_turn = self._turns[turn_idx]
                 if isinstance(final_turn, AssistantTurn) and final_turn.is_partial:
-                    if controller is not None and controller.cancelled:
+                    if controller.cancelled:
                         final_turn.partial_reason = controller.reason
-                    final_turn.contents = cast(
-                        list[ContentUnion],
-                        merge_content_text(final_turn.contents),
-                    )
+                    final_turn.contents = merge_content_text(final_turn.contents)
 
         else:
             response = self.provider.chat_perform(
@@ -2840,6 +2855,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content_mode: Literal["text", "all"] = "text",
         controller: StreamController | None = None,
     ) -> AsyncGenerator[str | Content, None]:
+        if controller is None:
+            controller = StreamController()
+
         def emit(text: str | Content):
             self._echo_content(str(text))
 
@@ -2868,23 +2886,26 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             try:
                 result = None
+                # Note: this for/else relies on the fact that GeneratorExit
+                # (from gen.aclose()) is an exception, not a break — so it
+                # skips the else clause while still running the finally block.
                 async for chunk in response:
                     content = self.provider.stream_content(chunk)
                     if content is not None:
+                        self._turns[turn_idx].contents.append(
+                            cast(ContentUnion, content)
+                        )
                         text = content_text(content)
                         if text:
                             emit(text)
-                            self._turns[turn_idx].contents.append(
-                                cast(ContentUnion, content)
-                            )
                             if content_mode == "all" and isinstance(
                                 content, ContentThinking
                             ):
                                 yield content
                             else:
                                 yield text
-                            if controller is not None and controller.cancelled:
-                                break
+                        if controller.cancelled:
+                            break
                     result = self.provider.stream_merge_chunks(result, chunk)
                 else:
                     # Normal completion — replace partial with full turn
@@ -2910,12 +2931,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             finally:
                 final_turn = self._turns[turn_idx]
                 if isinstance(final_turn, AssistantTurn) and final_turn.is_partial:
-                    if controller is not None and controller.cancelled:
+                    if controller.cancelled:
                         final_turn.partial_reason = controller.reason
-                    final_turn.contents = cast(
-                        list[ContentUnion],
-                        merge_content_text(final_turn.contents),
-                    )
+                    final_turn.contents = merge_content_text(final_turn.contents)
 
         else:
             response = await self.provider.chat_perform_async(
@@ -3395,11 +3413,11 @@ def content_text(content: Content) -> str:
     return str(content)
 
 
-def merge_content_text(contents: Sequence[Content]) -> list[Content]:
+def merge_content_text(contents: Sequence[Content]) -> list[ContentUnion]:
     """Merge adjacent ContentText (and ContentThinking) fragments."""
     if not contents:
         return []
-    merged: list[Content] = [contents[0]]
+    merged: list[ContentUnion] = [cast(ContentUnion, contents[0])]
     for item in contents[1:]:
         last = merged[-1]
         if isinstance(last, ContentText) and isinstance(item, ContentText):
@@ -3407,7 +3425,7 @@ def merge_content_text(contents: Sequence[Content]) -> list[Content]:
         elif isinstance(last, ContentThinking) and isinstance(item, ContentThinking):
             merged[-1] = ContentThinking(thinking=last.thinking + item.thinking)
         else:
-            merged.append(item)
+            merged.append(cast(ContentUnion, item))
     return merged
 
 

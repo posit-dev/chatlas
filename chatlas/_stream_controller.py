@@ -41,6 +41,10 @@ class StreamController:
 
     def cancel(self, reason: str = "cancelled") -> None:
         """Cancel the stream. The reason is stored on the partial turn."""
+        # Set reason before cancelled so that readers who see cancelled=True
+        # will always find a reason. This is safe under CPython's GIL; on
+        # free-threaded builds the worst case is a benign extra iteration
+        # before the streaming loop notices the cancellation.
         self._reason = reason
         self._cancelled = True
 
