@@ -1210,6 +1210,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
+        controller
+            A [](`~chatlas.StreamController`) for cooperative stream cancellation.
+            When provided, calling `controller.cancel()` stops the stream after the
+            current chunk and preserves the partial response in conversation history.
+            This is useful for building UIs (e.g., a "stop generating" button) where
+            you want to interrupt a response without losing what's been generated so
+            far. The same controller can be reused across multiple streams by calling
+            `controller.reset()` before starting a new stream.
 
         Returns
         -------
@@ -1313,6 +1321,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         kwargs
             Additional keyword arguments to pass to the method used for requesting
             the response.
+        controller
+            A [](`~chatlas.StreamController`) for cooperative stream cancellation.
+            When provided, calling `controller.cancel()` stops the stream after the
+            current chunk and preserves the partial response in conversation history.
+            This is useful for building UIs (e.g., a "stop generating" button) where
+            you want to interrupt a response without losing what's been generated so
+            far. The same controller can be reused across multiple streams by calling
+            `controller.reset()` before starting a new stream.
 
         Returns
         -------
