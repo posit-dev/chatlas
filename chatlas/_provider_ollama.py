@@ -9,7 +9,7 @@ import orjson
 from ._chat import Chat
 from ._provider import ModelInfo
 from ._provider_openai_completions import OpenAICompletionsProvider
-from ._utils import MISSING_TYPE, is_testing
+from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
     from ._provider_openai_completions import ChatCompletion
@@ -21,7 +21,7 @@ def ChatOllama(
     *,
     system_prompt: Optional[str] = None,
     base_url: str = "http://localhost:11434",
-    seed: Optional[int] = None,
+    seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
