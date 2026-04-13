@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-
+* New `ChatLMStudio()` provider for chatting with local models via [LM Studio](https://lmstudio.ai). (#280)
 * The `.stream()` and `.stream_async()` methods now yield `ContentThinking` objects (instead of plain strings) for thinking/reasoning content when `content="all"`. This allows downstream packages like shinychat to provide specific UI for thinking content. (#276)
 * Built-in tools (`tool_web_search()`, `tool_web_fetch()`) now include `description` and `annotations` properties, making their metadata consistent with user-defined tools created by `Tool()`. (#278)
 
