@@ -148,7 +148,6 @@ class OpenAICompletionsProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ) -> "SubmitInputArgs":
-
         tool_schemas = []
         for tool in tools.values():
             if isinstance(tool, ToolBuiltIn):

@@ -1156,7 +1156,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]: ...
+    ) -> Generator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
+    ]: ...
 
     def stream(
         self,
@@ -1165,7 +1167,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]:
+    ) -> Generator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
+    ]:
         """
         Generate a response from the chat in a streaming fashion.
 
@@ -1255,7 +1259,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]: ...
+    ) -> AsyncGenerator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None
+    ]: ...
 
     async def stream_async(
         self,
@@ -1264,7 +1270,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         echo: EchoOptions = "none",
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
-    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]:
+    ) -> AsyncGenerator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None
+    ]:
         """
         Generate a response from the chat in a streaming fashion asynchronously.
 
@@ -2485,7 +2493,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
-    ) -> Generator[str | ContentThinking | ContentToolRequest | ContentToolResult, None, None]: ...
+    ) -> Generator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
+    ]: ...
 
     def _chat_impl(
         self,
@@ -2553,7 +2563,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         stream: bool,
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
-    ) -> AsyncGenerator[str | ContentThinking | ContentToolRequest | ContentToolResult, None]: ...
+    ) -> AsyncGenerator[
+        str | ContentThinking | ContentToolRequest | ContentToolResult, None
+    ]: ...
 
     async def _chat_impl_async(
         self,

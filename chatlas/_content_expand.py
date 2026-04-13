@@ -50,7 +50,8 @@ def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
 
 
 def expand_tool_value(
-    request: ContentToolRequest, value: ContentImageInline | ContentImageRemote | ContentPDF
+    request: ContentToolRequest,
+    value: ContentImageInline | ContentImageRemote | ContentPDF,
 ) -> list[ContentUnion]:
     open_tag = f'<tool-content call-id="{request.id}">'
 
