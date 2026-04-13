@@ -142,7 +142,7 @@ class LMStudioProvider(OpenAICompletionsProvider):
         self.base_url = base_url
 
     def list_models(self):
-        return lmstudio_model_info(self.base_url)
+        return lmstudio_model_info(self.base_url, api_key=self._client.api_key or "")
 
 
 def lmstudio_model_info(base_url: str, api_key: str = "") -> list[ModelInfo]:
