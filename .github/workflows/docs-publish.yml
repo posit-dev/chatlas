@@ -34,7 +34,7 @@ jobs:
     - name: 🔵 Set up Quarto
       uses: quarto-dev/quarto-actions/setup@v2
       with:
-        version: 1.6.26
+        version: 1.9.37
 
     - name: 🚀 Install uv
       uses: astral-sh/setup-uv@v3
