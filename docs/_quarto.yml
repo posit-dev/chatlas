@@ -31,6 +31,7 @@ website:
   page-navigation: true
   site-url: https://posit-dev.github.io/chatlas/
   description: Your friendly guide to building LLM chat apps in Python with less effort and more clarity.
+  llms-txt: true
 
   bread-crumbs: true
   open-graph: true
