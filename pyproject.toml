@@ -67,7 +67,7 @@ dev = [
     "tenacity"
 ]
 docs = [
-    "griffe>=1",
+    "griffe>=1.3.2,<2.0.0",
     "quartodoc>=0.7",
     # Quarto requires...
     "ipykernel",
