@@ -243,7 +243,7 @@ class Provider(
         self,
         completion: Optional[ChatCompletionDictT],
         chunk: ChatCompletionChunkT,
-    ) -> ChatCompletionDictT: ...
+    ) -> Optional[ChatCompletionDictT]: ...
 
     @abstractmethod
     def stream_turn(
