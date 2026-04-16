@@ -12,7 +12,7 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -29,8 +29,8 @@ interactions:
     uri: https://api.openai.com/v1/chat/completions
   response:
     body:
-      string: "{\n  \"id\": \"chatcmpl-CsxImN3LNJ3W9SCQI5oZhYYnBOzJ0\",\n  \"object\":
-        \"chat.completion\",\n  \"created\": 1767213704,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+      string: "{\n  \"id\": \"chatcmpl-DVMZLlgVM5ljxyNhySWYF9QpHu6Yy\",\n  \"object\":
+        \"chat.completion\",\n  \"created\": 1776367295,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
         \ \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\":
         \"assistant\",\n        \"content\": \"{\\\"title\\\":\\\"Apples are tasty\\\",\\\"author\\\":\\\"Hadley
         Wickham\\\"}\",\n        \"refusal\": null,\n        \"annotations\": []\n
@@ -40,16 +40,18 @@ interactions:
         0,\n      \"audio_tokens\": 0\n    },\n    \"completion_tokens_details\":
         {\n      \"reasoning_tokens\": 0,\n      \"audio_tokens\": 0,\n      \"accepted_prediction_tokens\":
         0,\n      \"rejected_prediction_tokens\": 0\n    }\n  },\n  \"service_tier\":
-        \"default\",\n  \"system_fingerprint\": \"fp_1a2c4a5ede\"\n}\n"
+        \"default\",\n  \"system_fingerprint\": \"fp_0551618383\"\n}\n"
     headers:
-      CF-RAY:
-      - 9b6c9975a8997815-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9ed58dccbc163443-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:41:44 GMT
+      - Thu, 16 Apr 2026 19:21:36 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -62,16 +64,12 @@ interactions:
       - X-Request-ID
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
       - '866'
       openai-processing-ms:
-      - '273'
+      - '377'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '297'
       x-openai-proxy-wasm:
       - v0.1
       x-ratelimit-limit-requests:
@@ -106,7 +104,7 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -114,8 +112,7 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=81iyVdKUXqmNCjJCB2IBLImU3wXlUHZUvQWNEQb5uS4-1767213704-1.0.1.1-MDuf13G3boFpPc6DHXVVQ.8RmopnEgpFi415hTmpcZGKmt62LSUkIk1AAv8U7rmciw1nCAT4.S2CtruwM9Aufhg.4.egvnHNCI74FCjbIto;
-        _cfuvid=KwmRrTnVKjpU6aNyR8l2x_JXM4Spkjbv.U3nT0KPv5s-1767213704939-0.0.1.1-604800000
+      - __cf_bm=vY8RWNmkBUeCRfZe8YRYMvsYx.rITugRVXC_t4LJET0-1776367295.4797728-1.0.1.1-dflpveJQyyAV8uCURb8Zc2MKX_OlFcvrAgNGa79MvySn5HZifBLv5W2fZj9pJtfJM.tTW_x6yd7c65x1Ni4vU5ColLZ.ji..vsSZ6Vrt32Vm9hX3IgXGBA_D0JUVicOV
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -126,8 +123,8 @@ interactions:
     uri: https://api.openai.com/v1/chat/completions
   response:
     body:
-      string: "{\n  \"id\": \"chatcmpl-CsxInBpnylaEhvXX0SFpw7T6pJItL\",\n  \"object\":
-        \"chat.completion\",\n  \"created\": 1767213705,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+      string: "{\n  \"id\": \"chatcmpl-DVMZMUeMNOKX2KsYALuDO38mqQoG1\",\n  \"object\":
+        \"chat.completion\",\n  \"created\": 1776367296,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
         \ \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\":
         \"assistant\",\n        \"content\": \"{\\\"title\\\":\\\"Apples are tasty\\\",\\\"author\\\":\\\"Hadley
         Wickham\\\"}\",\n        \"refusal\": null,\n        \"annotations\": []\n
@@ -137,16 +134,18 @@ interactions:
         0,\n      \"audio_tokens\": 0\n    },\n    \"completion_tokens_details\":
         {\n      \"reasoning_tokens\": 0,\n      \"audio_tokens\": 0,\n      \"accepted_prediction_tokens\":
         0,\n      \"rejected_prediction_tokens\": 0\n    }\n  },\n  \"service_tier\":
-        \"default\",\n  \"system_fingerprint\": \"fp_1a2c4a5ede\"\n}\n"
+        \"default\",\n  \"system_fingerprint\": \"fp_b87589b009\"\n}\n"
     headers:
-      CF-RAY:
-      - 9b6c997918f19bf6-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9ed58dd23a01e7f4-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:41:45 GMT
+      - Thu, 16 Apr 2026 19:21:36 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -159,16 +158,12 @@ interactions:
       - X-Request-ID
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
       - '867'
       openai-processing-ms:
-      - '302'
+      - '272'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '315'
       x-openai-proxy-wasm:
       - v0.1
       x-ratelimit-limit-requests:
@@ -205,7 +200,7 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -213,8 +208,7 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=81iyVdKUXqmNCjJCB2IBLImU3wXlUHZUvQWNEQb5uS4-1767213704-1.0.1.1-MDuf13G3boFpPc6DHXVVQ.8RmopnEgpFi415hTmpcZGKmt62LSUkIk1AAv8U7rmciw1nCAT4.S2CtruwM9Aufhg.4.egvnHNCI74FCjbIto;
-        _cfuvid=KwmRrTnVKjpU6aNyR8l2x_JXM4Spkjbv.U3nT0KPv5s-1767213704939-0.0.1.1-604800000
+      - __cf_bm=vY8RWNmkBUeCRfZe8YRYMvsYx.rITugRVXC_t4LJET0-1776367295.4797728-1.0.1.1-dflpveJQyyAV8uCURb8Zc2MKX_OlFcvrAgNGa79MvySn5HZifBLv5W2fZj9pJtfJM.tTW_x6yd7c65x1Ni4vU5ColLZ.ji..vsSZ6Vrt32Vm9hX3IgXGBA_D0JUVicOV
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -225,8 +219,8 @@ interactions:
     uri: https://api.openai.com/v1/chat/completions
   response:
     body:
-      string: "{\n  \"id\": \"chatcmpl-CsxInjNMcC8uFSfEIzgWwyeywg28y\",\n  \"object\":
-        \"chat.completion\",\n  \"created\": 1767213705,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
+      string: "{\n  \"id\": \"chatcmpl-DVMZNJfXGJlb2NwFi9aiOOI4YUthE\",\n  \"object\":
+        \"chat.completion\",\n  \"created\": 1776367297,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
         \ \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\":
         \"assistant\",\n        \"content\": \"{\\\"name\\\":\\\"Sarah Lin\\\",\\\"age\\\":29}\",\n
         \       \"refusal\": null,\n        \"annotations\": []\n      },\n      \"logprobs\":
@@ -235,38 +229,38 @@ interactions:
         {\n      \"cached_tokens\": 0,\n      \"audio_tokens\": 0\n    },\n    \"completion_tokens_details\":
         {\n      \"reasoning_tokens\": 0,\n      \"audio_tokens\": 0,\n      \"accepted_prediction_tokens\":
         0,\n      \"rejected_prediction_tokens\": 0\n    }\n  },\n  \"service_tier\":
-        \"default\",\n  \"system_fingerprint\": \"fp_1a2c4a5ede\"\n}\n"
+        \"default\",\n  \"system_fingerprint\": \"fp_a900d24d78\"\n}\n"
     headers:
-      CF-RAY:
-      - 9b6c997caacf9e4c-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9ed58dd6ba8e1142-ORD
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:41:46 GMT
+      - Thu, 16 Apr 2026 19:21:37 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       Transfer-Encoding:
       - chunked
+      Vary:
+      - Accept-Encoding
       X-Content-Type-Options:
       - nosniff
       access-control-expose-headers:
       - X-Request-ID
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
       - '840'
       openai-processing-ms:
-      - '298'
+      - '340'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '313'
       x-openai-proxy-wasm:
       - v0.1
       x-ratelimit-limit-requests:
@@ -303,7 +297,7 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -311,8 +305,8 @@ interactions:
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=81iyVdKUXqmNCjJCB2IBLImU3wXlUHZUvQWNEQb5uS4-1767213704-1.0.1.1-MDuf13G3boFpPc6DHXVVQ.8RmopnEgpFi415hTmpcZGKmt62LSUkIk1AAv8U7rmciw1nCAT4.S2CtruwM9Aufhg.4.egvnHNCI74FCjbIto;
-        _cfuvid=KwmRrTnVKjpU6aNyR8l2x_JXM4Spkjbv.U3nT0KPv5s-1767213704939-0.0.1.1-604800000
+      - __cf_bm=qm.Ds9DWmQHsznXLP66Yg5Il_.LVE.08WLgB7JABjH4-1776367297-1.0.1.1-aBVjq74M9RNruJoT3PlUxLiWFFNjcB8pMdfc7dj_VKRGhJnjGlP5MbQvBSpJujV0u33teXUkiO.NwZN_zJrlFfLctkMMrV3WFn7hXViXBRc;
+        _cfuvid=8e7Mkyb8ebQQr6AlRPv8pKUQYiB8cwfAOps4FB6MJNs-1776367297559-0.0.1.1-604800000
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -323,20 +317,20 @@ interactions:
     uri: https://api.openai.com/v1/chat/completions
   response:
     body:
-      string: 'data: {"id":"chatcmpl-CsxIp9MMQUMCNP0Lz4ssyWBN1MxbS","object":"chat.completion.chunk","created":1767213707,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_1a2c4a5ede","choices":[{"index":0,"delta":{"role":"assistant","content":"","refusal":null},"logprobs":null,"finish_reason":null}],"usage":null,"obfuscation":"2rojCM3dKWbMB"}
+      string: 'data: {"id":"chatcmpl-DVMZNk1UDYcusoDBzs8CaKRqvRLIr","object":"chat.completion.chunk","created":1776367297,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_464203d4c6","choices":[{"index":0,"delta":{"role":"assistant","content":"","refusal":null},"logprobs":null,"finish_reason":null}],"usage":null,"obfuscation":"RvFeKmjTwrD0e"}
 
 
-        data: {"id":"chatcmpl-CsxIp9MMQUMCNP0Lz4ssyWBN1MxbS","object":"chat.completion.chunk","created":1767213707,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_1a2c4a5ede","choices":[{"index":0,"delta":{"content":"Sarah"},"logprobs":null,"finish_reason":null}],"usage":null,"obfuscation":"4aKvImUtz6"}
+        data: {"id":"chatcmpl-DVMZNk1UDYcusoDBzs8CaKRqvRLIr","object":"chat.completion.chunk","created":1776367297,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_464203d4c6","choices":[{"index":0,"delta":{"content":"Sarah"},"logprobs":null,"finish_reason":null}],"usage":null,"obfuscation":"BW5vcuwbZf"}
 
 
-        data: {"id":"chatcmpl-CsxIp9MMQUMCNP0Lz4ssyWBN1MxbS","object":"chat.completion.chunk","created":1767213707,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_1a2c4a5ede","choices":[{"index":0,"delta":{"content":"
-        Lin"},"logprobs":null,"finish_reason":null}],"usage":null,"obfuscation":"TDd5kKYxBVv"}
+        data: {"id":"chatcmpl-DVMZNk1UDYcusoDBzs8CaKRqvRLIr","object":"chat.completion.chunk","created":1776367297,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_464203d4c6","choices":[{"index":0,"delta":{"content":"
+        Lin"},"logprobs":null,"finish_reason":null}],"usage":null,"obfuscation":"S9eAjUW02Ln"}
 
 
-        data: {"id":"chatcmpl-CsxIp9MMQUMCNP0Lz4ssyWBN1MxbS","object":"chat.completion.chunk","created":1767213707,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_1a2c4a5ede","choices":[{"index":0,"delta":{},"logprobs":null,"finish_reason":"stop"}],"usage":null,"obfuscation":"JEJurzNCm"}
+        data: {"id":"chatcmpl-DVMZNk1UDYcusoDBzs8CaKRqvRLIr","object":"chat.completion.chunk","created":1776367297,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_464203d4c6","choices":[{"index":0,"delta":{},"logprobs":null,"finish_reason":"stop"}],"usage":null,"obfuscation":"ZDwIuiRQc"}
 
 
-        data: {"id":"chatcmpl-CsxIp9MMQUMCNP0Lz4ssyWBN1MxbS","object":"chat.completion.chunk","created":1767213707,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_1a2c4a5ede","choices":[],"usage":{"prompt_tokens":165,"completion_tokens":2,"total_tokens":167,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}},"obfuscation":"ZLp2dWLoTQIew"}
+        data: {"id":"chatcmpl-DVMZNk1UDYcusoDBzs8CaKRqvRLIr","object":"chat.completion.chunk","created":1776367297,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_464203d4c6","choices":[],"usage":{"prompt_tokens":165,"completion_tokens":2,"total_tokens":167,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}},"obfuscation":"p7K6J7Xz38ZGc"}
 
 
         data: [DONE]
@@ -344,14 +338,16 @@ interactions:
 
         '
     headers:
-      CF-RAY:
-      - 9b6c998008cee277-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9ed58ddb5bd30558-ORD
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Wed, 31 Dec 2025 20:41:47 GMT
+      - Thu, 16 Apr 2026 19:21:38 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -364,14 +360,10 @@ interactions:
       - X-Request-ID
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       openai-processing-ms:
-      - '328'
+      - '439'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '674'
       x-openai-proxy-wasm:
       - v0.1
       x-ratelimit-limit-requests:
@@ -381,7 +373,7 @@ interactions:
       x-ratelimit-remaining-requests:
       - '9999'
       x-ratelimit-remaining-tokens:
-      - '29999861'
+      - '29999862'
       x-ratelimit-reset-requests:
       - 6ms
       x-ratelimit-reset-tokens:

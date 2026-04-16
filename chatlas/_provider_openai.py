@@ -318,8 +318,7 @@ class OpenAIProvider(
         elif chunk.type == "error":
             raise RuntimeError(f"Request errored: {chunk.message}")
 
-        # Since this value won't actually be used, we can lie about the type
-        return cast(Response, None)
+        return completion
 
     def stream_turn(self, completion, has_data_model):
         return self._response_as_turn(completion, has_data_model)
