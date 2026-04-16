@@ -24,6 +24,7 @@ from ._provider_github import ChatGithub
 from ._provider_google import ChatGoogle, ChatVertex
 from ._provider_groq import ChatGroq
 from ._provider_huggingface import ChatHuggingFace
+from ._provider_lmstudio import ChatLMStudio
 from ._provider_mistral import ChatMistral
 from ._provider_ollama import ChatOllama
 from ._provider_openai import ChatOpenAI
@@ -61,6 +62,7 @@ __all__ = (
     "ChatGoogle",
     "ChatGroq",
     "ChatHuggingFace",
+    "ChatLMStudio",
     "ChatMistral",
     "ChatOllama",
     "ChatOpenAICompletions",

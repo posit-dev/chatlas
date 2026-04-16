@@ -179,6 +179,8 @@ def chat_to_kebab_case(s):
         return "openai-completions"
     elif s == "ChatAzureOpenAICompletions":
         return "azure-openai-completions"
+    elif s == "ChatLMStudio":
+        return "lmstudio"
 
     # Remove 'Chat' prefix if present
     if s.startswith("Chat"):

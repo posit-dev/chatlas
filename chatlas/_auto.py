@@ -15,6 +15,7 @@ from ._provider_github import ChatGithub
 from ._provider_google import ChatGoogle, ChatVertex
 from ._provider_groq import ChatGroq
 from ._provider_huggingface import ChatHuggingFace
+from ._provider_lmstudio import ChatLMStudio
 from ._provider_mistral import ChatMistral
 from ._provider_ollama import ChatOllama
 from ._provider_openai import ChatOpenAI
@@ -37,6 +38,7 @@ AutoProviders = Literal[
     "google",
     "groq",
     "hugging-face",
+    "lmstudio",
     "mistral",
     "ollama",
     "openai",
@@ -61,6 +63,7 @@ _provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
     "google": ChatGoogle,
     "groq": ChatGroq,
     "hugging-face": ChatHuggingFace,
+    "lmstudio": ChatLMStudio,
     "mistral": ChatMistral,
     "ollama": ChatOllama,
     "openai": ChatOpenAI,
