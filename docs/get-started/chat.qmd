@@ -20,7 +20,7 @@ Soon we'll learn more about the [system prompt](system-prompt.qmd), but for now,
 
 ## Submit input
 
-Use the [`.chat()` method](../reference/Chat.qmd#chat) the submit input and get a streaming response echoed back to an interactive display, like a notebook or console.
+Use the [`.chat()` method](../reference/Chat.qmd#chat) to submit input and get a streaming response echoed back to an interactive display, like a notebook or console.
 This echoing behavior is great for interactive prototyping, but not for other settings, such as web apps or GUIs.
 In the latter case, use the [`.stream()` method](stream.qmd) instead to get a response generator that you can consume and display however you like.
 
