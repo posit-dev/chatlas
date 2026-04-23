@@ -75,7 +75,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-441cf8784b515adac1424855ab078ac0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-5c356ce55c5068c377a94633e77e7c48.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-b414132700e2aa9f5f3809491b9aae97.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -2513,7 +2513,7 @@ Note
 </tr>
 <tr class="even">
 <td>data_model</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
 <td>A Pydantic model describing the structure of the data to extract. When provided, the response will be constrained to match this structure. The streamed chunks will be JSON text that, when concatenated, forms a valid JSON object matching the model. After consuming the stream, use <code>data_model.model_validate_json("".join(chunks))</code> to parse the result.</td>
 <td><code>None</code></td>
 </tr>
@@ -2603,7 +2603,7 @@ Note
 </tr>
 <tr class="even">
 <td>data_model</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
 <td>A Pydantic model describing the structure of the data to extract. When provided, the response will be constrained to match this structure. The streamed chunks will be JSON text that, when concatenated, forms a valid JSON object matching the model. After consuming the stream, use <code>data_model.model_validate_json("".join(chunks))</code> to parse the result.</td>
 <td><code>None</code></td>
 </tr>
@@ -2647,10 +2647,13 @@ Note
 <span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
-<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>chunks <span class="op">=</span> [chunk <span class="cf">async</span> <span class="cf">for</span> chunk <span class="kw">in</span> <span class="cf">await</span> chat.stream_async(</span>
-<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"John is 25 years old"</span>, data_model<span class="op">=</span>Person</span>
-<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>)]</span>
-<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>person <span class="op">=</span> Person.model_validate_json(<span class="st">""</span>.join(chunks))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>chunks <span class="op">=</span> [</span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a>    chunk</span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">async</span> <span class="cf">for</span> chunk <span class="kw">in</span> <span class="cf">await</span> chat.stream_async(</span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">"John is 25 years old"</span>, data_model<span class="op">=</span>Person</span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb46-16"><a href="#cb46-16" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb46-17"><a href="#cb46-17" aria-hidden="true" tabindex="-1"></a>person <span class="op">=</span> Person.model_validate_json(<span class="st">""</span>.join(chunks))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
 <section id="chatlas.Chat.to_solver" class="level3">
@@ -2676,7 +2679,7 @@ Note
 <tbody>
 <tr class="odd">
 <td>data_model</td>
-<td><a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel">BaseModel</a>] | None</td>
+<td><a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel">BaseModel</a>] | None</td>
 <td>A Pydantic model describing the structure of the data to extract. When provided, the solver will use <code>.chat_structured()</code> instead of <code>.chat()</code> to generate responses, and the output completion will be JSON serialized from the model instance.</td>
 <td><code>None</code></td>
 </tr>
@@ -2783,7 +2786,7 @@ Note
 </tr>
 <tr class="even">
 <td>data_model</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
 <td>If the input is meant for data extraction (i.e., <code>.chat_structured()</code>), then this should be the Pydantic model that describes the structure of the data to extract.</td>
 <td><code>None</code></td>
 </tr>
@@ -2852,7 +2855,7 @@ Note
 </tr>
 <tr class="even">
 <td>data_model</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
 <td>If this input is meant for data extraction (i.e., <code>.chat_structured_async()</code>), then this should be the Pydantic model that describes the structure of the data to extract.</td>
 <td><code>None</code></td>
 </tr>
