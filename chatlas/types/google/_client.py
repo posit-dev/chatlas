@@ -11,6 +11,7 @@ import google.genai.types
 
 
 class ChatClientArgs(TypedDict, total=False):
+    enterprise: Optional[bool]
     vertexai: Optional[bool]
     api_key: Optional[str]
     credentials: Optional[google.auth.credentials.Credentials]
