@@ -980,6 +980,7 @@ def ChatBedrockAnthropic(
     *,
     model: Optional[str] = None,
     max_tokens: int = 4096,
+    reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
     cache: Literal["5m", "1h", "none"] = "none",
     aws_secret_key: Optional[str] = None,
     aws_access_key: Optional[str] = None,
@@ -1036,9 +1037,16 @@ def ChatBedrockAnthropic(
         The model to use for the chat.
     max_tokens
         Maximum number of tokens to generate before stopping.
+    reasoning
+        Determines how many tokens Claude can be allocated to reasoning. Must be
+        ≥1024 and less than `max_tokens`. Larger budgets can enable more
+        thorough analysis for complex problems, improving response quality. See
+        [extended
+        thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
+        for details.
     cache
-        How long to cache inputs? Defaults to "5m" (five minutes).
-        Set to "none" to disable caching or "1h" to cache for one hour.
+        How long to cache inputs? Defaults to "none" (disabled).
+        Set to "5m" to cache for five minutes or "1h" to cache for one hour.
         See the Caching section of `ChatAnthropic` for details.
     aws_secret_key
         The AWS secret key to use for authentication.
@@ -1117,6 +1125,12 @@ def ChatBedrockAnthropic(
     if model is None:
         model = log_model_default("us.anthropic.claude-sonnet-4-5-20250929-v1:0")
 
+    kwargs_chat: "SubmitInputArgs" = {}
+    if reasoning is not None:
+        if isinstance(reasoning, int):
+            reasoning = {"type": "enabled", "budget_tokens": reasoning}
+        kwargs_chat = {"thinking": reasoning}
+
     return Chat(
         provider=AnthropicBedrockProvider(
             model=model,
@@ -1131,6 +1145,7 @@ def ChatBedrockAnthropic(
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+        kwargs_chat=kwargs_chat,
     )
 
 
