@@ -1158,7 +1158,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         )
 
         try:
-            from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
+            from anthropic.lib.bedrock import AnthropicBedrock, AsyncAnthropicBedrock
         except ImportError:
             raise ImportError(
                 "`ChatBedrockAnthropic()` requires the `anthropic` package. "
