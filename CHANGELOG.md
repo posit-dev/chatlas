@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
-## [UNRELEASED]
+## [0.16.0] - 2026-04-16
 
 ### New features
 
@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed OpenAI streaming crash (`AttributeError: 'NoneType' object has no attribute 'output'`) caused by a new `response.rate_limits.updated` event emitted after `response.completed`. (#282)
 * Fixed tool calling with Google thinking models (e.g., `gemini-3-flash-preview`) failing with a 400 `INVALID_ARGUMENT` error about a missing `thought_signature`. The signature is now preserved and forwarded in subsequent turns. (#274)
 * OpenAI's `web_search_call` no longer errors on non-search action types like `open_page` and `find_in_page`. (#277)
+
+## [0.15.2] -- 2026-02-27
+
+### Bug fixes
+
+* Fixed compatibility with rich >= 14.3.0 and Anthropic SDK v0.82+. (#269)
 
 
 ## [0.15.1] -- 2026-01-22

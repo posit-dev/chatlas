@@ -150,7 +150,7 @@ class SubmitInputArgs(TypedDict, total=False):
     ]
     presence_penalty: Union[float, None, openai.Omit]
     prompt_cache_key: str | openai.Omit
-    prompt_cache_retention: Union[Literal["in-memory", "24h"], None, openai.Omit]
+    prompt_cache_retention: Union[Literal["in_memory", "24h"], None, openai.Omit]
     reasoning_effort: Union[
         Literal["none", "minimal", "low", "medium", "high", "xhigh"], None, openai.Omit
     ]
