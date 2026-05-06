@@ -468,7 +468,7 @@ class AnthropicProvider(
             if chunk.delta.type == "text_delta":
                 return ContentText.model_construct(text=chunk.delta.text)
             if chunk.delta.type == "thinking_delta":
-                return ContentThinking(thinking=chunk.delta.thinking)
+                return ContentThinking._as_chunk(chunk.delta.thinking)
         return None
 
     def stream_merge_chunks(self, completion, chunk):
