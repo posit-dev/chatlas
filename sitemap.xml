@@ -2,382 +2,382 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://posit-dev.github.io/chatlas/dev/vcr-tests.html</loc>
-    <lastmod>2026-04-30T14:39:27.932Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/tool-calling/approval.html</loc>
-    <lastmod>2026-04-30T14:39:27.976Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.083Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/structured-data/article-summary.html</loc>
-    <lastmod>2026-04-30T14:39:27.976Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.082Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/structured-data/entity-recognition.html</loc>
-    <lastmod>2026-04-30T14:39:27.976Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.083Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/structured-data/sentiment-analysis.html</loc>
-    <lastmod>2026-04-30T14:39:27.976Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.083Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/why-chatlas.html</loc>
-    <lastmod>2026-04-30T14:39:27.977Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.083Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/index.html</loc>
-    <lastmod>2026-04-30T14:39:27.961Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.067Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/get-started/async.html</loc>
-    <lastmod>2026-04-30T14:39:27.932Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/get-started/chat.html</loc>
-    <lastmod>2026-04-30T14:39:27.933Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/get-started/models.html</loc>
-    <lastmod>2026-04-30T14:39:27.933Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/get-started/debug.html</loc>
-    <lastmod>2026-04-30T14:39:27.933Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/get-started/structured-data.html</loc>
-    <lastmod>2026-04-30T14:39:27.933Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/misc/RAG.html</loc>
-    <lastmod>2026-04-30T14:39:27.975Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.082Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/misc/vocabulary.html</loc>
-    <lastmod>2026-04-30T14:39:27.976Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.082Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/misc/evals.html</loc>
-    <lastmod>2026-04-30T14:39:27.976Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.082Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatDatabricks.html</loc>
-    <lastmod>2026-04-30T14:40:41.771Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.306Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/interpolate_file.html</loc>
-    <lastmod>2026-04-30T14:40:42.087Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.614Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ChatResponseAsync.html</loc>
-    <lastmod>2026-04-30T14:40:42.173Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.698Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ContentImageInline.html</loc>
-    <lastmod>2026-04-30T14:40:42.132Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.659Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatHuggingFace.html</loc>
-    <lastmod>2026-04-30T14:40:41.803Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.337Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ImageContentTypes.html</loc>
-    <lastmod>2026-04-30T14:40:42.174Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.700Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ContentToolRequestSearch.html</loc>
-    <lastmod>2026-04-30T14:40:42.157Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.682Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html</loc>
-    <lastmod>2026-04-30T14:40:42.176Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.701Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/parallel_chat.html</loc>
-    <lastmod>2026-04-30T14:40:42.045Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.573Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/UserTurn.html</loc>
-    <lastmod>2026-04-30T14:40:42.097Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.624Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatOpenRouter.html</loc>
-    <lastmod>2026-04-30T14:40:41.828Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.362Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatMistral.html</loc>
-    <lastmod>2026-04-30T14:40:41.809Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.343Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ChatResponse.html</loc>
-    <lastmod>2026-04-30T14:40:42.169Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.694Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatDeepSeek.html</loc>
-    <lastmod>2026-04-30T14:40:41.778Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.312Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ContentToolResponseFetch.html</loc>
-    <lastmod>2026-04-30T14:40:42.164Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.690Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/content_image_url.html</loc>
-    <lastmod>2026-04-30T14:40:42.004Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.533Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ContentImage.html</loc>
-    <lastmod>2026-04-30T14:40:42.130Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.656Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/batch_chat_structured.html</loc>
-    <lastmod>2026-04-30T14:40:42.073Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.601Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/parallel_chat_structured.html</loc>
-    <lastmod>2026-04-30T14:40:42.059Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.587Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ContentJson.html</loc>
-    <lastmod>2026-04-30T14:40:42.137Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.664Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/parallel_chat_text.html</loc>
-    <lastmod>2026-04-30T14:40:42.051Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.580Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ContentToolResponseSearch.html</loc>
-    <lastmod>2026-04-30T14:40:42.159Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.685Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatAnthropic.html</loc>
-    <lastmod>2026-04-30T14:40:41.738Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.273Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html</loc>
-    <lastmod>2026-04-30T14:40:42.178Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.703Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/content_pdf_url.html</loc>
-    <lastmod>2026-04-30T14:40:42.010Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.539Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/batch_chat.html</loc>
-    <lastmod>2026-04-30T14:40:42.064Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.592Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ContentToolRequestFetch.html</loc>
-    <lastmod>2026-04-30T14:40:42.162Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.687Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ToolAnnotations.html</loc>
-    <lastmod>2026-04-30T14:40:42.184Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.709Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatSnowflake.html</loc>
-    <lastmod>2026-04-30T14:40:41.848Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.381Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatOllama.html</loc>
-    <lastmod>2026-04-30T14:40:41.815Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.349Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/Provider.html</loc>
-    <lastmod>2026-04-30T14:40:42.126Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.653Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/AssistantTurn.html</loc>
-    <lastmod>2026-04-30T14:40:42.094Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.621Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatPortkey.html</loc>
-    <lastmod>2026-04-30T14:40:41.841Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.375Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/tool_web_search.html</loc>
-    <lastmod>2026-04-30T14:40:42.033Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.561Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.Content.html</loc>
-    <lastmod>2026-04-30T14:40:42.128Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.655Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatGithub.html</loc>
-    <lastmod>2026-04-30T14:40:41.785Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.319Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/batch_chat_text.html</loc>
-    <lastmod>2026-04-30T14:40:42.068Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.596Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/Tool.html</loc>
-    <lastmod>2026-04-30T14:40:42.024Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.552Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/Chat.html</loc>
-    <lastmod>2026-04-30T14:40:41.989Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.518Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatVertex.html</loc>
-    <lastmod>2026-04-30T14:40:41.853Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.387Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatOpenAI.html</loc>
-    <lastmod>2026-04-30T14:40:41.822Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.356Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ContentToolResult.html</loc>
-    <lastmod>2026-04-30T14:40:42.154Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.680Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/Turn.html</loc>
-    <lastmod>2026-04-30T14:40:42.105Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.632Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatCloudflare.html</loc>
-    <lastmod>2026-04-30T14:40:41.767Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.301Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/batch_chat_completed.html</loc>
-    <lastmod>2026-04-30T14:40:42.077Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.605Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatBedrockAnthropic.html</loc>
-    <lastmod>2026-04-30T14:40:41.760Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.295Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/SystemTurn.html</loc>
-    <lastmod>2026-04-30T14:40:42.100Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.627Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatAuto.html</loc>
-    <lastmod>2026-04-30T14:40:41.744Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.279Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatAzureOpenAI.html</loc>
-    <lastmod>2026-04-30T14:40:41.751Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.286Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/content_pdf_file.html</loc>
-    <lastmod>2026-04-30T14:40:42.007Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.536Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ToolRejectError.html</loc>
-    <lastmod>2026-04-30T14:40:42.027Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.556Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.MISSING.html</loc>
-    <lastmod>2026-04-30T14:40:42.177Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.702Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/interpolate.html</loc>
-    <lastmod>2026-04-30T14:40:42.082Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.610Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ToolInfo.html</loc>
-    <lastmod>2026-04-30T14:40:42.189Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.713Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/token_usage.html</loc>
-    <lastmod>2026-04-30T14:40:42.108Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.635Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/index.html</loc>
-    <lastmod>2026-04-30T14:40:41.711Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.248Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatGroq.html</loc>
-    <lastmod>2026-04-30T14:40:41.797Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.331Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ContentToolRequest.html</loc>
-    <lastmod>2026-04-30T14:40:42.144Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.670Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ContentText.html</loc>
-    <lastmod>2026-04-30T14:40:42.139Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.665Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatGoogle.html</loc>
-    <lastmod>2026-04-30T14:40:41.790Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.324Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/tool_web_fetch.html</loc>
-    <lastmod>2026-04-30T14:40:42.038Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.566Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.ContentImageRemote.html</loc>
-    <lastmod>2026-04-30T14:40:42.135Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.661Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/content_image_file.html</loc>
-    <lastmod>2026-04-30T14:40:41.995Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.524Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/content_image_plot.html</loc>
-    <lastmod>2026-04-30T14:40:42.000Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.529Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/ChatPerplexity.html</loc>
-    <lastmod>2026-04-30T14:40:41.835Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.368Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/reference/types.TokenUsage.html</loc>
-    <lastmod>2026-04-30T14:40:42.180Z</lastmod>
+    <lastmod>2026-05-06T21:52:11.705Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/misc/examples.html</loc>
-    <lastmod>2026-04-30T14:39:27.976Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.082Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/misc/mcp-tools.html</loc>
-    <lastmod>2026-04-30T14:39:27.976Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.082Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/get-started/system-prompt.html</loc>
-    <lastmod>2026-04-30T14:39:27.933Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/get-started/chatbots.html</loc>
-    <lastmod>2026-04-30T14:39:27.933Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/get-started/stream.html</loc>
-    <lastmod>2026-04-30T14:39:27.933Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/get-started/tools.html</loc>
-    <lastmod>2026-04-30T14:39:27.933Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/get-started/monitor.html</loc>
-    <lastmod>2026-04-30T14:39:27.933Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/get-started/parameters.html</loc>
-    <lastmod>2026-04-30T14:39:27.933Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.039Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/scale.html</loc>
-    <lastmod>2026-04-30T14:39:27.976Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.082Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/CHANGELOG.html</loc>
-    <lastmod>2026-04-30T14:40:45.503Z</lastmod>
+    <lastmod>2026-05-06T21:52:15.175Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/structured-data/classification.html</loc>
-    <lastmod>2026-04-30T14:39:27.976Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.083Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/structured-data/multi-modal.html</loc>
-    <lastmod>2026-04-30T14:39:27.976Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.083Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/tool-calling/displays.html</loc>
-    <lastmod>2026-04-30T14:39:27.977Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.083Z</lastmod>
   </url>
   <url>
     <loc>https://posit-dev.github.io/chatlas/tool-calling/how-it-works.html</loc>
-    <lastmod>2026-04-30T14:39:27.977Z</lastmod>
+    <lastmod>2026-05-06T21:50:59.083Z</lastmod>
   </url>
 </urlset>

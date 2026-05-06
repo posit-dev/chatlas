@@ -824,7 +824,7 @@ Python requirements
 <tr class="odd">
 <td>provider_model</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The name of the provider and model to use in the format <code>"{provider}/{model}"</code>. Providers are strings formatted in kebab-case, e.g.&nbsp;to use <code>ChatBedrockAnthropic</code> set <code>provider="bedrock-anthropic"</code>, and models are the provider-specific model names, e.g.&nbsp;<code>"claude-3-7-sonnet-20250219"</code>. The <code>/{model}</code> portion may also be omitted, in which case, the default model for that provider will be used. If no value is provided, the <code>CHATLAS_CHAT_PROVIDER_MODEL</code> environment variable will be consulted for a fallback value. If this variable is also not set, a default value of <code>"openai"</code> is used.</td>
+<td>The name of the provider and model to use in the format <code>"{provider}/{model}"</code>. Providers are strings formatted in kebab-case, e.g.&nbsp;to use <code>ChatBedrockAnthropic</code> set <code>provider="bedrock-anthropic"</code>, and models are the provider-specific model names, e.g.&nbsp;<code>"claude-sonnet-4-6"</code>. The <code>/{model}</code> portion may also be omitted, in which case, the default model for that provider will be used. If no value is provided, the <code>CHATLAS_CHAT_PROVIDER_MODEL</code> environment variable will be consulted for a fallback value. If this variable is also not set, a default value of <code>"openai"</code> is used.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">
