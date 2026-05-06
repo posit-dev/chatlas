@@ -3,7 +3,7 @@ interactions:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
       "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
       {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}], "model": "gpt-5.4-mini", "store": false, "stream":
+      date in YYYY-MM-DD format?"}]}], "model": "gpt-5.4", "store": false, "stream":
       true, "tools": [{"type": "function", "name": "get_current_date", "description":
       "Gets the current date", "parameters": {"properties": {}, "type": "object",
       "additionalProperties": false}, "strict": false}]}'
@@ -15,7 +15,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '492'
+      - '487'
       Content-Type:
       - application/json
       Host:
@@ -30,39 +30,39 @@ interactions:
     body:
       string: 'event: response.created
 
-        data: {"type":"response.created","response":{"id":"resp_0197f8232c0542dc0169fb6b76e6248191806de20c0dc9a07c","object":"response","created_at":1778084726,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        data: {"type":"response.created","response":{"id":"resp_0f00b526c9e27f220169fb7ce3328481a2bf6aa15946622ec7","object":"response","created_at":1778089187,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
         the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":false}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":0}
 
 
         event: response.in_progress
 
-        data: {"type":"response.in_progress","response":{"id":"resp_0197f8232c0542dc0169fb6b76e6248191806de20c0dc9a07c","object":"response","created_at":1778084726,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        data: {"type":"response.in_progress","response":{"id":"resp_0f00b526c9e27f220169fb7ce3328481a2bf6aa15946622ec7","object":"response","created_at":1778089187,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
         the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":false}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":1}
 
 
         event: response.output_item.added
 
-        data: {"type":"response.output_item.added","item":{"id":"fc_0197f8232c0542dc0169fb6b7758348191b1cf17b39b09b68f","type":"function_call","status":"in_progress","arguments":"","call_id":"call_GAeO3d1IzbwgRCMfTXbVFVol","name":"get_current_date"},"output_index":0,"sequence_number":2}
+        data: {"type":"response.output_item.added","item":{"id":"fc_0f00b526c9e27f220169fb7ce3b61481a2aece3038e0e72881","type":"function_call","status":"in_progress","arguments":"","call_id":"call_aFFYO1FxB5HxGbHLJ3NKI8Mo","name":"get_current_date"},"output_index":0,"sequence_number":2}
 
 
         event: response.function_call_arguments.delta
 
-        data: {"type":"response.function_call_arguments.delta","delta":"{}","item_id":"fc_0197f8232c0542dc0169fb6b7758348191b1cf17b39b09b68f","obfuscation":"bHPiHaYb1uzkZ9","output_index":0,"sequence_number":3}
+        data: {"type":"response.function_call_arguments.delta","delta":"{}","item_id":"fc_0f00b526c9e27f220169fb7ce3b61481a2aece3038e0e72881","obfuscation":"IOrJLnUfM224HL","output_index":0,"sequence_number":3}
 
 
         event: response.function_call_arguments.done
 
-        data: {"type":"response.function_call_arguments.done","arguments":"{}","item_id":"fc_0197f8232c0542dc0169fb6b7758348191b1cf17b39b09b68f","output_index":0,"sequence_number":4}
+        data: {"type":"response.function_call_arguments.done","arguments":"{}","item_id":"fc_0f00b526c9e27f220169fb7ce3b61481a2aece3038e0e72881","output_index":0,"sequence_number":4}
 
 
         event: response.output_item.done
 
-        data: {"type":"response.output_item.done","item":{"id":"fc_0197f8232c0542dc0169fb6b7758348191b1cf17b39b09b68f","type":"function_call","status":"completed","arguments":"{}","call_id":"call_GAeO3d1IzbwgRCMfTXbVFVol","name":"get_current_date"},"output_index":0,"sequence_number":5}
+        data: {"type":"response.output_item.done","item":{"id":"fc_0f00b526c9e27f220169fb7ce3b61481a2aece3038e0e72881","type":"function_call","status":"completed","arguments":"{}","call_id":"call_aFFYO1FxB5HxGbHLJ3NKI8Mo","name":"get_current_date"},"output_index":0,"sequence_number":5}
 
 
         event: response.completed
 
-        data: {"type":"response.completed","response":{"id":"resp_0197f8232c0542dc0169fb6b76e6248191806de20c0dc9a07c","object":"response","created_at":1778084726,"status":"completed","background":false,"completed_at":1778084727,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[{"id":"fc_0197f8232c0542dc0169fb6b7758348191b1cf17b39b09b68f","type":"function_call","status":"completed","arguments":"{}","call_id":"call_GAeO3d1IzbwgRCMfTXbVFVol","name":"get_current_date"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        data: {"type":"response.completed","response":{"id":"resp_0f00b526c9e27f220169fb7ce3328481a2bf6aa15946622ec7","object":"response","created_at":1778089187,"status":"completed","background":false,"completed_at":1778089188,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[{"id":"fc_0f00b526c9e27f220169fb7ce3b61481a2aece3038e0e72881","type":"function_call","status":"completed","arguments":"{}","call_id":"call_aFFYO1FxB5HxGbHLJ3NKI8Mo","name":"get_current_date"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
         the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":false}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":58,"input_tokens_details":{"cached_tokens":0},"output_tokens":15,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":73},"user":null,"metadata":{}},"sequence_number":6}
 
 
@@ -71,13 +71,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f7957465eaca1f4-MSP
+      - 9f79c42b8c4fa1c7-MSP
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Wed, 06 May 2026 16:25:27 GMT
+      - Wed, 06 May 2026 17:39:47 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -89,19 +89,19 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       openai-processing-ms:
-      - '312'
+      - '223'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '179999493'
+      - '39999492'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
@@ -111,10 +111,10 @@ interactions:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
       "content": [{"type": "input_text", "text": "Be very terse, not even punctuation."}]},
       {"role": "user", "content": [{"type": "input_text", "text": "What''s the current
-      date in YYYY-MM-DD format?"}]}, {"type": "function_call", "call_id": "fc_0197f8232c0542dc0169fb6b7758348191b1cf17b39b09b68f",
+      date in YYYY-MM-DD format?"}]}, {"type": "function_call", "call_id": "fc_0f00b526c9e27f220169fb7ce3b61481a2aece3038e0e72881",
       "name": "get_current_date", "arguments": "{}"}, {"type": "function_call_output",
-      "call_id": "fc_0197f8232c0542dc0169fb6b7758348191b1cf17b39b09b68f", "output":
-      "2024-01-01"}], "model": "gpt-5.4-mini", "store": false, "stream": true, "tools":
+      "call_id": "fc_0f00b526c9e27f220169fb7ce3b61481a2aece3038e0e72881", "output":
+      "2024-01-01"}], "model": "gpt-5.4", "store": false, "stream": true, "tools":
       [{"type": "function", "name": "get_current_date", "description": "Gets the current
       date", "parameters": {"properties": {}, "type": "object", "additionalProperties":
       false}, "strict": false}]}'
@@ -126,11 +126,11 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '746'
+      - '741'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=MN6xxK_gWtOBrkypu8chscpWnHM8T97Z87mMOYqaYTM-1778084726.7758455-1.0.1.1-kK6t59ehYPic96L7LGZwu7e20O22jpPqccBgIAKFMMbgIEhTghZT.fcKbteWM_gGST7n6mtRvWmoPovmnbi8eLc3rTM1TMRNUhVjA.z6qH7Wjj0K.Dw9jlV76kQsckBo
+      - __cf_bm=T_bMYQAJ.Rf4ETGyZ0hlImhhNN59AOeStFE8_x.m.1k-1778089187.128695-1.0.1.1-EvX8_kbvMLRNQiikTfQ9vx2BU2isCrPCNnhmjk6ropFX.MFHyL9jtgmFCbpjiFGnMEeAE.Pt9a.joqWJpHwnKXIjI6GbVcWv3ZVmYMnpmgUvPw0KCttD1OmQq.9RgGb0
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -143,74 +143,74 @@ interactions:
     body:
       string: 'event: response.created
 
-        data: {"type":"response.created","response":{"id":"resp_03e48937b0085db60169fb6b77d30481a0a63028967f236f63","object":"response","created_at":1778084727,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        data: {"type":"response.created","response":{"id":"resp_0fc93f57cddcc3650169fb7ce4a7688190bc4ce060e17c8006","object":"response","created_at":1778089188,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
         the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":false}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":0}
 
 
         event: response.in_progress
 
-        data: {"type":"response.in_progress","response":{"id":"resp_03e48937b0085db60169fb6b77d30481a0a63028967f236f63","object":"response","created_at":1778084727,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        data: {"type":"response.in_progress","response":{"id":"resp_0fc93f57cddcc3650169fb7ce4a7688190bc4ce060e17c8006","object":"response","created_at":1778089188,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
         the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":false}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":1}
 
 
         event: response.output_item.added
 
-        data: {"type":"response.output_item.added","item":{"id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","type":"message","status":"in_progress","content":[],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":2}
+        data: {"type":"response.output_item.added","item":{"id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","type":"message","status":"in_progress","content":[],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":2}
 
 
         event: response.content_part.added
 
-        data: {"type":"response.content_part.added","content_index":0,"item_id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""},"sequence_number":3}
+        data: {"type":"response.content_part.added","content_index":0,"item_id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""},"sequence_number":3}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"202","item_id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","logprobs":[],"obfuscation":"9QCnf7bTQDU0G","output_index":0,"sequence_number":4}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"202","item_id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","logprobs":[],"obfuscation":"6dNUpmUj8Zio0","output_index":0,"sequence_number":4}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"4","item_id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","logprobs":[],"obfuscation":"ntvR27NY1x2vgNc","output_index":0,"sequence_number":5}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"4","item_id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","logprobs":[],"obfuscation":"Yewdo29gozmFiQq","output_index":0,"sequence_number":5}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"-","item_id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","logprobs":[],"obfuscation":"ClL1d7E91EU97oZ","output_index":0,"sequence_number":6}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"-","item_id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","logprobs":[],"obfuscation":"rJXa3wLpJBvgQnq","output_index":0,"sequence_number":6}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"01","item_id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","logprobs":[],"obfuscation":"jUQSWqAoFpBuwq","output_index":0,"sequence_number":7}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"01","item_id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","logprobs":[],"obfuscation":"CdI8q5zfd43SYZ","output_index":0,"sequence_number":7}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"-","item_id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","logprobs":[],"obfuscation":"RGAwz8TZc9XCW4U","output_index":0,"sequence_number":8}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"-","item_id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","logprobs":[],"obfuscation":"ztMbWjVcxOfUtI2","output_index":0,"sequence_number":8}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"01","item_id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","logprobs":[],"obfuscation":"1ctOgCsyzSrK7O","output_index":0,"sequence_number":9}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"01","item_id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","logprobs":[],"obfuscation":"ZnQaXMYodvubyJ","output_index":0,"sequence_number":9}
 
 
         event: response.output_text.done
 
-        data: {"type":"response.output_text.done","content_index":0,"item_id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","logprobs":[],"output_index":0,"sequence_number":10,"text":"2024-01-01"}
+        data: {"type":"response.output_text.done","content_index":0,"item_id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","logprobs":[],"output_index":0,"sequence_number":10,"text":"2024-01-01"}
 
 
         event: response.content_part.done
 
-        data: {"type":"response.content_part.done","content_index":0,"item_id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"2024-01-01"},"sequence_number":11}
+        data: {"type":"response.content_part.done","content_index":0,"item_id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"2024-01-01"},"sequence_number":11}
 
 
         event: response.output_item.done
 
-        data: {"type":"response.output_item.done","item":{"id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"2024-01-01"}],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":12}
+        data: {"type":"response.output_item.done","item":{"id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"2024-01-01"}],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":12}
 
 
         event: response.completed
 
-        data: {"type":"response.completed","response":{"id":"resp_03e48937b0085db60169fb6b77d30481a0a63028967f236f63","object":"response","created_at":1778084727,"status":"completed","background":false,"completed_at":1778084728,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[{"id":"msg_03e48937b0085db60169fb6b7814b881a095ac20d9e3db9c45","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"2024-01-01"}],"phase":"final_answer","role":"assistant"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
+        data: {"type":"response.completed","response":{"id":"resp_0fc93f57cddcc3650169fb7ce4a7688190bc4ce060e17c8006","object":"response","created_at":1778089188,"status":"completed","background":false,"completed_at":1778089189,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[{"id":"msg_0fc93f57cddcc3650169fb7ce509ac81908b06fb51f749e859","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"2024-01-01"}],"phase":"final_answer","role":"assistant"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Gets
         the current date","name":"get_current_date","parameters":{"properties":{},"type":"object","additionalProperties":false},"strict":false}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":91,"input_tokens_details":{"cached_tokens":0},"output_tokens":10,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":101},"user":null,"metadata":{}},"sequence_number":13}
 
 
@@ -219,13 +219,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f79574c5dc9a1bb-MSP
+      - 9f79c433ffe3acde-MSP
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Wed, 06 May 2026 16:25:27 GMT
+      - Wed, 06 May 2026 17:39:48 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -237,19 +237,19 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       openai-processing-ms:
-      - '134'
+      - '188'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '179999460'
+      - '39999460'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:

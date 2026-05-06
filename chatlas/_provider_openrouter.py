@@ -115,7 +115,7 @@ def ChatOpenRouter(
     ```
     """
     if model is None:
-        model = log_model_default("gpt-5.4-mini")
+        model = log_model_default("gpt-5.4")
 
     if api_key is None:
         api_key = os.getenv("OPENROUTER_API_KEY")

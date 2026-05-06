@@ -142,7 +142,7 @@ def get_price_info(name: str, model: str, variant: str = "") -> TokenPrice | Non
     name
         The provider name (e.g., "OpenAI", "Anthropic", etc.)
     model
-        The model name (e.g., "gpt-5.4-mini", "claude-sonnet-4-6", etc.)
+        The model name (e.g., "gpt-5.4", "claude-sonnet-4-6", etc.)
     variant
         The pricing variant (e.g., "flex", "priority"). Defaults to "" (standard pricing).
 
@@ -192,7 +192,7 @@ def get_token_cost(
     name
         The provider name (e.g., "OpenAI", "Anthropic", etc.)
     model
-        The model name (e.g., "gpt-5.4-mini", "claude-sonnet-4-6", etc.)
+        The model name (e.g., "gpt-5.4", "claude-sonnet-4-6", etc.)
     tokens
         A tuple of (input_tokens, output_tokens, cached_input_tokens)
     variant

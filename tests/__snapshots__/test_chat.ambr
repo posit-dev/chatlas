@@ -32,7 +32,7 @@
 # ---
 # name: test_basic_repr
   '''
-  <Chat OpenAI/gpt-5.4-mini turns=3 input=15+5 output=5 cost=$0.0010>
+  <Chat OpenAI/gpt-5.4 turns=3 input=15+5 output=5 cost=$0.0010>
   
   ## System
   
@@ -50,7 +50,7 @@
 # ---
 # name: test_basic_str
   '''
-  <Chat OpenAI/gpt-5.4-mini turns=3 input=15 output=5 cost=$0.0010>
+  <Chat OpenAI/gpt-5.4 turns=3 input=15 output=5 cost=$0.0010>
   
   ## System
   

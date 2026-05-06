@@ -1,7 +1,7 @@
 interactions:
 - request:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "John, age 15"}]}], "model": "gpt-5.4-mini",
+      "content": [{"type": "input_text", "text": "John, age 15"}]}], "model": "gpt-5.4",
       "store": false, "stream": false, "text": {"format": {"type": "json_schema",
       "name": "structured_data", "schema": {"description": "A person with name and
       age.", "properties": {"name": {"type": "string"}, "age": {"type": "integer"}},
@@ -15,7 +15,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '448'
+      - '443'
       Content-Type:
       - application/json
       Host:
@@ -28,14 +28,14 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0d9ce9a7aa6696b00169fb6b84ef788191beaf32dbc95d80c1\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084740,\n  \"status\":
+      string: "{\n  \"id\": \"resp_078e64c9be8dbc2f0169fb7cf2f96c8195b86e54c4e6505e42\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089202,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084741,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089203,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_0d9ce9a7aa6696b00169fb6b85bbbc81919eb081aaac8f4c79\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_078e64c9be8dbc2f0169fb7cf37ec48195ac40ffc3ca7e7972\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"name\\\":\\\"John\\\",\\\"age\\\":15}\"\n
@@ -62,13 +62,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f79579e4a2aa225-MSP
+      - 9f79c48e0d49ad02-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:25:41 GMT
+      - Wed, 06 May 2026 17:40:03 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -80,21 +80,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '2082'
+      - '2077'
       openai-processing-ms:
-      - '1007'
+      - '843'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
@@ -102,7 +102,7 @@ interactions:
       message: OK
 - request:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "Jane, age 16"}]}], "model": "gpt-5.4-mini",
+      "content": [{"type": "input_text", "text": "Jane, age 16"}]}], "model": "gpt-5.4",
       "store": false, "stream": false, "text": {"format": {"type": "json_schema",
       "name": "structured_data", "schema": {"description": "A person with name and
       age.", "properties": {"name": {"type": "string"}, "age": {"type": "integer"}},
@@ -116,7 +116,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '448'
+      - '443'
       Content-Type:
       - application/json
       Host:
@@ -129,14 +129,14 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0010f3fcb99ccd250169fb6b853400819ea48212f5850ec560\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084741,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0631ac3294dab08a0169fb7cf33cc481a0abea0e5dfeeecd0d\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089203,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084742,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089203,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_0010f3fcb99ccd250169fb6b86585c819e91db371405004062\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_0631ac3294dab08a0169fb7cf3a36081a09db6b8271f6b2cf7\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"name\\\":\\\"Jane\\\",\\\"age\\\":16}\"\n
@@ -163,13 +163,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f79579efe4d5122-MSP
+      - 9f79c48efe20a22d-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:25:42 GMT
+      - Wed, 06 May 2026 17:40:03 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -181,21 +181,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '2082'
+      - '2077'
       openai-processing-ms:
-      - '1459'
+      - '640'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:

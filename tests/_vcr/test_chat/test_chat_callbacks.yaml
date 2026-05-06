@@ -2,11 +2,10 @@ interactions:
 - request:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
       "content": [{"type": "input_text", "text": "What are Joe and Hadley''s favorite
-      colors?"}]}], "model": "gpt-5.4-mini", "store": false, "stream": true, "tools":
-      [{"type": "function", "name": "test_tool", "description": "Find out a user''s
-      favorite color", "parameters": {"properties": {"user": {"type": "string"}},
-      "required": ["user"], "type": "object", "additionalProperties": false}, "strict":
-      true}]}'
+      colors?"}]}], "model": "gpt-5.4", "store": false, "stream": true, "tools": [{"type":
+      "function", "name": "test_tool", "description": "Find out a user''s favorite
+      color", "parameters": {"properties": {"user": {"type": "string"}}, "required":
+      ["user"], "type": "object", "additionalProperties": false}, "strict": true}]}'
     headers:
       Accept:
       - application/json
@@ -15,7 +14,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '438'
+      - '433'
       Content-Type:
       - application/json
       Host:
@@ -30,59 +29,59 @@ interactions:
     body:
       string: 'event: response.created
 
-        data: {"type":"response.created","response":{"id":"resp_0c7af01c406744e10169fb6b69b95c819383c9a844586e2a15","object":"response","created_at":1778084713,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Find
+        data: {"type":"response.created","response":{"id":"resp_0ac6a4d9e19151d50169fb7cb658288193b9300f32c048c50b","object":"response","created_at":1778089142,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Find
         out a user''s favorite color","name":"test_tool","parameters":{"properties":{"user":{"type":"string"}},"required":["user"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":0}
 
 
         event: response.in_progress
 
-        data: {"type":"response.in_progress","response":{"id":"resp_0c7af01c406744e10169fb6b69b95c819383c9a844586e2a15","object":"response","created_at":1778084713,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Find
+        data: {"type":"response.in_progress","response":{"id":"resp_0ac6a4d9e19151d50169fb7cb658288193b9300f32c048c50b","object":"response","created_at":1778089142,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Find
         out a user''s favorite color","name":"test_tool","parameters":{"properties":{"user":{"type":"string"}},"required":["user"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":1}
 
 
         event: response.output_item.added
 
-        data: {"type":"response.output_item.added","item":{"id":"fc_0c7af01c406744e10169fb6b6a733c819390f41728f77a892d","type":"function_call","status":"in_progress","arguments":"","call_id":"call_qGjCbUxY81mz40y9sXjKssm8","name":"test_tool"},"output_index":0,"sequence_number":2}
+        data: {"type":"response.output_item.added","item":{"id":"fc_0ac6a4d9e19151d50169fb7cb76ccc81939c747589e4dddeb4","type":"function_call","status":"in_progress","arguments":"","call_id":"call_34p5hj7tG0wChdmQiqYeVrby","name":"test_tool"},"output_index":0,"sequence_number":2}
 
 
         event: response.function_call_arguments.delta
 
-        data: {"type":"response.function_call_arguments.delta","delta":"{\"user\":\"Joe\"}","item_id":"fc_0c7af01c406744e10169fb6b6a733c819390f41728f77a892d","obfuscation":"eQ","output_index":0,"sequence_number":3}
+        data: {"type":"response.function_call_arguments.delta","delta":"{\"user\":\"Joe\"}","item_id":"fc_0ac6a4d9e19151d50169fb7cb76ccc81939c747589e4dddeb4","obfuscation":"sq","output_index":0,"sequence_number":3}
 
 
         event: response.function_call_arguments.done
 
-        data: {"type":"response.function_call_arguments.done","arguments":"{\"user\":\"Joe\"}","item_id":"fc_0c7af01c406744e10169fb6b6a733c819390f41728f77a892d","output_index":0,"sequence_number":4}
+        data: {"type":"response.function_call_arguments.done","arguments":"{\"user\":\"Joe\"}","item_id":"fc_0ac6a4d9e19151d50169fb7cb76ccc81939c747589e4dddeb4","output_index":0,"sequence_number":4}
 
 
         event: response.output_item.done
 
-        data: {"type":"response.output_item.done","item":{"id":"fc_0c7af01c406744e10169fb6b6a733c819390f41728f77a892d","type":"function_call","status":"completed","arguments":"{\"user\":\"Joe\"}","call_id":"call_qGjCbUxY81mz40y9sXjKssm8","name":"test_tool"},"output_index":0,"sequence_number":5}
+        data: {"type":"response.output_item.done","item":{"id":"fc_0ac6a4d9e19151d50169fb7cb76ccc81939c747589e4dddeb4","type":"function_call","status":"completed","arguments":"{\"user\":\"Joe\"}","call_id":"call_34p5hj7tG0wChdmQiqYeVrby","name":"test_tool"},"output_index":0,"sequence_number":5}
 
 
         event: response.output_item.added
 
-        data: {"type":"response.output_item.added","item":{"id":"fc_0c7af01c406744e10169fb6b6a73508193a56e5925c03e8517","type":"function_call","status":"in_progress","arguments":"","call_id":"call_aGP4nv0I6yy9uZeWBcVwfuVS","name":"test_tool"},"output_index":1,"sequence_number":6}
+        data: {"type":"response.output_item.added","item":{"id":"fc_0ac6a4d9e19151d50169fb7cb76cdc819384be259721da45e4","type":"function_call","status":"in_progress","arguments":"","call_id":"call_DFEE1IYkVTS3foVDXsDO0Fvz","name":"test_tool"},"output_index":1,"sequence_number":6}
 
 
         event: response.function_call_arguments.delta
 
-        data: {"type":"response.function_call_arguments.delta","delta":"{\"user\":\"Hadley\"}","item_id":"fc_0c7af01c406744e10169fb6b6a73508193a56e5925c03e8517","obfuscation":"0RoexWbrsTEflvv","output_index":1,"sequence_number":7}
+        data: {"type":"response.function_call_arguments.delta","delta":"{\"user\":\"Hadley\"}","item_id":"fc_0ac6a4d9e19151d50169fb7cb76cdc819384be259721da45e4","obfuscation":"qPQ7zz44g5JeT0r","output_index":1,"sequence_number":7}
 
 
         event: response.function_call_arguments.done
 
-        data: {"type":"response.function_call_arguments.done","arguments":"{\"user\":\"Hadley\"}","item_id":"fc_0c7af01c406744e10169fb6b6a73508193a56e5925c03e8517","output_index":1,"sequence_number":8}
+        data: {"type":"response.function_call_arguments.done","arguments":"{\"user\":\"Hadley\"}","item_id":"fc_0ac6a4d9e19151d50169fb7cb76cdc819384be259721da45e4","output_index":1,"sequence_number":8}
 
 
         event: response.output_item.done
 
-        data: {"type":"response.output_item.done","item":{"id":"fc_0c7af01c406744e10169fb6b6a73508193a56e5925c03e8517","type":"function_call","status":"completed","arguments":"{\"user\":\"Hadley\"}","call_id":"call_aGP4nv0I6yy9uZeWBcVwfuVS","name":"test_tool"},"output_index":1,"sequence_number":9}
+        data: {"type":"response.output_item.done","item":{"id":"fc_0ac6a4d9e19151d50169fb7cb76cdc819384be259721da45e4","type":"function_call","status":"completed","arguments":"{\"user\":\"Hadley\"}","call_id":"call_DFEE1IYkVTS3foVDXsDO0Fvz","name":"test_tool"},"output_index":1,"sequence_number":9}
 
 
         event: response.completed
 
-        data: {"type":"response.completed","response":{"id":"resp_0c7af01c406744e10169fb6b69b95c819383c9a844586e2a15","object":"response","created_at":1778084713,"status":"completed","background":false,"completed_at":1778084714,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[{"id":"fc_0c7af01c406744e10169fb6b6a733c819390f41728f77a892d","type":"function_call","status":"completed","arguments":"{\"user\":\"Joe\"}","call_id":"call_qGjCbUxY81mz40y9sXjKssm8","name":"test_tool"},{"id":"fc_0c7af01c406744e10169fb6b6a73508193a56e5925c03e8517","type":"function_call","status":"completed","arguments":"{\"user\":\"Hadley\"}","call_id":"call_aGP4nv0I6yy9uZeWBcVwfuVS","name":"test_tool"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Find
+        data: {"type":"response.completed","response":{"id":"resp_0ac6a4d9e19151d50169fb7cb658288193b9300f32c048c50b","object":"response","created_at":1778089142,"status":"completed","background":false,"completed_at":1778089143,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[{"id":"fc_0ac6a4d9e19151d50169fb7cb76ccc81939c747589e4dddeb4","type":"function_call","status":"completed","arguments":"{\"user\":\"Joe\"}","call_id":"call_34p5hj7tG0wChdmQiqYeVrby","name":"test_tool"},{"id":"fc_0ac6a4d9e19151d50169fb7cb76cdc819384be259721da45e4","type":"function_call","status":"completed","arguments":"{\"user\":\"Hadley\"}","call_id":"call_DFEE1IYkVTS3foVDXsDO0Fvz","name":"test_tool"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Find
         out a user''s favorite color","name":"test_tool","parameters":{"properties":{"user":{"type":"string"}},"required":["user"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":52,"input_tokens_details":{"cached_tokens":0},"output_tokens":49,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":101},"user":null,"metadata":{}},"sequence_number":10}
 
 
@@ -91,13 +90,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f7956f439de4c92-MSP
+      - 9f79c312cee2a1c7-MSP
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Wed, 06 May 2026 16:25:14 GMT
+      - Wed, 06 May 2026 17:39:02 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -109,19 +108,19 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       openai-processing-ms:
-      - '335'
+      - '323'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '179999499'
+      - '39999498'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
@@ -130,15 +129,15 @@ interactions:
 - request:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
       "content": [{"type": "input_text", "text": "What are Joe and Hadley''s favorite
-      colors?"}]}, {"type": "function_call", "call_id": "fc_0c7af01c406744e10169fb6b6a733c819390f41728f77a892d",
+      colors?"}]}, {"type": "function_call", "call_id": "fc_0ac6a4d9e19151d50169fb7cb76ccc81939c747589e4dddeb4",
       "name": "test_tool", "arguments": "{\"user\":\"Joe\"}"}, {"type": "function_call",
-      "call_id": "fc_0c7af01c406744e10169fb6b6a73508193a56e5925c03e8517", "name":
+      "call_id": "fc_0ac6a4d9e19151d50169fb7cb76cdc819384be259721da45e4", "name":
       "test_tool", "arguments": "{\"user\":\"Hadley\"}"}, {"type": "function_call_output",
-      "call_id": "fc_0c7af01c406744e10169fb6b6a733c819390f41728f77a892d", "output":
-      "red"}, {"type": "function_call_output", "call_id": "fc_0c7af01c406744e10169fb6b6a73508193a56e5925c03e8517",
-      "output": "red"}], "model": "gpt-5.4-mini", "store": false, "stream": true,
-      "tools": [{"type": "function", "name": "test_tool", "description": "Find out
-      a user''s favorite color", "parameters": {"properties": {"user": {"type": "string"}},
+      "call_id": "fc_0ac6a4d9e19151d50169fb7cb76ccc81939c747589e4dddeb4", "output":
+      "red"}, {"type": "function_call_output", "call_id": "fc_0ac6a4d9e19151d50169fb7cb76cdc819384be259721da45e4",
+      "output": "red"}], "model": "gpt-5.4", "store": false, "stream": true, "tools":
+      [{"type": "function", "name": "test_tool", "description": "Find out a user''s
+      favorite color", "parameters": {"properties": {"user": {"type": "string"}},
       "required": ["user"], "type": "object", "additionalProperties": false}, "strict":
       true}]}'
     headers:
@@ -149,11 +148,11 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '953'
+      - '948'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=PFfoKtuXvd0DpcwczjKHwQZYtprw7uISIvG16CnF338-1778084713.6361709-1.0.1.1-AZivQeES0C7sx.X.WimO1zUQif348IDyCut0kVrb.ztapjS9COHO22z0ALkBW9ik97ORgex4p3xRlHgOJgbkZ2aWVODviBDXpiHajb7Lo4F8THNQiK2VkIv82GWCbUYd
+      - __cf_bm=gDqw5tt4oJ01ylRXnuM5R2CCncWvlWwNj290AvC14eo-1778089142.2047143-1.0.1.1-AxWqxC81d5mVc0othDo9DssqU4Lw6eRtLCV5bsXPxO2GUFJ.iLAroYpAIHALUuo4qCpMRy_7iECiKnMdspegDN7bb8tEOfM7hX8qCOGoJdjV4xBX2yXI4IlaS8yTscVj
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -164,58 +163,140 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "event: response.created\ndata: {\"type\":\"response.created\",\"response\":{\"id\":\"resp_0aa35a0a03cb98bc0169fb6b6bbe0081979428845e6a40e6ff\",\"object\":\"response\",\"created_at\":1778084715,\"status\":\"in_progress\",\"background\":false,\"completed_at\":null,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-5.4-mini-2026-03-17\",\"moderation\":null,\"output\":[],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":\"in_memory\",\"reasoning\":{\"effort\":\"none\",\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"auto\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[{\"type\":\"function\",\"description\":\"Find
-        out a user's favorite color\",\"name\":\"test_tool\",\"parameters\":{\"properties\":{\"user\":{\"type\":\"string\"}},\"required\":[\"user\"],\"type\":\"object\",\"additionalProperties\":false},\"strict\":true}],\"top_logprobs\":0,\"top_p\":0.98,\"truncation\":\"disabled\",\"usage\":null,\"user\":null,\"metadata\":{}},\"sequence_number\":0}\n\nevent:
-        response.in_progress\ndata: {\"type\":\"response.in_progress\",\"response\":{\"id\":\"resp_0aa35a0a03cb98bc0169fb6b6bbe0081979428845e6a40e6ff\",\"object\":\"response\",\"created_at\":1778084715,\"status\":\"in_progress\",\"background\":false,\"completed_at\":null,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-5.4-mini-2026-03-17\",\"moderation\":null,\"output\":[],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":\"in_memory\",\"reasoning\":{\"effort\":\"none\",\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"auto\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[{\"type\":\"function\",\"description\":\"Find
-        out a user's favorite color\",\"name\":\"test_tool\",\"parameters\":{\"properties\":{\"user\":{\"type\":\"string\"}},\"required\":[\"user\"],\"type\":\"object\",\"additionalProperties\":false},\"strict\":true}],\"top_logprobs\":0,\"top_p\":0.98,\"truncation\":\"disabled\",\"usage\":null,\"user\":null,\"metadata\":{}},\"sequence_number\":1}\n\nevent:
-        response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"item\":{\"id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"type\":\"message\",\"status\":\"in_progress\",\"content\":[],\"phase\":\"final_answer\",\"role\":\"assistant\"},\"output_index\":0,\"sequence_number\":2}\n\nevent:
-        response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"content_index\":0,\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"output_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"logprobs\":[],\"text\":\"\"},\"sequence_number\":3}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"Joe\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"4hV5RFvmHm6HQ\",\"output_index\":0,\"sequence_number\":4}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"\u2019s\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"xYhuDFlUdpIBbZ\",\"output_index\":0,\"sequence_number\":5}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        favorite\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"rcQBzdx\",\"output_index\":0,\"sequence_number\":6}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        color\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"X5csOg66uh\",\"output_index\":0,\"sequence_number\":7}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        is\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"RvZYjgX20VKFL\",\"output_index\":0,\"sequence_number\":8}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        red\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"N3QdZ8SOQqGy\",\"output_index\":0,\"sequence_number\":9}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\",\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"PlImTd1pXycyFjf\",\"output_index\":0,\"sequence_number\":10}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        and\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"vMZ3oqYl2qp9\",\"output_index\":0,\"sequence_number\":11}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        Had\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"HeoKw7YTLBQe\",\"output_index\":0,\"sequence_number\":12}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"ley\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"sTXlnmgnPWRIf\",\"output_index\":0,\"sequence_number\":13}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"\u2019s\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"VbLF0dDWS8Ebd5\",\"output_index\":0,\"sequence_number\":14}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        favorite\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"56tByO9\",\"output_index\":0,\"sequence_number\":15}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        color\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"4Dk09rRGv0\",\"output_index\":0,\"sequence_number\":16}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        is\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"OSIPzsjeB7LSs\",\"output_index\":0,\"sequence_number\":17}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        red\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"8jVPlu9ezR9n\",\"output_index\":0,\"sequence_number\":18}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\".\",\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"obfuscation\":\"2wgDAqbPaWcTHZv\",\"output_index\":0,\"sequence_number\":19}\n\nevent:
-        response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"content_index\":0,\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"logprobs\":[],\"output_index\":0,\"sequence_number\":20,\"text\":\"Joe\u2019s
-        favorite color is red, and Hadley\u2019s favorite color is red.\"}\n\nevent:
-        response.content_part.done\ndata: {\"type\":\"response.content_part.done\",\"content_index\":0,\"item_id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"output_index\":0,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"logprobs\":[],\"text\":\"Joe\u2019s
-        favorite color is red, and Hadley\u2019s favorite color is red.\"},\"sequence_number\":21}\n\nevent:
-        response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"item\":{\"id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"annotations\":[],\"logprobs\":[],\"text\":\"Joe\u2019s
-        favorite color is red, and Hadley\u2019s favorite color is red.\"}],\"phase\":\"final_answer\",\"role\":\"assistant\"},\"output_index\":0,\"sequence_number\":22}\n\nevent:
-        response.completed\ndata: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp_0aa35a0a03cb98bc0169fb6b6bbe0081979428845e6a40e6ff\",\"object\":\"response\",\"created_at\":1778084715,\"status\":\"completed\",\"background\":false,\"completed_at\":1778084716,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-5.4-mini-2026-03-17\",\"moderation\":null,\"output\":[{\"id\":\"msg_0aa35a0a03cb98bc0169fb6b6c25888197842cb5d6eceddc77\",\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"annotations\":[],\"logprobs\":[],\"text\":\"Joe\u2019s
-        favorite color is red, and Hadley\u2019s favorite color is red.\"}],\"phase\":\"final_answer\",\"role\":\"assistant\"}],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":\"in_memory\",\"reasoning\":{\"effort\":\"none\",\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"default\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[{\"type\":\"function\",\"description\":\"Find
-        out a user's favorite color\",\"name\":\"test_tool\",\"parameters\":{\"properties\":{\"user\":{\"type\":\"string\"}},\"required\":[\"user\"],\"type\":\"object\",\"additionalProperties\":false},\"strict\":true}],\"top_logprobs\":0,\"top_p\":0.98,\"truncation\":\"disabled\",\"usage\":{\"input_tokens\":123,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":20,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":143},\"user\":null,\"metadata\":{}},\"sequence_number\":23}\n\n"
+      string: 'event: response.created
+
+        data: {"type":"response.created","response":{"id":"resp_0ee5e609d4a713500169fb7cb7c7b4819fabda2c42f23b9880","object":"response","created_at":1778089143,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Find
+        out a user''s favorite color","name":"test_tool","parameters":{"properties":{"user":{"type":"string"}},"required":["user"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":0}
+
+
+        event: response.in_progress
+
+        data: {"type":"response.in_progress","response":{"id":"resp_0ee5e609d4a713500169fb7cb7c7b4819fabda2c42f23b9880","object":"response","created_at":1778089143,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Find
+        out a user''s favorite color","name":"test_tool","parameters":{"properties":{"user":{"type":"string"}},"required":["user"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":1}
+
+
+        event: response.output_item.added
+
+        data: {"type":"response.output_item.added","item":{"id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","type":"message","status":"in_progress","content":[],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":2}
+
+
+        event: response.content_part.added
+
+        data: {"type":"response.content_part.added","content_index":0,"item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""},"sequence_number":3}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"Joe","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"da66B2Y9V8DX8","output_index":0,"sequence_number":4}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"''s","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"jS73eEkfR2nhHu","output_index":0,"sequence_number":5}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" favorite","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"W0KIqiK","output_index":0,"sequence_number":6}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" color","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"0YnBy566zj","output_index":0,"sequence_number":7}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" is","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"M0iLONaOVhgVf","output_index":0,"sequence_number":8}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" red","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"8WFMbtF0h8GS","output_index":0,"sequence_number":9}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":",","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"Gruf3nYQHJYWsE8","output_index":0,"sequence_number":10}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" and","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"FX00Wmqnkua0","output_index":0,"sequence_number":11}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" Had","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"ZyZuKUdfCleB","output_index":0,"sequence_number":12}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"ley''s","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"OC8CA0689gj","output_index":0,"sequence_number":13}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" favorite","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"9QBKEcq","output_index":0,"sequence_number":14}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" color","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"aKgtjKo0Wc","output_index":0,"sequence_number":15}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" is","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"cDmE91y3HA4Bu","output_index":0,"sequence_number":16}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" red","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"mKy7DnB0ac94","output_index":0,"sequence_number":17}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":".","item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"obfuscation":"BxHVZhjtPsOdv1f","output_index":0,"sequence_number":18}
+
+
+        event: response.output_text.done
+
+        data: {"type":"response.output_text.done","content_index":0,"item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","logprobs":[],"output_index":0,"sequence_number":19,"text":"Joe''s
+        favorite color is red, and Hadley''s favorite color is red."}
+
+
+        event: response.content_part.done
+
+        data: {"type":"response.content_part.done","content_index":0,"item_id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"Joe''s
+        favorite color is red, and Hadley''s favorite color is red."},"sequence_number":20}
+
+
+        event: response.output_item.done
+
+        data: {"type":"response.output_item.done","item":{"id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"Joe''s
+        favorite color is red, and Hadley''s favorite color is red."}],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":21}
+
+
+        event: response.completed
+
+        data: {"type":"response.completed","response":{"id":"resp_0ee5e609d4a713500169fb7cb7c7b4819fabda2c42f23b9880","object":"response","created_at":1778089143,"status":"completed","background":false,"completed_at":1778089144,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[{"id":"msg_0ee5e609d4a713500169fb7cb8395c819f99df6b057682bdd0","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"Joe''s
+        favorite color is red, and Hadley''s favorite color is red."}],"phase":"final_answer","role":"assistant"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"function","description":"Find
+        out a user''s favorite color","name":"test_tool","parameters":{"properties":{"user":{"type":"string"}},"required":["user"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":123,"input_tokens_details":{"cached_tokens":0},"output_tokens":19,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":142},"user":null,"metadata":{}},"sequence_number":22}
+
+
+        '
     headers:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f795700ffd2ad1a-MSP
+      - 9f79c31babc3a1c5-MSP
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Wed, 06 May 2026 16:25:16 GMT
+      - Wed, 06 May 2026 17:39:03 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -227,19 +308,19 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       openai-processing-ms:
-      - '249'
+      - '121'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '179999430'
+      - '39999428'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:

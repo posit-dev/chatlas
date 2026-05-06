@@ -3,9 +3,9 @@ interactions:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
       "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
       "content": [{"type": "input_text", "text": "Roll the dice, please! Reply with
-      ''You rolled ____''"}]}], "model": "gpt-5.4-mini", "store": false, "stream":
-      false, "tools": [{"type": "function", "name": "roll", "description": "Rolls
-      a six-sided die", "parameters": {"properties": {}, "type": "object", "additionalProperties":
+      ''You rolled ____''"}]}], "model": "gpt-5.4", "store": false, "stream": false,
+      "tools": [{"type": "function", "name": "roll", "description": "Rolls a six-sided
+      die", "parameters": {"properties": {}, "type": "object", "additionalProperties":
       false, "required": []}, "strict": true}]}'
     headers:
       Accept:
@@ -15,7 +15,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '473'
+      - '468'
       Content-Type:
       - application/json
       Host:
@@ -28,16 +28,16 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_049abd7b9b17621f0169fb6b7f5eac81959121d960d34617de\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084735,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0d332ba3a23f64f40169fb7cec75a08193b0d1a459b80a0845\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089196,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084735,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089196,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"fc_049abd7b9b17621f0169fb6b7fa7108195a9ab1a87c69f2682\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"fc_0d332ba3a23f64f40169fb7cecdf6c8193b4c4f33c20cae11c\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{}\",\n      \"call_id\": \"call_kgElzpegC6k70XFCgc8xtEkX\",\n      \"name\":
+        \"{}\",\n      \"call_id\": \"call_Fq2DQ2PidT2F41QiLfPzHVTU\",\n      \"name\":
         \"roll\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\":
         0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
         \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
@@ -58,13 +58,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f79577b59ef4ca9-MSP
+      - 9f79c465496d511c-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:25:35 GMT
+      - Wed, 06 May 2026 17:39:57 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -76,21 +76,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '1755'
+      - '1750'
       openai-processing-ms:
-      - '505'
+      - '649'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
@@ -100,9 +100,9 @@ interactions:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
       "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
       "content": [{"type": "input_text", "text": "Roll the dice again! Reply with
-      ''You rolled ____''"}]}], "model": "gpt-5.4-mini", "store": false, "stream":
-      false, "tools": [{"type": "function", "name": "roll", "description": "Rolls
-      a six-sided die", "parameters": {"properties": {}, "type": "object", "additionalProperties":
+      ''You rolled ____''"}]}], "model": "gpt-5.4", "store": false, "stream": false,
+      "tools": [{"type": "function", "name": "roll", "description": "Rolls a six-sided
+      die", "parameters": {"properties": {}, "type": "object", "additionalProperties":
       false, "required": []}, "strict": true}]}'
     headers:
       Accept:
@@ -112,7 +112,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '471'
+      - '466'
       Content-Type:
       - application/json
       Host:
@@ -125,16 +125,16 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0f51ab67a405c9980169fb6b7fa26c819e84542cbccf0ff223\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084735,\n  \"status\":
+      string: "{\n  \"id\": \"resp_060550af74f8a0af0169fb7cec90d081a3a9a3965ef4abb60a\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089196,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084736,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089197,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"fc_0f51ab67a405c9980169fb6b7ff968819e9814455a21641ba6\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"fc_060550af74f8a0af0169fb7ced063c81a3a1980c7496ad662a\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{}\",\n      \"call_id\": \"call_A7mROY79naja9C7jwU814ta7\",\n      \"name\":
+        \"{}\",\n      \"call_id\": \"call_SxOoVkKYIWvWhRyblyWCbGtf\",\n      \"name\":
         \"roll\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\":
         0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
         \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
@@ -155,13 +155,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f79577c185c510e-MSP
+      - 9f79c4660c2da1e2-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:25:36 GMT
+      - Wed, 06 May 2026 17:39:57 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -173,21 +173,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '1755'
+      - '1750'
       openai-processing-ms:
-      - '494'
+      - '759'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
@@ -197,11 +197,11 @@ interactions:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
       "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
       "content": [{"type": "input_text", "text": "Roll the dice, please! Reply with
-      ''You rolled ____''"}]}, {"type": "function_call", "call_id": "fc_049abd7b9b17621f0169fb6b7fa7108195a9ab1a87c69f2682",
+      ''You rolled ____''"}]}, {"type": "function_call", "call_id": "fc_0d332ba3a23f64f40169fb7cecdf6c8193b4c4f33c20cae11c",
       "name": "roll", "arguments": "{}"}, {"type": "function_call_output", "call_id":
-      "fc_049abd7b9b17621f0169fb6b7fa7108195a9ab1a87c69f2682", "output": "1"}], "model":
-      "gpt-5.4-mini", "store": false, "stream": false, "tools": [{"type": "function",
-      "name": "roll", "description": "Rolls a six-sided die", "parameters": {"properties":
+      "fc_0d332ba3a23f64f40169fb7cecdf6c8193b4c4f33c20cae11c", "output": "1"}], "model":
+      "gpt-5.4", "store": false, "stream": false, "tools": [{"type": "function", "name":
+      "roll", "description": "Rolls a six-sided die", "parameters": {"properties":
       {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
       true}]}'
     headers:
@@ -212,11 +212,11 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '706'
+      - '701'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=z_IiOaS6CEGwOFpYDLmaVqwbgDzoniQJXoq2OSsTMWc-1778084735.375425-1.0.1.1-b3KameqIQFyruU2hsEs89QrSXWJxzWn2HQnWxRNZNL_y3UOt6gkyGbtagA5IeBM8HfBCOcIWCF3rqQB63leUIMuLJqdcL0NERbSQLHbfTaxp0agJPEcg4XooGmSV5x1S
+      - __cf_bm=hOmUsZ11SYJHOe1CW6MTG1T9m6NWRl9QIjmvQMlYXQY-1778089196.485318-1.0.1.1-EJkNhyu.0gTx_cJGFAXCFC91bEYf.rwvYlNNYIGtIxWfC1q0RO4esSgcNN8mfviA3vw6tJ.2hRHu9VBlr6et0T3_92BsbYeFp_zqgv6tCMSK2lgnuv.4mX098Qf892AE
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -227,14 +227,14 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0188bd9e419dc17c0169fb6b805b1c819dac614fcd500c1e2e\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084736,\n  \"status\":
+      string: "{\n  \"id\": \"resp_08747fd7f263766d0169fb7ced8b7c8197bc9886690fc8484b\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089197,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084737,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089198,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_0188bd9e419dc17c0169fb6b810fd4819d8925b13300b5422e\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_08747fd7f263766d0169fb7cee462c8197a8c41af1ac3a56e4\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"You rolled 1\"\n        }\n
@@ -259,13 +259,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f795781be8ea1fa-MSP
+      - 9f79c46c1b2eacf4-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:25:37 GMT
+      - Wed, 06 May 2026 17:39:58 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -277,21 +277,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '1879'
+      - '1874'
       openai-processing-ms:
-      - '904'
+      - '1030'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
@@ -301,11 +301,11 @@ interactions:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
       "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
       "content": [{"type": "input_text", "text": "Roll the dice again! Reply with
-      ''You rolled ____''"}]}, {"type": "function_call", "call_id": "fc_0f51ab67a405c9980169fb6b7ff968819e9814455a21641ba6",
+      ''You rolled ____''"}]}, {"type": "function_call", "call_id": "fc_060550af74f8a0af0169fb7ced063c81a3a1980c7496ad662a",
       "name": "roll", "arguments": "{}"}, {"type": "function_call_output", "call_id":
-      "fc_0f51ab67a405c9980169fb6b7ff968819e9814455a21641ba6", "output": "2"}], "model":
-      "gpt-5.4-mini", "store": false, "stream": false, "tools": [{"type": "function",
-      "name": "roll", "description": "Rolls a six-sided die", "parameters": {"properties":
+      "fc_060550af74f8a0af0169fb7ced063c81a3a1980c7496ad662a", "output": "2"}], "model":
+      "gpt-5.4", "store": false, "stream": false, "tools": [{"type": "function", "name":
+      "roll", "description": "Rolls a six-sided die", "parameters": {"properties":
       {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
       true}]}'
     headers:
@@ -316,11 +316,11 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '704'
+      - '699'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=z_IiOaS6CEGwOFpYDLmaVqwbgDzoniQJXoq2OSsTMWc-1778084735.375425-1.0.1.1-b3KameqIQFyruU2hsEs89QrSXWJxzWn2HQnWxRNZNL_y3UOt6gkyGbtagA5IeBM8HfBCOcIWCF3rqQB63leUIMuLJqdcL0NERbSQLHbfTaxp0agJPEcg4XooGmSV5x1S
+      - __cf_bm=hOmUsZ11SYJHOe1CW6MTG1T9m6NWRl9QIjmvQMlYXQY-1778089196.485318-1.0.1.1-EJkNhyu.0gTx_cJGFAXCFC91bEYf.rwvYlNNYIGtIxWfC1q0RO4esSgcNN8mfviA3vw6tJ.2hRHu9VBlr6et0T3_92BsbYeFp_zqgv6tCMSK2lgnuv.4mX098Qf892AE
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -331,14 +331,14 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0e5f4f8f958b339a0169fb6b807dd4819f93ce4802dd5c9334\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084736,\n  \"status\":
+      string: "{\n  \"id\": \"resp_029e61acbebbdb040169fb7cedad1c8192b372b64e80785146\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089197,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084737,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089198,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_0e5f4f8f958b339a0169fb6b813df4819fa61c08b03867bc74\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_029e61acbebbdb040169fb7ceeaa848192828eb0c098c38bf2\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"You rolled 2\"\n        }\n
@@ -363,13 +363,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f7957828dd5a1fb-MSP
+      - 9f79c46cdecb4c93-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:25:37 GMT
+      - Wed, 06 May 2026 17:39:59 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -381,21 +381,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '1879'
+      - '1874'
       openai-processing-ms:
-      - '1052'
+      - '1197'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:

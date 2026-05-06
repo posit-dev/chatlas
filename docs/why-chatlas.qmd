@@ -16,7 +16,7 @@ Take, for example, a simple multi-turn conversation:
 from chatlas import ChatOpenAI
 
 chat = ChatOpenAI(
-    model="gpt-5.4-mini",
+    model="gpt-5.4",
     system_prompt="You are a terse assistant.",
 )
 

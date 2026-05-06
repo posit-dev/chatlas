@@ -3,7 +3,7 @@ interactions:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
       "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
       "content": [{"type": "input_text", "text": "Get the weather in Seattle and format
-      it as a structured weather report"}]}], "model": "gpt-5.4-mini", "store": false,
+      it as a structured weather report"}]}], "model": "gpt-5.4", "store": false,
       "stream": false, "text": {"format": {"type": "json_schema", "name": "structured_data",
       "schema": {"description": "A weather report.", "properties": {"location": {"type":
       "string"}, "temperature": {"type": "string"}, "conditions": {"type": "string"}},
@@ -20,7 +20,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '876'
+      - '871'
       Content-Type:
       - application/json
       Host:
@@ -33,16 +33,16 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0d5cefdce87ebb350169fb6ba1dfc08193835313e5fff51f46\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084769,\n  \"status\":
+      string: "{\n  \"id\": \"resp_04eb2d50eaa108f60169fb7d0eb0a08195a2aa24ca42663791\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089230,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084770,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089231,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"fc_0d5cefdce87ebb350169fb6ba254808193aecc113b9d4e4d76\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"fc_04eb2d50eaa108f60169fb7d0f0ec48195ac6d759976581cf1\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"location\\\":\\\"Seattle\\\"}\",\n      \"call_id\": \"call_mwHhyCcqUBzaAM7JJje0IHpu\",\n
+        \"{\\\"location\\\":\\\"Seattle\\\"}\",\n      \"call_id\": \"call_yd7bs6w2RvM286IwrT1Hfy4s\",\n
         \     \"name\": \"get_weather\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
         \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
         null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
@@ -73,13 +73,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f7958533d4cad24-MSP
+      - 9f79c53ae860510e-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:26:10 GMT
+      - Wed, 06 May 2026 17:40:31 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -91,21 +91,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '2473'
+      - '2468'
       openai-processing-ms:
-      - '887'
+      - '600'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
@@ -115,7 +115,7 @@ interactions:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
       "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
       "content": [{"type": "input_text", "text": "Get the weather in Tokyo and format
-      it as a structured weather report"}]}], "model": "gpt-5.4-mini", "store": false,
+      it as a structured weather report"}]}], "model": "gpt-5.4", "store": false,
       "stream": false, "text": {"format": {"type": "json_schema", "name": "structured_data",
       "schema": {"description": "A weather report.", "properties": {"location": {"type":
       "string"}, "temperature": {"type": "string"}, "conditions": {"type": "string"}},
@@ -132,7 +132,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '874'
+      - '869'
       Content-Type:
       - application/json
       Host:
@@ -145,16 +145,16 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0251cabf6526d27e0169fb6ba1fbd08196af55152bc0ea783c\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084770,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0e286a6986f672ad0169fb7d0ebc00819586fb682fa8055fcf\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089230,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084770,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089231,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"fc_0251cabf6526d27e0169fb6ba2ab348196bb1af8c899c690eb\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"fc_0e286a6986f672ad0169fb7d0f1d708195905a98e1164bddf6\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"location\\\":\\\"Tokyo\\\"}\",\n      \"call_id\": \"call_jBTpP6C2DxLOzse7TAhMIGvR\",\n
+        \"{\\\"location\\\":\\\"Tokyo\\\"}\",\n      \"call_id\": \"call_BfzCH94UW9hNC3E5c19VYWeP\",\n
         \     \"name\": \"get_weather\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
         \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
         null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
@@ -185,13 +185,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f795853fe394cba-MSP
+      - 9f79c53bbce0ad14-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:26:10 GMT
+      - Wed, 06 May 2026 17:40:31 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -203,21 +203,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '2471'
+      - '2466'
       openai-processing-ms:
-      - '902'
+      - '683'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
@@ -228,11 +228,11 @@ interactions:
       "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
       "content": [{"type": "input_text", "text": "Get the weather in Seattle and format
       it as a structured weather report"}]}, {"type": "function_call", "call_id":
-      "fc_0d5cefdce87ebb350169fb6ba254808193aecc113b9d4e4d76", "name": "get_weather",
+      "fc_04eb2d50eaa108f60169fb7d0f0ec48195ac6d759976581cf1", "name": "get_weather",
       "arguments": "{\"location\":\"Seattle\"}"}, {"type": "function_call_output",
-      "call_id": "fc_0d5cefdce87ebb350169fb6ba254808193aecc113b9d4e4d76", "output":
-      "Weather in Seattle: Sunny, 72\u00b0F"}], "model": "gpt-5.4-mini", "store":
-      false, "stream": false, "text": {"format": {"type": "json_schema", "name": "structured_data",
+      "call_id": "fc_04eb2d50eaa108f60169fb7d0f0ec48195ac6d759976581cf1", "output":
+      "Weather in Seattle: Sunny, 72\u00b0F"}], "model": "gpt-5.4", "store": false,
+      "stream": false, "text": {"format": {"type": "json_schema", "name": "structured_data",
       "schema": {"description": "A weather report.", "properties": {"location": {"type":
       "string"}, "temperature": {"type": "string"}, "conditions": {"type": "string"}},
       "required": ["location", "temperature", "conditions"], "type": "object", "additionalProperties":
@@ -248,11 +248,11 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1171'
+      - '1166'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=ueP8IwN5GxgGS_Xhx7xiwTA3Yvkfo8J4uSVC6vbOuaQ-1778084769.9122028-1.0.1.1-hwrdZriFktZnp2exwT1CT06WuNb1R2e5qp6TXrN8cJQq9EYczsyjadphf_kOVT2gb2UJwEhoRBsKcH_ti6l2DkyPtsL9.IKPbjpl4z3KNtav.fjkjzbrvrdwNWVZ.tDV
+      - __cf_bm=wP5p7ajXr9Am0kJ7XgBSs8PF9vNUM7fbz8jKo10m68g-1778089230.6728969-1.0.1.1-NDwiWHqM_KQ11W7tgPDtlXYMpXN2NMWvomtQcha8ceka0D5yZk8pkmYo0A4mGGsX0bQzjkaeqA0njmTBtn8H2hYxNaauyvU5GVpzLXwVAfo2kHbc4qe5wBcf0VA_Cpnu
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -263,14 +263,14 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_097c16d2dd0808c50169fb6ba30d448196956bd7cad96a4df8\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084771,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0a8688b76f577c280169fb7d0fa19c81a2abf7154787d49a4e\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089231,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084771,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089232,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_097c16d2dd0808c50169fb6ba39dd0819685d56ffd2accf2c3\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_0a8688b76f577c280169fb7d1024c081a2bc24af48a6b5f177\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"location\\\":\\\"Seattle\\\",\\\"temperature\\\":\\\"72\\u00b0F\\\",\\\"conditions\\\":\\\"Sunny\\\"}\"\n
@@ -304,13 +304,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f79585abe1ea22d-MSP
+      - 9f79c541486cacde-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:26:12 GMT
+      - Wed, 06 May 2026 17:40:32 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -322,21 +322,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '2636'
+      - '2631'
       openai-processing-ms:
-      - '1043'
+      - '944'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
@@ -347,10 +347,10 @@ interactions:
       "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
       "content": [{"type": "input_text", "text": "Get the weather in Tokyo and format
       it as a structured weather report"}]}, {"type": "function_call", "call_id":
-      "fc_0251cabf6526d27e0169fb6ba2ab348196bb1af8c899c690eb", "name": "get_weather",
+      "fc_0e286a6986f672ad0169fb7d0f1d708195905a98e1164bddf6", "name": "get_weather",
       "arguments": "{\"location\":\"Tokyo\"}"}, {"type": "function_call_output", "call_id":
-      "fc_0251cabf6526d27e0169fb6ba2ab348196bb1af8c899c690eb", "output": "Weather
-      in Tokyo: Sunny, 72\u00b0F"}], "model": "gpt-5.4-mini", "store": false, "stream":
+      "fc_0e286a6986f672ad0169fb7d0f1d708195905a98e1164bddf6", "output": "Weather
+      in Tokyo: Sunny, 72\u00b0F"}], "model": "gpt-5.4", "store": false, "stream":
       false, "text": {"format": {"type": "json_schema", "name": "structured_data",
       "schema": {"description": "A weather report.", "properties": {"location": {"type":
       "string"}, "temperature": {"type": "string"}, "conditions": {"type": "string"}},
@@ -367,11 +367,11 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1165'
+      - '1160'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=ueP8IwN5GxgGS_Xhx7xiwTA3Yvkfo8J4uSVC6vbOuaQ-1778084769.9122028-1.0.1.1-hwrdZriFktZnp2exwT1CT06WuNb1R2e5qp6TXrN8cJQq9EYczsyjadphf_kOVT2gb2UJwEhoRBsKcH_ti6l2DkyPtsL9.IKPbjpl4z3KNtav.fjkjzbrvrdwNWVZ.tDV
+      - __cf_bm=wP5p7ajXr9Am0kJ7XgBSs8PF9vNUM7fbz8jKo10m68g-1778089230.6728969-1.0.1.1-NDwiWHqM_KQ11W7tgPDtlXYMpXN2NMWvomtQcha8ceka0D5yZk8pkmYo0A4mGGsX0bQzjkaeqA0njmTBtn8H2hYxNaauyvU5GVpzLXwVAfo2kHbc4qe5wBcf0VA_Cpnu
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -382,14 +382,14 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0f9b2e616dc6777b0169fb6ba3e308819c9c64896ce7eebf66\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084771,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0cfd13e56600ce230169fb7d0fcd748192b89adb45e449c0b5\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089231,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084772,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089232,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_0f9b2e616dc6777b0169fb6ba4a4bc819c9ae55768ddbe7f63\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_0cfd13e56600ce230169fb7d1088f08192991c29a3b2b854e3\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"location\\\":\\\"Tokyo\\\",\\\"temperature\\\":\\\"72\\u00b0F\\\",\\\"conditions\\\":\\\"Sunny\\\"}\"\n
@@ -423,13 +423,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f79585b8c3bad1e-MSP
+      - 9f79c5420c9fa207-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:26:13 GMT
+      - Wed, 06 May 2026 17:40:32 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -441,21 +441,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '2634'
+      - '2629'
       openai-processing-ms:
-      - '991'
+      - '1170'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:

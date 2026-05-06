@@ -161,7 +161,7 @@ def ChatOpenAI(
     reproducible output, use [](`~chatlas.ChatOpenAICompletions`) instead.
     """
     if model is None:
-        model = log_model_default("gpt-5.4-mini")
+        model = log_model_default("gpt-5.4")
 
     kwargs_chat: "SubmitInputArgs" = {}
 

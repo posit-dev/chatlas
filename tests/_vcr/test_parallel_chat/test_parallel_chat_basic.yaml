@@ -2,7 +2,7 @@ interactions:
 - request:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
       "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
-      "content": [{"type": "input_text", "text": "What is 1 + 1?"}]}], "model": "gpt-5.4-mini",
+      "content": [{"type": "input_text", "text": "What is 1 + 1?"}]}], "model": "gpt-5.4",
       "store": false, "stream": false}'
     headers:
       Accept:
@@ -12,7 +12,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '250'
+      - '245'
       Content-Type:
       - application/json
       Host:
@@ -25,14 +25,14 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_04af8887418a98130169fb6b7d12c48192b53ee0e0b6778f39\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084733,\n  \"status\":
+      string: "{\n  \"id\": \"resp_06e1231d00cad5250169fb7cea55a881a1aaf0a827ed153141\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089194,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084733,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089194,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_04af8887418a98130169fb6b7d5ec88192a29bb743bca5bb0d\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_06e1231d00cad5250169fb7ceae2a081a1a41e5517ff1372fe\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"2\"\n        }\n      ],\n
@@ -52,13 +52,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f79576d5c78accc-MSP
+      - 9f79c457fa87a1c9-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:25:33 GMT
+      - Wed, 06 May 2026 17:39:55 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -70,21 +70,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '1593'
+      - '1588'
       openai-processing-ms:
-      - '684'
+      - '709'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
@@ -93,7 +93,7 @@ interactions:
 - request:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
       "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
-      "content": [{"type": "input_text", "text": "What is 2 + 2?"}]}], "model": "gpt-5.4-mini",
+      "content": [{"type": "input_text", "text": "What is 2 + 2?"}]}], "model": "gpt-5.4",
       "store": false, "stream": false}'
     headers:
       Accept:
@@ -103,7 +103,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '250'
+      - '245'
       Content-Type:
       - application/json
       Host:
@@ -116,201 +116,14 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_003fba65fc2c786c0169fb6b7d343c81a3a58fd1c19dd3fc27\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084733,\n  \"status\":
+      string: "{\n  \"id\": \"resp_03d7ab07617f4f3e0169fb7cea809081a3b0fe10b2abf7e26d\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089194,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084733,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089195,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_003fba65fc2c786c0169fb6b7d76b081a3ae0d30afb417d112\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"2 + 2 = 4.\"\n        }\n
-        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
-        \ \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        21,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 12,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 33\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-Ray:
-      - 9f79576e18e3acee-MSP
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Date:
-      - Wed, 06 May 2026 16:25:33 GMT
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Transfer-Encoding:
-      - chunked
-      X-Content-Type-Options:
-      - nosniff
-      alt-svc:
-      - h3=":443"; ma=86400
-      content-length:
-      - '1603'
-      openai-processing-ms:
-      - '582'
-      openai-version:
-      - '2020-10-01'
-      x-ratelimit-limit-requests:
-      - '30000'
-      x-ratelimit-limit-tokens:
-      - '180000000'
-      x-ratelimit-remaining-requests:
-      - '29999'
-      x-ratelimit-remaining-tokens:
-      - '180000000'
-      x-ratelimit-reset-requests:
-      - 2ms
-      x-ratelimit-reset-tokens:
-      - 0s
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
-      "content": [{"type": "input_text", "text": "What is 1 + 1?"}]}], "model": "gpt-5.4-mini",
-      "store": false, "stream": false}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate, zstd
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '250'
-      Content-Type:
-      - application/json
-      Cookie:
-      - __cf_bm=LJJa9KU96_qUKIcm7HxMcPoIit5pGxUIvTSRBc977Ag-1778084733.1401122-1.0.1.1-IhkHlHagc0gLjKR_4EiAPYr7lcAex_4nZR4RIPmU54mLM2dcEndNHYOJ4OF82ISMMqrDHVEYKHFiDP0bx9IFBKIYQIFrKqI5REm7ZdOl2epRP1HU60zrEE1.juuUa7ET
-      Host:
-      - api.openai.com
-      X-Stainless-Async:
-      - async:asyncio
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://api.openai.com/v1/responses
-  response:
-    body:
-      string: "{\n  \"id\": \"resp_06140c298697449d0169fb6b7e046081a1a017a60023105ab2\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084734,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084734,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_06140c298697449d0169fb6b7e49fc81a1b8cbb5b5738c73de\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"2\"\n        }\n      ],\n
-        \     \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n
-        \ ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\":
-        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\",\n
-        \ \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n  },\n
-        \ \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
-        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
-        \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\":
-        \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n
-        \ \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 21,\n
-        \   \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\":
-        5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n
-        \   \"total_tokens\": 26\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-Ray:
-      - 9f7957731f4bad20-MSP
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Date:
-      - Wed, 06 May 2026 16:25:34 GMT
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Transfer-Encoding:
-      - chunked
-      X-Content-Type-Options:
-      - nosniff
-      alt-svc:
-      - h3=":443"; ma=86400
-      content-length:
-      - '1593'
-      openai-processing-ms:
-      - '617'
-      openai-version:
-      - '2020-10-01'
-      x-ratelimit-limit-requests:
-      - '30000'
-      x-ratelimit-limit-tokens:
-      - '180000000'
-      x-ratelimit-remaining-requests:
-      - '29999'
-      x-ratelimit-remaining-tokens:
-      - '180000000'
-      x-ratelimit-reset-requests:
-      - 2ms
-      x-ratelimit-reset-tokens:
-      - 0s
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
-      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
-      "content": [{"type": "input_text", "text": "What is 2 + 2?"}]}], "model": "gpt-5.4-mini",
-      "store": false, "stream": false}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate, zstd
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '250'
-      Content-Type:
-      - application/json
-      Cookie:
-      - __cf_bm=LJJa9KU96_qUKIcm7HxMcPoIit5pGxUIvTSRBc977Ag-1778084733.1401122-1.0.1.1-IhkHlHagc0gLjKR_4EiAPYr7lcAex_4nZR4RIPmU54mLM2dcEndNHYOJ4OF82ISMMqrDHVEYKHFiDP0bx9IFBKIYQIFrKqI5REm7ZdOl2epRP1HU60zrEE1.juuUa7ET
-      Host:
-      - api.openai.com
-      X-Stainless-Async:
-      - async:asyncio
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://api.openai.com/v1/responses
-  response:
-    body:
-      string: "{\n  \"id\": \"resp_05b24ff89d3974e90169fb6b7e28cc819fbef6e72ec4c4f860\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084734,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084734,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_05b24ff89d3974e90169fb6b7eaccc819fb36a5f2fed909c28\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_03d7ab07617f4f3e0169fb7ceb049081a392b7078c3905926d\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"4\"\n        }\n      ],\n
@@ -330,13 +143,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f795773ef18acff-MSP
+      - 9f79c458ac6c510e-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:25:35 GMT
+      - Wed, 06 May 2026 17:39:55 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -348,21 +161,207 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '1593'
+      - '1588'
       openai-processing-ms:
-      - '867'
+      - '680'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
+      "content": [{"type": "input_text", "text": "What is 1 + 1?"}]}], "model": "gpt-5.4",
+      "store": false, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '245'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=FjZdDQzWHclPEnpcjk.MikJ5aWOei1XglLOwOWCWbqE-1778089194.349159-1.0.1.1-.JZ70KV2GIA_XS_pvRkGzye7LoLf6JYZPYfdJbOYd0ZML5rBjz7ScmNmz6I8aZ1Ukd51PxSpBGSiddLZaOzoJnQUs9iwWTqM9EU9tsYS96BrZpdpTWv1u3JKJAMVFwA7
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_05c0733eef904d420169fb7ceb690881a3b53216974509f1d8\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089195,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1778089196,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_05c0733eef904d420169fb7cebc22881a3a8541c2d80b0f8bb\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"2\"\n        }\n      ],\n
+        \     \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n
+        \ ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\",\n
+        \ \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n  },\n
+        \ \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
+        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
+        \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\":
+        \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n
+        \ \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 21,\n
+        \   \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\":
+        5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n
+        \   \"total_tokens\": 26\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c45ed804accc-MSP
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 06 May 2026 17:39:56 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      content-length:
+      - '1588'
+      openai-processing-ms:
+      - '716'
+      openai-version:
+      - '2020-10-01'
+      x-ratelimit-limit-requests:
+      - '15000'
+      x-ratelimit-limit-tokens:
+      - '40000000'
+      x-ratelimit-remaining-requests:
+      - '14999'
+      x-ratelimit-remaining-tokens:
+      - '40000000'
+      x-ratelimit-reset-requests:
+      - 4ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
+      "content": [{"type": "input_text", "text": "What is 2 + 2?"}]}], "model": "gpt-5.4",
+      "store": false, "stream": false}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '245'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=FjZdDQzWHclPEnpcjk.MikJ5aWOei1XglLOwOWCWbqE-1778089194.349159-1.0.1.1-.JZ70KV2GIA_XS_pvRkGzye7LoLf6JYZPYfdJbOYd0ZML5rBjz7ScmNmz6I8aZ1Ukd51PxSpBGSiddLZaOzoJnQUs9iwWTqM9EU9tsYS96BrZpdpTWv1u3JKJAMVFwA7
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_0ba6e812af78370f0169fb7ceb8d308195a00fc14c74d63eb6\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089195,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1778089196,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_0ba6e812af78370f0169fb7cebf06c8195ac1cca1828910afa\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"4\"\n        }\n      ],\n
+        \     \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n
+        \ ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\",\n
+        \ \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n  },\n
+        \ \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
+        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
+        \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\":
+        \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n
+        \ \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 21,\n
+        \   \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\":
+        5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n
+        \   \"total_tokens\": 26\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c45f9c1f510d-MSP
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 06 May 2026 17:39:56 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      content-length:
+      - '1588'
+      openai-processing-ms:
+      - '660'
+      openai-version:
+      - '2020-10-01'
+      x-ratelimit-limit-requests:
+      - '15000'
+      x-ratelimit-limit-tokens:
+      - '40000000'
+      x-ratelimit-remaining-requests:
+      - '14999'
+      x-ratelimit-remaining-tokens:
+      - '40000000'
+      x-ratelimit-reset-requests:
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:

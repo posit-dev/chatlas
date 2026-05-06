@@ -1,210 +1,8 @@
 interactions:
 - request:
     body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "What is the capital of Brazil? Extract
-      the country and capital."}]}], "model": "gpt-5.4-mini", "store": false, "stream":
-      false, "text": {"format": {"type": "json_schema", "name": "structured_data",
-      "schema": {"description": "A capital city.", "properties": {"country": {"type":
-      "string"}, "capital": {"type": "string"}}, "required": ["country", "capital"],
-      "type": "object", "additionalProperties": false}, "strict": true}}}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate, zstd
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '500'
-      Content-Type:
-      - application/json
-      Host:
-      - api.openai.com
-      X-Stainless-Async:
-      - async:asyncio
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://api.openai.com/v1/responses
-  response:
-    body:
-      string: "{\n  \"id\": \"resp_0803f518fdc8773c0169fb6ba0bc38819d8f4b233f9989a82f\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084768,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084769,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_0803f518fdc8773c0169fb6ba11d18819da7330acbfb578ad6\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"country\\\":\\\"Brazil\\\",\\\"capital\\\":\\\"Bras\\u00edlia\\\"}\"\n
-        \       }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"json_schema\",\n      \"description\": null,\n      \"name\":
-        \"structured_data\",\n      \"schema\": {\n        \"description\": \"A capital
-        city.\",\n        \"properties\": {\n          \"country\": {\n            \"type\":
-        \"string\"\n          },\n          \"capital\": {\n            \"type\":
-        \"string\"\n          }\n        },\n        \"required\": [\n          \"country\",\n
-        \         \"capital\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
-        \   \"input_tokens\": 54,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
-        0\n    },\n    \"output_tokens\": 18,\n    \"output_tokens_details\": {\n
-        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 72\n  },\n  \"user\":
-        null,\n  \"metadata\": {}\n}"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-Ray:
-      - 9f79584c2d8ea1d0-MSP
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Date:
-      - Wed, 06 May 2026 16:26:09 GMT
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Transfer-Encoding:
-      - chunked
-      X-Content-Type-Options:
-      - nosniff
-      alt-svc:
-      - h3=":443"; ma=86400
-      content-length:
-      - '2107'
-      openai-processing-ms:
-      - '706'
-      openai-version:
-      - '2020-10-01'
-      x-ratelimit-limit-requests:
-      - '30000'
-      x-ratelimit-limit-tokens:
-      - '180000000'
-      x-ratelimit-remaining-requests:
-      - '29999'
-      x-ratelimit-remaining-tokens:
-      - '180000000'
-      x-ratelimit-reset-requests:
-      - 2ms
-      x-ratelimit-reset-tokens:
-      - 0s
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
-      "content": [{"type": "input_text", "text": "What is the capital of Japan? Extract
-      the country and capital."}]}], "model": "gpt-5.4-mini", "store": false, "stream":
-      false, "text": {"format": {"type": "json_schema", "name": "structured_data",
-      "schema": {"description": "A capital city.", "properties": {"country": {"type":
-      "string"}, "capital": {"type": "string"}}, "required": ["country", "capital"],
-      "type": "object", "additionalProperties": false}, "strict": true}}}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate, zstd
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '499'
-      Content-Type:
-      - application/json
-      Host:
-      - api.openai.com
-      X-Stainless-Async:
-      - async:asyncio
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://api.openai.com/v1/responses
-  response:
-    body:
-      string: "{\n  \"id\": \"resp_04c76947a81d1c5b0169fb6ba0b5cc8194951f519a0d3a71a8\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084768,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084769,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_04c76947a81d1c5b0169fb6ba1418c8194a7c7e2ca9fcbc154\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"country\\\":\\\"Japan\\\",\\\"capital\\\":\\\"Tokyo\\\"}\"\n
-        \       }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
-        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
-        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
-        {\n      \"type\": \"json_schema\",\n      \"description\": null,\n      \"name\":
-        \"structured_data\",\n      \"schema\": {\n        \"description\": \"A capital
-        city.\",\n        \"properties\": {\n          \"country\": {\n            \"type\":
-        \"string\"\n          },\n          \"capital\": {\n            \"type\":
-        \"string\"\n          }\n        },\n        \"required\": [\n          \"country\",\n
-        \         \"capital\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
-        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
-        \   \"input_tokens\": 54,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
-        0\n    },\n    \"output_tokens\": 17,\n    \"output_tokens_details\": {\n
-        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 71\n  },\n  \"user\":
-        null,\n  \"metadata\": {}\n}"
-    headers:
-      CF-Cache-Status:
-      - DYNAMIC
-      CF-Ray:
-      - 9f79584c2c34a201-MSP
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Date:
-      - Wed, 06 May 2026 16:26:09 GMT
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Transfer-Encoding:
-      - chunked
-      X-Content-Type-Options:
-      - nosniff
-      alt-svc:
-      - h3=":443"; ma=86400
-      content-length:
-      - '2098'
-      openai-processing-ms:
-      - '761'
-      openai-version:
-      - '2020-10-01'
-      x-ratelimit-limit-requests:
-      - '30000'
-      x-ratelimit-limit-tokens:
-      - '180000000'
-      x-ratelimit-remaining-requests:
-      - '29999'
-      x-ratelimit-remaining-tokens:
-      - '180000000'
-      x-ratelimit-reset-requests:
-      - 2ms
-      x-ratelimit-reset-tokens:
-      - 0s
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
       "content": [{"type": "input_text", "text": "What is the capital of Canada? Extract
-      the country and capital."}]}], "model": "gpt-5.4-mini", "store": false, "stream":
+      the country and capital."}]}], "model": "gpt-5.4", "store": false, "stream":
       false, "text": {"format": {"type": "json_schema", "name": "structured_data",
       "schema": {"description": "A capital city.", "properties": {"country": {"type":
       "string"}, "capital": {"type": "string"}}, "required": ["country", "capital"],
@@ -217,7 +15,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '500'
+      - '495'
       Content-Type:
       - application/json
       Host:
@@ -230,14 +28,14 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_049982184d3adfae0169fb6ba0b92481a0a92d1388946749f5\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1778084768,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0189c059dd07194e0169fb7d0cd41081929d70b17633e9e6ce\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089228,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1778084769,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089229,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
-        \     \"id\": \"msg_049982184d3adfae0169fb6ba132f081a0bb4075ea5879c92a\",\n
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_0189c059dd07194e0169fb7d0d4ad48192ba1e0ebcf9aea383\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"country\\\":\\\"Canada\\\",\\\"capital\\\":\\\"Ottawa\\\"}\"\n
@@ -264,13 +62,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9f79584b5c77ad02-MSP
+      - 9f79c52f9d39a1c4-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 06 May 2026 16:26:09 GMT
+      - Wed, 06 May 2026 17:40:29 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -282,21 +80,223 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       content-length:
-      - '2100'
+      - '2095'
       openai-processing-ms:
-      - '939'
+      - '837'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '30000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '29999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '180000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 2ms
+      - 4ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
+      "content": [{"type": "input_text", "text": "What is the capital of Japan? Extract
+      the country and capital."}]}], "model": "gpt-5.4", "store": false, "stream":
+      false, "text": {"format": {"type": "json_schema", "name": "structured_data",
+      "schema": {"description": "A capital city.", "properties": {"country": {"type":
+      "string"}, "capital": {"type": "string"}}, "required": ["country", "capital"],
+      "type": "object", "additionalProperties": false}, "strict": true}}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '494'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_0d7d762c3783a6e50169fb7d0cf33481a0a9c9e8329b43c728\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089228,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1778089229,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_0d7d762c3783a6e50169fb7d0d5c9081a085437d274e7d29f3\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"country\\\":\\\"Japan\\\",\\\"capital\\\":\\\"Tokyo\\\"}\"\n
+        \       }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
+        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
+        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
+        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
+        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
+        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
+        {\n      \"type\": \"json_schema\",\n      \"description\": null,\n      \"name\":
+        \"structured_data\",\n      \"schema\": {\n        \"description\": \"A capital
+        city.\",\n        \"properties\": {\n          \"country\": {\n            \"type\":
+        \"string\"\n          },\n          \"capital\": {\n            \"type\":
+        \"string\"\n          }\n        },\n        \"required\": [\n          \"country\",\n
+        \         \"capital\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
+        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
+        \   \"input_tokens\": 54,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 17,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 71\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c5306e4cad17-MSP
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 06 May 2026 17:40:29 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      content-length:
+      - '2093'
+      openai-processing-ms:
+      - '793'
+      openai-version:
+      - '2020-10-01'
+      x-ratelimit-limit-requests:
+      - '15000'
+      x-ratelimit-limit-tokens:
+      - '40000000'
+      x-ratelimit-remaining-requests:
+      - '14999'
+      x-ratelimit-remaining-tokens:
+      - '40000000'
+      x-ratelimit-reset-requests:
+      - 4ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
+      "content": [{"type": "input_text", "text": "What is the capital of Brazil? Extract
+      the country and capital."}]}], "model": "gpt-5.4", "store": false, "stream":
+      false, "text": {"format": {"type": "json_schema", "name": "structured_data",
+      "schema": {"description": "A capital city.", "properties": {"country": {"type":
+      "string"}, "capital": {"type": "string"}}, "required": ["country", "capital"],
+      "type": "object", "additionalProperties": false}, "strict": true}}}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '495'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_0d448a4c5f27ad460169fb7d0cef548194bd6a12f6ac75b883\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089228,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1778089230,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_0d448a4c5f27ad460169fb7d0dee6c819488a9a47bfec31efd\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"country\\\":\\\"Brazil\\\",\\\"capital\\\":\\\"Bras\\u00edlia\\\"}\"\n
+        \       }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
+        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
+        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
+        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
+        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
+        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
+        {\n      \"type\": \"json_schema\",\n      \"description\": null,\n      \"name\":
+        \"structured_data\",\n      \"schema\": {\n        \"description\": \"A capital
+        city.\",\n        \"properties\": {\n          \"country\": {\n            \"type\":
+        \"string\"\n          },\n          \"capital\": {\n            \"type\":
+        \"string\"\n          }\n        },\n        \"required\": [\n          \"country\",\n
+        \         \"capital\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
+        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
+        \   \"input_tokens\": 54,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 18,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 72\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c5306dd24c93-MSP
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 06 May 2026 17:40:30 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      content-length:
+      - '2102'
+      openai-processing-ms:
+      - '1425'
+      openai-version:
+      - '2020-10-01'
+      x-ratelimit-limit-requests:
+      - '15000'
+      x-ratelimit-limit-tokens:
+      - '40000000'
+      x-ratelimit-remaining-requests:
+      - '14999'
+      x-ratelimit-remaining-tokens:
+      - '40000000'
+      x-ratelimit-reset-requests:
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
