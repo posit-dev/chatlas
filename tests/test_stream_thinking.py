@@ -88,8 +88,8 @@ class TestStreamThinkingText:
     def test_thinking_then_text(self):
         """Streaming thinking → text produces proper tag boundaries."""
         chunks = [
-            ContentThinking(thinking="step 1 "),
-            ContentThinking(thinking="step 2"),
+            ContentThinking._as_chunk("step 1 "),
+            ContentThinking._as_chunk("step 2"),
             ContentText.model_construct(text="Hello world"),
         ]
         chat = _make_chat(chunks)
@@ -100,7 +100,7 @@ class TestStreamThinkingText:
     def test_thinking_only(self):
         """If stream ends during thinking, close tag is still emitted."""
         chunks = [
-            ContentThinking(thinking="reasoning here"),
+            ContentThinking._as_chunk("reasoning here"),
         ]
         chat = _make_chat(chunks)
         result = list(chat.stream("test"))
@@ -120,7 +120,7 @@ class TestStreamThinkingText:
     def test_tag_chunks_are_separate(self):
         """Opening and closing tags are yielded as separate chunks."""
         chunks = [
-            ContentThinking(thinking="thought"),
+            ContentThinking._as_chunk("thought"),
             ContentText.model_construct(text="answer"),
         ]
         chat = _make_chat(chunks)
@@ -137,8 +137,8 @@ class TestStreamThinkingAll:
     def test_thinking_then_text(self):
         """content='all' yields ContentThinking objects, not tag strings."""
         chunks = [
-            ContentThinking(thinking="step 1 "),
-            ContentThinking(thinking="step 2"),
+            ContentThinking._as_chunk("step 1 "),
+            ContentThinking._as_chunk("step 2"),
             ContentText.model_construct(text="Hello"),
         ]
         chat = _make_chat(chunks)
@@ -155,7 +155,7 @@ class TestStreamThinkingAll:
     def test_no_tag_strings_yielded(self):
         """content='all' mode should NOT yield tag boundary strings."""
         chunks = [
-            ContentThinking(thinking="thought"),
+            ContentThinking._as_chunk("thought"),
             ContentText.model_construct(text="answer"),
         ]
         chat = _make_chat(chunks)
@@ -166,6 +166,19 @@ class TestStreamThinkingAll:
             assert "<thinking>" not in s
             assert "</thinking>" not in s
 
+    def test_str_on_chunk_has_no_tags(self):
+        """Calling str() on yielded ContentThinking chunks should not wrap in tags."""
+        chunks = [
+            ContentThinking._as_chunk("thought"),
+            ContentText.model_construct(text="answer"),
+        ]
+        chat = _make_chat(chunks)
+        result = list(chat.stream("test", content="all"))
+
+        thinking_chunks = [x for x in result if isinstance(x, ContentThinking)]
+        assert len(thinking_chunks) == 1
+        assert str(thinking_chunks[0]) == "thought"
+
 
 @pytest.mark.asyncio
 class TestStreamThinkingAsync:
@@ -174,8 +187,8 @@ class TestStreamThinkingAsync:
     async def test_thinking_then_text_async(self):
         """Async streaming thinking → text produces proper tag boundaries."""
         chunks = [
-            ContentThinking(thinking="async thought "),
-            ContentThinking(thinking="more"),
+            ContentThinking._as_chunk("async thought "),
+            ContentThinking._as_chunk("more"),
             ContentText.model_construct(text="response"),
         ]
         chat = _make_chat(chunks)
@@ -186,7 +199,7 @@ class TestStreamThinkingAsync:
     async def test_thinking_only_async(self):
         """Async: close tag emitted even if stream ends during thinking."""
         chunks = [
-            ContentThinking(thinking="reasoning"),
+            ContentThinking._as_chunk("reasoning"),
         ]
         chat = _make_chat(chunks)
         result = [chunk async for chunk in await chat.stream_async("test")]
@@ -196,7 +209,7 @@ class TestStreamThinkingAsync:
     async def test_content_all_async(self):
         """Async content='all' yields ContentThinking objects, no tag strings."""
         chunks = [
-            ContentThinking(thinking="thought"),
+            ContentThinking._as_chunk("thought"),
             ContentText.model_construct(text="answer"),
         ]
         chat = _make_chat(chunks)

@@ -6,7 +6,14 @@ from pprint import pformat
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast
 
 import orjson
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    PrivateAttr,
+    field_serializer,
+    field_validator,
+)
 
 from ._typing_extensions import TypedDict
 
@@ -624,11 +631,20 @@ class ContentThinking(Content):
 
     thinking: str
     extra: Optional[dict[str, Any]] = None
+    _complete: bool = PrivateAttr(default=True)
 
     content_type: ContentTypeEnum = "thinking"
 
+    @classmethod
+    def _as_chunk(cls, thinking: str) -> "ContentThinking":
+        obj = cls.model_construct(thinking=thinking, content_type="thinking")
+        obj._complete = False
+        return obj
+
     def __str__(self):
-        return f"<thinking>\n{self.thinking}\n</thinking>\n"
+        if self._complete:
+            return f"<thinking>\n{self.thinking}\n</thinking>\n"
+        return self.thinking
 
     def _repr_html_(self):
         return str(self.tagify())
