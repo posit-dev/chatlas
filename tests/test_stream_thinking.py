@@ -132,10 +132,10 @@ class TestStreamThinkingText:
 
 
 class TestStreamThinkingAll:
-    """Tests for content='all' mode — ContentThinking objects yielded, no tag strings."""
+    """Tests for content='all' mode — ContentThinking objects AND tag boundary strings yielded."""
 
     def test_thinking_then_text(self):
-        """content='all' yields ContentThinking objects, not tag strings."""
+        """content='all' yields tag boundaries AND ContentThinking objects."""
         chunks = [
             ContentThinking._as_chunk("step 1 "),
             ContentThinking._as_chunk("step 2"),
@@ -145,15 +145,17 @@ class TestStreamThinkingAll:
         result = list(chat.stream("test", content="all"))
 
         thinking_chunks = [x for x in result if isinstance(x, ContentThinking)]
-        text_chunks = [x for x in result if isinstance(x, str)]
+        str_chunks = [x for x in result if isinstance(x, str)]
 
         assert len(thinking_chunks) == 2
         assert thinking_chunks[0].thinking == "step 1 "
         assert thinking_chunks[1].thinking == "step 2"
-        assert text_chunks == ["Hello"]
+        assert "<thinking>\n" in str_chunks
+        assert "\n</thinking>\n\n" in str_chunks
+        assert "Hello" in str_chunks
 
-    def test_no_tag_strings_yielded(self):
-        """content='all' mode should NOT yield tag boundary strings."""
+    def test_tag_boundaries_yielded(self):
+        """content='all' mode SHOULD yield tag boundary strings."""
         chunks = [
             ContentThinking._as_chunk("thought"),
             ContentText.model_construct(text="answer"),
@@ -162,9 +164,23 @@ class TestStreamThinkingAll:
         result = list(chat.stream("test", content="all"))
 
         str_chunks = [x for x in result if isinstance(x, str)]
-        for s in str_chunks:
-            assert "<thinking>" not in s
-            assert "</thinking>" not in s
+        assert "<thinking>\n" in str_chunks
+        assert "\n</thinking>\n\n" in str_chunks
+
+    def test_order_of_chunks(self):
+        """content='all' mode: open tag, ContentThinking objects, close tag, then text."""
+        chunks = [
+            ContentThinking._as_chunk("thought"),
+            ContentText.model_construct(text="answer"),
+        ]
+        chat = _make_chat(chunks)
+        result = list(chat.stream("test", content="all"))
+
+        assert result[0] == "<thinking>\n"
+        assert isinstance(result[1], ContentThinking)
+        assert result[1].thinking == "thought"
+        assert result[2] == "\n</thinking>\n\n"
+        assert result[3] == "answer"
 
     def test_str_on_chunk_has_no_tags(self):
         """Calling str() on yielded ContentThinking chunks should not wrap in tags."""
@@ -207,7 +223,7 @@ class TestStreamThinkingAsync:
         assert combined == "<thinking>\nreasoning\n</thinking>\n\n"
 
     async def test_content_all_async(self):
-        """Async content='all' yields ContentThinking objects, no tag strings."""
+        """Async content='all' yields tag boundaries AND ContentThinking objects."""
         chunks = [
             ContentThinking._as_chunk("thought"),
             ContentText.model_construct(text="answer"),
@@ -220,6 +236,8 @@ class TestStreamThinkingAsync:
 
         assert len(thinking_chunks) == 1
         assert thinking_chunks[0].thinking == "thought"
-        assert str_chunks == ["answer"]
-        for s in str_chunks:
-            assert "<thinking>" not in s
+        assert "<thinking>\n" in str_chunks
+        assert "\n</thinking>\n\n" in str_chunks
+        assert "answer" in str_chunks
+        assert result[0] == "<thinking>\n"
+        assert result[2] == "\n</thinking>\n\n"

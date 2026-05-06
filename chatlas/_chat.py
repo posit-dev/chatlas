@@ -2681,13 +2681,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         is_thinking = isinstance(content, ContentThinking)
                         if is_thinking and not inside_thinking:
                             emit("<thinking>\n")
-                            if content_mode == "text":
-                                yield "<thinking>\n"
+                            yield "<thinking>\n"
                             inside_thinking = True
                         elif not is_thinking and inside_thinking:
                             emit("\n</thinking>\n\n")
-                            if content_mode == "text":
-                                yield "\n</thinking>\n\n"
+                            yield "\n</thinking>\n\n"
                             inside_thinking = False
 
                         emit(text)
@@ -2699,8 +2697,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             if inside_thinking:
                 emit("\n</thinking>\n\n")
-                if content_mode == "text":
-                    yield "\n</thinking>\n\n"
+                yield "\n</thinking>\n\n"
 
             turn = self.provider.stream_turn(
                 result,
@@ -2804,13 +2801,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         is_thinking = isinstance(content, ContentThinking)
                         if is_thinking and not inside_thinking:
                             emit("<thinking>\n")
-                            if content_mode == "text":
-                                yield "<thinking>\n"
+                            yield "<thinking>\n"
                             inside_thinking = True
                         elif not is_thinking and inside_thinking:
                             emit("\n</thinking>\n\n")
-                            if content_mode == "text":
-                                yield "\n</thinking>\n\n"
+                            yield "\n</thinking>\n\n"
                             inside_thinking = False
 
                         emit(text)
@@ -2822,8 +2817,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             if inside_thinking:
                 emit("\n</thinking>\n\n")
-                if content_mode == "text":
-                    yield "\n</thinking>\n\n"
+                yield "\n</thinking>\n\n"
 
             turn = self.provider.stream_turn(
                 result,
