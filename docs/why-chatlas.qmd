@@ -16,7 +16,7 @@ Take, for example, a simple multi-turn conversation:
 from chatlas import ChatOpenAI
 
 chat = ChatOpenAI(
-    model="gpt-4.1",
+    model="gpt-5.4-mini",
     system_prompt="You are a terse assistant.",
 )
 
@@ -35,7 +35,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_openai import ChatOpenAI
 
 # The underlying chat model. It doesn't manage any state, so we need to wrap it.
-model = ChatOpenAI(model="gpt-4.1")
+model = ChatOpenAI(model="gpt-5.4-mini")
 
 # This is how you provide a system message in Langchain. Surprisingly
 # complicated, isn't it?

@@ -331,7 +331,7 @@ def test_chat_callbacks():
 @pytest.mark.vcr
 @pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-4.1")
 
     def test_tool(user: str) -> str:
         "Find out a user's favorite color"
@@ -357,7 +357,7 @@ def test_chat_tool_request_reject():
 @pytest.mark.vcr
 @pytest.mark.filterwarnings("ignore", category=ToolFailureWarning)
 def test_chat_tool_request_reject2(capsys):
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-4.1")
 
     def test_tool(user: str) -> str:
         "Find out a user's favorite color"
@@ -378,7 +378,7 @@ def test_chat_tool_request_reject2(capsys):
 
 
 def test_get_cost():
-    chat = ChatOpenAI(api_key="fake_key")
+    chat = ChatOpenAI(model="gpt-4.1", api_key="fake_key")
     chat.set_turns(
         [
             UserTurn("Hi"),

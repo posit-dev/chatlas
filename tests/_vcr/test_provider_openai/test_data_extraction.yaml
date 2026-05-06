@@ -1,13 +1,14 @@
 interactions:
 - request:
-    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
-      "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
-      I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}]}],
-      "model": "gpt-4.1", "store": false, "stream": false, "text": {"format": {"type":
-      "json_schema", "name": "structured_data", "schema": {"description": "Summary
-      of the article", "properties": {"title": {"type": "string"}, "author": {"type":
-      "string"}}, "required": ["title", "author"], "type": "object", "additionalProperties":
-      false}, "strict": true}}}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
+      "content": [{"type": "input_text", "text": "\n# Apples are tasty\n\nBy Hadley
+      Wickham\nApples are delicious and tasty and I like to eat them.\nExcept for
+      red delicious, that is. They are NOT delicious.\n"}]}], "model": "gpt-5.4-mini",
+      "store": false, "stream": false, "text": {"format": {"type": "json_schema",
+      "name": "structured_data", "schema": {"description": "Summary of the article",
+      "properties": {"title": {"type": "string"}, "author": {"type": "string"}}, "required":
+      ["title", "author"], "type": "object", "additionalProperties": false}, "strict":
+      true}}}'
     headers:
       Accept:
       - application/json
@@ -16,7 +17,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '550'
+      - '597'
       Content-Type:
       - application/json
       Host:
@@ -29,152 +30,48 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0ae0c3e911b851180169e136988380819ea1c6409c8dc864f6\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1776367256,\n  \"status\":
+      string: "{\n  \"id\": \"resp_02219a05e9ad94900169fb6b2824ec81939df2ab9fd8a43948\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778084648,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1776367257,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778084649,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-4.1-2025-04-14\",\n  \"output\": [\n    {\n      \"id\": \"msg_0ae0c3e911b851180169e13698d298819eb4d25fcd851bcfd0\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\n  \\\"title\\\":
-        \\\"Apples are tasty\\\",\\n  \\\"author\\\": \\\"Hadley Wickham\\\"\\n}\"\n
-        \       }\n      ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
-        true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
-        null,\n  \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\":
-        null,\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
-        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
-        \   \"format\": {\n      \"type\": \"json_schema\",\n      \"description\":
-        null,\n      \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\":
-        \"Summary of the article\",\n        \"properties\": {\n          \"title\":
-        {\n            \"type\": \"string\"\n          },\n          \"author\": {\n
-        \           \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"title\",\n          \"author\"\n        ],\n        \"type\":
-        \"object\",\n        \"additionalProperties\": false\n      },\n      \"strict\":
-        true\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
-        \ \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\":
-        \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 82,\n    \"input_tokens_details\":
-        {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 23,\n    \"output_tokens_details\":
-        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 105\n  },\n
-        \ \"user\": null,\n  \"metadata\": {}\n}"
-    headers:
-      CF-RAY:
-      - 9ed58cd8e8c0f861-ORD
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Date:
-      - Thu, 16 Apr 2026 19:20:57 GMT
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Transfer-Encoding:
-      - chunked
-      X-Content-Type-Options:
-      - nosniff
-      alt-svc:
-      - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
-      content-length:
-      - '2061'
-      openai-processing-ms:
-      - '540'
-      openai-version:
-      - '2020-10-01'
-      x-ratelimit-limit-requests:
-      - '10000'
-      x-ratelimit-limit-tokens:
-      - '30000000'
-      x-ratelimit-remaining-requests:
-      - '9999'
-      x-ratelimit-remaining-tokens:
-      - '29999996'
-      x-ratelimit-reset-requests:
-      - 6ms
-      x-ratelimit-reset-tokens:
-      - 0s
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
-      "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
-      I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}]},
-      {"role": "assistant", "content": [{"type": "output_text", "text": "{\"title\":\"Apples
-      are tasty\",\"author\":\"Hadley Wickham\"}", "annotations": []}], "status":
-      "completed", "type": "message", "id": "msg_missing_id"}, {"role": "user", "content":
-      [{"type": "input_text", "text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples
-      are delicious and tasty and I like to eat them.\nExcept for red delicious, that
-      is. They are NOT delicious.\n"}]}], "model": "gpt-4.1", "store": false, "stream":
-      false, "text": {"format": {"type": "json_schema", "name": "structured_data",
-      "schema": {"description": "Summary of the article", "properties": {"title":
-      {"type": "string"}, "author": {"type": "string"}}, "required": ["title", "author"],
-      "type": "object", "additionalProperties": false}, "strict": true}}}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate, zstd
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '974'
-      Content-Type:
-      - application/json
-      Cookie:
-      - __cf_bm=DoxQho_Y_QxFirwPxhIrBs2DHWJ29HATA6B.FhagfIA-1776367256.465088-1.0.1.1-viET.LdhPAnU6ziur0OCuYdk.CotiTT._ef5kCnSPs0vK0s3saonprEpcGLN0AKsxUwIHEMfXeOybKWeUkleeypHG7Vf0OPRcOAY3jp9ePgcrPKmP30WDbcFaQNRezNZ
-      Host:
-      - api.openai.com
-      X-Stainless-Async:
-      - 'false'
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://api.openai.com/v1/responses
-  response:
-    body:
-      string: "{\n  \"id\": \"resp_03f5f6d80136ee230169e136995adc81978c25adedd59fda25\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1776367257,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1776367257,\n  \"error\": null,\n
-        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
-        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-4.1-2025-04-14\",\n  \"output\": [\n    {\n      \"id\": \"msg_03f5f6d80136ee230169e136998fac81979d8402f81f8d0f15\",\n
+        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_02219a05e9ad94900169fb6b289ab88193ac501ef07d547f5a\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"title\\\":\\\"Apples
         are tasty\\\",\\\"author\\\":\\\"Hadley Wickham\\\"}\"\n        }\n      ],\n
-        \     \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
-        \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
-        null,\n  \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\":
-        null,\n    \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
-        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
-        \   \"format\": {\n      \"type\": \"json_schema\",\n      \"description\":
-        null,\n      \"name\": \"structured_data\",\n      \"schema\": {\n        \"description\":
-        \"Summary of the article\",\n        \"properties\": {\n          \"title\":
-        {\n            \"type\": \"string\"\n          },\n          \"author\": {\n
-        \           \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"title\",\n          \"author\"\n        ],\n        \"type\":
-        \"object\",\n        \"additionalProperties\": false\n      },\n      \"strict\":
-        true\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
-        \ \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\":
-        \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 143,\n    \"input_tokens_details\":
-        {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\": 16,\n    \"output_tokens_details\":
-        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 159\n  },\n
-        \ \"user\": null,\n  \"metadata\": {}\n}"
+        \     \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n
+        \ ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\",\n
+        \ \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n  },\n
+        \ \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
+        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
+        \"json_schema\",\n      \"description\": null,\n      \"name\": \"structured_data\",\n
+        \     \"schema\": {\n        \"description\": \"Summary of the article\",\n
+        \       \"properties\": {\n          \"title\": {\n            \"type\": \"string\"\n
+        \         },\n          \"author\": {\n            \"type\": \"string\"\n
+        \         }\n        },\n        \"required\": [\n          \"title\",\n          \"author\"\n
+        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
+        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
+        \   \"input_tokens\": 80,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 23,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 103\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
     headers:
-      CF-RAY:
-      - 9ed58cde3ada218b-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79555a793e4cbd-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Thu, 16 Apr 2026 19:20:57 GMT
+      - Wed, 06 May 2026 16:24:09 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -185,46 +82,41 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '2050'
+      - '2117'
       openai-processing-ms:
-      - '395'
+      - '1006'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '30000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '180000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '29999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '180000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 2ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
-      "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
-      I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}]},
-      {"role": "assistant", "content": [{"type": "output_text", "text": "{\"title\":\"Apples
-      are tasty\",\"author\":\"Hadley Wickham\"}", "annotations": []}], "status":
-      "completed", "type": "message", "id": "msg_missing_id"}, {"role": "user", "content":
-      [{"type": "input_text", "text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples
-      are delicious and tasty and I like to eat them.\nExcept for red delicious, that
-      is. They are NOT delicious.\n"}]}, {"role": "assistant", "content": [{"type":
-      "output_text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
+      "content": [{"type": "input_text", "text": "\n# Apples are tasty\n\nBy Hadley
+      Wickham\nApples are delicious and tasty and I like to eat them.\nExcept for
+      red delicious, that is. They are NOT delicious.\n"}]}, {"role": "assistant",
+      "content": [{"type": "output_text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
       Wickham\"}", "annotations": []}], "status": "completed", "type": "message",
       "id": "msg_missing_id"}, {"role": "user", "content": [{"type": "input_text",
-      "text": "Generate the name and age of a random person."}]}], "model": "gpt-4.1",
-      "store": false, "stream": false, "text": {"format": {"type": "json_schema",
-      "name": "structured_data", "schema": {"properties": {"name": {"type": "string"},
-      "age": {"type": "integer"}}, "required": ["name", "age"], "type": "object",
+      "text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and
+      tasty and I like to eat them.\nExcept for red delicious, that is. They are NOT
+      delicious.\n"}]}], "model": "gpt-5.4-mini", "store": false, "stream": false,
+      "text": {"format": {"type": "json_schema", "name": "structured_data", "schema":
+      {"description": "Summary of the article", "properties": {"title": {"type": "string"},
+      "author": {"type": "string"}}, "required": ["title", "author"], "type": "object",
       "additionalProperties": false}, "strict": true}}}'
     headers:
       Accept:
@@ -234,11 +126,11 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1238'
+      - '1021'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=DoxQho_Y_QxFirwPxhIrBs2DHWJ29HATA6B.FhagfIA-1776367256.465088-1.0.1.1-viET.LdhPAnU6ziur0OCuYdk.CotiTT._ef5kCnSPs0vK0s3saonprEpcGLN0AKsxUwIHEMfXeOybKWeUkleeypHG7Vf0OPRcOAY3jp9ePgcrPKmP30WDbcFaQNRezNZ
+      - __cf_bm=VVKj4cI2bLlHbg2Ek7fHfU0UdhGuZomE.p6s7LZ6bwE-1778084648.0801954-1.0.1.1-sXCxVT0__cHU2JqVCGwrAQYjzfCND2vcod5MBxA0FvOy7Pzuds55583RXrtLgEgBOerPqFxDoQ2fyqtX0lNW8i5Ji8ok1iFuRWFBOZKxJCHFhN6yyVKgAcYVu9O.G8Kv
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -249,43 +141,48 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0d8f4de8dd1c786a0169e13699f76881908e220194309386ba\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1776367257,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0768718c2ef9402d0169fb6b297240819c988d780a299d63c6\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778084649,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1776367258,\n  \"error\": null,\n
+        \"developer\"\n  },\n  \"completed_at\": 1778084650,\n  \"error\": null,\n
         \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
         null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
-        \"gpt-4.1-2025-04-14\",\n  \"output\": [\n    {\n      \"id\": \"msg_0d8f4de8dd1c786a0169e1369a4ba48190982de1ced50e80f9\",\n
+        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_0768718c2ef9402d0169fb6b2a2ca4819cb1034010e3e51ecd\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"name\\\":\\\"Sophie
-        Ramirez\\\",\\\"age\\\":32}\"\n        }\n      ],\n      \"role\": \"assistant\"\n
-        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        null,\n  \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n
-        \ },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"title\\\":\\\"Apples
+        are tasty\\\",\\\"author\\\":\\\"Hadley Wickham\\\"}\"\n        }\n      ],\n
+        \     \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n
+        \ ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\",\n
+        \ \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n  },\n
+        \ \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
         false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
         \"json_schema\",\n      \"description\": null,\n      \"name\": \"structured_data\",\n
-        \     \"schema\": {\n        \"properties\": {\n          \"name\": {\n            \"type\":
-        \"string\"\n          },\n          \"age\": {\n            \"type\": \"integer\"\n
-        \         }\n        },\n        \"required\": [\n          \"name\",\n          \"age\"\n
+        \     \"schema\": {\n        \"description\": \"Summary of the article\",\n
+        \       \"properties\": {\n          \"title\": {\n            \"type\": \"string\"\n
+        \         },\n          \"author\": {\n            \"type\": \"string\"\n
+        \         }\n        },\n        \"required\": [\n          \"title\",\n          \"author\"\n
         \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
         false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
         \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        169,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 12,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 181\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
+        \   \"input_tokens\": 143,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 23,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 166\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
     headers:
-      CF-RAY:
-      - 9ed58ce20c3f61c7-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f7955629cce510e-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Thu, 16 Apr 2026 19:20:58 GMT
+      - Wed, 06 May 2026 16:24:12 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -296,47 +193,46 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '1972'
+      - '2118'
       openai-processing-ms:
-      - '467'
+      - '2588'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '30000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '180000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '29999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '180000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 2ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
-      "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
-      I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n"}]},
-      {"role": "assistant", "content": [{"type": "output_text", "text": "{\"title\":\"Apples
-      are tasty\",\"author\":\"Hadley Wickham\"}", "annotations": []}], "status":
-      "completed", "type": "message", "id": "msg_missing_id"}, {"role": "user", "content":
-      [{"type": "input_text", "text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples
-      are delicious and tasty and I like to eat them.\nExcept for red delicious, that
-      is. They are NOT delicious.\n"}]}, {"role": "assistant", "content": [{"type":
-      "output_text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
+      "content": [{"type": "input_text", "text": "\n# Apples are tasty\n\nBy Hadley
+      Wickham\nApples are delicious and tasty and I like to eat them.\nExcept for
+      red delicious, that is. They are NOT delicious.\n"}]}, {"role": "assistant",
+      "content": [{"type": "output_text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
       Wickham\"}", "annotations": []}], "status": "completed", "type": "message",
       "id": "msg_missing_id"}, {"role": "user", "content": [{"type": "input_text",
-      "text": "Generate the name and age of a random person."}]}, {"role": "assistant",
-      "content": [{"type": "output_text", "text": "{\"name\":\"Sophie Ramirez\",\"age\":32}",
-      "annotations": []}], "status": "completed", "type": "message", "id": "msg_missing_id"},
-      {"role": "user", "content": [{"type": "input_text", "text": "What is the name
-      of the person?"}]}], "model": "gpt-4.1", "store": false, "stream": true}'
+      "text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and
+      tasty and I like to eat them.\nExcept for red delicious, that is. They are NOT
+      delicious.\n"}]}, {"role": "assistant", "content": [{"type": "output_text",
+      "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley Wickham\"}", "annotations":
+      []}], "status": "completed", "type": "message", "id": "msg_missing_id"}, {"role":
+      "user", "content": [{"type": "input_text", "text": "Generate the name and age
+      of a random person."}]}], "model": "gpt-5.4-mini", "store": false, "stream":
+      false, "text": {"format": {"type": "json_schema", "name": "structured_data",
+      "schema": {"properties": {"name": {"type": "string"}, "age": {"type": "integer"}},
+      "required": ["name", "age"], "type": "object", "additionalProperties": false},
+      "strict": true}}}'
     headers:
       Accept:
       - application/json
@@ -345,11 +241,125 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1284'
+      - '1285'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=DoxQho_Y_QxFirwPxhIrBs2DHWJ29HATA6B.FhagfIA-1776367256.465088-1.0.1.1-viET.LdhPAnU6ziur0OCuYdk.CotiTT._ef5kCnSPs0vK0s3saonprEpcGLN0AKsxUwIHEMfXeOybKWeUkleeypHG7Vf0OPRcOAY3jp9ePgcrPKmP30WDbcFaQNRezNZ
+      - __cf_bm=VVKj4cI2bLlHbg2Ek7fHfU0UdhGuZomE.p6s7LZ6bwE-1778084648.0801954-1.0.1.1-sXCxVT0__cHU2JqVCGwrAQYjzfCND2vcod5MBxA0FvOy7Pzuds55583RXrtLgEgBOerPqFxDoQ2fyqtX0lNW8i5Ji8ok1iFuRWFBOZKxJCHFhN6yyVKgAcYVu9O.G8Kv
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_00cc3e4a47ab0eb10169fb6b2c454c8196ae10d884149a57dc\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778084652,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1778084652,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-mini-2026-03-17\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_00cc3e4a47ab0eb10169fb6b2cace48196bb05cbb8db9e3890\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"name\\\":\\\"Ava
+        Chen\\\",\\\"age\\\":34}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n
+        \     \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
+        \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
+        null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
+        \   \"effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\":
+        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
+        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_schema\",\n
+        \     \"description\": null,\n      \"name\": \"structured_data\",\n      \"schema\":
+        {\n        \"properties\": {\n          \"name\": {\n            \"type\":
+        \"string\"\n          },\n          \"age\": {\n            \"type\": \"integer\"\n
+        \         }\n        },\n        \"required\": [\n          \"name\",\n          \"age\"\n
+        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
+        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
+        \   \"input_tokens\": 171,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 190\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f7955742dd64cba-MSP
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 06 May 2026 16:24:12 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      content-length:
+      - '2034'
+      openai-processing-ms:
+      - '716'
+      openai-version:
+      - '2020-10-01'
+      x-ratelimit-limit-requests:
+      - '30000'
+      x-ratelimit-limit-tokens:
+      - '180000000'
+      x-ratelimit-remaining-requests:
+      - '29999'
+      x-ratelimit-remaining-tokens:
+      - '180000000'
+      x-ratelimit-reset-requests:
+      - 2ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
+      "content": [{"type": "input_text", "text": "\n# Apples are tasty\n\nBy Hadley
+      Wickham\nApples are delicious and tasty and I like to eat them.\nExcept for
+      red delicious, that is. They are NOT delicious.\n"}]}, {"role": "assistant",
+      "content": [{"type": "output_text", "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
+      Wickham\"}", "annotations": []}], "status": "completed", "type": "message",
+      "id": "msg_missing_id"}, {"role": "user", "content": [{"type": "input_text",
+      "text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and
+      tasty and I like to eat them.\nExcept for red delicious, that is. They are NOT
+      delicious.\n"}]}, {"role": "assistant", "content": [{"type": "output_text",
+      "text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley Wickham\"}", "annotations":
+      []}], "status": "completed", "type": "message", "id": "msg_missing_id"}, {"role":
+      "user", "content": [{"type": "input_text", "text": "Generate the name and age
+      of a random person."}]}, {"role": "assistant", "content": [{"type": "output_text",
+      "text": "{\"name\":\"Ava Chen\",\"age\":34}", "annotations": []}], "status":
+      "completed", "type": "message", "id": "msg_missing_id"}, {"role": "user", "content":
+      [{"type": "input_text", "text": "What is the name of the person?"}]}], "model":
+      "gpt-5.4-mini", "store": false, "stream": true}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1325'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=VVKj4cI2bLlHbg2Ek7fHfU0UdhGuZomE.p6s7LZ6bwE-1778084648.0801954-1.0.1.1-sXCxVT0__cHU2JqVCGwrAQYjzfCND2vcod5MBxA0FvOy7Pzuds55583RXrtLgEgBOerPqFxDoQ2fyqtX0lNW8i5Ji8ok1iFuRWFBOZKxJCHFhN6yyVKgAcYVu9O.G8Kv
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -362,123 +372,75 @@ interactions:
     body:
       string: 'event: response.created
 
-        data: {"type":"response.created","response":{"id":"resp_0e37f865145d094c0169e1369ac3188196ace6b279067fba48","object":"response","created_at":1776367258,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":0}
+        data: {"type":"response.created","response":{"id":"resp_0babdb3c83b829d00169fb6b2d6a408194aa5545fd3440d480","object":"response","created_at":1778084653,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":0}
 
 
         event: response.in_progress
 
-        data: {"type":"response.in_progress","response":{"id":"resp_0e37f865145d094c0169e1369ac3188196ace6b279067fba48","object":"response","created_at":1776367258,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":1}
+        data: {"type":"response.in_progress","response":{"id":"resp_0babdb3c83b829d00169fb6b2d6a408194aa5545fd3440d480","object":"response","created_at":1778084653,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":1}
 
 
         event: response.output_item.added
 
-        data: {"type":"response.output_item.added","item":{"id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","type":"message","status":"in_progress","content":[],"role":"assistant"},"output_index":0,"sequence_number":2}
+        data: {"type":"response.output_item.added","item":{"id":"msg_0babdb3c83b829d00169fb6b2db1608194879295b41a14505f","type":"message","status":"in_progress","content":[],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":2}
 
 
         event: response.content_part.added
 
-        data: {"type":"response.content_part.added","content_index":0,"item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""},"sequence_number":3}
+        data: {"type":"response.content_part.added","content_index":0,"item_id":"msg_0babdb3c83b829d00169fb6b2db1608194879295b41a14505f","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""},"sequence_number":3}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"The","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"npZprAA4056BL","output_index":0,"sequence_number":4}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"A","item_id":"msg_0babdb3c83b829d00169fb6b2db1608194879295b41a14505f","logprobs":[],"obfuscation":"gTSbvPBSyRsZQ3r","output_index":0,"sequence_number":4}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" name","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"NvojtJlOXai","output_index":0,"sequence_number":5}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"va","item_id":"msg_0babdb3c83b829d00169fb6b2db1608194879295b41a14505f","logprobs":[],"obfuscation":"Gyj4coxxzmCxw7","output_index":0,"sequence_number":5}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" of","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"QGJpygQnFYId1","output_index":0,"sequence_number":6}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" the","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"oNpjlL5mhw4v","output_index":0,"sequence_number":7}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" person","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"uuxWn6MPY","output_index":0,"sequence_number":8}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" is","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"oMfcN9rYE37xv","output_index":0,"sequence_number":9}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" **","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"ip9PDOnh7qqgx","output_index":0,"sequence_number":10}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"S","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"drpY3tdOKohq5nW","output_index":0,"sequence_number":11}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"ophie","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"Y9o1VDYEard","output_index":0,"sequence_number":12}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" Ramirez","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"lPd29JmT","output_index":0,"sequence_number":13}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"**","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"u6ZosHdkFqyo70","output_index":0,"sequence_number":14}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":".","item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"obfuscation":"rXUN3K4ah91g1k1","output_index":0,"sequence_number":15}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" Chen","item_id":"msg_0babdb3c83b829d00169fb6b2db1608194879295b41a14505f","logprobs":[],"obfuscation":"USiqsqa4HML","output_index":0,"sequence_number":6}
 
 
         event: response.output_text.done
 
-        data: {"type":"response.output_text.done","content_index":0,"item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","logprobs":[],"output_index":0,"sequence_number":16,"text":"The
-        name of the person is **Sophie Ramirez**."}
+        data: {"type":"response.output_text.done","content_index":0,"item_id":"msg_0babdb3c83b829d00169fb6b2db1608194879295b41a14505f","logprobs":[],"output_index":0,"sequence_number":7,"text":"Ava
+        Chen"}
 
 
         event: response.content_part.done
 
-        data: {"type":"response.content_part.done","content_index":0,"item_id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"The
-        name of the person is **Sophie Ramirez**."},"sequence_number":17}
+        data: {"type":"response.content_part.done","content_index":0,"item_id":"msg_0babdb3c83b829d00169fb6b2db1608194879295b41a14505f","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"Ava
+        Chen"},"sequence_number":8}
 
 
         event: response.output_item.done
 
-        data: {"type":"response.output_item.done","item":{"id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"The
-        name of the person is **Sophie Ramirez**."}],"role":"assistant"},"output_index":0,"sequence_number":18}
+        data: {"type":"response.output_item.done","item":{"id":"msg_0babdb3c83b829d00169fb6b2db1608194879295b41a14505f","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"Ava
+        Chen"}],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":9}
 
 
         event: response.completed
 
-        data: {"type":"response.completed","response":{"id":"resp_0e37f865145d094c0169e1369ac3188196ace6b279067fba48","object":"response","created_at":1776367258,"status":"completed","background":false,"completed_at":1776367259,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[{"id":"msg_0e37f865145d094c0169e1369b1b088196831db6ecd7a23295","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"The
-        name of the person is **Sophie Ramirez**."}],"role":"assistant"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":{"input_tokens":166,"input_tokens_details":{"cached_tokens":0},"output_tokens":13,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":179},"user":null,"metadata":{}},"sequence_number":19}
-
-
-        event: response.rate_limits.updated
-
-        data: {"type":"response.rate_limits.updated","rate_limits":{"limit_requests":"10000","limit_tokens":"30000000","remaining_requests":"9999","remaining_tokens":"30000000","reset_requests_ms":6,"reset_tokens_ms":0},"sequence_number":20}
+        data: {"type":"response.completed","response":{"id":"resp_0babdb3c83b829d00169fb6b2d6a408194aa5545fd3440d480","object":"response","created_at":1778084653,"status":"completed","background":false,"completed_at":1778084653,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-mini-2026-03-17","moderation":null,"output":[{"id":"msg_0babdb3c83b829d00169fb6b2db1608194879295b41a14505f","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"Ava
+        Chen"}],"phase":"final_answer","role":"assistant"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":"none","summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":171,"input_tokens_details":{"cached_tokens":0},"output_tokens":7,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":178},"user":null,"metadata":{}},"sequence_number":10}
 
 
         '
     headers:
-      CF-RAY:
-      - 9ed58ce6e82e3bdc-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79557a9d97511f-MSP
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Thu, 16 Apr 2026 19:20:58 GMT
+      - Wed, 06 May 2026 16:24:13 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -489,22 +451,20 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       openai-processing-ms:
-      - '91'
+      - '157'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '30000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '180000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '29999'
       x-ratelimit-remaining-tokens:
-      - '29999815'
+      - '179999667'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 2ms
       x-ratelimit-reset-tokens:
       - 0s
     status:

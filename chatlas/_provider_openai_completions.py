@@ -75,7 +75,7 @@ def ChatOpenAICompletions(
         seed = 1014 if is_testing() else None
 
     if model is None:
-        model = log_model_default("gpt-4.1")
+        model = log_model_default("gpt-5.4-mini")
 
     return Chat(
         provider=OpenAICompletionsProvider(

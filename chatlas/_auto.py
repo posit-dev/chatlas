@@ -173,7 +173,7 @@ def ChatAuto(
         `"{provider}/{model}"`. Providers are strings formatted in kebab-case,
         e.g. to use `ChatBedrockAnthropic` set `provider="bedrock-anthropic"`,
         and models are the provider-specific model names, e.g.
-        `"claude-3-7-sonnet-20250219"`. The `/{model}` portion may also be
+        `"claude-sonnet-4-6"`. The `/{model}` portion may also be
         omitted, in which case, the default model for that provider will be
         used.
 

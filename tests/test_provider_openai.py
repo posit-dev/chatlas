@@ -30,7 +30,7 @@ def test_openai_simple_request():
     assert turn is not None
     assert turn.tokens is not None
     assert len(turn.tokens) == 3
-    assert turn.tokens[0] == 27
+    assert turn.tokens[0] == 26
     # Not testing turn.tokens[1] because it's not deterministic. Typically 1 or 2.
 
 
@@ -139,7 +139,7 @@ def test_openai_service_tier():
 def test_openai_service_tier_affects_pricing():
     from chatlas._tokens import get_token_cost
 
-    chat = ChatOpenAI(service_tier="priority")
+    chat = ChatOpenAI(model="gpt-4.1", service_tier="priority")
     chat.chat("What is 1+1?")
 
     turn = chat.get_last_turn()

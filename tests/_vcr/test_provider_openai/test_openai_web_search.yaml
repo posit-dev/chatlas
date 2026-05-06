@@ -25,101 +25,116 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "event: response.created\ndata: {\"type\":\"response.created\",\"response\":{\"id\":\"resp_020e5a0c669809940169e1369b8898819080b92efc96f0334b\",\"object\":\"response\",\"created_at\":1776367259,\"status\":\"in_progress\",\"background\":false,\"completed_at\":null,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-4.1-2025-04-14\",\"output\":[],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":null,\"reasoning\":{\"effort\":null,\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"auto\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[{\"type\":\"web_search\",\"search_context_size\":\"medium\",\"user_location\":{\"type\":\"approximate\",\"city\":null,\"country\":\"US\",\"region\":null,\"timezone\":null}}],\"top_logprobs\":0,\"top_p\":1.0,\"truncation\":\"disabled\",\"usage\":null,\"user\":null,\"metadata\":{}},\"sequence_number\":0}\n\nevent:
-        response.in_progress\ndata: {\"type\":\"response.in_progress\",\"response\":{\"id\":\"resp_020e5a0c669809940169e1369b8898819080b92efc96f0334b\",\"object\":\"response\",\"created_at\":1776367259,\"status\":\"in_progress\",\"background\":false,\"completed_at\":null,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-4.1-2025-04-14\",\"output\":[],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":null,\"reasoning\":{\"effort\":null,\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"auto\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[{\"type\":\"web_search\",\"search_context_size\":\"medium\",\"user_location\":{\"type\":\"approximate\",\"city\":null,\"country\":\"US\",\"region\":null,\"timezone\":null}}],\"top_logprobs\":0,\"top_p\":1.0,\"truncation\":\"disabled\",\"usage\":null,\"user\":null,\"metadata\":{}},\"sequence_number\":1}\n\nevent:
-        response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"item\":{\"id\":\"ws_020e5a0c669809940169e1369c2e488190928cc8159f3c1d2f\",\"type\":\"web_search_call\",\"status\":\"in_progress\",\"action\":{\"type\":\"search\"}},\"output_index\":0,\"sequence_number\":2}\n\nevent:
-        response.web_search_call.in_progress\ndata: {\"type\":\"response.web_search_call.in_progress\",\"item_id\":\"ws_020e5a0c669809940169e1369c2e488190928cc8159f3c1d2f\",\"output_index\":0,\"sequence_number\":3}\n\nevent:
-        response.web_search_call.searching\ndata: {\"type\":\"response.web_search_call.searching\",\"item_id\":\"ws_020e5a0c669809940169e1369c2e488190928cc8159f3c1d2f\",\"output_index\":0,\"sequence_number\":4}\n\nevent:
-        response.web_search_call.completed\ndata: {\"type\":\"response.web_search_call.completed\",\"item_id\":\"ws_020e5a0c669809940169e1369c2e488190928cc8159f3c1d2f\",\"output_index\":0,\"sequence_number\":5}\n\nevent:
-        response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"item\":{\"id\":\"ws_020e5a0c669809940169e1369c2e488190928cc8159f3c1d2f\",\"type\":\"web_search_call\",\"status\":\"completed\",\"action\":{\"type\":\"search\",\"queries\":[\"ggplot2
-        1.0.0 CRAN archive release date\"],\"query\":\"ggplot2 1.0.0 CRAN archive
-        release date\"}},\"output_index\":0,\"sequence_number\":6}\n\nevent: response.output_item.added\ndata:
-        {\"type\":\"response.output_item.added\",\"item\":{\"id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"type\":\"message\",\"status\":\"in_progress\",\"content\":[],\"role\":\"assistant\"},\"output_index\":1,\"sequence_number\":7}\n\nevent:
-        response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"content_index\":0,\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"output_index\":1,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"logprobs\":[],\"text\":\"\"},\"sequence_number\":8}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"The
-        release date of **ggplot2 version 1.\",\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"obfuscation\":\"qFwXNA8k\",\"output_index\":1,\"sequence_number\":9}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"0.0**
-        on CRAN is **\",\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"obfuscation\":\"XhphxeqNrT316\",\"output_index\":1,\"sequence_number\":10}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"2014\u201105\u201121**.\\n\\nThis
-        is confirmed by:\\n\\n\u2022 The CRAN archive index,\",\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"obfuscation\":\"P\",\"output_index\":1,\"sequence_number\":11}\n\nevent:
+      string: "event: response.created\ndata: {\"type\":\"response.created\",\"response\":{\"id\":\"resp_0d83edc24fe502df0169fb6b2e7360819c8f023b078232781e\",\"object\":\"response\",\"created_at\":1778084654,\"status\":\"in_progress\",\"background\":false,\"completed_at\":null,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-4.1-2025-04-14\",\"moderation\":null,\"output\":[],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":\"in_memory\",\"reasoning\":{\"effort\":null,\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"auto\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[{\"type\":\"web_search\",\"return_token_budget\":\"default\",\"search_context_size\":\"medium\",\"user_location\":{\"type\":\"approximate\",\"city\":null,\"country\":\"US\",\"region\":null,\"timezone\":null}}],\"top_logprobs\":0,\"top_p\":1.0,\"truncation\":\"disabled\",\"usage\":null,\"user\":null,\"metadata\":{}},\"sequence_number\":0}\n\nevent:
+        response.in_progress\ndata: {\"type\":\"response.in_progress\",\"response\":{\"id\":\"resp_0d83edc24fe502df0169fb6b2e7360819c8f023b078232781e\",\"object\":\"response\",\"created_at\":1778084654,\"status\":\"in_progress\",\"background\":false,\"completed_at\":null,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-4.1-2025-04-14\",\"moderation\":null,\"output\":[],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":\"in_memory\",\"reasoning\":{\"effort\":null,\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"auto\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[{\"type\":\"web_search\",\"return_token_budget\":\"default\",\"search_context_size\":\"medium\",\"user_location\":{\"type\":\"approximate\",\"city\":null,\"country\":\"US\",\"region\":null,\"timezone\":null}}],\"top_logprobs\":0,\"top_p\":1.0,\"truncation\":\"disabled\",\"usage\":null,\"user\":null,\"metadata\":{}},\"sequence_number\":1}\n\nevent:
+        response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"item\":{\"id\":\"ws_0d83edc24fe502df0169fb6b2f2404819ca6044d30e9081334\",\"type\":\"web_search_call\",\"status\":\"in_progress\",\"action\":{\"type\":\"search\"}},\"output_index\":0,\"sequence_number\":2}\n\nevent:
+        response.web_search_call.in_progress\ndata: {\"type\":\"response.web_search_call.in_progress\",\"item_id\":\"ws_0d83edc24fe502df0169fb6b2f2404819ca6044d30e9081334\",\"output_index\":0,\"sequence_number\":3}\n\nevent:
+        response.web_search_call.searching\ndata: {\"type\":\"response.web_search_call.searching\",\"item_id\":\"ws_0d83edc24fe502df0169fb6b2f2404819ca6044d30e9081334\",\"output_index\":0,\"sequence_number\":4}\n\nevent:
+        response.web_search_call.completed\ndata: {\"type\":\"response.web_search_call.completed\",\"item_id\":\"ws_0d83edc24fe502df0169fb6b2f2404819ca6044d30e9081334\",\"output_index\":0,\"sequence_number\":5}\n\nevent:
+        response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"item\":{\"id\":\"ws_0d83edc24fe502df0169fb6b2f2404819ca6044d30e9081334\",\"type\":\"web_search_call\",\"status\":\"completed\",\"action\":{\"type\":\"search\",\"queries\":[\"ggplot2
+        1.0.0 CRAN release date site:cran.r-project.org/src/contrib/Archive/ggplot2/\"],\"query\":\"ggplot2
+        1.0.0 CRAN release date site:cran.r-project.org/src/contrib/Archive/ggplot2/\"}},\"output_index\":0,\"sequence_number\":6}\n\nevent:
+        response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"item\":{\"id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"type\":\"message\",\"status\":\"in_progress\",\"content\":[],\"role\":\"assistant\"},\"output_index\":1,\"sequence_number\":7}\n\nevent:
+        response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"content_index\":0,\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"output_index\":1,\"part\":{\"type\":\"output_text\",\"annotations\":[],\"logprobs\":[],\"text\":\"\"},\"sequence_number\":8}\n\nevent:
+        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"Here
+        is the release date of **ggplot2\",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"I1MXuLB3gpb\",\"output_index\":1,\"sequence_number\":9}\n\nevent:
         response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        which lists `ggplot2_1.0.\",\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"obfuscation\":\"u3rwB4\",\"output_index\":1,\"sequence_number\":12}\n\nevent:
+        1.0.0**\",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"hnbTVAoN\",\"output_index\":1,\"sequence_number\":10}\n\nevent:
+        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
+        on CRAN in the format you requested (YYYY\u2011MM\u2011DD):\\n\\n- According
+        to the CRAN archive listing, the file `\",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"DRkR2rH88\",\"output_index\":1,\"sequence_number\":11}\n\nevent:
+        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"ggplot2_1.0.\",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"39ED\",\"output_index\":1,\"sequence_number\":12}\n\nevent:
         response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"0.tar.gz`
-        with the timestamp **2014\u201105\u201121\_15:36\u202FUTC** \",\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"obfuscation\":\"5iV7f3RMsy\",\"output_index\":1,\"sequence_number\":13}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)).
-        \ \\n\u2022 A releases summary page showing version\_1.\",\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"obfuscation\":\"h5Ehrg\",\"output_index\":1,\"sequence_number\":14}\n\nevent:
-        response.output_text.annotation.added\ndata: {\"type\":\"response.output_text.annotation.added\",\"annotation\":{\"type\":\"url_citation\",\"end_index\":292,\"start_index\":202,\"title\":\"Index
-        of /CRAN/src/contrib/Archive/ggplot2\",\"url\":\"https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai\"},\"annotation_index\":0,\"content_index\":0,\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"output_index\":1,\"sequence_number\":15}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"0.0
-        released on **May\_21st,\_\",\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"obfuscation\":\"KHmC\",\"output_index\":1,\"sequence_number\":16}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"2014**
-        \",\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"obfuscation\":\"2hiU9TGQ2\",\"output_index\":1,\"sequence_number\":17}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\\n\\nTherefore,
-        in YYYY\u2011MM\u2011DD format,\",\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"obfuscation\":\"U7BCT66oMD9GWT6\",\"output_index\":1,\"sequence_number\":18}\n\nevent:
-        response.output_text.annotation.added\ndata: {\"type\":\"response.output_text.annotation.added\",\"annotation\":{\"type\":\"url_citation\",\"end_index\":453,\"start_index\":375,\"title\":\"ggplot2
-        published releases on CRAN - Libraries.io - security & maintenance data for
-        open source software\",\"url\":\"https://libraries.io/cran/ggplot2/versions?utm_source=openai\"},\"annotation_index\":1,\"content_index\":0,\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"output_index\":1,\"sequence_number\":19}\n\nevent:
+        was **last modified** on **2014\u201105\u201121** \",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"7E4wf2seZEDg2G\",\"output_index\":1,\"sequence_number\":13}\n\nevent:
+        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)\",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"PPi24Sw\",\"output_index\":1,\"sequence_number\":14}\n\nevent:
+        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\").\\n\\nAdditionally,
+        external sources corroborate this date:\\n\\n-\",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"OpHH\",\"output_index\":1,\"sequence_number\":15}\n\nevent:
+        response.output_text.annotation.added\ndata: {\"type\":\"response.output_text.annotation.added\",\"annotation\":{\"type\":\"url_citation\",\"end_index\":300,\"start_index\":210,\"title\":\"Index
+        of /CRAN/src/contrib/Archive/ggplot2\",\"url\":\"https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai\"},\"annotation_index\":0,\"content_index\":0,\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"output_index\":1,\"sequence_number\":16}\n\nevent:
         response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"
-        the release date is:\\n\\n**\",\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"obfuscation\":\"LIPAkmX\",\"output_index\":1,\"sequence_number\":20}\n\nevent:
-        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"2014\u201105\u201121**\\n\\nLet
-        me know if you\u2019d like more details on that release (such as feature changes
-        or context)!\",\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"obfuscation\":\"7e0SIR\",\"output_index\":1,\"sequence_number\":21}\n\nevent:
-        response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"content_index\":0,\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"logprobs\":[],\"output_index\":1,\"sequence_number\":22,\"text\":\"The
-        release date of **ggplot2 version 1.0.0** on CRAN is **2014\u201105\u201121**.\\n\\nThis
-        is confirmed by:\\n\\n\u2022 The CRAN archive index, which lists `ggplot2_1.0.0.tar.gz`
-        with the timestamp **2014\u201105\u201121\_15:36\u202FUTC** ([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)).
-        \ \\n\u2022 A releases summary page showing version\_1.0.0 released on **May\_21st,\_2014**
-        ([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\\n\\nTherefore,
-        in YYYY\u2011MM\u2011DD format, the release date is:\\n\\n**2014\u201105\u201121**\\n\\nLet
-        me know if you\u2019d like more details on that release (such as feature changes
-        or context)!\"}\n\nevent: response.content_part.done\ndata: {\"type\":\"response.content_part.done\",\"content_index\":0,\"item_id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"output_index\":1,\"part\":{\"type\":\"output_text\",\"annotations\":[{\"type\":\"url_citation\",\"end_index\":292,\"start_index\":202,\"title\":\"Index
-        of /CRAN/src/contrib/Archive/ggplot2\",\"url\":\"https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai\"},{\"type\":\"url_citation\",\"end_index\":453,\"start_index\":375,\"title\":\"ggplot2
+        The Libraries.io listing for ggplot2 shows that version **1.0.0** was published
+        on **\",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"MfJii07XLH\",\"output_index\":1,\"sequence_number\":17}\n\nevent:
+        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"May
+        21, 2014** \",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"d\",\"output_index\":1,\"sequence_number\":18}\n\nevent:
+        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\\n-
+        RDocumentation also notes that version **\",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"6evg1\",\"output_index\":1,\"sequence_number\":19}\n\nevent:
+        response.output_text.annotation.added\ndata: {\"type\":\"response.output_text.annotation.added\",\"annotation\":{\"type\":\"url_citation\",\"end_index\":538,\"start_index\":460,\"title\":\"ggplot2
         published releases on CRAN - Libraries.io - security & maintenance data for
-        open source software\",\"url\":\"https://libraries.io/cran/ggplot2/versions?utm_source=openai\"}],\"logprobs\":[],\"text\":\"The
-        release date of **ggplot2 version 1.0.0** on CRAN is **2014\u201105\u201121**.\\n\\nThis
-        is confirmed by:\\n\\n\u2022 The CRAN archive index, which lists `ggplot2_1.0.0.tar.gz`
-        with the timestamp **2014\u201105\u201121\_15:36\u202FUTC** ([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)).
-        \ \\n\u2022 A releases summary page showing version\_1.0.0 released on **May\_21st,\_2014**
-        ([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\\n\\nTherefore,
-        in YYYY\u2011MM\u2011DD format, the release date is:\\n\\n**2014\u201105\u201121**\\n\\nLet
-        me know if you\u2019d like more details on that release (such as feature changes
-        or context)!\"},\"sequence_number\":23}\n\nevent: response.output_item.done\ndata:
-        {\"type\":\"response.output_item.done\",\"item\":{\"id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"annotations\":[{\"type\":\"url_citation\",\"end_index\":292,\"start_index\":202,\"title\":\"Index
-        of /CRAN/src/contrib/Archive/ggplot2\",\"url\":\"https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai\"},{\"type\":\"url_citation\",\"end_index\":453,\"start_index\":375,\"title\":\"ggplot2
+        open source software\",\"url\":\"https://libraries.io/cran/ggplot2/versions?utm_source=openai\"},\"annotation_index\":1,\"content_index\":0,\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"output_index\":1,\"sequence_number\":20}\n\nevent:
+        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"1.0.0**
+        was last published on **\",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"\",\"output_index\":1,\"sequence_number\":21}\n\nevent:
+        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"May
+        21st, 2014** \",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"quaOLXWybFA6qx6\",\"output_index\":1,\"sequence_number\":22}\n\nevent:
+        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"([rdocumentation.org](https://www.rdocumentation.org/packages/ggplot2/versions/1.0.0?utm_source=openai)).\\n\",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"1EtP3U\",\"output_index\":1,\"sequence_number\":23}\n\nevent:
+        response.output_text.annotation.added\ndata: {\"type\":\"response.output_text.annotation.added\",\"annotation\":{\"type\":\"url_citation\",\"end_index\":736,\"start_index\":632,\"title\":\"ggplot2
+        package - RDocumentation\",\"url\":\"https://www.rdocumentation.org/packages/ggplot2/versions/1.0.0?utm_source=openai\"},\"annotation_index\":2,\"content_index\":0,\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"output_index\":1,\"sequence_number\":24}\n\nevent:
+        response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"content_index\":0,\"delta\":\"\\nTherefore,
+        the release date of ggplot2 1.0.0 to CRAN is:\\n\\n**2014\u201105\u201121**.\",\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"obfuscation\":\"r78deh\",\"output_index\":1,\"sequence_number\":25}\n\nevent:
+        response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"content_index\":0,\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"logprobs\":[],\"output_index\":1,\"sequence_number\":26,\"text\":\"Here
+        is the release date of **ggplot2 1.0.0** on CRAN in the format you requested
+        (YYYY\u2011MM\u2011DD):\\n\\n- According to the CRAN archive listing, the
+        file `ggplot2_1.0.0.tar.gz` was **last modified** on **2014\u201105\u201121**
+        ([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)).\\n\\nAdditionally,
+        external sources corroborate this date:\\n\\n- The Libraries.io listing for
+        ggplot2 shows that version **1.0.0** was published on **May 21, 2014** ([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\\n-
+        RDocumentation also notes that version **1.0.0** was last published on **May
+        21st, 2014** ([rdocumentation.org](https://www.rdocumentation.org/packages/ggplot2/versions/1.0.0?utm_source=openai)).\\n\\nTherefore,
+        the release date of ggplot2 1.0.0 to CRAN is:\\n\\n**2014\u201105\u201121**.\"}\n\nevent:
+        response.content_part.done\ndata: {\"type\":\"response.content_part.done\",\"content_index\":0,\"item_id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"output_index\":1,\"part\":{\"type\":\"output_text\",\"annotations\":[{\"type\":\"url_citation\",\"end_index\":300,\"start_index\":210,\"title\":\"Index
+        of /CRAN/src/contrib/Archive/ggplot2\",\"url\":\"https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai\"},{\"type\":\"url_citation\",\"end_index\":538,\"start_index\":460,\"title\":\"ggplot2
         published releases on CRAN - Libraries.io - security & maintenance data for
-        open source software\",\"url\":\"https://libraries.io/cran/ggplot2/versions?utm_source=openai\"}],\"logprobs\":[],\"text\":\"The
-        release date of **ggplot2 version 1.0.0** on CRAN is **2014\u201105\u201121**.\\n\\nThis
-        is confirmed by:\\n\\n\u2022 The CRAN archive index, which lists `ggplot2_1.0.0.tar.gz`
-        with the timestamp **2014\u201105\u201121\_15:36\u202FUTC** ([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)).
-        \ \\n\u2022 A releases summary page showing version\_1.0.0 released on **May\_21st,\_2014**
-        ([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\\n\\nTherefore,
-        in YYYY\u2011MM\u2011DD format, the release date is:\\n\\n**2014\u201105\u201121**\\n\\nLet
-        me know if you\u2019d like more details on that release (such as feature changes
-        or context)!\"}],\"role\":\"assistant\"},\"output_index\":1,\"sequence_number\":24}\n\nevent:
-        response.completed\ndata: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp_020e5a0c669809940169e1369b8898819080b92efc96f0334b\",\"object\":\"response\",\"created_at\":1776367259,\"status\":\"completed\",\"background\":false,\"completed_at\":1776367262,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-4.1-2025-04-14\",\"output\":[{\"id\":\"ws_020e5a0c669809940169e1369c2e488190928cc8159f3c1d2f\",\"type\":\"web_search_call\",\"status\":\"completed\",\"action\":{\"type\":\"search\",\"queries\":[\"ggplot2
-        1.0.0 CRAN archive release date\"],\"query\":\"ggplot2 1.0.0 CRAN archive
-        release date\"}},{\"id\":\"msg_020e5a0c669809940169e1369d9ba08190801f483e144606ac\",\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"annotations\":[{\"type\":\"url_citation\",\"end_index\":292,\"start_index\":202,\"title\":\"Index
-        of /CRAN/src/contrib/Archive/ggplot2\",\"url\":\"https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai\"},{\"type\":\"url_citation\",\"end_index\":453,\"start_index\":375,\"title\":\"ggplot2
+        open source software\",\"url\":\"https://libraries.io/cran/ggplot2/versions?utm_source=openai\"},{\"type\":\"url_citation\",\"end_index\":736,\"start_index\":632,\"title\":\"ggplot2
+        package - RDocumentation\",\"url\":\"https://www.rdocumentation.org/packages/ggplot2/versions/1.0.0?utm_source=openai\"}],\"logprobs\":[],\"text\":\"Here
+        is the release date of **ggplot2 1.0.0** on CRAN in the format you requested
+        (YYYY\u2011MM\u2011DD):\\n\\n- According to the CRAN archive listing, the
+        file `ggplot2_1.0.0.tar.gz` was **last modified** on **2014\u201105\u201121**
+        ([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)).\\n\\nAdditionally,
+        external sources corroborate this date:\\n\\n- The Libraries.io listing for
+        ggplot2 shows that version **1.0.0** was published on **May 21, 2014** ([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\\n-
+        RDocumentation also notes that version **1.0.0** was last published on **May
+        21st, 2014** ([rdocumentation.org](https://www.rdocumentation.org/packages/ggplot2/versions/1.0.0?utm_source=openai)).\\n\\nTherefore,
+        the release date of ggplot2 1.0.0 to CRAN is:\\n\\n**2014\u201105\u201121**.\"},\"sequence_number\":27}\n\nevent:
+        response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"item\":{\"id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"annotations\":[{\"type\":\"url_citation\",\"end_index\":300,\"start_index\":210,\"title\":\"Index
+        of /CRAN/src/contrib/Archive/ggplot2\",\"url\":\"https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai\"},{\"type\":\"url_citation\",\"end_index\":538,\"start_index\":460,\"title\":\"ggplot2
         published releases on CRAN - Libraries.io - security & maintenance data for
-        open source software\",\"url\":\"https://libraries.io/cran/ggplot2/versions?utm_source=openai\"}],\"logprobs\":[],\"text\":\"The
-        release date of **ggplot2 version 1.0.0** on CRAN is **2014\u201105\u201121**.\\n\\nThis
-        is confirmed by:\\n\\n\u2022 The CRAN archive index, which lists `ggplot2_1.0.0.tar.gz`
-        with the timestamp **2014\u201105\u201121\_15:36\u202FUTC** ([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)).
-        \ \\n\u2022 A releases summary page showing version\_1.0.0 released on **May\_21st,\_2014**
-        ([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\\n\\nTherefore,
-        in YYYY\u2011MM\u2011DD format, the release date is:\\n\\n**2014\u201105\u201121**\\n\\nLet
-        me know if you\u2019d like more details on that release (such as feature changes
-        or context)!\"}],\"role\":\"assistant\"}],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":null,\"reasoning\":{\"effort\":null,\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"default\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[{\"type\":\"web_search\",\"search_context_size\":\"medium\",\"user_location\":{\"type\":\"approximate\",\"city\":null,\"country\":\"US\",\"region\":null,\"timezone\":null}}],\"top_logprobs\":0,\"top_p\":1.0,\"truncation\":\"disabled\",\"usage\":{\"input_tokens\":17088,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":211,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":17299},\"user\":null,\"metadata\":{}},\"sequence_number\":25}\n\nevent:
-        response.rate_limits.updated\ndata: {\"type\":\"response.rate_limits.updated\",\"rate_limits\":{\"limit_requests\":\"10000\",\"limit_tokens\":\"30000000\",\"remaining_requests\":\"9999\",\"remaining_tokens\":\"29983053\",\"reset_requests_ms\":6,\"reset_tokens_ms\":33},\"sequence_number\":26}\n\n"
+        open source software\",\"url\":\"https://libraries.io/cran/ggplot2/versions?utm_source=openai\"},{\"type\":\"url_citation\",\"end_index\":736,\"start_index\":632,\"title\":\"ggplot2
+        package - RDocumentation\",\"url\":\"https://www.rdocumentation.org/packages/ggplot2/versions/1.0.0?utm_source=openai\"}],\"logprobs\":[],\"text\":\"Here
+        is the release date of **ggplot2 1.0.0** on CRAN in the format you requested
+        (YYYY\u2011MM\u2011DD):\\n\\n- According to the CRAN archive listing, the
+        file `ggplot2_1.0.0.tar.gz` was **last modified** on **2014\u201105\u201121**
+        ([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)).\\n\\nAdditionally,
+        external sources corroborate this date:\\n\\n- The Libraries.io listing for
+        ggplot2 shows that version **1.0.0** was published on **May 21, 2014** ([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\\n-
+        RDocumentation also notes that version **1.0.0** was last published on **May
+        21st, 2014** ([rdocumentation.org](https://www.rdocumentation.org/packages/ggplot2/versions/1.0.0?utm_source=openai)).\\n\\nTherefore,
+        the release date of ggplot2 1.0.0 to CRAN is:\\n\\n**2014\u201105\u201121**.\"}],\"role\":\"assistant\"},\"output_index\":1,\"sequence_number\":28}\n\nevent:
+        response.completed\ndata: {\"type\":\"response.completed\",\"response\":{\"id\":\"resp_0d83edc24fe502df0169fb6b2e7360819c8f023b078232781e\",\"object\":\"response\",\"created_at\":1778084654,\"status\":\"completed\",\"background\":false,\"completed_at\":1778084658,\"error\":null,\"frequency_penalty\":0.0,\"incomplete_details\":null,\"instructions\":null,\"max_output_tokens\":null,\"max_tool_calls\":null,\"model\":\"gpt-4.1-2025-04-14\",\"moderation\":null,\"output\":[{\"id\":\"ws_0d83edc24fe502df0169fb6b2f2404819ca6044d30e9081334\",\"type\":\"web_search_call\",\"status\":\"completed\",\"action\":{\"type\":\"search\",\"queries\":[\"ggplot2
+        1.0.0 CRAN release date site:cran.r-project.org/src/contrib/Archive/ggplot2/\"],\"query\":\"ggplot2
+        1.0.0 CRAN release date site:cran.r-project.org/src/contrib/Archive/ggplot2/\"}},{\"id\":\"msg_0d83edc24fe502df0169fb6b314a48819c9970648f015ba8bc\",\"type\":\"message\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"annotations\":[{\"type\":\"url_citation\",\"end_index\":300,\"start_index\":210,\"title\":\"Index
+        of /CRAN/src/contrib/Archive/ggplot2\",\"url\":\"https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai\"},{\"type\":\"url_citation\",\"end_index\":538,\"start_index\":460,\"title\":\"ggplot2
+        published releases on CRAN - Libraries.io - security & maintenance data for
+        open source software\",\"url\":\"https://libraries.io/cran/ggplot2/versions?utm_source=openai\"},{\"type\":\"url_citation\",\"end_index\":736,\"start_index\":632,\"title\":\"ggplot2
+        package - RDocumentation\",\"url\":\"https://www.rdocumentation.org/packages/ggplot2/versions/1.0.0?utm_source=openai\"}],\"logprobs\":[],\"text\":\"Here
+        is the release date of **ggplot2 1.0.0** on CRAN in the format you requested
+        (YYYY\u2011MM\u2011DD):\\n\\n- According to the CRAN archive listing, the
+        file `ggplot2_1.0.0.tar.gz` was **last modified** on **2014\u201105\u201121**
+        ([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)).\\n\\nAdditionally,
+        external sources corroborate this date:\\n\\n- The Libraries.io listing for
+        ggplot2 shows that version **1.0.0** was published on **May 21, 2014** ([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\\n-
+        RDocumentation also notes that version **1.0.0** was last published on **May
+        21st, 2014** ([rdocumentation.org](https://www.rdocumentation.org/packages/ggplot2/versions/1.0.0?utm_source=openai)).\\n\\nTherefore,
+        the release date of ggplot2 1.0.0 to CRAN is:\\n\\n**2014\u201105\u201121**.\"}],\"role\":\"assistant\"}],\"parallel_tool_calls\":true,\"presence_penalty\":0.0,\"previous_response_id\":null,\"prompt_cache_key\":null,\"prompt_cache_retention\":\"in_memory\",\"reasoning\":{\"effort\":null,\"summary\":null},\"safety_identifier\":null,\"service_tier\":\"default\",\"store\":false,\"temperature\":1.0,\"text\":{\"format\":{\"type\":\"text\"},\"verbosity\":\"medium\"},\"tool_choice\":\"auto\",\"tools\":[{\"type\":\"web_search\",\"return_token_budget\":\"default\",\"search_context_size\":\"medium\",\"user_location\":{\"type\":\"approximate\",\"city\":null,\"country\":\"US\",\"region\":null,\"timezone\":null}}],\"top_logprobs\":0,\"top_p\":1.0,\"truncation\":\"disabled\",\"usage\":{\"input_tokens\":17330,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens\":273,\"output_tokens_details\":{\"reasoning_tokens\":0},\"total_tokens\":17603},\"user\":null,\"metadata\":{}},\"sequence_number\":29}\n\n"
     headers:
-      CF-RAY:
-      - 9ed58cebdd8010db-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f795581fe01a1fd-MSP
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Thu, 16 Apr 2026 19:20:59 GMT
+      - Wed, 06 May 2026 16:24:14 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -130,10 +145,8 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       openai-processing-ms:
-      - '332'
+      - '207'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
@@ -154,22 +167,23 @@ interactions:
 - request:
     body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
       "When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format. The CRAN
-      archive page has this info."}]}, {"id": "ws_020e5a0c669809940169e1369c2e488190928cc8159f3c1d2f",
-      "action": {"query": "ggplot2 1.0.0 CRAN archive release date", "type": "search",
-      "queries": ["ggplot2 1.0.0 CRAN archive release date"], "sources": null}, "status":
-      "completed", "type": "web_search_call"}, {"role": "assistant", "content": [{"type":
-      "output_text", "text": "The release date of **ggplot2 version 1.0.0** on CRAN
-      is **2014\u201105\u201121**.\n\nThis is confirmed by:\n\n\u2022 The CRAN archive
-      index, which lists `ggplot2_1.0.0.tar.gz` with the timestamp **2014\u201105\u201121\u00a015:36\u202fUTC**
-      ([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)).  \n\u2022
-      A releases summary page showing version\u00a01.0.0 released on **May\u00a021st,\u00a02014**
-      ([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\n\nTherefore,
-      in YYYY\u2011MM\u2011DD format, the release date is:\n\n**2014\u201105\u201121**\n\nLet
-      me know if you\u2019d like more details on that release (such as feature changes
-      or context)!", "annotations": []}], "status": "completed", "type": "message",
-      "id": "msg_missing_id"}, {"role": "user", "content": [{"type": "input_text",
-      "text": "What month was that?"}]}], "model": "gpt-4.1", "store": false, "stream":
-      true, "tools": [{"type": "web_search"}]}'
+      archive page has this info."}]}, {"id": "ws_0d83edc24fe502df0169fb6b2f2404819ca6044d30e9081334",
+      "action": {"query": "ggplot2 1.0.0 CRAN release date site:cran.r-project.org/src/contrib/Archive/ggplot2/",
+      "type": "search", "queries": ["ggplot2 1.0.0 CRAN release date site:cran.r-project.org/src/contrib/Archive/ggplot2/"],
+      "sources": null}, "status": "completed", "type": "web_search_call"}, {"role":
+      "assistant", "content": [{"type": "output_text", "text": "Here is the release
+      date of **ggplot2 1.0.0** on CRAN in the format you requested (YYYY\u2011MM\u2011DD):\n\n-
+      According to the CRAN archive listing, the file `ggplot2_1.0.0.tar.gz` was **last
+      modified** on **2014\u201105\u201121** ([stat.ethz.ch](https://stat.ethz.ch/CRAN/src/contrib/Archive/ggplot2/?utm_source=openai)).\n\nAdditionally,
+      external sources corroborate this date:\n\n- The Libraries.io listing for ggplot2
+      shows that version **1.0.0** was published on **May 21, 2014** ([libraries.io](https://libraries.io/cran/ggplot2/versions?utm_source=openai)).\n-
+      RDocumentation also notes that version **1.0.0** was last published on **May
+      21st, 2014** ([rdocumentation.org](https://www.rdocumentation.org/packages/ggplot2/versions/1.0.0?utm_source=openai)).\n\nTherefore,
+      the release date of ggplot2 1.0.0 to CRAN is:\n\n**2014\u201105\u201121**.",
+      "annotations": []}], "status": "completed", "type": "message", "id": "msg_missing_id"},
+      {"role": "user", "content": [{"type": "input_text", "text": "What month was
+      that?"}]}], "model": "gpt-4.1", "store": false, "stream": true, "tools": [{"type":
+      "web_search"}]}'
     headers:
       Accept:
       - application/json
@@ -178,11 +192,11 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1391'
+      - '1658'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=F3EYY2gz.033OPzgG_vbPc7v39Dm1_finOVq6fj2ArQ-1776367259.499698-1.0.1.1-HKNK1w3ywRLnEYONbGkYqCh4xKXumSqT0CqOjS2S_qBFGB5G93OwI0Wz6_SzWE2ywCCiQ308Rv_jkFI36g0dvk4CQuTl6I9HscobVsjv_uASKYnRqewUp0egMGBykU87
+      - __cf_bm=R6qqzgH67ucDkXOBljn1F6jlEZvRbkL5yDxsCgc3ch0-1778084654.3935769-1.0.1.1-OVw4f6I1wFYRbPvZX_nOK1RYI2zTWA1einMM8dI6Hdb6lMGI00Op3Lb4EgFG5crwipwX2zX4jiJ3VpOSTPmOGTmuzPT_6CV2Xh__NxaX5Fzc_sgFm7G94zIwQBp33B2i
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -195,158 +209,95 @@ interactions:
     body:
       string: 'event: response.created
 
-        data: {"type":"response.created","response":{"id":"resp_020e5a0c669809940169e1369ee2608190b359b09b80d4148c","object":"response","created_at":1776367262,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"web_search","search_context_size":"medium","user_location":{"type":"approximate","city":null,"country":"US","region":null,"timezone":null}}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":0}
+        data: {"type":"response.created","response":{"id":"resp_0d83edc24fe502df0169fb6b32b440819cbb532511cad18132","object":"response","created_at":1778084658,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"web_search","return_token_budget":"default","search_context_size":"medium","user_location":{"type":"approximate","city":null,"country":"US","region":null,"timezone":null}}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":0}
 
 
         event: response.in_progress
 
-        data: {"type":"response.in_progress","response":{"id":"resp_020e5a0c669809940169e1369ee2608190b359b09b80d4148c","object":"response","created_at":1776367262,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"web_search","search_context_size":"medium","user_location":{"type":"approximate","city":null,"country":"US","region":null,"timezone":null}}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":1}
+        data: {"type":"response.in_progress","response":{"id":"resp_0d83edc24fe502df0169fb6b32b440819cbb532511cad18132","object":"response","created_at":1778084658,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"web_search","return_token_budget":"default","search_context_size":"medium","user_location":{"type":"approximate","city":null,"country":"US","region":null,"timezone":null}}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":1}
 
 
         event: response.output_item.added
 
-        data: {"type":"response.output_item.added","item":{"id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","type":"message","status":"in_progress","content":[],"role":"assistant"},"output_index":0,"sequence_number":2}
+        data: {"type":"response.output_item.added","item":{"id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","type":"message","status":"in_progress","content":[],"role":"assistant"},"output_index":0,"sequence_number":2}
 
 
         event: response.content_part.added
 
-        data: {"type":"response.content_part.added","content_index":0,"item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""},"sequence_number":3}
+        data: {"type":"response.content_part.added","content_index":0,"item_id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""},"sequence_number":3}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"The","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"BQLNe1iG4KgI9","output_index":0,"sequence_number":4}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"The","item_id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","logprobs":[],"obfuscation":"CgmcD0nvvnQ2s","output_index":0,"sequence_number":4}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" month","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"tYDps8NtHL","output_index":0,"sequence_number":5}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" month","item_id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","logprobs":[],"obfuscation":"qkQ4Bs9yvq","output_index":0,"sequence_number":5}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" of","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"tyLCext0e2rZH","output_index":0,"sequence_number":6}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" was","item_id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","logprobs":[],"obfuscation":"bMVKeugewdv5","output_index":0,"sequence_number":6}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" the","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"iNKTDkwV6a4K","output_index":0,"sequence_number":7}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" **","item_id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","logprobs":[],"obfuscation":"9GJtlnEgz1HUz","output_index":0,"sequence_number":7}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" release","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"EVZ3M7Fo","output_index":0,"sequence_number":8}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"May","item_id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","logprobs":[],"obfuscation":"YjuDexYs0YlnV","output_index":0,"sequence_number":8}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" date","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"A7821N7ELGy","output_index":0,"sequence_number":9}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"**","item_id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","logprobs":[],"obfuscation":"A2tySUVVZ4Lvsf","output_index":0,"sequence_number":9}
 
 
         event: response.output_text.delta
 
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" **","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"Jp99R3ud1PKVu","output_index":0,"sequence_number":10}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"201","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"0dfDlTmKQxCRi","output_index":0,"sequence_number":11}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"4","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"nsei6nxKgGlCVz6","output_index":0,"sequence_number":12}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"-","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"Enb1JYMfSOSIs7v","output_index":0,"sequence_number":13}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"05","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"gQag4jMANzcR91","output_index":0,"sequence_number":14}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"-","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"PazX26Qd2uD6mQn","output_index":0,"sequence_number":15}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"21","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"Ou2HnN3XNUllvN","output_index":0,"sequence_number":16}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"**","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"iRucju5BREHm2x","output_index":0,"sequence_number":17}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" is","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"wuV7zn0zVyeXs","output_index":0,"sequence_number":18}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":" **","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"GxztG07iT1hMm","output_index":0,"sequence_number":19}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"May","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"kxNv4oNB8A0DY","output_index":0,"sequence_number":20}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":"**","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"RIht89HSDLQT76","output_index":0,"sequence_number":21}
-
-
-        event: response.output_text.delta
-
-        data: {"type":"response.output_text.delta","content_index":0,"delta":".","item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"obfuscation":"oRCTY5qMc6pR45s","output_index":0,"sequence_number":22}
+        data: {"type":"response.output_text.delta","content_index":0,"delta":".","item_id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","logprobs":[],"obfuscation":"mGoruIMQu9MlY0G","output_index":0,"sequence_number":10}
 
 
         event: response.output_text.done
 
-        data: {"type":"response.output_text.done","content_index":0,"item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","logprobs":[],"output_index":0,"sequence_number":23,"text":"The
-        month of the release date **2014-05-21** is **May**."}
+        data: {"type":"response.output_text.done","content_index":0,"item_id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","logprobs":[],"output_index":0,"sequence_number":11,"text":"The
+        month was **May**."}
 
 
         event: response.content_part.done
 
-        data: {"type":"response.content_part.done","content_index":0,"item_id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"The
-        month of the release date **2014-05-21** is **May**."},"sequence_number":24}
+        data: {"type":"response.content_part.done","content_index":0,"item_id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"The
+        month was **May**."},"sequence_number":12}
 
 
         event: response.output_item.done
 
-        data: {"type":"response.output_item.done","item":{"id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"The
-        month of the release date **2014-05-21** is **May**."}],"role":"assistant"},"output_index":0,"sequence_number":25}
+        data: {"type":"response.output_item.done","item":{"id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"The
+        month was **May**."}],"role":"assistant"},"output_index":0,"sequence_number":13}
 
 
         event: response.completed
 
-        data: {"type":"response.completed","response":{"id":"resp_020e5a0c669809940169e1369ee2608190b359b09b80d4148c","object":"response","created_at":1776367262,"status":"completed","background":false,"completed_at":1776367263,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","output":[{"id":"msg_020e5a0c669809940169e1369f63288190bc08344b269fd398","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"The
-        month of the release date **2014-05-21** is **May**."}],"role":"assistant"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":null,"reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"web_search","search_context_size":"medium","user_location":{"type":"approximate","city":null,"country":"US","region":null,"timezone":null}}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":{"input_tokens":574,"input_tokens_details":{"cached_tokens":0},"output_tokens":21,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":595},"user":null,"metadata":{}},"sequence_number":26}
-
-
-        event: response.rate_limits.updated
-
-        data: {"type":"response.rate_limits.updated","rate_limits":{"limit_requests":"10000","limit_tokens":"30000000","remaining_requests":"9999","remaining_tokens":"29999998","reset_requests_ms":6,"reset_tokens_ms":0},"sequence_number":27}
+        data: {"type":"response.completed","response":{"id":"resp_0d83edc24fe502df0169fb6b32b440819cbb532511cad18132","object":"response","created_at":1778084658,"status":"completed","background":false,"completed_at":1778084659,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-4.1-2025-04-14","moderation":null,"output":[{"id":"msg_0d83edc24fe502df0169fb6b334c40819c864e54a71f525554","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"The
+        month was **May**."}],"role":"assistant"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"in_memory","reasoning":{"effort":null,"summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"text"},"verbosity":"medium"},"tool_choice":"auto","tools":[{"type":"web_search","return_token_budget":"default","search_context_size":"medium","user_location":{"type":"approximate","city":null,"country":"US","region":null,"timezone":null}}],"top_logprobs":0,"top_p":1.0,"truncation":"disabled","usage":{"input_tokens":646,"input_tokens_details":{"cached_tokens":0},"output_tokens":9,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":655},"user":null,"metadata":{}},"sequence_number":14}
 
 
         '
     headers:
-      CF-RAY:
-      - 9ed58d00dc43d2ec-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79559c4c27acd6-MSP
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Thu, 16 Apr 2026 19:21:03 GMT
+      - Wed, 06 May 2026 16:24:19 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -357,10 +308,8 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       openai-processing-ms:
-      - '226'
+      - '365'
       openai-version:
       - '2020-10-01'
       x-ratelimit-limit-requests:
@@ -370,7 +319,7 @@ interactions:
       x-ratelimit-remaining-requests:
       - '9999'
       x-ratelimit-remaining-tokens:
-      - '29999407'
+      - '29999335'
       x-ratelimit-reset-requests:
       - 6ms
       x-ratelimit-reset-tokens:

@@ -18,21 +18,19 @@ interactions:
     uri: https://api.openai.com/v1/models
   response:
     body:
-      string: "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"id\": \"gpt-4-0613\",\n
+      string: "{\n  \"object\": \"list\",\n  \"data\": [\n    {\n      \"id\": \"text-embedding-ada-002\",\n
+        \     \"object\": \"model\",\n      \"created\": 1671217299,\n      \"owned_by\":
+        \"openai-internal\"\n    },\n    {\n      \"id\": \"whisper-1\",\n      \"object\":
+        \"model\",\n      \"created\": 1677532384,\n      \"owned_by\": \"openai-internal\"\n
+        \   },\n    {\n      \"id\": \"gpt-3.5-turbo\",\n      \"object\": \"model\",\n
+        \     \"created\": 1677610602,\n      \"owned_by\": \"openai\"\n    },\n    {\n
+        \     \"id\": \"tts-1\",\n      \"object\": \"model\",\n      \"created\":
+        1681940951,\n      \"owned_by\": \"openai-internal\"\n    },\n    {\n      \"id\":
+        \"gpt-3.5-turbo-16k\",\n      \"object\": \"model\",\n      \"created\": 1683758102,\n
+        \     \"owned_by\": \"openai-internal\"\n    },\n    {\n      \"id\": \"gpt-4-0613\",\n
         \     \"object\": \"model\",\n      \"created\": 1686588896,\n      \"owned_by\":
         \"openai\"\n    },\n    {\n      \"id\": \"gpt-4\",\n      \"object\": \"model\",\n
         \     \"created\": 1687882411,\n      \"owned_by\": \"openai\"\n    },\n    {\n
-        \     \"id\": \"gpt-3.5-turbo\",\n      \"object\": \"model\",\n      \"created\":
-        1677610602,\n      \"owned_by\": \"openai\"\n    },\n    {\n      \"id\":
-        \"gpt-5.4-mini\",\n      \"object\": \"model\",\n      \"created\": 1773451123,\n
-        \     \"owned_by\": \"system\"\n    },\n    {\n      \"id\": \"gpt-5.4\",\n
-        \     \"object\": \"model\",\n      \"created\": 1772691852,\n      \"owned_by\":
-        \"system\"\n    },\n    {\n      \"id\": \"gpt-5.4-nano-2026-03-17\",\n      \"object\":
-        \"model\",\n      \"created\": 1773450837,\n      \"owned_by\": \"system\"\n
-        \   },\n    {\n      \"id\": \"gpt-5.4-nano\",\n      \"object\": \"model\",\n
-        \     \"created\": 1773450870,\n      \"owned_by\": \"system\"\n    },\n    {\n
-        \     \"id\": \"gpt-5.4-mini-2026-03-17\",\n      \"object\": \"model\",\n
-        \     \"created\": 1773451076,\n      \"owned_by\": \"system\"\n    },\n    {\n
         \     \"id\": \"davinci-002\",\n      \"object\": \"model\",\n      \"created\":
         1692634301,\n      \"owned_by\": \"system\"\n    },\n    {\n      \"id\":
         \"babbage-002\",\n      \"object\": \"model\",\n      \"created\": 1692634615,\n
@@ -249,23 +247,38 @@ interactions:
         \"gpt-5.4-pro\",\n      \"object\": \"model\",\n      \"created\": 1772659601,\n
         \     \"owned_by\": \"system\"\n    },\n    {\n      \"id\": \"gpt-5.4-pro-2026-03-05\",\n
         \     \"object\": \"model\",\n      \"created\": 1772659657,\n      \"owned_by\":
-        \"system\"\n    },\n    {\n      \"id\": \"gpt-3.5-turbo-16k\",\n      \"object\":
-        \"model\",\n      \"created\": 1683758102,\n      \"owned_by\": \"openai-internal\"\n
-        \   },\n    {\n      \"id\": \"tts-1\",\n      \"object\": \"model\",\n      \"created\":
-        1681940951,\n      \"owned_by\": \"openai-internal\"\n    },\n    {\n      \"id\":
-        \"whisper-1\",\n      \"object\": \"model\",\n      \"created\": 1677532384,\n
-        \     \"owned_by\": \"openai-internal\"\n    },\n    {\n      \"id\": \"text-embedding-ada-002\",\n
-        \     \"object\": \"model\",\n      \"created\": 1671217299,\n      \"owned_by\":
-        \"openai-internal\"\n    }\n  ]\n}"
+        \"system\"\n    },\n    {\n      \"id\": \"gpt-5.4\",\n      \"object\": \"model\",\n
+        \     \"created\": 1772691852,\n      \"owned_by\": \"system\"\n    },\n    {\n
+        \     \"id\": \"gpt-5.4-nano-2026-03-17\",\n      \"object\": \"model\",\n
+        \     \"created\": 1773450837,\n      \"owned_by\": \"system\"\n    },\n    {\n
+        \     \"id\": \"gpt-5.4-nano\",\n      \"object\": \"model\",\n      \"created\":
+        1773450870,\n      \"owned_by\": \"system\"\n    },\n    {\n      \"id\":
+        \"gpt-5.4-mini-2026-03-17\",\n      \"object\": \"model\",\n      \"created\":
+        1773451076,\n      \"owned_by\": \"system\"\n    },\n    {\n      \"id\":
+        \"gpt-5.4-mini\",\n      \"object\": \"model\",\n      \"created\": 1773451123,\n
+        \     \"owned_by\": \"system\"\n    },\n    {\n      \"id\": \"gpt-image-2\",\n
+        \     \"object\": \"model\",\n      \"created\": 1776399795,\n      \"owned_by\":
+        \"system\"\n    },\n    {\n      \"id\": \"gpt-image-2-2026-04-21\",\n      \"object\":
+        \"model\",\n      \"created\": 1776399994,\n      \"owned_by\": \"system\"\n
+        \   },\n    {\n      \"id\": \"gpt-5.5\",\n      \"object\": \"model\",\n
+        \     \"created\": 1776824847,\n      \"owned_by\": \"system\"\n    },\n    {\n
+        \     \"id\": \"gpt-5.5-2026-04-23\",\n      \"object\": \"model\",\n      \"created\":
+        1776839241,\n      \"owned_by\": \"system\"\n    },\n    {\n      \"id\":
+        \"gpt-5.5-pro\",\n      \"object\": \"model\",\n      \"created\": 1776894349,\n
+        \     \"owned_by\": \"system\"\n    },\n    {\n      \"id\": \"gpt-5.5-pro-2026-04-23\",\n
+        \     \"object\": \"model\",\n      \"created\": 1776894470,\n      \"owned_by\":
+        \"system\"\n    },\n    {\n      \"id\": \"chat-latest\",\n      \"object\":
+        \"model\",\n      \"created\": 1777704602,\n      \"owned_by\": \"system\"\n
+        \   }\n  ]\n}"
     headers:
       CF-RAY:
-      - 9ed58e156c3575e4-ORD
+      - 9f79567b6cd2a22a-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Thu, 16 Apr 2026 19:21:47 GMT
+      - Wed, 06 May 2026 16:24:54 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -279,9 +292,9 @@ interactions:
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '16417'
+      - '17289'
       openai-processing-ms:
-      - '154'
+      - '292'
       openai-version:
       - '2020-10-01'
       x-openai-proxy-wasm:

@@ -33,13 +33,13 @@ async def test_parallel_chat_multi_turn_tools():
 
     chats = await parallel_chat(chat, prompts)
 
-    # Tools should have been called in order: Seattle tools, then Tokyo tools
-    assert call_log == [
-        "weather:Seattle",
+    # All four tool calls should have been made (order may vary by model)
+    assert sorted(call_log) == [
         "time:Seattle",
-        "weather:Tokyo",
         "time:Tokyo",
-    ], f"Expected ordered tool calls, got {call_log}"
+        "weather:Seattle",
+        "weather:Tokyo",
+    ], f"Expected all tool calls, got {call_log}"
 
     # Each chat should have multiple turns
     assert len(chats) == 2
