@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
-### New features
+### Improvements
 
 * Updated default models across all providers to current generation: (#292)
   * Anthropic: `claude-sonnet-4-6`
