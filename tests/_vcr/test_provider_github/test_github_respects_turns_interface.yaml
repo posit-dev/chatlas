@@ -2,7 +2,7 @@ interactions:
 - request:
     body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
       "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
-      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "gpt-5", "seed":
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "gpt-4.1", "seed":
       1014, "stream": true, "stream_options": {"include_usage": true}}'
     headers:
       Accept:
@@ -12,7 +12,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '283'
+      - '285'
       Content-Type:
       - application/json
       Host:
@@ -25,34 +25,35 @@ interactions:
     uri: https://models.github.ai/inference/chat/completions
   response:
     body:
-      string: 'data: {"choices":[],"created":0,"id":"","model":"","object":"","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{}}]}
+      string: 'data: {"choices":[],"created":0,"id":"","model":"","object":"","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"detected":false,"filtered":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}}}]}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"","refusal":null,"role":"assistant"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089675,"id":"chatcmpl-DcadfZHlUkb7DbgYDrGr51VygJk0U","model":"gpt-5-2025-08-07","obfuscation":"JBqyWNYeIk","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{"content":"","refusal":null,"role":"assistant"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084919,"id":"chatcmpl-DcZOxvpwSJUt1GBDhlgPIl9DiJUJb","model":"gpt-4.1-2025-04-14","obfuscation":"yf4vCJBiZXaTa","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"CH"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089675,"id":"chatcmpl-DcadfZHlUkb7DbgYDrGr51VygJk0U","model":"gpt-5-2025-08-07","obfuscation":"ScZN3kaZRT","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"CH"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084919,"id":"chatcmpl-DcZOxvpwSJUt1GBDhlgPIl9DiJUJb","model":"gpt-4.1-2025-04-14","obfuscation":"eCXVwBtiqFdrm","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"RIST"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089675,"id":"chatcmpl-DcadfZHlUkb7DbgYDrGr51VygJk0U","model":"gpt-5-2025-08-07","obfuscation":"3pBqgkhT","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"RIST"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084919,"id":"chatcmpl-DcZOxvpwSJUt1GBDhlgPIl9DiJUJb","model":"gpt-4.1-2025-04-14","obfuscation":"GHcs1s40WKE","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"OP"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089675,"id":"chatcmpl-DcadfZHlUkb7DbgYDrGr51VygJk0U","model":"gpt-5-2025-08-07","obfuscation":"aixvFtHaAv","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"OP"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084919,"id":"chatcmpl-DcZOxvpwSJUt1GBDhlgPIl9DiJUJb","model":"gpt-4.1-2025-04-14","obfuscation":"NQ8MUUCIFLtwb","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"HER"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089675,"id":"chatcmpl-DcadfZHlUkb7DbgYDrGr51VygJk0U","model":"gpt-5-2025-08-07","obfuscation":"7e31z1PUj","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"HER"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084919,"id":"chatcmpl-DcZOxvpwSJUt1GBDhlgPIl9DiJUJb","model":"gpt-4.1-2025-04-14","obfuscation":"aHXLqN6Ua8kR","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":" ROB"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089675,"id":"chatcmpl-DcadfZHlUkb7DbgYDrGr51VygJk0U","model":"gpt-5-2025-08-07","obfuscation":"uBBVFsZt","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"
+        ROB"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084919,"id":"chatcmpl-DcZOxvpwSJUt1GBDhlgPIl9DiJUJb","model":"gpt-4.1-2025-04-14","obfuscation":"G96lTmMkK0C","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"IN"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089675,"id":"chatcmpl-DcadfZHlUkb7DbgYDrGr51VygJk0U","model":"gpt-5-2025-08-07","obfuscation":"61pPK6A7yl","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"IN"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084919,"id":"chatcmpl-DcZOxvpwSJUt1GBDhlgPIl9DiJUJb","model":"gpt-4.1-2025-04-14","obfuscation":"91LaJsb3VT6K0","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{},"finish_reason":"stop","index":0,"logprobs":null}],"created":1778089675,"id":"chatcmpl-DcadfZHlUkb7DbgYDrGr51VygJk0U","model":"gpt-5-2025-08-07","obfuscation":"5u3csz","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{},"finish_reason":"stop","index":0,"logprobs":null}],"created":1778084919,"id":"chatcmpl-DcZOxvpwSJUt1GBDhlgPIl9DiJUJb","model":"gpt-4.1-2025-04-14","obfuscation":"67o0F4fqn","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[],"created":1778089675,"id":"chatcmpl-DcadfZHlUkb7DbgYDrGr51VygJk0U","latency_checkpoint":{"engine_tbt_ms":10,"engine_ttft_ms":67,"engine_ttlt_ms":1148,"pre_inference_ms":105,"service_tbt_ms":10,"service_ttft_ms":421,"service_ttlt_ms":1511,"total_duration_ms":1404,"user_visible_ttft_ms":316},"model":"gpt-5-2025-08-07","obfuscation":"twzx5rO8x","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":{"completion_tokens":80,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":64,"rejected_prediction_tokens":0},"prompt_tokens":34,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":114}}
+        data: {"choices":[],"created":1778084919,"id":"chatcmpl-DcZOxvpwSJUt1GBDhlgPIl9DiJUJb","latency_checkpoint":{"engine_tbt_ms":9,"engine_ttft_ms":133,"engine_ttlt_ms":194,"pre_inference_ms":117,"service_tbt_ms":10,"service_ttft_ms":675,"service_ttlt_ms":745,"total_duration_ms":630,"user_visible_ttft_ms":558},"model":"gpt-4.1-2025-04-14","obfuscation":"5l","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":{"completion_tokens":7,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens":35,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":42}}
 
 
         data: [DONE]
@@ -63,7 +64,7 @@ interactions:
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Wed, 06 May 2026 17:47:56 GMT
+      - Wed, 06 May 2026 16:28:40 GMT
       Server:
       - github.com
       Strict-Transport-Security:
@@ -75,13 +76,13 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-GitHub-Request-Id:
-      - 0439:38302:FE5D77:1126C74:69FB7ECA
+      - D019:21BFEE:35BFACA:39632B4:69FB6C37
       apim-request-id:
-      - 56f10a3d-ce8b-47d3-a082-963392da4ed7
+      - e46f6ce5-4463-4a25-b245-8a9e8446b3ad
       azureml-model-session:
-      - d20260429075940-76ac577f
+      - d20260429204954-abb1bcb6
       azureml-served-by-cluster:
-      - vienna-westus-02
+      - vienna-westus-01
       request-context:
       - appId=
       skip-error-remapping:
@@ -91,7 +92,7 @@ interactions:
       x-ms-client-request-id:
       - Not-Set
       x-ms-deployment-name:
-      - gpt-5
+      - gpt-4.1
       x-ms-is-spilled-over:
       - 'false'
       x-ms-rai-invoked:
@@ -101,15 +102,15 @@ interactions:
       x-ratelimit-abusepenalty-active:
       - 'False'
       x-ratelimit-key:
-      - gpt-5
+      - gpt-4.1
       x-ratelimit-limit-requests:
-      - '5000'
+      - '1000'
       x-ratelimit-limit-tokens:
-      - '500000'
+      - '1000000'
       x-ratelimit-remaining-requests:
-      - '4999'
+      - '999'
       x-ratelimit-remaining-tokens:
-      - '499966'
+      - '999965'
       x-ratelimit-renewalperiod-requests:
       - '60'
       x-ratelimit-renewalperiod-tokens:
@@ -119,14 +120,14 @@ interactions:
       x-ratelimit-reset-tokens:
       - '0'
       x-request-time:
-      - '1.598'
+      - '0.984'
     status:
       code: 200
       message: OK
 - request:
     body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
       "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
-      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "gpt-5", "seed":
+      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "gpt-4.1", "seed":
       1014, "stream": true, "stream_options": {"include_usage": true}}'
     headers:
       Accept:
@@ -136,7 +137,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '283'
+      - '285'
       Content-Type:
       - application/json
       Host:
@@ -149,166 +150,35 @@ interactions:
     uri: https://models.github.ai/inference/chat/completions
   response:
     body:
-      string: 'Too many requests. For more on scraping GitHub and how it may affect
-        your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
-
-        '
-    headers:
-      Content-Length:
-      - '196'
-      Content-Type:
-      - application/json; charset=utf-8
-      Date:
-      - Wed, 06 May 2026 17:47:57 GMT
-      Retry-After:
-      - '54'
-      Server:
-      - github.com
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Vary:
-      - Origin
-      X-Content-Type-Options:
-      - nosniff
-      X-GitHub-Request-Id:
-      - 3B12:1CDDAB:1030D8A:1170BB0:69FB7ECC
-      azureml-served-by-cluster:
-      - vienna-westus-01
-      request-context:
-      - appId=
-      x-github-backend:
-      - Kubernetes
-      x-ms-error-code:
-      - RateLimitReached
-      x-ratelimit-timeremaining:
-      - '54'
-      x-ratelimit-type:
-      - UserByModelByMinute
-      x-request-time:
-      - '0.015'
-    status:
-      code: 429
-      message: Too Many Requests
-- request:
-    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
-      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
-      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "gpt-5", "seed":
-      1014, "stream": true, "stream_options": {"include_usage": true}}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate, zstd
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '283'
-      Content-Type:
-      - application/json
-      Host:
-      - models.github.ai
-      X-Stainless-Async:
-      - 'false'
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://models.github.ai/inference/chat/completions
-  response:
-    body:
-      string: 'Too many requests. For more on scraping GitHub and how it may affect
-        your rights, please review our Terms of Service (https://docs.github.com/en/site-policy/github-terms/github-terms-of-service).
-
-        '
-    headers:
-      Content-Length:
-      - '196'
-      Content-Type:
-      - application/json; charset=utf-8
-      Date:
-      - Wed, 06 May 2026 17:48:51 GMT
-      Retry-After:
-      - '0'
-      Server:
-      - github.com
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Vary:
-      - Origin
-      X-Content-Type-Options:
-      - nosniff
-      X-GitHub-Request-Id:
-      - 0ECA:EC6A1:FD82F1:111AB88:69FB7F03
-      azureml-served-by-cluster:
-      - vienna-westus-02
-      request-context:
-      - appId=
-      x-github-backend:
-      - Kubernetes
-      x-ms-error-code:
-      - RateLimitReached
-      x-ratelimit-timeremaining:
-      - '0'
-      x-ratelimit-type:
-      - UserByModelByMinute
-      x-request-time:
-      - '0.016'
-    status:
-      code: 429
-      message: Too Many Requests
-- request:
-    body: '{"messages": [{"content": "Return very minimal output, AND ONLY USE UPPERCASE.",
-      "role": "system"}, {"content": [{"type": "text", "text": "What is the name of
-      Winnie the Pooh''s human friend?"}], "role": "user"}], "model": "gpt-5", "seed":
-      1014, "stream": true, "stream_options": {"include_usage": true}}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate, zstd
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '283'
-      Content-Type:
-      - application/json
-      Host:
-      - models.github.ai
-      X-Stainless-Async:
-      - 'false'
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://models.github.ai/inference/chat/completions
-  response:
-    body:
-      string: 'data: {"choices":[],"created":0,"id":"","model":"","object":"","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{}}]}
+      string: 'data: {"choices":[],"created":0,"id":"","model":"","object":"","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"detected":false,"filtered":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}}}]}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"","refusal":null,"role":"assistant"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089733,"id":"chatcmpl-DcaebuiXTwDVm6gm9yWoVL0Gv1a2Y","model":"gpt-5-2025-08-07","obfuscation":"wVQlVaevku","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{"content":"","refusal":null,"role":"assistant"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084921,"id":"chatcmpl-DcZOzBjZxcDBK4oaGOatwFlMNZsMF","model":"gpt-4.1-2025-04-14","obfuscation":"b1y8jAna6SfQ9","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"CH"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089733,"id":"chatcmpl-DcaebuiXTwDVm6gm9yWoVL0Gv1a2Y","model":"gpt-5-2025-08-07","obfuscation":"p37Wek3eDC","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"CH"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084921,"id":"chatcmpl-DcZOzBjZxcDBK4oaGOatwFlMNZsMF","model":"gpt-4.1-2025-04-14","obfuscation":"3prV44D3kfriZ","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"RIST"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089733,"id":"chatcmpl-DcaebuiXTwDVm6gm9yWoVL0Gv1a2Y","model":"gpt-5-2025-08-07","obfuscation":"ekzW7Ehe","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"RIST"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084921,"id":"chatcmpl-DcZOzBjZxcDBK4oaGOatwFlMNZsMF","model":"gpt-4.1-2025-04-14","obfuscation":"oZGiW7ZlOie","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"OP"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089733,"id":"chatcmpl-DcaebuiXTwDVm6gm9yWoVL0Gv1a2Y","model":"gpt-5-2025-08-07","obfuscation":"oLF16QemrQ","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"OP"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084921,"id":"chatcmpl-DcZOzBjZxcDBK4oaGOatwFlMNZsMF","model":"gpt-4.1-2025-04-14","obfuscation":"TS5vKbwV1Bxvd","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"HER"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089733,"id":"chatcmpl-DcaebuiXTwDVm6gm9yWoVL0Gv1a2Y","model":"gpt-5-2025-08-07","obfuscation":"PSH6yogXK","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"HER"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084921,"id":"chatcmpl-DcZOzBjZxcDBK4oaGOatwFlMNZsMF","model":"gpt-4.1-2025-04-14","obfuscation":"mWXYYOeaOiwx","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":" ROB"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089733,"id":"chatcmpl-DcaebuiXTwDVm6gm9yWoVL0Gv1a2Y","model":"gpt-5-2025-08-07","obfuscation":"BR2Tw6Sb","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"
+        ROB"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084921,"id":"chatcmpl-DcZOzBjZxcDBK4oaGOatwFlMNZsMF","model":"gpt-4.1-2025-04-14","obfuscation":"nbwJiXZm8Uu","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"IN"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089733,"id":"chatcmpl-DcaebuiXTwDVm6gm9yWoVL0Gv1a2Y","model":"gpt-5-2025-08-07","obfuscation":"t5o0R2nHwe","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{"protected_material_text":{"detected":false,"filtered":false}},"delta":{"content":"IN"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084921,"id":"chatcmpl-DcZOzBjZxcDBK4oaGOatwFlMNZsMF","model":"gpt-4.1-2025-04-14","obfuscation":"hP5SN3qyg8fD2","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{},"finish_reason":"stop","index":0,"logprobs":null}],"created":1778089733,"id":"chatcmpl-DcaebuiXTwDVm6gm9yWoVL0Gv1a2Y","model":"gpt-5-2025-08-07","obfuscation":"9RNzUr","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{},"finish_reason":"stop","index":0,"logprobs":null}],"created":1778084921,"id":"chatcmpl-DcZOzBjZxcDBK4oaGOatwFlMNZsMF","model":"gpt-4.1-2025-04-14","obfuscation":"g0LiaR4mO","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[],"created":1778089733,"id":"chatcmpl-DcaebuiXTwDVm6gm9yWoVL0Gv1a2Y","latency_checkpoint":{"engine_tbt_ms":10,"engine_ttft_ms":57,"engine_ttlt_ms":993,"pre_inference_ms":148,"service_tbt_ms":10,"service_ttft_ms":469,"service_ttlt_ms":1428,"total_duration_ms":1271,"user_visible_ttft_ms":321},"model":"gpt-5-2025-08-07","obfuscation":"C7bfwCnL5I","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":{"completion_tokens":80,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":64,"rejected_prediction_tokens":0},"prompt_tokens":34,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":114}}
+        data: {"choices":[],"created":1778084921,"id":"chatcmpl-DcZOzBjZxcDBK4oaGOatwFlMNZsMF","latency_checkpoint":{"engine_tbt_ms":13,"engine_ttft_ms":70,"engine_ttlt_ms":160,"pre_inference_ms":157,"service_tbt_ms":17,"service_ttft_ms":626,"service_ttlt_ms":739,"total_duration_ms":587,"user_visible_ttft_ms":469},"model":"gpt-4.1-2025-04-14","obfuscation":"pA","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":{"completion_tokens":7,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens":35,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":42}}
 
 
         data: [DONE]
@@ -319,7 +189,7 @@ interactions:
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Wed, 06 May 2026 17:48:54 GMT
+      - Wed, 06 May 2026 16:28:41 GMT
       Server:
       - github.com
       Strict-Transport-Security:
@@ -331,11 +201,11 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-GitHub-Request-Id:
-      - A994:1E3527:10BC514:11FB4FF:69FB7F04
+      - 314D:1E056F:37684A7:3B089DD:69FB6C38
       apim-request-id:
-      - 63a27324-6331-44e2-b747-e9c25259dcd0
+      - 0462debd-a77d-433a-824d-dc4423067e9a
       azureml-model-session:
-      - d20260429075940-76ac577f
+      - d20260429204954-abb1bcb6
       azureml-served-by-cluster:
       - vienna-westus-02
       request-context:
@@ -347,7 +217,7 @@ interactions:
       x-ms-client-request-id:
       - Not-Set
       x-ms-deployment-name:
-      - gpt-5
+      - gpt-4.1
       x-ms-is-spilled-over:
       - 'false'
       x-ms-rai-invoked:
@@ -357,15 +227,15 @@ interactions:
       x-ratelimit-abusepenalty-active:
       - 'False'
       x-ratelimit-key:
-      - gpt-5
+      - gpt-4.1
       x-ratelimit-limit-requests:
-      - '5000'
+      - '1000'
       x-ratelimit-limit-tokens:
-      - '500000'
+      - '1000000'
       x-ratelimit-remaining-requests:
-      - '4999'
+      - '999'
       x-ratelimit-remaining-tokens:
-      - '499966'
+      - '999965'
       x-ratelimit-renewalperiod-requests:
       - '60'
       x-ratelimit-renewalperiod-tokens:
@@ -375,7 +245,7 @@ interactions:
       x-ratelimit-reset-tokens:
       - '0'
       x-request-time:
-      - '1.753'
+      - '0.966'
     status:
       code: 200
       message: OK
@@ -383,7 +253,7 @@ interactions:
     body: '{"messages": [{"content": [{"type": "text", "text": "My name is Steve"}],
       "role": "user"}, {"role": "assistant", "content": [{"type": "text", "text":
       "Hello Steve, how can I help you today?"}]}, {"content": [{"type": "text", "text":
-      "What is my name?"}], "role": "user"}], "model": "gpt-5", "seed": 1014, "stream":
+      "What is my name?"}], "role": "user"}], "model": "gpt-4.1", "seed": 1014, "stream":
       true, "stream_options": {"include_usage": true}}'
     headers:
       Accept:
@@ -393,7 +263,7 @@ interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '333'
+      - '335'
       Content-Type:
       - application/json
       Host:
@@ -406,31 +276,31 @@ interactions:
     uri: https://models.github.ai/inference/chat/completions
   response:
     body:
-      string: 'data: {"choices":[],"created":0,"id":"","model":"","object":"","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{}}]}
+      string: 'data: {"choices":[],"created":0,"id":"","model":"","object":"","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"detected":false,"filtered":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}}}]}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"","refusal":null,"role":"assistant"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089735,"id":"chatcmpl-Dcaed4bEywYJmVhuFh1GOgctqsWCM","model":"gpt-5-2025-08-07","obfuscation":"crXtz4nTbO","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{"content":"","refusal":null,"role":"assistant"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084922,"id":"chatcmpl-DcZP0cVQb5MCreTgUnlA3BhxN9Nsj","model":"gpt-4.1-2025-04-14","obfuscation":"nrCNATBuHDGVe","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"Your"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089735,"id":"chatcmpl-Dcaed4bEywYJmVhuFh1GOgctqsWCM","model":"gpt-5-2025-08-07","obfuscation":"edykiNv9","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{"content":"Your"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084922,"id":"chatcmpl-DcZP0cVQb5MCreTgUnlA3BhxN9Nsj","model":"gpt-4.1-2025-04-14","obfuscation":"UNHrUXzClZW","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":" name"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089735,"id":"chatcmpl-Dcaed4bEywYJmVhuFh1GOgctqsWCM","model":"gpt-5-2025-08-07","obfuscation":"ls5qh6W","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{"content":" name"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084922,"id":"chatcmpl-DcZP0cVQb5MCreTgUnlA3BhxN9Nsj","model":"gpt-4.1-2025-04-14","obfuscation":"kq3UnPBY9m","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":" is"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089735,"id":"chatcmpl-Dcaed4bEywYJmVhuFh1GOgctqsWCM","model":"gpt-5-2025-08-07","obfuscation":"MReZlVAnI","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{"content":" is"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084922,"id":"chatcmpl-DcZP0cVQb5MCreTgUnlA3BhxN9Nsj","model":"gpt-4.1-2025-04-14","obfuscation":"IZayJ3ibEtjl","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":" Steve"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089735,"id":"chatcmpl-Dcaed4bEywYJmVhuFh1GOgctqsWCM","model":"gpt-5-2025-08-07","obfuscation":"FXLuab","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{"content":" Steve"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084922,"id":"chatcmpl-DcZP0cVQb5MCreTgUnlA3BhxN9Nsj","model":"gpt-4.1-2025-04-14","obfuscation":"1e6GEb61o","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"."},"finish_reason":null,"index":0,"logprobs":null}],"created":1778089735,"id":"chatcmpl-Dcaed4bEywYJmVhuFh1GOgctqsWCM","model":"gpt-5-2025-08-07","obfuscation":"8yht9BsL9WE","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{"content":"."},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084922,"id":"chatcmpl-DcZP0cVQb5MCreTgUnlA3BhxN9Nsj","model":"gpt-4.1-2025-04-14","obfuscation":"zX4YBJZCs3R9gV","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{},"finish_reason":"stop","index":0,"logprobs":null}],"created":1778089735,"id":"chatcmpl-Dcaed4bEywYJmVhuFh1GOgctqsWCM","model":"gpt-5-2025-08-07","obfuscation":"JEzl0L","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{},"finish_reason":"stop","index":0,"logprobs":null}],"created":1778084922,"id":"chatcmpl-DcZP0cVQb5MCreTgUnlA3BhxN9Nsj","model":"gpt-4.1-2025-04-14","obfuscation":"3NlJrFlrG","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[],"created":1778089735,"id":"chatcmpl-Dcaed4bEywYJmVhuFh1GOgctqsWCM","latency_checkpoint":{"engine_tbt_ms":8,"engine_ttft_ms":61,"engine_ttlt_ms":432,"pre_inference_ms":127,"service_tbt_ms":8,"service_ttft_ms":422,"service_ttlt_ms":812,"total_duration_ms":683,"user_visible_ttft_ms":295},"model":"gpt-5-2025-08-07","obfuscation":"","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":null,"usage":{"completion_tokens":15,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens":35,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":50}}
+        data: {"choices":[],"created":1778084922,"id":"chatcmpl-DcZP0cVQb5MCreTgUnlA3BhxN9Nsj","latency_checkpoint":{"engine_tbt_ms":5,"engine_ttft_ms":42,"engine_ttlt_ms":70,"pre_inference_ms":77,"service_tbt_ms":7,"service_ttft_ms":1052,"service_ttlt_ms":1096,"total_duration_ms":1015,"user_visible_ttft_ms":975},"model":"gpt-4.1-2025-04-14","obfuscation":"boc","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":{"completion_tokens":6,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens":34,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":40}}
 
 
         data: [DONE]
@@ -441,7 +311,7 @@ interactions:
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Wed, 06 May 2026 17:48:55 GMT
+      - Wed, 06 May 2026 16:28:43 GMT
       Server:
       - github.com
       Strict-Transport-Security:
@@ -453,13 +323,13 @@ interactions:
       X-Content-Type-Options:
       - nosniff
       X-GitHub-Request-Id:
-      - C091:266913:FD29FD:111661C:69FB7F06
+      - 7B0E:13B160:3671FD3:3A1193C:69FB6C3A
       apim-request-id:
-      - ae576c95-cab7-4cc5-a713-47ee872575ce
+      - 095bf6c8-3697-4c06-b03c-27b43c6c6abd
       azureml-model-session:
-      - d20260429075940-76ac577f
+      - d20260429035438-1769bb5e
       azureml-served-by-cluster:
-      - vienna-westus-02
+      - vienna-westus-01
       request-context:
       - appId=
       skip-error-remapping:
@@ -469,7 +339,7 @@ interactions:
       x-ms-client-request-id:
       - Not-Set
       x-ms-deployment-name:
-      - gpt-5
+      - gpt-4.1
       x-ms-is-spilled-over:
       - 'false'
       x-ms-rai-invoked:
@@ -479,15 +349,15 @@ interactions:
       x-ratelimit-abusepenalty-active:
       - 'False'
       x-ratelimit-key:
-      - gpt-5
+      - gpt-4.1
       x-ratelimit-limit-requests:
-      - '5000'
+      - '1000'
       x-ratelimit-limit-tokens:
-      - '500000'
+      - '1000000'
       x-ratelimit-remaining-requests:
-      - '4999'
+      - '999'
       x-ratelimit-remaining-tokens:
-      - '499965'
+      - '999966'
       x-ratelimit-renewalperiod-requests:
       - '60'
       x-ratelimit-renewalperiod-tokens:
@@ -497,7 +367,7 @@ interactions:
       x-ratelimit-reset-tokens:
       - '0'
       x-request-time:
-      - '1.105'
+      - '1.374'
     status:
       code: 200
       message: OK
