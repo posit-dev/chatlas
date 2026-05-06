@@ -242,7 +242,7 @@ def ChatAnthropic(
     """
 
     if model is None:
-        model = log_model_default("claude-sonnet-4-5")
+        model = log_model_default("claude-sonnet-4-6")
 
     kwargs_chat: "SubmitInputArgs" = {}
     if reasoning is not None:
@@ -1115,7 +1115,7 @@ def ChatBedrockAnthropic(
     """
 
     if model is None:
-        model = log_model_default("us.anthropic.claude-sonnet-4-5-20250929-v1:0")
+        model = log_model_default("us.anthropic.claude-sonnet-4-6")
 
     return Chat(
         provider=AnthropicBedrockProvider(

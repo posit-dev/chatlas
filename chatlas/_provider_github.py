@@ -120,7 +120,7 @@ def ChatGithub(
     ```
     """
     if model is None:
-        model = log_model_default("gpt-4.1")
+        model = log_model_default("gpt-5")
     if api_key is None:
         api_key = os.getenv("GITHUB_TOKEN", os.getenv("GITHUB_PAT"))
 

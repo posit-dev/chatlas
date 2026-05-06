@@ -8,7 +8,7 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -25,19 +25,19 @@ interactions:
     uri: https://models.github.ai/inference/chat/completions
   response:
     body:
-      string: 'data: {"choices":[],"created":0,"id":"","model":"","object":"","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"filtered":false,"detected":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}}}]}
+      string: 'data: {"choices":[],"created":0,"id":"","model":"","object":"","prompt_filter_results":[{"prompt_index":0,"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"jailbreak":{"detected":false,"filtered":false},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}}}]}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{"content":"","refusal":null,"role":"assistant"},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213472,"id":"chatcmpl-CsxF2gevjF3OAbabH2oAY8SEJOmMz","model":"gpt-4.1-2025-04-14","obfuscation":"EbsC2O","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{"content":"","refusal":null,"role":"assistant"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084917,"id":"chatcmpl-DcZOvcp6xMv3Ynjq32vxzkAonjYDq","model":"gpt-4.1-2025-04-14","obfuscation":"qCnsFu2cHJ4I6","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{"hate":{"filtered":false,"severity":"safe"},"self_harm":{"filtered":false,"severity":"safe"},"sexual":{"filtered":false,"severity":"safe"},"violence":{"filtered":false,"severity":"safe"}},"delta":{"content":"2"},"finish_reason":null,"index":0,"logprobs":null}],"created":1767213472,"id":"chatcmpl-CsxF2gevjF3OAbabH2oAY8SEJOmMz","model":"gpt-4.1-2025-04-14","obfuscation":"81iAfAX","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{"content":"2"},"finish_reason":null,"index":0,"logprobs":null}],"created":1778084917,"id":"chatcmpl-DcZOvcp6xMv3Ynjq32vxzkAonjYDq","model":"gpt-4.1-2025-04-14","obfuscation":"S4jzY5dOfTx7nI","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[{"content_filter_results":{},"delta":{},"finish_reason":"stop","index":0,"logprobs":null}],"created":1767213472,"id":"chatcmpl-CsxF2gevjF3OAbabH2oAY8SEJOmMz","model":"gpt-4.1-2025-04-14","obfuscation":"Bx","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":null}
+        data: {"choices":[{"content_filter_results":{},"delta":{},"finish_reason":"stop","index":0,"logprobs":null}],"created":1778084917,"id":"chatcmpl-DcZOvcp6xMv3Ynjq32vxzkAonjYDq","model":"gpt-4.1-2025-04-14","obfuscation":"RzBNbC8ma","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":null}
 
 
-        data: {"choices":[],"created":1767213472,"id":"chatcmpl-CsxF2gevjF3OAbabH2oAY8SEJOmMz","model":"gpt-4.1-2025-04-14","obfuscation":"Wgr8sYKZ","object":"chat.completion.chunk","system_fingerprint":"fp_f99638a8d7","usage":{"completion_tokens":2,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens":27,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":29}}
+        data: {"choices":[],"created":1778084917,"id":"chatcmpl-DcZOvcp6xMv3Ynjq32vxzkAonjYDq","latency_checkpoint":{"engine_tbt_ms":7,"engine_ttft_ms":55,"engine_ttlt_ms":69,"pre_inference_ms":108,"service_tbt_ms":13,"service_ttft_ms":553,"service_ttlt_ms":568,"total_duration_ms":470,"user_visible_ttft_ms":444},"model":"gpt-4.1-2025-04-14","obfuscation":"52Na","object":"chat.completion.chunk","service_tier":"default","system_fingerprint":"fp_7a7fd0eb44","usage":{"completion_tokens":2,"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0},"prompt_tokens":27,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0},"total_tokens":29}}
 
 
         data: [DONE]
@@ -45,50 +45,66 @@ interactions:
 
         '
     headers:
-      Content-Length:
-      - '2036'
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Wed, 31 Dec 2025 20:37:52 GMT
+      - Wed, 06 May 2026 16:28:38 GMT
       Server:
       - github.com
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
       Vary:
       - Origin
       X-Content-Type-Options:
       - nosniff
       X-GitHub-Request-Id:
-      - 60D8:1FBFAF:463C081:5AB63D0:6955899F
+      - 984D:1B7094:379A6B5:3B36DF5:69FB6C35
       apim-request-id:
-      - d69996b7-0cb8-403b-9e8e-a612e9773e44
+      - 6f3e28b7-c7e8-4423-9062-078c1f08d8d2
       azureml-model-session:
-      - d20251214155453-23b03381681f42df
+      - d20260429204954-abb1bcb6
       azureml-served-by-cluster:
       - vienna-westus-02
       request-context:
       - appId=
+      skip-error-remapping:
+      - 'true'
       x-github-backend:
       - Kubernetes
       x-ms-client-request-id:
       - Not-Set
       x-ms-deployment-name:
       - gpt-4.1
+      x-ms-is-spilled-over:
+      - 'false'
       x-ms-rai-invoked:
       - 'true'
       x-ms-region:
       - East US 2
+      x-ratelimit-abusepenalty-active:
+      - 'False'
+      x-ratelimit-key:
+      - gpt-4.1
       x-ratelimit-limit-requests:
       - '1000'
       x-ratelimit-limit-tokens:
       - '1000000'
       x-ratelimit-remaining-requests:
-      - '998'
+      - '999'
       x-ratelimit-remaining-tokens:
-      - '999972'
+      - '999973'
+      x-ratelimit-renewalperiod-requests:
+      - '60'
+      x-ratelimit-renewalperiod-tokens:
+      - '60'
+      x-ratelimit-reset-requests:
+      - '0'
+      x-ratelimit-reset-tokens:
+      - '0'
       x-request-time:
-      - '0.743'
+      - '0.675'
     status:
       code: 200
       message: OK

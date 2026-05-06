@@ -3,15 +3,21 @@
 # ---------------------------------------------------------
 
 
-from typing import Mapping, Optional, TypedDict
+from typing import Any, Mapping, Optional, TypedDict
 
 import anthropic
+import anthropic.lib.credentials._cache
+import anthropic.lib.credentials._types
 import httpx
 
 
 class ChatClientArgs(TypedDict, total=False):
     api_key: str | None
     auth_token: str | None
+    credentials: anthropic.lib.credentials._types.AccessTokenProvider | None
+    config: Optional[Mapping[str, Any]]
+    profile: str | None
+    webhook_key: str | None
     base_url: str | httpx.URL | None
     timeout: float | anthropic.Timeout | None | anthropic.NotGiven
     max_retries: int
@@ -19,3 +25,6 @@ class ChatClientArgs(TypedDict, total=False):
     default_query: Optional[Mapping[str, object]]
     http_client: httpx.AsyncClient | None
     _strict_response_validation: bool
+    _token_cache: (
+        anthropic.lib.credentials._cache.TokenCache | None | anthropic.NotGiven
+    )

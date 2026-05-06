@@ -7,6 +7,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [UNRELEASED]
+
+### Improvements
+
+* Updated default models across all providers to current generation: (#292)
+  * Anthropic: `claude-sonnet-4-6`
+  * Bedrock: `us.anthropic.claude-sonnet-4-6`
+  * Snowflake: `claude-sonnet-4-6`
+  * Databricks: `databricks-claude-sonnet-4-6`
+  * OpenAI / Completions / OpenRouter / Portkey: `gpt-5.4`
+  * GitHub: `gpt-5`
+  * Perplexity: `sonar`
+* Updated token pricing data from LiteLLM. (#292)
+
 ## [0.16.0] - 2026-04-16
 
 ### New features

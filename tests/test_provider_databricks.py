@@ -22,9 +22,13 @@ def vcr_config():
     return config
 
 
+def chat_fun(**kwargs):
+    return ChatDatabricks(model="databricks-claude-3-7-sonnet", **kwargs)
+
+
 @pytest.mark.vcr
 def test_databricks_simple_request():
-    chat = ChatDatabricks(
+    chat = chat_fun(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -40,7 +44,7 @@ def test_databricks_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_databricks_simple_streaming_request():
-    chat = ChatDatabricks(
+    chat = chat_fun(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -54,14 +58,13 @@ async def test_databricks_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_databricks_respects_turns_interface():
-    chat_fun = ChatDatabricks
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
 @pytest.mark.vcr
 def test_databricks_empty_response():
-    chat = ChatDatabricks()
+    chat = chat_fun()
     chat.chat("Respond with only two blank lines")
     resp = chat.chat("What's 1+1? Just give me the number")
     assert "2" == str(resp).strip()
@@ -69,24 +72,22 @@ def test_databricks_empty_response():
 
 @pytest.mark.vcr
 def test_databricks_tool_variations():
-    chat_fun = ChatDatabricks
     assert_tools_simple(chat_fun)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_databricks_tool_variations_async():
-    await assert_tools_async(ChatDatabricks)
+    await assert_tools_async(chat_fun)
 
 
 @pytest.mark.vcr
 def test_databricks_data_extraction():
-    assert_data_extraction(ChatDatabricks)
+    assert_data_extraction(chat_fun)
 
 
 @pytest.mark.vcr
 def test_databricks_images():
-    chat_fun = ChatDatabricks
     assert_images_inline(chat_fun)
     # Remote images don't seem to be supported yet
     # assert_images_remote(chat_fun)

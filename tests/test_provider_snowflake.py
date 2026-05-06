@@ -15,7 +15,7 @@ from .conftest import (
 def chat_fun(**kwargs):
     return ChatSnowflake(
         connection_name="posit",
-        model="claude-3-7-sonnet",
+        model="claude-sonnet-4-6",
         **kwargs,
     )
 
