@@ -378,7 +378,7 @@ def test_chat_tool_request_reject2(capsys):
 
 
 def test_get_cost():
-    chat = ChatOpenAI(model="gpt-4.1", api_key="fake_key")
+    chat = ChatOpenAI(api_key="fake_key")
     chat.set_turns(
         [
             UserTurn("Hi"),

@@ -88,11 +88,11 @@ def test_token_count_method():
 
 
 def test_get_token_prices():
-    chat = ChatOpenAI(model="o1-mini")
+    chat = ChatOpenAI(model="gpt-5.4-mini")
     pricing = get_price_info(chat.provider.name, chat.provider.model)
     assert pricing is not None
     assert pricing["provider"] == "OpenAI"
-    assert pricing["model"] == "o1-mini"
+    assert pricing["model"] == "gpt-5.4-mini"
     assert isinstance(pricing["input"], float)
     # cached_input and output might be optional
     if "cached_input" in pricing:
@@ -102,7 +102,7 @@ def test_get_token_prices():
 
 
 def test_get_token_cost():
-    chat = ChatOpenAI(model="o1-mini")
+    chat = ChatOpenAI(model="gpt-5.4-mini")
     price = get_token_cost(chat.provider.name, chat.provider.model, (10, 50, 0))
     assert isinstance(price, float)
     assert price > 0

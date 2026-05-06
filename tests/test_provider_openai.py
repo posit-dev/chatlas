@@ -139,7 +139,7 @@ def test_openai_service_tier():
 def test_openai_service_tier_affects_pricing():
     from chatlas._tokens import get_token_cost
 
-    chat = ChatOpenAI(model="gpt-4.1", service_tier="priority")
+    chat = ChatOpenAI(service_tier="priority")
     chat.chat("What is 1+1?")
 
     turn = chat.get_last_turn()
