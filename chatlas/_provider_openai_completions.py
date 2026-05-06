@@ -24,6 +24,7 @@ from ._content import (
     ContentJson,
     ContentPDF,
     ContentText,
+    ContentThinking,
     ContentToolRequest,
     ContentToolResult,
 )
@@ -194,7 +195,20 @@ class OpenAICompletionsProvider(
     def stream_content(self, chunk) -> Optional[Content]:
         if not chunk.choices:
             return None
-        text = chunk.choices[0].delta.content
+        delta = chunk.choices[0].delta
+
+        reasoning_content = getattr(delta, "reasoning_content", None)
+        if (
+            reasoning_content is None
+            and hasattr(delta, "model_extra")
+            and delta.model_extra
+        ):
+            reasoning_content = delta.model_extra.get("reasoning_content")
+
+        if reasoning_content:
+            return ContentThinking(thinking=reasoning_content)
+
+        text = delta.content
         if text is None:
             return None
         return ContentText.model_construct(text=text)
@@ -207,9 +221,20 @@ class OpenAICompletionsProvider(
 
     def stream_turn(self, completion, has_data_model):
         delta = completion["choices"][0].pop("delta")
+
+        reasoning_content = delta.get("reasoning_content")
+
         completion["choices"][0]["message"] = delta
-        completion = ChatCompletion.construct(**completion)
-        return self._response_as_turn(completion, has_data_model)
+        completion_obj = ChatCompletion.construct(**completion)
+
+        turn = self._response_as_turn(completion_obj, has_data_model)
+
+        if reasoning_content and not any(
+            isinstance(c, ContentThinking) for c in turn.contents
+        ):
+            turn.contents.insert(0, ContentThinking(thinking=reasoning_content))
+
+        return turn
 
     def value_turn(self, completion, has_data_model):
         return self._response_as_turn(completion, has_data_model)
@@ -251,12 +276,15 @@ class OpenAICompletionsProvider(
             elif isinstance(turn, AssistantTurn):
                 content_parts: list["ContentArrayOfContentPart"] = []
                 tool_calls: list["ChatCompletionMessageToolCallParam"] = []
+                reasoning_content = ""
                 for x in turn.contents:
                     if isinstance(x, ContentText):
                         content_parts.append({"type": "text", "text": x.text})
                     elif isinstance(x, ContentJson):
                         text = orjson.dumps(x.value).decode("utf-8")
                         content_parts.append({"type": "text", "text": text})
+                    elif isinstance(x, ContentThinking):
+                        reasoning_content += x.thinking
                     elif isinstance(x, ContentToolRequest):
                         tool_calls.append(
                             {
@@ -276,7 +304,7 @@ class OpenAICompletionsProvider(
                         )
 
                 # Some OpenAI-compatible models (e.g., Groq) don't work nicely with empty content
-                args = {
+                args: dict[str, Any] = {
                     "role": "assistant",
                     "content": content_parts,
                     "tool_calls": tool_calls,
@@ -285,8 +313,10 @@ class OpenAICompletionsProvider(
                     del args["content"]
                 if not tool_calls:
                     del args["tool_calls"]
+                if reasoning_content:
+                    args["reasoning_content"] = reasoning_content
 
-                res.append(ChatCompletionAssistantMessageParam(**args))
+                res.append(cast("ChatCompletionAssistantMessageParam", args))
 
             elif isinstance(turn, UserTurn):
                 contents: list["ChatCompletionContentPartParam"] = []
@@ -343,11 +373,11 @@ class OpenAICompletionsProvider(
                             f"Don't know how to handle content type {type(x)} for role='user'."
                         )
 
+                res.extend(tool_results)
                 if contents:
                     res.append(
                         ChatCompletionUserMessageParam(content=contents, role="user")
                     )
-                res.extend(tool_results)
 
             else:
                 raise ValueError(f"Unknown role: {turn.role}")
@@ -361,15 +391,27 @@ class OpenAICompletionsProvider(
         message = completion.choices[0].message
 
         contents: list[Content] = []
+
+        reasoning_content = getattr(message, "reasoning_content", None)
+        if (
+            reasoning_content is None
+            and hasattr(message, "model_extra")
+            and message.model_extra
+        ):
+            reasoning_content = message.model_extra.get("reasoning_content")
+
+        if reasoning_content:
+            contents.append(ContentThinking(thinking=reasoning_content))
+
         if message.content is not None:
             if has_data_model:
                 data = message.content
                 # Some providers (e.g., Cloudflare) may already provide a dict
                 if not isinstance(data, dict):
                     data = orjson.loads(data)
-                contents = [ContentJson(value=data)]
+                contents.append(ContentJson(value=data))
             else:
-                contents = [ContentText(text=message.content)]
+                contents.append(ContentText(text=message.content))
 
         tool_calls = message.tool_calls
 
