@@ -122,7 +122,7 @@ def ChatDeepSeek(
     ```
     """
     if model is None:
-        model = log_model_default("deepseek-chat")
+        model = log_model_default("deepseek-v4-flash")
 
     if api_key is None:
         api_key = os.getenv("DEEPSEEK_API_KEY")
@@ -136,6 +136,7 @@ def ChatDeepSeek(
             model=model,
             base_url=base_url,
             seed=seed,
+            preserve_thinking=True,
             name="DeepSeek",
             kwargs=kwargs,
         ),
