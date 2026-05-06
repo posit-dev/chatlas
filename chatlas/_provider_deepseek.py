@@ -144,14 +144,13 @@ def ChatDeepSeek(
 
 
 class DeepSeekProvider(OpenAICompletionsProvider):
-    @staticmethod
-    def _turns_as_inputs(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
+    def _turns_as_inputs(self, turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
         from openai.types.chat import (
             ChatCompletionAssistantMessageParam,
             ChatCompletionUserMessageParam,
         )
 
-        params = OpenAICompletionsProvider._turns_as_inputs(turns)
+        params = super()._turns_as_inputs(turns)
 
         # Content must be a string
         for i, param in enumerate(params):
