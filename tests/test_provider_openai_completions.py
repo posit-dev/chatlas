@@ -1,6 +1,9 @@
 import httpx
 import pytest
 from chatlas import ChatOpenAICompletions
+from chatlas._content import ContentText, ContentThinking
+from chatlas._provider_openai_completions import OpenAICompletionsProvider
+from chatlas._turn import AssistantTurn
 
 from .conftest import (
     assert_data_extraction,
@@ -110,3 +113,82 @@ def test_openai_custom_http_client():
 @pytest.mark.vcr
 def test_openai_list_models():
     assert_list_models(ChatOpenAICompletions)
+
+
+def test_stream_content_extracts_reasoning_content():
+    provider = OpenAICompletionsProvider(model="test")
+
+    class FakeDelta:
+        def __init__(self, reasoning_content=None, content=None):
+            self.reasoning_content = reasoning_content
+            self.content = content
+
+    class FakeChoice:
+        def __init__(self, delta):
+            self.delta = delta
+
+    class FakeChunk:
+        def __init__(self, choices):
+            self.choices = choices
+
+    chunk = FakeChunk([FakeChoice(FakeDelta(reasoning_content="think"))])
+    result = provider.stream_content(chunk)
+    assert isinstance(result, ContentThinking)
+    assert result.thinking == "think"
+
+    chunk = FakeChunk([FakeChoice(FakeDelta(content="hello"))])
+    result = provider.stream_content(chunk)
+    assert isinstance(result, ContentText)
+    assert result.text == "hello"
+
+
+def test_response_as_turn_extracts_reasoning_content():
+    from unittest.mock import Mock
+
+    completion = Mock()
+    message = Mock()
+    message.reasoning_content = "Let me think..."
+    message.content = "The answer is 42."
+    message.tool_calls = None
+    completion.choices = [Mock(message=message, finish_reason="stop")]
+
+    turn = OpenAICompletionsProvider._response_as_turn(completion, has_data_model=False)
+    assert len(turn.contents) == 2
+    assert isinstance(turn.contents[0], ContentThinking)
+    assert turn.contents[0].thinking == "Let me think..."
+    assert isinstance(turn.contents[1], ContentText)
+    assert turn.contents[1].text == "The answer is 42."
+
+
+def test_turns_as_inputs_drops_thinking_by_default():
+    provider = OpenAICompletionsProvider(model="test")
+
+    turn = AssistantTurn(
+        [
+            ContentThinking(thinking="Let me think..."),
+            ContentText(text="The answer is 42."),
+        ]
+    )
+    result = provider._turns_as_inputs([turn])
+    assert len(result) == 1
+    msg = result[0]
+    assert msg["role"] == "assistant"
+    assert "reasoning_content" not in msg
+    assert msg["content"] == [{"type": "text", "text": "The answer is 42."}]
+
+
+def test_turns_as_inputs_preserves_thinking_when_enabled():
+    provider = OpenAICompletionsProvider(model="test", preserve_thinking=True)
+
+    turn = AssistantTurn(
+        [
+            ContentThinking(thinking="Let me think..."),
+            ContentText(text="The answer is 42."),
+        ]
+    )
+    result = provider._turns_as_inputs([turn])
+    assert len(result) == 1
+    msg = result[0]
+    assert msg["role"] == "assistant"
+    assert msg["reasoning_content"] == "Let me think..."
+    assert msg["content"] == [{"type": "text", "text": "The answer is 42."}]

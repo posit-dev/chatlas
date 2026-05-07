@@ -132,6 +132,7 @@ def ChatOpenRouter(
             base_url=base_url,
             seed=seed,
             name="OpenRouter",
+            preserve_thinking=True,
             kwargs=kwargs2,
         ),
         system_prompt=system_prompt,

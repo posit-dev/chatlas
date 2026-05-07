@@ -273,9 +273,8 @@ class OpenAIAbstractProvider(
         data_model: Optional[type[BaseModel]],
     ) -> SubmitInputArgsT: ...
 
-    @staticmethod
     @abstractmethod
-    def _turns_as_inputs(turns: list[Turn]) -> list[Any]: ...
+    def _turns_as_inputs(self, turns: list[Turn]) -> list[Any]: ...
 
     @staticmethod
     @abstractmethod

@@ -5,7 +5,7 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Host:
@@ -18,36 +18,36 @@ interactions:
     uri: https://api.deepseek.com/models
   response:
     body:
-      string: '{"object":"list","data":[{"id":"deepseek-chat","object":"model","owned_by":"deepseek"},{"id":"deepseek-reasoner","object":"model","owned_by":"deepseek"}]}'
+      string: '{"object":"list","data":[{"id":"deepseek-v4-flash","object":"model","owned_by":"deepseek"},{"id":"deepseek-v4-pro","object":"model","owned_by":"deepseek"}]}'
     headers:
       Connection:
       - keep-alive
       Content-Length:
-      - '154'
+      - '156'
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:37:50 GMT
+      - Wed, 06 May 2026 23:20:10 GMT
       Server:
       - elb
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
-      Vary:
-      - origin
       Via:
-      - 1.1 2f51a381830e231f6bc2b46fda74f69e.cloudfront.net (CloudFront)
+      - 1.1 59d8e2230b07f6d21e105d564b87cc6c.cloudfront.net (CloudFront)
       X-Amz-Cf-Id:
-      - mgFFCx8JBolTTjH52ADc1GUHPZssINDzDxG2pABqc5djt5OUrlCTbQ==
+      - kvNMGPNoxRu0-JnpPnf6mBiJ7QU1rXkorvtdIg95oN1NGREqV2R0Bw==
       X-Amz-Cf-Pop:
-      - ORD56-P7
+      - MSP50-P3
       X-Cache:
       - Miss from cloudfront
       X-Content-Type-Options:
       - nosniff
       access-control-allow-credentials:
       - 'true'
+      vary:
+      - origin, access-control-request-method, access-control-request-headers
       x-ds-trace-id:
-      - e9649652e269daf0ffdd27df13056a22
+      - ca44e5c998d05d2e72061b2b65c80da0
     status:
       code: 200
       message: OK

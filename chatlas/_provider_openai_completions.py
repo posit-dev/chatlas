@@ -24,6 +24,7 @@ from ._content import (
     ContentJson,
     ContentPDF,
     ContentText,
+    ContentThinking,
     ContentToolRequest,
     ContentToolResult,
 )
@@ -59,6 +60,7 @@ def ChatOpenAICompletions(
     model: "Optional[ChatModel | str]" = None,
     api_key: Optional[str] = None,
     seed: int | None | MISSING_TYPE = MISSING,
+    preserve_thinking: bool = False,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
@@ -70,6 +72,15 @@ def ChatOpenAICompletions(
     This function may also be useful for using an "OpenAI-compatible model"
     hosted by another provider (e.g., vLLM, Ollama, etc.) that supports the
     OpenAI Completions API.
+
+    Parameters
+    ----------
+    preserve_thinking
+        If True, reasoning content returned by the model is included when
+        sending conversation history back to the API. If False (the default),
+        reasoning content is still captured in the turn but dropped from
+        subsequent requests. Set to True if your provider requires or benefits
+        from seeing prior reasoning in multi-turn conversations.
     """
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
@@ -83,6 +94,7 @@ def ChatOpenAICompletions(
             model=model,
             base_url=base_url,
             seed=seed,
+            preserve_thinking=preserve_thinking,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -105,6 +117,7 @@ class OpenAICompletionsProvider(
         base_url: str = "https://api.openai.com/v1",
         name: str = "OpenAI",
         seed: int | None = None,
+        preserve_thinking: bool = False,
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(
@@ -115,6 +128,7 @@ class OpenAICompletionsProvider(
             kwargs=kwargs,
         )
         self._seed = seed
+        self._preserve_thinking = preserve_thinking
 
     def chat_perform(
         self,
@@ -194,7 +208,13 @@ class OpenAICompletionsProvider(
     def stream_content(self, chunk) -> Optional[Content]:
         if not chunk.choices:
             return None
-        text = chunk.choices[0].delta.content
+        delta = chunk.choices[0].delta
+
+        reasoning = getattr(delta, "reasoning_content", None)
+        if reasoning is not None:
+            return ContentThinking(thinking=reasoning)
+
+        text = delta.content
         if text is None:
             return None
         return ContentText.model_construct(text=text)
@@ -240,8 +260,7 @@ class OpenAICompletionsProvider(
             cached_tokens,
         )
 
-    @staticmethod
-    def _turns_as_inputs(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
+    def _turns_as_inputs(self, turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
         res: list["ChatCompletionMessageParam"] = []
         for turn in turns:
             if isinstance(turn, SystemTurn):
@@ -251,8 +270,12 @@ class OpenAICompletionsProvider(
             elif isinstance(turn, AssistantTurn):
                 content_parts: list["ContentArrayOfContentPart"] = []
                 tool_calls: list["ChatCompletionMessageToolCallParam"] = []
+                reasoning_content: str | None = None
                 for x in turn.contents:
-                    if isinstance(x, ContentText):
+                    if isinstance(x, ContentThinking):
+                        if self._preserve_thinking:
+                            reasoning_content = (reasoning_content or "") + x.thinking
+                    elif isinstance(x, ContentText):
                         content_parts.append({"type": "text", "text": x.text})
                     elif isinstance(x, ContentJson):
                         text = orjson.dumps(x.value).decode("utf-8")
@@ -276,11 +299,13 @@ class OpenAICompletionsProvider(
                         )
 
                 # Some OpenAI-compatible models (e.g., Groq) don't work nicely with empty content
-                args = {
+                args: dict[str, Any] = {
                     "role": "assistant",
                     "content": content_parts,
                     "tool_calls": tool_calls,
                 }
+                if reasoning_content is not None:
+                    args["reasoning_content"] = reasoning_content
                 if not content_parts:
                     del args["content"]
                 if not tool_calls:
@@ -361,15 +386,20 @@ class OpenAICompletionsProvider(
         message = completion.choices[0].message
 
         contents: list[Content] = []
+
+        reasoning = getattr(message, "reasoning_content", None)
+        if reasoning:
+            contents.append(ContentThinking(thinking=reasoning))
+
         if message.content is not None:
             if has_data_model:
                 data = message.content
                 # Some providers (e.g., Cloudflare) may already provide a dict
                 if not isinstance(data, dict):
                     data = orjson.loads(data)
-                contents = [ContentJson(value=data)]
+                contents.append(ContentJson(value=data))
             else:
-                contents = [ContentText(text=message.content)]
+                contents.append(ContentText(text=message.content))
 
         tool_calls = message.tool_calls
 
