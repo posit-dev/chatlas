@@ -138,6 +138,7 @@ ContentTypeEnum = Literal[
     "json",
     "pdf",
     "thinking",
+    "thinking_delta",
     "web_search_request",
     "web_search_results",
     "web_fetch_request",
@@ -671,7 +672,7 @@ class ContentThinkingDelta(Content):
     thinking: str
     phase: Literal["start", "body", "end"] = "body"
 
-    content_type: ContentTypeEnum = "thinking"
+    content_type: ContentTypeEnum = "thinking_delta"
 
     def __str__(self):
         return self.thinking

@@ -2680,7 +2680,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     is_thinking = isinstance(content, ContentThinkingDelta)
 
                     if is_thinking and not inside_thinking:
-                        content.phase = "start"
+                        assert isinstance(content, ContentThinkingDelta)
+                        content = ContentThinkingDelta(
+                            thinking=content.thinking, phase="start"
+                        )
                         emit("<thinking>\n")
                         inside_thinking = True
                     elif not is_thinking and inside_thinking:
@@ -2690,6 +2693,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         inside_thinking = False
 
                     if is_thinking:
+                        assert isinstance(content, ContentThinkingDelta)
                         emit(content.thinking)
                         if content_mode == "all":
                             yield content
@@ -2805,7 +2809,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     is_thinking = isinstance(content, ContentThinkingDelta)
 
                     if is_thinking and not inside_thinking:
-                        content.phase = "start"
+                        assert isinstance(content, ContentThinkingDelta)
+                        content = ContentThinkingDelta(
+                            thinking=content.thinking, phase="start"
+                        )
                         emit("<thinking>\n")
                         inside_thinking = True
                     elif not is_thinking and inside_thinking:
@@ -2815,6 +2822,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         inside_thinking = False
 
                     if is_thinking:
+                        assert isinstance(content, ContentThinkingDelta)
                         emit(content.thinking)
                         if content_mode == "all":
                             yield content
