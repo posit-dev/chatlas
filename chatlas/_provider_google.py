@@ -15,6 +15,7 @@ from ._content import (
     ContentPDF,
     ContentText,
     ContentThinking,
+    ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
 )
@@ -377,7 +378,7 @@ class GoogleProvider(
         if text is None:
             return None
         if getattr(part, "thought", None):
-            return ContentThinking._as_chunk(text)
+            return ContentThinkingDelta(thinking=text)
         return ContentText.model_construct(text=text)
 
     def stream_merge_chunks(self, completion, chunk):
