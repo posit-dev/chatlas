@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
-* `.stream()` and `.stream_async()` now emit `<thinking>` / `</thinking>` tag boundaries around thinking content. With `content="text"`, concatenating all chunks produces well-formed output with thinking delimited by a single tag pair. With `content="all"`, behavior is unchanged — typed `ContentThinking` objects are yielded without tag strings. (#294)
+* `.stream()` and `.stream_async()` now emit `<thinking>` / `</thinking>` tag boundaries around thinking content in all stream modes. With `content="text"`, concatenating all chunks produces well-formed output with thinking delimited by a single tag pair. With `content="all"`, tag boundary strings are yielded alongside typed `ContentThinking` objects, so downstream consumers can detect thinking boundaries without type inspection. (#294, #297)
 * Updated default models across all providers to current generation: (#292)
   * Anthropic: `claude-sonnet-4-6`
   * Bedrock: `us.anthropic.claude-sonnet-4-6`
