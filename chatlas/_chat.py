@@ -92,6 +92,10 @@ def is_present(value: T | None | MISSING_TYPE) -> TypeGuard[T]:
     return value is not None and not isinstance(value, MISSING_TYPE)
 
 
+def is_thinking_delta(content: Content) -> TypeGuard[ContentThinkingDelta]:
+    return isinstance(content, ContentThinkingDelta)
+
+
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
     """
     A chat object that can be used to interact with a language model.
@@ -2677,23 +2681,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             for chunk in response:
                 content = self.provider.stream_content(chunk)
                 if content is not None:
-                    is_thinking = isinstance(content, ContentThinkingDelta)
-
-                    if is_thinking and not inside_thinking:
-                        assert isinstance(content, ContentThinkingDelta)
+                    if is_thinking_delta(content) and not inside_thinking:
                         content = ContentThinkingDelta(
                             thinking=content.thinking, phase="start"
                         )
                         emit("<thinking>\n")
                         inside_thinking = True
-                    elif not is_thinking and inside_thinking:
+                    elif not is_thinking_delta(content) and inside_thinking:
                         emit("\n</thinking>\n\n")
                         if content_mode == "all":
                             yield ContentThinkingDelta(thinking="", phase="end")
                         inside_thinking = False
 
-                    if is_thinking:
-                        assert isinstance(content, ContentThinkingDelta)
+                    if is_thinking_delta(content):
                         emit(content.thinking)
                         if content_mode == "all":
                             yield content
@@ -2806,23 +2806,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             async for chunk in response:
                 content = self.provider.stream_content(chunk)
                 if content is not None:
-                    is_thinking = isinstance(content, ContentThinkingDelta)
-
-                    if is_thinking and not inside_thinking:
-                        assert isinstance(content, ContentThinkingDelta)
+                    if is_thinking_delta(content) and not inside_thinking:
                         content = ContentThinkingDelta(
                             thinking=content.thinking, phase="start"
                         )
                         emit("<thinking>\n")
                         inside_thinking = True
-                    elif not is_thinking and inside_thinking:
+                    elif not is_thinking_delta(content) and inside_thinking:
                         emit("\n</thinking>\n\n")
                         if content_mode == "all":
                             yield ContentThinkingDelta(thinking="", phase="end")
                         inside_thinking = False
 
-                    if is_thinking:
-                        assert isinstance(content, ContentThinkingDelta)
+                    if is_thinking_delta(content):
                         emit(content.thinking)
                         if content_mode == "all":
                             yield content
