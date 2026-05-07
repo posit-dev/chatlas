@@ -136,17 +136,17 @@ interactions:
         *.rel.tunnels.api.visualstudio.com wss://*.rel.tunnels.api.visualstudio.com
         github.githubassets.com objects-origin.githubusercontent.com copilot-proxy.githubusercontent.com
         proxy.individual.githubcopilot.com proxy.business.githubcopilot.com proxy.enterprise.githubcopilot.com
-        *.actions.githubusercontent.com wss://*.actions.githubusercontent.com productionresultssa0.blob.core.windows.net/
-        productionresultssa1.blob.core.windows.net/ productionresultssa2.blob.core.windows.net/
-        productionresultssa3.blob.core.windows.net/ productionresultssa4.blob.core.windows.net/
-        productionresultssa5.blob.core.windows.net/ productionresultssa6.blob.core.windows.net/
-        productionresultssa7.blob.core.windows.net/ productionresultssa8.blob.core.windows.net/
-        productionresultssa9.blob.core.windows.net/ productionresultssa10.blob.core.windows.net/
-        productionresultssa11.blob.core.windows.net/ productionresultssa12.blob.core.windows.net/
-        productionresultssa13.blob.core.windows.net/ productionresultssa14.blob.core.windows.net/
-        productionresultssa15.blob.core.windows.net/ productionresultssa16.blob.core.windows.net/
-        productionresultssa17.blob.core.windows.net/ productionresultssa18.blob.core.windows.net/
-        productionresultssa19.blob.core.windows.net/ github-production-repository-image-32fea6.s3.amazonaws.com
+        *.actions.githubusercontent.com wss://*.actions.githubusercontent.com productionresultssa0.blob.core.windows.net
+        productionresultssa1.blob.core.windows.net productionresultssa2.blob.core.windows.net
+        productionresultssa3.blob.core.windows.net productionresultssa4.blob.core.windows.net
+        productionresultssa5.blob.core.windows.net productionresultssa6.blob.core.windows.net
+        productionresultssa7.blob.core.windows.net productionresultssa8.blob.core.windows.net
+        productionresultssa9.blob.core.windows.net productionresultssa10.blob.core.windows.net
+        productionresultssa11.blob.core.windows.net productionresultssa12.blob.core.windows.net
+        productionresultssa13.blob.core.windows.net productionresultssa14.blob.core.windows.net
+        productionresultssa15.blob.core.windows.net productionresultssa16.blob.core.windows.net
+        productionresultssa17.blob.core.windows.net productionresultssa18.blob.core.windows.net
+        productionresultssa19.blob.core.windows.net github-production-repository-image-32fea6.s3.amazonaws.com
         github-production-release-asset-2e65be.s3.amazonaws.com insights.github.com
         wss://alive.github.com wss://alive-staging.github.com api.githubcopilot.com
         api.individual.githubcopilot.com api.business.githubcopilot.com api.enterprise.githubcopilot.com;
@@ -156,14 +156,13 @@ interactions:
         img-src ''self'' data: blob: github.githubassets.com media.githubusercontent.com
         camo.githubusercontent.com identicons.github.com avatars.githubusercontent.com
         private-avatars.githubusercontent.com github-cloud.s3.amazonaws.com objects.githubusercontent.com
-        release-assets.githubusercontent.com secured-user-images.githubusercontent.com/
-        user-images.githubusercontent.com/ private-user-images.githubusercontent.com
-        opengraph.githubassets.com marketplace-screenshots.githubusercontent.com/
-        copilotprodattachments.blob.core.windows.net/github-production-copilot-attachments/
+        release-assets.githubusercontent.com secured-user-images.githubusercontent.com
+        user-images.githubusercontent.com private-user-images.githubusercontent.com
+        opengraph.githubassets.com marketplace-screenshots.githubusercontent.com copilotprodattachments.blob.core.windows.net/github-production-copilot-attachments/
         github-production-user-asset-6210df.s3.amazonaws.com customer-stories-feed.github.com
         spotlights-feed.github.com objects-origin.githubusercontent.com *.githubusercontent.com;
-        manifest-src ''self''; media-src github.com user-images.githubusercontent.com/
-        secured-user-images.githubusercontent.com/ private-user-images.githubusercontent.com
+        manifest-src ''self''; media-src github.com user-images.githubusercontent.com
+        secured-user-images.githubusercontent.com private-user-images.githubusercontent.com
         github-production-user-asset-6210df.s3.amazonaws.com gist.github.com github.githubassets.com;
         script-src github.githubassets.com; style-src ''unsafe-inline'' github.githubassets.com;
         upgrade-insecure-requests; worker-src github.githubassets.com github.com/assets-cdn/worker/
@@ -171,7 +170,7 @@ interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Wed, 31 Dec 2025 20:40:05 GMT
+      - Wed, 06 May 2026 16:30:51 GMT
       ETag:
       - W/"e466693951a9c5ca75f789f5bf8a3464"
       Referrer-Policy:
@@ -183,14 +182,14 @@ interactions:
       Transfer-Encoding:
       - chunked
       Vary:
-      - X-PJAX, X-PJAX-Container, Turbo-Visit, Turbo-Frame, X-Requested-With,Accept-Encoding,
+      - X-PJAX, X-PJAX-Container, Turbo-Visit, Turbo-Frame, X-Requested-With, Sec-Fetch-Site,Accept-Encoding,
         Accept, X-Requested-With
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
       - deny
       X-GitHub-Request-Id:
-      - D82C:305E60:52AD031:69B522D:69558A25
+      - E18A:112B3A:BC80A3:C9700B:69FB6CBA
       X-XSS-Protection:
       - '0'
       x-github-backend:

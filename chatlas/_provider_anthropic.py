@@ -26,6 +26,7 @@ from ._content import (
     ContentPDF,
     ContentText,
     ContentThinking,
+    ContentThinkingDelta,
     ContentToolRequest,
     ContentToolRequestFetch,
     ContentToolRequestSearch,
@@ -242,7 +243,7 @@ def ChatAnthropic(
     """
 
     if model is None:
-        model = log_model_default("claude-sonnet-4-5")
+        model = log_model_default("claude-sonnet-4-6")
 
     kwargs_chat: "SubmitInputArgs" = {}
     if reasoning is not None:
@@ -468,7 +469,7 @@ class AnthropicProvider(
             if chunk.delta.type == "text_delta":
                 return ContentText.model_construct(text=chunk.delta.text)
             if chunk.delta.type == "thinking_delta":
-                return ContentThinking(thinking=chunk.delta.thinking)
+                return ContentThinkingDelta(thinking=chunk.delta.thinking)
         return None
 
     def stream_merge_chunks(self, completion, chunk):
@@ -1123,7 +1124,7 @@ def ChatBedrockAnthropic(
     """
 
     if model is None:
-        model = log_model_default("us.anthropic.claude-sonnet-4-5-20250929-v1:0")
+        model = log_model_default("us.anthropic.claude-sonnet-4-6")
 
     kwargs_chat: "SubmitInputArgs" = {}
     if reasoning is not None:
@@ -1173,7 +1174,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         )
 
         try:
-            from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
+            from anthropic.lib.bedrock import AnthropicBedrock, AsyncAnthropicBedrock
         except ImportError:
             raise ImportError(
                 "`ChatBedrockAnthropic()` requires the `anthropic` package. "

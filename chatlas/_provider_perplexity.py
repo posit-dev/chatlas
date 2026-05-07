@@ -118,7 +118,7 @@ def ChatPerplexity(
     ```
     """
     if model is None:
-        model = log_model_default("llama-3.1-sonar-small-128k-online")
+        model = log_model_default("sonar")
     if api_key is None:
         api_key = os.getenv("PERPLEXITY_API_KEY")
 

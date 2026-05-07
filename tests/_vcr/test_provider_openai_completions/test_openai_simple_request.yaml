@@ -2,7 +2,7 @@ interactions:
 - request:
     body: '{"messages": [{"content": "Be as terse as possible; no punctuation", "role":
       "system"}, {"content": [{"type": "text", "text": "What is 1 + 1?"}], "role":
-      "user"}], "model": "gpt-4.1", "seed": 1014, "stream": true, "stream_options":
+      "user"}], "model": "gpt-5.4", "seed": 1014, "stream": true, "stream_options":
       {"include_usage": true}}'
     headers:
       Accept:
@@ -25,16 +25,16 @@ interactions:
     uri: https://api.openai.com/v1/chat/completions
   response:
     body:
-      string: 'data: {"id":"chatcmpl-DVMZ47XFpzjwsXOS53xv9DRdw6r22","object":"chat.completion.chunk","created":1776367278,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_0551618383","choices":[{"index":0,"delta":{"role":"assistant","content":"","refusal":null},"logprobs":null,"finish_reason":null}],"usage":null,"obfuscation":"6va8AF4jCP7Ai"}
+      string: 'data: {"id":"chatcmpl-DcaTv2FhSIUbA4yQLqROCKHKr0zQa","object":"chat.completion.chunk","created":1778089071,"model":"gpt-5.4-2026-03-05","service_tier":"default","system_fingerprint":null,"choices":[{"index":0,"delta":{"role":"assistant","content":"","refusal":null},"finish_reason":null}],"usage":null,"obfuscation":"uoDxfIoM"}
 
 
-        data: {"id":"chatcmpl-DVMZ47XFpzjwsXOS53xv9DRdw6r22","object":"chat.completion.chunk","created":1776367278,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_0551618383","choices":[{"index":0,"delta":{"content":"2"},"logprobs":null,"finish_reason":null}],"usage":null,"obfuscation":"TXb3GQeqjur5w7"}
+        data: {"id":"chatcmpl-DcaTv2FhSIUbA4yQLqROCKHKr0zQa","object":"chat.completion.chunk","created":1778089071,"model":"gpt-5.4-2026-03-05","service_tier":"default","system_fingerprint":null,"choices":[{"index":0,"delta":{"content":"2"},"finish_reason":null}],"usage":null,"obfuscation":"jQnFlI3LV"}
 
 
-        data: {"id":"chatcmpl-DVMZ47XFpzjwsXOS53xv9DRdw6r22","object":"chat.completion.chunk","created":1776367278,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_0551618383","choices":[{"index":0,"delta":{},"logprobs":null,"finish_reason":"stop"}],"usage":null,"obfuscation":"9hTLtfU6S"}
+        data: {"id":"chatcmpl-DcaTv2FhSIUbA4yQLqROCKHKr0zQa","object":"chat.completion.chunk","created":1778089071,"model":"gpt-5.4-2026-03-05","service_tier":"default","system_fingerprint":null,"choices":[{"index":0,"delta":{},"finish_reason":"stop"}],"usage":null,"obfuscation":"ZZ3V"}
 
 
-        data: {"id":"chatcmpl-DVMZ47XFpzjwsXOS53xv9DRdw6r22","object":"chat.completion.chunk","created":1776367278,"model":"gpt-4.1-2025-04-14","service_tier":"default","system_fingerprint":"fp_0551618383","choices":[],"usage":{"prompt_tokens":27,"completion_tokens":1,"total_tokens":28,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}},"obfuscation":"iZ4nSD7WuolHPKK"}
+        data: {"id":"chatcmpl-DcaTv2FhSIUbA4yQLqROCKHKr0zQa","object":"chat.completion.chunk","created":1778089071,"model":"gpt-5.4-2026-03-05","service_tier":"default","system_fingerprint":null,"choices":[],"usage":{"prompt_tokens":26,"completion_tokens":4,"total_tokens":30,"prompt_tokens_details":{"cached_tokens":0,"audio_tokens":0},"completion_tokens_details":{"reasoning_tokens":0,"audio_tokens":0,"accepted_prediction_tokens":0,"rejected_prediction_tokens":0}},"obfuscation":"LB9OvEiQwQ"}
 
 
         data: [DONE]
@@ -45,13 +45,13 @@ interactions:
       CF-Cache-Status:
       - DYNAMIC
       CF-Ray:
-      - 9ed58d5de9bc3bdc-ORD
+      - 9f79c1532c4d5110-MSP
       Connection:
       - keep-alive
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Thu, 16 Apr 2026 19:21:18 GMT
+      - Wed, 06 May 2026 17:37:51 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -65,21 +65,21 @@ interactions:
       alt-svc:
       - h3=":443"; ma=86400
       openai-processing-ms:
-      - '359'
+      - '267'
       openai-version:
       - '2020-10-01'
       x-openai-proxy-wasm:
       - v0.1
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '29999983'
+      - '39999982'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:

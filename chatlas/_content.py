@@ -6,7 +6,13 @@ from pprint import pformat
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast
 
 import orjson
-from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+)
 
 from ._typing_extensions import TypedDict
 
@@ -132,6 +138,7 @@ ContentTypeEnum = Literal[
     "json",
     "pdf",
     "thinking",
+    "thinking_delta",
     "web_search_request",
     "web_search_results",
     "web_fetch_request",
@@ -645,6 +652,30 @@ class ContentThinking(Content):
         html = f"<details><summary>Thinking</summary>{self.thinking}</details>"
 
         return HTML(html)
+
+
+class ContentThinkingDelta(Content):
+    """
+    A streaming fragment of thinking/reasoning content.
+
+    Emitted during streaming to represent a chunk of the model's thinking.
+    The ``phase`` attribute communicates block boundaries to downstream consumers.
+
+    Parameters
+    ----------
+    thinking
+        The thinking/reasoning text fragment.
+    phase
+        The phase of the thinking delta: ``"start"``, ``"body"``, or ``"end"``.
+    """
+
+    thinking: str
+    phase: Literal["start", "body", "end"] = "body"
+
+    content_type: ContentTypeEnum = "thinking_delta"
+
+    def __str__(self):
+        return self.thinking
 
 
 class ContentToolRequestSearch(Content):
