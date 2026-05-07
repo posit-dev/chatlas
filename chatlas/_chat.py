@@ -92,10 +92,6 @@ def is_present(value: T | None | MISSING_TYPE) -> TypeGuard[T]:
     return value is not None and not isinstance(value, MISSING_TYPE)
 
 
-def is_thinking_delta(content: Content) -> TypeGuard[ContentThinkingDelta]:
-    return isinstance(content, ContentThinkingDelta)
-
-
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
     """
     A chat object that can be used to interact with a language model.
@@ -3305,6 +3301,10 @@ class ToolFailureWarning(RuntimeWarning):
 
 # By default warnings are shown once; we want to always show them.
 warnings.simplefilter("always", ToolFailureWarning)
+
+
+def is_thinking_delta(content: Content) -> TypeGuard[ContentThinkingDelta]:
+    return isinstance(content, ContentThinkingDelta)
 
 
 def content_text(content: Content) -> str:
