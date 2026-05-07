@@ -198,6 +198,10 @@ chatlas.types.ContentJson py:class 1 reference/types.ContentJson.html#chatlas.ty
 chatlas._content.ContentJson py:class 1 reference/types.ContentJson.html#chatlas.types.ContentJson chatlas.types.ContentJson
 chatlas.types.ContentText py:class 1 reference/types.ContentText.html#chatlas.types.ContentText -
 chatlas._content.ContentText py:class 1 reference/types.ContentText.html#chatlas.types.ContentText chatlas.types.ContentText
+chatlas.types.ContentThinking py:class 1 reference/types.ContentThinking.html#chatlas.types.ContentThinking -
+chatlas._content.ContentThinking py:class 1 reference/types.ContentThinking.html#chatlas.types.ContentThinking chatlas.types.ContentThinking
+chatlas.types.ContentThinkingDelta py:class 1 reference/types.ContentThinkingDelta.html#chatlas.types.ContentThinkingDelta -
+chatlas._content.ContentThinkingDelta py:class 1 reference/types.ContentThinkingDelta.html#chatlas.types.ContentThinkingDelta chatlas.types.ContentThinkingDelta
 chatlas.types.ContentToolRequest.tagify py:function 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest.tagify -
 chatlas._content.ContentToolRequest.tagify py:function 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest.tagify chatlas.types.ContentToolRequest.tagify
 chatlas.types.ContentToolRequest py:class 1 reference/types.ContentToolRequest.html#chatlas.types.ContentToolRequest -

@@ -284,6 +284,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <section id="improvements" class="level3">
 <h3 class="anchored" data-anchor-id="improvements">Improvements</h3>
 <ul>
+<li><code>.stream()</code> and <code>.stream_async()</code> now handle thinking content differently by mode. With <code>content="text"</code>, thinking is suppressed entirely. With <code>content="all"</code>, thinking fragments are yielded as <code>ContentThinkingDelta</code> objects with a <code>phase</code> property (<code>"start"</code>, <code>"body"</code>, or <code>"end"</code>) that communicates block boundaries to downstream consumers without injecting synthetic strings into the stream. (#299, #297, #294)</li>
 <li>Updated default models across all providers to current generation: (#292)
 <ul>
 <li>Anthropic: <code>claude-sonnet-4-6</code></li>
