@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * GitHub: `gpt-5`
   * Perplexity: `sonar`
 * Updated token pricing data from LiteLLM. (#292)
+* `ChatBedrockAnthropic()` gains a `reasoning` parameter for extended thinking, matching the existing parameter on `ChatAnthropic()`. (#286)
 
 ## [0.16.0] - 2026-04-16
 
