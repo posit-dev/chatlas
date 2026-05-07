@@ -298,11 +298,11 @@ class OpenAIProvider(
             return ContentText.model_construct(text=chunk.delta)
         if chunk.type == "response.reasoning_summary_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/delta
-            return ContentThinking(thinking=chunk.delta)
+            return ContentThinking._as_chunk(chunk.delta)
         if chunk.type == "response.reasoning_summary_text.done":
-            # Separator between reasoning summary and response text
-            # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/done
-            return ContentText.model_construct(text="\n\n")
+            # The thinking→text transition in _submit_turns already emits
+            # "\n</thinking>\n\n" which provides the visual separator.
+            return None
         return None
 
     def stream_merge_chunks(self, completion, chunk):

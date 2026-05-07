@@ -2671,19 +2671,33 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
             result = None
+            inside_thinking = False
+
             for chunk in response:
                 content = self.provider.stream_content(chunk)
                 if content is not None:
                     text = content_text(content)
                     if text:
+                        is_thinking = isinstance(content, ContentThinking)
+                        if is_thinking and not inside_thinking:
+                            emit("<thinking>\n")
+                            yield "<thinking>\n"
+                            inside_thinking = True
+                        elif not is_thinking and inside_thinking:
+                            emit("\n</thinking>\n\n")
+                            yield "\n</thinking>\n\n"
+                            inside_thinking = False
+
                         emit(text)
-                        if content_mode == "all" and isinstance(
-                            content, ContentThinking
-                        ):
+                        if content_mode == "all" and is_thinking:
                             yield content
                         else:
                             yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
+
+            if inside_thinking:
+                emit("\n</thinking>\n\n")
+                yield "\n</thinking>\n\n"
 
             turn = self.provider.stream_turn(
                 result,
@@ -2777,19 +2791,33 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
             result = None
+            inside_thinking = False
+
             async for chunk in response:
                 content = self.provider.stream_content(chunk)
                 if content is not None:
                     text = content_text(content)
                     if text:
+                        is_thinking = isinstance(content, ContentThinking)
+                        if is_thinking and not inside_thinking:
+                            emit("<thinking>\n")
+                            yield "<thinking>\n"
+                            inside_thinking = True
+                        elif not is_thinking and inside_thinking:
+                            emit("\n</thinking>\n\n")
+                            yield "\n</thinking>\n\n"
+                            inside_thinking = False
+
                         emit(text)
-                        if content_mode == "all" and isinstance(
-                            content, ContentThinking
-                        ):
+                        if content_mode == "all" and is_thinking:
                             yield content
                         else:
                             yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
+
+            if inside_thinking:
+                emit("\n</thinking>\n\n")
+                yield "\n</thinking>\n\n"
 
             turn = self.provider.stream_turn(
                 result,
