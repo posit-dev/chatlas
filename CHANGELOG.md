@@ -9,8 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### New features
+
+* `ChatOpenAICompletions()` (and providers built on it like `ChatDeepSeek`, `ChatOpenRouter`, etc.) now extracts `reasoning_content` from model responses as `ContentThinking` objects. A new `preserve_thinking` parameter controls whether reasoning content is sent back to the API in multi-turn conversations; it defaults to `False` but is set to `True` for `ChatDeepSeek` (required for V4 tool-calling) and `ChatOpenRouter` (recommended for quality). (#295)
+
 ### Improvements
 
+* `ChatDeepSeek()` now defaults to `deepseek-v4-flash` (the deprecated `deepseek-chat` alias will be removed 2026-07-24). (#295)
 * Updated default models across all providers to current generation: (#292)
   * Anthropic: `claude-sonnet-4-6`
   * Bedrock: `us.anthropic.claude-sonnet-4-6`
