@@ -9,9 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### New features
+
+* `ChatOpenAICompletions()` (and providers built on it like `ChatDeepSeek`, `ChatOpenRouter`, etc.) now extracts `reasoning_content` from model responses as `ContentThinking` objects. A new `preserve_thinking` parameter controls whether reasoning content is sent back to the API in multi-turn conversations; it defaults to `False` but is set to `True` for `ChatDeepSeek` (required for V4 tool-calling) and `ChatOpenRouter` (recommended for quality). (#295)
+
 ### Improvements
 
-* `.stream()` and `.stream_async()` now emit `<thinking>` / `</thinking>` tag boundaries around thinking content in all stream modes. With `content="text"`, concatenating all chunks produces well-formed output with thinking delimited by a single tag pair. With `content="all"`, tag boundary strings are yielded alongside typed `ContentThinking` objects, so downstream consumers can detect thinking boundaries without type inspection. (#294, #297)
 * Updated default models across all providers to current generation: (#292)
   * Anthropic: `claude-sonnet-4-6`
   * Bedrock: `us.anthropic.claude-sonnet-4-6`
@@ -19,7 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * Databricks: `databricks-claude-sonnet-4-6`
   * OpenAI / Completions / OpenRouter / Portkey: `gpt-5.4`
   * GitHub: `gpt-5`
+  * Deepseek: `deepseek-v4-flash`
   * Perplexity: `sonar`
+* `.stream()` and `.stream_async()` now emit `<thinking>` / `</thinking>` tag boundaries around thinking content in all stream modes. With `content="text"`, concatenating all chunks produces well-formed output with thinking delimited by a single tag pair. With `content="all"`, tag boundary strings are yielded alongside typed `ContentThinking` objects, so downstream consumers can detect thinking boundaries without type inspection. (#294, #297)
 * Updated token pricing data from LiteLLM. (#292)
 
 ## [0.16.0] - 2026-04-16

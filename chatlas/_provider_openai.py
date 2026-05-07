@@ -446,8 +446,7 @@ class OpenAIProvider(
             completion=completion,
         )
 
-    @staticmethod
-    def _turns_as_inputs(turns: list[Turn]) -> "list[ResponseInputItemParam]":
+    def _turns_as_inputs(self, turns: list[Turn]) -> "list[ResponseInputItemParam]":
         res: "list[ResponseInputItemParam]" = []
         for turn in turns:
             res.extend([as_input_param(x, turn.role) for x in turn.contents])
