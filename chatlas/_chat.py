@@ -35,6 +35,7 @@ from ._content import (
     ContentJson,
     ContentText,
     ContentThinking,
+    ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
     ToolInfo,
@@ -1157,7 +1158,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[
-        str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
+        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None, None
     ]: ...
 
     def stream(
@@ -1168,7 +1169,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> Generator[
-        str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
+        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None, None
     ]:
         """
         Generate a response from the chat in a streaming fashion.
@@ -1233,7 +1234,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
 
         def wrapper() -> Generator[
-            str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
+            str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None, None
         ]:
             with display:
                 for chunk in generator:
@@ -1260,7 +1261,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[
-        str | ContentThinking | ContentToolRequest | ContentToolResult, None
+        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
     ]: ...
 
     async def stream_async(
@@ -1271,7 +1272,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
     ) -> AsyncGenerator[
-        str | ContentThinking | ContentToolRequest | ContentToolResult, None
+        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
     ]:
         """
         Generate a response from the chat in a streaming fashion asynchronously.
@@ -1332,7 +1333,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         display = self._markdown_display(echo=echo)
 
         async def wrapper() -> AsyncGenerator[
-            str | ContentThinking | ContentToolRequest | ContentToolResult, None
+            str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
         ]:
             with display:
                 async for chunk in self._chat_impl_async(
@@ -2494,7 +2495,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
     ) -> Generator[
-        str | ContentThinking | ContentToolRequest | ContentToolResult, None, None
+        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None, None
     ]: ...
 
     def _chat_impl(
@@ -2564,7 +2565,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         kwargs: Optional[SubmitInputArgsT] = None,
         data_model: Optional[type[BaseModel]] = None,
     ) -> AsyncGenerator[
-        str | ContentThinking | ContentToolRequest | ContentToolResult, None
+        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
     ]: ...
 
     async def _chat_impl_async(
@@ -2676,28 +2677,33 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             for chunk in response:
                 content = self.provider.stream_content(chunk)
                 if content is not None:
-                    text = content_text(content)
-                    if text:
-                        is_thinking = isinstance(content, ContentThinking)
-                        if is_thinking and not inside_thinking:
-                            emit("<thinking>\n")
-                            yield "<thinking>\n"
-                            inside_thinking = True
-                        elif not is_thinking and inside_thinking:
-                            emit("\n</thinking>\n\n")
-                            yield "\n</thinking>\n\n"
-                            inside_thinking = False
+                    if is_thinking_delta(content) and not inside_thinking:
+                        content = ContentThinkingDelta(
+                            thinking=content.thinking, phase="start"
+                        )
+                        emit("<thinking>\n")
+                        inside_thinking = True
+                    elif not is_thinking_delta(content) and inside_thinking:
+                        emit("\n</thinking>\n\n")
+                        if content_mode == "all":
+                            yield ContentThinkingDelta(thinking="", phase="end")
+                        inside_thinking = False
 
-                        emit(text)
-                        if content_mode == "all" and is_thinking:
+                    if is_thinking_delta(content):
+                        emit(content.thinking)
+                        if content_mode == "all":
                             yield content
-                        else:
+                    else:
+                        text = content_text(content)
+                        if text:
+                            emit(text)
                             yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
             if inside_thinking:
                 emit("\n</thinking>\n\n")
-                yield "\n</thinking>\n\n"
+                if content_mode == "all":
+                    yield ContentThinkingDelta(thinking="", phase="end")
 
             turn = self.provider.stream_turn(
                 result,
@@ -2796,28 +2802,33 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             async for chunk in response:
                 content = self.provider.stream_content(chunk)
                 if content is not None:
-                    text = content_text(content)
-                    if text:
-                        is_thinking = isinstance(content, ContentThinking)
-                        if is_thinking and not inside_thinking:
-                            emit("<thinking>\n")
-                            yield "<thinking>\n"
-                            inside_thinking = True
-                        elif not is_thinking and inside_thinking:
-                            emit("\n</thinking>\n\n")
-                            yield "\n</thinking>\n\n"
-                            inside_thinking = False
+                    if is_thinking_delta(content) and not inside_thinking:
+                        content = ContentThinkingDelta(
+                            thinking=content.thinking, phase="start"
+                        )
+                        emit("<thinking>\n")
+                        inside_thinking = True
+                    elif not is_thinking_delta(content) and inside_thinking:
+                        emit("\n</thinking>\n\n")
+                        if content_mode == "all":
+                            yield ContentThinkingDelta(thinking="", phase="end")
+                        inside_thinking = False
 
-                        emit(text)
-                        if content_mode == "all" and is_thinking:
+                    if is_thinking_delta(content):
+                        emit(content.thinking)
+                        if content_mode == "all":
                             yield content
-                        else:
+                    else:
+                        text = content_text(content)
+                        if text:
+                            emit(text)
                             yield text
                 result = self.provider.stream_merge_chunks(result, chunk)
 
             if inside_thinking:
                 emit("\n</thinking>\n\n")
-                yield "\n</thinking>\n\n"
+                if content_mode == "all":
+                    yield ContentThinkingDelta(thinking="", phase="end")
 
             turn = self.provider.stream_turn(
                 result,
@@ -3292,8 +3303,14 @@ class ToolFailureWarning(RuntimeWarning):
 warnings.simplefilter("always", ToolFailureWarning)
 
 
+def is_thinking_delta(content: Content) -> TypeGuard[ContentThinkingDelta]:
+    return isinstance(content, ContentThinkingDelta)
+
+
 def content_text(content: Content) -> str:
     """Extract displayable text from a Content object."""
+    if isinstance(content, ContentThinkingDelta):
+        return content.thinking
     if isinstance(content, ContentThinking):
         return content.thinking
     if isinstance(content, ContentText):
