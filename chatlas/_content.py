@@ -10,7 +10,6 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    PrivateAttr,
     field_serializer,
     field_validator,
 )
@@ -631,20 +630,11 @@ class ContentThinking(Content):
 
     thinking: str
     extra: Optional[dict[str, Any]] = None
-    _complete: bool = PrivateAttr(default=True)
 
     content_type: ContentTypeEnum = "thinking"
 
-    @classmethod
-    def _as_chunk(cls, thinking: str) -> "ContentThinking":
-        obj = cls.model_construct(thinking=thinking, content_type="thinking")
-        obj._complete = False
-        return obj
-
     def __str__(self):
-        if self._complete:
-            return f"<thinking>\n{self.thinking}\n</thinking>\n"
-        return self.thinking
+        return f"<thinking>\n{self.thinking}\n</thinking>\n"
 
     def _repr_html_(self):
         return str(self.tagify())
@@ -661,6 +651,30 @@ class ContentThinking(Content):
         html = f"<details><summary>Thinking</summary>{self.thinking}</details>"
 
         return HTML(html)
+
+
+class ContentThinkingDelta(Content):
+    """
+    A streaming fragment of thinking/reasoning content.
+
+    Emitted during streaming to represent a chunk of the model's thinking.
+    The ``phase`` attribute communicates block boundaries to downstream consumers.
+
+    Parameters
+    ----------
+    thinking
+        The thinking/reasoning text fragment.
+    phase
+        The phase of the thinking delta: ``"start"``, ``"body"``, or ``"end"``.
+    """
+
+    thinking: str
+    phase: Literal["start", "body", "end"] = "body"
+
+    content_type: ContentTypeEnum = "thinking"
+
+    def __str__(self):
+        return self.thinking
 
 
 class ContentToolRequestSearch(Content):
