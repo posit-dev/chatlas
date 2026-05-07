@@ -202,6 +202,7 @@ quartodoc:
         - types.ContentImageRemote
         - types.ContentJson
         - types.ContentText
+        - types.ContentThinking
         - types.ContentToolRequest
         - types.ContentToolResult
         - types.ContentToolRequestSearch
