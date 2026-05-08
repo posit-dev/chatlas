@@ -41,6 +41,12 @@ website:
   title: chatlas
   page-navigation: true
   site-url: https://posit-dev.github.io/chatlas/
+  plausible-analytics: |
+    <script async src="https://plausible.io/js/pa-pN3x5-t50CqjdU3JPOYbw.js"></script>
+    <script>
+      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+      plausible.init()
+    </script>
   description: Your friendly guide to building LLM chat apps in Python with less effort and more clarity.
   llms-txt: true
 
@@ -121,7 +127,6 @@ execute:
 format:
   html:
     include-in-header:
-      - "include-in-header.html"
       - text: |
           <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-light-bg="#404041" data-light-fg="#ffffff" data-dark-bg="#ffffff" data-dark-fg="#404041"></script>
     theme:
