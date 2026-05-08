@@ -1,4 +1,4 @@
-from chatlas._content import ContentText, ContentThinking
+from chatlas._content import ContentText
 from chatlas._turn import AssistantTurn, UserTurn
 from chatlas._turn_accumulator import TurnAccumulator
 from chatlas._stream_controller import StreamController
@@ -22,7 +22,7 @@ def test_update_turn_appends_content():
     acc = TurnAccumulator(turns, controller)
     acc.begin_turn(UserTurn("hello"))
     content = ContentText.model_construct(text="hi")
-    acc.update_turn(content)
+    acc._update_turn(content)
     assert len(turns[1].contents) == 1
     assert turns[1].contents[0].text == "hi"
 
@@ -54,8 +54,8 @@ def test_finalize_turn_merges_text_and_sets_reason():
     controller = StreamController()
     acc = TurnAccumulator(turns, controller)
     acc.begin_turn(UserTurn("hello"))
-    acc.update_turn(ContentText.model_construct(text="a"))
-    acc.update_turn(ContentText.model_construct(text="b"))
+    acc._update_turn(ContentText.model_construct(text="a"))
+    acc._update_turn(ContentText.model_construct(text="b"))
     acc.finalize_turn()
     assert turns[1].is_partial
     assert turns[1].partial_reason == "interrupted"
@@ -68,7 +68,7 @@ def test_finalize_turn_uses_controller_reason():
     controller = StreamController()
     acc = TurnAccumulator(turns, controller)
     acc.begin_turn(UserTurn("hello"))
-    acc.update_turn(ContentText.model_construct(text="partial"))
+    acc._update_turn(ContentText.model_construct(text="partial"))
     controller.cancel(reason="user stopped")
     acc.finalize_turn()
     assert turns[1].partial_reason == "user stopped"
