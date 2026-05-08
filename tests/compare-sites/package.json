@@ -1,0 +1,16 @@
+{
+  "type": "module",
+  "scripts": {
+    "compare": "npx tsx compare-sites.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/bedrock-sdk": "^0.29.1",
+    "playwright": "^1.47.0",
+    "sharp": "^0.33.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

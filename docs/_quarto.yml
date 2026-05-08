@@ -1,5 +1,16 @@
 project:
   type: website
+  render:
+    - "*.qmd"
+    - "CHANGELOG.md"
+    - "get-started/*.qmd"
+    - "misc/*.qmd"
+    - "structured-data/*.qmd"
+    - "tool-calling/*.qmd"
+    - "dev/*.qmd"
+    - "reference/*.qmd"
+    - "scale.qmd"
+    - "why-chatlas.qmd"
   resources:
     - objects.txt
     - images/
@@ -103,6 +114,9 @@ website:
             - misc/mcp-tools.qmd
             - misc/evals.qmd
 
+
+execute:
+  enabled: false
 
 format:
   html:
