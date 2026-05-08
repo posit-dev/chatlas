@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 
 * `ChatOpenAICompletions()` (and providers built on it like `ChatDeepSeek`, `ChatOpenRouter`, etc.) now extracts `reasoning_content` from model responses as `ContentThinking` objects. A new `preserve_thinking` parameter controls whether reasoning content is sent back to the API in multi-turn conversations; it defaults to `False` but is set to `True` for `ChatDeepSeek` (required for V4 tool-calling) and `ChatOpenRouter` (recommended for quality). (#295)
+* New `StreamController` class for cooperative stream cancellation. Pass a controller to `.stream()` or `.stream_async()` and call `controller.cancel()` to stop the stream cleanly (e.g., from a Shiny "stop generating" button). The partial response is preserved in conversation history. (#279)
+* When a stream is interrupted (closed early, cancelled, or errors), the accumulated content is now saved as a partial `AssistantTurn` so conversation state isn't lost. Partial turns display `[interrupted]` (or the cancellation reason) in the `Chat` repr and are excluded from token/cost accounting. (#279)
 
 ### Improvements
 
@@ -34,8 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * New `ChatLMStudio()` provider for chatting with local models via [LM Studio](https://lmstudio.ai). (#280)
 * The `.stream()` and `.stream_async()` methods now yield `ContentThinking` objects (instead of plain strings) for thinking/reasoning content when `content="all"`. This allows downstream packages like shinychat to provide specific UI for thinking content. (#276)
-* New `StreamController` class for cooperative stream cancellation. Pass a controller to `.stream()` or `.stream_async()` and call `controller.cancel()` to stop the stream cleanly (e.g., from a Shiny "stop generating" button). The partial response is preserved in conversation history. (#279)
-* When a stream is interrupted (closed early, cancelled, or errors), the accumulated content is now saved as a partial `AssistantTurn` so conversation state isn't lost. Partial turns display `[interrupted]` (or the cancellation reason) in the `Chat` repr and are excluded from token/cost accounting. (#279)
 * Built-in tools (`tool_web_search()`, `tool_web_fetch()`) now include `description` and `annotations` properties, making their metadata consistent with user-defined tools created by `Tool()`. (#278)
 
 ### Bug fixes
