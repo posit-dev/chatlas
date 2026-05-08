@@ -116,7 +116,7 @@ website:
 
 
 execute:
-  enabled: false
+  freeze: auto
 
 format:
   html:
