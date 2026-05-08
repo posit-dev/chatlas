@@ -1,0 +1,16 @@
+{
+  "hash": "2bba27dce66fc08e608e5325d4da80f1",
+  "result": {
+    "engine": "jupyter",
+    "markdown": "---\ntitle: Classification\ncallout-appearance: simple\n---\n\nThe following example, which [closely inspired by the Claude documentation](https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb), shows how `.chat_structured()` can be used to perform text classification.\n\n::: {#3a69def2 .cell execution_count=1}\n``` {.python .cell-code}\nfrom typing import Literal\n\nfrom chatlas import ChatOpenAI\nfrom pydantic import BaseModel, Field\nimport pandas as pd\n\ntext = \"The new quantum computing breakthrough could revolutionize the tech industry.\"\n\n\nclass Classification(BaseModel):\n    name: Literal[\n        \"Politics\", \"Sports\", \"Technology\", \"Entertainment\", \"Business\", \"Other\"\n    ] = Field(description=\"The category name\")\n\n    score: float = Field(\n        description=\"The classification score for the category, ranging from 0.0 to 1.0.\"\n    )\n\n\nclass Classifications(BaseModel):\n    \"\"\"Array of classification results. The scores should sum to 1.\"\"\"\n    classifications: list[Classification]\n\n\nchat = ChatOpenAI()\ndata = chat.chat_structured(text, data_model=Classifications)\npd.DataFrame([c.model_dump() for c in data.classifications])\n```\n\n::: {.cell-output .cell-output-display execution_count=1}\n```{=html}\n<div>\n<style scoped>\n    .dataframe tbody tr th:only-of-type {\n        vertical-align: middle;\n    }\n\n    .dataframe tbody tr th {\n        vertical-align: top;\n    }\n\n    .dataframe thead th {\n        text-align: right;\n    }\n</style>\n<table border=\"1\" class=\"dataframe\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>name</th>\n      <th>score</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <th>0</th>\n      <td>Technology</td>\n      <td>0.94</td>\n    </tr>\n    <tr>\n      <th>1</th>\n      <td>Business</td>\n      <td>0.04</td>\n    </tr>\n    <tr>\n      <th>2</th>\n      <td>Other</td>\n      <td>0.02</td>\n    </tr>\n  </tbody>\n</table>\n</div>\n```\n:::\n:::\n\n\n",
+    "supporting": [
+      "classification_files"
+    ],
+    "filters": [],
+    "includes": {
+      "include-in-header": [
+        "<script src=\"https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js\" integrity=\"sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx\" crossorigin=\"anonymous\"></script>\n<script src=\"https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js\" integrity=\"sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2\" crossorigin=\"anonymous\" data-relocate-top=\"true\"></script>\n<script type=\"application/javascript\">define('jquery', [],function() {return window.jQuery;})</script>\n"
+      ]
+    }
+  }
+}

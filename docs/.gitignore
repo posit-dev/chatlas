@@ -8,3 +8,7 @@ objects.txt
 /reference
 
 CHANGELOG.md
+CHANGELOG.html
+/CHANGELOG_files/
+
+**/*.quarto_ipynb

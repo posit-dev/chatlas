@@ -40,16 +40,26 @@ website:
       - reference/ToolRejectError.qmd
       section: Tool calling
     - contents:
+      - reference/tool_web_search.qmd
+      - reference/tool_web_fetch.qmd
+      section: Built-in tools
+    - contents:
+      - reference/parallel_chat.qmd
+      - reference/parallel_chat_text.qmd
+      - reference/parallel_chat_structured.qmd
       - reference/batch_chat.qmd
       - reference/batch_chat_text.qmd
       - reference/batch_chat_structured.qmd
       - reference/batch_chat_completed.qmd
-      section: Batch chat
+      section: Parallel and batch chat
     - contents:
       - reference/interpolate.qmd
       - reference/interpolate_file.qmd
       section: Prompt interpolation
     - contents:
+      - reference/AssistantTurn.qmd
+      - reference/UserTurn.qmd
+      - reference/SystemTurn.qmd
       - reference/Turn.qmd
       section: Turns
     - contents:
@@ -67,6 +77,10 @@ website:
       - reference/types.ContentText.qmd
       - reference/types.ContentToolRequest.qmd
       - reference/types.ContentToolResult.qmd
+      - reference/types.ContentToolRequestSearch.qmd
+      - reference/types.ContentToolResponseSearch.qmd
+      - reference/types.ContentToolRequestFetch.qmd
+      - reference/types.ContentToolResponseFetch.qmd
       - reference/types.ChatResponse.qmd
       - reference/types.ChatResponseAsync.qmd
       - reference/types.ImageContentTypes.qmd
