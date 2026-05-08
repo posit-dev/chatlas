@@ -61,5 +61,5 @@ jobs:
           echo "No freeze cache changes to commit."
         else
           git commit -m "docs: update freeze cache [skip ci]"
-          git push
+          git push origin HEAD
         fi
