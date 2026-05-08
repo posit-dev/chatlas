@@ -78,6 +78,28 @@ for chunk in stream:
 <class 'str'>
 ```
 
+## Cancelling a stream
+
+Use a [](`~chatlas.StreamController`) to stop a stream early while preserving what's been generated so far. Pass a controller to `.stream()`, then call `controller.cancel()` when you want to stop.
+
+```python
+from chatlas import StreamController
+
+ctrl = StreamController()
+
+chunks = []
+for chunk in chat.stream("Write a long story", controller=ctrl):
+    chunks.append(chunk)
+    if len(chunks) >= 5:
+        ctrl.cancel()
+
+# The partial response is preserved in history
+last_turn = chat.get_last_turn()
+print(last_turn.text)
+```
+
+This is useful for building UIs with a "stop generating" button (e.g., in a [Shiny chatbot](chatbots.qmd)). The same controller can be reused across multiple streams by calling `controller.reset()` before starting a new stream.
+
 ## Wrapping generators
 
 Sometimes it's useful to wrap the `.stream()` generator up into another generator function.

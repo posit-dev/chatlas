@@ -34,7 +34,6 @@ from ._content import (
     Content,
     ContentJson,
     ContentText,
-    ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
@@ -2752,41 +2751,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             try:
                 result = None
-                inside_thinking = False
-
                 for chunk in response:
                     if controller.cancelled:
                         break
                     content = self.provider.stream_content(chunk)
                     if content is not None:
-                        acc.update_turn(content)
-                        if is_thinking_delta(content) and not inside_thinking:
-                            content = ContentThinkingDelta(
-                                thinking=content.thinking, phase="start"
-                            )
-                            emit("<thinking>\n")
-                            inside_thinking = True
-                        elif not is_thinking_delta(content) and inside_thinking:
-                            emit("\n</thinking>\n\n")
-                            if content_mode == "all":
-                                yield ContentThinkingDelta(thinking="", phase="end")
-                            inside_thinking = False
-
-                        if is_thinking_delta(content):
-                            emit(content.thinking)
-                            if content_mode == "all":
-                                yield content
-                        else:
-                            text = content_text(content)
-                            if text:
-                                emit(text)
-                                yield text
+                        yield from acc.process_content(content, content_mode, emit)
                     result = self.provider.stream_merge_chunks(result, chunk)
 
-                if inside_thinking:
-                    emit("\n</thinking>\n\n")
-                    if content_mode == "all":
-                        yield ContentThinkingDelta(thinking="", phase="end")
+                yield from acc.flush_thinking(content_mode, emit)
 
                 if not controller.cancelled:
                     turn = self.provider.stream_turn(
@@ -2887,41 +2860,17 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             try:
                 result = None
-                inside_thinking = False
-
                 async for chunk in response:
                     if controller.cancelled:
                         break
                     content = self.provider.stream_content(chunk)
                     if content is not None:
-                        acc.update_turn(content)
-                        if is_thinking_delta(content) and not inside_thinking:
-                            content = ContentThinkingDelta(
-                                thinking=content.thinking, phase="start"
-                            )
-                            emit("<thinking>\n")
-                            inside_thinking = True
-                        elif not is_thinking_delta(content) and inside_thinking:
-                            emit("\n</thinking>\n\n")
-                            if content_mode == "all":
-                                yield ContentThinkingDelta(thinking="", phase="end")
-                            inside_thinking = False
-
-                        if is_thinking_delta(content):
-                            emit(content.thinking)
-                            if content_mode == "all":
-                                yield content
-                        else:
-                            text = content_text(content)
-                            if text:
-                                emit(text)
-                                yield text
+                        for item in acc.process_content(content, content_mode, emit):
+                            yield item
                     result = self.provider.stream_merge_chunks(result, chunk)
 
-                if inside_thinking:
-                    emit("\n</thinking>\n\n")
-                    if content_mode == "all":
-                        yield ContentThinkingDelta(thinking="", phase="end")
+                for item in acc.flush_thinking(content_mode, emit):
+                    yield item
 
                 if not controller.cancelled:
                     turn = self.provider.stream_turn(
@@ -3401,21 +3350,6 @@ class ToolFailureWarning(RuntimeWarning):
 
 # By default warnings are shown once; we want to always show them.
 warnings.simplefilter("always", ToolFailureWarning)
-
-
-def is_thinking_delta(content: Content) -> TypeGuard[ContentThinkingDelta]:
-    return isinstance(content, ContentThinkingDelta)
-
-
-def content_text(content: Content) -> str:
-    """Extract displayable text from a Content object."""
-    if isinstance(content, ContentThinkingDelta):
-        return content.thinking
-    if isinstance(content, ContentThinking):
-        return content.thinking
-    if isinstance(content, ContentText):
-        return content.text
-    return str(content)
 
 
 def _as_controller(controller: StreamController | None) -> StreamController:
