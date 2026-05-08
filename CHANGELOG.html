@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.6.26">
+<meta name="generator" content="quarto-1.9.37">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>changelog – chatlas</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -31,15 +34,16 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
 <link href="./images/posit-logo.png" rel="icon" type="image/png">
-<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-441cf8784b515adac1424855ab078ac0.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-b414132700e2aa9f5f3809491b9aae97.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dc5b26174858d42c56bfd32b4671879b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -67,7 +71,6 @@ ul.task-list li input[type="checkbox"] {
     "search-label": "Search"
   }
 }</script>
-<!-- Privacy-friendly analytics by Plausible -->
 <script async="" src="https://plausible.io/js/pa-pN3x5-t50CqjdU3JPOYbw.js"></script>
 <script>
   window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
@@ -84,7 +87,7 @@ ul.task-list li input[type="checkbox"] {
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -134,11 +137,12 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#unreleased" id="toc-unreleased" class="nav-link" data-scroll-target="#unreleased">[UNRELEASED]</a>
   <ul class="collapse">
+  <li><a href="#new-features" id="toc-new-features" class="nav-link" data-scroll-target="#new-features">New features</a></li>
   <li><a href="#improvements" id="toc-improvements" class="nav-link" data-scroll-target="#improvements">Improvements</a></li>
   </ul></li>
   <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section">[0.16.0] - 2026-04-16</a>
   <ul class="collapse">
-  <li><a href="#new-features" id="toc-new-features" class="nav-link" data-scroll-target="#new-features">New features</a></li>
+  <li><a href="#new-features-1" id="toc-new-features-1" class="nav-link" data-scroll-target="#new-features-1">New features</a></li>
   <li><a href="#bug-fixes" id="toc-bug-fixes" class="nav-link" data-scroll-target="#bug-fixes">Bug fixes</a></li>
   </ul></li>
   <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">[0.15.2] – 2026-02-27</a>
@@ -147,19 +151,19 @@ ul.task-list li input[type="checkbox"] {
   </ul></li>
   <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2">[0.15.1] – 2026-01-22</a>
   <ul class="collapse">
-  <li><a href="#new-features-1" id="toc-new-features-1" class="nav-link" data-scroll-target="#new-features-1">New features</a></li>
+  <li><a href="#new-features-2" id="toc-new-features-2" class="nav-link" data-scroll-target="#new-features-2">New features</a></li>
   <li><a href="#bug-fixes-2" id="toc-bug-fixes-2" class="nav-link" data-scroll-target="#bug-fixes-2">Bug fixes</a></li>
   </ul></li>
   <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3">[0.15.0] - 2026-01-06</a>
   <ul class="collapse">
-  <li><a href="#new-features-2" id="toc-new-features-2" class="nav-link" data-scroll-target="#new-features-2">New features</a></li>
+  <li><a href="#new-features-3" id="toc-new-features-3" class="nav-link" data-scroll-target="#new-features-3">New features</a></li>
   <li><a href="#changes" id="toc-changes" class="nav-link" data-scroll-target="#changes">Changes</a></li>
   <li><a href="#improvements-1" id="toc-improvements-1" class="nav-link" data-scroll-target="#improvements-1">Improvements</a></li>
   <li><a href="#bug-fixes-3" id="toc-bug-fixes-3" class="nav-link" data-scroll-target="#bug-fixes-3">Bug fixes</a></li>
   </ul></li>
   <li><a href="#section-4" id="toc-section-4" class="nav-link" data-scroll-target="#section-4">[0.14.0] - 2025-12-09</a>
   <ul class="collapse">
-  <li><a href="#new-features-3" id="toc-new-features-3" class="nav-link" data-scroll-target="#new-features-3">New features</a></li>
+  <li><a href="#new-features-4" id="toc-new-features-4" class="nav-link" data-scroll-target="#new-features-4">New features</a></li>
   <li><a href="#changes-1" id="toc-changes-1" class="nav-link" data-scroll-target="#changes-1">Changes</a></li>
   <li><a href="#improvements-2" id="toc-improvements-2" class="nav-link" data-scroll-target="#improvements-2">Improvements</a></li>
   <li><a href="#bug-fixes-4" id="toc-bug-fixes-4" class="nav-link" data-scroll-target="#bug-fixes-4">Bug fixes</a></li>
@@ -175,30 +179,30 @@ ul.task-list li input[type="checkbox"] {
   </ul></li>
   <li><a href="#section-7" id="toc-section-7" class="nav-link" data-scroll-target="#section-7">[0.13.0] - 2025-09-10</a>
   <ul class="collapse">
-  <li><a href="#new-features-4" id="toc-new-features-4" class="nav-link" data-scroll-target="#new-features-4">New features</a></li>
+  <li><a href="#new-features-5" id="toc-new-features-5" class="nav-link" data-scroll-target="#new-features-5">New features</a></li>
   <li><a href="#improvements-4" id="toc-improvements-4" class="nav-link" data-scroll-target="#improvements-4">Improvements</a></li>
   </ul></li>
   <li><a href="#section-8" id="toc-section-8" class="nav-link" data-scroll-target="#section-8">[0.12.0] - 2025-09-08</a>
   <ul class="collapse">
   <li><a href="#breaking-changes" id="toc-breaking-changes" class="nav-link" data-scroll-target="#breaking-changes">Breaking changes</a></li>
-  <li><a href="#new-features-5" id="toc-new-features-5" class="nav-link" data-scroll-target="#new-features-5">New features</a></li>
+  <li><a href="#new-features-6" id="toc-new-features-6" class="nav-link" data-scroll-target="#new-features-6">New features</a></li>
   <li><a href="#bug-fixes-7" id="toc-bug-fixes-7" class="nav-link" data-scroll-target="#bug-fixes-7">Bug fixes</a></li>
   </ul></li>
   <li><a href="#section-9" id="toc-section-9" class="nav-link" data-scroll-target="#section-9">[0.11.1] - 2025-08-29</a>
   <ul class="collapse">
-  <li><a href="#new-features-6" id="toc-new-features-6" class="nav-link" data-scroll-target="#new-features-6">New features</a></li>
+  <li><a href="#new-features-7" id="toc-new-features-7" class="nav-link" data-scroll-target="#new-features-7">New features</a></li>
   <li><a href="#bug-fixes-8" id="toc-bug-fixes-8" class="nav-link" data-scroll-target="#bug-fixes-8">Bug fixes</a></li>
   <li><a href="#changes-2" id="toc-changes-2" class="nav-link" data-scroll-target="#changes-2">Changes</a></li>
   </ul></li>
   <li><a href="#section-10" id="toc-section-10" class="nav-link" data-scroll-target="#section-10">[0.11.0] - 2025-08-26</a>
   <ul class="collapse">
-  <li><a href="#new-features-7" id="toc-new-features-7" class="nav-link" data-scroll-target="#new-features-7">New features</a></li>
+  <li><a href="#new-features-8" id="toc-new-features-8" class="nav-link" data-scroll-target="#new-features-8">New features</a></li>
   <li><a href="#improvements-5" id="toc-improvements-5" class="nav-link" data-scroll-target="#improvements-5">Improvements</a></li>
   <li><a href="#changes-3" id="toc-changes-3" class="nav-link" data-scroll-target="#changes-3">Changes</a></li>
   </ul></li>
   <li><a href="#section-11" id="toc-section-11" class="nav-link" data-scroll-target="#section-11">[0.10.0] - 2025-08-19</a>
   <ul class="collapse">
-  <li><a href="#new-features-8" id="toc-new-features-8" class="nav-link" data-scroll-target="#new-features-8">New features</a></li>
+  <li><a href="#new-features-9" id="toc-new-features-9" class="nav-link" data-scroll-target="#new-features-9">New features</a></li>
   <li><a href="#changes-4" id="toc-changes-4" class="nav-link" data-scroll-target="#changes-4">Changes</a></li>
   <li><a href="#bug-fixes-9" id="toc-bug-fixes-9" class="nav-link" data-scroll-target="#bug-fixes-9">Bug fixes</a></li>
   </ul></li>
@@ -212,7 +216,7 @@ ul.task-list li input[type="checkbox"] {
   </ul></li>
   <li><a href="#section-14" id="toc-section-14" class="nav-link" data-scroll-target="#section-14">[0.9.0] - 2025-07-02</a>
   <ul class="collapse">
-  <li><a href="#new-features-9" id="toc-new-features-9" class="nav-link" data-scroll-target="#new-features-9">New features</a></li>
+  <li><a href="#new-features-10" id="toc-new-features-10" class="nav-link" data-scroll-target="#new-features-10">New features</a></li>
   <li><a href="#changes-5" id="toc-changes-5" class="nav-link" data-scroll-target="#changes-5">Changes</a></li>
   <li><a href="#improvements-7" id="toc-improvements-7" class="nav-link" data-scroll-target="#improvements-7">Improvements</a></li>
   <li><a href="#bug-fixes-11" id="toc-bug-fixes-11" class="nav-link" data-scroll-target="#bug-fixes-11">Bug fixes</a></li>
@@ -221,7 +225,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#section-15" id="toc-section-15" class="nav-link" data-scroll-target="#section-15">[0.8.1] - 2025-05-30</a></li>
   <li><a href="#section-16" id="toc-section-16" class="nav-link" data-scroll-target="#section-16">[0.8.0] - 2025-05-30</a>
   <ul class="collapse">
-  <li><a href="#new-features-10" id="toc-new-features-10" class="nav-link" data-scroll-target="#new-features-10">New features</a></li>
+  <li><a href="#new-features-11" id="toc-new-features-11" class="nav-link" data-scroll-target="#new-features-11">New features</a></li>
   <li><a href="#improvements-8" id="toc-improvements-8" class="nav-link" data-scroll-target="#improvements-8">Improvements</a></li>
   <li><a href="#changes-6" id="toc-changes-6" class="nav-link" data-scroll-target="#changes-6">Changes</a></li>
   <li><a href="#bug-fixes-12" id="toc-bug-fixes-12" class="nav-link" data-scroll-target="#bug-fixes-12">Bug fixes</a></li>
@@ -229,7 +233,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#section-17" id="toc-section-17" class="nav-link" data-scroll-target="#section-17">[0.7.1] - 2025-05-10</a></li>
   <li><a href="#section-18" id="toc-section-18" class="nav-link" data-scroll-target="#section-18">[0.7.0] - 2025-04-22</a>
   <ul class="collapse">
-  <li><a href="#new-features-11" id="toc-new-features-11" class="nav-link" data-scroll-target="#new-features-11">New features</a></li>
+  <li><a href="#new-features-12" id="toc-new-features-12" class="nav-link" data-scroll-target="#new-features-12">New features</a></li>
   <li><a href="#improvements-9" id="toc-improvements-9" class="nav-link" data-scroll-target="#improvements-9">Improvements</a></li>
   <li><a href="#changes-7" id="toc-changes-7" class="nav-link" data-scroll-target="#changes-7">Changes</a></li>
   <li><a href="#breaking-changes-2" id="toc-breaking-changes-2" class="nav-link" data-scroll-target="#breaking-changes-2">Breaking changes</a></li>
@@ -240,24 +244,24 @@ ul.task-list li input[type="checkbox"] {
   </ul></li>
   <li><a href="#section-20" id="toc-section-20" class="nav-link" data-scroll-target="#section-20">[0.6.0] - 2025-04-01</a>
   <ul class="collapse">
-  <li><a href="#new-features-12" id="toc-new-features-12" class="nav-link" data-scroll-target="#new-features-12">New features</a></li>
+  <li><a href="#new-features-13" id="toc-new-features-13" class="nav-link" data-scroll-target="#new-features-13">New features</a></li>
   <li><a href="#improvements-10" id="toc-improvements-10" class="nav-link" data-scroll-target="#improvements-10">Improvements</a></li>
   </ul></li>
   <li><a href="#section-21" id="toc-section-21" class="nav-link" data-scroll-target="#section-21">[0.5.0] - 2025-03-18</a>
   <ul class="collapse">
-  <li><a href="#new-features-13" id="toc-new-features-13" class="nav-link" data-scroll-target="#new-features-13">New features</a></li>
+  <li><a href="#new-features-14" id="toc-new-features-14" class="nav-link" data-scroll-target="#new-features-14">New features</a></li>
   <li><a href="#improvements-11" id="toc-improvements-11" class="nav-link" data-scroll-target="#improvements-11">Improvements</a></li>
   <li><a href="#bug-fixes-14" id="toc-bug-fixes-14" class="nav-link" data-scroll-target="#bug-fixes-14">Bug fixes</a></li>
   </ul></li>
   <li><a href="#section-22" id="toc-section-22" class="nav-link" data-scroll-target="#section-22">[0.4.0] - 2025-02-19</a>
   <ul class="collapse">
-  <li><a href="#new-features-14" id="toc-new-features-14" class="nav-link" data-scroll-target="#new-features-14">New features</a></li>
+  <li><a href="#new-features-15" id="toc-new-features-15" class="nav-link" data-scroll-target="#new-features-15">New features</a></li>
   <li><a href="#improvements-12" id="toc-improvements-12" class="nav-link" data-scroll-target="#improvements-12">Improvements</a></li>
   <li><a href="#bug-fixes-15" id="toc-bug-fixes-15" class="nav-link" data-scroll-target="#bug-fixes-15">Bug fixes</a></li>
   </ul></li>
   <li><a href="#section-23" id="toc-section-23" class="nav-link" data-scroll-target="#section-23">[0.3.0] - 2024-12-20</a>
   <ul class="collapse">
-  <li><a href="#new-features-15" id="toc-new-features-15" class="nav-link" data-scroll-target="#new-features-15">New features</a></li>
+  <li><a href="#new-features-16" id="toc-new-features-16" class="nav-link" data-scroll-target="#new-features-16">New features</a></li>
   <li><a href="#bug-fixes-16" id="toc-bug-fixes-16" class="nav-link" data-scroll-target="#bug-fixes-16">Bug fixes</a></li>
   </ul></li>
   <li><a href="#section-24" id="toc-section-24" class="nav-link" data-scroll-target="#section-24">[0.2.0] - 2024-12-11</a></li>
@@ -266,7 +270,7 @@ ul.task-list li input[type="checkbox"] {
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/CHANGELOG.md" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
 
 
 
@@ -281,6 +285,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 <section id="unreleased" class="level2">
 <h2 class="anchored" data-anchor-id="unreleased">[UNRELEASED]</h2>
+<section id="new-features" class="level3">
+<h3 class="anchored" data-anchor-id="new-features">New features</h3>
+<ul>
+<li><code>ChatOpenAICompletions()</code> (and providers built on it like <code>ChatDeepSeek</code>, <code>ChatOpenRouter</code>, etc.) now extracts <code>reasoning_content</code> from model responses as <code>ContentThinking</code> objects. A new <code>preserve_thinking</code> parameter controls whether reasoning content is sent back to the API in multi-turn conversations; it defaults to <code>False</code> but is set to <code>True</code> for <code>ChatDeepSeek</code> (required for V4 tool-calling) and <code>ChatOpenRouter</code> (recommended for quality). (#295)</li>
+</ul>
+</section>
 <section id="improvements" class="level3">
 <h3 class="anchored" data-anchor-id="improvements">Improvements</h3>
 <ul>
@@ -293,16 +303,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <li>Databricks: <code>databricks-claude-sonnet-4-6</code></li>
 <li>OpenAI / Completions / OpenRouter / Portkey: <code>gpt-5.4</code></li>
 <li>GitHub: <code>gpt-5</code></li>
+<li>Deepseek: <code>deepseek-v4-flash</code></li>
 <li>Perplexity: <code>sonar</code></li>
 </ul></li>
 <li>Updated token pricing data from LiteLLM. (#292)</li>
+<li><code>ChatBedrockAnthropic()</code> gains a <code>reasoning</code> parameter for extended thinking, matching the existing parameter on <code>ChatAnthropic()</code>. (#286)</li>
 </ul>
 </section>
 </section>
 <section id="section" class="level2">
 <h2 class="anchored" data-anchor-id="section">[0.16.0] - 2026-04-16</h2>
-<section id="new-features" class="level3">
-<h3 class="anchored" data-anchor-id="new-features">New features</h3>
+<section id="new-features-1" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-1">New features</h3>
 <ul>
 <li>New <code>ChatLMStudio()</code> provider for chatting with local models via <a href="https://lmstudio.ai">LM Studio</a>. (#280)</li>
 <li>The <code>.stream()</code> and <code>.stream_async()</code> methods now yield <code>ContentThinking</code> objects (instead of plain strings) for thinking/reasoning content when <code>content="all"</code>. This allows downstream packages like shinychat to provide specific UI for thinking content. (#276)</li>
@@ -329,8 +341,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-2" class="level2">
 <h2 class="anchored" data-anchor-id="section-2">[0.15.1] – 2026-01-22</h2>
-<section id="new-features-1" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-1">New features</h3>
+<section id="new-features-2" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-2">New features</h3>
 <ul>
 <li><code>.stream()</code> and <code>.stream_async()</code> now support a <code>data_model</code> parameter for structured data extraction while streaming. (#262)</li>
 <li><code>.to_solver()</code> now supports a <code>data_model</code> parameter for structured data extraction in evals. When provided, the solver uses <code>.chat_structured()</code> instead of <code>.chat()</code> and outputs JSON-serialized data. (#264)</li>
@@ -345,8 +357,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-3" class="level2">
 <h2 class="anchored" data-anchor-id="section-3">[0.15.0] - 2026-01-06</h2>
-<section id="new-features-2" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-2">New features</h3>
+<section id="new-features-3" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-3">New features</h3>
 <ul>
 <li><code>ChatOpenAI()</code>, <code>ChatAnthropic()</code>, and <code>ChatGoogle()</code> gain a new <code>reasoning</code> parameter to easily opt-into, and fully customize, reasoning capabilities. (#202, #260)
 <ul>
@@ -390,8 +402,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-4" class="level2">
 <h2 class="anchored" data-anchor-id="section-4">[0.14.0] - 2025-12-09</h2>
-<section id="new-features-3" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-3">New features</h3>
+<section id="new-features-4" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-4">New features</h3>
 <ul>
 <li><code>ChatOpenAI()</code> (and <code>ChatAzureOpenAI()</code>) gain access to latest models, built-in tools, etc. as a result of moving to the new <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>. (#192)</li>
 <li>Added new family of functions (<code>parallel_chat()</code>, <code>parallel_chat_text()</code>, and <code>parallel_chat_structured()</code>) for submitting multiple prompts at once with some basic rate limiting toggles. (#188)</li>
@@ -463,8 +475,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-7" class="level2">
 <h2 class="anchored" data-anchor-id="section-7">[0.13.0] - 2025-09-10</h2>
-<section id="new-features-4" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-4">New features</h3>
+<section id="new-features-5" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-5">New features</h3>
 <ul>
 <li>Added support for submitting multiple chats in one batch. With batch submission, results can take up to 24 hours to complete, but in return you pay ~50% less than usual. For more, see the <a href="https://posit-dev.github.io/chatlas/reference/">reference</a> for <code>batch_chat()</code>, <code>batch_chat_text()</code>, <code>batch_chat_structured()</code> and <code>batch_chat_completed()</code>. (#177)</li>
 <li>The <code>Chat</code> class gains new <code>.chat_structured()</code> (and <code>.chat_structured_async()</code>) methods. These methods supersede the now deprecated <code>.extract_data()</code> (and <code>.extract_data_async()</code>). The only difference is that the new methods return a <code>BaseModel</code> instance (instead of a <code>dict()</code>), leading to a better type hinting/checking experience. (#175)</li>
@@ -490,8 +502,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <li><code>ChatAuto()</code>’s first (optional) positional parameter has changed from <code>system_prompt</code> to <code>provider_model</code>, and <code>system_prompt</code> is now a keyword parameter. As a result, you may need to change <code>ChatAuto("[system prompt]")</code> -&gt; <code>ChatAuto(system_prompt="[system prompt]")</code>. In addition, the <code>provider</code> and <code>model</code> keyword arguments are now deprecated, but continue to work with a warning, as are the previous <code>CHATLAS_CHAT_PROVIDER</code> and <code>CHATLAS_CHAT_MODEL</code> environment variables. (#159)</li>
 </ul>
 </section>
-<section id="new-features-5" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-5">New features</h3>
+<section id="new-features-6" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-6">New features</h3>
 <ul>
 <li><code>ChatAuto()</code>’s new <code>provider_model</code> takes both provider and model in a single string in the format <code>"{provider}/{model}"</code>, e.g.&nbsp;<code>"openai/gpt-5"</code>. If not provided, <code>ChatAuto()</code> looks for the <code>CHATLAS_CHAT_PROVIDER_MODEL</code> environment variable, defaulting to <code>"openai"</code> if neither are provided. Unlike previous versions of <code>ChatAuto()</code>, the environment variables are now used <em>only if function arguments are not provided</em>. In other words, if <code>provider_model</code> is given, the <code>CHATLAS_CHAT_PROVIDER_MODEL</code> environment variable is ignored. Similarly, <code>CHATLAS_CHAT_ARGS</code> are only used if no <code>kwargs</code> are provided. This improves interactive use cases, makes it easier to introduce application-specific environment variables, and puts more control in the hands of the developer. (#159)</li>
 <li>The <code>.register_tool()</code> method now:
@@ -511,8 +523,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-9" class="level2">
 <h2 class="anchored" data-anchor-id="section-9">[0.11.1] - 2025-08-29</h2>
-<section id="new-features-6" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-6">New features</h3>
+<section id="new-features-7" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-7">New features</h3>
 <ul>
 <li><code>.register_tool()</code> gains a <code>name</code> parameter (useful for overriding the name of the function). (#162)</li>
 </ul>
@@ -533,8 +545,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-10" class="level2">
 <h2 class="anchored" data-anchor-id="section-10">[0.11.0] - 2025-08-26</h2>
-<section id="new-features-7" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-7">New features</h3>
+<section id="new-features-8" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-8">New features</h3>
 <ul>
 <li>The <code>Chat</code> class gains a new <code>.list_models()</code> method for obtaining a list of model ids/names, pricing info, and more. (#155)</li>
 <li><code>Chat</code>’s <code>.register_tool()</code> method gains an <code>annotations</code> parameter, which is useful for describing the tool and its behavior. This information is attached to <code>ContentToolRequest()</code> and <code>ContentToolResult()</code> (via the <code>.request</code> parameter) objects when tool calls occur. To include these objects in streaming content, make sure to set <code>.stream(content="all")</code>. (#156)</li>
@@ -555,8 +567,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-11" class="level2">
 <h2 class="anchored" data-anchor-id="section-11">[0.10.0] - 2025-08-19</h2>
-<section id="new-features-8" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-8">New features</h3>
+<section id="new-features-9" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-9">New features</h3>
 <ul>
 <li>Added <code>ChatCloudflare()</code> for chatting via <a href="https://developers.cloudflare.com/workers-ai/get-started/rest-api/">Cloudflare AI</a>. (#150)</li>
 <li>Added <code>ChatDeepSeek()</code> for chatting via <a href="https://www.deepseek.com/">DeepSeek</a>. (#147)</li>
@@ -601,8 +613,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-14" class="level2">
 <h2 class="anchored" data-anchor-id="section-14">[0.9.0] - 2025-07-02</h2>
-<section id="new-features-9" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-9">New features</h3>
+<section id="new-features-10" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-10">New features</h3>
 <ul>
 <li><code>Chat</code> gains a handful of new methods:
 <ul>
@@ -669,8 +681,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-16" class="level2">
 <h2 class="anchored" data-anchor-id="section-16">[0.8.0] - 2025-05-30</h2>
-<section id="new-features-10" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-10">New features</h3>
+<section id="new-features-11" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-11">New features</h3>
 <ul>
 <li>New <code>.on_tool_request()</code> and <code>.on_tool_result()</code> methods register callbacks that fire when a tool is requested or produces a result. These callbacks can be used to implement custom logging or other actions when tools are called, without modifying the tool function (#101).</li>
 <li>New <code>ToolRejectError</code> exception can be thrown from tool request/result callbacks or from within a tool function itself to prevent the tool from executing. Moreover, this exception will provide some context for the the LLM to know that the tool didn’t produce a result because it was rejected. (#101)</li>
@@ -706,8 +718,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-18" class="level2">
 <h2 class="anchored" data-anchor-id="section-18">[0.7.0] - 2025-04-22</h2>
-<section id="new-features-11" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-11">New features</h3>
+<section id="new-features-12" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-12">New features</h3>
 <ul>
 <li>Added <code>ChatDatabricks()</code>, for chatting with Databrick’s <a href="https://docs.databricks.com/aws/en/machine-learning/model-serving/score-foundation-models">foundation models</a>. (#82)</li>
 <li><code>.stream()</code> and <code>.stream_async()</code> gain a <code>content</code> argument. Set this to <code>"all"</code> to include <code>ContentToolResult</code>/<code>ContentToolRequest</code> objects in the stream. (#75)</li>
@@ -760,8 +772,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-20" class="level2">
 <h2 class="anchored" data-anchor-id="section-20">[0.6.0] - 2025-04-01</h2>
-<section id="new-features-12" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-12">New features</h3>
+<section id="new-features-13" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-13">New features</h3>
 <ul>
 <li>New <code>content_pdf_file()</code> and <code>content_pdf_url()</code> allow you to upload PDFs to supported models. (#74)</li>
 </ul>
@@ -775,8 +787,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-21" class="level2">
 <h2 class="anchored" data-anchor-id="section-21">[0.5.0] - 2025-03-18</h2>
-<section id="new-features-13" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-13">New features</h3>
+<section id="new-features-14" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-14">New features</h3>
 <ul>
 <li>Added a <code>ChatSnowflake()</code> class to interact with <a href="https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions">Snowflake Cortex LLM</a>. (#54)</li>
 <li>Added a <code>ChatAuto()</code> class, allowing for configuration of chat providers and models via environment variables. (#38, thanks <span class="citation" data-cites="mconflitti-pbc">@mconflitti-pbc</span>)</li>
@@ -800,8 +812,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-22" class="level2">
 <h2 class="anchored" data-anchor-id="section-22">[0.4.0] - 2025-02-19</h2>
-<section id="new-features-14" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-14">New features</h3>
+<section id="new-features-15" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-15">New features</h3>
 <ul>
 <li>Added a <code>ChatVertex()</code> class to interact with Google Cloud’s Vertex AI. (#50)</li>
 <li>Added <code>.app(*, echo=)</code> support. This allows for chatlas to change the echo behavior when running the Shiny app. (#31)</li>
@@ -824,8 +836,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 </section>
 <section id="section-23" class="level2">
 <h2 class="anchored" data-anchor-id="section-23">[0.3.0] - 2024-12-20</h2>
-<section id="new-features-15" class="level3">
-<h3 class="anchored" data-anchor-id="new-features-15">New features</h3>
+<section id="new-features-16" class="level3">
+<h3 class="anchored" data-anchor-id="new-features-16">New features</h3>
 <ul>
 <li><code>Chat</code>’s <code>.tokens()</code> method gains a <code>values</code> argument. Set it to <code>"discrete"</code> to get a result that can be summed to determine the token cost of submitting the current turns. The default (<code>"cumulative"</code>), remains the same (the result can be summed to determine the overall token cost of the conversation).</li>
 <li><code>Chat</code> gains a <code>.token_count()</code> method to help estimate token cost of new input. (#23)</li>
@@ -850,239 +862,243 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
       }
+      return false;
     }
-    return false;
-  }
-  const onCopySuccess = function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
       }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
       for (const childEl of codeEl.children) {
         if (isCodeAnnotation(childEl)) {
           childEl.remove();
         }
       }
       return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
-  });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
     });
-    clipboardModal.on('success', onCopySuccess);
-  }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/posit-dev\.github\.io\/chatlas\/");
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
     }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/posit-dev\.github\.io\/chatlas\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
-    };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
         }
-        return container.innerHTML
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      // TODO in 1.5, we should make sure this works without a callout special case
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -1090,185 +1106,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script>
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">

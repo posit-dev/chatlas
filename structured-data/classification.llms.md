@@ -1,0 +1,39 @@
+# Classification
+
+The following example, which [closely inspired by the Claude documentation](https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb), shows how `.chat_structured()` can be used to perform text classification.
+
+``` python
+from typing import Literal
+
+from chatlas import ChatOpenAI
+from pydantic import BaseModel, Field
+import pandas as pd
+
+text = "The new quantum computing breakthrough could revolutionize the tech industry."
+
+
+class Classification(BaseModel):
+    name: Literal[
+        "Politics", "Sports", "Technology", "Entertainment", "Business", "Other"
+    ] = Field(description="The category name")
+
+    score: float = Field(
+        description="The classification score for the category, ranging from 0.0 to 1.0."
+    )
+
+
+class Classifications(BaseModel):
+    """Array of classification results. The scores should sum to 1."""
+    classifications: list[Classification]
+
+
+chat = ChatOpenAI()
+data = chat.chat_structured(text, data_model=Classifications)
+pd.DataFrame([c.model_dump() for c in data.classifications])
+```
+
+|     | name       | score |
+|-----|------------|-------|
+| 0   | Technology | 0.94  |
+| 1   | Business   | 0.04  |
+| 2   | Other      | 0.02  |

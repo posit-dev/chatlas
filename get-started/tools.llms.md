@@ -1,0 +1,149 @@
+# Tool calling
+
+### Motivation
+
+Tool calling helps extend the capabilities of an LLM by allowing it to call external functions or APIs. This is particularly useful for tasks that require precise calculations, information retrieval, or actions that are beyond the model’s built-in capabilities.
+
+An obvious example of where tool calling is useful is when a response needs up-to-date information, such as the weather or stock prices:
+
+``` python
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+chat.chat("How's the weather in San Francisco?")
+```
+
+I’m unable to provide real-time weather updates. To get the most current weather information for San Francisco, I recommend checking a reliable weather website or using a weather app.
+
+### Registering tools
+
+We can help the model out by registering a tool function that can fetch the weather for a given location. Importantly, the function includes a **docstring explaining what it does as well as type hints for each parameter.** The model takes this information in consideration when deciding if/how to use tool(s) to answer user prompts[^1].
+
+``` python
+import requests
+
+def get_current_weather(lat: float, lng: float):
+    """
+    Get the current weather given a latitude and longitude.
+
+    Parameters
+    ----------
+    lat: The latitude of the location.
+    lng: The longitude of the location.
+    """
+    lat_lng = f"latitude={lat}&longitude={lng}"
+    url = f"https://api.open-meteo.com/v1/forecast?{lat_lng}&current=temperature_2m,wind_speed_10m&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m"
+    response = requests.get(url)
+    return response.json()["current"]
+
+chat.register_tool(get_current_weather)
+
+chat.chat("How's the weather in San Francisco?")
+```
+
+``` python
+# 🛠️ tool request
+get_current_weather(37.7749, -122.4194)
+```
+
+``` python
+# ✅ tool result
+{ 
+  'time': '2025-05-30T22:00',
+  'interval': 900,
+  'temperature_2m': 23.3,
+  'wind_speed_10m': 23.6
+}
+```
+
+The current weather in San Francisco is 23.3°C with a wind speed of 23.6 km/h.
+
+chatlas automatically handles the [tool calling loop](../tool-calling/how-it-works.llms.md) for you and `.chat()` also displays information about what tools the model is requesting and receiving. This is an especially nice experience when interactively chatting since it helps you (the developer) quickly verify that tools are working as expected. If you, for some reason, prefer not to see the tool call information displayed, you can set `echo="text"` in the `.chat()` method.
+
+> **TIP:**
+>
+> Soon you’ll learn about the `.stream()` method, which is a lower-level approach to streaming LLM responses, providing more control over where and how the model’s output is displayed. As a result, you’ll be able to create any experience you want, but you’ll also need to do a bit of work to provide user-friendly tool calling experiences. You’ll learn more about this in [custom displays](../tool-calling/displays.llms.md) and [tool call approvals](../tool-calling/approval.llms.md).
+
+### Built-in tools
+
+Some providers offer built-in tools that run on their servers, such as web search and URL fetching. chatlas provides provider-agnostic access to these capabilities via [`tool_web_search()`](../reference/tool_web_search.llms.md) and [`tool_web_fetch()`](../reference/tool_web_fetch.llms.md):
+
+``` python
+from chatlas import ChatOpenAI, tool_web_search
+
+chat = ChatOpenAI()
+chat.register_tool(tool_web_search())
+chat.chat("What are the top news stories today?")
+```
+
+These tools translate to each provider’s native format automatically. See the function reference for supported providers and configuration options.
+
+> **NOTE:**
+>
+> For providers without native fetch support (like OpenAI), you can use the [MCP Fetch server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch) via `register_mcp_tools_stdio_async()`. See the [MCP tools guide](../misc/mcp-tools.llms.md) for more information.
+
+### Tool errors
+
+When a tool function is called, it may fail for various reasons, such as network issues, invalid input, or unexpected exceptions. When this happens, chatlas captures the exception and sends it back to the chat model as part of the conversation. This allows the model to gracefully handle the error, possibly fix it, and continue the conversation. It also [logs](../get-started/debug.llms.md) and displays the stacktrace in the Python console to help you debug the issue.
+
+``` python
+def get_current_weather(lat: float, lng: float):
+    "Get the current weather "
+    raise ValueError("Failed to get current temperature")
+
+chat.register_tool(get_current_weather)
+
+chat.chat("How's the weather in San Francisco?")
+```
+
+``` python
+# 🛠️ tool request
+get_current_weather(37.7749, -122.4194)
+```
+
+``` python
+# ❌ tool error
+ValueError: Failed to get current temperature
+```
+
+I encountered an issue while trying to retrieve the current weather for San Francisco. Please check a reliable weather website or use a weather app for the latest updates.
+
+## Multi-modal results
+
+Tools can return the same [multi-modal](../get-started/chat.llms.md#multi-modal-input) content types that go in to a chat message, such as images (e.g., [`content_image_url`](../reference/content_image_url.llms.md)) and PDFs (e.g., [`content_pdf_file`](../reference/content_pdf_file.llms.md)). For a quick example:
+
+``` python
+from chatlas import ChatOpenAI, content_image_url
+import requests
+
+def get_cat_image():
+    """Get a random cat image from an API."""
+    response = requests.get("https://api.thecatapi.com/v1/images/search")
+    image_url = response.json()[0]["url"]
+    return content_image_url(image_url)
+
+chat = ChatOpenAI(model="gpt-4o")
+chat.register_tool(get_cat_image)
+
+chat.chat("Get a cat image and describe what you see")
+```
+
+``` python
+# 🛠️ tool request
+get_cat_image()
+```
+
+``` python
+# ✅ tool result
+![](https://cdn2.thecatapi.com/images/DFHMMPNcD.jpg)
+```
+
+The image shows a beautiful cat with a Siamese-like color pattern. The cat has a dark face, ears, and paws, with a lighter body. Its eyes are large and bright, and the cat is sitting in front of a green curtain. The contrast between the cat’s dark features and the curtain makes the image visually striking. It’s a cute and attentive pose.
+
+### More examples
+
+The weather tool presented here is extremely simple, but you can imagine doing much more interesting things from tool functions: calling other APIs, reading from a database, kicking off a complex simulation, or even calling a complementary GenAI model (like an image generator). Or if you are using chatlas in a [Shiny](https://shiny.posit.co/py/) app, you could use tools to set reactive values, setting off a chain of reactive updates. This is precisely what [querychat](https://github.com/posit-dev/querychat) does to enable users to query databases using natural language.
+
+## Footnotes
+
+[^1]: Some models may need some additional (system) prompting to help it understand the appropriate situations to use the function.

@@ -1,0 +1,5 @@
+# types.ImageContentTypes
+
+`types.ImageContentTypes`
+
+Allowable content types for images.

@@ -1,0 +1,92 @@
+# Multi-modal input
+
+### PDFs
+
+This example comes from [Google’s cookbook](https://github.com/google-gemini/cookbook/blob/main/examples/Pdf_structured_outputs_on_invoices_and_forms.ipynb) and extracts structured data from [a PDF invoice](https://storage.googleapis.com/generativeai-downloads/data/pdf_structured_outputs/invoice.pdf). The goal is to extract the invoice number, date, and all list items with description, quantity, and gross worth, as well as the total gross worth.
+
+``` python
+import chatlas as ctl
+from pydantic import BaseModel, Field
+
+
+class Item(BaseModel):
+    description: str = Field(description="The description of the item")
+    quantity: float = Field(description="The Qty of the item")
+    gross_worth: float = Field(description="The gross worth of the item")
+
+
+class Invoice(BaseModel):
+    """Extract the invoice number, date and all list items with description, quantity and gross worth and the total gross worth."""
+
+    invoice_number: str = Field(description="The invoice number e.g. 1234567890")
+    date: str = Field(description="The date of the invoice e.g. 10/09/2012")
+    items: list[Item] = Field(
+        description="The list of items with description, quantity and gross worth"
+    )
+    total_gross_worth: float = Field(description="The total gross worth of the invoice")
+
+
+_ = Invoice.model_rebuild()
+
+chat = ctl.ChatOpenAI()
+res = chat.chat_structured(
+    "https://storage.googleapis.com/generativeai-downloads/data/pdf_structured_outputs/invoice.pdf",
+    data_model=Invoice,
+)
+res.model_dump_json(indent=2)
+```
+
+``` python
+{
+  'invoice_number': 'INV-123456789',
+  'date': '09/10/2023',
+  'items': [
+    {'description': 'Laptop', 'quantity': 2, 'gross_worth': 2000},
+    {'description': 'Smartphone', 'quantity': 5, 'gross_worth': 3500},
+    {'description': 'Tablet', 'quantity': 3, 'gross_worth': 1200}
+  ],
+  'total_gross_worth': 6700
+}
+```
+
+### Images
+
+This example comes from [Dan Nguyen](https://gist.github.com/dannguyen/faaa56cebf30ad51108a9fe4f8db36d8) (you can see other interesting applications at that link). The goal is to extract structured data from this screenshot:
+
+[![Screenshot of schedule A: a table showing assets and “unearned” income](../congressional-assets.png)](../congressional-assets.png "Screenshot of schedule A: a table showing assets and “unearned” income")
+
+Screenshot of schedule A: a table showing assets and “unearned” income
+
+Even without any descriptions, ChatGPT does pretty well:
+
+``` python
+import chatlas as ctl
+from pydantic import BaseModel, Field
+import pandas as pd
+
+class Asset(BaseModel):
+    assert_name: str
+    owner: str
+    location: str
+    asset_value_low: int
+    asset_value_high: int
+    income_type: str
+    income_low: int
+    income_high: int
+    tx_gt_1000: bool
+
+class DisclosureReport(BaseModel):
+    assets: list[Asset]
+
+chat = ctl.ChatOpenAI()
+data = chat.chat_structured(
+    ctl.content_image_file("../images/congressional-assets.png"),
+    data_model=DisclosureReport,
+)
+pd.DataFrame([c.model_dump() for c in data.assets])
+```
+
+|  | assert_name | owner | location | asset_value_low | asset_value_high | income_type | income_low | income_high | tx_gt_1000 |
+|----|----|----|----|----|----|----|----|----|----|
+| 0 | 11 Zinfandel Lane - Home & Vineyard \[RP\] | JT | St. Helena/Napa, CA, US | 5000001 | 25000000 | Grape Sales | 100001 | 1000000 | False |
+| 1 | 25 Point Lobos - Commercial Property \[RP\] | SP | San Francisco/San Francisco, CA, US | 5000001 | 25000000 | Rent | 100001 | 1000000 | False |
