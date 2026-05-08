@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import warnings
+
 
 class StreamController:
     """
@@ -56,8 +58,6 @@ class StreamController:
     def _ensure_ready(self) -> None:
         """Auto-reset if already cancelled (prevents stale controller bugs)."""
         if self._cancelled:
-            import warnings
-
             warnings.warn(
                 "StreamController was already cancelled — resetting automatically. "
                 "Call controller.reset() explicitly to avoid this warning.",

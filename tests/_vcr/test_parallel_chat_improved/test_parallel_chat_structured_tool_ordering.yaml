@@ -1,25 +1,25 @@
 interactions:
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse. Use the fetch_data tool as requested."}]}, {"role": "user", "content":
-      [{"type": "input_text", "text": "Fetch data for ID ''A'' and structure the result"}]}],
-      "model": "gpt-4.1", "store": false, "stream": false, "text": {"format": {"type":
-      "json_schema", "name": "structured_data", "schema": {"description": "A data
-      result.", "properties": {"id": {"type": "string"}, "data": {"type": "string"}},
-      "required": ["id", "data"], "type": "object", "additionalProperties": false},
-      "strict": true}}, "tools": [{"type": "function", "name": "fetch_data", "description":
-      "Fetch data by ID.", "parameters": {"properties": {"id": {"type": "string"}},
-      "required": ["id"], "type": "object", "additionalProperties": false}, "strict":
-      true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
+      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
+      "Fetch data for ID ''A'' and structure the result"}]}], "model": "gpt-5.4",
+      "store": false, "stream": false, "text": {"format": {"type": "json_schema",
+      "name": "structured_data", "schema": {"description": "A data result.", "properties":
+      {"id": {"type": "string"}, "data": {"type": "string"}}, "required": ["id", "data"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "tools":
+      [{"type": "function", "name": "fetch_data", "description": "Fetch data by ID.",
+      "parameters": {"properties": {"id": {"type": "string"}}, "required": ["id"],
+      "type": "object", "additionalProperties": false}, "strict": true}]}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '742'
+      - '784'
       Content-Type:
       - application/json
       Host:
@@ -32,353 +32,20 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_047a0d4cd87c4b5901695588eef1f88195a174e80653c47735\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213294,\n  \"status\":
+      string: "{\n  \"id\": \"resp_03290a0b1de430de0169fb7d11379081a199de186d77d2e7f1\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089233,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213295,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"fc_047a0d4cd87c4b5901695588ef4540819593b6fc4772c9e497\",\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089233,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"fc_03290a0b1de430de0169fb7d11c31481a1b1ef75a384e528ef\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"id\\\":\\\"A\\\"}\",\n      \"call_id\": \"call_k4jwwuI0cciSMbHe2XUZ0glR\",\n
+        \"{\\\"id\\\":\\\"A\\\"}\",\n      \"call_id\": \"call_rnWnQQpECRC6YQMcfcHxNpvM\",\n
         \     \"name\": \"fetch_data\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        null,\n  \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n
-        \ },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
-        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
-        \"json_schema\",\n      \"description\": null,\n      \"name\": \"structured_data\",\n
-        \     \"schema\": {\n        \"description\": \"A data result.\",\n        \"properties\":
-        {\n          \"id\": {\n            \"type\": \"string\"\n          },\n          \"data\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"id\",\n          \"data\"\n        ],\n        \"type\": \"object\",\n
-        \       \"additionalProperties\": false\n      },\n      \"strict\": true\n
-        \   },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
-        \ \"tools\": [\n    {\n      \"type\": \"function\",\n      \"description\":
-        \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n      \"parameters\":
-        {\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"id\"\n        ],\n
-        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
-        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        98,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 15,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 113\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
-    headers:
-      CF-RAY:
-      - 9b6c8f752a83eb5a-ORD
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Date:
-      - Wed, 31 Dec 2025 20:34:55 GMT
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Transfer-Encoding:
-      - chunked
-      X-Content-Type-Options:
-      - nosniff
-      alt-svc:
-      - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
-      content-length:
-      - '2219'
-      openai-processing-ms:
-      - '420'
-      openai-version:
-      - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '425'
-      x-ratelimit-limit-requests:
-      - '10000'
-      x-ratelimit-limit-tokens:
-      - '30000000'
-      x-ratelimit-remaining-requests:
-      - '9999'
-      x-ratelimit-remaining-tokens:
-      - '30000000'
-      x-ratelimit-reset-requests:
-      - 6ms
-      x-ratelimit-reset-tokens:
-      - 0s
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse. Use the fetch_data tool as requested."}]}, {"role": "user", "content":
-      [{"type": "input_text", "text": "Fetch data for ID ''C'' and structure the result"}]}],
-      "model": "gpt-4.1", "store": false, "stream": false, "text": {"format": {"type":
-      "json_schema", "name": "structured_data", "schema": {"description": "A data
-      result.", "properties": {"id": {"type": "string"}, "data": {"type": "string"}},
-      "required": ["id", "data"], "type": "object", "additionalProperties": false},
-      "strict": true}}, "tools": [{"type": "function", "name": "fetch_data", "description":
-      "Fetch data by ID.", "parameters": {"properties": {"id": {"type": "string"}},
-      "required": ["id"], "type": "object", "additionalProperties": false}, "strict":
-      true}]}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '742'
-      Content-Type:
-      - application/json
-      Host:
-      - api.openai.com
-      X-Stainless-Async:
-      - async:asyncio
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://api.openai.com/v1/responses
-  response:
-    body:
-      string: "{\n  \"id\": \"resp_049014a93d22ec4f01695588ef2440819497ccae312f97edec\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213295,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213295,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"fc_049014a93d22ec4f01695588efe57881948aa4845306fa7e56\",\n
-        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"id\\\":\\\"C\\\"}\",\n      \"call_id\": \"call_veKnAaMj8H0Szn0FHDyCC67s\",\n
-        \     \"name\": \"fetch_data\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        null,\n  \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n
-        \ },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
-        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
-        \"json_schema\",\n      \"description\": null,\n      \"name\": \"structured_data\",\n
-        \     \"schema\": {\n        \"description\": \"A data result.\",\n        \"properties\":
-        {\n          \"id\": {\n            \"type\": \"string\"\n          },\n          \"data\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"id\",\n          \"data\"\n        ],\n        \"type\": \"object\",\n
-        \       \"additionalProperties\": false\n      },\n      \"strict\": true\n
-        \   },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
-        \ \"tools\": [\n    {\n      \"type\": \"function\",\n      \"description\":
-        \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n      \"parameters\":
-        {\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"id\"\n        ],\n
-        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
-        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        98,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 15,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 113\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
-    headers:
-      CF-RAY:
-      - 9b6c8f764a9e1393-ORD
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Date:
-      - Wed, 31 Dec 2025 20:34:56 GMT
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Transfer-Encoding:
-      - chunked
-      X-Content-Type-Options:
-      - nosniff
-      alt-svc:
-      - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
-      content-length:
-      - '2219'
-      openai-processing-ms:
-      - '860'
-      openai-version:
-      - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '868'
-      x-ratelimit-limit-requests:
-      - '10000'
-      x-ratelimit-limit-tokens:
-      - '30000000'
-      x-ratelimit-remaining-requests:
-      - '9999'
-      x-ratelimit-remaining-tokens:
-      - '30000000'
-      x-ratelimit-reset-requests:
-      - 6ms
-      x-ratelimit-reset-tokens:
-      - 0s
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse. Use the fetch_data tool as requested."}]}, {"role": "user", "content":
-      [{"type": "input_text", "text": "Fetch data for ID ''B'' and structure the result"}]}],
-      "model": "gpt-4.1", "store": false, "stream": false, "text": {"format": {"type":
-      "json_schema", "name": "structured_data", "schema": {"description": "A data
-      result.", "properties": {"id": {"type": "string"}, "data": {"type": "string"}},
-      "required": ["id", "data"], "type": "object", "additionalProperties": false},
-      "strict": true}}, "tools": [{"type": "function", "name": "fetch_data", "description":
-      "Fetch data by ID.", "parameters": {"properties": {"id": {"type": "string"}},
-      "required": ["id"], "type": "object", "additionalProperties": false}, "strict":
-      true}]}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '742'
-      Content-Type:
-      - application/json
-      Host:
-      - api.openai.com
-      X-Stainless-Async:
-      - async:asyncio
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://api.openai.com/v1/responses
-  response:
-    body:
-      string: "{\n  \"id\": \"resp_036e5ac28ec0376401695588ef1b9081968a621fd8a35141b4\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213295,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213295,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"fc_036e5ac28ec0376401695588efe4a081968f4fe6bcc8b4fd2c\",\n
-        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{\\\"id\\\":\\\"B\\\"}\",\n      \"call_id\": \"call_6il39LLcbGUxKEFNc3dZD9Br\",\n
-        \     \"name\": \"fetch_data\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
-        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
-        null,\n  \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n
-        \ },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
-        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
-        \"json_schema\",\n      \"description\": null,\n      \"name\": \"structured_data\",\n
-        \     \"schema\": {\n        \"description\": \"A data result.\",\n        \"properties\":
-        {\n          \"id\": {\n            \"type\": \"string\"\n          },\n          \"data\":
-        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"id\",\n          \"data\"\n        ],\n        \"type\": \"object\",\n
-        \       \"additionalProperties\": false\n      },\n      \"strict\": true\n
-        \   },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
-        \ \"tools\": [\n    {\n      \"type\": \"function\",\n      \"description\":
-        \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n      \"parameters\":
-        {\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"id\"\n        ],\n
-        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
-        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        98,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 15,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 113\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
-    headers:
-      CF-RAY:
-      - 9b6c8f762c726213-ORD
-      Connection:
-      - keep-alive
-      Content-Type:
-      - application/json
-      Date:
-      - Wed, 31 Dec 2025 20:34:56 GMT
-      Server:
-      - cloudflare
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains; preload
-      Transfer-Encoding:
-      - chunked
-      X-Content-Type-Options:
-      - nosniff
-      alt-svc:
-      - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
-      content-length:
-      - '2219'
-      openai-processing-ms:
-      - '895'
-      openai-version:
-      - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '898'
-      x-ratelimit-limit-requests:
-      - '10000'
-      x-ratelimit-limit-tokens:
-      - '30000000'
-      x-ratelimit-remaining-requests:
-      - '9999'
-      x-ratelimit-remaining-tokens:
-      - '30000000'
-      x-ratelimit-reset-requests:
-      - 6ms
-      x-ratelimit-reset-tokens:
-      - 0s
-    status:
-      code: 200
-      message: OK
-- request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse. Use the fetch_data tool as requested."}]}, {"role": "user", "content":
-      [{"type": "input_text", "text": "Fetch data for ID ''A'' and structure the result"}]},
-      {"type": "function_call", "call_id": "fc_047a0d4cd87c4b5901695588ef4540819593b6fc4772c9e497",
-      "name": "fetch_data", "arguments": "{\"id\":\"A\"}"}, {"type": "function_call_output",
-      "call_id": "fc_047a0d4cd87c4b5901695588ef4540819593b6fc4772c9e497", "output":
-      "Data for A"}], "model": "gpt-4.1", "store": false, "stream": false, "text":
-      {"format": {"type": "json_schema", "name": "structured_data", "schema": {"description":
-      "A data result.", "properties": {"id": {"type": "string"}, "data": {"type":
-      "string"}}, "required": ["id", "data"], "type": "object", "additionalProperties":
-      false}, "strict": true}}, "tools": [{"type": "function", "name": "fetch_data",
-      "description": "Fetch data by ID.", "parameters": {"properties": {"id": {"type":
-      "string"}}, "required": ["id"], "type": "object", "additionalProperties": false},
-      "strict": true}]}'
-    headers:
-      Accept:
-      - application/json
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '1002'
-      Content-Type:
-      - application/json
-      Cookie:
-      - __cf_bm=DBAxYUPW6eRGZxaRJMbQNsmjVQFrHslmpkD13K.HeFU-1767213296-1.0.1.1-HN.MLwt_S96EFY8v6Uh_welWkKeKtjL1lahASqTv28V6.0sUigMMHC1PQu32BLmkOeJHPrZqDW5Ml8IZqO8vtyIEr7pqbFxZTD83yFwB0lk;
-        _cfuvid=6H.KqATM1Bygf92RxHoK59Zy0h.d2Lhu3wuqnt.6Q4g-1767213296022-0.0.1.1-604800000
-      Host:
-      - api.openai.com
-      X-Stainless-Async:
-      - async:asyncio
-      x-stainless-read-timeout:
-      - '600'
-    method: POST
-    uri: https://api.openai.com/v1/responses
-  response:
-    body:
-      string: "{\n  \"id\": \"resp_06b88f4464d0f32001695588f049b88192b129946c65ef47f7\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213296,\n  \"status\":
-        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213296,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_06b88f4464d0f32001695588f096bc8192be07444617f28378\",\n
-        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
-        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"id\\\":\\\"A\\\",\\\"data\\\":\\\"Data
-        for A\\\"}\"\n        }\n      ],\n      \"role\": \"assistant\"\n    }\n
-        \ ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\": null,\n
-        \ \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n  \"reasoning\":
-        {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
+        \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
+        null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
+        \   \"effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\":
         null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
         1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_schema\",\n
         \     \"description\": null,\n      \"name\": \"structured_data\",\n      \"schema\":
@@ -394,20 +61,22 @@ interactions:
         \         }\n        },\n        \"required\": [\n          \"id\"\n        ],\n
         \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
         \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        121,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 17,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 138\n  },\n  \"user\": null,\n  \"metadata\":
+        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
+        102,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
+        \   \"output_tokens\": 18,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 120\n  },\n  \"user\": null,\n  \"metadata\":
         {}\n}"
     headers:
-      CF-RAY:
-      - 9b6c8f7d7f6cf83e-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c54adad8ad0e-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:34:56 GMT
+      - Wed, 06 May 2026 17:40:34 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -418,39 +87,254 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '2322'
+      - '2307'
       openai-processing-ms:
-      - '532'
+      - '847'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '534'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse. Use the fetch_data tool as requested."}]}, {"role": "user", "content":
-      [{"type": "input_text", "text": "Fetch data for ID ''B'' and structure the result"}]},
-      {"type": "function_call", "call_id": "fc_036e5ac28ec0376401695588efe4a081968f4fe6bcc8b4fd2c",
-      "name": "fetch_data", "arguments": "{\"id\":\"B\"}"}, {"type": "function_call_output",
-      "call_id": "fc_036e5ac28ec0376401695588efe4a081968f4fe6bcc8b4fd2c", "output":
-      "Data for B"}], "model": "gpt-4.1", "store": false, "stream": false, "text":
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
+      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
+      "Fetch data for ID ''B'' and structure the result"}]}], "model": "gpt-5.4",
+      "store": false, "stream": false, "text": {"format": {"type": "json_schema",
+      "name": "structured_data", "schema": {"description": "A data result.", "properties":
+      {"id": {"type": "string"}, "data": {"type": "string"}}, "required": ["id", "data"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "tools":
+      [{"type": "function", "name": "fetch_data", "description": "Fetch data by ID.",
+      "parameters": {"properties": {"id": {"type": "string"}}, "required": ["id"],
+      "type": "object", "additionalProperties": false}, "strict": true}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '784'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_06fe4651cf2673880169fb7d1149c4819088a6e713885d652b\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089233,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1778089234,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"fc_06fe4651cf2673880169fb7d11f2748190b904f9e2d80053ea\",\n
+        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
+        \"{\\\"id\\\":\\\"B\\\"}\",\n      \"call_id\": \"call_IQeGBoeTDTWkbmpqU6C3twxG\",\n
+        \     \"name\": \"fetch_data\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
+        \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
+        null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
+        \   \"effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\":
+        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
+        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_schema\",\n
+        \     \"description\": null,\n      \"name\": \"structured_data\",\n      \"schema\":
+        {\n        \"description\": \"A data result.\",\n        \"properties\": {\n
+        \         \"id\": {\n            \"type\": \"string\"\n          },\n          \"data\":
+        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
+        [\n          \"id\",\n          \"data\"\n        ],\n        \"type\": \"object\",\n
+        \       \"additionalProperties\": false\n      },\n      \"strict\": true\n
+        \   },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
+        \ \"tools\": [\n    {\n      \"type\": \"function\",\n      \"description\":
+        \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n      \"parameters\":
+        {\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n
+        \         }\n        },\n        \"required\": [\n          \"id\"\n        ],\n
+        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
+        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
+        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
+        102,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
+        \   \"output_tokens\": 18,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 120\n  },\n  \"user\": null,\n  \"metadata\":
+        {}\n}"
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c54b99354c91-MSP
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 06 May 2026 17:40:34 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      content-length:
+      - '2307'
+      openai-processing-ms:
+      - '964'
+      openai-version:
+      - '2020-10-01'
+      x-ratelimit-limit-requests:
+      - '15000'
+      x-ratelimit-limit-tokens:
+      - '40000000'
+      x-ratelimit-remaining-requests:
+      - '14999'
+      x-ratelimit-remaining-tokens:
+      - '40000000'
+      x-ratelimit-reset-requests:
+      - 4ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
+      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
+      "Fetch data for ID ''C'' and structure the result"}]}], "model": "gpt-5.4",
+      "store": false, "stream": false, "text": {"format": {"type": "json_schema",
+      "name": "structured_data", "schema": {"description": "A data result.", "properties":
+      {"id": {"type": "string"}, "data": {"type": "string"}}, "required": ["id", "data"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "tools":
+      [{"type": "function", "name": "fetch_data", "description": "Fetch data by ID.",
+      "parameters": {"properties": {"id": {"type": "string"}}, "required": ["id"],
+      "type": "object", "additionalProperties": false}, "strict": true}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '784'
+      Content-Type:
+      - application/json
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_063cd7e499bafed30169fb7d1153c08190a371856b704c0397\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089233,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1778089234,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"fc_063cd7e499bafed30169fb7d11e8548190a8a712039bce205e\",\n
+        \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
+        \"{\\\"id\\\":\\\"C\\\"}\",\n      \"call_id\": \"call_CXLUgq2OjUvIU4kPHzazXjdl\",\n
+        \     \"name\": \"fetch_data\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n
+        \ \"presence_penalty\": 0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\":
+        null,\n  \"prompt_cache_retention\": \"in_memory\",\n  \"reasoning\": {\n
+        \   \"effort\": \"none\",\n    \"summary\": null\n  },\n  \"safety_identifier\":
+        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
+        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_schema\",\n
+        \     \"description\": null,\n      \"name\": \"structured_data\",\n      \"schema\":
+        {\n        \"description\": \"A data result.\",\n        \"properties\": {\n
+        \         \"id\": {\n            \"type\": \"string\"\n          },\n          \"data\":
+        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
+        [\n          \"id\",\n          \"data\"\n        ],\n        \"type\": \"object\",\n
+        \       \"additionalProperties\": false\n      },\n      \"strict\": true\n
+        \   },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
+        \ \"tools\": [\n    {\n      \"type\": \"function\",\n      \"description\":
+        \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n      \"parameters\":
+        {\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n
+        \         }\n        },\n        \"required\": [\n          \"id\"\n        ],\n
+        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
+        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
+        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
+        102,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
+        \   \"output_tokens\": 18,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 120\n  },\n  \"user\": null,\n  \"metadata\":
+        {}\n}"
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c54b98945122-MSP
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 06 May 2026 17:40:35 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      content-length:
+      - '2307'
+      openai-processing-ms:
+      - '2338'
+      openai-version:
+      - '2020-10-01'
+      x-ratelimit-limit-requests:
+      - '15000'
+      x-ratelimit-limit-tokens:
+      - '40000000'
+      x-ratelimit-remaining-requests:
+      - '14999'
+      x-ratelimit-remaining-tokens:
+      - '40000000'
+      x-ratelimit-reset-requests:
+      - 4ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
+      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
+      "Fetch data for ID ''B'' and structure the result"}]}, {"type": "function_call",
+      "call_id": "fc_06fe4651cf2673880169fb7d11f2748190b904f9e2d80053ea", "name":
+      "fetch_data", "arguments": "{\"id\":\"B\"}"}, {"type": "function_call_output",
+      "call_id": "fc_06fe4651cf2673880169fb7d11f2748190b904f9e2d80053ea", "output":
+      "Data for B"}], "model": "gpt-5.4", "store": false, "stream": false, "text":
       {"format": {"type": "json_schema", "name": "structured_data", "schema": {"description":
       "A data result.", "properties": {"id": {"type": "string"}, "data": {"type":
       "string"}}, "required": ["id", "data"], "type": "object", "additionalProperties":
@@ -462,16 +346,15 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '1002'
+      - '1044'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=DBAxYUPW6eRGZxaRJMbQNsmjVQFrHslmpkD13K.HeFU-1767213296-1.0.1.1-HN.MLwt_S96EFY8v6Uh_welWkKeKtjL1lahASqTv28V6.0sUigMMHC1PQu32BLmkOeJHPrZqDW5Ml8IZqO8vtyIEr7pqbFxZTD83yFwB0lk;
-        _cfuvid=6H.KqATM1Bygf92RxHoK59Zy0h.d2Lhu3wuqnt.6Q4g-1767213296022-0.0.1.1-604800000
+      - __cf_bm=QVM43GaHRK8vYWXsX6YLAXcohbmsrDV4rJ_5z_27mig-1778089233.2213297-1.0.1.1-Zorn5tlGLFMULNyFysZaTcBIxOCWmE0ihaE8qbQG0CajtNEQxoWW8SWnV6lb9lDc.LvffR3MfHe.EJ1QnslEjh2_NnwmzdqlaAIMkPEGqgpAiNVC7rU3Ox_HkrZuXGTI
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -482,49 +365,52 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0571b379dac81dc601695588f06c3c81a2b1b9b826dbf89d15\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213296,\n  \"status\":
+      string: "{\n  \"id\": \"resp_07b4f6ec7756eb0f0169fb7d1405d88192bb8c9906f2c7c0cf\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089236,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213296,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0571b379dac81dc601695588f0b93c81a2b7661a1ce6e8d01e\",\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089236,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_07b4f6ec7756eb0f0169fb7d14827c8192850764759c13faf3\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
         [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"id\\\":\\\"B\\\",\\\"data\\\":\\\"Data
-        for B\\\"}\"\n        }\n      ],\n      \"role\": \"assistant\"\n    }\n
-        \ ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\": null,\n
-        \ \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n  \"reasoning\":
-        {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
-        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
-        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_schema\",\n
-        \     \"description\": null,\n      \"name\": \"structured_data\",\n      \"schema\":
-        {\n        \"description\": \"A data result.\",\n        \"properties\": {\n
-        \         \"id\": {\n            \"type\": \"string\"\n          },\n          \"data\":
+        for B\\\"}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\":
+        \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\":
+        0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
+        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
+        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
+        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
+        {\n      \"type\": \"json_schema\",\n      \"description\": null,\n      \"name\":
+        \"structured_data\",\n      \"schema\": {\n        \"description\": \"A data
+        result.\",\n        \"properties\": {\n          \"id\": {\n            \"type\":
+        \"string\"\n          },\n          \"data\": {\n            \"type\": \"string\"\n
+        \         }\n        },\n        \"required\": [\n          \"id\",\n          \"data\"\n
+        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\":
+        \"function\",\n      \"description\": \"Fetch data by ID.\",\n      \"name\":
+        \"fetch_data\",\n      \"parameters\": {\n        \"properties\": {\n          \"id\":
         {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"id\",\n          \"data\"\n        ],\n        \"type\": \"object\",\n
-        \       \"additionalProperties\": false\n      },\n      \"strict\": true\n
-        \   },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
-        \ \"tools\": [\n    {\n      \"type\": \"function\",\n      \"description\":
-        \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n      \"parameters\":
-        {\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"id\"\n        ],\n
-        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
-        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        121,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 17,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 138\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+        [\n          \"id\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
+        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
+        \   \"input_tokens\": 134,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 153\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
     headers:
-      CF-RAY:
-      - 9b6c8f7e5f3f1477-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c55cba25a1fd-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:34:56 GMT
+      - Wed, 06 May 2026 17:40:36 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -535,39 +421,36 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '2322'
+      - '2440'
       openai-processing-ms:
-      - '442'
+      - '753'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '445'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse. Use the fetch_data tool as requested."}]}, {"role": "user", "content":
-      [{"type": "input_text", "text": "Fetch data for ID ''C'' and structure the result"}]},
-      {"type": "function_call", "call_id": "fc_049014a93d22ec4f01695588efe57881948aa4845306fa7e56",
-      "name": "fetch_data", "arguments": "{\"id\":\"C\"}"}, {"type": "function_call_output",
-      "call_id": "fc_049014a93d22ec4f01695588efe57881948aa4845306fa7e56", "output":
-      "Data for C"}], "model": "gpt-4.1", "store": false, "stream": false, "text":
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
+      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
+      "Fetch data for ID ''A'' and structure the result"}]}, {"type": "function_call",
+      "call_id": "fc_03290a0b1de430de0169fb7d11c31481a1b1ef75a384e528ef", "name":
+      "fetch_data", "arguments": "{\"id\":\"A\"}"}, {"type": "function_call_output",
+      "call_id": "fc_03290a0b1de430de0169fb7d11c31481a1b1ef75a384e528ef", "output":
+      "Data for A"}], "model": "gpt-5.4", "store": false, "stream": false, "text":
       {"format": {"type": "json_schema", "name": "structured_data", "schema": {"description":
       "A data result.", "properties": {"id": {"type": "string"}, "data": {"type":
       "string"}}, "required": ["id", "data"], "type": "object", "additionalProperties":
@@ -579,16 +462,15 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '1002'
+      - '1044'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=DBAxYUPW6eRGZxaRJMbQNsmjVQFrHslmpkD13K.HeFU-1767213296-1.0.1.1-HN.MLwt_S96EFY8v6Uh_welWkKeKtjL1lahASqTv28V6.0sUigMMHC1PQu32BLmkOeJHPrZqDW5Ml8IZqO8vtyIEr7pqbFxZTD83yFwB0lk;
-        _cfuvid=6H.KqATM1Bygf92RxHoK59Zy0h.d2Lhu3wuqnt.6Q4g-1767213296022-0.0.1.1-604800000
+      - __cf_bm=QVM43GaHRK8vYWXsX6YLAXcohbmsrDV4rJ_5z_27mig-1778089233.2213297-1.0.1.1-Zorn5tlGLFMULNyFysZaTcBIxOCWmE0ihaE8qbQG0CajtNEQxoWW8SWnV6lb9lDc.LvffR3MfHe.EJ1QnslEjh2_NnwmzdqlaAIMkPEGqgpAiNVC7rU3Ox_HkrZuXGTI
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -599,49 +481,52 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_00a3f44fed4a46b101695588f06500819f9f6bc1f14438949d\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213296,\n  \"status\":
+      string: "{\n  \"id\": \"resp_05c657c3c914666e0169fb7d13dfc48194bde91c641d73c458\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089235,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213296,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_00a3f44fed4a46b101695588f0b5f8819f9b8fd2dcbddbc658\",\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089236,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_05c657c3c914666e0169fb7d145c1c8194bface14e50efbaaa\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"id\\\":\\\"C\\\",\\\"data\\\":\\\"Data
-        for C\\\"}\"\n        }\n      ],\n      \"role\": \"assistant\"\n    }\n
-        \ ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\": null,\n
-        \ \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n  \"reasoning\":
-        {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
-        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
-        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_schema\",\n
-        \     \"description\": null,\n      \"name\": \"structured_data\",\n      \"schema\":
-        {\n        \"description\": \"A data result.\",\n        \"properties\": {\n
-        \         \"id\": {\n            \"type\": \"string\"\n          },\n          \"data\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"id\\\":\\\"A\\\",\\\"data\\\":\\\"Data
+        for A\\\"}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\":
+        \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\":
+        0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
+        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
+        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
+        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
+        {\n      \"type\": \"json_schema\",\n      \"description\": null,\n      \"name\":
+        \"structured_data\",\n      \"schema\": {\n        \"description\": \"A data
+        result.\",\n        \"properties\": {\n          \"id\": {\n            \"type\":
+        \"string\"\n          },\n          \"data\": {\n            \"type\": \"string\"\n
+        \         }\n        },\n        \"required\": [\n          \"id\",\n          \"data\"\n
+        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\":
+        \"function\",\n      \"description\": \"Fetch data by ID.\",\n      \"name\":
+        \"fetch_data\",\n      \"parameters\": {\n        \"properties\": {\n          \"id\":
         {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
-        [\n          \"id\",\n          \"data\"\n        ],\n        \"type\": \"object\",\n
-        \       \"additionalProperties\": false\n      },\n      \"strict\": true\n
-        \   },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n
-        \ \"tools\": [\n    {\n      \"type\": \"function\",\n      \"description\":
-        \"Fetch data by ID.\",\n      \"name\": \"fetch_data\",\n      \"parameters\":
-        {\n        \"properties\": {\n          \"id\": {\n            \"type\": \"string\"\n
-        \         }\n        },\n        \"required\": [\n          \"id\"\n        ],\n
-        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
-        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
-        1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        121,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 17,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 138\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+        [\n          \"id\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
+        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
+        \   \"input_tokens\": 134,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 153\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
     headers:
-      CF-RAY:
-      - 9b6c8f7e2923a700-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c55bd941accc-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:34:56 GMT
+      - Wed, 06 May 2026 17:40:36 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -652,26 +537,138 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '2322'
+      - '2440'
       openai-processing-ms:
-      - '479'
+      - '902'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '483'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
+      x-ratelimit-reset-tokens:
+      - 0s
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse. Use the fetch_data tool
+      as requested."}]}, {"role": "user", "content": [{"type": "input_text", "text":
+      "Fetch data for ID ''C'' and structure the result"}]}, {"type": "function_call",
+      "call_id": "fc_063cd7e499bafed30169fb7d11e8548190a8a712039bce205e", "name":
+      "fetch_data", "arguments": "{\"id\":\"C\"}"}, {"type": "function_call_output",
+      "call_id": "fc_063cd7e499bafed30169fb7d11e8548190a8a712039bce205e", "output":
+      "Data for C"}], "model": "gpt-5.4", "store": false, "stream": false, "text":
+      {"format": {"type": "json_schema", "name": "structured_data", "schema": {"description":
+      "A data result.", "properties": {"id": {"type": "string"}, "data": {"type":
+      "string"}}, "required": ["id", "data"], "type": "object", "additionalProperties":
+      false}, "strict": true}}, "tools": [{"type": "function", "name": "fetch_data",
+      "description": "Fetch data by ID.", "parameters": {"properties": {"id": {"type":
+      "string"}}, "required": ["id"], "type": "object", "additionalProperties": false},
+      "strict": true}]}'
+    headers:
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip, deflate, zstd
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1044'
+      Content-Type:
+      - application/json
+      Cookie:
+      - __cf_bm=QVM43GaHRK8vYWXsX6YLAXcohbmsrDV4rJ_5z_27mig-1778089233.2213297-1.0.1.1-Zorn5tlGLFMULNyFysZaTcBIxOCWmE0ihaE8qbQG0CajtNEQxoWW8SWnV6lb9lDc.LvffR3MfHe.EJ1QnslEjh2_NnwmzdqlaAIMkPEGqgpAiNVC7rU3Ox_HkrZuXGTI
+      Host:
+      - api.openai.com
+      X-Stainless-Async:
+      - async:asyncio
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_0bfa0f6350140b5f0169fb7d14281481958cb04d22bd8eb5c0\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089236,\n  \"status\":
+        \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
+        \"developer\"\n  },\n  \"completed_at\": 1778089237,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_0bfa0f6350140b5f0169fb7d149b4881959373bb26506465ac\",\n
+        \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"{\\\"id\\\":\\\"C\\\",\\\"data\\\":\\\"Data
+        for C\\\"}\"\n        }\n      ],\n      \"phase\": \"final_answer\",\n      \"role\":
+        \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\":
+        0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
+        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
+        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
+        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
+        {\n      \"type\": \"json_schema\",\n      \"description\": null,\n      \"name\":
+        \"structured_data\",\n      \"schema\": {\n        \"description\": \"A data
+        result.\",\n        \"properties\": {\n          \"id\": {\n            \"type\":
+        \"string\"\n          },\n          \"data\": {\n            \"type\": \"string\"\n
+        \         }\n        },\n        \"required\": [\n          \"id\",\n          \"data\"\n
+        \       ],\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    },\n    \"verbosity\": \"medium\"\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\":
+        \"function\",\n      \"description\": \"Fetch data by ID.\",\n      \"name\":
+        \"fetch_data\",\n      \"parameters\": {\n        \"properties\": {\n          \"id\":
+        {\n            \"type\": \"string\"\n          }\n        },\n        \"required\":
+        [\n          \"id\"\n        ],\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\":
+        0,\n  \"top_p\": 0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
+        \   \"input_tokens\": 134,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 19,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 153\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c55ca87c5108-MSP
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 06 May 2026 17:40:37 GMT
+      Server:
+      - cloudflare
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      content-length:
+      - '2440'
+      openai-processing-ms:
+      - '1038'
+      openai-version:
+      - '2020-10-01'
+      x-ratelimit-limit-requests:
+      - '15000'
+      x-ratelimit-limit-tokens:
+      - '40000000'
+      x-ratelimit-remaining-requests:
+      - '14999'
+      x-ratelimit-remaining-tokens:
+      - '40000000'
+      x-ratelimit-reset-requests:
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:

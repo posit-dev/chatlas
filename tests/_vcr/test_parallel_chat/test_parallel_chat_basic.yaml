@@ -1,17 +1,18 @@
 interactions:
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "What is 1 + 1?"}]}], "model": "gpt-4.1", "store": false, "stream": false}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
+      "content": [{"type": "input_text", "text": "What is 1 + 1?"}]}], "model": "gpt-5.4",
+      "store": false, "stream": false}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '203'
+      - '245'
       Content-Type:
       - application/json
       Host:
@@ -24,37 +25,40 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0c1499262d66523701695588cde2ec8193ba85801bccfdd3e2\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213261,\n  \"status\":
+      string: "{\n  \"id\": \"resp_06e1231d00cad5250169fb7cea55a881a1aaf0a827ed153141\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089194,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213262,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0c1499262d66523701695588ce131881939d9a1c1e738b69db\",\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089194,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_06e1231d00cad5250169fb7ceae2a081a1a41e5517ff1372fe\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"1 + 1 = 2.\"\n        }\n
-        \     ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
-        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
-        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
-        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
-        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
-        \   \"format\": {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        22,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 9,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 31\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+        [],\n          \"logprobs\": [],\n          \"text\": \"2\"\n        }\n      ],\n
+        \     \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n
+        \ ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\",\n
+        \ \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n  },\n
+        \ \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
+        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
+        \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\":
+        \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n
+        \ \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 21,\n
+        \   \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\":
+        5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n
+        \   \"total_tokens\": 26\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
-      CF-RAY:
-      - 9b6c8ea68c0c8637-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c457fa87a1c9-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:34:22 GMT
+      - Wed, 06 May 2026 17:39:55 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -65,44 +69,41 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '1479'
+      - '1588'
       openai-processing-ms:
-      - '331'
+      - '709'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '334'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "What is 2 + 2?"}]}], "model": "gpt-4.1", "store": false, "stream": false}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
+      "content": [{"type": "input_text", "text": "What is 2 + 2?"}]}], "model": "gpt-5.4",
+      "store": false, "stream": false}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '203'
+      - '245'
       Content-Type:
       - application/json
       Host:
@@ -115,37 +116,40 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_015fa61e47067f6101695588ce00648195bc0a91b06d1450db\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213262,\n  \"status\":
+      string: "{\n  \"id\": \"resp_03d7ab07617f4f3e0169fb7cea809081a3b0fe10b2abf7e26d\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089194,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213262,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_015fa61e47067f6101695588ce2f748195ac61cc5264e2cc8d\",\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089195,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_03d7ab07617f4f3e0169fb7ceb049081a392b7078c3905926d\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"2 + 2 = 4.\"\n        }\n
-        \     ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
-        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
-        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
-        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
-        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
-        \   \"format\": {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        22,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 9,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 31\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+        [],\n          \"logprobs\": [],\n          \"text\": \"4\"\n        }\n      ],\n
+        \     \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n
+        \ ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\",\n
+        \ \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n  },\n
+        \ \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
+        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
+        \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\":
+        \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n
+        \ \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 21,\n
+        \   \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\":
+        5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n
+        \   \"total_tokens\": 26\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
-      CF-RAY:
-      - 9b6c8ea748a82262-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c458ac6c510e-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:34:22 GMT
+      - Wed, 06 May 2026 17:39:55 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -156,49 +160,45 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '1479'
+      - '1588'
       openai-processing-ms:
-      - '264'
+      - '680'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '268'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "What is 1 + 1?"}]}], "model": "gpt-4.1", "store": false, "stream": false}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
+      "content": [{"type": "input_text", "text": "What is 1 + 1?"}]}], "model": "gpt-5.4",
+      "store": false, "stream": false}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '203'
+      - '245'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=kHSAifHW3e4zgUvVQKCWcp_Vcil1AL2iOa3JP2OVq38-1767213262-1.0.1.1-2CvNBfDMRN87C5_vCOS55IzEWOhq8DwOuo7tJcTaPEeAL4AP3ZaWo2xvDrPPZgbO0C8haAxJg6LaXMr31GcUDv.gr5ZGv6NluVNXYKjKvLo;
-        _cfuvid=tZ3vZTwykQNKRDZbqSGFmazXJCIJiUIixu9z6B_8NJM-1767213262265-0.0.1.1-604800000
+      - __cf_bm=FjZdDQzWHclPEnpcjk.MikJ5aWOei1XglLOwOWCWbqE-1778089194.349159-1.0.1.1-.JZ70KV2GIA_XS_pvRkGzye7LoLf6JYZPYfdJbOYd0ZML5rBjz7ScmNmz6I8aZ1Ukd51PxSpBGSiddLZaOzoJnQUs9iwWTqM9EU9tsYS96BrZpdpTWv1u3JKJAMVFwA7
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -209,37 +209,40 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0c27b5d18bf6286201695588ce7e148197bdc54ea9f4c0999a\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213262,\n  \"status\":
+      string: "{\n  \"id\": \"resp_05c0733eef904d420169fb7ceb690881a3b53216974509f1d8\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089195,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213262,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0c27b5d18bf6286201695588ced4288197918dd8f30799e3ac\",\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089196,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_05c0733eef904d420169fb7cebc22881a3a8541c2d80b0f8bb\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"1 + 1 = 2\"\n        }\n
-        \     ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
-        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
-        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
-        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
-        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
-        \   \"format\": {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        22,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 8,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 30\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+        [],\n          \"logprobs\": [],\n          \"text\": \"2\"\n        }\n      ],\n
+        \     \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n
+        \ ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\",\n
+        \ \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n  },\n
+        \ \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
+        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
+        \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\":
+        \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n
+        \ \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 21,\n
+        \   \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\":
+        5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n
+        \   \"total_tokens\": 26\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
-      CF-RAY:
-      - 9b6c8eaa5f6de8ea-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c45ed804accc-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:34:22 GMT
+      - Wed, 06 May 2026 17:39:56 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -250,49 +253,45 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '1478'
+      - '1588'
       openai-processing-ms:
-      - '464'
+      - '716'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '466'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "What is 2 + 2?"}]}], "model": "gpt-4.1", "store": false, "stream": false}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
+      "content": [{"type": "input_text", "text": "What is 2 + 2?"}]}], "model": "gpt-5.4",
+      "store": false, "stream": false}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '203'
+      - '245'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=kHSAifHW3e4zgUvVQKCWcp_Vcil1AL2iOa3JP2OVq38-1767213262-1.0.1.1-2CvNBfDMRN87C5_vCOS55IzEWOhq8DwOuo7tJcTaPEeAL4AP3ZaWo2xvDrPPZgbO0C8haAxJg6LaXMr31GcUDv.gr5ZGv6NluVNXYKjKvLo;
-        _cfuvid=tZ3vZTwykQNKRDZbqSGFmazXJCIJiUIixu9z6B_8NJM-1767213262265-0.0.1.1-604800000
+      - __cf_bm=FjZdDQzWHclPEnpcjk.MikJ5aWOei1XglLOwOWCWbqE-1778089194.349159-1.0.1.1-.JZ70KV2GIA_XS_pvRkGzye7LoLf6JYZPYfdJbOYd0ZML5rBjz7ScmNmz6I8aZ1Ukd51PxSpBGSiddLZaOzoJnQUs9iwWTqM9EU9tsYS96BrZpdpTWv1u3JKJAMVFwA7
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -303,37 +302,40 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0f696d229ebb979901695588ce99c48194812e3b489c4b9d85\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213262,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0ba6e812af78370f0169fb7ceb8d308195a00fc14c74d63eb6\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089195,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213263,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0f696d229ebb979901695588cf02dc81949dddf0a35a8cf82e\",\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089196,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_0ba6e812af78370f0169fb7cebf06c8195ac1cca1828910afa\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"2 + 2 = 4.\"\n        }\n
-        \     ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
-        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
-        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
-        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
-        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
-        \   \"format\": {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_logprobs\":
-        0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        22,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 9,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 31\n  },\n  \"user\": null,\n  \"metadata\":
-        {}\n}"
+        [],\n          \"logprobs\": [],\n          \"text\": \"4\"\n        }\n      ],\n
+        \     \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n    }\n
+        \ ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n  \"previous_response_id\":
+        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": \"in_memory\",\n
+        \ \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\": null\n  },\n
+        \ \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n  \"store\":
+        false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
+        \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n  \"tool_choice\":
+        \"auto\",\n  \"tools\": [],\n  \"top_logprobs\": 0,\n  \"top_p\": 0.98,\n
+        \ \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 21,\n
+        \   \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\":
+        5,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n
+        \   \"total_tokens\": 26\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
     headers:
-      CF-RAY:
-      - 9b6c8eaaea2937b9-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c45f9c1f510d-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:34:23 GMT
+      - Wed, 06 May 2026 17:39:56 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -344,26 +346,22 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '1479'
+      - '1588'
       openai-processing-ms:
-      - '503'
+      - '660'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '505'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:

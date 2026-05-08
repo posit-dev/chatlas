@@ -17,6 +17,7 @@ from ._content import (
     ContentPDF,
     ContentText,
     ContentThinking,
+    ContentThinkingDelta,
     ContentToolRequest,
     ContentToolRequestSearch,
     ContentToolResult,
@@ -161,7 +162,7 @@ def ChatOpenAI(
     reproducible output, use [](`~chatlas.ChatOpenAICompletions`) instead.
     """
     if model is None:
-        model = log_model_default("gpt-4.1")
+        model = log_model_default("gpt-5.4")
 
     kwargs_chat: "SubmitInputArgs" = {}
 
@@ -298,11 +299,11 @@ class OpenAIProvider(
             return ContentText.model_construct(text=chunk.delta)
         if chunk.type == "response.reasoning_summary_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/delta
-            return ContentThinking(thinking=chunk.delta)
+            return ContentThinkingDelta(thinking=chunk.delta)
         if chunk.type == "response.reasoning_summary_text.done":
-            # Separator between reasoning summary and response text
-            # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/done
-            return ContentText.model_construct(text="\n\n")
+            # The thinking→text transition in _submit_turns already emits
+            # "\n</thinking>\n\n" which provides the visual separator.
+            return None
         return None
 
     def stream_merge_chunks(self, completion, chunk):
@@ -318,8 +319,7 @@ class OpenAIProvider(
         elif chunk.type == "error":
             raise RuntimeError(f"Request errored: {chunk.message}")
 
-        # Since this value won't actually be used, we can lie about the type
-        return cast(Response, None)
+        return completion
 
     def stream_turn(self, completion, has_data_model):
         return self._response_as_turn(completion, has_data_model)
@@ -447,8 +447,7 @@ class OpenAIProvider(
             completion=completion,
         )
 
-    @staticmethod
-    def _turns_as_inputs(turns: list[Turn]) -> "list[ResponseInputItemParam]":
+    def _turns_as_inputs(self, turns: list[Turn]) -> "list[ResponseInputItemParam]":
         res: "list[ResponseInputItemParam]" = []
         for turn in turns:
             res.extend([as_input_param(x, turn.role) for x in turn.contents])

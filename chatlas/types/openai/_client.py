@@ -7,10 +7,13 @@ from typing import Awaitable, Callable, Mapping, Optional, TypedDict, Union
 
 import httpx
 import openai
+import openai.auth._workload
 
 
 class ChatClientArgs(TypedDict, total=False):
     api_key: Union[str, Callable[[], Awaitable[str]], None]
+    admin_api_key: str | None
+    workload_identity: openai.auth._workload.WorkloadIdentity | None
     organization: str | None
     project: str | None
     webhook_secret: str | None
@@ -22,3 +25,4 @@ class ChatClientArgs(TypedDict, total=False):
     default_query: Optional[Mapping[str, object]]
     http_client: httpx.AsyncClient | None
     _strict_response_validation: bool
+    _enforce_credentials: bool

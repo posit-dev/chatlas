@@ -222,7 +222,7 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.Omit,
     ]
     prompt_cache_key: str | openai.Omit
-    prompt_cache_retention: Union[Literal["in-memory", "24h"], None, openai.Omit]
+    prompt_cache_retention: Union[Literal["in_memory", "24h"], None, openai.Omit]
     reasoning: Union[openai.types.shared_params.reasoning.Reasoning, None, openai.Omit]
     safety_identifier: str | openai.Omit
     service_tier: Union[

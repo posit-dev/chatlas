@@ -16,7 +16,8 @@ def merge_content_text(contents: list[ContentUnion]) -> list[ContentUnion]:
             merged[-1] = ContentText.model_construct(text=last.text + item.text)
         elif isinstance(last, ContentThinking) and isinstance(item, ContentThinking):
             merged[-1] = ContentThinking.model_construct(
-                thinking=last.thinking + item.thinking
+                thinking=last.thinking + item.thinking,
+                extra=item.extra or last.extra,
             )
         else:
             merged.append(item)

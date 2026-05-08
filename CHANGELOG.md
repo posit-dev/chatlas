@@ -11,7 +11,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* `ChatOpenAICompletions()` (and providers built on it like `ChatDeepSeek`, `ChatOpenRouter`, etc.) now extracts `reasoning_content` from model responses as `ContentThinking` objects. A new `preserve_thinking` parameter controls whether reasoning content is sent back to the API in multi-turn conversations; it defaults to `False` but is set to `True` for `ChatDeepSeek` (required for V4 tool-calling) and `ChatOpenRouter` (recommended for quality). (#295)
 
+### Improvements
+
+* `.stream()` and `.stream_async()` now handle thinking content differently by mode. With `content="text"`, thinking is suppressed entirely. With `content="all"`, thinking fragments are yielded as `ContentThinkingDelta` objects with a `phase` property (`"start"`, `"body"`, or `"end"`) that communicates block boundaries to downstream consumers without injecting synthetic strings into the stream. (#299, #297, #294)
+* Updated default models across all providers to current generation: (#292)
+  * Anthropic: `claude-sonnet-4-6`
+  * Bedrock: `us.anthropic.claude-sonnet-4-6`
+  * Snowflake: `claude-sonnet-4-6`
+  * Databricks: `databricks-claude-sonnet-4-6`
+  * OpenAI / Completions / OpenRouter / Portkey: `gpt-5.4`
+  * GitHub: `gpt-5`
+  * Deepseek: `deepseek-v4-flash`
+  * Perplexity: `sonar`
+* Updated token pricing data from LiteLLM. (#292)
+* `ChatBedrockAnthropic()` gains a `reasoning` parameter for extended thinking, matching the existing parameter on `ChatAnthropic()`. (#286)
+
+## [0.16.0] - 2026-04-16
+
+### New features
+
+* New `ChatLMStudio()` provider for chatting with local models via [LM Studio](https://lmstudio.ai). (#280)
 * The `.stream()` and `.stream_async()` methods now yield `ContentThinking` objects (instead of plain strings) for thinking/reasoning content when `content="all"`. This allows downstream packages like shinychat to provide specific UI for thinking content. (#276)
 * New `StreamController` class for cooperative stream cancellation. Pass a controller to `.stream()` or `.stream_async()` and call `controller.cancel()` to stop the stream cleanly (e.g., from a Shiny "stop generating" button). The partial response is preserved in conversation history. (#279)
 * When a stream is interrupted (closed early, cancelled, or errors), the accumulated content is now saved as a partial `AssistantTurn` so conversation state isn't lost. Partial turns display `[interrupted]` (or the cancellation reason) in the `Chat` repr and are excluded from token/cost accounting. (#279)
@@ -19,8 +40,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* Fixed OpenAI streaming crash (`AttributeError: 'NoneType' object has no attribute 'output'`) caused by a new `response.rate_limits.updated` event emitted after `response.completed`. (#282)
 * Fixed tool calling with Google thinking models (e.g., `gemini-3-flash-preview`) failing with a 400 `INVALID_ARGUMENT` error about a missing `thought_signature`. The signature is now preserved and forwarded in subsequent turns. (#274)
 * OpenAI's `web_search_call` no longer errors on non-search action types like `open_page` and `find_in_page`. (#277)
+
+## [0.15.2] -- 2026-02-27
+
+### Bug fixes
+
+* Fixed compatibility with rich >= 14.3.0 and Anthropic SDK v0.82+. (#269)
 
 
 ## [0.15.1] -- 2026-01-22
