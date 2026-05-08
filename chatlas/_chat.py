@@ -2772,6 +2772,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     acc.complete_turn(turn)
             finally:
                 acc.finalize_turn()
+                # Breaking out of `for chunk in response` doesn't close the
+                # provider's underlying HTTP connection — only the temporary
+                # iterator is released. Explicitly close so connections aren't
+                # held until GC collects the Stream object.
                 _r: Any = response
                 if hasattr(_r, "close"):
                     _r.close()
@@ -2883,6 +2887,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     acc.complete_turn(turn)
             finally:
                 acc.finalize_turn()
+                # Same as sync path above, but async generator finalization
+                # (PEP 525) is even less deterministic — abandoned generators
+                # may not close until event loop shutdown.
                 _r: Any = response
                 if hasattr(_r, "aclose"):
                     await _r.aclose()
