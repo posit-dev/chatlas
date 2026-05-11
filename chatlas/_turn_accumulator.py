@@ -7,29 +7,9 @@ from ._content import (
     ContentText,
     ContentThinking,
     ContentThinkingDelta,
-    ContentUnion,
 )
 from ._stream_controller import StreamController
 from ._turn import AssistantTurn, Turn, UserTurn
-
-
-def merge_content_text(contents: list[ContentUnion]) -> list[ContentUnion]:
-    """Merge adjacent ContentText (and ContentThinking) fragments."""
-    if not contents:
-        return []
-    merged: list[ContentUnion] = [contents[0]]
-    for item in contents[1:]:
-        last = merged[-1]
-        if isinstance(last, ContentText) and isinstance(item, ContentText):
-            merged[-1] = ContentText.model_construct(text=last.text + item.text)
-        elif isinstance(last, ContentThinking) and isinstance(item, ContentThinking):
-            merged[-1] = ContentThinking.model_construct(
-                thinking=last.thinking + item.thinking,
-                extra=item.extra or last.extra,
-            )
-        else:
-            merged.append(item)
-    return merged
 
 
 class TurnAccumulator:
@@ -43,8 +23,8 @@ class TurnAccumulator:
        phase boundaries, emit display text, and return items to yield
     3. ``flush_thinking(...)`` — emit closing thinking tags after the loop
     4. ``complete_turn(turn)`` — replace partial with the full turn (skipped if cancelled)
-    5. ``finalize_turn()`` — called from ``finally``; merges text fragments
-       and stamps the cancellation reason if the turn is still partial
+    5. ``finalize_turn()`` — called from ``finally``; stamps the cancellation
+       reason if the turn is still partial
     """
 
     def __init__(
@@ -125,8 +105,8 @@ class TurnAccumulator:
         Safety net — called from ``finally``.
 
         If the turn is still partial (i.e., ``complete_turn`` was never called
-        or was skipped because of cancellation), merge adjacent text fragments
-        and stamp the cancellation reason.
+        or was skipped because of cancellation), stamp the cancellation reason.
+        Content merging is handled incrementally by ``_update_turn``.
         """
         if self._turn_idx is None:
             return
@@ -135,16 +115,21 @@ class TurnAccumulator:
             return
         if self._controller.cancelled:
             turn.partial_reason = self._controller.reason
-        turn.contents = merge_content_text(turn.contents)
 
     def _update_turn(self, content: Content) -> None:
-        """Append streamed content to the partial turn."""
+        """Append or merge streamed content into the partial turn."""
         if self._turn_idx is None:
             raise RuntimeError("_update_turn called before begin_turn")
+        contents = self._turns[self._turn_idx].contents
+        if contents and type(contents[-1]) is type(content):
+            merged = contents[-1] + content  # type: ignore[operator]
+            if merged is not NotImplemented:
+                contents[-1] = merged
+                return
         # Content is the base class; contents is typed as list[ContentUnion]
         # (discriminated union). At runtime all Content subclasses are ContentUnion
         # members, so the append is safe.
-        self._turns[self._turn_idx].contents.append(content)  # type: ignore[arg-type]
+        contents.append(content)  # type: ignore[arg-type]
 
 
 def content_text(content: Content) -> str:

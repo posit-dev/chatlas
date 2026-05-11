@@ -181,6 +181,11 @@ class ContentText(Content):
         if self.text == "" or self.text.isspace():
             self.text = "[empty string]"
 
+    def __add__(self, other: object) -> "ContentText":
+        if not isinstance(other, ContentText):
+            return NotImplemented  # type: ignore[return-value]
+        return ContentText.model_construct(text=self.text + other.text)
+
     def __str__(self):
         return self.text
 
@@ -634,6 +639,14 @@ class ContentThinking(Content):
 
     content_type: ContentTypeEnum = "thinking"
 
+    def __add__(self, other: object) -> "ContentThinking":
+        if not isinstance(other, ContentThinking):
+            return NotImplemented  # type: ignore[return-value]
+        return ContentThinking.model_construct(
+            thinking=self.thinking + other.thinking,
+            extra=other.extra or self.extra,
+        )
+
     def __str__(self):
         return f"<thinking>\n{self.thinking}\n</thinking>\n"
 
@@ -673,6 +686,14 @@ class ContentThinkingDelta(Content):
     phase: Literal["start", "body", "end"] = "body"
 
     content_type: ContentTypeEnum = "thinking_delta"
+
+    def __add__(self, other: object) -> "ContentThinkingDelta":
+        if not isinstance(other, ContentThinkingDelta):
+            return NotImplemented  # type: ignore[return-value]
+        return ContentThinkingDelta(
+            thinking=self.thinking + other.thinking,
+            phase=self.phase,
+        )
 
     def __str__(self):
         return self.thinking

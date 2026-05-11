@@ -715,42 +715,31 @@ def test_partial_turns_excluded_from_tokens_mid_conversation():
     assert len(tokens) == 2  # user + assistant from the complete turn only
 
 
-def test_merge_content_text():
-    from chatlas._turn_accumulator import merge_content_text
-    from chatlas._content import ContentText, ContentThinking
+def test_content_add():
+    from chatlas._content import ContentText, ContentThinking, ContentThinkingDelta
 
-    # Adjacent ContentText fragments merge
-    contents = [
-        ContentText.model_construct(text="a"),
-        ContentText.model_construct(text="b"),
-        ContentText.model_construct(text="c"),
-    ]
-    merged = merge_content_text(contents)
-    assert len(merged) == 1
-    assert isinstance(merged[0], ContentText)
-    assert merged[0].text == "abc"
+    # ContentText addition
+    a = ContentText.model_construct(text="a")
+    b = ContentText.model_construct(text="b")
+    result = a + b
+    assert isinstance(result, ContentText)
+    assert result.text == "ab"
 
-    # Non-text breaks the merge
-    contents = [
-        ContentText.model_construct(text="a"),
-        ContentThinking(thinking="thought"),
-        ContentText.model_construct(text="b"),
-    ]
-    merged = merge_content_text(contents)
-    assert len(merged) == 3
-    assert merged[0].text == "a"
-    assert isinstance(merged[1], ContentThinking)
-    assert merged[2].text == "b"
+    # ContentThinking addition (keeps latest extra)
+    t1 = ContentThinking(thinking="a", extra={"k": 1})
+    t2 = ContentThinking(thinking="b", extra={"k": 2})
+    result = t1 + t2
+    assert isinstance(result, ContentThinking)
+    assert result.thinking == "ab"
+    assert result.extra == {"k": 2}
 
-    # Adjacent ContentThinking fragments merge
-    contents = [
-        ContentThinking(thinking="a"),
-        ContentThinking(thinking="b"),
-    ]
-    merged = merge_content_text(contents)
-    assert len(merged) == 1
-    assert isinstance(merged[0], ContentThinking)
-    assert merged[0].thinking == "ab"
+    # ContentThinkingDelta addition (keeps first phase)
+    d1 = ContentThinkingDelta(thinking="x", phase="start")
+    d2 = ContentThinkingDelta(thinking="y", phase="body")
+    result = d1 + d2
+    assert isinstance(result, ContentThinkingDelta)
+    assert result.thinking == "xy"
+    assert result.phase == "start"
 
-    # Empty list
-    assert merge_content_text([]) == []
+    # Mismatched types return NotImplemented
+    assert a.__add__(t1) is NotImplemented
