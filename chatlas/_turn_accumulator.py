@@ -4,8 +4,6 @@ from typing import Callable, Literal, Sequence
 
 from ._content import (
     Content,
-    ContentText,
-    ContentThinking,
     ContentThinkingDelta,
 )
 from ._stream_controller import StreamController
@@ -46,6 +44,7 @@ class TurnAccumulator:
     def process_content(
         self,
         content: Content,
+        text: str | None,
         content_mode: Literal["text", "all"],
         emit: Callable[[str | Content], None],
     ) -> Sequence[str | Content]:
@@ -66,15 +65,14 @@ class TurnAccumulator:
                 items.append(ContentThinkingDelta(thinking="", phase="end"))
             self._inside_thinking = False
 
+        if text:
+            emit(text)
+
         if isinstance(content, ContentThinkingDelta):
-            emit(content.thinking)
             if content_mode == "all":
                 items.append(content)
-        else:
-            text = content_text(content)
-            if text:
-                emit(text)
-                items.append(text)
+        elif text:
+            items.append(text)
 
         return items
 
@@ -130,14 +128,3 @@ class TurnAccumulator:
         # (discriminated union). At runtime all Content subclasses are ContentUnion
         # members, so the append is safe.
         contents.append(content)  # type: ignore[arg-type]
-
-
-def content_text(content: Content) -> str:
-    """Extract displayable text from a Content object."""
-    if isinstance(content, ContentThinkingDelta):
-        return content.thinking
-    if isinstance(content, ContentThinking):
-        return content.thinking
-    if isinstance(content, ContentText):
-        return content.text
-    return str(content)

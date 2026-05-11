@@ -2770,7 +2770,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         break
                     content = self.provider.stream_content(chunk)
                     if content is not None:
-                        yield from acc.process_content(content, content_mode, emit)
+                        text = self.provider.stream_text(chunk)
+                        yield from acc.process_content(content, text, content_mode, emit)
                     result = self.provider.stream_merge_chunks(result, chunk)
 
                 yield from acc.flush_thinking(content_mode, emit)
@@ -2877,7 +2878,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         break
                     content = self.provider.stream_content(chunk)
                     if content is not None:
-                        for item in acc.process_content(content, content_mode, emit):
+                        text = self.provider.stream_text(chunk)
+                        for item in acc.process_content(content, text, content_mode, emit):
                             yield item
                     result = self.provider.stream_merge_chunks(result, chunk)
 
