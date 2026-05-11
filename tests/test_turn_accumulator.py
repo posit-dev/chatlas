@@ -16,15 +16,16 @@ def test_begin_turn_inserts_partial():
     assert turns[1].is_partial
 
 
-def test_update_turn_appends_content():
+def test_update_turn_appends_content_incrementally():
     turns: list = []
     controller = StreamController()
     acc = TurnAccumulator(turns, controller)
     acc.begin_turn(UserTurn("hello"))
-    content = ContentText.model_construct(text="hi")
-    acc._update_turn(content)
-    assert len(turns[1].contents) == 1
-    assert turns[1].contents[0].text == "hi"
+    acc._update_turn(ContentText.model_construct(text="a"))
+    acc._update_turn(ContentText.model_construct(text="b"))
+    assert len(turns[1].contents) == 2
+    assert turns[1].contents[0].text == "a"
+    assert turns[1].contents[1].text == "b"
 
 
 def test_complete_turn_replaces_partial():

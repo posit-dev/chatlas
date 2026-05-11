@@ -22,7 +22,7 @@ result = acc.finalize()  # returns (user_turn, AssistantTurn)
 self._turns.extend(result)
 ```
 
-**Status:** [ ]
+**Status:** [x] — Keeping current design. Matches ellmer's TurnAccumulator pattern: eager insertion of partial turn into the turns list at stream start, in-place mutation during streaming, replacement on completion. Ellmer tests verify mid-stream visibility via `chat$last_turn()`.
 
 ## 3. Partial turn filtering in `token_usage_to_turns` is fragile
 
@@ -50,7 +50,7 @@ The async `_submit_turns_async` finally block has a `hasattr` cascade through `A
 
 Auto-reset with warning is a middle ground that serves neither goal. If it's a convenience, auto-reset silently. If it's a bug, raise an error.
 
-**Status:** [ ]
+**Status:** [x] — Keeping warning + auto-reset. StreamController is a public API used directly by end users; a warning is kinder than breaking their stream for a recoverable mistake.
 
 ## 7. `resolve_assistant_turn` mutates its argument
 
