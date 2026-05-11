@@ -82,6 +82,27 @@ def _make_chat(chunks: Sequence[Optional[Content]]) -> Chat:
     return Chat(provider=provider)
 
 
+class FinalizingAsyncProvider(FakeProvider):
+    """Fake async provider that records when its stream is finalized."""
+
+    def __init__(self, chunks: Sequence[Optional[Content]]):
+        super().__init__(chunks)
+        self.finalized = False
+
+    async def chat_perform_async(self, *, stream, turns, tools, data_model, kwargs):
+        if stream:
+
+            async def _gen():
+                try:
+                    for c in self._chunks:
+                        yield FakeChunk(c)
+                finally:
+                    self.finalized = True
+
+            return _gen()
+        raise NotImplementedError
+
+
 class TestStreamThinkingText:
     """Tests for content='text' mode — thinking is suppressed."""
 
@@ -217,3 +238,16 @@ class TestStreamThinkingAsync:
         assert thinking_chunks[0].phase == "start"
         assert thinking_chunks[1].phase == "end"
         assert "answer" in [x for x in result if isinstance(x, str)]
+
+    async def test_stream_async_close_finalizes_inner_generator_immediately(self):
+        provider = FinalizingAsyncProvider(
+            [ContentText.model_construct(text="a"), ContentText.model_construct(text="b")]
+        )
+        chat = Chat(provider=provider)
+
+        gen = await chat.stream_async("test")
+        assert await anext(gen) == "a"
+
+        await gen.aclose()
+
+        assert provider.finalized is True

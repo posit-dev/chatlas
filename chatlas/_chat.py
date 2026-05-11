@@ -1381,20 +1381,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         controller = _as_controller(controller)
 
+        generator = self._chat_impl_async(
+            turn,
+            stream=True,
+            echo=echo,
+            content=content,
+            kwargs=kwargs,
+            data_model=data_model,
+            controller=controller,
+        )
+
         async def wrapper() -> AsyncGenerator[
             str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
         ]:
-            with display:
-                async for chunk in self._chat_impl_async(
-                    turn,
-                    stream=True,
-                    echo=echo,
-                    content=content,
-                    kwargs=kwargs,
-                    data_model=data_model,
-                    controller=controller,
-                ):
-                    yield chunk
+            try:
+                with display:
+                    async for chunk in generator:
+                        yield chunk
+            finally:
+                await generator.aclose()
 
         return wrapper()
 
@@ -2644,7 +2649,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         user_turn_result: UserTurn | None = user_turn
         while user_turn_result is not None:
-            async for chunk in self._submit_turns_async(
+            turn_generator = self._submit_turns_async(
                 user_turn_result,
                 echo=echo,
                 stream=stream,
@@ -2652,8 +2657,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 kwargs=kwargs,
                 content_mode=content,
                 controller=controller,
-            ):
-                yield chunk
+            )
+            try:
+                async for chunk in turn_generator:
+                    yield chunk
+            finally:
+                await turn_generator.aclose()
 
             turn = self.get_last_turn(role="assistant")
             assert turn is not None
