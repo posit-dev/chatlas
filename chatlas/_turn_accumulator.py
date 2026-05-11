@@ -91,7 +91,7 @@ class TurnAccumulator:
             if content_mode == "all":
                 items.append(content)
         else:
-            text = _content_text(content)
+            text = content_text(content)
             if text:
                 emit(text)
                 items.append(text)
@@ -147,7 +147,7 @@ class TurnAccumulator:
         self._turns[self._turn_idx].contents.append(content)  # type: ignore[arg-type]
 
 
-def _content_text(content: Content) -> str:
+def content_text(content: Content) -> str:
     """Extract displayable text from a Content object."""
     if isinstance(content, ContentThinkingDelta):
         return content.thinking
