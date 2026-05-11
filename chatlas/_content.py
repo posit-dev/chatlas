@@ -644,7 +644,7 @@ class ContentThinking(Content):
             return NotImplemented  # type: ignore[return-value]
         return ContentThinking.model_construct(
             thinking=self.thinking + other.thinking,
-            extra=other.extra or self.extra,
+            extra=other.extra if other.extra is not None else self.extra,
         )
 
     def __str__(self):
