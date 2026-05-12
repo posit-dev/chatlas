@@ -10,7 +10,7 @@ from chatlas import (
     tool_web_fetch,
     tool_web_search,
 )
-from chatlas._provider_anthropic import AnthropicProvider
+from chatlas._provider_anthropic import AnthropicBedrockProvider, AnthropicProvider
 from pydantic import BaseModel, Field
 
 from .conftest import (
@@ -117,9 +117,7 @@ def test_anthropic_web_search_citations():
     """Test that citations from web search are preserved on the completion."""
     chat = chat_func()
     chat.register_tool(tool_web_search())
-    chat.chat(
-        "When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format."
-    )
+    chat.chat("When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format.")
 
     # Get the turn and verify citations are on the completion
     turn = chat.get_last_turn()
@@ -131,9 +129,7 @@ def test_anthropic_web_search_citations():
     assert len(text_blocks) > 0
 
     # At least one text block should have citations from web search
-    has_citations = any(
-        getattr(block, "citations", None) for block in text_blocks
-    )
+    has_citations = any(getattr(block, "citations", None) for block in text_blocks)
     assert has_citations, "Expected citations on text blocks from web search"
 
 
@@ -287,7 +283,9 @@ def test_anthropic_nested_data_model_extraction():
 
         classifications: list[Classification]
 
-    text = "The new quantum computing breakthrough could revolutionize the tech industry."
+    text = (
+        "The new quantum computing breakthrough could revolutionize the tech industry."
+    )
 
     chat = chat_func(system_prompt="You are a friendly but terse assistant.")
     data = chat.chat_structured(text, data_model=Classifications)
@@ -305,3 +303,33 @@ def test_anthropic_nested_data_model_extraction():
         assert 0.0 <= classification.score <= 1.0, (
             f"Score {classification.score} should be between 0 and 1"
         )
+
+
+def _make_bedrock_provider(**kwargs):
+    defaults = dict(
+        model="us.anthropic.claude-sonnet-4-6",
+        aws_secret_key="fake",
+        aws_access_key="fake",
+        aws_region="us-east-1",
+        aws_profile=None,
+        aws_session_token=None,
+        base_url=None,
+    )
+    return AnthropicBedrockProvider(**{**defaults, **kwargs})
+
+
+class TestBedrockCacheDefault:
+    def test_auto_resolves_to_5m(self):
+        provider = _make_bedrock_provider()
+        assert provider._cache == "5m"
+        assert provider._cache_control() == {"type": "ephemeral", "ttl": "5m"}
+
+    def test_none_disables_caching(self):
+        provider = _make_bedrock_provider(cache="none")
+        assert provider._cache == "none"
+        assert provider._cache_control() is None
+
+    def test_explicit_5m(self):
+        provider = _make_bedrock_provider(cache="5m")
+        assert provider._cache == "5m"
+        assert provider._cache_control() == {"type": "ephemeral", "ttl": "5m"}
