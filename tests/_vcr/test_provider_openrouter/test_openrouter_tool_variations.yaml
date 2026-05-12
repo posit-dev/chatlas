@@ -84,7 +84,7 @@ interactions:
     body: '{"messages": [{"content": "Always use a tool to help you answer. Reply
       with ''It is ____.''.", "role": "system"}, {"content": [{"type": "text", "text":
       "What''s the current date in YYYY-MM-DD format?"}], "role": "user"}, {"role":
-      "assistant", "content": [{"type": "text", "text": "[empty string]"}], "tool_calls":
+      "assistant", "tool_calls":
       [{"id": "call_eJmyO5ANyXc20sPeLSuWSngc", "function": {"name": "get_date", "arguments":
       "{}"}, "type": "function"}]}, {"content": "2024-01-01", "tool_call_id": "call_eJmyO5ANyXc20sPeLSuWSngc",
       "role": "tool"}], "model": "openai/gpt-4o-mini-2024-07-18", "seed": 1014, "stream":
@@ -195,7 +195,7 @@ interactions:
     body: '{"messages": [{"content": "Always use a tool to help you answer. Reply
       with ''It is ____.''.", "role": "system"}, {"content": [{"type": "text", "text":
       "What''s the current date in YYYY-MM-DD format?"}], "role": "user"}, {"role":
-      "assistant", "content": [{"type": "text", "text": "[empty string]"}], "tool_calls":
+      "assistant", "tool_calls":
       [{"id": "call_eJmyO5ANyXc20sPeLSuWSngc", "function": {"name": "get_date", "arguments":
       "{}"}, "type": "function"}]}, {"content": "2024-01-01", "tool_call_id": "call_eJmyO5ANyXc20sPeLSuWSngc",
       "role": "tool"}, {"role": "assistant", "content": [{"type": "text", "text":
@@ -282,13 +282,12 @@ interactions:
     body: '{"messages": [{"content": "Always use a tool to help you answer. Reply
       with ''It is ____.''.", "role": "system"}, {"content": [{"type": "text", "text":
       "What''s the current date in YYYY-MM-DD format?"}], "role": "user"}, {"role":
-      "assistant", "content": [{"type": "text", "text": "[empty string]"}], "tool_calls":
+      "assistant", "tool_calls":
       [{"id": "call_eJmyO5ANyXc20sPeLSuWSngc", "function": {"name": "get_date", "arguments":
       "{}"}, "type": "function"}]}, {"content": "2024-01-01", "tool_call_id": "call_eJmyO5ANyXc20sPeLSuWSngc",
       "role": "tool"}, {"role": "assistant", "content": [{"type": "text", "text":
       "It is 2024-01-01."}]}, {"content": [{"type": "text", "text": "What month is
-      it? Provide the full name."}], "role": "user"}, {"role": "assistant", "content":
-      [{"type": "text", "text": "[empty string]"}], "tool_calls": [{"id": "call_q1N9SHfpem9UaAXphuRACH4i",
+      it? Provide the full name."}], "role": "user"}, {"role": "assistant", "tool_calls": [{"id": "call_q1N9SHfpem9UaAXphuRACH4i",
       "function": {"name": "get_date", "arguments": "{}"}, "type": "function"}]},
       {"content": "2024-01-01", "tool_call_id": "call_q1N9SHfpem9UaAXphuRACH4i", "role":
       "tool"}], "model": "openai/gpt-4o-mini-2024-07-18", "seed": 1014, "stream":
