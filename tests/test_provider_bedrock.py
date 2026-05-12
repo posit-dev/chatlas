@@ -25,13 +25,46 @@ def vcr_config():
     config["before_record_request"] = _scrub_aws_request
     return config
 
+
+class TestBedrockCacheDefault:
+    def test_default_enables_caching(self):
+        chat = ChatBedrockAnthropic(
+            aws_secret_key="fake",
+            aws_access_key="fake",
+            aws_region="us-east-1",
+        )
+        assert chat.provider._cache == "5m"
+        assert chat.provider._cache_control() == {"type": "ephemeral", "ttl": "5m"}
+
+    def test_none_disables_caching(self):
+        chat = ChatBedrockAnthropic(
+            cache="none",
+            aws_secret_key="fake",
+            aws_access_key="fake",
+            aws_region="us-east-1",
+        )
+        assert chat.provider._cache == "none"
+        assert chat.provider._cache_control() is None
+
+
+# ---------------------------------------------------------------------------
+# Live API tests (require Bedrock credentials)
+# ---------------------------------------------------------------------------
+
+_has_bedrock_credentials = True
 try:
-    chat = ChatBedrockAnthropic()
-    chat.chat("What is 1 + 1?")
+    _chat = ChatBedrockAnthropic()
+    _chat.chat("What is 1 + 1?")
 except Exception:
-    pytest.skip("Bedrock credentials aren't configured", allow_module_level=True)
+    _has_bedrock_credentials = False
+
+requires_bedrock = pytest.mark.skipif(
+    not _has_bedrock_credentials,
+    reason="Bedrock credentials aren't configured",
+)
 
 
+@requires_bedrock
 @pytest.mark.vcr
 def test_anthropic_simple_request():
     chat = ChatBedrockAnthropic(
@@ -43,6 +76,7 @@ def test_anthropic_simple_request():
     assert turn.tokens == (26, 5, 0)
 
 
+@requires_bedrock
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_anthropic_simple_streaming_request():
@@ -59,6 +93,7 @@ async def test_anthropic_simple_streaming_request():
     assert turn.finish_reason == "end_turn"
 
 
+@requires_bedrock
 @pytest.mark.vcr
 def test_anthropic_respects_turns_interface():
     chat_fun = ChatBedrockAnthropic
@@ -66,6 +101,7 @@ def test_anthropic_respects_turns_interface():
     assert_turns_existing(chat_fun)
 
 
+@requires_bedrock
 @pytest.mark.vcr
 def test_anthropic_tool_variations():
     chat_fun = ChatBedrockAnthropic
@@ -74,17 +110,20 @@ def test_anthropic_tool_variations():
     assert_tools_sequential(chat_fun, total_calls=6)
 
 
+@requires_bedrock
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_anthropic_tool_variations_async():
     await assert_tools_async(ChatBedrockAnthropic)
 
 
+@requires_bedrock
 @pytest.mark.vcr
 def test_data_extraction():
     assert_data_extraction(ChatBedrockAnthropic)
 
 
+@requires_bedrock
 @pytest.mark.vcr
 def test_anthropic_images():
     chat_fun = ChatBedrockAnthropic
@@ -92,11 +131,13 @@ def test_anthropic_images():
     assert_images_remote_error(chat_fun)
 
 
+@requires_bedrock
 @pytest.mark.vcr
 def test_anthropic_models():
     assert_list_models(ChatBedrockAnthropic)
 
 
+@requires_bedrock
 @pytest.mark.vcr
 def test_reasoning():
     from chatlas._content import ContentThinking
