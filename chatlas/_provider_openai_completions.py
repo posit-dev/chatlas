@@ -25,6 +25,7 @@ from ._content import (
     ContentPDF,
     ContentText,
     ContentThinking,
+    ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
 )
@@ -212,7 +213,7 @@ class OpenAICompletionsProvider(
 
         reasoning = getattr(delta, "reasoning_content", None)
         if reasoning is not None:
-            return ContentThinking(thinking=reasoning)
+            return ContentThinkingDelta(thinking=reasoning)
 
         text = delta.content
         if text is None:

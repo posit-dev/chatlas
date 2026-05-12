@@ -1,7 +1,7 @@
 import httpx
 import pytest
 from chatlas import ChatOpenAICompletions
-from chatlas._content import ContentText, ContentThinking
+from chatlas._content import ContentText, ContentThinking, ContentThinkingDelta
 from chatlas._provider_openai_completions import OpenAICompletionsProvider
 from chatlas._turn import AssistantTurn
 
@@ -133,7 +133,7 @@ def test_stream_content_extracts_reasoning_content():
 
     chunk = FakeChunk([FakeChoice(FakeDelta(reasoning_content="think"))])
     result = provider.stream_content(chunk)
-    assert isinstance(result, ContentThinking)
+    assert isinstance(result, ContentThinkingDelta)
     assert result.thinking == "think"
 
     chunk = FakeChunk([FakeChoice(FakeDelta(content="hello"))])
