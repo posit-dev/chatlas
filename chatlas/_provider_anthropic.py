@@ -65,6 +65,7 @@ if TYPE_CHECKING:
     from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
     from anthropic.types.messages.batch_create_params import Request as BatchRequest
     from anthropic.types.model_param import ModelParam
+    from anthropic.types.output_config_param import OutputConfigParam
     from anthropic.types.text_block_param import TextBlockParam
     from anthropic.types.thinking_config_enabled_param import ThinkingConfigEnabledParam
     from anthropic.types.tool_result_block_param import ToolResultBlockParam
@@ -410,6 +411,22 @@ class AnthropicProvider(
     ) -> "SubmitInputArgs":
         tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
 
+        if data_model is not None:
+            if supports_structured_outputs(self.model):
+                from anthropic import transform_schema
+
+                output_config: "OutputConfigParam" = {
+                    "format": {
+                        "type": "json_schema",
+                        "schema": transform_schema(data_model),
+                    },
+                }
+            else:
+                # Legacy tool-based approach for models that don't support
+                # native structured outputs
+                data_model_tool = self.create_data_model_tool(data_model)
+                tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
+
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
             "messages": self._as_message_params(turns),
@@ -421,21 +438,8 @@ class AnthropicProvider(
 
         if data_model is not None:
             if supports_structured_outputs(self.model):
-                from anthropic import transform_schema
-
-                kwargs_full["output_config"] = {  # type: ignore[typeddict-unknown-key]
-                    "format": {
-                        "type": "json_schema",
-                        "schema": transform_schema(data_model),
-                    },
-                }
+                kwargs_full["output_config"] = output_config
             else:
-                # Legacy tool-based approach for models that don't support
-                # native structured outputs
-                data_model_tool = self.create_data_model_tool(data_model)
-                cast(list, kwargs_full["tools"]).append(
-                    self._anthropic_tool_schema(data_model_tool)
-                )
                 kwargs_full["tool_choice"] = {
                     "type": "tool",
                     "name": data_model_tool.name,
@@ -936,7 +940,7 @@ class AnthropicProvider(
             if tool_choice and not isinstance(tool_choice, NotGiven):
                 params["tool_choice"] = tool_choice
             if output_config and not isinstance(output_config, NotGiven):
-                params["output_config"] = output_config  # type: ignore[typeddict-unknown-key]
+                params["output_config"] = output_config
 
             requests.append({"custom_id": f"request-{i}", "params": params})
 
