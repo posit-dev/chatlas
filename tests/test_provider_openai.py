@@ -249,8 +249,13 @@ def test_openai_web_search_call_action_types():
 
 
 def test_openai_custom_base_url_error():
+    from chatlas._provider_openai import check_base_url
+
     with pytest.raises(ValueError, match="ChatOpenAICompletions"):
         ChatOpenAI(base_url="http://localhost:8000/v1")
 
     with pytest.raises(ValueError, match="ChatOpenAICompletions"):
         ChatOpenAI(base_url="https://my-proxy.example.com/v1")
+
+    # Default URL should pass validation
+    check_base_url("https://api.openai.com/v1")
