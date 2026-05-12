@@ -3,36 +3,34 @@ interactions:
     body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
       "The new quantum computing breakthrough could revolutionize the tech industry.",
       "type": "text", "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model":
-      "claude-haiku-4-5-20251001", "output_format": {"type": "json_schema", "schema":
-      {"$defs": {"Classification": {"type": "object", "title": "Classification", "properties":
-      {"name": {"type": "string", "description": "The category name\n\n{enum: [''Politics'',
-      ''Sports'', ''Technology'', ''Entertainment'', ''Business'', ''Other'']}", "title":
+      "claude-haiku-4-5-20251001", "output_config": {"format": {"type": "json_schema",
+      "schema": {"$defs": {"Classification": {"type": "object", "title": "Classification",
+      "properties": {"name": {"type": "string", "enum": ["Politics", "Sports", "Technology",
+      "Entertainment", "Business", "Other"], "description": "The category name", "title":
       "Name"}, "score": {"type": "number", "description": "The classification score
       for the category, ranging from 0.0 to 1.0.", "title": "Score"}}, "additionalProperties":
       false, "required": ["name", "score"]}}, "type": "object", "description": "Array
       of classification results. The scores should sum to 1.", "title": "Classifications",
       "properties": {"classifications": {"type": "array", "title": "Classifications",
       "items": {"$ref": "#/$defs/Classification"}}}, "additionalProperties": false,
-      "required": ["classifications"]}}, "stream": false, "system": [{"type": "text",
+      "required": ["classifications"]}}}, "stream": false, "system": [{"type": "text",
       "text": "You are a friendly but terse assistant.", "cache_control": {"type":
       "ephemeral", "ttl": "5m"}}], "tools": []}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '1172'
+      - '1174'
       Content-Type:
       - application/json
       Host:
       - api.anthropic.com
       X-Stainless-Async:
       - 'false'
-      anthropic-beta:
-      - structured-outputs-2025-11-13
       anthropic-version:
       - '2023-06-01'
       x-stainless-read-timeout:
@@ -40,21 +38,25 @@ interactions:
       x-stainless-timeout:
       - '600'
     method: POST
-    uri: https://api.anthropic.com/v1/messages?beta=true
+    uri: https://api.anthropic.com/v1/messages
   response:
     body:
-      string: '{"model":"claude-haiku-4-5-20251001","id":"msg_01XbxzbDzo96okuCZtSmkJKX","type":"message","role":"assistant","content":[{"type":"text","text":"{\"classifications\":
+      string: '{"model":"claude-haiku-4-5-20251001","id":"msg_01UHkoU5gpQE5ne6Uj3ZVJGd","type":"message","role":"assistant","content":[{"type":"text","text":"{\"classifications\":
         [{\"name\": \"Technology\", \"score\": 0.95}, {\"name\": \"Business\", \"score\":
-        0.05}]}"}],"stop_reason":"end_turn","stop_sequence":null,"usage":{"input_tokens":416,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":36,"service_tier":"standard"}}'
+        0.05}, {\"name\": \"Politics\", \"score\": 0.0}, {\"name\": \"Sports\", \"score\":
+        0.0}, {\"name\": \"Entertainment\", \"score\": 0.0}, {\"name\": \"Other\",
+        \"score\": 0.0}]}"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":424,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":92,"service_tier":"standard","inference_geo":"not_available"}}'
     headers:
       CF-RAY:
-      - 9b9c58811b851f32-DEN
+      - 9faa36d5b9d1a1c1-MSP
       Connection:
       - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
       Content-Type:
       - application/json
       Date:
-      - Tue, 06 Jan 2026 15:46:03 GMT
+      - Tue, 12 May 2026 14:46:42 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -66,33 +68,37 @@ interactions:
       anthropic-ratelimit-input-tokens-remaining:
       - '4000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2026-01-06T15:46:03Z'
+      - '2026-05-12T14:46:42Z'
       anthropic-ratelimit-output-tokens-limit:
       - '800000'
       anthropic-ratelimit-output-tokens-remaining:
       - '800000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2026-01-06T15:46:03Z'
+      - '2026-05-12T14:46:42Z'
       anthropic-ratelimit-requests-limit:
-      - '4000'
+      - '20000'
       anthropic-ratelimit-requests-remaining:
-      - '3999'
+      - '19999'
       anthropic-ratelimit-requests-reset:
-      - '2026-01-06T15:46:00Z'
+      - '2026-05-12T14:46:40Z'
       anthropic-ratelimit-tokens-limit:
       - '4800000'
       anthropic-ratelimit-tokens-remaining:
       - '4800000'
       anthropic-ratelimit-tokens-reset:
-      - '2026-01-06T15:46:03Z'
+      - '2026-05-12T14:46:42Z'
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '517'
+      - '737'
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-4c9f6719a85ccfad2385137f55fb3a9e-47a5ff82c15eaea2-01
+      vary:
+      - Accept-Encoding
       x-envoy-upstream-service-time:
-      - '3106'
+      - '2335'
     status:
       code: 200
       message: OK

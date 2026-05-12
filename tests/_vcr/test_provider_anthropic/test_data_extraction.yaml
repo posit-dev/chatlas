@@ -4,29 +4,28 @@ interactions:
       "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are delicious and tasty and
       I like to eat them.\nExcept for red delicious, that is. They are NOT delicious.\n",
       "type": "text", "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model":
-      "claude-haiku-4-5-20251001", "output_format": {"type": "json_schema", "schema":
-      {"type": "object", "description": "Summary of the article", "title": "ArticleSummary",
-      "properties": {"title": {"type": "string", "title": "Title"}, "author": {"type":
-      "string", "title": "Author"}}, "additionalProperties": false, "required": ["title",
-      "author"]}}, "stream": false, "system": [{"type": "text", "text": "[empty string]",
-      "cache_control": {"type": "ephemeral", "ttl": "5m"}}], "tools": []}'
+      "claude-haiku-4-5-20251001", "output_config": {"format": {"type": "json_schema",
+      "schema": {"type": "object", "description": "Summary of the article", "title":
+      "ArticleSummary", "properties": {"title": {"type": "string", "title": "Title"},
+      "author": {"type": "string", "title": "Author"}}, "additionalProperties": false,
+      "required": ["title", "author"]}}}, "stream": false, "system": [{"type": "text",
+      "text": "[empty string]", "cache_control": {"type": "ephemeral", "ttl": "5m"}}],
+      "tools": []}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '744'
+      - '755'
       Content-Type:
       - application/json
       Host:
       - api.anthropic.com
       X-Stainless-Async:
       - 'false'
-      anthropic-beta:
-      - structured-outputs-2025-11-13
       anthropic-version:
       - '2023-06-01'
       x-stainless-read-timeout:
@@ -34,20 +33,22 @@ interactions:
       x-stainless-timeout:
       - '600'
     method: POST
-    uri: https://api.anthropic.com/v1/messages?beta=true
+    uri: https://api.anthropic.com/v1/messages
   response:
     body:
-      string: '{"model":"claude-haiku-4-5-20251001","id":"msg_01JvVnRxS7sduptbqXnskPiZ","type":"message","role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
-        are tasty\",\"author\":\"Hadley Wickham\"}"}],"stop_reason":"end_turn","stop_sequence":null,"usage":{"input_tokens":265,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":22,"service_tier":"standard"}}'
+      string: '{"model":"claude-haiku-4-5-20251001","id":"msg_01VoMfTyw8mnjAm6MEbrD5iT","type":"message","role":"assistant","content":[{"type":"text","text":"{\"title\":
+        \"Apples are tasty\", \"author\": \"Hadley Wickham\"}"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":265,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":25,"service_tier":"standard","inference_geo":"not_available"}}'
     headers:
       CF-RAY:
-      - 9b9c58414e5ee73d-DEN
+      - 9faa36acceb04ca5-MSP
       Connection:
       - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
       Content-Type:
       - application/json
       Date:
-      - Tue, 06 Jan 2026 15:45:53 GMT
+      - Tue, 12 May 2026 14:46:36 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -59,33 +60,37 @@ interactions:
       anthropic-ratelimit-input-tokens-remaining:
       - '4000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2026-01-06T15:45:53Z'
+      - '2026-05-12T14:46:36Z'
       anthropic-ratelimit-output-tokens-limit:
       - '800000'
       anthropic-ratelimit-output-tokens-remaining:
       - '800000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2026-01-06T15:45:53Z'
+      - '2026-05-12T14:46:36Z'
       anthropic-ratelimit-requests-limit:
-      - '4000'
+      - '20000'
       anthropic-ratelimit-requests-remaining:
-      - '3999'
+      - '19999'
       anthropic-ratelimit-requests-reset:
-      - '2026-01-06T15:45:50Z'
+      - '2026-05-12T14:46:33Z'
       anthropic-ratelimit-tokens-limit:
       - '4800000'
       anthropic-ratelimit-tokens-remaining:
       - '4800000'
       anthropic-ratelimit-tokens-reset:
-      - '2026-01-06T15:45:53Z'
+      - '2026-05-12T14:46:36Z'
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '468'
+      - '523'
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-61190e991f2a6bf5d323cf0c689c85d8-fd27711e27d3b1e7-01
+      vary:
+      - Accept-Encoding
       x-envoy-upstream-service-time:
-      - '2967'
+      - '2913'
     status:
       code: 200
       message: OK
@@ -98,30 +103,30 @@ interactions:
       "content": [{"text": "\n# Apples are tasty\n\nBy Hadley Wickham\nApples are
       delicious and tasty and I like to eat them.\nExcept for red delicious, that
       is. They are NOT delicious.\n", "type": "text", "cache_control": {"type": "ephemeral",
-      "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001", "output_format": {"type":
-      "json_schema", "schema": {"type": "object", "description": "Summary of the article",
-      "title": "ArticleSummary", "properties": {"title": {"type": "string", "title":
-      "Title"}, "author": {"type": "string", "title": "Author"}}, "additionalProperties":
-      false, "required": ["title", "author"]}}, "stream": false, "system": [{"type":
-      "text", "text": "[empty string]", "cache_control": {"type": "ephemeral", "ttl":
-      "5m"}}], "tools": []}'
+      "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001", "output_config": {"format":
+      {"type": "json_schema", "schema": {"type": "object", "description": "Summary
+      of the article", "title": "ArticleSummary", "properties": {"title": {"type":
+      "string", "title": "Title"}, "author": {"type": "string", "title": "Author"}},
+      "additionalProperties": false, "required": ["title", "author"]}}}, "stream":
+      false, "system": [{"type": "text", "text": "[empty string]", "cache_control":
+      {"type": "ephemeral", "ttl": "5m"}}], "tools": []}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '1078'
+      - '1089'
       Content-Type:
       - application/json
+      Cookie:
+      - _cfuvid=QCh3OXoNEEFSg2Gng_6P7JJBpmCU_iMJBR.0RN5Ahys-1778597193.7314773-1.0.1.1-jp0MG8W.dYUtp6n2j9vj_h74JKokp6N4ax6mg82FJGg
       Host:
       - api.anthropic.com
       X-Stainless-Async:
       - 'false'
-      anthropic-beta:
-      - structured-outputs-2025-11-13
       anthropic-version:
       - '2023-06-01'
       x-stainless-read-timeout:
@@ -129,20 +134,22 @@ interactions:
       x-stainless-timeout:
       - '600'
     method: POST
-    uri: https://api.anthropic.com/v1/messages?beta=true
+    uri: https://api.anthropic.com/v1/messages
   response:
     body:
-      string: '{"model":"claude-haiku-4-5-20251001","id":"msg_012SW5MBPJxyaVLCvKVpCgoT","type":"message","role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
-        are tasty\",\"author\":\"Hadley Wickham\"}"}],"stop_reason":"end_turn","stop_sequence":null,"usage":{"input_tokens":341,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":22,"service_tier":"standard"}}'
+      string: '{"model":"claude-haiku-4-5-20251001","id":"msg_01GcxRUCoVXzHZKZGukBB1uf","type":"message","role":"assistant","content":[{"type":"text","text":"{\"title\":\"Apples
+        are tasty\",\"author\":\"Hadley Wickham\"}"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":341,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":22,"service_tier":"standard","inference_geo":"not_available"}}'
     headers:
       CF-RAY:
-      - 9b9c5855fffb7c32-DEN
+      - 9faa36c03c864c94-MSP
       Connection:
       - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
       Content-Type:
       - application/json
       Date:
-      - Tue, 06 Jan 2026 15:45:55 GMT
+      - Tue, 12 May 2026 14:46:38 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -154,33 +161,37 @@ interactions:
       anthropic-ratelimit-input-tokens-remaining:
       - '4000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2026-01-06T15:45:54Z'
+      - '2026-05-12T14:46:37Z'
       anthropic-ratelimit-output-tokens-limit:
       - '800000'
       anthropic-ratelimit-output-tokens-remaining:
       - '800000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2026-01-06T15:45:55Z'
+      - '2026-05-12T14:46:38Z'
       anthropic-ratelimit-requests-limit:
-      - '4000'
+      - '20000'
       anthropic-ratelimit-requests-remaining:
-      - '3999'
+      - '19999'
       anthropic-ratelimit-requests-reset:
-      - '2026-01-06T15:45:53Z'
+      - '2026-05-12T14:46:36Z'
       anthropic-ratelimit-tokens-limit:
       - '4800000'
       anthropic-ratelimit-tokens-remaining:
       - '4800000'
       anthropic-ratelimit-tokens-reset:
-      - '2026-01-06T15:45:54Z'
+      - '2026-05-12T14:46:37Z'
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '468'
+      - '520'
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-fefa5152bd8ea45a7e059e825bd1e823-54bd114c2d213af2-01
+      vary:
+      - Accept-Encoding
       x-envoy-upstream-service-time:
-      - '1467'
+      - '1217'
     status:
       code: 200
       message: OK
@@ -196,29 +207,29 @@ interactions:
       [{"text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley Wickham\"}",
       "type": "text"}]}, {"role": "user", "content": [{"text": "Generate the name
       and age of a random person.", "type": "text", "cache_control": {"type": "ephemeral",
-      "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001", "output_format": {"type":
-      "json_schema", "schema": {"type": "object", "title": "Person", "properties":
+      "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001", "output_config": {"format":
+      {"type": "json_schema", "schema": {"type": "object", "title": "Person", "properties":
       {"name": {"type": "string", "title": "Name"}, "age": {"type": "integer", "title":
-      "Age"}}, "additionalProperties": false, "required": ["name", "age"]}}, "stream":
+      "Age"}}, "additionalProperties": false, "required": ["name", "age"]}}}, "stream":
       false, "system": [{"type": "text", "text": "[empty string]", "cache_control":
       {"type": "ephemeral", "ttl": "5m"}}], "tools": []}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '1240'
+      - '1251'
       Content-Type:
       - application/json
+      Cookie:
+      - _cfuvid=QCh3OXoNEEFSg2Gng_6P7JJBpmCU_iMJBR.0RN5Ahys-1778597193.7314773-1.0.1.1-jp0MG8W.dYUtp6n2j9vj_h74JKokp6N4ax6mg82FJGg
       Host:
       - api.anthropic.com
       X-Stainless-Async:
       - 'false'
-      anthropic-beta:
-      - structured-outputs-2025-11-13
       anthropic-version:
       - '2023-06-01'
       x-stainless-read-timeout:
@@ -226,20 +237,22 @@ interactions:
       x-stainless-timeout:
       - '600'
     method: POST
-    uri: https://api.anthropic.com/v1/messages?beta=true
+    uri: https://api.anthropic.com/v1/messages
   response:
     body:
-      string: '{"model":"claude-haiku-4-5-20251001","id":"msg_01JdBGqwEcDKeXhqLDBDrFqF","type":"message","role":"assistant","content":[{"type":"text","text":"{\"name\":\"James
-        Mitchell\",\"age\":34}"}],"stop_reason":"end_turn","stop_sequence":null,"usage":{"input_tokens":361,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":13,"service_tier":"standard"}}'
+      string: '{"model":"claude-haiku-4-5-20251001","id":"msg_01PQ48fbqNMW9jMZ6RiD6FBc","type":"message","role":"assistant","content":[{"type":"text","text":"{\"name\":\"James
+        Mitchell\",\"age\":34}"}],"stop_reason":"end_turn","stop_sequence":null,"stop_details":null,"usage":{"input_tokens":361,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":13,"service_tier":"standard","inference_geo":"not_available"}}'
     headers:
       CF-RAY:
-      - 9b9c58614b99e66e-DEN
+      - 9faa36c91ef3a1bf-MSP
       Connection:
       - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
       Content-Type:
       - application/json
       Date:
-      - Tue, 06 Jan 2026 15:45:57 GMT
+      - Tue, 12 May 2026 14:46:39 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -251,33 +264,37 @@ interactions:
       anthropic-ratelimit-input-tokens-remaining:
       - '4000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2026-01-06T15:45:57Z'
+      - '2026-05-12T14:46:39Z'
       anthropic-ratelimit-output-tokens-limit:
       - '800000'
       anthropic-ratelimit-output-tokens-remaining:
       - '800000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2026-01-06T15:45:57Z'
+      - '2026-05-12T14:46:39Z'
       anthropic-ratelimit-requests-limit:
-      - '4000'
+      - '20000'
       anthropic-ratelimit-requests-remaining:
-      - '3999'
+      - '19999'
       anthropic-ratelimit-requests-reset:
-      - '2026-01-06T15:45:55Z'
+      - '2026-05-12T14:46:38Z'
       anthropic-ratelimit-tokens-limit:
       - '4800000'
       anthropic-ratelimit-tokens-remaining:
       - '4800000'
       anthropic-ratelimit-tokens-reset:
-      - '2026-01-06T15:45:57Z'
+      - '2026-05-12T14:46:39Z'
       cf-cache-status:
       - DYNAMIC
       content-length:
-      - '446'
+      - '498'
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-08787a5e2e57cd654ce976709a9e6a50-f1c4b4fba1ab7126-01
+      vary:
+      - Accept-Encoding
       x-envoy-upstream-service-time:
-      - '2498'
+      - '962'
     status:
       code: 200
       message: OK
@@ -302,13 +319,15 @@ interactions:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
       - '1191'
       Content-Type:
       - application/json
+      Cookie:
+      - _cfuvid=QCh3OXoNEEFSg2Gng_6P7JJBpmCU_iMJBR.0RN5Ahys-1778597193.7314773-1.0.1.1-jp0MG8W.dYUtp6n2j9vj_h74JKokp6N4ax6mg82FJGg
       Host:
       - api.anthropic.com
       X-Stainless-Async:
@@ -325,23 +344,12 @@ interactions:
     body:
       string: 'event: message_start
 
-        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_015uq7xrvHJHc4eTUgoY8aTE","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"usage":{"input_tokens":197,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard"}}     }
+        data: {"type":"message_start","message":{"model":"claude-haiku-4-5-20251001","id":"msg_01P6nLGNukQTXtoFApU6X14L","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":197,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":1,"service_tier":"standard","inference_geo":"not_available"}}               }
 
 
         event: content_block_start
 
-        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}
-
-
-        event: content_block_delta
-
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"The"}       }
-
-
-        event: content_block_delta
-
-        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        name"}   }
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}  }
 
 
         event: ping
@@ -351,8 +359,14 @@ interactions:
 
         event: content_block_delta
 
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"The"}
+        }
+
+
+        event: content_block_delta
+
         data: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"
-        of the person is James Mitchell."}               }
+        name of the person is James Mitchell."}          }
 
 
         event: content_block_stop
@@ -362,27 +376,28 @@ interactions:
 
         event: message_delta
 
-        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null},"usage":{"input_tokens":197,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":12}
-        }
+        data: {"type":"message_delta","delta":{"stop_reason":"end_turn","stop_sequence":null,"stop_details":null},"usage":{"input_tokens":197,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":12}             }
 
 
         event: message_stop
 
-        data: {"type":"message_stop"}
+        data: {"type":"message_stop"       }
 
 
         '
     headers:
       CF-RAY:
-      - 9b9c58735c737b30-DEN
+      - 9faa36d06f6d4cbe-MSP
       Cache-Control:
       - no-cache
       Connection:
       - keep-alive
+      Content-Security-Policy:
+      - default-src 'none'; frame-ancestors 'none'
       Content-Type:
       - text/event-stream; charset=utf-8
       Date:
-      - Tue, 06 Jan 2026 15:45:59 GMT
+      - Tue, 12 May 2026 14:46:40 GMT
       Server:
       - cloudflare
       Transfer-Encoding:
@@ -394,31 +409,37 @@ interactions:
       anthropic-ratelimit-input-tokens-remaining:
       - '4000000'
       anthropic-ratelimit-input-tokens-reset:
-      - '2026-01-06T15:45:58Z'
+      - '2026-05-12T14:46:39Z'
       anthropic-ratelimit-output-tokens-limit:
       - '800000'
       anthropic-ratelimit-output-tokens-remaining:
       - '800000'
       anthropic-ratelimit-output-tokens-reset:
-      - '2026-01-06T15:45:58Z'
+      - '2026-05-12T14:46:39Z'
       anthropic-ratelimit-requests-limit:
-      - '4000'
+      - '20000'
       anthropic-ratelimit-requests-remaining:
-      - '3999'
+      - '19999'
       anthropic-ratelimit-requests-reset:
-      - '2026-01-06T15:45:58Z'
+      - '2026-05-12T14:46:39Z'
       anthropic-ratelimit-tokens-limit:
       - '4800000'
       anthropic-ratelimit-tokens-remaining:
       - '4800000'
       anthropic-ratelimit-tokens-reset:
-      - '2026-01-06T15:45:58Z'
+      - '2026-05-12T14:46:39Z'
       cf-cache-status:
       - DYNAMIC
+      content-length:
+      - '1331'
       strict-transport-security:
       - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-2ddb967ee2c30dcd5ad8500007b01f01-2e4c4af893b92192-01
+      vary:
+      - Accept-Encoding
       x-envoy-upstream-service-time:
-      - '1258'
+      - '519'
     status:
       code: 200
       message: OK
