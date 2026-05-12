@@ -363,8 +363,8 @@ class AnthropicProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
-        api_kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        return self._client.messages.create(**api_kwargs)  # type: ignore
+        kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        return self._client.messages.create(**kwargs)  # type: ignore
 
     @overload
     async def chat_perform_async(
@@ -397,8 +397,8 @@ class AnthropicProvider(
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
-        api_kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        return await self._async_client.messages.create(**api_kwargs)  # type: ignore
+        kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        return await self._async_client.messages.create(**kwargs)  # type: ignore
 
     def _chat_perform_args(
         self,
@@ -915,7 +915,7 @@ class AnthropicProvider(
         requests: list["BatchRequest"] = []
 
         for i, turns in enumerate(conversations):
-            api_kwargs = self._chat_perform_args(
+            kwargs = self._chat_perform_args(
                 stream=False,
                 turns=turns,
                 tools={},
@@ -923,14 +923,14 @@ class AnthropicProvider(
             )
 
             params: "MessageCreateParamsNonStreaming" = {
-                "messages": api_kwargs.get("messages", {}),
+                "messages": kwargs.get("messages", {}),
                 "model": self.model,
-                "max_tokens": api_kwargs.get("max_tokens", 4096),
+                "max_tokens": kwargs.get("max_tokens", 4096),
             }
 
-            tools = api_kwargs.get("tools")
-            tool_choice = api_kwargs.get("tool_choice")
-            output_config = api_kwargs.get("output_config")
+            tools = kwargs.get("tools")
+            tool_choice = kwargs.get("tool_choice")
+            output_config = kwargs.get("output_config")
             if tools and not isinstance(tools, NotGiven):
                 params["tools"] = tools
             if tool_choice and not isinstance(tool_choice, NotGiven):
