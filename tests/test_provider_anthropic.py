@@ -117,9 +117,7 @@ def test_anthropic_web_search_citations():
     """Test that citations from web search are preserved on the completion."""
     chat = chat_func()
     chat.register_tool(tool_web_search())
-    chat.chat(
-        "When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format."
-    )
+    chat.chat("When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format.")
 
     # Get the turn and verify citations are on the completion
     turn = chat.get_last_turn()
@@ -131,9 +129,7 @@ def test_anthropic_web_search_citations():
     assert len(text_blocks) > 0
 
     # At least one text block should have citations from web search
-    has_citations = any(
-        getattr(block, "citations", None) for block in text_blocks
-    )
+    has_citations = any(getattr(block, "citations", None) for block in text_blocks)
     assert has_citations, "Expected citations on text blocks from web search"
 
 
@@ -287,7 +283,9 @@ def test_anthropic_nested_data_model_extraction():
 
         classifications: list[Classification]
 
-    text = "The new quantum computing breakthrough could revolutionize the tech industry."
+    text = (
+        "The new quantum computing breakthrough could revolutionize the tech industry."
+    )
 
     chat = chat_func(system_prompt="You are a friendly but terse assistant.")
     data = chat.chat_structured(text, data_model=Classifications)
