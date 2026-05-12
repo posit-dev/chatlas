@@ -319,7 +319,7 @@ def _make_bedrock_provider(**kwargs):
 
 
 class TestBedrockCacheDefault:
-    def test_auto_resolves_to_5m(self):
+    def test_default_enables_caching(self):
         provider = _make_bedrock_provider()
         assert provider._cache == "5m"
         assert provider._cache_control() == {"type": "ephemeral", "ttl": "5m"}
@@ -328,8 +328,3 @@ class TestBedrockCacheDefault:
         provider = _make_bedrock_provider(cache="none")
         assert provider._cache == "none"
         assert provider._cache_control() is None
-
-    def test_explicit_5m(self):
-        provider = _make_bedrock_provider(cache="5m")
-        assert provider._cache == "5m"
-        assert provider._cache_control() == {"type": "ephemeral", "ttl": "5m"}

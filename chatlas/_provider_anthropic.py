@@ -1038,7 +1038,7 @@ def ChatBedrockAnthropic(
     model: Optional[str] = None,
     max_tokens: int = 4096,
     reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
-    cache: Literal["auto", "5m", "none"] = "auto",
+    cache: Literal["5m", "none"] = "5m",
     structured_output_mode: StructuredOutputMode = "auto",
     aws_secret_key: Optional[str] = None,
     aws_access_key: Optional[str] = None,
@@ -1103,11 +1103,10 @@ def ChatBedrockAnthropic(
         thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
         for details.
     cache
-        How long to cache inputs? The default, "auto", enables caching with a
-        5-minute TTL (since all models available through Bedrock's Anthropic
-        client support caching). Set to "5m" to force caching on, or "none" to
-        disable it. Note that Bedrock only supports a 5-minute TTL (unlike the
-        direct Anthropic API which also offers "1h").
+        How long to cache inputs? Defaults to "5m" (5-minute TTL), matching
+        `ChatAnthropic`. Set to "none" to disable caching. Note that Bedrock
+        only supports a 5-minute TTL (unlike the direct Anthropic API which
+        also offers "1h").
     structured_output_mode
         How to handle structured data extraction (i.e., `data_model`).
         See `ChatAnthropic` for details.
@@ -1224,15 +1223,12 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_profile: str | None,
         aws_session_token: str | None,
         max_tokens: int = 4096,
-        cache: Literal["auto", "5m", "none"] = "auto",
+        cache: Literal["5m", "none"] = "5m",
         structured_output_mode: StructuredOutputMode = "auto",
         base_url: str | None,
         name: str = "AWS/Bedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
     ):
-        if cache == "auto":
-            cache = "5m"
-
         super().__init__(
             name=name,
             model=model,
