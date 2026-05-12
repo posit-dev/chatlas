@@ -579,10 +579,12 @@ def as_message(x: "ResponseInputContentParam", role: Role) -> "EasyInputMessageP
 def check_base_url(base_url: str) -> None:
     parsed = urlparse(base_url)
     if parsed.hostname != "api.openai.com":
-        raise ValueError(
+        warnings.warn(
             "ChatOpenAI() uses OpenAI's Responses API, which is not supported by most "
             "third-party backends. Use ChatOpenAICompletions() instead for "
-            "OpenAI-compatible backends (e.g., vLLM, Ollama, LiteLLM, etc.)."
+            "OpenAI-compatible backends (e.g., vLLM, Ollama, LiteLLM, etc.).",
+            UserWarning,
+            stacklevel=3,
         )
 
 
