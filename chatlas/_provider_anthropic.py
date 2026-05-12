@@ -431,25 +431,24 @@ class AnthropicProvider(
             or (mode == "auto" and supports_structured_outputs(self.model))
         )
 
-        if data_model is not None:
-            if use_native:
-                from anthropic import transform_schema
+        if data_model is not None and use_native:
+            from anthropic import transform_schema
 
-                output_config: "OutputConfigParam" = {
-                    "format": {
-                        "type": "json_schema",
-                        "schema": transform_schema(data_model),
-                    },
-                }
-            else:
-                data_model_tool = self.create_data_model_tool(data_model)
-                tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
-                if stream:
-                    stream = False
-                    warnings.warn(
-                        "Anthropic does not support structured data extraction in streaming mode.",
-                        stacklevel=2,
-                    )
+            output_config: "OutputConfigParam" = {
+                "format": {
+                    "type": "json_schema",
+                    "schema": transform_schema(data_model),
+                },
+            }
+        elif data_model is not None:
+            data_model_tool = self.create_data_model_tool(data_model)
+            tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
+            if stream:
+                stream = False
+                warnings.warn(
+                    "Anthropic does not support structured data extraction in streaming mode.",
+                    stacklevel=2,
+                )
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
@@ -460,14 +459,13 @@ class AnthropicProvider(
             **(kwargs or {}),
         }
 
-        if data_model is not None:
-            if use_native:
-                kwargs_full["output_config"] = output_config
-            else:
-                kwargs_full["tool_choice"] = {
-                    "type": "tool",
-                    "name": data_model_tool.name,
-                }
+        if data_model is not None and use_native:
+            kwargs_full["output_config"] = output_config  # type: ignore[reportPossiblyUnbound]
+        elif data_model is not None:
+            kwargs_full["tool_choice"] = {
+                "type": "tool",
+                "name": data_model_tool.name,  # type: ignore[reportPossiblyUnbound]
+            }
 
         if "system" not in kwargs_full:
             if len(turns) > 0 and isinstance(turns[0], SystemTurn):
