@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes 
 
+* `ChatDatabricks()` (and other `ChatOpenAICompletions()` providers) no longer fail with HTTP 400 when the conversation history contains empty assistant content, which can occur during tool calling. (#305)
 * Fixed `model_dump(mode="json")` failing on `Turn`s containing `bytes` fields (e.g., `ContentPDF.data`, `thought_signature` in `ContentToolRequest`/`ContentThinking` extras). Bytes values are now base64-encoded during serialization and decoded on validation, so JSON round-trips work correctly.
 * Fixed thinking content being silently dropped during streaming for completions-based providers (DeepSeek, Groq, OpenRouter, etc.). The streaming path was returning finalized `ContentThinking` objects instead of `ContentThinkingDelta` fragments, which the `TurnAccumulator` didn't recognize. (#301)
 
