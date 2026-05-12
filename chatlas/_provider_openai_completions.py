@@ -277,7 +277,8 @@ class OpenAICompletionsProvider(
                         if self._preserve_thinking:
                             reasoning_content = (reasoning_content or "") + x.thinking
                     elif isinstance(x, ContentText):
-                        content_parts.append({"type": "text", "text": x.text})
+                        if x.text:
+                            content_parts.append({"type": "text", "text": x.text})
                     elif isinstance(x, ContentJson):
                         text = orjson.dumps(x.value).decode("utf-8")
                         content_parts.append({"type": "text", "text": text})
@@ -392,7 +393,7 @@ class OpenAICompletionsProvider(
         if reasoning:
             contents.append(ContentThinking(thinking=reasoning))
 
-        if message.content is not None:
+        if message.content is not None and message.content != "":
             if has_data_model:
                 data = message.content
                 # Some providers (e.g., Cloudflare) may already provide a dict
