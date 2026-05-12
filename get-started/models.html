@@ -542,10 +542,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="callout-body-container callout-body">
 <p>To use chatlas with a provider not listed in the table above, you have two options:</p>
 <ol type="1">
-<li>If the model provider is “OpenAI compatible” (i.e., it can be used with the <a href="https://github.com/openai/openai-python#readme"><code>openai</code> Python SDK</a>), use <code>ChatOpenAI()</code> with the appropriate <code>base_url</code> and <code>api_key</code>.
-<ul>
-<li>When providers say they are “OpenAI compatible”, they usually mean compatible with the <a href="https://github.com/openai/openai-python?tab=readme-ov-file#usage">Completions API</a>. In this case, use <a href="../reference/ChatOpenAICompletions.qmd"><code>ChatOpenAICompletions()</code></a> instead of <code>ChatOpenAI()</code> (the latter uses the newer Responses API).</li>
-</ul></li>
+<li>If the model provider is “OpenAI compatible” (i.e., it supports the <code>/v1/chat/completions</code> endpoint), use <a href="../reference/ChatOpenAICompletions.qmd"><code>ChatOpenAICompletions()</code></a> with the appropriate <code>base_url</code> and <code>api_key</code>. This is the right choice for backends like vLLM, LiteLLM, and any other OpenAI-compatible inference engine. Note that <code>ChatOpenAI()</code> uses OpenAI’s proprietary <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>, which is not supported by most third-party backends.</li>
 <li>If you’re motivated, implement a new provider by subclassing <a href="https://github.com/posit-dev/chatlas/blob/main/chatlas/_provider.py"><code>Provider</code></a> and implementing the required methods.</li>
 </ol>
 </div>

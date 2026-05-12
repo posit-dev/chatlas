@@ -31,8 +31,7 @@ Below is a table of model providers that come pre-packaged with chatlas.
 >
 > To use chatlas with a provider not listed in the table above, you have two options:
 >
-> 1.  If the model provider is “OpenAI compatible” (i.e., it can be used with the [`openai` Python SDK](https://github.com/openai/openai-python#readme)), use `ChatOpenAI()` with the appropriate `base_url` and `api_key`.
->     - When providers say they are “OpenAI compatible”, they usually mean compatible with the [Completions API](https://github.com/openai/openai-python?tab=readme-ov-file#usage). In this case, use [`ChatOpenAICompletions()`](../reference/ChatOpenAICompletions.qmd) instead of `ChatOpenAI()` (the latter uses the newer Responses API).
+> 1.  If the model provider is “OpenAI compatible” (i.e., it supports the `/v1/chat/completions` endpoint), use [`ChatOpenAICompletions()`](../reference/ChatOpenAICompletions.qmd) with the appropriate `base_url` and `api_key`. This is the right choice for backends like vLLM, LiteLLM, and any other OpenAI-compatible inference engine. Note that `ChatOpenAI()` uses OpenAI’s proprietary [Responses API](https://platform.openai.com/docs/api-reference/responses), which is not supported by most third-party backends.
 > 2.  If you’re motivated, implement a new provider by subclassing [`Provider`](https://github.com/posit-dev/chatlas/blob/main/chatlas/_provider.py) and implementing the required methods.
 
 > **WARNING:**

@@ -7,6 +7,7 @@ ChatAnthropic(
     max_tokens=4096,
     reasoning=None,
     cache='5m',
+    structured_output_mode='auto',
     api_key=None,
     kwargs=None,
 )
@@ -45,6 +46,7 @@ chat.chat("What is the capital of France?")
 | max_tokens | [int](https://docs.python.org/3/library/functions.html#int) | Maximum number of tokens to generate before stopping. | `4096` |
 | reasoning | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['int \| ThinkingConfigEnabledParam'\] | Determines how many tokens Claude can be allocated to reasoning. Must be ≥1024 and less than `max_tokens`. Larger budgets can enable more thorough analysis for complex problems, improving response quality. See [extended thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking) for details. | `None` |
 | cache | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['5m', '1h', 'none'\] | How long to cache inputs? Defaults to “5m” (five minutes). Set to “none” to disable caching or “1h” to cache for one hour. See the Caching section for details. | `'5m'` |
+| structured_output_mode | `StructuredOutputMode` | How to handle structured data extraction (i.e., `data_model`). `"auto"` (default) uses Anthropic’s native `output_config` API for models that support it and falls back to a tool-based approach for older models. `"native"` forces the `output_config` API (which supports streaming). `"tool"` forces the legacy tool-based approach (which does not support streaming). | `'auto'` |
 | api_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The API key to use for authentication. You generally should not supply this directly, but instead set the `ANTHROPIC_API_KEY` environment variable. | `None` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['ChatClientArgs'\] | Additional arguments to pass to the `anthropic.Anthropic()` client constructor. | `None` |
 

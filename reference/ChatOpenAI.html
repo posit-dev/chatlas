@@ -811,7 +811,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>base_url</td>
 <td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
-<td>The base URL to the endpoint; the default uses OpenAI.</td>
+<td>The base URL to the endpoint; the default uses OpenAI. Since <code>ChatOpenAI()</code> uses the Responses API, most third-party backends won’t work here. For OpenAI-compatible backends (e.g., vLLM, Ollama, LiteLLM), use <code>ChatOpenAICompletions</code> instead.</td>
 <td><code>'https://api.openai.com/v1'</code></td>
 </tr>
 <tr class="even">

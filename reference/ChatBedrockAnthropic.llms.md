@@ -6,6 +6,7 @@ ChatBedrockAnthropic(
     max_tokens=4096,
     reasoning=None,
     cache='none',
+    structured_output_mode='auto',
     aws_secret_key=None,
     aws_access_key=None,
     aws_region=None,
@@ -54,6 +55,7 @@ chat.chat("What is the capital of France?")
 | max_tokens | [int](https://docs.python.org/3/library/functions.html#int) | Maximum number of tokens to generate before stopping. | `4096` |
 | reasoning | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['int \| ThinkingConfigEnabledParam'\] | Determines how many tokens Claude can be allocated to reasoning. Must be ≥1024 and less than `max_tokens`. Larger budgets can enable more thorough analysis for complex problems, improving response quality. See [extended thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking) for details. | `None` |
 | cache | [Literal](https://docs.python.org/3/library/typing.html#typing.Literal)\['5m', '1h', 'none'\] | How long to cache inputs? Defaults to “none” (disabled). Set to “5m” to cache for five minutes or “1h” to cache for one hour. See the Caching section of `ChatAnthropic` for details. | `'none'` |
+| structured_output_mode | `StructuredOutputMode` | How to handle structured data extraction (i.e., `data_model`). See `ChatAnthropic` for details. | `'auto'` |
 | aws_secret_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The AWS secret key to use for authentication. | `None` |
 | aws_access_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The AWS access key to use for authentication. | `None` |
 | aws_region | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The AWS region to use. Defaults to the AWS_REGION environment variable. If that is not set, defaults to `'us-east-1'`. | `None` |
