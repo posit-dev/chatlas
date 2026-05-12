@@ -97,11 +97,10 @@ def ChatOpenAI(
         default, and warn you about it. We strongly recommend explicitly
         choosing a model for all but the most casual use.
     base_url
-        The base URL to the endpoint; the default uses OpenAI. This must point
-        to the OpenAI API since `ChatOpenAI()` uses the Responses API, which
-        is specific to OpenAI. For third-party OpenAI-compatible backends
-        (e.g., vLLM, Ollama, LiteLLM), use
-        [](`~chatlas.ChatOpenAICompletions`) instead.
+        The base URL to the endpoint; the default uses OpenAI. Since
+        `ChatOpenAI()` uses the Responses API, most third-party backends
+        won't work here. For OpenAI-compatible backends (e.g., vLLM,
+        Ollama, LiteLLM), use [](`~chatlas.ChatOpenAICompletions`) instead.
     reasoning
         The reasoning effort to use (for reasoning-capable models like the o and
         gpt-5 series).
