@@ -58,10 +58,20 @@ def ChatGoogle(
     -------------
 
     ::: {.callout-note}
-    ## API key
+    ## Authentication
 
-    To use Google's models (i.e., Gemini), you'll need to sign up for an account
-    and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python).
+    The simplest way to authenticate is with an API key. Sign up for an account
+    and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python),
+    then pass it via `api_key` or set the `GOOGLE_API_KEY` environment variable.
+
+    For OAuth, service accounts, or Application Default Credentials, pass a
+    `google.auth.credentials.Credentials` object via `kwargs`:
+
+    ```python
+    import google.auth
+    credentials, _ = google.auth.default()
+    chat = ChatGoogle(kwargs={"credentials": credentials})
+    ```
     :::
 
     ::: {.callout-note}
@@ -699,6 +709,19 @@ def ChatVertex(
     To use Google's models (i.e., Vertex AI), you'll need to sign up for an account
     with [Vertex AI](https://cloud.google.com/vertex-ai), then specify the appropriate
     model, project, and location.
+
+    Vertex AI typically authenticates via Application Default Credentials (ADC).
+    You can also pass a `google.auth.credentials.Credentials` object via `kwargs`:
+
+    ```python
+    import google.auth
+    credentials, project = google.auth.default()
+    chat = ChatVertex(
+        project=project,
+        location="us-central1",
+        kwargs={"credentials": credentials},
+    )
+    ```
     :::
 
     Parameters
