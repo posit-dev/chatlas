@@ -82,7 +82,7 @@ def ChatLMStudio(
         or secured endpoint that enforces bearer-token authentication, you can
         set the `LMSTUDIO_API_KEY` environment variable or provide a value here.
     api_headers
-        Extra HTTP headers to include with every API request. Can be a dict
+        Extra HTTP headers to include with every chat API request. Can be a dict
         of ``{header_name: header_value}`` pairs, or a zero-argument callable
         returning such a dict. A callable is invoked on every request,
         enabling dynamic auth patterns like token refresh.

@@ -67,7 +67,7 @@ def ChatGithub(
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `GITHUB_TOKEN` environment variable.
     api_headers
-        Extra HTTP headers to include with every API request. Can be a dict
+        Extra HTTP headers to include with every chat API request. Can be a dict
         of ``{header_name: header_value}`` pairs, or a zero-argument callable
         returning such a dict. A callable is invoked on every request,
         enabling dynamic auth patterns like token refresh.

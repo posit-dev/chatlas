@@ -9,7 +9,13 @@ from ._api_headers import ApiHeaders
 from ._chat import Chat
 from ._provider_openai import OpenAIProvider
 from ._provider_openai_completions import OpenAICompletionsProvider
-from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
+from ._utils import (
+    MISSING,
+    MISSING_TYPE,
+    is_testing,
+    split_http_client_kwargs,
+    wrap_async,
+)
 
 if TYPE_CHECKING:
     from openai.types.responses import Response
@@ -75,7 +81,7 @@ def ChatAzureOpenAI(
         this directly, but instead set the `AZURE_OPENAI_API_KEY` environment
         variable.
     api_headers
-        Extra HTTP headers to include with every API request. Can be a dict
+        Extra HTTP headers to include with every chat API request. Can be a dict
         of ``{header_name: header_value}`` pairs, or a zero-argument callable
         returning such a dict. A callable is invoked on every request,
         enabling dynamic auth patterns like token refresh.
@@ -148,18 +154,28 @@ class OpenAIAzureProvider(OpenAIProvider):
             api_headers=api_headers,
         )
 
-        kwargs_full: "ChatAzureClientArgs" = {
+        async_api_key = wrap_async(api_key) if callable(api_key) else api_key
+
+        sync_full: "ChatAzureClientArgs" = {
             "azure_endpoint": endpoint,
             "azure_deployment": deployment_id,
             "api_version": api_version,
-            "api_key": api_key,  # type: ignore[typeddict-item]  # ChatAzureClientArgs is generated from AsyncAzureOpenAI which requires Awaitable; sync AzureOpenAI accepts plain Callable[[], str]
+            "api_key": api_key,  # type: ignore
+            **(kwargs or {}),
+        }
+        async_full: "ChatAzureClientArgs" = {
+            "azure_endpoint": endpoint,
+            "azure_deployment": deployment_id,
+            "api_version": api_version,
+            "api_key": async_api_key,  # type: ignore
             **(kwargs or {}),
         }
 
-        sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
+        sync_full, _ = split_http_client_kwargs(sync_full)
+        _, async_full = split_http_client_kwargs(async_full)
 
-        self._client = AzureOpenAI(**sync_kwargs)  # type: ignore
-        self._async_client = AsyncAzureOpenAI(**async_kwargs)  # type: ignore
+        self._client = AzureOpenAI(**sync_full)  # type: ignore
+        self._async_client = AsyncAzureOpenAI(**async_full)  # type: ignore
 
 
 def ChatAzureOpenAICompletions(
@@ -221,15 +237,25 @@ class OpenAIAzureCompletionsProvider(OpenAICompletionsProvider):
             api_headers=api_headers,
         )
 
-        kwargs_full: "ChatAzureClientArgs" = {
+        async_api_key = wrap_async(api_key) if callable(api_key) else api_key
+
+        sync_full: "ChatAzureClientArgs" = {
             "azure_endpoint": endpoint,
             "azure_deployment": deployment_id,
             "api_version": api_version,
-            "api_key": api_key,  # type: ignore[typeddict-item]  # ChatAzureClientArgs is generated from AsyncAzureOpenAI which requires Awaitable; sync AzureOpenAI accepts plain Callable[[], str]
+            "api_key": api_key,  # type: ignore
+            **(kwargs or {}),
+        }
+        async_full: "ChatAzureClientArgs" = {
+            "azure_endpoint": endpoint,
+            "azure_deployment": deployment_id,
+            "api_version": api_version,
+            "api_key": async_api_key,  # type: ignore
             **(kwargs or {}),
         }
 
-        sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
+        sync_full, _ = split_http_client_kwargs(sync_full)
+        _, async_full = split_http_client_kwargs(async_full)
 
-        self._client = AzureOpenAI(**sync_kwargs)  # type: ignore
-        self._async_client = AsyncAzureOpenAI(**async_kwargs)  # type: ignore
+        self._client = AzureOpenAI(**sync_full)  # type: ignore
+        self._async_client = AsyncAzureOpenAI(**async_full)  # type: ignore
