@@ -109,7 +109,7 @@ def batch_chat_text(
     path
         Path to file (with .json extension) to store batch state
     wait
-        If True, wait for batch to complete
+        If True, wait for batch to complete. If False, return None if incomplete.
 
     Return
     ------
@@ -156,7 +156,7 @@ def batch_chat_structured(
     data_model
         Pydantic model class for structured responses
     wait
-        If True, wait for batch to complete
+        If True, wait for batch to complete. If False, return None if incomplete.
 
     Return
     ------
