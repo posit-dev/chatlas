@@ -8,6 +8,7 @@ AssistantTurn(
     finish_reason=None,
     completion=None,
     cost=None,
+    partial_reason=None,
     **kwargs,
 )
 ```
@@ -23,10 +24,17 @@ Assistant turn - represents model response with additional metadata
 | finish_reason | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A string indicating the reason why the conversation ended. | `None` |
 | completion | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[`CompletionT`\] | The completion object returned by the provider. This is useful if there’s information returned by the provider that chatlas doesn’t otherwise expose. | `None` |
 | cost | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[float](https://docs.python.org/3/library/functions.html#float)\] | The cost of this turn in USD. This is computed when the turn is created based on the token usage and pricing information (including service tier). | `None` |
+| partial_reason | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | If set, indicates this turn is incomplete (e.g., the stream was interrupted or cancelled). The value describes the reason for the partial state. | `None` |
 
 ## See Also
 
 - [`Turn`](https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn): The base class for all turn types.
+
+## Attributes
+
+| Name | Description |
+|----|----|
+| [is_partial](#chatlas.AssistantTurn.is_partial) | Whether this turn is a partial (interrupted/cancelled) turn. |
 
 ## Methods
 

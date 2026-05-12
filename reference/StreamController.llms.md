@@ -1,0 +1,59 @@
+# StreamController
+
+``` python
+StreamController()
+```
+
+Cooperative cancellation handle for streaming responses.
+
+Create a controller and pass it to [`Chat.stream()`](../reference/Chat.llms.md#stream) or [`Chat.stream_async()`](../reference/Chat.llms.md#stream_async) via the `controller` argument, then call `.cancel()` from somewhere else in your application to stop the stream after the current chunk while preserving the partial response in chat history.
+
+## Example
+
+``` python
+from chatlas import ChatOpenAI, StreamController
+
+chat = ChatOpenAI()
+ctrl = StreamController()
+
+for i, chunk in enumerate(chat.stream("Write a story", controller=ctrl), start=1):
+    print(chunk, end="")
+    if i > 10:
+        ctrl.cancel()
+```
+
+## Methods
+
+### cancel
+
+``` python
+StreamController.cancel(reason="cancelled")
+```
+
+Cancel the stream. The `reason` is stored on the partial assistant turn.
+
+### reset
+
+``` python
+StreamController.reset()
+```
+
+Clear the cancelled state and reason so the same controller can be reused for a new stream.
+
+## Properties
+
+### cancelled
+
+``` python
+StreamController.cancelled
+```
+
+Whether cancellation has been requested.
+
+### reason
+
+``` python
+StreamController.reason
+```
+
+The cancellation reason, or `None` if cancellation has not been requested.

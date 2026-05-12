@@ -891,7 +891,14 @@ Replaces the current chat history state (i.e., turns) with the provided turns. T
 ### stream
 
 ``` python
-Chat.stream(*args, content='text', echo='none', data_model=None, kwargs=None)
+Chat.stream(
+    *args,
+    content='text',
+    echo='none',
+    data_model=None,
+    kwargs=None,
+    controller=None,
+)
 ```
 
 Generate a response from the chat in a streaming fashion.
@@ -905,6 +912,7 @@ Generate a response from the chat in a streaming fashion.
 | echo | `EchoOptions` | One of the following (default is “none”): - `"text"`: Echo just the text content of the response. - `"output"`: Echo text and tool call content. - `"all"`: Echo both the assistant and user turn. - `"none"`: Do not echo any content. | `'none'` |
 | data_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[type](https://docs.python.org/3/library/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\]\] | A Pydantic model describing the structure of the data to extract. When provided, the response will be constrained to match this structure. The streamed chunks will be JSON text that, when concatenated, forms a valid JSON object matching the model. After consuming the stream, use `data_model.model_validate_json("".join(chunks))` to parse the result. | `None` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[SubmitInputArgsT](https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None` |
+| controller | `StreamController` \| None | A `StreamController` for cooperative stream cancellation. When provided, calling `controller.cancel()` stops the stream after the current chunk and preserves the partial response in conversation history. This is useful for building UIs (e.g., a “stop generating” button) where you want to interrupt a response without losing what’s been generated so far. The same controller can be reused across multiple streams by calling `controller.reset()` before starting a new stream. | `None` |
 
 #### Returns
 
@@ -938,6 +946,7 @@ Chat.stream_async(
     echo='none',
     data_model=None,
     kwargs=None,
+    controller=None,
 )
 ```
 
@@ -952,6 +961,7 @@ Generate a response from the chat in a streaming fashion asynchronously.
 | echo | `EchoOptions` | One of the following (default is “none”): - `"text"`: Echo just the text content of the response. - `"output"`: Echo text and tool call content. - `"all"`: Echo both the assistant and user turn. - `"none"`: Do not echo any content. | `'none'` |
 | data_model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[type](https://docs.python.org/3/library/functions.html#type)\[[BaseModel](https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel)\]\] | A Pydantic model describing the structure of the data to extract. When provided, the response will be constrained to match this structure. The streamed chunks will be JSON text that, when concatenated, forms a valid JSON object matching the model. After consuming the stream, use `data_model.model_validate_json("".join(chunks))` to parse the result. | `None` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[SubmitInputArgsT](https://posit-dev.github.io/chatlas/reference/types.SubmitInputArgsT.html#chatlas.types.SubmitInputArgsT)\] | Additional keyword arguments to pass to the method used for requesting the response. | `None` |
+| controller | `StreamController` \| None | A `StreamController` for cooperative stream cancellation. When provided, calling `controller.cancel()` stops the stream after the current chunk and preserves the partial response in conversation history. This is useful for building UIs (e.g., a “stop generating” button) where you want to interrupt a response without losing what’s been generated so far. The same controller can be reused across multiple streams by calling `controller.reset()` before starting a new stream. | `None` |
 
 #### Returns
 

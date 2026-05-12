@@ -150,6 +150,8 @@ chatlas.interpolate py:function 1 reference/interpolate.html#chatlas.interpolate
 chatlas._interpolate.interpolate py:function 1 reference/interpolate.html#chatlas.interpolate chatlas.interpolate
 chatlas.interpolate_file py:function 1 reference/interpolate_file.html#chatlas.interpolate_file -
 chatlas._interpolate.interpolate_file py:function 1 reference/interpolate_file.html#chatlas.interpolate_file chatlas.interpolate_file
+chatlas.AssistantTurn.is_partial py:attribute 1 reference/AssistantTurn.html#chatlas.AssistantTurn.is_partial -
+chatlas._turn.AssistantTurn.is_partial py:attribute 1 reference/AssistantTurn.html#chatlas.AssistantTurn.is_partial chatlas.AssistantTurn.is_partial
 chatlas.AssistantTurn.validate_tokens py:function 1 reference/AssistantTurn.html#chatlas.AssistantTurn.validate_tokens -
 chatlas._turn.AssistantTurn.validate_tokens py:function 1 reference/AssistantTurn.html#chatlas.AssistantTurn.validate_tokens chatlas.AssistantTurn.validate_tokens
 chatlas.AssistantTurn py:class 1 reference/AssistantTurn.html#chatlas.AssistantTurn -
