@@ -65,6 +65,7 @@ if TYPE_CHECKING:
     from anthropic.types.message_create_params import MessageCreateParamsNonStreaming
     from anthropic.types.messages.batch_create_params import Request as BatchRequest
     from anthropic.types.model_param import ModelParam
+    from anthropic.types.output_config_param import OutputConfigParam
     from anthropic.types.text_block_param import TextBlockParam
     from anthropic.types.thinking_config_enabled_param import ThinkingConfigEnabledParam
     from anthropic.types.tool_result_block_param import ToolResultBlockParam
@@ -85,6 +86,18 @@ else:
     RawMessageStreamEvent = object
 
 
+def supports_structured_outputs(model: str) -> bool:
+    """
+    Check if the model supports the structured outputs API.
+
+    https://platform.claude.com/docs/en/build-with-claude/structured-outputs
+    """
+    return bool(re.match(r"^claude-\w+-4-[5-9](-|$)", model))
+
+
+StructuredOutputMode = Literal["auto", "native", "tool"]
+
+
 def ChatAnthropic(
     *,
     system_prompt: Optional[str] = None,
@@ -92,6 +105,7 @@ def ChatAnthropic(
     max_tokens: int = 4096,
     reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
     cache: Literal["5m", "1h", "none"] = "5m",
+    structured_output_mode: StructuredOutputMode = "auto",
     api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
@@ -152,6 +166,13 @@ def ChatAnthropic(
         How long to cache inputs? Defaults to "5m" (five minutes).
         Set to "none" to disable caching or "1h" to cache for one hour.
         See the Caching section for details.
+    structured_output_mode
+        How to handle structured data extraction (i.e., `data_model`).
+        `"auto"` (default) uses Anthropic's native `output_config` API for
+        models that support it and falls back to a tool-based approach for
+        older models. `"native"` forces the `output_config` API (which
+        supports streaming). `"tool"` forces the legacy tool-based approach
+        (which does not support streaming).
     api_key
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `ANTHROPIC_API_KEY` environment
@@ -257,6 +278,7 @@ def ChatAnthropic(
             model=model,
             max_tokens=max_tokens,
             cache=cache,
+            structured_output_mode=structured_output_mode,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -275,6 +297,7 @@ class AnthropicProvider(
         api_key: Optional[str] = None,
         name: str = "Anthropic",
         cache: Literal["5m", "1h", "none"] = "5m",
+        structured_output_mode: StructuredOutputMode = "auto",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)
@@ -287,6 +310,7 @@ class AnthropicProvider(
             )
         self._max_tokens = max_tokens
         self._cache: Literal["5m", "1h", "none"] = cache
+        self._structured_output_mode = structured_output_mode
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
@@ -401,35 +425,24 @@ class AnthropicProvider(
     ) -> "SubmitInputArgs":
         tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
 
-        # If data extraction is requested, add a "mock" tool with parameters inferred from the data model
-        data_model_tool: Tool | None = None
-        if data_model is not None:
+        mode = self._structured_output_mode
+        use_native = (
+            mode == "native"
+            or (mode == "auto" and supports_structured_outputs(self.model))
+        )
 
-            def _structured_tool_call(**kwargs: Any):
-                """Extract structured data"""
-                pass
+        if data_model is not None and use_native:
+            from anthropic import transform_schema
 
-            data_model_tool = Tool.from_func(_structured_tool_call)
-
-            data_model_schema = basemodel_to_param_schema(data_model)
-
-            # Extract $defs from the nested schema and place at top level
-            # JSON Schema $ref pointers like "#/$defs/..." need $defs at the root
-            defs = data_model_schema.pop("$defs", None)
-
-            params: dict[str, Any] = {
-                "type": "object",
-                "properties": {
-                    "data": data_model_schema,
+            output_config: "OutputConfigParam" = {
+                "format": {
+                    "type": "json_schema",
+                    "schema": transform_schema(data_model),
                 },
             }
-            if defs:
-                params["$defs"] = defs
-
-            data_model_tool.schema["function"]["parameters"] = params
-
+        elif data_model is not None:
+            data_model_tool = self.create_data_model_tool(data_model)
             tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
-
             if stream:
                 stream = False
                 warnings.warn(
@@ -446,10 +459,12 @@ class AnthropicProvider(
             **(kwargs or {}),
         }
 
-        if data_model_tool:
+        if data_model is not None and use_native:
+            kwargs_full["output_config"] = output_config  # type: ignore[reportPossiblyUnbound]
+        elif data_model is not None:
             kwargs_full["tool_choice"] = {
                 "type": "tool",
-                "name": data_model_tool.name,
+                "name": data_model_tool.name,  # type: ignore[reportPossiblyUnbound]
             }
 
         if "system" not in kwargs_full:
@@ -463,6 +478,33 @@ class AnthropicProvider(
                 kwargs_full["system"] = [sys_param]
 
         return kwargs_full
+
+    @staticmethod
+    def create_data_model_tool(data_model: type[BaseModel]) -> Tool:
+        def _structured_tool_call(**kwargs: Any):
+            """Extract structured data"""
+            pass
+
+        data_model_tool = Tool.from_func(_structured_tool_call)
+
+        data_model_schema = basemodel_to_param_schema(data_model)
+
+        # Extract $defs from the nested schema and place at top level
+        # JSON Schema $ref pointers like "#/$defs/..." need $defs at the root
+        defs = data_model_schema.pop("$defs", None)
+
+        params: dict[str, Any] = {
+            "type": "object",
+            "properties": {
+                "data": data_model_schema,
+            },
+        }
+        if defs:
+            params["$defs"] = defs
+
+        data_model_tool.schema["function"]["parameters"] = params
+
+        return data_model_tool
 
     def stream_content(self, chunk) -> Optional[Content]:
         if chunk.type == "content_block_delta":
@@ -754,11 +796,24 @@ class AnthropicProvider(
 
     def _as_turn(self, completion: Message, has_data_model=False) -> AssistantTurn:
         contents = []
+
+        # Detect which structured output approach was used:
+        # - Old approach: has a _structured_tool_call tool_use block
+        # - New approach: has_data_model=True but no _structured_tool_call (JSON in text)
+        uses_old_tool_approach = has_data_model and any(
+            c.type == "tool_use" and c.name == "_structured_tool_call"
+            for c in completion.content
+        )
+        uses_new_output_format = has_data_model and not uses_old_tool_approach
+
         for content in completion.content:
             if content.type == "text":
-                contents.append(ContentText(text=content.text))
+                if uses_new_output_format:
+                    contents.append(ContentJson(value=orjson.loads(content.text)))
+                else:
+                    contents.append(ContentText(text=content.text))
             elif content.type == "tool_use":
-                if has_data_model and content.name == "_structured_tool_call":
+                if uses_old_tool_approach and content.name == "_structured_tool_call":
                     if not isinstance(content.input, dict):
                         raise ValueError(
                             "Expected data extraction tool to return a dictionary."
@@ -899,13 +954,15 @@ class AnthropicProvider(
                 "max_tokens": kwargs.get("max_tokens", 4096),
             }
 
-            # If data_model, tools/tool_choice should be present
             tools = kwargs.get("tools")
             tool_choice = kwargs.get("tool_choice")
+            output_config = kwargs.get("output_config")
             if tools and not isinstance(tools, NotGiven):
                 params["tools"] = tools
             if tool_choice and not isinstance(tool_choice, NotGiven):
                 params["tool_choice"] = tool_choice
+            if output_config and not isinstance(output_config, NotGiven):
+                params["output_config"] = output_config
 
             requests.append({"custom_id": f"request-{i}", "params": params})
 
@@ -983,6 +1040,7 @@ def ChatBedrockAnthropic(
     max_tokens: int = 4096,
     reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
     cache: Literal["5m", "1h", "none"] = "none",
+    structured_output_mode: StructuredOutputMode = "auto",
     aws_secret_key: Optional[str] = None,
     aws_access_key: Optional[str] = None,
     aws_region: Optional[str] = None,
@@ -1049,6 +1107,9 @@ def ChatBedrockAnthropic(
         How long to cache inputs? Defaults to "none" (disabled).
         Set to "5m" to cache for five minutes or "1h" to cache for one hour.
         See the Caching section of `ChatAnthropic` for details.
+    structured_output_mode
+        How to handle structured data extraction (i.e., `data_model`).
+        See `ChatAnthropic` for details.
     aws_secret_key
         The AWS secret key to use for authentication.
     aws_access_key
@@ -1137,6 +1198,7 @@ def ChatBedrockAnthropic(
             model=model,
             max_tokens=max_tokens,
             cache=cache,
+            structured_output_mode=structured_output_mode,
             aws_secret_key=aws_secret_key,
             aws_access_key=aws_access_key,
             aws_region=aws_region,
@@ -1162,6 +1224,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_session_token: str | None,
         max_tokens: int = 4096,
         cache: Literal["5m", "1h", "none"] = "none",
+        structured_output_mode: StructuredOutputMode = "auto",
         base_url: str | None,
         name: str = "AWS/Bedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
@@ -1171,6 +1234,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
             model=model,
             max_tokens=max_tokens,
             cache=cache,
+            structured_output_mode=structured_output_mode,
         )
 
         try:
