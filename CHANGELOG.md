@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
+* `ChatOpenAI()` now warns when `base_url` points to a non-OpenAI host, guiding users to `ChatOpenAICompletions()` for third-party backends like vLLM, Ollama, and LiteLLM. (#285)
 * When a stream is interrupted (closed early, cancelled, or errors), the accumulated content is now saved as a partial `AssistantTurn` so conversation state isn't lost. Partial turns display `[interrupted]` (or the cancellation reason) in the `Chat` repr and are excluded from token/cost accounting. (#279)
 * `ChatAnthropic()` and `ChatBedrockAnthropic()` now use Anthropic's native structured outputs API for Claude 4.5+ models, enabling streaming with `data_model`. Older models fall back to the tool-based approach. A new `structured_output_mode` parameter (`"auto"`, `"native"`, or `"tool"`) lets you override the auto-detection. (#263)
 
