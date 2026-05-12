@@ -165,7 +165,7 @@ def ChatOpenAI(
     The responses API does not support the `seed` parameter. If you need
     reproducible output, use [](`~chatlas.ChatOpenAICompletions`) instead.
     """
-    _check_base_url(base_url)
+    check_base_url(base_url)
 
     if model is None:
         model = log_model_default("gpt-5.4")
@@ -575,7 +575,7 @@ def as_message(x: "ResponseInputContentParam", role: Role) -> "EasyInputMessageP
     return {"role": role, "content": [x]}
 
 
-def _check_base_url(base_url: str) -> None:
+def check_base_url(base_url: str) -> None:
     from urllib.parse import urlparse
 
     parsed = urlparse(base_url)
