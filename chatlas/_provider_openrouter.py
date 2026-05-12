@@ -75,7 +75,7 @@ def ChatOpenRouter(
 
     Note
     ----
-    This function is a lightweight wrapper around [](`~chatlas.ChatOpenAI`) with
+    This function is a lightweight wrapper around [](`~chatlas.ChatOpenAICompletions`) with
     the defaults tweaked for OpenRouter.
 
     Note

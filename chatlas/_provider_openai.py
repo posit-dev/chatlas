@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import warnings
 from typing import TYPE_CHECKING, Literal, Optional, cast
+from urllib.parse import urlparse
 
 import orjson
 from openai.types.responses import Response, ResponseStreamEvent
@@ -96,7 +97,10 @@ def ChatOpenAI(
         default, and warn you about it. We strongly recommend explicitly
         choosing a model for all but the most casual use.
     base_url
-        The base URL to the endpoint; the default uses OpenAI.
+        The base URL to the endpoint; the default uses OpenAI. Since
+        `ChatOpenAI()` uses the Responses API, most third-party backends
+        won't work here. For OpenAI-compatible backends (e.g., vLLM,
+        Ollama, LiteLLM), use [](`~chatlas.ChatOpenAICompletions`) instead.
     reasoning
         The reasoning effort to use (for reasoning-capable models like the o and
         gpt-5 series).
@@ -161,6 +165,8 @@ def ChatOpenAI(
     The responses API does not support the `seed` parameter. If you need
     reproducible output, use [](`~chatlas.ChatOpenAICompletions`) instead.
     """
+    check_base_url(base_url)
+
     if model is None:
         model = log_model_default("gpt-5.4")
 
@@ -567,6 +573,18 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
 
 def as_message(x: "ResponseInputContentParam", role: Role) -> "EasyInputMessageParam":
     return {"role": role, "content": [x]}
+
+
+def check_base_url(base_url: str) -> None:
+    parsed = urlparse(base_url)
+    if parsed.hostname != "api.openai.com":
+        warnings.warn(
+            "ChatOpenAI() uses OpenAI's Responses API, which is not supported by most "
+            "third-party backends. Use ChatOpenAICompletions() instead for "
+            "OpenAI-compatible backends (e.g., vLLM, Ollama, LiteLLM, etc.).",
+            UserWarning,
+            stacklevel=3,
+        )
 
 
 def is_reasoning_model(model: str) -> bool:
