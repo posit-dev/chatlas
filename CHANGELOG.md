@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * New `StreamController` class for cooperative stream cancellation. Pass a controller to `.stream()` or `.stream_async()` and call `controller.cancel()` to stop the stream cleanly (e.g., from a Shiny "stop generating" button). The partial response is preserved in conversation history. (#279)
 * When a stream is interrupted (closed early, cancelled, or errors), the accumulated content is now saved as a partial `AssistantTurn` so conversation state isn't lost. Partial turns display `[interrupted]` (or the cancellation reason) in the `Chat` repr and are excluded from token/cost accounting. (#279)
+* `ChatAnthropic()` now uses the native structured outputs API for Claude 4.5+ models, enabling streaming with `data_model`. Older models fall back to the tool-based approach. (#263)
 
 ## [0.17.0] - 2026-05-11
 
@@ -61,7 +62,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 
 * `.stream()` and `.stream_async()` now support a `data_model` parameter for structured data extraction while streaming. (#262)
-* `ChatAnthropic()` now uses native structured outputs API for supported models (claude-sonnet-4-5, claude-opus-4-1, claude-opus-4-5, claude-haiku-4-5), enabling streaming with `data_model`. Older models fall back to the tool-based approach. (#263)
 * `.to_solver()` now supports a `data_model` parameter for structured data extraction in evals. When provided, the solver uses `.chat_structured()` instead of `.chat()` and outputs JSON-serialized data. (#264)
 
 ### Bug fixes
