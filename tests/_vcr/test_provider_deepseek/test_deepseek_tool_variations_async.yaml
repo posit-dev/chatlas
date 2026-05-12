@@ -160,7 +160,7 @@ interactions:
 - request:
     body: '{"messages": [{"content": "Be very terse, not even punctuation.", "role":
       "system"}, {"content": "What''s the current date in YYYY-MM-DD format?", "role":
-      "user"}, {"role": "assistant", "content": "[empty string]", "tool_calls": [{"id":
+      "user"}, {"role": "assistant", "tool_calls": [{"id":
       "call_00_Goi29zurEz35bAcAgwDP4901", "function": {"name": "get_current_date",
       "arguments": "{}"}, "type": "function"}], "reasoning_content": "The user wants
       the current date in YYYY-MM-DD format. Let me get the current date."}, {"content":
@@ -469,7 +469,7 @@ interactions:
 - request:
     body: '{"messages": [{"content": "Be very terse, not even punctuation.", "role":
       "system"}, {"content": "What''s the current date in YYYY-MM-DD format?", "role":
-      "user"}, {"role": "assistant", "content": "[empty string]", "tool_calls": [{"id":
+      "user"}, {"role": "assistant", "tool_calls": [{"id":
       "call_00_dTTMe84vrYVi0IrrxM172804", "function": {"name": "get_current_date2",
       "arguments": "{}"}, "type": "function"}], "reasoning_content": "The user wants
       the current date in YYYY-MM-DD format. Let me call the function to get the current

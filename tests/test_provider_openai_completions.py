@@ -1,7 +1,12 @@
 import httpx
 import pytest
 from chatlas import ChatOpenAICompletions
-from chatlas._content import ContentText, ContentThinking, ContentThinkingDelta
+from chatlas._content import (
+    ContentText,
+    ContentThinking,
+    ContentThinkingDelta,
+    ContentToolRequest,
+)
 from chatlas._provider_openai_completions import OpenAICompletionsProvider
 from chatlas._turn import AssistantTurn
 
@@ -192,3 +197,59 @@ def test_turns_as_inputs_preserves_thinking_when_enabled():
     assert msg["role"] == "assistant"
     assert msg["reasoning_content"] == "Let me think..."
     assert msg["content"] == [{"type": "text", "text": "The answer is 42."}]
+
+
+def test_response_as_turn_treats_empty_content_as_none():
+    """Databricks returns content: '' for tool-only turns (#932 in ellmer)."""
+    from unittest.mock import Mock
+
+    mock_func = Mock(arguments="{}")
+    mock_func.name = "fn"
+
+    completion = Mock()
+    message = Mock()
+    message.reasoning_content = None
+    message.content = ""
+    message.tool_calls = [
+        Mock(type="function", id="call_1", function=mock_func)
+    ]
+    completion.choices = [Mock(message=message, finish_reason="stop")]
+
+    turn = OpenAICompletionsProvider._response_as_turn(completion, has_data_model=False)
+    assert not any(isinstance(c, ContentText) for c in turn.contents)
+    assert len(turn.contents) == 1
+    assert isinstance(turn.contents[0], ContentToolRequest)
+
+
+def test_turns_as_inputs_drops_empty_content_text():
+    """Empty ContentText (via model_construct) should be filtered during serialization."""
+    provider = OpenAICompletionsProvider(model="test")
+
+    # model_construct bypasses __init__, so text stays as ""
+    turn = AssistantTurn([ContentText.model_construct(text="")])
+    result = provider._turns_as_inputs([turn])
+    assert len(result) == 1
+    assert "content" not in result[0]
+
+    turn = AssistantTurn(
+        [ContentText.model_construct(text=""), ContentText(text="Hello")]
+    )
+    result = provider._turns_as_inputs([turn])
+    assert result[0]["content"] == [{"type": "text", "text": "Hello"}]
+
+
+def test_turns_as_inputs_empty_text_with_tool_request():
+    """Empty ContentText is stripped but tool requests are preserved."""
+    provider = OpenAICompletionsProvider(model="test")
+
+    turn = AssistantTurn(
+        [
+            ContentText.model_construct(text=""),
+            ContentToolRequest(id="call_1", name="fn", arguments={}),
+        ]
+    )
+    result = provider._turns_as_inputs([turn])
+    assert len(result) == 1
+    assert result[0]["role"] == "assistant"
+    assert "content" not in result[0]
+    assert len(result[0]["tool_calls"]) == 1
