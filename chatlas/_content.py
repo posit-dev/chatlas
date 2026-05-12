@@ -285,13 +285,13 @@ class ContentToolRequest(Content):
     @field_serializer("extra")
     @classmethod
     def serialize_extra(cls, v: dict[str, object]) -> dict[str, object]:
-        return _serialize_dict_with_bytes(v)
+        return serialize_dict_with_bytes(v)
 
     @field_validator("extra", mode="before")
     @classmethod
-    def validate_extra(cls, v: dict[str, object]) -> dict[str, object]:
+    def validate_extra(cls, v: object) -> object:
         if isinstance(v, dict):
-            return _validate_dict_with_bytes(v)
+            return validate_dict_with_bytes(v)
         return v
 
     def __str__(self):
@@ -671,15 +671,13 @@ class ContentThinking(Content):
     ) -> Optional[dict[str, Any]]:
         if v is None:
             return None
-        return _serialize_dict_with_bytes(v)
+        return serialize_dict_with_bytes(v)
 
     @field_validator("extra", mode="before")
     @classmethod
-    def validate_extra(
-        cls, v: Optional[dict[str, Any]]
-    ) -> Optional[dict[str, Any]]:
+    def validate_extra(cls, v: object) -> object:
         if isinstance(v, dict):
-            return _validate_dict_with_bytes(v)
+            return validate_dict_with_bytes(v)
         return v
 
     def __add__(self, other: object) -> "ContentThinking":
@@ -855,24 +853,24 @@ ContentUnion = Union[
 ]
 
 
-_BYTES_SENTINEL = "__base64_bytes__"
+BYTES_SENTINEL = "__base64_bytes__"
 
 
-def _serialize_dict_with_bytes(d: dict[str, Any]) -> dict[str, Any]:
+def serialize_dict_with_bytes(d: dict[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in d.items():
         if isinstance(value, bytes):
-            result[key] = {_BYTES_SENTINEL: base64.b64encode(value).decode("ascii")}
+            result[key] = {BYTES_SENTINEL: base64.b64encode(value).decode("ascii")}
         else:
             result[key] = value
     return result
 
 
-def _validate_dict_with_bytes(d: dict[str, Any]) -> dict[str, Any]:
+def validate_dict_with_bytes(d: dict[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in d.items():
-        if isinstance(value, dict) and _BYTES_SENTINEL in value:
-            result[key] = base64.b64decode(value[_BYTES_SENTINEL])
+        if isinstance(value, dict) and BYTES_SENTINEL in value:
+            result[key] = base64.b64decode(value[BYTES_SENTINEL])
         else:
             result[key] = value
     return result
