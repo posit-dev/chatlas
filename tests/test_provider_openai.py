@@ -246,3 +246,11 @@ def test_openai_web_search_call_action_types():
     turn = provider._response_as_turn(resp, has_data_model=False)
     assert isinstance(turn.contents[0], ContentToolRequestSearch)
     assert turn.contents[0].query == "web search"
+
+
+def test_openai_custom_base_url_error():
+    with pytest.raises(ValueError, match="ChatOpenAICompletions"):
+        ChatOpenAI(base_url="http://localhost:8000/v1")
+
+    with pytest.raises(ValueError, match="ChatOpenAICompletions"):
+        ChatOpenAI(base_url="https://my-proxy.example.com/v1")
