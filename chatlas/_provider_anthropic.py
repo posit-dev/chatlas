@@ -85,25 +85,13 @@ else:
     RawMessageStreamEvent = object
 
 
-STRUCTURED_OUTPUTS_BETA = "structured-outputs-2025-11-13"
-
-
 def supports_structured_outputs(model: str) -> bool:
     """
-    Check if the model supports the beta structured outputs API.
+    Check if the model supports the structured outputs API.
 
     https://platform.claude.com/docs/en/build-with-claude/structured-outputs
     """
-    supported_models = {
-        "claude-sonnet-4-5",
-        "claude-opus-4-1",
-        "claude-opus-4-5",
-        "claude-haiku-4-5",
-    }
-    for supported in supported_models:
-        if model.startswith(supported):
-            return True
-    return False
+    return bool(re.match(r"^claude-\w+-4-[5-9](-|$)", model))
 
 
 def ChatAnthropic(
@@ -376,11 +364,6 @@ class AnthropicProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         api_kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        if data_model is not None and supports_structured_outputs(self.model):
-            return self._client.beta.messages.create(
-                betas=[STRUCTURED_OUTPUTS_BETA],
-                **api_kwargs,  # type: ignore[arg-type]
-            )
         return self._client.messages.create(**api_kwargs)  # type: ignore
 
     @overload
@@ -415,11 +398,6 @@ class AnthropicProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         api_kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        if data_model is not None and supports_structured_outputs(self.model):
-            return await self._async_client.beta.messages.create(
-                betas=[STRUCTURED_OUTPUTS_BETA],
-                **api_kwargs,  # type: ignore[arg-type]
-            )
         return await self._async_client.messages.create(**api_kwargs)  # type: ignore
 
     def _chat_perform_args(
@@ -445,13 +423,15 @@ class AnthropicProvider(
             if supports_structured_outputs(self.model):
                 from anthropic import transform_schema
 
-                kwargs_full["output_format"] = {  # type: ignore[typeddict-unknown-key]
-                    "type": "json_schema",
-                    "schema": transform_schema(data_model),
+                kwargs_full["output_config"] = {  # type: ignore[typeddict-unknown-key]
+                    "format": {
+                        "type": "json_schema",
+                        "schema": transform_schema(data_model),
+                    },
                 }
             else:
-                # TODO: when structured outputs are generally available,
-                # we can remove this legacy tool-based approach
+                # Legacy tool-based approach for models that don't support
+                # native structured outputs
                 data_model_tool = self.create_data_model_tool(data_model)
                 cast(list, kwargs_full["tools"]).append(
                     self._anthropic_tool_schema(data_model_tool)
@@ -948,17 +928,15 @@ class AnthropicProvider(
                 "max_tokens": api_kwargs.get("max_tokens", 4096),
             }
 
-            # If data_model, tools/tool_choice should be present (old API)
-            # or output_format (new API)
             tools = api_kwargs.get("tools")
             tool_choice = api_kwargs.get("tool_choice")
-            output_format = api_kwargs.get("output_format")
+            output_config = api_kwargs.get("output_config")
             if tools and not isinstance(tools, NotGiven):
                 params["tools"] = tools
             if tool_choice and not isinstance(tool_choice, NotGiven):
                 params["tool_choice"] = tool_choice
-            if output_format and not isinstance(output_format, NotGiven):
-                params["output_format"] = output_format  # type: ignore[typeddict-unknown-key]
+            if output_config and not isinstance(output_config, NotGiven):
+                params["output_config"] = output_config  # type: ignore[typeddict-unknown-key]
 
             requests.append({"custom_id": f"request-{i}", "params": params})
 
