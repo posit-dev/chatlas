@@ -216,3 +216,20 @@ def test_can_avoid_blocking():
         )
 
         assert job.step_until_done() is None
+
+
+def test_batch_chat_returns_none_when_incomplete():
+    with tempfile.NamedTemporaryFile(suffix=".json") as temp_file:
+        chat = ChatOpenAIMockBatchSubmit(working=True)
+        prompts = ["What's your name?"]
+
+        result = batch_chat(chat, prompts, temp_file.name, wait=False)
+        assert result is None
+
+        result_text = batch_chat_text(chat, prompts, temp_file.name, wait=False)
+        assert result_text is None
+
+        result_structured = batch_chat_structured(
+            chat, prompts, temp_file.name, CountryCapital, wait=False
+        )
+        assert result_structured is None
