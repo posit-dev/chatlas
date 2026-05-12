@@ -121,8 +121,7 @@ interactions:
       - '1089'
       Content-Type:
       - application/json
-      Cookie:
-      - _cfuvid=QCh3OXoNEEFSg2Gng_6P7JJBpmCU_iMJBR.0RN5Ahys-1778597193.7314773-1.0.1.1-jp0MG8W.dYUtp6n2j9vj_h74JKokp6N4ax6mg82FJGg
+
       Host:
       - api.anthropic.com
       X-Stainless-Async:
@@ -224,8 +223,7 @@ interactions:
       - '1251'
       Content-Type:
       - application/json
-      Cookie:
-      - _cfuvid=QCh3OXoNEEFSg2Gng_6P7JJBpmCU_iMJBR.0RN5Ahys-1778597193.7314773-1.0.1.1-jp0MG8W.dYUtp6n2j9vj_h74JKokp6N4ax6mg82FJGg
+
       Host:
       - api.anthropic.com
       X-Stainless-Async:
@@ -326,8 +324,7 @@ interactions:
       - '1191'
       Content-Type:
       - application/json
-      Cookie:
-      - _cfuvid=QCh3OXoNEEFSg2Gng_6P7JJBpmCU_iMJBR.0RN5Ahys-1778597193.7314773-1.0.1.1-jp0MG8W.dYUtp6n2j9vj_h74JKokp6N4ax6mg82FJGg
+
       Host:
       - api.anthropic.com
       X-Stainless-Async:

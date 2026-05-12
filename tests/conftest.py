@@ -494,6 +494,7 @@ def make_vcr_config(match_on: list[str] = VCR_MATCH_ON_DEFAULT) -> dict:
             "x-stainless-runtime-version",
             "x-stainless-retry-count",
             "user-agent",
+            "cookie",
             # AWS Bedrock headers
             "x-amz-sso_bearer_token",
             "X-Amz-Security-Token",
