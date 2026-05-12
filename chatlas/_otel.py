@@ -3,6 +3,9 @@ from __future__ import annotations
 import os
 from typing import TYPE_CHECKING, Any, Optional
 
+from opentelemetry import trace
+from opentelemetry.trace import SpanKind, StatusCode
+
 if TYPE_CHECKING:
     from opentelemetry.trace import Span
 
@@ -11,45 +14,15 @@ if TYPE_CHECKING:
     from ._turn import AssistantTurn, SystemTurn, Turn
 
 
-initialized: bool = False
-is_tracing: bool = False
-capture_content: bool = False
+tracer = trace.get_tracer("com.posit.python-package.chatlas")
+
+capture_content: bool = os.environ.get(
+    "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", ""
+).lower() in ("true", "1")
 
 
-def get_tracer() -> Any:
-    return tracer_ref
-
-
-tracer_ref: Any = None
-
-
-def cache_tracer() -> None:
-    global initialized, is_tracing, capture_content, tracer_ref  # noqa: PLW0603
-
-    try:
-        from opentelemetry import trace
-    except ImportError:
-        initialized = True
-        is_tracing = False
-        return
-
-    tracer_ref = trace.get_tracer("com.posit.python-package.chatlas")
-    initialized = True
-    is_tracing = not isinstance(tracer_ref, trace.NoOpTracer)
-    capture_content = os.environ.get(
-        "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", ""
-    ).lower() in ("true", "1")
-
-
-def start_agent_span(provider: Provider[Any, Any, Any, Any]) -> Optional[Span]:
-    if not initialized:
-        cache_tracer()
-    if not is_tracing:
-        return None
-
-    from opentelemetry.trace import SpanKind
-
-    return get_tracer().start_span(
+def start_agent_span(provider: Provider[Any, Any, Any, Any]) -> Span:
+    return tracer.start_span(
         "invoke_agent",
         kind=SpanKind.CLIENT,
         attributes={
@@ -64,16 +37,10 @@ def start_chat_span(
     provider: Provider[Any, Any, Any, Any],
     turns: list[Turn],
     system_turn: Optional[SystemTurn],
-    parent: Optional[Span],
-) -> Optional[Span]:
-    if not is_tracing:
-        return None
-
-    from opentelemetry import trace
-    from opentelemetry.trace import SpanKind
-
-    ctx = trace.set_span_in_context(parent) if parent is not None else None
-    span = get_tracer().start_span(
+    parent: Span,
+) -> Span:
+    ctx = trace.set_span_in_context(parent)
+    span = tracer.start_span(
         f"chat {provider.model}",
         kind=SpanKind.CLIENT,
         attributes={
@@ -84,7 +51,7 @@ def start_chat_span(
         context=ctx,
     )
 
-    if capture_content:
+    if capture_content and span.is_recording():
         record_input_content(span, turns, system_turn)
 
     return span
@@ -92,14 +59,9 @@ def start_chat_span(
 
 def start_tool_span(
     request: ContentToolRequest,
-    parent: Optional[Span],
-) -> Optional[Span]:
-    if not is_tracing:
-        return None
-
-    from opentelemetry import trace
-
-    ctx = trace.set_span_in_context(parent) if parent is not None else None
+    parent: Span,
+) -> Span:
+    ctx = trace.set_span_in_context(parent)
 
     attrs: dict[str, Any] = {
         "gen_ai.operation.name": "execute_tool",
@@ -109,7 +71,7 @@ def start_tool_span(
     if request.tool is not None and request.tool.description:
         attrs["gen_ai.tool.description"] = request.tool.description
 
-    return get_tracer().start_span(
+    return tracer.start_span(
         f"execute_tool {request.name}",
         attributes=attrs,
         context=ctx,
@@ -117,13 +79,11 @@ def start_tool_span(
 
 
 def record_chat_result(
-    span: Optional[Span],
+    span: Span,
     turn: AssistantTurn[Any],
 ) -> None:
-    if span is None:
+    if not span.is_recording():
         return
-
-    from opentelemetry.trace import StatusCode
 
     if turn.tokens is not None:
         input_tokens, output_tokens, cached_input = turn.tokens
@@ -154,20 +114,17 @@ def record_chat_result(
     span.set_status(StatusCode.OK)
 
 
-def record_tool_error(span: Optional[Span], error: Exception) -> None:
-    if span is None:
+def record_tool_error(span: Span, error: Exception) -> None:
+    if not span.is_recording():
         return
-
-    from opentelemetry.trace import StatusCode
 
     span.record_exception(error)
     span.set_attribute("error.type", type(error).__name__)
     span.set_status(StatusCode.ERROR, str(error))
 
 
-def end_span(span: Optional[Span]) -> None:
-    if span is not None:
-        span.end()
+def end_span(span: Span) -> None:
+    span.end()
 
 
 def as_otel_message(turn: Turn) -> dict[str, Any]:

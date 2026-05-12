@@ -19,19 +19,13 @@ def otel_setup():
     provider = TracerProvider()
     provider.add_span_processor(SimpleSpanProcessor(exporter))
 
-    # Bypass the global-singleton restriction by setting _otel state directly.
-    # trace.set_tracer_provider() can only be called once per process, so we
-    # inject the per-test tracer and flags into the module instead.
-    _otel.tracer_ref = provider.get_tracer("com.posit.python-package.chatlas")
-    _otel.is_tracing = True
-    _otel.capture_content = False
-    _otel.initialized = True
+    orig_tracer = _otel.tracer
+    _otel.tracer = provider.get_tracer("com.posit.python-package.chatlas")
 
     yield exporter
 
     exporter.clear()
-    _otel.is_tracing = False
-    _otel.initialized = True
+    _otel.tracer = orig_tracer
 
 
 @pytest.mark.vcr
@@ -134,12 +128,13 @@ def test_content_capture_enabled(
     otel_setup: InMemorySpanExporter, monkeypatch: pytest.MonkeyPatch
 ):
     monkeypatch.setenv("OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", "true")
-    # Re-read the env var by calling cache_tracer, but keep our per-test tracer.
-    # We only want the capture_content flag to flip, not the tracer to change.
+    # Flip the module-level flag for this test (env var is only read at import time).
     _otel.capture_content = True
 
     chat = ChatOpenAI(model="gpt-4o-mini", system_prompt="Be terse.")
     chat.chat("Say hello.")
+
+    _otel.capture_content = False
 
     spans = otel_setup.get_finished_spans()
     chat_spans = [s for s in spans if s.name.startswith("chat ")]
@@ -232,12 +227,14 @@ def test_streaming_span_lifecycle(otel_setup: InMemorySpanExporter):
     )
 
 
-def test_noop_when_tracing_disabled():
-    original = _otel.is_tracing
-    try:
-        _otel.is_tracing = False
-        chat = ChatOpenAI(model="gpt-4o-mini")
-        result = _otel.start_agent_span(chat.provider)
-        assert result is None, f"Expected None when tracing is disabled, got {result!r}"
-    finally:
-        _otel.is_tracing = original
+def test_noop_without_provider():
+    from opentelemetry import trace
+    from opentelemetry.trace import NonRecordingSpan
+
+    # The default module-level tracer (no SDK TracerProvider configured)
+    # should produce non-recording spans that are effectively no-ops.
+    default_tracer = trace.get_tracer("test-noop")
+    span = default_tracer.start_span("test")
+    assert isinstance(span, NonRecordingSpan)
+    assert not span.is_recording()
+    span.end()

@@ -23,10 +23,10 @@ invoke_agent                      # wraps the full chat loop
 
 ### Quick Start: Console Output
 
-The simplest way to see chatlas spans is to print them to the console. Install the optional OTel dependency and the SDK:
+The simplest way to see chatlas spans is to print them to the console. Install the OTel SDK:
 
 ```bash
-pip install "chatlas[otel]" opentelemetry-sdk
+pip install opentelemetry-sdk
 ```
 
 Then configure a console exporter before creating any chats:
@@ -48,7 +48,7 @@ That's it — chatlas will automatically emit spans for every `chat()`, `stream(
 For production observability, we recommend [Pydantic Logfire](https://logfire.pydantic.dev/), which provides a dashboard for exploring traces with minimal setup:
 
 ```bash
-pip install "chatlas[otel]" logfire
+pip install logfire
 logfire auth
 ```
 
