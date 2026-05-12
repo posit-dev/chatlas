@@ -5,14 +5,111 @@ callout-appearance: simple
 
 As mentioned in the [debugging](debug.qmd) section, chatlas has support for gaining more insight into the behavior of your application through things like [logging](debug.qmd#logging).
 
-However, in a production setting, you may want to go beyond simple logging and use more sophisticated observability tools [Datadog](https://www.datadoghq.com/), [Logfire](https://logfire.io/), etc., to monitor your application.
+However, in a production setting, you may want to go beyond simple logging and use more sophisticated observability tools like [Datadog](https://www.datadoghq.com/), [Logfire](https://logfire.pydantic.dev/), etc., to monitor your application.
 These tools can give you a more structured way to view and monitor app performance, including things like latency, error rates, and other metrics.
 These tools tend to integrate well with open standards like [OpenTelemetry](https://opentelemetry.io/) (OTel), meaning if you "instrument" your app with OTel, you can view your app's telemetry data in any observability tool that supports OTel.
-There are at least a few different ways to do this, but we'll cover some of the more simpler approaches here.
 
-## OpenLLMetry
+## Framework-Level Tracing
 
-The simplest (and most model agnostic) way to instrument your app with OTel is to leverage [openllmetry](https://github.com/traceloop/openllmetry), which can be as easy as adding the following code to your app:
+Chatlas can emit OpenTelemetry spans that capture the full structure of multi-turn conversations, including tool execution:
+
+```
+invoke_agent                      # wraps the full chat loop
+├── chat gpt-4o                   # each model API call
+├── execute_tool get_weather      # each tool invocation
+├── chat gpt-4o                   # follow-up model call
+└── ...
+```
+
+### Quick Start: Console Output
+
+The simplest way to see chatlas spans is to print them to the console. Install the optional OTel dependency and the SDK:
+
+```bash
+pip install "chatlas[otel]" opentelemetry-sdk
+```
+
+Then configure a console exporter before creating any chats:
+
+```python
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
+
+provider = TracerProvider()
+provider.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter()))
+trace.set_tracer_provider(provider)
+```
+
+That's it — chatlas will automatically emit spans for every `chat()`, `stream()`, and tool invocation.
+
+### Production: Logfire
+
+For production observability, we recommend [Pydantic Logfire](https://logfire.pydantic.dev/), which provides a dashboard for exploring traces with minimal setup:
+
+```bash
+pip install "chatlas[otel]" logfire
+logfire auth
+```
+
+```python
+import logfire
+
+logfire.configure()
+```
+
+Other OpenTelemetry-compatible backends (Datadog, Honeycomb, Jaeger, etc.) work too — just configure the appropriate exporter via the standard `opentelemetry-sdk` and `opentelemetry-exporter-*` packages.
+
+### Configuration Module Pattern
+
+For apps (especially Shiny apps), extract OTel setup into a dedicated module that runs before any other imports:
+
+```python
+# otel_config.py
+import logfire
+logfire.configure()
+```
+
+```python
+# app.py
+import otel_config  # noqa: F401 — side-effect import
+from chatlas import ChatOpenAI
+# ...
+```
+
+### What's Captured
+
+Each **chat span** records:
+
+- Token usage (`gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`)
+- Response model and ID
+- Optionally: system prompt, input messages, output messages
+
+Each **tool span** records:
+
+- Tool name, description, and call ID
+- Errors (if the tool raises)
+
+### Content Capture
+
+Message content is **not** captured by default (it may contain sensitive data). To enable:
+
+```bash
+export OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true
+```
+
+### Combining with Provider Instrumentors
+
+Framework spans complement the provider-specific instrumentors described below. If you have both enabled, the provider instrumentor's HTTP spans will appear as children of chatlas's chat spans, giving you visibility at both the application and HTTP levels.
+
+
+## Provider-Specific Instrumentors
+
+In addition to (or instead of) chatlas's built-in framework-level tracing, you can use provider-specific OpenTelemetry instrumentor libraries. These operate at the HTTP/SDK level and capture lower-level details about each API call.
+
+### OpenLLMetry {#openllmetry}
+
+The simplest (and most model agnostic) way to add provider-level instrumentation is to leverage [openllmetry](https://github.com/traceloop/openllmetry), which can be as easy as adding the following code to your app:
 
 ```bash
 pip install traceloop-sdk
@@ -32,7 +129,7 @@ From here, a quick and easy way to get started visualizing your app's telemetry 
 If you want to avoid the Traceloop Python SDK, you can also use these OTel instrumentation libraries from the openllmetry project more directly (e.g., [openai](https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-openai) and [anthropic](https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-anthropic)).
 
 
-## OpenTelemetry
+### Official OpenTelemetry Libraries
 
 To use OpenTelemetry's "official" instrumentation libraries, you'll need to first install the relevant instrumentation packages for the model providers you are using.
 
