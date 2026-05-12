@@ -5,7 +5,8 @@
 objects.txt
 
 # API reference
-/reference
+/reference/*
+!/reference/StreamController.qmd
 
 CHANGELOG.md
 CHANGELOG.html

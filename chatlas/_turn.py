@@ -308,6 +308,9 @@ class AssistantTurn(Turn, Generic[CompletionT]):
     cost
         The cost of this turn in USD. This is computed when the turn is created
         based on the token usage and pricing information (including service tier).
+    partial_reason
+        If set, indicates this turn is incomplete (e.g., the stream was interrupted
+        or cancelled). The value describes the reason for the partial state.
 
     See Also
     --------
@@ -322,6 +325,12 @@ class AssistantTurn(Turn, Generic[CompletionT]):
     finish_reason: Optional[str] = None
     completion: Optional[CompletionT] = Field(default=None, exclude=True)
     cost: Optional[float] = None
+    partial_reason: Optional[str] = None
+
+    @property
+    def is_partial(self) -> bool:
+        """Whether this turn is a partial (interrupted/cancelled) turn."""
+        return self.partial_reason is not None
 
     @field_validator("tokens", mode="before")
     @classmethod
@@ -339,6 +348,7 @@ class AssistantTurn(Turn, Generic[CompletionT]):
         finish_reason: Optional[str] = None,
         completion: Optional[CompletionT] = None,
         cost: Optional[float] = None,
+        partial_reason: Optional[str] = None,
         **kwargs,
     ):
         if isinstance(tokens, list):
@@ -353,6 +363,8 @@ class AssistantTurn(Turn, Generic[CompletionT]):
             kwargs["completion"] = completion
         if cost is not None:
             kwargs["cost"] = cost
+        if partial_reason is not None:
+            kwargs["partial_reason"] = partial_reason
 
         super().__init__(contents, **kwargs)
 

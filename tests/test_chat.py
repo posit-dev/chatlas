@@ -606,3 +606,140 @@ def test_json_serialize_with_tool_failure():
     assert restored_result.error is not None
     # After serialization, the Exception becomes a string representation
     assert "Something went wrong" in str(restored_result.error)
+
+
+@pytest.mark.vcr
+def test_partial_turn_preserved_on_close():
+    """Closing a streaming generator mid-response preserves the partial turn."""
+    chat = ChatOpenAI()
+    gen = chat.stream(
+        """
+        What are the canonical colors of the ROYGBIV rainbow?
+        Put each colour on its own line. Don't use punctuation.
+    """
+    )
+    # Consume a few chunks then close
+    chunks = []
+    for chunk in gen:
+        chunks.append(chunk)
+        if len(chunks) >= 3:
+            break
+    gen.close()
+
+    turns = chat.get_turns()
+    assert len(turns) == 2  # user + partial assistant
+    assistant_turn = turns[1]
+    assert isinstance(assistant_turn, AssistantTurn)
+    assert assistant_turn.is_partial
+    assert assistant_turn.partial_reason == "interrupted"
+    assert len(assistant_turn.text) > 0
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_partial_turn_preserved_on_close_async():
+    """Closing an async streaming generator mid-response preserves the partial turn."""
+    chat = ChatOpenAI()
+    gen = await chat.stream_async(
+        """
+        What are the canonical colors of the ROYGBIV rainbow?
+        Put each colour on its own line. Don't use punctuation.
+    """
+    )
+    # Consume a few chunks then close
+    chunks = []
+    async for chunk in gen:
+        chunks.append(chunk)
+        if len(chunks) >= 3:
+            break
+    await gen.aclose()
+
+    turns = chat.get_turns()
+    assert len(turns) == 2  # user + partial assistant
+    assistant_turn = turns[1]
+    assert isinstance(assistant_turn, AssistantTurn)
+    assert assistant_turn.is_partial
+    assert assistant_turn.partial_reason == "interrupted"
+    assert len(assistant_turn.text) > 0
+
+
+def test_partial_turn_display(snapshot):
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("hello"),
+            AssistantTurn("response", tokens=(10, 5, 0), cost=0.001),
+            UserTurn("more"),
+            AssistantTurn("partial response", partial_reason="interrupted"),
+        ]
+    )
+    assert snapshot == repr(chat)
+
+
+def test_partial_turns_excluded_from_cost():
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("hello"),
+            AssistantTurn("response", tokens=(10, 5, 0), cost=0.001),
+            UserTurn("more"),
+            AssistantTurn("partial", partial_reason="interrupted"),
+        ]
+    )
+    # Cost should only include the complete turn
+    cost = chat.get_cost()
+    assert cost == 0.001
+
+    # get_tokens should skip partial
+    tokens = chat.get_tokens()
+    assert len(tokens) == 2  # user + assistant from the complete turn only
+
+
+def test_partial_turns_excluded_from_tokens_mid_conversation():
+    """Partial turns in the middle of history (not just trailing) are excluded."""
+    chat = ChatOpenAI()
+    chat.set_turns(
+        [
+            UserTurn("hello"),
+            AssistantTurn("partial", partial_reason="interrupted"),
+            UserTurn("retry"),
+            AssistantTurn("response", tokens=(10, 5, 0), cost=0.001),
+        ]
+    )
+    # Cost should only include the complete turn
+    cost = chat.get_cost()
+    assert cost == 0.001
+
+    # get_tokens should skip the partial pair entirely
+    tokens = chat.get_tokens()
+    assert len(tokens) == 2  # user + assistant from the complete turn only
+
+
+def test_content_add():
+    from chatlas._content import ContentText, ContentThinking, ContentThinkingDelta
+
+    # ContentText addition
+    a = ContentText.model_construct(text="a")
+    b = ContentText.model_construct(text="b")
+    result = a + b
+    assert isinstance(result, ContentText)
+    assert result.text == "ab"
+
+    # ContentThinking addition (keeps latest extra)
+    t1 = ContentThinking(thinking="a", extra={"k": 1})
+    t2 = ContentThinking(thinking="b", extra={"k": 2})
+    result = t1 + t2
+    assert isinstance(result, ContentThinking)
+    assert result.thinking == "ab"
+    assert result.extra == {"k": 2}
+
+    # ContentThinkingDelta addition (keeps first phase)
+    d1 = ContentThinkingDelta(thinking="x", phase="start")
+    d2 = ContentThinkingDelta(thinking="y", phase="body")
+    result = d1 + d2
+    assert isinstance(result, ContentThinkingDelta)
+    assert result.thinking == "xy"
+    assert result.phase == "start"
+
+    # Mismatched types return NotImplemented
+    assert a.__add__(t1) is NotImplemented

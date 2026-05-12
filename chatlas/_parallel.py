@@ -24,6 +24,7 @@ from pydantic import BaseModel
 from ._chat import Chat
 from ._content import ContentToolRequest, ContentToolResult, ToolInfo
 from ._progress import ProgressTracker
+from ._stream_controller import StreamController
 from ._turn import user_turn
 
 if TYPE_CHECKING:
@@ -520,6 +521,7 @@ async def _parallel_chat_impl(
                     echo="none",
                     stream=False,
                     kwargs=kwargs,
+                    controller=StreamController(),
                 )
                 async for _ in response:
                     pass
