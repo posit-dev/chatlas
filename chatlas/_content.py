@@ -637,7 +637,7 @@ class ContentPDF(Content):
     @classmethod
     def validate_data(cls, v: bytes | str) -> bytes:
         if isinstance(v, str):
-            return base64.b64decode(v)
+            return base64.b64decode(v, validate=True)
         return v
 
     def __str__(self):
@@ -869,8 +869,12 @@ def serialize_dict_with_bytes(d: dict[str, Any]) -> dict[str, Any]:
 def validate_dict_with_bytes(d: dict[str, Any]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in d.items():
-        if isinstance(value, dict) and BYTES_SENTINEL in value:
-            result[key] = base64.b64decode(value[BYTES_SENTINEL])
+        if (
+            isinstance(value, dict)
+            and set(value.keys()) == {BYTES_SENTINEL}
+            and isinstance(value[BYTES_SENTINEL], str)
+        ):
+            result[key] = base64.b64decode(value[BYTES_SENTINEL], validate=True)
         else:
             result[key] = value
     return result
