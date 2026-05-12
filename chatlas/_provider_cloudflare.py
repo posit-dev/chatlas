@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
+from ._api_headers import ApiHeaders
 from ._chat import Chat
 from ._logging import log_model_default
 from ._provider_openai_completions import OpenAICompletionsProvider
@@ -18,7 +19,8 @@ def ChatCloudflare(
     account: Optional[str] = None,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    api_key: Optional[str | Callable[[], str]] = None,
+    api_headers: Optional[ApiHeaders] = None,
     seed: Optional[int] | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
@@ -73,6 +75,11 @@ def ChatCloudflare(
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `CLOUDFLARE_API_KEY` environment
         variable.
+    api_headers
+        Extra HTTP headers to include with every API request. Can be a dict
+        of ``{header_name: header_value}`` pairs, or a zero-argument callable
+        returning such a dict. A callable is invoked on every request,
+        enabling dynamic auth patterns like token refresh.
     seed
         Optional integer seed that ChatGPT uses to try and make output more
         reproducible.
@@ -159,6 +166,7 @@ def ChatCloudflare(
             base_url=base_url,
             seed=seed,
             name="Cloudflare",
+            api_headers=api_headers,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,

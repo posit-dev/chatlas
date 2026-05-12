@@ -6,13 +6,14 @@ import re
 import tempfile
 from abc import abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Generic, Literal, Optional
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, Optional
 
 import orjson
 from openai import AsyncOpenAI, OpenAI
 from openai.types.batch import Batch
 from pydantic import BaseModel
 
+from ._api_headers import ApiHeaders, resolve_api_headers
 from ._content import Content, ContentImage, ContentImageRemote
 from ._provider import (
     BatchStatus,
@@ -72,16 +73,19 @@ class OpenAIAbstractProvider(
     def __init__(
         self,
         *,
-        api_key: Optional[str] = None,
+        api_key: Optional[str | Callable[[], str]] = None,
         model: str,
         base_url: str = "https://api.openai.com/v1",
         name: str = "OpenAI",
+        api_headers: Optional[ApiHeaders] = None,
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)
 
+        self._api_headers = api_headers
+
         kwargs_full: "ChatClientArgs" = {
-            "api_key": api_key,
+            "api_key": api_key,  # type: ignore[typeddict-item]  # ChatClientArgs is generated from AsyncOpenAI which requires Awaitable; sync OpenAI accepts plain Callable[[], str]
             "base_url": base_url,
             **(kwargs or {}),
         }
@@ -92,6 +96,9 @@ class OpenAIAbstractProvider(
         # TODO: worth bringing in AsyncOpenAI types?
         self._client = OpenAI(**sync_kwargs)  # type: ignore
         self._async_client = AsyncOpenAI(**async_kwargs)
+
+    def _get_extra_headers(self) -> dict[str, str] | None:
+        return resolve_api_headers(self._api_headers)
 
     def list_models(self):
         models = self._client.models.list()

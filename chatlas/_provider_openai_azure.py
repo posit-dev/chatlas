@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING, Callable, Literal, Optional
 
 from openai import AsyncAzureOpenAI, AzureOpenAI
 from openai.types.chat import ChatCompletion
 
+from ._api_headers import ApiHeaders
 from ._chat import Chat
 from ._provider_openai import OpenAIProvider
 from ._provider_openai_completions import OpenAICompletionsProvider
@@ -27,7 +28,8 @@ def ChatAzureOpenAI(
     endpoint: str,
     deployment_id: str,
     api_version: str,
-    api_key: Optional[str] = None,
+    api_key: Optional[str | Callable[[], str]] = None,
+    api_headers: Optional[ApiHeaders] = None,
     system_prompt: Optional[str] = None,
     reasoning: "Optional[ReasoningEffort | Reasoning]" = None,
     service_tier: Optional[
@@ -72,6 +74,11 @@ def ChatAzureOpenAI(
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `AZURE_OPENAI_API_KEY` environment
         variable.
+    api_headers
+        Extra HTTP headers to include with every API request. Can be a dict
+        of ``{header_name: header_value}`` pairs, or a zero-argument callable
+        returning such a dict. A callable is invoked on every request,
+        enabling dynamic auth patterns like token refresh.
     system_prompt
         A system prompt to set the behavior of the assistant.
     reasoning
@@ -111,6 +118,7 @@ def ChatAzureOpenAI(
             deployment_id=deployment_id,
             api_version=api_version,
             api_key=api_key,
+            api_headers=api_headers,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -125,7 +133,8 @@ class OpenAIAzureProvider(OpenAIProvider):
         endpoint: Optional[str] = None,
         deployment_id: str,
         api_version: Optional[str] = None,
-        api_key: Optional[str] = None,
+        api_key: Optional[str | Callable[[], str]] = None,
+        api_headers: Optional[ApiHeaders] = None,
         name: str = "Azure/OpenAI",
         model: Optional[str] = "UnusedValue",
         kwargs: Optional["ChatAzureClientArgs"] = None,
@@ -136,13 +145,14 @@ class OpenAIAzureProvider(OpenAIProvider):
             # The OpenAI() constructor will fail if no API key is present.
             # However, a dummy value is fine -- AzureOpenAI() handles the auth.
             api_key=api_key or "not-used",
+            api_headers=api_headers,
         )
 
         kwargs_full: "ChatAzureClientArgs" = {
             "azure_endpoint": endpoint,
             "azure_deployment": deployment_id,
             "api_version": api_version,
-            "api_key": api_key,
+            "api_key": api_key,  # type: ignore[typeddict-item]  # ChatAzureClientArgs is generated from AsyncAzureOpenAI which requires Awaitable; sync AzureOpenAI accepts plain Callable[[], str]
             **(kwargs or {}),
         }
 
@@ -157,7 +167,8 @@ def ChatAzureOpenAICompletions(
     endpoint: str,
     deployment_id: str,
     api_version: str,
-    api_key: Optional[str] = None,
+    api_key: Optional[str | Callable[[], str]] = None,
+    api_headers: Optional[ApiHeaders] = None,
     system_prompt: Optional[str] = None,
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatAzureClientArgs"] = None,
@@ -178,6 +189,7 @@ def ChatAzureOpenAICompletions(
             deployment_id=deployment_id,
             api_version=api_version,
             api_key=api_key,
+            api_headers=api_headers,
             seed=seed,
             kwargs=kwargs,
         ),
@@ -192,7 +204,8 @@ class OpenAIAzureCompletionsProvider(OpenAICompletionsProvider):
         endpoint: Optional[str] = None,
         deployment_id: str,
         api_version: Optional[str] = None,
-        api_key: Optional[str] = None,
+        api_key: Optional[str | Callable[[], str]] = None,
+        api_headers: Optional[ApiHeaders] = None,
         seed: int | None = None,
         name: str = "Azure/OpenAI",
         model: Optional[str] = "UnusedValue",
@@ -205,13 +218,14 @@ class OpenAIAzureCompletionsProvider(OpenAICompletionsProvider):
             # The OpenAI() constructor will fail if no API key is present.
             # However, a dummy value is fine -- AzureOpenAI() handles the auth.
             api_key=api_key or "not-used",
+            api_headers=api_headers,
         )
 
         kwargs_full: "ChatAzureClientArgs" = {
             "azure_endpoint": endpoint,
             "azure_deployment": deployment_id,
             "api_version": api_version,
-            "api_key": api_key,
+            "api_key": api_key,  # type: ignore[typeddict-item]  # ChatAzureClientArgs is generated from AsyncAzureOpenAI which requires Awaitable; sync AzureOpenAI accepts plain Callable[[], str]
             **(kwargs or {}),
         }
 

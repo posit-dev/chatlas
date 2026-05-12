@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import warnings
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, Optional, cast
 
 import orjson
 from openai.types.chat import (
@@ -16,6 +16,7 @@ from openai.types.chat import (
 )
 from pydantic import BaseModel
 
+from ._api_headers import ApiHeaders
 from ._chat import Chat
 from ._content import (
     Content,
@@ -59,7 +60,8 @@ def ChatOpenAICompletions(
     base_url: str = "https://api.openai.com/v1",
     system_prompt: Optional[str] = None,
     model: "Optional[ChatModel | str]" = None,
-    api_key: Optional[str] = None,
+    api_key: Optional[str | Callable[[], str]] = None,
+    api_headers: Optional[ApiHeaders] = None,
     seed: int | None | MISSING_TYPE = MISSING,
     preserve_thinking: bool = False,
     kwargs: Optional["ChatClientArgs"] = None,
@@ -89,6 +91,11 @@ def ChatOpenAICompletions(
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `OPENAI_API_KEY` environment
         variable.
+    api_headers
+        Extra HTTP headers to include with every API request. Can be a dict
+        of ``{header_name: header_value}`` pairs, or a zero-argument callable
+        returning such a dict. A callable is invoked on every request,
+        enabling dynamic auth patterns like token refresh.
     seed
         Optional seed for reproducible output.
     preserve_thinking
@@ -111,6 +118,7 @@ def ChatOpenAICompletions(
             base_url=base_url,
             seed=seed,
             preserve_thinking=preserve_thinking,
+            api_headers=api_headers,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -128,12 +136,13 @@ class OpenAICompletionsProvider(
     def __init__(
         self,
         *,
-        api_key: str | None = None,
+        api_key: str | Callable[[], str] | None = None,
         model: str,
         base_url: str = "https://api.openai.com/v1",
         name: str = "OpenAI",
         seed: int | None = None,
         preserve_thinking: bool = False,
+        api_headers: Optional[ApiHeaders] = None,
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(
@@ -141,6 +150,7 @@ class OpenAICompletionsProvider(
             model=model,
             base_url=base_url,
             name=name,
+            api_headers=api_headers,
             kwargs=kwargs,
         )
         self._seed = seed
@@ -156,7 +166,10 @@ class OpenAICompletionsProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        return self._client.chat.completions.create(**kwargs)  # type: ignore
+        return self._client.chat.completions.create(  # type: ignore
+            **kwargs,
+            extra_headers=self._get_extra_headers(),
+        )
 
     async def chat_perform_async(
         self,
@@ -168,7 +181,10 @@ class OpenAICompletionsProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        return await self._async_client.chat.completions.create(**kwargs)  # type: ignore
+        return await self._async_client.chat.completions.create(  # type: ignore
+            **kwargs,
+            extra_headers=self._get_extra_headers(),
+        )
 
     def _chat_perform_args(
         self,
