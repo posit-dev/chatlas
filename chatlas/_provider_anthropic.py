@@ -425,7 +425,11 @@ class AnthropicProvider(
     ) -> "SubmitInputArgs":
         tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
 
-        use_native = self._use_native_structured_output()
+        mode = self._structured_output_mode
+        use_native = (
+            mode == "native"
+            or (mode == "auto" and supports_structured_outputs(self.model))
+        )
 
         if data_model is not None:
             if use_native:
@@ -476,15 +480,6 @@ class AnthropicProvider(
                 kwargs_full["system"] = [sys_param]
 
         return kwargs_full
-
-    def _use_native_structured_output(self) -> bool:
-        mode = self._structured_output_mode
-        if mode == "native":
-            return True
-        elif mode == "tool":
-            return False
-        else:
-            return supports_structured_outputs(self.model)
 
     @staticmethod
     def create_data_model_tool(data_model: type[BaseModel]) -> Tool:
@@ -1231,6 +1226,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         aws_session_token: str | None,
         max_tokens: int = 4096,
         cache: Literal["5m", "1h", "none"] = "none",
+        structured_output_mode: StructuredOutputMode = "auto",
         base_url: str | None,
         name: str = "AWS/Bedrock",
         kwargs: Optional["ChatBedrockClientArgs"] = None,
@@ -1240,6 +1236,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
             model=model,
             max_tokens=max_tokens,
             cache=cache,
+            structured_output_mode=structured_output_mode,
         )
 
         try:
