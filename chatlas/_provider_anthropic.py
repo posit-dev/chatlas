@@ -92,7 +92,10 @@ def supports_structured_outputs(model: str) -> bool:
 
     https://platform.claude.com/docs/en/build-with-claude/structured-outputs
     """
-    return bool(re.match(r"^claude-\w+-4(-|$)", model))
+    return bool(re.match(r"^claude-\w+-4-[5-9](-|$)", model))
+
+
+StructuredOutputMode = Literal["auto", "native", "tool"]
 
 
 def ChatAnthropic(
@@ -102,6 +105,7 @@ def ChatAnthropic(
     max_tokens: int = 4096,
     reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
     cache: Literal["5m", "1h", "none"] = "5m",
+    structured_output_mode: StructuredOutputMode = "auto",
     api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Message]:
@@ -162,6 +166,13 @@ def ChatAnthropic(
         How long to cache inputs? Defaults to "5m" (five minutes).
         Set to "none" to disable caching or "1h" to cache for one hour.
         See the Caching section for details.
+    structured_output_mode
+        How to handle structured data extraction (i.e., `data_model`).
+        `"auto"` (default) uses Anthropic's native `output_config` API for
+        models that support it and falls back to a tool-based approach for
+        older models. `"native"` forces the `output_config` API (which
+        supports streaming). `"tool"` forces the legacy tool-based approach
+        (which does not support streaming).
     api_key
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `ANTHROPIC_API_KEY` environment
@@ -267,6 +278,7 @@ def ChatAnthropic(
             model=model,
             max_tokens=max_tokens,
             cache=cache,
+            structured_output_mode=structured_output_mode,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -285,6 +297,7 @@ class AnthropicProvider(
         api_key: Optional[str] = None,
         name: str = "Anthropic",
         cache: Literal["5m", "1h", "none"] = "5m",
+        structured_output_mode: StructuredOutputMode = "auto",
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)
@@ -297,6 +310,7 @@ class AnthropicProvider(
             )
         self._max_tokens = max_tokens
         self._cache: Literal["5m", "1h", "none"] = cache
+        self._structured_output_mode = structured_output_mode
 
         kwargs_full: "ChatClientArgs" = {
             "api_key": api_key,
@@ -411,8 +425,10 @@ class AnthropicProvider(
     ) -> "SubmitInputArgs":
         tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
 
+        use_native = self._use_native_structured_output()
+
         if data_model is not None:
-            if supports_structured_outputs(self.model):
+            if use_native:
                 from anthropic import transform_schema
 
                 output_config: "OutputConfigParam" = {
@@ -422,8 +438,6 @@ class AnthropicProvider(
                     },
                 }
             else:
-                # Legacy tool-based approach for models that don't support
-                # native structured outputs
                 data_model_tool = self.create_data_model_tool(data_model)
                 tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
                 if stream:
@@ -443,7 +457,7 @@ class AnthropicProvider(
         }
 
         if data_model is not None:
-            if supports_structured_outputs(self.model):
+            if use_native:
                 kwargs_full["output_config"] = output_config
             else:
                 kwargs_full["tool_choice"] = {
@@ -462,6 +476,15 @@ class AnthropicProvider(
                 kwargs_full["system"] = [sys_param]
 
         return kwargs_full
+
+    def _use_native_structured_output(self) -> bool:
+        mode = self._structured_output_mode
+        if mode == "native":
+            return True
+        elif mode == "tool":
+            return False
+        else:
+            return supports_structured_outputs(self.model)
 
     @staticmethod
     def create_data_model_tool(data_model: type[BaseModel]) -> Tool:
@@ -1024,6 +1047,7 @@ def ChatBedrockAnthropic(
     max_tokens: int = 4096,
     reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
     cache: Literal["5m", "1h", "none"] = "none",
+    structured_output_mode: StructuredOutputMode = "auto",
     aws_secret_key: Optional[str] = None,
     aws_access_key: Optional[str] = None,
     aws_region: Optional[str] = None,
@@ -1090,6 +1114,9 @@ def ChatBedrockAnthropic(
         How long to cache inputs? Defaults to "none" (disabled).
         Set to "5m" to cache for five minutes or "1h" to cache for one hour.
         See the Caching section of `ChatAnthropic` for details.
+    structured_output_mode
+        How to handle structured data extraction (i.e., `data_model`).
+        See `ChatAnthropic` for details.
     aws_secret_key
         The AWS secret key to use for authentication.
     aws_access_key
@@ -1178,6 +1205,7 @@ def ChatBedrockAnthropic(
             model=model,
             max_tokens=max_tokens,
             cache=cache,
+            structured_output_mode=structured_output_mode,
             aws_secret_key=aws_secret_key,
             aws_access_key=aws_access_key,
             aws_region=aws_region,
