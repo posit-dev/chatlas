@@ -426,6 +426,12 @@ class AnthropicProvider(
                 # native structured outputs
                 data_model_tool = self.create_data_model_tool(data_model)
                 tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
+                if stream:
+                    stream = False
+                    warnings.warn(
+                        "Anthropic does not support structured data extraction in streaming mode.",
+                        stacklevel=2,
+                    )
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
