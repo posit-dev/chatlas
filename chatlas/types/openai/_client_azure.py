@@ -6,6 +6,7 @@ from typing import Awaitable, Callable, Mapping, Optional, TypedDict, Union
 
 import httpx
 import openai
+import openai.auth._workload
 
 
 class ChatAzureClientArgs(TypedDict, total=False):
@@ -13,6 +14,8 @@ class ChatAzureClientArgs(TypedDict, total=False):
     azure_deployment: str | None
     api_version: str | None
     api_key: Union[str, Callable[[], Awaitable[str]], None]
+    admin_api_key: str | None
+    workload_identity: openai.auth._workload.WorkloadIdentity | None
     azure_ad_token: str | None
     organization: str | None
     project: str | None
@@ -25,3 +28,4 @@ class ChatAzureClientArgs(TypedDict, total=False):
     default_query: Optional[Mapping[str, object]]
     http_client: httpx.AsyncClient | None
     _strict_response_validation: bool
+    _enforce_credentials: bool

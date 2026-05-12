@@ -9,7 +9,49 @@ from chatlas import (
     tool_web_fetch,
     tool_web_search,
 )
+from chatlas._content import ToolAnnotations
+from chatlas._tools import ToolBuiltIn
 from chatlas._tools_builtin import ToolWebFetch, ToolWebSearch
+
+
+class TestToolBuiltInMetadata:
+    """Test that ToolBuiltIn carries description and annotations."""
+
+    def test_default_description_and_annotations(self):
+        tool = ToolBuiltIn(name="test", definition={})
+        assert tool.description == ""
+        assert tool.annotations is None
+
+    def test_custom_description_and_annotations(self):
+        annotations: ToolAnnotations = {
+            "title": "Test Tool",
+            "readOnlyHint": True,
+            "openWorldHint": True,
+        }
+        tool = ToolBuiltIn(
+            name="test",
+            definition={},
+            description="A test tool.",
+            annotations=annotations,
+        )
+        assert tool.description == "A test tool."
+        assert tool.annotations == annotations
+
+    def test_web_search_has_description_and_annotations(self):
+        tool = tool_web_search()
+        assert tool.description == "Search the web for up-to-date information."
+        assert tool.annotations is not None
+        assert tool.annotations["title"] == "Web search"
+        assert tool.annotations["readOnlyHint"] is True
+        assert tool.annotations["openWorldHint"] is True
+
+    def test_web_fetch_has_description_and_annotations(self):
+        tool = tool_web_fetch()
+        assert tool.description == "Fetch and analyze content from a web URL."
+        assert tool.annotations is not None
+        assert tool.annotations["title"] == "Web fetch"
+        assert tool.annotations["readOnlyHint"] is True
+        assert tool.annotations["openWorldHint"] is True
 
 
 class TestToolWebSearchConfiguration:

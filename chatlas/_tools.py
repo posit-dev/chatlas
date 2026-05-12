@@ -256,9 +256,18 @@ class ToolBuiltIn:
         The raw provider-specific tool definition as a dictionary.
     """
 
-    def __init__(self, *, name: str, definition: dict[str, Any]):
+    def __init__(
+        self,
+        *,
+        name: str,
+        definition: dict[str, Any],
+        description: str = "",
+        annotations: "Optional[ToolAnnotations]" = None,
+    ):
         self.name = name
         self.definition = definition
+        self.description = description
+        self.annotations = annotations
 
 
 class ToolRejectError(Exception):

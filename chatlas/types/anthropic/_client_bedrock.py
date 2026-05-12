@@ -14,6 +14,7 @@ class ChatBedrockClientArgs(TypedDict, total=False):
     aws_region: str | None
     aws_profile: str | None
     aws_session_token: str | None
+    api_key: str | None
     base_url: str | httpx.URL | None
     timeout: float | anthropic.Timeout | None | anthropic.NotGiven
     max_retries: int

@@ -41,6 +41,12 @@ class SubmitInputArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "gpt-5.4",
+            "gpt-5.4-mini",
+            "gpt-5.4-nano",
+            "gpt-5.4-mini-2026-03-17",
+            "gpt-5.4-nano-2026-03-17",
+            "gpt-5.3-chat-latest",
             "gpt-5.2",
             "gpt-5.2-2025-12-11",
             "gpt-5.2-chat-latest",
@@ -144,7 +150,7 @@ class SubmitInputArgs(TypedDict, total=False):
     ]
     presence_penalty: Union[float, None, openai.Omit]
     prompt_cache_key: str | openai.Omit
-    prompt_cache_retention: Union[Literal["in-memory", "24h"], None, openai.Omit]
+    prompt_cache_retention: Union[Literal["in_memory", "24h"], None, openai.Omit]
     reasoning_effort: Union[
         Literal["none", "minimal", "low", "medium", "high", "xhigh"], None, openai.Omit
     ]

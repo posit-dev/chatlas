@@ -95,3 +95,16 @@ def test_anthropic_images():
 @pytest.mark.vcr
 def test_anthropic_models():
     assert_list_models(ChatBedrockAnthropic)
+
+
+@pytest.mark.vcr
+def test_reasoning():
+    from chatlas._content import ContentThinking
+
+    chat = ChatBedrockAnthropic(reasoning=4000)
+    chat.chat("What is 1 + 1?")
+    turn = chat.get_last_turn()
+    assert turn is not None
+    thinking = [c for c in turn.contents if isinstance(c, ContentThinking)]
+    assert len(thinking) == 1
+    assert len(thinking[0].thinking) > 0

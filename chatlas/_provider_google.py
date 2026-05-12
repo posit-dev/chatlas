@@ -14,6 +14,8 @@ from ._content import (
     ContentJson,
     ContentPDF,
     ContentText,
+    ContentThinking,
+    ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
 )
@@ -361,12 +363,23 @@ class GoogleProvider(
 
         return kwargs_full
 
-    def stream_text(self, chunk) -> Optional[str]:
-        try:
-            # Errors if there is no text (e.g., tool request)
-            return chunk.text
-        except Exception:
+    def stream_content(self, chunk) -> Optional[Content]:
+        candidates = getattr(chunk, "candidates", None)
+        if not candidates:
             return None
+        content = candidates[0].content
+        if content is None:
+            return None
+        parts = content.parts
+        if not parts:
+            return None
+        part = parts[0]
+        text = getattr(part, "text", None)
+        if text is None:
+            return None
+        if getattr(part, "thought", None):
+            return ContentThinkingDelta(thinking=text)
+        return ContentText.model_construct(text=text)
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()
@@ -508,7 +521,8 @@ class GoogleProvider(
                     name=content.name,
                     # Goes in a dict, so should come out as a dict
                     args=cast(dict[str, Any], content.arguments),
-                )
+                ),
+                thought_signature=content.extra.get("thought_signature"),  # type: ignore
             )
         elif isinstance(content, ContentToolResult):
             if content.error:
@@ -553,6 +567,8 @@ class GoogleProvider(
             if text:
                 if has_data_model:
                     contents.append(ContentJson(value=orjson.loads(text)))
+                elif part.get("thought"):
+                    contents.append(ContentThinking(thinking=text))
                 else:
                     contents.append(ContentText(text=text))
             function_call = part.get("function_call")
@@ -560,11 +576,16 @@ class GoogleProvider(
                 # Seems name is required but id is optional?
                 name = function_call.get("name")
                 if name:
+                    extra: dict[str, object] = {}
+                    thought_signature = part.get("thought_signature")
+                    if thought_signature is not None:
+                        extra["thought_signature"] = thought_signature
                     contents.append(
                         ContentToolRequest(
                             id=function_call.get("id") or name,
                             name=name,
                             arguments=function_call.get("args"),
+                            extra=extra,
                         )
                     )
             function_response = part.get("function_response")

@@ -17,6 +17,7 @@ from ._content import (
     ContentPDF,
     ContentText,
     ContentThinking,
+    ContentThinkingDelta,
     ContentToolRequest,
     ContentToolRequestSearch,
     ContentToolResult,
@@ -161,7 +162,7 @@ def ChatOpenAI(
     reproducible output, use [](`~chatlas.ChatOpenAICompletions`) instead.
     """
     if model is None:
-        model = log_model_default("gpt-4.1")
+        model = log_model_default("gpt-5.4")
 
     kwargs_chat: "SubmitInputArgs" = {}
 
@@ -292,16 +293,17 @@ class OpenAIProvider(
 
         return kwargs_full
 
-    def stream_text(self, chunk):
+    def stream_content(self, chunk) -> Optional[Content]:
         if chunk.type == "response.output_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/delta
-            return chunk.delta
+            return ContentText.model_construct(text=chunk.delta)
         if chunk.type == "response.reasoning_summary_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/delta
-            return chunk.delta
+            return ContentThinkingDelta(thinking=chunk.delta)
         if chunk.type == "response.reasoning_summary_text.done":
-            # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/done
-            return "\n\n"
+            # The thinking→text transition in _submit_turns already emits
+            # "\n</thinking>\n\n" which provides the visual separator.
+            return None
         return None
 
     def stream_merge_chunks(self, completion, chunk):
@@ -317,8 +319,7 @@ class OpenAIProvider(
         elif chunk.type == "error":
             raise RuntimeError(f"Request errored: {chunk.message}")
 
-        # Since this value won't actually be used, we can lie about the type
-        return cast(Response, None)
+        return completion
 
     def stream_turn(self, completion, has_data_model):
         return self._response_as_turn(completion, has_data_model)
@@ -420,15 +421,20 @@ class OpenAIProvider(
                     )
 
             elif output.type == "web_search_call":
-                if output.action.type != "search":
-                    raise ValueError(
-                        f"Unsupported web search action type: {output.action.type}"
-                        "Please file a feature request if you need this supported."
-                    )
                 # https://platform.openai.com/docs/guides/tools-web-search#output-and-citations
+                # Not all action types have a query field (e.g., open_page, find_in_page)
+                action = output.action
+                query = getattr(action, "query", None) or None
+                if not query:
+                    queries = getattr(action, "queries", None) or []
+                    query = queries[0] if queries else None
+                if not query:
+                    query = getattr(action, "pattern", None) or None
+                if not query:
+                    query = getattr(action, "url", None) or "web search"
                 contents.append(
                     ContentToolRequestSearch(
-                        query=output.action.query,
+                        query=query,
                         extra=output.model_dump(),
                     )
                 )
@@ -441,8 +447,7 @@ class OpenAIProvider(
             completion=completion,
         )
 
-    @staticmethod
-    def _turns_as_inputs(turns: list[Turn]) -> "list[ResponseInputItemParam]":
+    def _turns_as_inputs(self, turns: list[Turn]) -> "list[ResponseInputItemParam]":
         res: "list[ResponseInputItemParam]" = []
         for turn in turns:
             res.extend([as_input_param(x, turn.role) for x in turn.contents])

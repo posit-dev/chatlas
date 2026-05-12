@@ -1,20 +1,21 @@
 interactions:
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Roll the dice again! Reply with ''You rolled ____''"}]}], "model": "gpt-4.1",
-      "store": false, "stream": false, "tools": [{"type": "function", "name": "roll",
-      "description": "Rolls a six-sided die", "parameters": {"properties": {}, "type":
-      "object", "additionalProperties": false, "required": []}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
+      "content": [{"type": "input_text", "text": "Roll the dice, please! Reply with
+      ''You rolled ____''"}]}], "model": "gpt-5.4", "store": false, "stream": false,
+      "tools": [{"type": "function", "name": "roll", "description": "Rolls a six-sided
+      die", "parameters": {"properties": {}, "type": "object", "additionalProperties":
+      false, "required": []}, "strict": true}]}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '424'
+      - '468'
       Content-Type:
       - application/json
       Host:
@@ -27,39 +28,43 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_038eec47212520be01695588cf7ee0819faf9cc675a3bf80b8\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213263,\n  \"status\":
+      string: "{\n  \"id\": \"resp_0d332ba3a23f64f40169fb7cec75a08193b0d1a459b80a0845\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089196,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213263,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"fc_038eec47212520be01695588cfc48c819f8c82e5cf1a538146\",\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089196,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"fc_0d332ba3a23f64f40169fb7cecdf6c8193b4c4f33c20cae11c\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{}\",\n      \"call_id\": \"call_R9Q7in3a2jsark5enoPI5bQp\",\n      \"name\":
-        \"roll\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\":
-        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n
-        \ \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
-        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
-        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n
-        \   \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
-        [\n    {\n      \"type\": \"function\",\n      \"description\": \"Rolls a
-        six-sided die\",\n      \"name\": \"roll\",\n      \"parameters\": {\n        \"properties\":
-        {},\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n
-        \       \"required\": []\n      },\n      \"strict\": true\n    }\n  ],\n
-        \ \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n
-        \ \"usage\": {\n    \"input_tokens\": 49,\n    \"input_tokens_details\": {\n
-        \     \"cached_tokens\": 0\n    },\n    \"output_tokens\": 10,\n    \"output_tokens_details\":
-        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 59\n  },\n
-        \ \"user\": null,\n  \"metadata\": {}\n}"
+        \"{}\",\n      \"call_id\": \"call_Fq2DQ2PidT2F41QiLfPzHVTU\",\n      \"name\":
+        \"roll\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\":
+        0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
+        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
+        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
+        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
+        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
+        \ \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n
+        \     \"description\": \"Rolls a six-sided die\",\n      \"name\": \"roll\",\n
+        \     \"parameters\": {\n        \"properties\": {},\n        \"type\": \"object\",\n
+        \       \"additionalProperties\": false,\n        \"required\": []\n      },\n
+        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
+        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
+        55,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
+        \   \"output_tokens\": 13,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 68\n  },\n  \"user\": null,\n  \"metadata\":
+        {}\n}"
     headers:
-      CF-RAY:
-      - 9b6c8eb09c68e82d-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c465496d511c-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:34:23 GMT
+      - Wed, 06 May 2026 17:39:57 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -70,47 +75,44 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '1663'
+      - '1750'
       openai-processing-ms:
-      - '343'
+      - '649'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '348'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Roll the dice, please! Reply with ''You rolled ____''"}]}], "model": "gpt-4.1",
-      "store": false, "stream": false, "tools": [{"type": "function", "name": "roll",
-      "description": "Rolls a six-sided die", "parameters": {"properties": {}, "type":
-      "object", "additionalProperties": false, "required": []}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
+      "content": [{"type": "input_text", "text": "Roll the dice again! Reply with
+      ''You rolled ____''"}]}], "model": "gpt-5.4", "store": false, "stream": false,
+      "tools": [{"type": "function", "name": "roll", "description": "Rolls a six-sided
+      die", "parameters": {"properties": {}, "type": "object", "additionalProperties":
+      false, "required": []}, "strict": true}]}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '426'
+      - '466'
       Content-Type:
       - application/json
       Host:
@@ -123,39 +125,43 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0e46587e2f8c124c01695588cf613c819d9119e7b80749494d\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213263,\n  \"status\":
+      string: "{\n  \"id\": \"resp_060550af74f8a0af0169fb7cec90d081a3a9a3965ef4abb60a\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089196,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213264,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"fc_0e46587e2f8c124c01695588d00ba8819d9b24574a97e841e8\",\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089197,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"fc_060550af74f8a0af0169fb7ced063c81a3a1980c7496ad662a\",\n
         \     \"type\": \"function_call\",\n      \"status\": \"completed\",\n      \"arguments\":
-        \"{}\",\n      \"call_id\": \"call_VNIzkOzzIxDKTUjoBqMRqIzt\",\n      \"name\":
-        \"roll\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"previous_response_id\":
-        null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\": null,\n
-        \ \"reasoning\": {\n    \"effort\": null,\n    \"summary\": null\n  },\n  \"safety_identifier\":
-        null,\n  \"service_tier\": \"default\",\n  \"store\": false,\n  \"temperature\":
-        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    },\n
-        \   \"verbosity\": \"medium\"\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
-        [\n    {\n      \"type\": \"function\",\n      \"description\": \"Rolls a
-        six-sided die\",\n      \"name\": \"roll\",\n      \"parameters\": {\n        \"properties\":
-        {},\n        \"type\": \"object\",\n        \"additionalProperties\": false,\n
-        \       \"required\": []\n      },\n      \"strict\": true\n    }\n  ],\n
-        \ \"top_logprobs\": 0,\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n
-        \ \"usage\": {\n    \"input_tokens\": 50,\n    \"input_tokens_details\": {\n
-        \     \"cached_tokens\": 0\n    },\n    \"output_tokens\": 10,\n    \"output_tokens_details\":
-        {\n      \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 60\n  },\n
-        \ \"user\": null,\n  \"metadata\": {}\n}"
+        \"{}\",\n      \"call_id\": \"call_SxOoVkKYIWvWhRyblyWCbGtf\",\n      \"name\":
+        \"roll\"\n    }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\":
+        0.0,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
+        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
+        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
+        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
+        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
+        \ \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n
+        \     \"description\": \"Rolls a six-sided die\",\n      \"name\": \"roll\",\n
+        \     \"parameters\": {\n        \"properties\": {},\n        \"type\": \"object\",\n
+        \       \"additionalProperties\": false,\n        \"required\": []\n      },\n
+        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
+        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
+        54,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
+        \   \"output_tokens\": 13,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 67\n  },\n  \"user\": null,\n  \"metadata\":
+        {}\n}"
     headers:
-      CF-RAY:
-      - 9b6c8eafbaf82331-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c4660c2da1e2-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:34:24 GMT
+      - Wed, 06 May 2026 17:39:57 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -166,55 +172,51 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '1663'
+      - '1750'
       openai-processing-ms:
-      - '711'
+      - '759'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '716'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Roll the dice, please! Reply with ''You rolled ____''"}]}, {"type": "function_call",
-      "call_id": "fc_0e46587e2f8c124c01695588d00ba8819d9b24574a97e841e8", "name":
-      "roll", "arguments": "{}"}, {"type": "function_call_output", "call_id": "fc_0e46587e2f8c124c01695588d00ba8819d9b24574a97e841e8",
-      "output": "1"}], "model": "gpt-4.1", "store": false, "stream": false, "tools":
-      [{"type": "function", "name": "roll", "description": "Rolls a six-sided die",
-      "parameters": {"properties": {}, "type": "object", "additionalProperties": false,
-      "required": []}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
+      "content": [{"type": "input_text", "text": "Roll the dice, please! Reply with
+      ''You rolled ____''"}]}, {"type": "function_call", "call_id": "fc_0d332ba3a23f64f40169fb7cecdf6c8193b4c4f33c20cae11c",
+      "name": "roll", "arguments": "{}"}, {"type": "function_call_output", "call_id":
+      "fc_0d332ba3a23f64f40169fb7cecdf6c8193b4c4f33c20cae11c", "output": "1"}], "model":
+      "gpt-5.4", "store": false, "stream": false, "tools": [{"type": "function", "name":
+      "roll", "description": "Rolls a six-sided die", "parameters": {"properties":
+      {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
+      true}]}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '659'
+      - '701'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=e1EVkzciWudHNhrczTizKrwcv75JKS4dxbmU4FL3AJk-1767213264-1.0.1.1-oXeJEMeOWzVX5j5b0m1rUc6YGPaVCxqUKt7J.Hqa.zzdZDUxkEnr_87KVCIeXAn750TghIJNn1uUbo8UUnRFdyZ5v1VjNSgmgNStIQpLmoM;
-        _cfuvid=z8V_Rr8b.bpB5aEFa8BOLtlCHEa6CDGxj6mrpe0Cazk-1767213264114-0.0.1.1-604800000
+      - __cf_bm=hOmUsZ11SYJHOe1CW6MTG1T9m6NWRl9QIjmvQMlYXQY-1778089196.485318-1.0.1.1-EJkNhyu.0gTx_cJGFAXCFC91bEYf.rwvYlNNYIGtIxWfC1q0RO4esSgcNN8mfviA3vw6tJ.2hRHu9VBlr6et0T3_92BsbYeFp_zqgv6tCMSK2lgnuv.4mX098Qf892AE
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -225,41 +227,45 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_00eaefbd1467db1101695588d05f2c81a388fc08be0effdd69\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213264,\n  \"status\":
+      string: "{\n  \"id\": \"resp_08747fd7f263766d0169fb7ced8b7c8197bc9886690fc8484b\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089197,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213264,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_00eaefbd1467db1101695588d0a56481a3a1ec972d6166c515\",\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089198,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_08747fd7f263766d0169fb7cee462c8197a8c41af1ac3a56e4\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"You rolled 1.\"\n
-        \       }\n      ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
-        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
-        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
-        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
-        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
-        \   \"format\": {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\":
-        \"function\",\n      \"description\": \"Rolls a six-sided die\",\n      \"name\":
-        \"roll\",\n      \"parameters\": {\n        \"properties\": {},\n        \"type\":
-        \"object\",\n        \"additionalProperties\": false,\n        \"required\":
-        []\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n
-        \ \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        65,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 7,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 72\n  },\n  \"user\": null,\n  \"metadata\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"You rolled 1\"\n        }\n
+        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
+        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
+        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
+        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
+        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
+        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
+        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
+        \ \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n
+        \     \"description\": \"Rolls a six-sided die\",\n      \"name\": \"roll\",\n
+        \     \"parameters\": {\n        \"properties\": {},\n        \"type\": \"object\",\n
+        \       \"additionalProperties\": false,\n        \"required\": []\n      },\n
+        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
+        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
+        79,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
+        \   \"output_tokens\": 8,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 87\n  },\n  \"user\": null,\n  \"metadata\":
         {}\n}"
     headers:
-      CF-RAY:
-      - 9b6c8eb60fd4615f-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c46c1b2eacf4-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:34:24 GMT
+      - Wed, 06 May 2026 17:39:58 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -270,55 +276,51 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '1757'
+      - '1874'
       openai-processing-ms:
-      - '332'
+      - '1030'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '335'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:
       code: 200
       message: OK
 - request:
-    body: '{"input": [{"role": "system", "content": [{"type": "input_text", "text":
-      "Be terse."}]}, {"role": "user", "content": [{"type": "input_text", "text":
-      "Roll the dice again! Reply with ''You rolled ____''"}]}, {"type": "function_call",
-      "call_id": "fc_038eec47212520be01695588cfc48c819f8c82e5cf1a538146", "name":
-      "roll", "arguments": "{}"}, {"type": "function_call_output", "call_id": "fc_038eec47212520be01695588cfc48c819f8c82e5cf1a538146",
-      "output": "2"}], "model": "gpt-4.1", "store": false, "stream": false, "tools":
-      [{"type": "function", "name": "roll", "description": "Rolls a six-sided die",
-      "parameters": {"properties": {}, "type": "object", "additionalProperties": false,
-      "required": []}, "strict": true}]}'
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "system",
+      "content": [{"type": "input_text", "text": "Be terse."}]}, {"role": "user",
+      "content": [{"type": "input_text", "text": "Roll the dice again! Reply with
+      ''You rolled ____''"}]}, {"type": "function_call", "call_id": "fc_060550af74f8a0af0169fb7ced063c81a3a1980c7496ad662a",
+      "name": "roll", "arguments": "{}"}, {"type": "function_call_output", "call_id":
+      "fc_060550af74f8a0af0169fb7ced063c81a3a1980c7496ad662a", "output": "2"}], "model":
+      "gpt-5.4", "store": false, "stream": false, "tools": [{"type": "function", "name":
+      "roll", "description": "Rolls a six-sided die", "parameters": {"properties":
+      {}, "type": "object", "additionalProperties": false, "required": []}, "strict":
+      true}]}'
     headers:
       Accept:
       - application/json
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '657'
+      - '699'
       Content-Type:
       - application/json
       Cookie:
-      - __cf_bm=e1EVkzciWudHNhrczTizKrwcv75JKS4dxbmU4FL3AJk-1767213264-1.0.1.1-oXeJEMeOWzVX5j5b0m1rUc6YGPaVCxqUKt7J.Hqa.zzdZDUxkEnr_87KVCIeXAn750TghIJNn1uUbo8UUnRFdyZ5v1VjNSgmgNStIQpLmoM;
-        _cfuvid=z8V_Rr8b.bpB5aEFa8BOLtlCHEa6CDGxj6mrpe0Cazk-1767213264114-0.0.1.1-604800000
+      - __cf_bm=hOmUsZ11SYJHOe1CW6MTG1T9m6NWRl9QIjmvQMlYXQY-1778089196.485318-1.0.1.1-EJkNhyu.0gTx_cJGFAXCFC91bEYf.rwvYlNNYIGtIxWfC1q0RO4esSgcNN8mfviA3vw6tJ.2hRHu9VBlr6et0T3_92BsbYeFp_zqgv6tCMSK2lgnuv.4mX098Qf892AE
       Host:
       - api.openai.com
       X-Stainless-Async:
@@ -329,41 +331,45 @@ interactions:
     uri: https://api.openai.com/v1/responses
   response:
     body:
-      string: "{\n  \"id\": \"resp_0a10857cbdde542001695588d079508192857f44c50b903d00\",\n
-        \ \"object\": \"response\",\n  \"created_at\": 1767213264,\n  \"status\":
+      string: "{\n  \"id\": \"resp_029e61acbebbdb040169fb7cedad1c8192b372b64e80785146\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1778089197,\n  \"status\":
         \"completed\",\n  \"background\": false,\n  \"billing\": {\n    \"payer\":
-        \"developer\"\n  },\n  \"completed_at\": 1767213265,\n  \"error\": null,\n
-        \ \"incomplete_details\": null,\n  \"instructions\": null,\n  \"max_output_tokens\":
-        null,\n  \"max_tool_calls\": null,\n  \"model\": \"gpt-4.1-2025-04-14\",\n
-        \ \"output\": [\n    {\n      \"id\": \"msg_0a10857cbdde542001695588d10ffc81929d8dd3dfb274aa13\",\n
+        \"developer\"\n  },\n  \"completed_at\": 1778089198,\n  \"error\": null,\n
+        \ \"frequency_penalty\": 0.0,\n  \"incomplete_details\": null,\n  \"instructions\":
+        null,\n  \"max_output_tokens\": null,\n  \"max_tool_calls\": null,\n  \"model\":
+        \"gpt-5.4-2026-03-05\",\n  \"moderation\": null,\n  \"output\": [\n    {\n
+        \     \"id\": \"msg_029e61acbebbdb040169fb7ceeaa848192828eb0c098c38bf2\",\n
         \     \"type\": \"message\",\n      \"status\": \"completed\",\n      \"content\":
         [\n        {\n          \"type\": \"output_text\",\n          \"annotations\":
-        [],\n          \"logprobs\": [],\n          \"text\": \"You rolled 2.\"\n
-        \       }\n      ],\n      \"role\": \"assistant\"\n    }\n  ],\n  \"parallel_tool_calls\":
-        true,\n  \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n
-        \ \"prompt_cache_retention\": null,\n  \"reasoning\": {\n    \"effort\": null,\n
-        \   \"summary\": null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\":
-        \"default\",\n  \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n
-        \   \"format\": {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n
-        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\":
-        \"function\",\n      \"description\": \"Rolls a six-sided die\",\n      \"name\":
-        \"roll\",\n      \"parameters\": {\n        \"properties\": {},\n        \"type\":
-        \"object\",\n        \"additionalProperties\": false,\n        \"required\":
-        []\n      },\n      \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n
-        \ \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
-        64,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
-        \   \"output_tokens\": 7,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
-        0\n    },\n    \"total_tokens\": 71\n  },\n  \"user\": null,\n  \"metadata\":
+        [],\n          \"logprobs\": [],\n          \"text\": \"You rolled 2\"\n        }\n
+        \     ],\n      \"phase\": \"final_answer\",\n      \"role\": \"assistant\"\n
+        \   }\n  ],\n  \"parallel_tool_calls\": true,\n  \"presence_penalty\": 0.0,\n
+        \ \"previous_response_id\": null,\n  \"prompt_cache_key\": null,\n  \"prompt_cache_retention\":
+        \"in_memory\",\n  \"reasoning\": {\n    \"effort\": \"none\",\n    \"summary\":
+        null\n  },\n  \"safety_identifier\": null,\n  \"service_tier\": \"default\",\n
+        \ \"store\": false,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
+        {\n      \"type\": \"text\"\n    },\n    \"verbosity\": \"medium\"\n  },\n
+        \ \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n      \"type\": \"function\",\n
+        \     \"description\": \"Rolls a six-sided die\",\n      \"name\": \"roll\",\n
+        \     \"parameters\": {\n        \"properties\": {},\n        \"type\": \"object\",\n
+        \       \"additionalProperties\": false,\n        \"required\": []\n      },\n
+        \     \"strict\": true\n    }\n  ],\n  \"top_logprobs\": 0,\n  \"top_p\":
+        0.98,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\":
+        78,\n    \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n
+        \   \"output_tokens\": 8,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\":
+        0\n    },\n    \"total_tokens\": 86\n  },\n  \"user\": null,\n  \"metadata\":
         {}\n}"
     headers:
-      CF-RAY:
-      - 9b6c8eb6bc550011-ORD
+      CF-Cache-Status:
+      - DYNAMIC
+      CF-Ray:
+      - 9f79c46cdecb4c93-MSP
       Connection:
       - keep-alive
       Content-Type:
       - application/json
       Date:
-      - Wed, 31 Dec 2025 20:34:25 GMT
+      - Wed, 06 May 2026 17:39:59 GMT
       Server:
       - cloudflare
       Strict-Transport-Security:
@@ -374,26 +380,22 @@ interactions:
       - nosniff
       alt-svc:
       - h3=":443"; ma=86400
-      cf-cache-status:
-      - DYNAMIC
       content-length:
-      - '1757'
+      - '1874'
       openai-processing-ms:
-      - '698'
+      - '1197'
       openai-version:
       - '2020-10-01'
-      x-envoy-upstream-service-time:
-      - '700'
       x-ratelimit-limit-requests:
-      - '10000'
+      - '15000'
       x-ratelimit-limit-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-remaining-requests:
-      - '9999'
+      - '14999'
       x-ratelimit-remaining-tokens:
-      - '30000000'
+      - '40000000'
       x-ratelimit-reset-requests:
-      - 6ms
+      - 4ms
       x-ratelimit-reset-tokens:
       - 0s
     status:

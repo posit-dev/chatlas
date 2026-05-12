@@ -6,7 +6,13 @@ from pprint import pformat
 from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast
 
 import orjson
-from pydantic import BaseModel, ConfigDict
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_serializer,
+    field_validator,
+)
 
 from ._typing_extensions import TypedDict
 
@@ -132,6 +138,7 @@ ContentTypeEnum = Literal[
     "json",
     "pdf",
     "thinking",
+    "thinking_delta",
     "web_search_request",
     "web_search_results",
     "web_fetch_request",
@@ -173,6 +180,11 @@ class ContentText(Content):
 
         if self.text == "" or self.text.isspace():
             self.text = "[empty string]"
+
+    def __add__(self, other: object) -> "ContentText":
+        if not isinstance(other, ContentText):
+            return NotImplemented  # type: ignore[return-value]
+        return ContentText.model_construct(text=self.text + other.text)
 
     def __str__(self):
         return self.text
@@ -265,6 +277,7 @@ class ContentToolRequest(Content):
     name: str
     arguments: object
     tool: Optional[ToolInfo] = None
+    extra: dict[str, object] = Field(default_factory=dict)
 
     content_type: ContentTypeEnum = "tool_request"
 
@@ -362,6 +375,26 @@ class ContentToolResult(Content):
     # "private"
     request: Optional[ContentToolRequest] = None
     content_type: ContentTypeEnum = "tool_result"
+
+    @field_serializer("error")
+    @classmethod
+    def serialize_error(cls, v: Optional[Exception]) -> Optional[str]:
+        """Serialize Exception to string for JSON compatibility."""
+        if v is None:
+            return None
+        return str(v)
+
+    @field_validator("error", mode="before")
+    @classmethod
+    def validate_error(cls, v: Any) -> Optional[Exception]:
+        """Accept string or Exception for error field."""
+        if v is None:
+            return None
+        if isinstance(v, Exception):
+            return v
+        if isinstance(v, str):
+            return Exception(v)
+        return Exception(str(v))
 
     @property
     def id(self):
@@ -606,6 +639,14 @@ class ContentThinking(Content):
 
     content_type: ContentTypeEnum = "thinking"
 
+    def __add__(self, other: object) -> "ContentThinking":
+        if not isinstance(other, ContentThinking):
+            return NotImplemented  # type: ignore[return-value]
+        return ContentThinking.model_construct(
+            thinking=self.thinking + other.thinking,
+            extra=other.extra if other.extra is not None else self.extra,
+        )
+
     def __str__(self):
         return f"<thinking>\n{self.thinking}\n</thinking>\n"
 
@@ -624,6 +665,38 @@ class ContentThinking(Content):
         html = f"<details><summary>Thinking</summary>{self.thinking}</details>"
 
         return HTML(html)
+
+
+class ContentThinkingDelta(Content):
+    """
+    A streaming fragment of thinking/reasoning content.
+
+    Emitted during streaming to represent a chunk of the model's thinking.
+    The ``phase`` attribute communicates block boundaries to downstream consumers.
+
+    Parameters
+    ----------
+    thinking
+        The thinking/reasoning text fragment.
+    phase
+        The phase of the thinking delta: ``"start"``, ``"body"``, or ``"end"``.
+    """
+
+    thinking: str
+    phase: Literal["start", "body", "end"] = "body"
+
+    content_type: ContentTypeEnum = "thinking_delta"
+
+    def __add__(self, other: object) -> "ContentThinkingDelta":
+        if not isinstance(other, ContentThinkingDelta):
+            return NotImplemented  # type: ignore[return-value]
+        return ContentThinkingDelta(
+            thinking=self.thinking + other.thinking,
+            phase=self.phase,
+        )
+
+    def __str__(self):
+        return self.thinking
 
 
 class ContentToolRequestSearch(Content):

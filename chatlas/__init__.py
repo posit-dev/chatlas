@@ -24,6 +24,7 @@ from ._provider_github import ChatGithub
 from ._provider_google import ChatGoogle, ChatVertex
 from ._provider_groq import ChatGroq
 from ._provider_huggingface import ChatHuggingFace
+from ._provider_lmstudio import ChatLMStudio
 from ._provider_mistral import ChatMistral
 from ._provider_ollama import ChatOllama
 from ._provider_openai import ChatOpenAI
@@ -33,6 +34,7 @@ from ._provider_openrouter import ChatOpenRouter
 from ._provider_perplexity import ChatPerplexity
 from ._provider_portkey import ChatPortkey
 from ._provider_snowflake import ChatSnowflake
+from ._stream_controller import StreamController
 from ._tokens import token_usage
 from ._tools import Tool, ToolBuiltIn, ToolRejectError
 from ._tools_builtin import tool_web_fetch, tool_web_search
@@ -61,6 +63,7 @@ __all__ = (
     "ChatGoogle",
     "ChatGroq",
     "ChatHuggingFace",
+    "ChatLMStudio",
     "ChatMistral",
     "ChatOllama",
     "ChatOpenAICompletions",
@@ -83,6 +86,7 @@ __all__ = (
     "interpolate",
     "interpolate_file",
     "Provider",
+    "StreamController",
     "token_usage",
     "Tool",
     "ToolBuiltIn",

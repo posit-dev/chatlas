@@ -188,3 +188,50 @@ def test_google_pdfs():
 @pytest.mark.vcr
 def test_google_list_models():
     assert_list_models(ChatGoogle)
+
+
+def test_google_thought_signature_roundtrip():
+    """thought_signature must be preserved on ContentToolRequest for thinking models."""
+    from chatlas._content import ContentToolRequest
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash-preview-04-17",
+        api_key="dummy",
+        kwargs=None,
+    )
+
+    # Simulate a Google API response with thought_signature on a functionCall part
+    fake_signature = b"abc123signature"
+    message = {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [
+                        {
+                            "function_call": {
+                                "name": "sum_tool",
+                                "args": {"a": 1, "b": 2},
+                            },
+                            "thought_signature": fake_signature,
+                        }
+                    ]
+                },
+                "finish_reason": "STOP",
+            }
+        ],
+        "usage_metadata": {
+            "prompt_token_count": 10,
+            "candidates_token_count": 5,
+        },
+    }
+
+    turn = provider._as_turn(message, has_data_model=False)
+    assert len(turn.contents) == 1
+    req = turn.contents[0]
+    assert isinstance(req, ContentToolRequest)
+    assert req.extra.get("thought_signature") == fake_signature
+
+    # Verify it round-trips back into the Part
+    part = provider._as_part_type(req)
+    assert part.thought_signature == fake_signature

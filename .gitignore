@@ -11,5 +11,8 @@ logs/
 
 /.luarc.json
 
+# worktrees
+.worktrees/
+
 # setuptools_scm
 chatlas/_version.py

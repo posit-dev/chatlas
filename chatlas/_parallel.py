@@ -24,6 +24,7 @@ from pydantic import BaseModel
 from ._chat import Chat
 from ._content import ContentToolRequest, ContentToolResult, ToolInfo
 from ._progress import ProgressTracker
+from ._stream_controller import StreamController
 from ._turn import user_turn
 
 if TYPE_CHECKING:
@@ -37,6 +38,7 @@ __all__ = (
 
 ChatT = TypeVar("ChatT", bound=Chat)
 BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
+
 
 @dataclass
 class StructuredChatResult(Generic[BaseModelT, ChatT]):
@@ -396,6 +398,7 @@ async def parallel_chat_structured(
     import chatlas as ctl
     from pydantic import BaseModel
 
+
     class Person(BaseModel):
         name: str
         age: int
@@ -518,6 +521,7 @@ async def _parallel_chat_impl(
                     echo="none",
                     stream=False,
                     kwargs=kwargs,
+                    controller=StreamController(),
                 )
                 async for _ in response:
                     pass

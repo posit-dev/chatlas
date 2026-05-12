@@ -1,5 +1,16 @@
 project:
   type: website
+  render:
+    - "*.qmd"
+    - "CHANGELOG.md"
+    - "get-started/*.qmd"
+    - "misc/*.qmd"
+    - "structured-data/*.qmd"
+    - "tool-calling/*.qmd"
+    - "dev/*.qmd"
+    - "reference/*.qmd"
+    - "scale.qmd"
+    - "why-chatlas.qmd"
   resources:
     - objects.txt
     - images/
@@ -30,7 +41,14 @@ website:
   title: chatlas
   page-navigation: true
   site-url: https://posit-dev.github.io/chatlas/
+  plausible-analytics: |
+    <script async src="https://plausible.io/js/pa-pN3x5-t50CqjdU3JPOYbw.js"></script>
+    <script>
+      window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+      plausible.init()
+    </script>
   description: Your friendly guide to building LLM chat apps in Python with less effort and more clarity.
+  llms-txt: true
 
   bread-crumbs: true
   open-graph: true
@@ -102,6 +120,9 @@ website:
             - misc/mcp-tools.qmd
             - misc/evals.qmd
 
+
+execute:
+  freeze: auto
 
 format:
   html:
@@ -201,6 +222,8 @@ quartodoc:
         - types.ContentImageRemote
         - types.ContentJson
         - types.ContentText
+        - types.ContentThinking
+        - types.ContentThinkingDelta
         - types.ContentToolRequest
         - types.ContentToolResult
         - types.ContentToolRequestSearch

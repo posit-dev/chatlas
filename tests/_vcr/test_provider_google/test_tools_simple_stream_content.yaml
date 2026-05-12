@@ -10,7 +10,7 @@ interactions:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
@@ -20,18 +20,18 @@ interactions:
       Host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.12.11
+      - google-genai-sdk/1.64.0 gl-python/3.12.11
     method: POST
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
-        {\"name\": \"get_date\",\"args\": {}},\"thoughtSignature\": \"CiQBcsjafE9eWGiadGJJTJOL/qzQ8PR+U2+tUgjiMrMZ7XHKr9YKcAFyyNp8+AqF+TpTbQOQwoLL0EHvfR1ZTS1toVSmjVsdUIeV7CdQkhtv8aMOpIXLE+FQQy0/Lk7nNZ8CW7Ei5tc0JfS+LApvnXn7PP+8B3r7EJZdRFcFC4YZdqWkrKWTwaz35COYxXuv8taX3nhB2GQKlQEBcsjafDrxMBZDDt/PXsp4UQgCR0yXNu2QDG18urPBwgIDR6a/OHVWGhZUuRYxkk4wjHg+E2ABeGbGgQ/5w90LsrgAylwUVDbUCr7Qzd+c12ZjI44YLXaeIwHsjGZcYcmAfYxFCRswf/NNXP4FewXBVVc/XPQ+q1P/yvLZG4cmf2tk1FXFdpj95+g0fcwOzZ/QlwUEgw==\"}],\"role\":
+        {\"name\": \"get_date\",\"args\": {}},\"thoughtSignature\": \"CiQBvj72+09q6FXkm32yuMdnLY3gss8ZTRGFG4AmVBS5PC+NB5IKcAG+Pvb7Iuxj1GAsULBuNlAuH7R5g8D06qAhMPsiTVVfCh73R96mjtXTfi64GyoUQCNCyHfHXfwG01bZMTIbOK5tyavsYwpXmJaPnjq+ydy0lwPmDA1fmGavUskpYvnFP2MTKcNy2h62dZbV1rjWGz8KlQEBvj72+//VlnVKZhLvbC033P0j6SBzF5LEXgcr+tFEJVgmaptMYH4mmI0XAVIbxfHCl9seCJoZOr1Atha/E0mN6MhLNSMrSCoaIS9HMvVx3goHczKErMXYVnWTRYt3c/+KHRwHHs2yYF/jSn/DTYMXgtvbTRwzxOi8bVyAE7xztOlbi0qE0flKsbhyCCgE6qxzQ+SFrg==\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
         generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
         51,\"candidatesTokenCount\": 10,\"totalTokenCount\": 104,\"promptTokensDetails\":
         [{\"modality\": \"TEXT\",\"tokenCount\": 51}],\"thoughtsTokenCount\": 43},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"_XBYabbFCfrO_uMP34qY-Qw\"}\r\n\r\n"
+        \"gemini-2.5-flash\",\"responseId\": \"sK3NaejWEe_VjMcP9K_jiA0\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -40,11 +40,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Sat, 03 Jan 2026 01:29:33 GMT
+      - Wed, 01 Apr 2026 23:43:44 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=779
+      - gfet4t7; dur=648
       Transfer-Encoding:
       - chunked
       Vary:
@@ -63,40 +63,41 @@ interactions:
 - request:
     body: '{"contents": [{"parts": [{"text": "What''s the current date in YYYY-MM-DD
       format?"}], "role": "user"}, {"parts": [{"functionCall": {"args": {}, "name":
-      "get_date"}}], "role": "model"}, {"parts": [{"functionResponse": {"name": "get_date",
-      "response": {"result": "2024-01-01"}}}], "role": "user"}], "systemInstruction":
-      {"parts": [{"text": "Be very terse, not even punctuation."}], "role": "user"},
-      "tools": [{"functionDeclarations": [{"description": "Gets the current date",
-      "name": "get_date", "parameters": {"properties": {}, "required": [], "type":
-      "OBJECT"}}]}], "generationConfig": {"temperature": 0}}'
+      "get_date"}, "thoughtSignature": "CiQBvj72-09q6FXkm32yuMdnLY3gss8ZTRGFG4AmVBS5PC-NB5IKcAG-Pvb7Iuxj1GAsULBuNlAuH7R5g8D06qAhMPsiTVVfCh73R96mjtXTfi64GyoUQCNCyHfHXfwG01bZMTIbOK5tyavsYwpXmJaPnjq-ydy0lwPmDA1fmGavUskpYvnFP2MTKcNy2h62dZbV1rjWGz8KlQEBvj72-__VlnVKZhLvbC033P0j6SBzF5LEXgcr-tFEJVgmaptMYH4mmI0XAVIbxfHCl9seCJoZOr1Atha_E0mN6MhLNSMrSCoaIS9HMvVx3goHczKErMXYVnWTRYt3c_-KHRwHHs2yYF_jSn_DTYMXgtvbTRwzxOi8bVyAE7xztOlbi0qE0flKsbhyCCgE6qxzQ-SFrg=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"name": "get_date", "response":
+      {"result": "2024-01-01"}}}], "role": "user"}], "systemInstruction": {"parts":
+      [{"text": "Be very terse, not even punctuation."}], "role": "user"}, "tools":
+      [{"functionDeclarations": [{"description": "Gets the current date", "name":
+      "get_date", "parameters": {"properties": {}, "required": [], "type": "OBJECT"}}]}],
+      "generationConfig": {"temperature": 0}}'
     headers:
       Accept:
       - '*/*'
       Accept-Encoding:
-      - gzip, deflate
+      - gzip, deflate, zstd
       Connection:
       - keep-alive
       Content-Length:
-      - '604'
+      - '1036'
       Content-Type:
       - application/json
       Host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.12.11
+      - google-genai-sdk/1.64.0 gl-python/3.12.11
     method: POST
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"2024\"}],\"role\":
-        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 85,\"candidatesTokenCount\":
-        4,\"totalTokenCount\": 89,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
-        85}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"_nBYabfUGO7X_uMPwtnYgAo\"}\r\n\r\ndata:
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 128,\"candidatesTokenCount\":
+        4,\"totalTokenCount\": 132,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        128}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"sa3NaYSRCcP1jMcP4OHtgAo\"}\r\n\r\ndata:
         {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"-01-01\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
-        85,\"candidatesTokenCount\": 10,\"totalTokenCount\": 95,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 85}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"_nBYabfUGO7X_uMPwtnYgAo\"}\r\n\r\n"
+        128,\"candidatesTokenCount\": 10,\"totalTokenCount\": 138,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 128}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
+        \"sa3NaYSRCcP1jMcP4OHtgAo\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -105,11 +106,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Sat, 03 Jan 2026 01:29:34 GMT
+      - Wed, 01 Apr 2026 23:43:45 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=330
+      - gfet4t7; dur=399
       Transfer-Encoding:
       - chunked
       Vary:

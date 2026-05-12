@@ -198,7 +198,7 @@ async def test_call_http_mcp_tool():
         )
 
         response = await chat.chat_async(
-            "What's the current date in YMD format?", stream=True
+            "What's the current date in YYYY-MM-DD format?", stream=True
         )
         assert "2024-01-01" in await response.get_content()
 
@@ -220,7 +220,7 @@ async def test_call_stdio_mcp_tool():
     )
 
     response = await chat.chat_async(
-        "What's the current date in YMD format?", stream=True
+        "What's the current date in YYYY-MM-DD format?", stream=True
     )
 
     assert "2024-01-01" in await response.get_content()

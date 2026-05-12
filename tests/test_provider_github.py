@@ -17,9 +17,13 @@ from .conftest import (
 )
 
 
+def chat_fun(**kwargs):
+    return ChatGithub(model="gpt-4.1", **kwargs)
+
+
 @pytest.mark.vcr
 def test_github_simple_request():
-    chat = ChatGithub(
+    chat = chat_fun(
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -35,7 +39,7 @@ def test_github_simple_request():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_simple_streaming_request():
-    chat = ChatGithub(
+    chat = chat_fun(
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -49,14 +53,12 @@ async def test_github_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_github_respects_turns_interface():
-    chat_fun = ChatGithub
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
 @pytest.mark.vcr
 def test_github_tool_variations():
-    chat_fun = ChatGithub
     assert_tools_simple(chat_fun)
     assert_tools_simple_stream_content(chat_fun)
     assert_tools_parallel(chat_fun)
@@ -66,17 +68,16 @@ def test_github_tool_variations():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_tool_variations_async():
-    await assert_tools_async(ChatGithub)
+    await assert_tools_async(chat_fun)
 
 
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(ChatGithub)
+    assert_data_extraction(chat_fun)
 
 
 @pytest.mark.vcr
 def test_github_images():
-    chat_fun = ChatGithub
     assert_images_inline(chat_fun)
     assert_images_remote(chat_fun)
 
@@ -84,7 +85,7 @@ def test_github_images():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_github_logprobs():
-    chat = ChatGithub()
+    chat = chat_fun()
 
     pieces = []
     async for x in await chat.stream_async("Hi", kwargs={"logprobs": True}):

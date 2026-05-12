@@ -122,7 +122,7 @@ def ChatDeepSeek(
     ```
     """
     if model is None:
-        model = log_model_default("deepseek-chat")
+        model = log_model_default("deepseek-v4-flash")
 
     if api_key is None:
         api_key = os.getenv("DEEPSEEK_API_KEY")
@@ -136,6 +136,7 @@ def ChatDeepSeek(
             model=model,
             base_url=base_url,
             seed=seed,
+            preserve_thinking=True,
             name="DeepSeek",
             kwargs=kwargs,
         ),
@@ -144,14 +145,13 @@ def ChatDeepSeek(
 
 
 class DeepSeekProvider(OpenAICompletionsProvider):
-    @staticmethod
-    def _turns_as_inputs(turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
+    def _turns_as_inputs(self, turns: list[Turn]) -> list["ChatCompletionMessageParam"]:
         from openai.types.chat import (
             ChatCompletionAssistantMessageParam,
             ChatCompletionUserMessageParam,
         )
 
-        params = OpenAICompletionsProvider._turns_as_inputs(turns)
+        params = super()._turns_as_inputs(turns)
 
         # Content must be a string
         for i, param in enumerate(params):

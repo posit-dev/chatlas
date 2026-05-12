@@ -15,6 +15,7 @@ from ._provider_github import ChatGithub
 from ._provider_google import ChatGoogle, ChatVertex
 from ._provider_groq import ChatGroq
 from ._provider_huggingface import ChatHuggingFace
+from ._provider_lmstudio import ChatLMStudio
 from ._provider_mistral import ChatMistral
 from ._provider_ollama import ChatOllama
 from ._provider_openai import ChatOpenAI
@@ -37,6 +38,7 @@ AutoProviders = Literal[
     "google",
     "groq",
     "hugging-face",
+    "lmstudio",
     "mistral",
     "ollama",
     "openai",
@@ -61,6 +63,7 @@ _provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
     "google": ChatGoogle,
     "groq": ChatGroq,
     "hugging-face": ChatHuggingFace,
+    "lmstudio": ChatLMStudio,
     "mistral": ChatMistral,
     "ollama": ChatOllama,
     "openai": ChatOpenAI,
@@ -170,7 +173,7 @@ def ChatAuto(
         `"{provider}/{model}"`. Providers are strings formatted in kebab-case,
         e.g. to use `ChatBedrockAnthropic` set `provider="bedrock-anthropic"`,
         and models are the provider-specific model names, e.g.
-        `"claude-3-7-sonnet-20250219"`. The `/{model}` portion may also be
+        `"claude-sonnet-4-6"`. The `/{model}` portion may also be
         omitted, in which case, the default model for that provider will be
         used.
 

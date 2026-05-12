@@ -26,6 +26,7 @@ from ._content import (
     ContentPDF,
     ContentText,
     ContentThinking,
+    ContentThinkingDelta,
     ContentToolRequest,
     ContentToolRequestFetch,
     ContentToolRequestSearch,
@@ -263,7 +264,7 @@ def ChatAnthropic(
     """
 
     if model is None:
-        model = log_model_default("claude-sonnet-4-5")
+        model = log_model_default("claude-sonnet-4-6")
 
     kwargs_chat: "SubmitInputArgs" = {}
     if reasoning is not None:
@@ -499,12 +500,12 @@ class AnthropicProvider(
 
         return data_model_tool
 
-    def stream_text(self, chunk) -> Optional[str]:
+    def stream_content(self, chunk) -> Optional[Content]:
         if chunk.type == "content_block_delta":
             if chunk.delta.type == "text_delta":
-                return chunk.delta.text
+                return ContentText.model_construct(text=chunk.delta.text)
             if chunk.delta.type == "thinking_delta":
-                return chunk.delta.thinking
+                return ContentThinkingDelta(thinking=chunk.delta.thinking)
         return None
 
     def stream_merge_chunks(self, completion, chunk):
@@ -874,32 +875,43 @@ class AnthropicProvider(
                 urls: list[str] = []
                 if isinstance(content.content, list):
                     urls = [x.url for x in content.content]
+                # Manually construct the extra dict to avoid SDK-internal
+                # fields (e.g., "caller") that the API doesn't accept
+                extra = {
+                    "type": content.type,
+                    "tool_use_id": content.tool_use_id,
+                    "content": [x.model_dump() for x in content.content]
+                    if isinstance(content.content, list)
+                    else content.content.model_dump(),
+                }
                 contents.append(
                     ContentToolResponseSearch(
                         urls=urls,
-                        extra=content.model_dump(),
+                        extra=extra,
                     )
                 )
             elif content.type == "web_fetch_tool_result":
                 # N.B. type checker thinks this is unreachable due to
                 # ToolUnionParam not including BetaWebFetchTool20250910Param
-                # yet. Also, at run-time, the SDK is currently giving non-sense
-                # of type(content) == TextBlock, but it doesn't even fit that
-                # shape?!? Anyway, content.content has a dict with the content
-                # we want.
-                content_fetch = cast("dict", getattr(content, "content", {}))
-                if not content_fetch:
+                # yet.
+                content_fetch = getattr(content, "content", None)
+                if content_fetch is None:
                     raise ValueError(
                         "web_fetch_tool_result content is empty. Please report this issue."
                     )
+                # content_fetch is a BetaWebFetchBlock (has .url) or
+                # BetaWebFetchToolResultErrorBlock (error case)
+                url = getattr(content_fetch, "url", "failed")
+                # Manually construct the extra dict to avoid SDK-internal
+                # fields (e.g., "caller") that the API doesn't accept
                 extra = {
-                    "type": "web_fetch_tool_result",
+                    "type": content.type,
                     "tool_use_id": content.tool_use_id,  # type: ignore
-                    "content": content_fetch,
+                    "content": content_fetch.model_dump(exclude_none=True),
                 }
                 contents.append(
                     ContentToolResponseFetch(
-                        url=content_fetch.get("url", "failed"),
+                        url=url,
                         extra=extra,
                     )
                 )
@@ -1022,6 +1034,7 @@ def ChatBedrockAnthropic(
     *,
     model: Optional[str] = None,
     max_tokens: int = 4096,
+    reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
     cache: Literal["5m", "1h", "none"] = "none",
     aws_secret_key: Optional[str] = None,
     aws_access_key: Optional[str] = None,
@@ -1078,9 +1091,16 @@ def ChatBedrockAnthropic(
         The model to use for the chat.
     max_tokens
         Maximum number of tokens to generate before stopping.
+    reasoning
+        Determines how many tokens Claude can be allocated to reasoning. Must be
+        ≥1024 and less than `max_tokens`. Larger budgets can enable more
+        thorough analysis for complex problems, improving response quality. See
+        [extended
+        thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
+        for details.
     cache
-        How long to cache inputs? Defaults to "5m" (five minutes).
-        Set to "none" to disable caching or "1h" to cache for one hour.
+        How long to cache inputs? Defaults to "none" (disabled).
+        Set to "5m" to cache for five minutes or "1h" to cache for one hour.
         See the Caching section of `ChatAnthropic` for details.
     aws_secret_key
         The AWS secret key to use for authentication.
@@ -1157,7 +1177,13 @@ def ChatBedrockAnthropic(
     """
 
     if model is None:
-        model = log_model_default("us.anthropic.claude-sonnet-4-5-20250929-v1:0")
+        model = log_model_default("us.anthropic.claude-sonnet-4-6")
+
+    kwargs_chat: "SubmitInputArgs" = {}
+    if reasoning is not None:
+        if isinstance(reasoning, int):
+            reasoning = {"type": "enabled", "budget_tokens": reasoning}
+        kwargs_chat = {"thinking": reasoning}
 
     return Chat(
         provider=AnthropicBedrockProvider(
@@ -1173,6 +1199,7 @@ def ChatBedrockAnthropic(
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+        kwargs_chat=kwargs_chat,
     )
 
 
@@ -1200,7 +1227,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
         )
 
         try:
-            from anthropic import AnthropicBedrock, AsyncAnthropicBedrock
+            from anthropic.lib.bedrock import AnthropicBedrock, AsyncAnthropicBedrock
         except ImportError:
             raise ImportError(
                 "`ChatBedrockAnthropic()` requires the `anthropic` package. "
