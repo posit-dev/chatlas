@@ -27,7 +27,7 @@ def batch_chat(
     prompts: list[ContentT] | list[list[ContentT]],
     path: Union[str, Path],
     wait: bool = True,
-) -> list[ChatT | None]:
+) -> list[ChatT | None] | None:
     """
     Submit multiple chat requests in a batch.
 
@@ -71,7 +71,8 @@ def batch_chat(
     ```
     """
     job = BatchJob(chat, prompts, path, wait=wait)
-    job.step_until_done()
+    if job.step_until_done() is None:
+        return None
 
     chats = []
     assistant_turns = job.result_turns()
@@ -92,7 +93,7 @@ def batch_chat_text(
     prompts: list[ContentT] | list[list[ContentT]],
     path: Union[str, Path],
     wait: bool = True,
-) -> list[str | None]:
+) -> list[str | None] | None:
     """
     Submit multiple chat requests in a batch and return text responses.
 
@@ -108,13 +109,17 @@ def batch_chat_text(
     path
         Path to file (with .json extension) to store batch state
     wait
-        If True, wait for batch to complete
+        If True, wait for batch to complete. If False, return None if incomplete.
 
     Return
     ------
-    List of text responses (or None for failed requests)
+    List of text responses (or None for failed requests), or None if
+    wait=False and incomplete.
     """
     chats = batch_chat(chat, prompts, path, wait=wait)
+
+    if chats is None:
+        return None
 
     texts = []
     for x in chats:
@@ -136,7 +141,7 @@ def batch_chat_structured(
     path: Union[str, Path],
     data_model: type[BaseModelT],
     wait: bool = True,
-) -> list[BaseModelT | None]:
+) -> list[BaseModelT | None] | None:
     """
     Submit multiple structured data requests in a batch.
 
@@ -151,17 +156,16 @@ def batch_chat_structured(
     data_model
         Pydantic model class for structured responses
     wait
-        If True, wait for batch to complete
+        If True, wait for batch to complete. If False, return None if incomplete.
 
     Return
     ------
-    List of structured data objects (or None for failed requests)
+    List of structured data objects (or None for failed requests), or None if
+    wait=False and incomplete.
     """
     job = BatchJob(chat, prompts, path, data_model=data_model, wait=wait)
-    result = job.step_until_done()
-
-    if result is None:
-        return []
+    if job.step_until_done() is None:
+        return None
 
     res: list[BaseModelT | None] = []
     assistant_turns = job.result_turns()
