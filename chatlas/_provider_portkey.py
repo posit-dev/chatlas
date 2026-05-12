@@ -96,6 +96,13 @@ def ChatPortkey(
     if api_key is None:
         api_key = os.getenv("PORTKEY_API_KEY")
 
+    if callable(api_key):
+        raise TypeError(
+            "ChatPortkey() does not support callable `api_key` because the key "
+            "must be sent as the `x-portkey-api-key` header at construction time. "
+            "For dynamic auth, use `api_headers` with a callable instead."
+        )
+
     kwargs2 = add_default_headers(
         kwargs or {},
         api_key=api_key,
@@ -117,15 +124,13 @@ def ChatPortkey(
 
 def add_default_headers(
     kwargs: "ChatClientArgs",
-    api_key: Optional[str | Callable[[], str]] = None,
+    api_key: Optional[str] = None,
     virtual_key: Optional[str] = None,
 ) -> "ChatClientArgs":
     headers = kwargs.get("default_headers", None)
-    # Callables cannot be serialised as header strings; only pass plain strings
-    api_key_header = api_key if isinstance(api_key, str) else None
     default_headers = drop_none(
         {
-            "x-portkey-api-key": api_key_header,
+            "x-portkey-api-key": api_key,
             "x-portkey-virtual-key": virtual_key,
             **(headers or {}),
         }

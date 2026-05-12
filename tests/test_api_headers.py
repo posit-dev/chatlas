@@ -156,3 +156,35 @@ class TestCallableApiKey:
             api_key=lambda: "dynamic-key",
         )
         assert chat.provider._client.api_key is not None
+
+    def test_callable_api_key_async_client_wrapped(self, monkeypatch):
+        import inspect
+
+        from chatlas import ChatOpenAI
+
+        for k in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"):
+            monkeypatch.delenv(k, raising=False)
+            monkeypatch.delenv(k.lower(), raising=False)
+
+        chat = ChatOpenAI(
+            model="gpt-4o",
+            api_key=lambda: "dynamic-key",
+        )
+        # The SDK stores the callable on _api_key_provider internally.
+        # The async client's provider should be an async function (wrapped).
+        async_provider = chat.provider._async_client._api_key_provider
+        assert callable(async_provider)
+        assert inspect.iscoroutinefunction(async_provider)
+
+    def test_portkey_callable_api_key_rejected(self, monkeypatch):
+        from chatlas import ChatPortkey
+
+        for k in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY"):
+            monkeypatch.delenv(k, raising=False)
+            monkeypatch.delenv(k.lower(), raising=False)
+
+        with pytest.raises(TypeError, match="callable"):
+            ChatPortkey(
+                model="gpt-4o",
+                api_key=lambda: "dynamic-key",
+            )
