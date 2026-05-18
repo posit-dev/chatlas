@@ -22,6 +22,18 @@ Chat with a Google Vertex AI model.
 > **NOTE:**
 >
 > To use Google’s models (i.e., Vertex AI), you’ll need to sign up for an account with [Vertex AI](https://cloud.google.com/vertex-ai), then specify the appropriate model, project, and location.
+>
+> Vertex AI typically authenticates via Application Default Credentials (ADC). You can also pass a `google.auth.credentials.Credentials` object via `kwargs`:
+>
+> ``` python
+> import google.auth
+> credentials, project = google.auth.default()
+> chat = ChatVertex(
+>     project=project,
+>     location="us-central1",
+>     kwargs={"credentials": credentials},
+> )
+> ```
 
 ## Parameters
 

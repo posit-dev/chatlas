@@ -2,20 +2,29 @@
 
 ## \[UNRELEASED\]
 
+### Bug fixes
+
+- `ContentPDF` is now exported from `chatlas.types`, matching all other `Content` subclasses. (#312)
+
+## \[0.18.0\] - 2026-05-12
+
 ### New features
 
 - New `StreamController` class for cooperative stream cancellation. Pass a controller to `.stream()` or `.stream_async()` and call `controller.cancel()` to stop the stream cleanly (e.g., from a Shiny “stop generating” button). The partial response is preserved in conversation history. (#279)
 
 ### Improvements
 
-- When a stream is interrupted (closed early, cancelled, or errors), the accumulated content is now saved as a partial `AssistantTurn` so conversation state isn’t lost. Partial turns display `[interrupted]` (or the cancellation reason) in the `Chat` repr and are excluded from token/cost accounting. (#279)
 - `ChatAnthropic()` and `ChatBedrockAnthropic()` now use Anthropic’s native structured outputs API for Claude 4.5+ models, enabling streaming with `data_model`. Older models fall back to the tool-based approach. A new `structured_output_mode` parameter (`"auto"`, `"native"`, or `"tool"`) lets you override the auto-detection. (#263)
+- When a stream is interrupted (closed early, cancelled, or errors), the accumulated content is now saved as a partial `AssistantTurn` so conversation state isn’t lost. Partial turns display `[interrupted]` (or the cancellation reason) in the `Chat` repr and are excluded from token/cost accounting. (#279)
+- `ChatBedrockAnthropic()` now defaults to `cache="5m"`, enabling prompt caching by default — matching `ChatAnthropic()`’s behavior. (#308)
 - `ChatOpenAI()` now warns when `base_url` points to a non-OpenAI host, guiding users to `ChatOpenAICompletions()` for third-party backends like vLLM, Ollama, and LiteLLM. (#285)
 
 ### Bug fixes
 
-- Fixed `model_dump(mode="json")` failing on `Turn`s containing `bytes` fields (e.g., `ContentPDF.data`, `thought_signature` in `ContentToolRequest`/`ContentThinking` extras). Bytes values are now base64-encoded during serialization and decoded on validation, so JSON round-trips work correctly.
 - Fixed thinking content being silently dropped during streaming for completions-based providers (DeepSeek, Groq, OpenRouter, etc.). The streaming path was returning finalized `ContentThinking` objects instead of `ContentThinkingDelta` fragments, which the `TurnAccumulator` didn’t recognize. (#301)
+- Fixed `model_dump(mode="json")` failing on `Turn`s containing `bytes` fields (e.g., `ContentPDF.data`, `thought_signature` in `ContentToolRequest`/`ContentThinking` extras). Bytes values are now base64-encoded during serialization and decoded on validation, so JSON round-trips work correctly.
+- `batch_chat()`, `batch_chat_text()`, and `batch_chat_structured()` now correctly return `None` when `wait=False` and the job is still incomplete. Previously they returned `[]`, making it impossible to distinguish “all requests failed” from “job not done yet”. (#306)
+- `ChatDatabricks()` (and other `ChatOpenAICompletions()` providers) no longer fail with HTTP 400 when the conversation history contains empty assistant content, which can occur during tool calling. (#305)
 
 ## \[0.17.0\] - 2026-05-11
 

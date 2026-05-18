@@ -16,7 +16,15 @@ Chat with a Google Gemini model.
 
 > **NOTE:**
 >
-> To use Google’s models (i.e., Gemini), you’ll need to sign up for an account and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python).
+> The simplest way to authenticate is with an API key. Sign up for an account and [get an API key](https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python), then pass it via `api_key` or set the `GOOGLE_API_KEY` environment variable.
+>
+> For OAuth, service accounts, or Application Default Credentials, pass a `google.auth.credentials.Credentials` object via `kwargs`:
+>
+> ``` python
+> import google.auth
+> credentials, _ = google.auth.default()
+> chat = ChatGoogle(kwargs={"credentials": credentials})
+> ```
 
 > **NOTE:**
 >

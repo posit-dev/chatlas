@@ -198,6 +198,8 @@ chatlas.types.ContentImageRemote py:class 1 reference/types.ContentImageRemote.h
 chatlas._content.ContentImageRemote py:class 1 reference/types.ContentImageRemote.html#chatlas.types.ContentImageRemote chatlas.types.ContentImageRemote
 chatlas.types.ContentJson py:class 1 reference/types.ContentJson.html#chatlas.types.ContentJson -
 chatlas._content.ContentJson py:class 1 reference/types.ContentJson.html#chatlas.types.ContentJson chatlas.types.ContentJson
+chatlas.types.ContentPDF py:class 1 reference/types.ContentPDF.html#chatlas.types.ContentPDF -
+chatlas._content.ContentPDF py:class 1 reference/types.ContentPDF.html#chatlas.types.ContentPDF chatlas.types.ContentPDF
 chatlas.types.ContentText py:class 1 reference/types.ContentText.html#chatlas.types.ContentText -
 chatlas._content.ContentText py:class 1 reference/types.ContentText.html#chatlas.types.ContentText chatlas.types.ContentText
 chatlas.types.ContentThinking py:class 1 reference/types.ContentThinking.html#chatlas.types.ContentThinking -

@@ -14,8 +14,8 @@ Submit multiple structured data requests in a batch.
 | prompts | [list](https://docs.python.org/3/library/stdtypes.html#list)\[`ContentT`\] \| [list](https://docs.python.org/3/library/stdtypes.html#list)\[[list](https://docs.python.org/3/library/stdtypes.html#list)\[`ContentT`\]\] | List of prompts to process | *required* |
 | path | [Union](https://docs.python.org/3/library/typing.html#typing.Union)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [Path](https://docs.python.org/3/library/pathlib.html#pathlib.Path)\] | Path to file (with .json extension) to store batch state | *required* |
 | data_model | [type](https://docs.python.org/3/library/functions.html#type)\[`BaseModelT`\] | Pydantic model class for structured responses | *required* |
-| wait | [bool](https://docs.python.org/3/library/functions.html#bool) | If True, wait for batch to complete | `True` |
+| wait | [bool](https://docs.python.org/3/library/functions.html#bool) | If True, wait for batch to complete. If False, return None if incomplete. | `True` |
 
 ## Return
 
-List of structured data objects (or None for failed requests)
+List of structured data objects (or None for failed requests), or None if wait=False and incomplete.

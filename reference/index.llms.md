@@ -126,6 +126,7 @@ A provider-agnostic representation of content generated during an assistant/user
 | [types.ContentImageInline](../reference/types.ContentImageInline.llms.md#chatlas.types.ContentImageInline) | Inline image content. |
 | [types.ContentImageRemote](../reference/types.ContentImageRemote.llms.md#chatlas.types.ContentImageRemote) | Image content from a URL. |
 | [types.ContentJson](../reference/types.ContentJson.llms.md#chatlas.types.ContentJson) | JSON content |
+| [types.ContentPDF](../reference/types.ContentPDF.llms.md#chatlas.types.ContentPDF) | PDF content |
 | [types.ContentText](../reference/types.ContentText.llms.md#chatlas.types.ContentText) | Text content for a [`Turn`](https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn) |
 | [types.ContentThinking](../reference/types.ContentThinking.llms.md#chatlas.types.ContentThinking) | Thinking/reasoning content |
 | [types.ContentThinkingDelta](../reference/types.ContentThinkingDelta.llms.md#chatlas.types.ContentThinkingDelta) | A streaming fragment of thinking/reasoning content. |
