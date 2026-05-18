@@ -221,6 +221,7 @@ quartodoc:
         - types.ContentImageInline
         - types.ContentImageRemote
         - types.ContentJson
+        - types.ContentPDF
         - types.ContentText
         - types.ContentThinking
         - types.ContentThinkingDelta
