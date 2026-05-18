@@ -6031,6 +6031,14 @@
   },
   {
     "provider": "OpenAI",
+    "model": "gpt-realtime-2",
+    "variant": "",
+    "input": 4,
+    "output": 16,
+    "cached_input": 0.4
+  },
+  {
+    "provider": "OpenAI",
     "model": "gpt-realtime-2025-08-28",
     "variant": "",
     "input": 4,
