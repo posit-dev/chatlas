@@ -210,9 +210,9 @@ docstring-code-format = true
 docstring-code-line-length = "dynamic"
 
 
-# TODO(htmltools-105): remove this source override before merging.
-# Pins htmltools to the PR branch that adds the `Tagified` alias
-# (posit-dev/py-htmltools#106). Flip back to the released htmltools
-# once it ships.
+# TODO(htmltools-116): remove this source override before merging.
+# Pins htmltools to PR #120 (the sibling-classes refactor for
+# tagified content). Flip back to the released htmltools once 0.7.0
+# ships.
 [tool.uv.sources]
-htmltools = { git = "https://github.com/posit-dev/py-htmltools.git", branch = "main" }
+htmltools = { git = "https://github.com/posit-dev/py-htmltools.git", branch = "schloerke/issue-116-sibling-classes" }
