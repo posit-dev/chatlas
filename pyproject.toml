@@ -208,11 +208,3 @@ skip-magic-trailing-comma = false
 line-ending = "auto"
 docstring-code-format = true
 docstring-code-line-length = "dynamic"
-
-
-# TODO(htmltools-116): remove this source override before merging.
-# Pins htmltools to PR #120 (the sibling-classes refactor for
-# tagified content). Flip back to the released htmltools once 0.7.0
-# ships.
-[tool.uv.sources]
-htmltools = { git = "https://github.com/posit-dev/py-htmltools.git", branch = "main" }
