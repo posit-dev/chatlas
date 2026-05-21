@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
+from ._api_headers import ApiHeaders
 from ._chat import Chat
 from ._logging import log_model_default
 from ._provider_openai_completions import OpenAICompletionsProvider
@@ -17,7 +18,8 @@ def ChatPerplexity(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    api_key: Optional[str | Callable[[], str]] = None,
+    api_headers: Optional[ApiHeaders] = None,
     base_url: str = "https://api.perplexity.ai/",
     seed: Optional[int] | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
@@ -62,6 +64,11 @@ def ChatPerplexity(
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `PERPLEXITY_API_KEY` environment
         variable.
+    api_headers
+        Extra HTTP headers to include with every chat API request. Can be a dict
+        of ``{header_name: header_value}`` pairs, or a zero-argument callable
+        returning such a dict. A callable is invoked on every request,
+        enabling dynamic auth patterns like token refresh.
     base_url
         The base URL to the endpoint; the default uses Perplexity's API.
     seed
@@ -132,6 +139,7 @@ def ChatPerplexity(
             base_url=base_url,
             seed=seed,
             name="Perplexity",
+            api_headers=api_headers,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
