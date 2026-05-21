@@ -215,4 +215,4 @@ docstring-code-line-length = "dynamic"
 # tagified content). Flip back to the released htmltools once 0.7.0
 # ships.
 [tool.uv.sources]
-htmltools = { git = "https://github.com/posit-dev/py-htmltools.git", branch = "schloerke/issue-116-sibling-classes" }
+htmltools = { git = "https://github.com/posit-dev/py-htmltools.git", branch = "main" }
