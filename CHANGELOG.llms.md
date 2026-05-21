@@ -1,6 +1,10 @@
 # Changelog
 
-## \[UNRELEASED\]
+## \[0.18.1\] - 2026-05-21
+
+### Improvements
+
+- `Content.tagify()` implementations (`ContentToolRequest`, `ContentToolResult`, `ContentThinking`) now annotate their return type as `htmltools.Tagified` and fully tagify their output, complying with htmltools 0.7.0’s tightened Tagifiable contract. Embedding these contents inside another `.tagify()` recursion no longer trips the new boundary check in htmltools 0.7.0. (#311)
 
 ### Bug fixes
 
