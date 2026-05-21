@@ -18,6 +18,8 @@ from pydantic import (
 from ._typing_extensions import TypedDict
 
 if TYPE_CHECKING:
+    from htmltools import Tagified
+
     from ._tools import Tool, ToolBuiltIn
 
 
@@ -316,7 +318,7 @@ class ContentToolRequest(Content):
     def _repr_html_(self) -> str:
         return str(self.tagify())
 
-    def tagify(self):
+    def tagify(self) -> Tagified:
         "Returns an HTML string suitable for passing to htmltools/shiny's `Chat()` component."
         try:
             from htmltools import HTML, TagList, head_content, tags
@@ -331,7 +333,7 @@ class ContentToolRequest(Content):
         return TagList(
             HTML(html),
             head_content(tags.style(TOOL_CSS)),
-        )
+        ).tagify()
 
 
 class ContentToolResult(Content):
@@ -523,7 +525,7 @@ class ContentToolResult(Content):
     def _repr_html_(self):
         return str(self.tagify())
 
-    def tagify(self):
+    def tagify(self) -> Tagified:
         "A method for rendering this object via htmltools/shiny."
         try:
             from htmltools import HTML, html_escape
@@ -694,7 +696,7 @@ class ContentThinking(Content):
     def _repr_html_(self):
         return str(self.tagify())
 
-    def tagify(self):
+    def tagify(self) -> Tagified:
         try:
             from htmltools import HTML
         except ImportError:
