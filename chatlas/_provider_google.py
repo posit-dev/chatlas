@@ -36,6 +36,7 @@ if TYPE_CHECKING:
         Part,
         PartDict,
         ThinkingConfigDict,
+        ThinkingLevel,
     )
 
     from .types.google import ChatClientArgs, SubmitInputArgs
@@ -47,7 +48,7 @@ def ChatGoogle(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
-    reasoning: Optional["int | ThinkingConfigDict"] = None,
+    reasoning: Optional["int | str | ThinkingConfigDict"] = None,
     api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", GenerateContentResponse]:
@@ -69,6 +70,7 @@ def ChatGoogle(
 
     ```python
     import google.auth
+
     credentials, _ = google.auth.default()
     chat = ChatGoogle(kwargs={"credentials": credentials})
     ```
@@ -101,8 +103,10 @@ def ChatGoogle(
         a model for all but the most casual use.
     reasoning
         If provided, enables reasoning (a.k.a. "thoughts") in the model's
-        responses. This can be an integer number of tokens to use for reasoning,
-        or a full `ThinkingConfigDict` to customize the reasoning behavior.
+        responses. This can be an integer number of tokens to use for reasoning
+        (a thinking budget), a string thinking level (`"minimal"`, `"low"`,
+        `"medium"`, or `"high"`), or a full `ThinkingConfigDict` to customize
+        the reasoning behavior.
     api_key
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `GOOGLE_API_KEY` environment variable.
@@ -156,9 +160,20 @@ def ChatGoogle(
 
     kwargs_chat: "SubmitInputArgs" = {}
     if reasoning is not None:
+        thinking_config: "ThinkingConfigDict"
         if isinstance(reasoning, int):
-            reasoning = {"thinking_budget": reasoning, "include_thoughts": True}
-        kwargs_chat["config"] = {"thinking_config": reasoning}
+            thinking_config = {
+                "thinking_budget": reasoning,
+                "include_thoughts": True,
+            }
+        elif isinstance(reasoning, str):
+            thinking_config = {
+                "thinking_level": cast("ThinkingLevel", reasoning),
+                "include_thoughts": True,
+            }
+        else:
+            thinking_config = reasoning
+        kwargs_chat["config"] = {"thinking_config": thinking_config}
 
     return Chat(
         provider=GoogleProvider(
@@ -715,6 +730,7 @@ def ChatVertex(
 
     ```python
     import google.auth
+
     credentials, project = google.auth.default()
     chat = ChatVertex(
         project=project,

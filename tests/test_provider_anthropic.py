@@ -303,3 +303,42 @@ def test_anthropic_nested_data_model_extraction():
         assert 0.0 <= classification.score <= 1.0, (
             f"Score {classification.score} should be between 0 and 1"
         )
+
+
+def test_anthropic_reasoning_int_budget():
+    """An int `reasoning` maps to a fixed thinking budget (regression)."""
+    chat = ChatAnthropic(reasoning=2048)
+    assert chat.kwargs_chat == {"thinking": {"type": "enabled", "budget_tokens": 2048}}
+
+
+def test_anthropic_reasoning_effort_string():
+    """A string `reasoning` enables adaptive thinking via output_config (#997)."""
+    chat = ChatAnthropic(reasoning="high")
+    assert chat.kwargs_chat == {
+        "thinking": {"type": "adaptive"},
+        "output_config": {"effort": "high"},
+    }
+
+
+def test_anthropic_adaptive_effort_merges_with_structured_output():
+    """When extracting data, adaptive effort merges into the native output_config."""
+
+    class Person(BaseModel):
+        name: str
+
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-6", structured_output_mode="native"
+    )
+    args = provider._chat_perform_args(
+        stream=False,
+        turns=[],
+        tools={},
+        data_model=Person,
+        kwargs={
+            "thinking": {"type": "adaptive"},
+            "output_config": {"effort": "high"},
+        },
+    )
+    output_config = args["output_config"]
+    assert output_config["effort"] == "high"
+    assert output_config["format"]["type"] == "json_schema"

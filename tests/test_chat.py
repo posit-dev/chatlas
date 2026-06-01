@@ -72,6 +72,18 @@ async def test_simple_streaming_chat_async():
     assert re.match(rainbow_re, turn.text.lower())
 
 
+def test_model_property_get_and_set():
+    chat = ChatOpenAI(model="gpt-4o")
+    assert chat.model == "gpt-4o"
+    assert chat.provider.model == "gpt-4o"
+
+    # Setting the model updates both the Chat and the underlying provider.
+    # No validation is performed (matching ellmer's set_model()).
+    chat.model = "some-unvalidated-model"
+    assert chat.model == "some-unvalidated-model"
+    assert chat.provider.model == "some-unvalidated-model"
+
+
 def test_basic_repr(snapshot):
     chat = ChatOpenAI(
         system_prompt="You're a helpful assistant that returns very minimal output",
