@@ -100,7 +100,16 @@ export OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true
 
 ### Combining with Provider Instrumentors
 
-Framework spans complement the provider-specific instrumentors described below. If you have both enabled, the provider instrumentor's HTTP spans will appear as children of chatlas's chat spans, giving you visibility at both the application and HTTP levels.
+Framework spans complement the provider-specific instrumentors described below.
+Because chatlas activates its spans in the OpenTelemetry context, spans created
+by other libraries nest underneath automatically:
+
+- A provider instrumentor's **HTTP span** appears under the relevant `chat` span.
+- Any spans your **tools** emit (e.g. a database query or outbound HTTP call)
+  appear under that tool's `execute_tool` span.
+
+The result is one connected trace spanning the agent loop, each model call, each
+tool execution, and the underlying HTTP detail.
 
 
 ## Provider-Specific Instrumentors
