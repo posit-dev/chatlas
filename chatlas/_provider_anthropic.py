@@ -97,13 +97,15 @@ def supports_structured_outputs(model: str) -> bool:
 
 StructuredOutputMode = Literal["auto", "native", "tool"]
 
+ReasoningEffort = Literal["low", "medium", "high", "xhigh", "max"]
+
 
 def ChatAnthropic(
     *,
     system_prompt: Optional[str] = None,
     model: "Optional[ModelParam]" = None,
     max_tokens: int = 4096,
-    reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
+    reasoning: Optional["int | ReasoningEffort | ThinkingConfigEnabledParam"] = None,
     cache: Literal["5m", "1h", "none"] = "5m",
     structured_output_mode: StructuredOutputMode = "auto",
     api_key: Optional[str] = None,
@@ -156,10 +158,12 @@ def ChatAnthropic(
     max_tokens
         Maximum number of tokens to generate before stopping.
     reasoning
-        Determines how many tokens Claude can be allocated to reasoning. Must be
-        ≥1024 and less than `max_tokens`. Larger budgets can enable more
-        thorough analysis for complex problems, improving response quality.  See
-        [extended
+        Controls Claude's extended thinking. Pass an integer to set a fixed
+        thinking budget (the number of tokens allocated to reasoning; must be
+        ≥1024 and less than `max_tokens`). Alternatively, pass a string effort
+        level (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`) to enable
+        adaptive thinking, where Claude decides how much to think based on the
+        requested effort. See [extended
         thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
         for details.
     cache
@@ -267,9 +271,15 @@ def ChatAnthropic(
         model = log_model_default("claude-sonnet-4-6")
 
     kwargs_chat: "SubmitInputArgs" = {}
-    if reasoning is not None:
-        if isinstance(reasoning, int):
-            reasoning = {"type": "enabled", "budget_tokens": reasoning}
+    if isinstance(reasoning, str):
+        output_config: "OutputConfigParam" = {"effort": reasoning}
+        kwargs_chat = {
+            "thinking": {"type": "adaptive"},
+            "output_config": output_config,
+        }
+    elif isinstance(reasoning, int):
+        kwargs_chat = {"thinking": {"type": "enabled", "budget_tokens": reasoning}}
+    elif reasoning is not None:
         kwargs_chat = {"thinking": reasoning}
 
     return Chat(
@@ -439,6 +449,13 @@ class AnthropicProvider(
                     "schema": transform_schema(data_model),
                 },
             }
+            # Preserve adaptive-thinking effort set via the `reasoning` param,
+            # since this output_config otherwise overwrites the one in kwargs.
+            kwargs_output_config = (kwargs or {}).get("output_config")
+            if isinstance(kwargs_output_config, dict):
+                effort = kwargs_output_config.get("effort")
+                if effort is not None:
+                    output_config["effort"] = effort
         elif data_model is not None:
             data_model_tool = self.create_data_model_tool(data_model)
             tool_schemas.append(self._anthropic_tool_schema(data_model_tool))

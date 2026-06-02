@@ -7,6 +7,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 -->
 
+## [UNRELEASED]
+
+### New features
+
+* `Chat` gains a `model` property to get (or set) the model after the chat is created. Setting it does not validate the model name.
+* `ChatGoogle()`'s `reasoning` parameter now accepts a string thinking level (`"minimal"`, `"low"`, `"medium"`, or `"high"`) in addition to an integer token budget.
+* `ChatAnthropic()`'s `reasoning` parameter now accepts a string effort level (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`) to enable Claude's adaptive thinking, in addition to an integer token budget.
+
+### Bug fixes
+
+* OpenAI-compatible providers (e.g., `ChatOllama()` with models like qwen3) now capture thinking content returned in a `reasoning` field, not just `reasoning_content`. Previously this thinking content was silently dropped.
+
 ## [0.18.1] - 2026-05-21
 
 ### Improvements

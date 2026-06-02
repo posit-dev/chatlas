@@ -396,6 +396,26 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if value is not None:
             self._turns.insert(0, SystemTurn(value))
 
+    @property
+    def model(self) -> str:
+        """
+        A property to get (or set) the model used by the chat.
+
+        Setting this updates the model for subsequent requests. The model name
+        is not validated, so make sure it's a valid model for the chat's
+        provider.
+
+        Returns
+        -------
+        str
+            The model currently used by the chat.
+        """
+        return self.provider.model
+
+    @model.setter
+    def model(self, value: str):
+        self.provider.model = value
+
     def get_tokens(self) -> list[TokensDict]:
         """
         Get the tokens for each turn in the chat.

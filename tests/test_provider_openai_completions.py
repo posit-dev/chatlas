@@ -152,7 +152,52 @@ def test_response_as_turn_extracts_reasoning_content():
 
     completion = Mock()
     message = Mock()
+    message.reasoning = None
     message.reasoning_content = "Let me think..."
+    message.content = "The answer is 42."
+    message.tool_calls = None
+    completion.choices = [Mock(message=message, finish_reason="stop")]
+
+    turn = OpenAICompletionsProvider._response_as_turn(completion, has_data_model=False)
+    assert len(turn.contents) == 2
+    assert isinstance(turn.contents[0], ContentThinking)
+    assert turn.contents[0].thinking == "Let me think..."
+    assert isinstance(turn.contents[1], ContentText)
+    assert turn.contents[1].text == "The answer is 42."
+
+
+def test_stream_content_extracts_reasoning_field():
+    """Ollama (e.g. qwen3) returns thinking in a `reasoning` field (#981)."""
+    provider = OpenAICompletionsProvider(model="test")
+
+    class FakeDelta:
+        def __init__(self, reasoning=None, reasoning_content=None, content=None):
+            self.reasoning = reasoning
+            self.reasoning_content = reasoning_content
+            self.content = content
+
+    class FakeChoice:
+        def __init__(self, delta):
+            self.delta = delta
+
+    class FakeChunk:
+        def __init__(self, choices):
+            self.choices = choices
+
+    chunk = FakeChunk([FakeChoice(FakeDelta(reasoning="think"))])
+    result = provider.stream_content(chunk)
+    assert isinstance(result, ContentThinkingDelta)
+    assert result.thinking == "think"
+
+
+def test_response_as_turn_extracts_reasoning_field():
+    """Ollama (e.g. qwen3) returns thinking in a `reasoning` field (#981)."""
+    from unittest.mock import Mock
+
+    completion = Mock()
+    message = Mock()
+    message.reasoning = "Let me think..."
+    message.reasoning_content = None
     message.content = "The answer is 42."
     message.tool_calls = None
     completion.choices = [Mock(message=message, finish_reason="stop")]
@@ -208,6 +253,7 @@ def test_response_as_turn_treats_empty_content_as_none():
 
     completion = Mock()
     message = Mock()
+    message.reasoning = None
     message.reasoning_content = None
     message.content = ""
     message.tool_calls = [
