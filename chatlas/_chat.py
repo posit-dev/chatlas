@@ -2816,13 +2816,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         data_model=data_model,
                         kwargs=all_kwargs,
                     )
+                response_iter = iter(response)
 
                 acc = TurnAccumulator(self._turns, controller)
                 acc.begin_turn(user_turn)
 
                 try:
                     result = None
-                    for chunk in response:
+                    while True:
+                        try:
+                            with activate_span(chat_span):
+                                chunk = next(response_iter)
+                        except StopIteration:
+                            break
                         if controller.cancelled:
                             break
                         content = self.provider.stream_content(chunk)
@@ -2945,13 +2951,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         data_model=data_model,
                         kwargs=all_kwargs,
                     )
+                response_iter = response.__aiter__()
 
                 acc = TurnAccumulator(self._turns, controller)
                 acc.begin_turn(user_turn)
 
                 try:
                     result = None
-                    async for chunk in response:
+                    while True:
+                        try:
+                            with activate_span(chat_span):
+                                chunk = await response_iter.__anext__()
+                        except StopAsyncIteration:
+                            break
                         if controller.cancelled:
                             break
                         content = self.provider.stream_content(chunk)

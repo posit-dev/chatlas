@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import json
-from typing import cast
+from typing import Any, cast
 
 import pytest
 
 pytest.importorskip("opentelemetry.sdk")
 
 from chatlas import ChatOpenAI, _otel
-from chatlas._content import ContentToolRequest, ContentToolResult, ToolInfo
+from chatlas._content import ContentText, ContentToolRequest, ContentToolResult, ToolInfo
+from chatlas._turn import AssistantTurn
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
@@ -361,6 +362,75 @@ def test_provider_http_span_nests_under_chat_span(otel_setup: InMemorySpanExport
     assert chat_span.context is not None
     assert _parent_span_id(http_span) == chat_span.context.span_id, (
         "provider HTTP span should nest under the chatlas chat span"
+    )
+
+
+def test_stream_iteration_provider_span_nests_under_chat_span(
+    otel_setup: InMemorySpanExporter,
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+
+    def streaming_perform(*args, **kwargs):
+        def gen():
+            with _otel.tracer.start_as_current_span("openai.request.iter"):
+                yield object()
+
+        return gen()
+
+    chat.provider.chat_perform = streaming_perform  # type: ignore[method-assign]
+    chat.provider.stream_content = lambda chunk: ContentText(text="hi")  # type: ignore[method-assign]
+    chat.provider.stream_text = lambda chunk: "hi"  # type: ignore[method-assign]
+    chat.provider.stream_merge_chunks = (  # type: ignore[method-assign]
+        lambda result, chunk: chunk
+    )
+    chat.provider.stream_turn = (  # type: ignore[method-assign]
+        lambda completion, has_data_model: AssistantTurn("hi")
+    )
+
+    list(chat.stream("Say hello."))
+
+    spans = otel_setup.get_finished_spans()
+    chat_span = next(s for s in spans if s.name.startswith("chat "))
+    iter_span = next(s for s in spans if s.name == "openai.request.iter")
+    assert chat_span.context is not None
+    assert _parent_span_id(iter_span) == chat_span.context.span_id, (
+        "provider span created while iterating the stream should nest under the chat span"
+    )
+
+
+@pytest.mark.asyncio
+async def test_async_stream_iteration_provider_span_nests_under_chat_span(
+    otel_setup: InMemorySpanExporter,
+):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+
+    async def streaming_perform_async(*args, **kwargs):
+        async def gen():
+            with _otel.tracer.start_as_current_span("openai.request.iter.async"):
+                yield object()
+
+        return gen()
+
+    chat.provider.chat_perform_async = streaming_perform_async  # type: ignore[method-assign]
+    chat.provider.stream_content = lambda chunk: ContentText(text="hi")  # type: ignore[method-assign]
+    chat.provider.stream_text = lambda chunk: "hi"  # type: ignore[method-assign]
+    chat.provider.stream_merge_chunks = (  # type: ignore[method-assign]
+        lambda result, chunk: chunk
+    )
+    chat.provider.stream_turn = (  # type: ignore[method-assign]
+        lambda completion, has_data_model: AssistantTurn("hi")
+    )
+
+    chunks = []
+    async for chunk in await chat.stream_async("Say hello."):
+        chunks.append(chunk)
+
+    spans = otel_setup.get_finished_spans()
+    chat_span = next(s for s in spans if s.name.startswith("chat "))
+    iter_span = next(s for s in spans if s.name == "openai.request.iter.async")
+    assert chat_span.context is not None
+    assert _parent_span_id(iter_span) == chat_span.context.span_id, (
+        "provider span created while iterating the async stream should nest under the chat span"
     )
 
 
