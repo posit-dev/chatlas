@@ -69,6 +69,7 @@ from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 if TYPE_CHECKING:
     from inspect_ai.model import ChatMessage as InspectChatMessage
     from inspect_ai.solver import TaskState as InspectTaskState
+    from opentelemetry.trace import Span
 
     from ._content import ToolAnnotations
 
@@ -2756,7 +2757,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content_mode: Literal["text"] = "text",
         *,
         controller: StreamController,
-        _otel_parent: Any = None,
+        _otel_parent: Optional[Span] = None,
     ) -> Generator[str, None, None]: ...
 
     @overload
@@ -2770,7 +2771,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         content_mode: Literal["all"],
         controller: StreamController,
-        _otel_parent: Any = None,
+        _otel_parent: Optional[Span] = None,
     ) -> Generator[str | Content, None, None]: ...
 
     def _submit_turns(
@@ -2781,7 +2782,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         content_mode: Literal["text", "all"] = "text",
-        _otel_parent: Any = None,
+        _otel_parent: Optional[Span] = None,
         *,
         controller: StreamController,
     ) -> Generator[str | Content, None, None]:
@@ -2897,7 +2898,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content_mode: Literal["text"] = "text",
         *,
         controller: StreamController,
-        _otel_parent: Any = None,
+        _otel_parent: Optional[Span] = None,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
@@ -2911,7 +2912,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         content_mode: Literal["all"],
         controller: StreamController,
-        _otel_parent: Any = None,
+        _otel_parent: Optional[Span] = None,
     ) -> AsyncGenerator[str | Content, None]: ...
 
     async def _submit_turns_async(
@@ -2922,7 +2923,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         content_mode: Literal["text", "all"] = "text",
-        _otel_parent: Any = None,
+        _otel_parent: Optional[Span] = None,
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
@@ -3044,7 +3045,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return all_kwargs
 
-    def _invoke_tool(self, request: ContentToolRequest, _otel_parent: Any = None):
+    def _invoke_tool(
+        self, request: ContentToolRequest, _otel_parent: Optional[Span] = None
+    ):
         tool = self._tools.get(request.name)
 
         if tool is None:
@@ -3109,7 +3112,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             end_span(tool_span)
 
     async def _invoke_tool_async(
-        self, request: ContentToolRequest, _otel_parent: Any = None
+        self, request: ContentToolRequest, _otel_parent: Optional[Span] = None
     ):
         tool = self._tools.get(request.name)
 

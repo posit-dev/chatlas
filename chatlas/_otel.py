@@ -4,13 +4,17 @@ import os
 from contextlib import AbstractContextManager, nullcontext
 from typing import TYPE_CHECKING, Any, Optional
 
+import orjson
 from opentelemetry import trace
 from opentelemetry.trace import SpanKind, StatusCode
+
+from ._content import ContentText, ContentToolRequest, ContentToolResult
+from ._turn import UserTurn
 
 if TYPE_CHECKING:
     from opentelemetry.trace import Span
 
-    from ._content import Content, ContentToolRequest
+    from ._content import Content
     from ._provider import Provider
     from ._turn import AssistantTurn, SystemTurn, Turn
 
@@ -38,9 +42,9 @@ def start_chat_span(
     provider: Provider[Any, Any, Any, Any],
     turns: list[Turn],
     system_turn: Optional[SystemTurn],
-    parent: Span,
+    parent: Optional[Span],
 ) -> Span:
-    ctx = trace.set_span_in_context(parent)
+    ctx = trace.set_span_in_context(parent) if parent is not None else None
     span = tracer.start_span(
         f"chat {provider.model}",
         kind=SpanKind.CLIENT,
@@ -60,9 +64,9 @@ def start_chat_span(
 
 def start_tool_span(
     request: ContentToolRequest,
-    parent: Span,
+    parent: Optional[Span],
 ) -> Span:
-    ctx = trace.set_span_in_context(parent)
+    ctx = trace.set_span_in_context(parent) if parent is not None else None
 
     attrs: dict[str, Any] = {
         "gen_ai.operation.name": "execute_tool",
@@ -156,9 +160,6 @@ def activate_span(span: Span) -> AbstractContextManager[Span]:
 
 
 def as_otel_message(turn: Turn) -> dict[str, Any]:
-    from ._content import ContentToolResult
-    from ._turn import UserTurn
-
     is_tool_turn = (
         isinstance(turn, UserTurn)
         and len(turn.contents) > 0
@@ -172,8 +173,6 @@ def as_otel_message(turn: Turn) -> dict[str, Any]:
 
 
 def as_otel_part(content: Content) -> dict[str, Any]:
-    from ._content import ContentText, ContentToolRequest, ContentToolResult
-
     if isinstance(content, ContentText):
         return {"type": "text", "content": content.text}
 
@@ -204,8 +203,6 @@ def as_otel_part(content: Content) -> dict[str, Any]:
 
 
 def to_json(obj: Any) -> str:
-    import orjson
-
     return orjson.dumps(obj).decode("utf-8")
 
 
