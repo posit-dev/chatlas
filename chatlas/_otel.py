@@ -21,9 +21,11 @@ if TYPE_CHECKING:
 
 tracer = trace.get_tracer("co.posit.python-package.chatlas")
 
-capture_content: bool = os.environ.get(
-    "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", ""
-).lower() in ("true", "1")
+
+def capture_content() -> bool:
+    return os.environ.get(
+        "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", ""
+    ).lower() in ("true", "1")
 
 
 def start_agent_span(provider: Provider[Any, Any, Any, Any]) -> Span:
@@ -55,7 +57,7 @@ def start_chat_span(
         context=ctx,
     )
 
-    if capture_content and span.is_recording():
+    if capture_content() and span.is_recording():
         # Separate the system turn (recorded as system_instructions) from the
         # rest of the conversation (recorded as input.messages), per the GenAI
         # semantic conventions.
@@ -115,7 +117,7 @@ def record_chat_result(
         if response_id is not None:
             span.set_attribute("gen_ai.response.id", str(response_id))
 
-    if capture_content:
+    if capture_content():
         try:
             msg = as_otel_message(turn)
             span.set_attribute("gen_ai.output.messages", to_json([msg]))

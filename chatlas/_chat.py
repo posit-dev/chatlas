@@ -3048,27 +3048,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def _invoke_tool(
         self, request: ContentToolRequest, _otel_parent: Optional[Span] = None
     ):
+        tool_span = start_tool_span(request, parent=_otel_parent)
         tool = self._tools.get(request.name)
 
-        if tool is None:
-            yield self._handle_tool_error_result(
-                request,
-                error=RuntimeError("Unknown tool."),
-            )
-            return
+        try:
+            if tool is None:
+                error = RuntimeError("Unknown tool.")
+                record_error(tool_span, error)
+                yield self._handle_tool_error_result(request, error=error)
+                return
 
-        if isinstance(tool, ToolBuiltIn):
-            yield self._handle_tool_error_result(
-                request,
-                error=RuntimeError(
+            if isinstance(tool, ToolBuiltIn):
+                error = RuntimeError(
                     f"Built-in tool '{request.name}' cannot be invoked directly. "
                     "It should be handled by the provider."
-                ),
-            )
-            return
+                )
+                record_error(tool_span, error)
+                yield self._handle_tool_error_result(request, error=error)
+                return
 
-        tool_span = start_tool_span(request, parent=_otel_parent)
-        try:
             # First, invoke the request callbacks. If a ToolRejectError is raised,
             # treat it like a tool failure (i.e., gracefully handle it).
             result: ContentToolResult | None = None
@@ -3123,27 +3121,25 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def _invoke_tool_async(
         self, request: ContentToolRequest, _otel_parent: Optional[Span] = None
     ):
+        tool_span = start_tool_span(request, parent=_otel_parent)
         tool = self._tools.get(request.name)
 
-        if tool is None:
-            yield self._handle_tool_error_result(
-                request,
-                error=RuntimeError("Unknown tool."),
-            )
-            return
+        try:
+            if tool is None:
+                error = RuntimeError("Unknown tool.")
+                record_error(tool_span, error)
+                yield self._handle_tool_error_result(request, error=error)
+                return
 
-        if isinstance(tool, ToolBuiltIn):
-            yield self._handle_tool_error_result(
-                request,
-                error=RuntimeError(
+            if isinstance(tool, ToolBuiltIn):
+                error = RuntimeError(
                     f"Built-in tool '{request.name}' cannot be invoked directly. "
                     "It should be handled by the provider."
-                ),
-            )
-            return
+                )
+                record_error(tool_span, error)
+                yield self._handle_tool_error_result(request, error=error)
+                return
 
-        tool_span = start_tool_span(request, parent=_otel_parent)
-        try:
             # First, invoke the request callbacks. If a ToolRejectError is raised,
             # treat it like a tool failure (i.e., gracefully handle it).
             result: ContentToolResult | None = None

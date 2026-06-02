@@ -10,6 +10,7 @@ pytest.importorskip("opentelemetry.sdk")
 from chatlas import ChatOpenAI, _otel
 from chatlas._content import ContentText, ContentToolRequest, ContentToolResult, ToolInfo
 from chatlas._turn import AssistantTurn
+from chatlas._tools import ToolBuiltIn
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
@@ -130,9 +131,6 @@ def test_content_capture_enabled(
     otel_setup: InMemorySpanExporter, monkeypatch: pytest.MonkeyPatch
 ):
     monkeypatch.setenv("OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", "true")
-    # Flip the module-level flag for this test (env var is only read at import
-    # time). monkeypatch restores it afterward even if an assertion below fails.
-    monkeypatch.setattr(_otel, "capture_content", True)
 
     chat = ChatOpenAI(model="gpt-4o-mini", system_prompt="Be terse.")
     chat.chat("Say hello.")
@@ -177,6 +175,45 @@ def test_content_capture_enabled(
     assert isinstance(output_msgs, list)
     assert len(output_msgs) >= 1
     assert output_msgs[0]["role"] == "assistant"
+
+
+def test_missing_tool_error_recorded(otel_setup: InMemorySpanExporter):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    request = ContentToolRequest(id="missing-tool", name="missing_tool", arguments={})
+
+    results = list(chat._invoke_tool(request))
+
+    assert len(results) == 1
+    assert isinstance(results[0].error, RuntimeError)
+
+    spans = otel_setup.get_finished_spans()
+    tool_spans = [s for s in spans if s.name == "execute_tool missing_tool"]
+    assert len(tool_spans) == 1
+
+    tool_span = tool_spans[0]
+    assert tool_span.status.status_code.name == "ERROR"
+    attrs = tool_span.attributes or {}
+    assert attrs.get("error.type") == "RuntimeError"
+
+
+def test_builtin_tool_error_recorded(otel_setup: InMemorySpanExporter):
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    chat.register_tool(ToolBuiltIn(name="builtin_tool", definition={}))
+    request = ContentToolRequest(id="builtin-tool", name="builtin_tool", arguments={})
+
+    results = list(chat._invoke_tool(request))
+
+    assert len(results) == 1
+    assert isinstance(results[0].error, RuntimeError)
+
+    spans = otel_setup.get_finished_spans()
+    tool_spans = [s for s in spans if s.name == "execute_tool builtin_tool"]
+    assert len(tool_spans) == 1
+
+    tool_span = tool_spans[0]
+    assert tool_span.status.status_code.name == "ERROR"
+    attrs = tool_span.attributes or {}
+    assert attrs.get("error.type") == "RuntimeError"
 
 
 @pytest.mark.vcr
