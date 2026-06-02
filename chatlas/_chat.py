@@ -2746,6 +2746,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         finally:
             end_span(agent_span)
 
+    def _otel_start_chat_span(
+        self, user_turn: UserTurn, parent: Optional[Span]
+    ) -> Span:
+        system_turn = (
+            self._turns[0]
+            if self._turns and isinstance(self._turns[0], SystemTurn)
+            else None
+        )
+        history = self._turns[1:] if system_turn is not None else self._turns
+        return start_chat_span(
+            self.provider,
+            turns=[*history, user_turn],
+            system_turn=system_turn,
+            parent=parent,
+        )
+
     @overload
     def _submit_turns(
         self,
@@ -2789,18 +2805,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
-        system_turn = (
-            self._turns[0]
-            if self._turns and isinstance(self._turns[0], SystemTurn)
-            else None
-        )
-        history = self._turns[1:] if system_turn is not None else self._turns
-        chat_span = start_chat_span(
-            self.provider,
-            turns=[*history, user_turn],
-            system_turn=system_turn,
-            parent=_otel_parent,
-        )
+        chat_span = self._otel_start_chat_span(user_turn, _otel_parent)
         try:
 
             def emit(text: str | Content):
@@ -2927,18 +2932,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
-        system_turn = (
-            self._turns[0]
-            if self._turns and isinstance(self._turns[0], SystemTurn)
-            else None
-        )
-        history = self._turns[1:] if system_turn is not None else self._turns
-        chat_span = start_chat_span(
-            self.provider,
-            turns=[*history, user_turn],
-            system_turn=system_turn,
-            parent=_otel_parent,
-        )
+        chat_span = self._otel_start_chat_span(user_turn, _otel_parent)
         try:
 
             def emit(text: str | Content):
