@@ -2806,8 +2806,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             all_kwargs = self._collect_all_kwargs(kwargs)
 
             if stream:
-                # Scope stays tight: the streaming loop below must not run while
-                # the span is active (it yields, which would leak the context).
+                # Activate the chat span only around the bounded provider calls
+                # (this initial request and each chunk fetch below) so a
+                # provider's HTTP instrumentor spans nest under it -- never
+                # across a `yield`, which would leak the context into the
+                # consumer's scope.
                 with activate_span(chat_span):
                     response = self.provider.chat_perform(
                         stream=True,
@@ -2941,8 +2944,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             all_kwargs = self._collect_all_kwargs(kwargs)
 
             if stream:
-                # Scope stays tight: the streaming loop below must not run while
-                # the span is active (it yields, which would leak the context).
+                # Activate the chat span only around the bounded provider calls
+                # (this initial request and each chunk fetch below) so a
+                # provider's HTTP instrumentor spans nest under it -- never
+                # across a `yield`, which would leak the context into the
+                # consumer's scope.
                 with activate_span(chat_span):
                     response = await self.provider.chat_perform_async(
                         stream=True,
