@@ -227,6 +227,70 @@ def test_streaming_span_lifecycle(otel_setup: InMemorySpanExporter):
     )
 
 
+def test_chat_error_recorded(otel_setup: InMemorySpanExporter):
+    # A provider failure during a (non-streaming) chat call should mark the chat
+    # span as errored with the GenAI `error.type` attribute, mirroring how tool
+    # failures are recorded on the execute_tool span.
+    chat = ChatOpenAI(model="gpt-4o-mini")
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("provider blew up")
+
+    chat.provider.chat_perform = boom  # type: ignore[method-assign]
+
+    with pytest.raises(RuntimeError, match="provider blew up"):
+        chat.chat("Say hello.")
+
+    spans = otel_setup.get_finished_spans()
+    chat_spans = [s for s in spans if s.name.startswith("chat ")]
+    assert len(chat_spans) == 1
+    chat_span = chat_spans[0]
+
+    assert chat_span.status.status_code.name == "ERROR"
+    attrs = chat_span.attributes or {}
+    assert attrs.get("error.type") == "RuntimeError", (
+        f"Expected error.type == 'RuntimeError', got {attrs.get('error.type')!r}"
+    )
+    exc_events = [e for e in chat_span.events if e.name == "exception"]
+    assert len(exc_events) == 1, (
+        f"Expected exactly one exception event, got {len(exc_events)}"
+    )
+
+
+def test_chat_error_recorded_streaming(otel_setup: InMemorySpanExporter):
+    # Streaming errors surface while iterating the response, which happens
+    # *outside* the span-activation scope around `chat_perform`. The chat span
+    # must still capture them.
+    chat = ChatOpenAI(model="gpt-4o-mini")
+
+    def boom_stream(*args, **kwargs):
+        def gen():
+            raise RuntimeError("stream blew up")
+            yield  # pragma: no cover - marks this a generator
+
+        return gen()
+
+    chat.provider.chat_perform = boom_stream  # type: ignore[method-assign]
+
+    with pytest.raises(RuntimeError, match="stream blew up"):
+        list(chat.stream("Say hello."))
+
+    spans = otel_setup.get_finished_spans()
+    chat_spans = [s for s in spans if s.name.startswith("chat ")]
+    assert len(chat_spans) == 1
+    chat_span = chat_spans[0]
+
+    assert chat_span.status.status_code.name == "ERROR"
+    attrs = chat_span.attributes or {}
+    assert attrs.get("error.type") == "RuntimeError", (
+        f"Expected error.type == 'RuntimeError', got {attrs.get('error.type')!r}"
+    )
+    exc_events = [e for e in chat_span.events if e.name == "exception"]
+    assert len(exc_events) == 1, (
+        f"Expected exactly one exception event, got {len(exc_events)}"
+    )
+
+
 def test_noop_without_provider():
     from opentelemetry import trace
     from opentelemetry.trace import NonRecordingSpan

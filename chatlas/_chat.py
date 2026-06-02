@@ -52,7 +52,7 @@ from ._otel import (
     activate_span,
     end_span,
     record_chat_result,
-    record_tool_error,
+    record_error,
     start_agent_span,
     start_chat_span,
     start_tool_span,
@@ -2644,6 +2644,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
                 if all_results:
                     user_turn_result = UserTurn(all_results)
+        except Exception as e:
+            record_error(agent_span, e)
+            raise
         finally:
             end_span(agent_span)
 
@@ -2736,6 +2739,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
                 if all_results:
                     user_turn_result = UserTurn(all_results)
+        except Exception as e:
+            record_error(agent_span, e)
+            raise
         finally:
             end_span(agent_span)
 
@@ -2874,6 +2880,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = finalize_assistant_turn(self.provider, turn)
                 record_chat_result(chat_span, turn)
                 self._turns.extend([user_turn, turn])
+        except Exception as e:
+            record_error(chat_span, e)
+            raise
         finally:
             end_span(chat_span)
 
@@ -3011,6 +3020,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = finalize_assistant_turn(self.provider, turn)
                 record_chat_result(chat_span, turn)
                 self._turns.extend([user_turn, turn])
+        except Exception as e:
+            record_error(chat_span, e)
+            raise
         finally:
             end_span(chat_span)
 
@@ -3060,7 +3072,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             try:
                 self._on_tool_request_callbacks.invoke(request)
             except ToolRejectError as e:
-                record_tool_error(tool_span, e)
+                record_error(tool_span, e)
                 yield self._handle_tool_error_result(request, e)
                 return
 
@@ -3091,7 +3103,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     yield result
 
             except Exception as e:
-                record_tool_error(tool_span, e)
+                record_error(tool_span, e)
                 yield self._handle_tool_error_result(request, e)
         finally:
             end_span(tool_span)
@@ -3126,7 +3138,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             try:
                 await self._on_tool_request_callbacks.invoke_async(request)
             except ToolRejectError as e:
-                record_tool_error(tool_span, e)
+                record_error(tool_span, e)
                 yield self._handle_tool_error_result(request, e)
                 return
 
@@ -3162,7 +3174,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     yield result
 
             except Exception as e:
-                record_tool_error(tool_span, e)
+                record_error(tool_span, e)
                 yield self._handle_tool_error_result(request, e)
         finally:
             end_span(tool_span)

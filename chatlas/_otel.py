@@ -115,7 +115,7 @@ def record_chat_result(
     span.set_status(StatusCode.OK)
 
 
-def record_tool_error(span: Span, error: Exception) -> None:
+def record_error(span: Span, error: Exception) -> None:
     if not span.is_recording():
         return
 
@@ -139,10 +139,20 @@ def activate_span(span: Span) -> AbstractContextManager[Span]:
 
     The span is not ended on exit (callers end it via `end_span`), and
     non-recording spans are skipped so disabled tracing never touches the context.
+
+    Exception recording is disabled here: callers record failures explicitly via
+    `record_error` so every span in the failing path gets a semconv `error.type`
+    and exactly one exception event (letting `use_span` also record would double
+    up for calls bounded by this context manager).
     """
     if not span.is_recording():
         return nullcontext(span)
-    return trace.use_span(span, end_on_exit=False)
+    return trace.use_span(
+        span,
+        end_on_exit=False,
+        record_exception=False,
+        set_status_on_exception=False,
+    )
 
 
 def as_otel_message(turn: Turn) -> dict[str, Any]:
