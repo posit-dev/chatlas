@@ -89,6 +89,7 @@ class SubmitInputArgs(TypedDict, total=False):
                 openai.types.responses.response_input_param.FunctionCallOutput,
                 openai.types.responses.response_input_param.ToolSearchCall,
                 openai.types.responses.response_tool_search_output_item_param_param.ResponseToolSearchOutputItemParamParam,
+                openai.types.responses.response_input_param.AdditionalTools,
                 openai.types.responses.response_reasoning_item_param.ResponseReasoningItemParam,
                 openai.types.responses.response_compaction_item_param_param.ResponseCompactionItemParamParam,
                 openai.types.responses.response_input_param.ImageGenerationCall,
