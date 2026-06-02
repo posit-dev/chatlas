@@ -153,6 +153,12 @@ def depth(span: dict[str, Any], by_id: dict[Any, dict[str, Any]]) -> int:
     return d
 
 
+# HTTP semantic conventions were renamed (http.method -> http.request.method,
+# http.url -> url.full); accept both so the script works across instrumentor versions.
+HTTP_METHOD_KEYS = ("http.request.method", "http.method")
+HTTP_URL_KEYS = ("url.full", "http.url")
+
+
 def span_kind(span: dict[str, Any]) -> tuple[str, str]:
     name, attrs = span["name"], span["attributes"]
     if name == "invoke_agent":
@@ -161,15 +167,17 @@ def span_kind(span: dict[str, Any]) -> tuple[str, str]:
         return "CHAT", "#3b82f6"
     if name.startswith("execute_tool"):
         return "TOOL", "#10b981"
-    if "http.method" in attrs:
+    if any(k in attrs for k in HTTP_METHOD_KEYS):
         return "HTTP", "#9ca3af"
     return "SPAN", "#9ca3af"
 
 
 def label(span: dict[str, Any]) -> str:
-    url = span["attributes"].get("http.url")
+    attrs = span["attributes"]
+    url = next((attrs[k] for k in HTTP_URL_KEYS if k in attrs), None)
+    method = next((attrs[k] for k in HTTP_METHOD_KEYS if k in attrs), "POST")
     if url and "openai.com" in str(url):
-        return "POST " + str(url).split("openai.com", 1)[-1]
+        return f"{method} " + str(url).split("openai.com", 1)[-1]
     return span["name"]
 
 
