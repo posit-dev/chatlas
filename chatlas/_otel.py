@@ -9,14 +9,14 @@ from opentelemetry import trace
 from opentelemetry.trace import SpanKind, StatusCode
 
 from ._content import ContentText, ContentToolRequest, ContentToolResult
-from ._turn import UserTurn
+from ._turn import SystemTurn, UserTurn
 
 if TYPE_CHECKING:
     from opentelemetry.trace import Span
 
     from ._content import Content
     from ._provider import Provider
-    from ._turn import AssistantTurn, SystemTurn, Turn
+    from ._turn import AssistantTurn, Turn
 
 
 tracer = trace.get_tracer("co.posit.python-package.chatlas")
@@ -41,7 +41,6 @@ def start_agent_span(provider: Provider[Any, Any, Any, Any]) -> Span:
 def start_chat_span(
     provider: Provider[Any, Any, Any, Any],
     turns: list[Turn],
-    system_turn: Optional[SystemTurn],
     parent: Optional[Span],
 ) -> Span:
     ctx = trace.set_span_in_context(parent) if parent is not None else None
@@ -57,7 +56,12 @@ def start_chat_span(
     )
 
     if capture_content and span.is_recording():
-        record_input_content(span, turns, system_turn)
+        # Separate the system turn (recorded as system_instructions) from the
+        # rest of the conversation (recorded as input.messages), per the GenAI
+        # semantic conventions.
+        system_turn = turns[0] if turns and isinstance(turns[0], SystemTurn) else None
+        messages = turns[1:] if system_turn is not None else turns
+        record_input_content(span, messages, system_turn)
 
     return span
 
