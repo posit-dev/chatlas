@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* chatlas now emits framework-level [OpenTelemetry](https://opentelemetry.io/) spans that capture the structure of a conversation: an `invoke_agent` span wraps the chat loop, with a `chat` span for each model API call and an `execute_tool` span for each tool invocation. Spans record token usage, response model/ID, and tool errors, and are activated in the OTel context so provider instrumentor HTTP spans and any spans your tools emit nest underneath automatically. Message content is opt-in via `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true`. See the [monitoring guide](https://posit-dev.github.io/chatlas/get-started/monitor.html) for setup. (#310)
 * `Chat` gains a `model` property to get (or set) the model after the chat is created. Setting it does not validate the model name.
 * `ChatGoogle()`'s `reasoning` parameter now accepts a string thinking level (`"minimal"`, `"low"`, `"medium"`, or `"high"`) in addition to an integer token budget.
 * `ChatAnthropic()`'s `reasoning` parameter now accepts a string effort level (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`) to enable Claude's adaptive thinking, in addition to an integer token budget.

@@ -8,7 +8,7 @@ import pytest
 pytest.importorskip("opentelemetry.sdk")
 
 from chatlas import ChatOpenAI, _otel
-from chatlas._content import ContentToolRequest, ToolInfo
+from chatlas._content import ContentToolRequest, ContentToolResult, ToolInfo
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
@@ -21,7 +21,7 @@ def otel_setup():
     provider.add_span_processor(SimpleSpanProcessor(exporter))
 
     orig_tracer = _otel.tracer
-    _otel.tracer = provider.get_tracer("com.posit.python-package.chatlas")
+    _otel.tracer = provider.get_tracer("co.posit.python-package.chatlas")
 
     yield exporter
 
@@ -305,6 +305,29 @@ def test_noop_without_provider():
     span.end()
 
 
+def test_structured_tool_response_nests_not_double_encoded():
+    # A non-string tool-result value should remain structured so it nests inside
+    # the serialized message, rather than being embedded as a quoted JSON string.
+    result = ContentToolResult(value={"temp": 70, "unit": "F"})
+    part = _otel.as_otel_part(result)
+    assert part["response"] == {"temp": 70, "unit": "F"}
+
+    # Round-trip through the same serialization used for span attributes: the
+    # response stays a nested object, not a double-encoded JSON string.
+    serialized = json.loads(_otel.to_json([part]))
+    assert serialized[0]["response"] == {"temp": 70, "unit": "F"}
+
+
+def test_unserializable_tool_response_falls_back_to_str():
+    class NotJson:
+        def __repr__(self) -> str:
+            return "<not-json>"
+
+    result = ContentToolResult(value=NotJson())
+    part = _otel.as_otel_part(result)
+    assert part["response"] == "<not-json>"
+
+
 def _parent_span_id(span: object) -> int | None:
     parent = getattr(span, "parent", None)
     return parent.span_id if parent is not None else None
@@ -385,7 +408,9 @@ def test_generator_tool_internal_span_nests_under_tool_span(
     results = list(chat._invoke_tool(request))
 
     assert len(results) == 1
-    tool_span = next(s for s in otel_setup.get_finished_spans() if s.name == "execute_tool get_date")
+    tool_span = next(
+        s for s in otel_setup.get_finished_spans() if s.name == "execute_tool get_date"
+    )
     db_span = next(s for s in otel_setup.get_finished_spans() if s.name == "db_query")
     assert tool_span.context is not None
     assert _parent_span_id(db_span) == tool_span.context.span_id, (
@@ -447,7 +472,9 @@ async def test_async_generator_tool_internal_span_nests_under_tool_span(
         results.append(result)
 
     assert len(results) == 1
-    tool_span = next(s for s in otel_setup.get_finished_spans() if s.name == "execute_tool get_date")
+    tool_span = next(
+        s for s in otel_setup.get_finished_spans() if s.name == "execute_tool get_date"
+    )
     db_span = next(s for s in otel_setup.get_finished_spans() if s.name == "db_query")
     assert tool_span.context is not None
     assert _parent_span_id(db_span) == tool_span.context.span_id, (

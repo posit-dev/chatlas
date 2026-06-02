@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from ._turn import AssistantTurn, SystemTurn, Turn
 
 
-tracer = trace.get_tracer("com.posit.python-package.chatlas")
+tracer = trace.get_tracer("co.posit.python-package.chatlas")
 
 capture_content: bool = os.environ.get(
     "OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", ""
@@ -92,8 +92,10 @@ def record_chat_result(
 
     if turn.tokens is not None:
         input_tokens, output_tokens, cached_input = turn.tokens
-        span.set_attribute("gen_ai.usage.input_tokens", input_tokens + cached_input)
-        span.set_attribute("gen_ai.usage.output_tokens", output_tokens)
+        total_input = input_tokens + cached_input
+        if total_input > 0 or output_tokens > 0:
+            span.set_attribute("gen_ai.usage.input_tokens", total_input)
+            span.set_attribute("gen_ai.usage.output_tokens", output_tokens)
 
     completion = turn.completion
     if completion is not None:
@@ -193,10 +195,7 @@ def as_otel_part(content: Content) -> dict[str, Any]:
         elif isinstance(content.value, str):
             part["response"] = content.value
         else:
-            try:
-                part["response"] = to_json(content.value)
-            except Exception:
-                part["response"] = str(content.value)
+            part["response"] = json_safe(content.value)
         return part
 
     return {"type": "generic", "class": type(content).__name__}
@@ -204,6 +203,20 @@ def as_otel_part(content: Content) -> dict[str, Any]:
 
 def to_json(obj: Any) -> str:
     return orjson.dumps(obj).decode("utf-8")
+
+
+def json_safe(value: Any) -> Any:
+    """Return `value` unchanged if it is JSON-serializable, else its `str()`.
+
+    Keeps structured tool-result values structured so they nest inside the
+    enclosing `gen_ai.*.messages` JSON, rather than being embedded as a quoted
+    (double-encoded) JSON string.
+    """
+    try:
+        orjson.dumps(value)
+    except Exception:
+        return str(value)
+    return value
 
 
 def record_input_content(
