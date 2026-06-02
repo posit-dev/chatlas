@@ -148,6 +148,10 @@ class Provider(
         """
         return self._model
 
+    @model.setter
+    def model(self, value: str):
+        self._model = value
+
     @abstractmethod
     def list_models(self) -> list[ModelInfo]:
         """

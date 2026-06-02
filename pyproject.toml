@@ -45,6 +45,9 @@ test = [
     "vcrpy>=6.0.0",
     "pytest-recording>=0.13",
     "opentelemetry-sdk>=1.0",
+    # vcrpy's aiohttp stub breaks on aiohttp 3.14+ (it references the removed
+    # `aiohttp.streams.AsyncStreamReaderMixin`). Cap until vcrpy supports it.
+    "aiohttp<3.14",
 ]
 dev = [
     "ruff>=0.6.5",
@@ -52,7 +55,7 @@ dev = [
     "matplotlib",
     "Pillow",
     "shiny",
-    "htmltools",
+    "htmltools>=0.7.0;python_version>='3.10'",
     "shinychat",
     "narwhals",
     "pandas",

@@ -13,14 +13,14 @@ jobs:
         steps:
 
             - name: Checkout current prices.json in chatlas
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
               with:
                 sparse-checkout: /chatlas/data/prices.json
                 sparse-checkout-cone-mode: false
                 path: main
 
             - name: Get Ellmer prices.json
-              uses: actions/checkout@v4
+              uses: actions/checkout@v5
               with:
                 sparse-checkout: /data-raw/prices.json
                 sparse-checkout-cone-mode: false

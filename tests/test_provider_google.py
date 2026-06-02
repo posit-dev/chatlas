@@ -27,6 +27,26 @@ def chat_func(vertex: bool = False, **kwargs):
     return chat
 
 
+def test_google_reasoning_effort_string():
+    """A string `reasoning` maps to a `thinking_level` enum (#998)."""
+    from google.genai.types import ThinkingLevel
+
+    chat = ChatGoogle(reasoning="low")
+    assert chat.kwargs_chat["config"]["thinking_config"] == {
+        "thinking_level": ThinkingLevel.LOW,
+        "include_thoughts": True,
+    }
+
+
+def test_google_reasoning_int_budget():
+    """An int `reasoning` still maps to thinking_budget."""
+    chat = ChatGoogle(reasoning=1024)
+    assert chat.kwargs_chat["config"]["thinking_config"] == {
+        "thinking_budget": 1024,
+        "include_thoughts": True,
+    }
+
+
 # https://github.com/googleapis/python-genai/issues/336
 def _is_retryable_error(exception: BaseException) -> bool:
     """

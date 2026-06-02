@@ -226,7 +226,11 @@ class OpenAICompletionsProvider(
             return None
         delta = chunk.choices[0].delta
 
-        reasoning = getattr(delta, "reasoning_content", None)
+        # Some OpenAI-compatible providers (e.g. Ollama with qwen3) return
+        # thinking in a `reasoning` field rather than `reasoning_content`.
+        reasoning = getattr(delta, "reasoning", None) or getattr(
+            delta, "reasoning_content", None
+        )
         if reasoning is not None:
             return ContentThinkingDelta(thinking=reasoning)
 
@@ -404,7 +408,9 @@ class OpenAICompletionsProvider(
 
         contents: list[Content] = []
 
-        reasoning = getattr(message, "reasoning_content", None)
+        reasoning = getattr(message, "reasoning", None) or getattr(
+            message, "reasoning_content", None
+        )
         if reasoning:
             contents.append(ContentThinking(thinking=reasoning))
 
