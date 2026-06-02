@@ -11,7 +11,8 @@ dependencies = [
   "jinja2",
   "orjson",
   "rich",
-  "openai"
+  "openai",
+  "opentelemetry-api>=1.0"
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -36,6 +37,11 @@ Issues = "https://github.com/posit-dev/chatlas/issues/"
 Changelog = "https://github.com/posit-dev/chatlas/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
+otel = [
+    # opentelemetry-api is a hard dependency; the SDK is what users need to
+    # configure a TracerProvider/exporter and actually emit chatlas spans.
+    "opentelemetry-sdk>=1.0",
+]
 test = [
     "pyright>=1.1.379",
     "pytest>=8.3.2",
@@ -43,6 +49,7 @@ test = [
     "syrupy>=4",
     "vcrpy>=6.0.0",
     "pytest-recording>=0.13",
+    "opentelemetry-sdk>=1.0",
     # vcrpy's aiohttp stub breaks on aiohttp 3.14+ (it references the removed
     # `aiohttp.streams.AsyncStreamReaderMixin`). Cap until vcrpy supports it.
     "aiohttp<3.14",
@@ -67,7 +74,8 @@ dev = [
     "snowflake-ml-python>=1.8.4",
     # torch (a dependency of snowflake-ml-python) is not yet compatible with Python >3.11
     "torch;python_version<='3.11'",
-    "tenacity"
+    "tenacity",
+    "opentelemetry-sdk>=1.0",
 ]
 docs = [
     "griffe>=1.3.2,<2.0.0",

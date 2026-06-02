@@ -48,6 +48,15 @@ from ._display import (
 )
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
+from ._otel import (
+    activate_span,
+    end_span,
+    record_chat_result,
+    record_error,
+    start_agent_span,
+    start_chat_span,
+    start_tool_span,
+)
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
 from ._stream_controller import StreamController
 from ._tokens import tokens_log
@@ -60,6 +69,7 @@ from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
 if TYPE_CHECKING:
     from inspect_ai.model import ChatMessage as InspectChatMessage
     from inspect_ai.solver import TaskState as InspectTaskState
+    from opentelemetry.trace import Span
 
     from ._content import ToolAnnotations
 
@@ -2591,47 +2601,55 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> Generator[str | Content, None, None]:
-        user_turn_result: UserTurn | None = user_turn
-        while user_turn_result is not None:
-            for chunk in self._submit_turns(
-                user_turn_result,
-                echo=echo,
-                stream=stream,
-                data_model=data_model,
-                kwargs=kwargs,
-                content_mode=content,
-                controller=controller,
-            ):
-                yield chunk
+        agent_span = start_agent_span(self.provider)
+        try:
+            user_turn_result: UserTurn | None = user_turn
+            while user_turn_result is not None:
+                for chunk in self._submit_turns(
+                    user_turn_result,
+                    echo=echo,
+                    stream=stream,
+                    data_model=data_model,
+                    kwargs=kwargs,
+                    content_mode=content,
+                    controller=controller,
+                    _otel_parent=agent_span,
+                ):
+                    yield chunk
 
-            turn = self.get_last_turn(role="assistant")
-            assert turn is not None
-            user_turn_result = None
+                turn = self.get_last_turn(role="assistant")
+                assert turn is not None
+                user_turn_result = None
 
-            # Don't invoke tools if the stream was cancelled
-            if controller.cancelled:
-                break
+                # Don't invoke tools if the stream was cancelled
+                if controller.cancelled:
+                    break
 
-            all_results: list[ContentToolResult] = []
-            for x in turn.contents:
-                if isinstance(x, ContentToolRequest):
-                    tool = self._tools.get(x.name)
-                    if tool is not None:
-                        x.tool = ToolInfo.from_tool(tool)
-                    if echo == "output":
-                        self._echo_content(f"\n\n{x}\n\n")
-                    if content == "all":
-                        yield x
-                    results = self._invoke_tool(x)
-                    for res in results:
+                all_results: list[ContentToolResult] = []
+                for x in turn.contents:
+                    if isinstance(x, ContentToolRequest):
+                        tool = self._tools.get(x.name)
+                        if tool is not None:
+                            x.tool = ToolInfo.from_tool(tool)
                         if echo == "output":
-                            self._echo_content(f"\n\n{res}\n\n")
+                            self._echo_content(f"\n\n{x}\n\n")
                         if content == "all":
-                            yield res
-                        all_results.append(res)
+                            yield x
+                        results = self._invoke_tool(x, _otel_parent=agent_span)
+                        for res in results:
+                            if echo == "output":
+                                self._echo_content(f"\n\n{res}\n\n")
+                            if content == "all":
+                                yield res
+                            all_results.append(res)
 
-            if all_results:
-                user_turn_result = UserTurn(all_results)
+                if all_results:
+                    user_turn_result = UserTurn(all_results)
+        except Exception as e:
+            record_error(agent_span, e)
+            raise
+        finally:
+            end_span(agent_span)
 
     @overload
     def _chat_impl_async(
@@ -2672,53 +2690,61 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
-        user_turn_result: UserTurn | None = user_turn
-        while user_turn_result is not None:
-            turn_generator = self._submit_turns_async(
-                user_turn_result,
-                echo=echo,
-                stream=stream,
-                data_model=data_model,
-                kwargs=kwargs,
-                content_mode=content,
-                controller=controller,
-            )
-            try:
-                async for chunk in turn_generator:
-                    yield chunk
-            finally:
-                await turn_generator.aclose()
+        agent_span = start_agent_span(self.provider)
+        try:
+            user_turn_result: UserTurn | None = user_turn
+            while user_turn_result is not None:
+                turn_generator = self._submit_turns_async(
+                    user_turn_result,
+                    echo=echo,
+                    stream=stream,
+                    data_model=data_model,
+                    kwargs=kwargs,
+                    content_mode=content,
+                    controller=controller,
+                    _otel_parent=agent_span,
+                )
+                try:
+                    async for chunk in turn_generator:
+                        yield chunk
+                finally:
+                    await turn_generator.aclose()
 
-            turn = self.get_last_turn(role="assistant")
-            assert turn is not None
-            user_turn_result = None
+                turn = self.get_last_turn(role="assistant")
+                assert turn is not None
+                user_turn_result = None
 
-            # Don't invoke tools if the stream was cancelled
-            if controller.cancelled:
-                break
+                # Don't invoke tools if the stream was cancelled
+                if controller.cancelled:
+                    break
 
-            all_results: list[ContentToolResult] = []
-            for x in turn.contents:
-                if isinstance(x, ContentToolRequest):
-                    tool = self._tools.get(x.name)
-                    if tool is not None:
-                        x.tool = ToolInfo.from_tool(tool)
-                    if echo == "output":
-                        self._echo_content(f"\n\n{x}\n\n")
-                    if content == "all":
-                        yield x
-                    results = self._invoke_tool_async(x)
-                    async for res in results:
+                all_results: list[ContentToolResult] = []
+                for x in turn.contents:
+                    if isinstance(x, ContentToolRequest):
+                        tool = self._tools.get(x.name)
+                        if tool is not None:
+                            x.tool = ToolInfo.from_tool(tool)
                         if echo == "output":
-                            self._echo_content(f"\n\n{res}\n\n")
+                            self._echo_content(f"\n\n{x}\n\n")
                         if content == "all":
-                            yield res
-                        else:
-                            yield "\n\n"
-                        all_results.append(res)
+                            yield x
+                        results = self._invoke_tool_async(x, _otel_parent=agent_span)
+                        async for res in results:
+                            if echo == "output":
+                                self._echo_content(f"\n\n{res}\n\n")
+                            if content == "all":
+                                yield res
+                            else:
+                                yield "\n\n"
+                            all_results.append(res)
 
-            if all_results:
-                user_turn_result = UserTurn(all_results)
+                if all_results:
+                    user_turn_result = UserTurn(all_results)
+        except Exception as e:
+            record_error(agent_span, e)
+            raise
+        finally:
+            end_span(agent_span)
 
     @overload
     def _submit_turns(
@@ -2731,6 +2757,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content_mode: Literal["text"] = "text",
         *,
         controller: StreamController,
+        _otel_parent: Optional[Span] = None,
     ) -> Generator[str, None, None]: ...
 
     @overload
@@ -2744,6 +2771,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         content_mode: Literal["all"],
         controller: StreamController,
+        _otel_parent: Optional[Span] = None,
     ) -> Generator[str | Content, None, None]: ...
 
     def _submit_turns(
@@ -2754,82 +2782,110 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         content_mode: Literal["text", "all"] = "text",
+        _otel_parent: Optional[Span] = None,
         *,
         controller: StreamController,
     ) -> Generator[str | Content, None, None]:
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
-        def emit(text: str | Content):
-            self._echo_content(str(text))
+        chat_span = start_chat_span(
+            self.provider, [*self._turns, user_turn], _otel_parent
+        )
+        try:
 
-        emit("<br>\n\n")
+            def emit(text: str | Content):
+                self._echo_content(str(text))
 
-        if echo == "all":
-            emit_user_contents(user_turn, emit)
-
-        # Start collecting additional keyword args (from model parameters)
-        all_kwargs = self._collect_all_kwargs(kwargs)
-
-        if stream:
-            response = self.provider.chat_perform(
-                stream=True,
-                turns=[*self._turns, user_turn],
-                tools=self._tools,
-                data_model=data_model,
-                kwargs=all_kwargs,
-            )
-
-            acc = TurnAccumulator(self._turns, controller)
-            acc.begin_turn(user_turn)
-
-            try:
-                result = None
-                for chunk in response:
-                    if controller.cancelled:
-                        break
-                    content = self.provider.stream_content(chunk)
-                    if content is not None:
-                        text = self.provider.stream_text(chunk)
-                        yield from acc.process_content(content, text, content_mode, emit)
-                    result = self.provider.stream_merge_chunks(result, chunk)
-
-                yield from acc.flush_thinking(content_mode, emit)
-
-                if not controller.cancelled:
-                    turn = self.provider.stream_turn(
-                        result,
-                        has_data_model=data_model is not None,
-                    )
-                    if echo == "all":
-                        emit_other_contents(turn, emit)
-                    turn = finalize_assistant_turn(self.provider, turn)
-                    acc.complete_turn(turn)
-            finally:
-                acc.finalize_turn()
-                close_response(response)
-
-        else:
-            response = self.provider.chat_perform(
-                stream=False,
-                turns=[*self._turns, user_turn],
-                tools=self._tools,
-                data_model=data_model,
-                kwargs=all_kwargs,
-            )
-
-            turn = self.provider.value_turn(
-                response, has_data_model=data_model is not None
-            )
-            if turn.text:
-                emit(turn.text)
-                yield turn.text
+            emit("<br>\n\n")
 
             if echo == "all":
-                emit_other_contents(turn, emit)
+                emit_user_contents(user_turn, emit)
 
-            turn = finalize_assistant_turn(self.provider, turn)
-            self._turns.extend([user_turn, turn])
+            # Start collecting additional keyword args (from model parameters)
+            all_kwargs = self._collect_all_kwargs(kwargs)
+
+            if stream:
+                # Activate the chat span only around the bounded provider calls
+                # (this initial request and each chunk fetch below) so a
+                # provider's HTTP instrumentor spans nest under it -- never
+                # across a `yield`, which would leak the context into the
+                # consumer's scope.
+                with activate_span(chat_span):
+                    response = self.provider.chat_perform(
+                        stream=True,
+                        turns=[*self._turns, user_turn],
+                        tools=self._tools,
+                        data_model=data_model,
+                        kwargs=all_kwargs,
+                    )
+                response_iter = iter(response)
+
+                acc = TurnAccumulator(self._turns, controller)
+                acc.begin_turn(user_turn)
+
+                try:
+                    result = None
+                    while True:
+                        try:
+                            with activate_span(chat_span):
+                                chunk = next(response_iter)
+                        except StopIteration:
+                            break
+                        if controller.cancelled:
+                            break
+                        content = self.provider.stream_content(chunk)
+                        if content is not None:
+                            text = self.provider.stream_text(chunk)
+                            yield from acc.process_content(
+                                content, text, content_mode, emit
+                            )
+                        result = self.provider.stream_merge_chunks(result, chunk)
+
+                    yield from acc.flush_thinking(content_mode, emit)
+
+                    if not controller.cancelled:
+                        turn = self.provider.stream_turn(
+                            result,
+                            has_data_model=data_model is not None,
+                        )
+                        if echo == "all":
+                            emit_other_contents(turn, emit)
+                        turn = finalize_assistant_turn(self.provider, turn)
+                        record_chat_result(chat_span, turn)
+                        acc.complete_turn(turn)
+                finally:
+                    acc.finalize_turn()
+                    close_response(response)
+
+            else:
+                with activate_span(chat_span):
+                    response = self.provider.chat_perform(
+                        stream=False,
+                        turns=[*self._turns, user_turn],
+                        tools=self._tools,
+                        data_model=data_model,
+                        kwargs=all_kwargs,
+                    )
+
+                turn = self.provider.value_turn(
+                    response, has_data_model=data_model is not None
+                )
+                if turn.text:
+                    emit(turn.text)
+                    yield turn.text
+
+                if echo == "all":
+                    emit_other_contents(turn, emit)
+
+                turn = finalize_assistant_turn(self.provider, turn)
+                record_chat_result(chat_span, turn)
+                self._turns.extend([user_turn, turn])
+        except Exception as e:
+            record_error(chat_span, e)
+            raise
+        finally:
+            end_span(chat_span)
 
     @overload
     def _submit_turns_async(
@@ -2842,6 +2898,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         content_mode: Literal["text"] = "text",
         *,
         controller: StreamController,
+        _otel_parent: Optional[Span] = None,
     ) -> AsyncGenerator[str, None]: ...
 
     @overload
@@ -2855,6 +2912,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         content_mode: Literal["all"],
         controller: StreamController,
+        _otel_parent: Optional[Span] = None,
     ) -> AsyncGenerator[str | Content, None]: ...
 
     async def _submit_turns_async(
@@ -2865,81 +2923,109 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: type[BaseModel] | None = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         content_mode: Literal["text", "all"] = "text",
+        _otel_parent: Optional[Span] = None,
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
-        def emit(text: str | Content):
-            self._echo_content(str(text))
+        chat_span = start_chat_span(
+            self.provider, [*self._turns, user_turn], _otel_parent
+        )
+        try:
 
-        emit("<br>\n\n")
+            def emit(text: str | Content):
+                self._echo_content(str(text))
 
-        if echo == "all":
-            emit_user_contents(user_turn, emit)
-
-        # Start collecting additional keyword args (from model parameters)
-        all_kwargs = self._collect_all_kwargs(kwargs)
-
-        if stream:
-            response = await self.provider.chat_perform_async(
-                stream=True,
-                turns=[*self._turns, user_turn],
-                tools=self._tools,
-                data_model=data_model,
-                kwargs=all_kwargs,
-            )
-
-            acc = TurnAccumulator(self._turns, controller)
-            acc.begin_turn(user_turn)
-
-            try:
-                result = None
-                async for chunk in response:
-                    if controller.cancelled:
-                        break
-                    content = self.provider.stream_content(chunk)
-                    if content is not None:
-                        text = self.provider.stream_text(chunk)
-                        for item in acc.process_content(content, text, content_mode, emit):
-                            yield item
-                    result = self.provider.stream_merge_chunks(result, chunk)
-
-                for item in acc.flush_thinking(content_mode, emit):
-                    yield item
-
-                if not controller.cancelled:
-                    turn = self.provider.stream_turn(
-                        result,
-                        has_data_model=data_model is not None,
-                    )
-                    if echo == "all":
-                        emit_other_contents(turn, emit)
-                    turn = finalize_assistant_turn(self.provider, turn)
-                    acc.complete_turn(turn)
-            finally:
-                acc.finalize_turn()
-                await aclose_response(response)
-
-        else:
-            response = await self.provider.chat_perform_async(
-                stream=False,
-                turns=[*self._turns, user_turn],
-                tools=self._tools,
-                data_model=data_model,
-                kwargs=all_kwargs,
-            )
-
-            turn = self.provider.value_turn(
-                response, has_data_model=data_model is not None
-            )
-            if turn.text:
-                emit(turn.text)
-                yield turn.text
+            emit("<br>\n\n")
 
             if echo == "all":
-                emit_other_contents(turn, emit)
+                emit_user_contents(user_turn, emit)
 
-            turn = finalize_assistant_turn(self.provider, turn)
-            self._turns.extend([user_turn, turn])
+            # Start collecting additional keyword args (from model parameters)
+            all_kwargs = self._collect_all_kwargs(kwargs)
+
+            if stream:
+                # Activate the chat span only around the bounded provider calls
+                # (this initial request and each chunk fetch below) so a
+                # provider's HTTP instrumentor spans nest under it -- never
+                # across a `yield`, which would leak the context into the
+                # consumer's scope.
+                with activate_span(chat_span):
+                    response = await self.provider.chat_perform_async(
+                        stream=True,
+                        turns=[*self._turns, user_turn],
+                        tools=self._tools,
+                        data_model=data_model,
+                        kwargs=all_kwargs,
+                    )
+                response_iter = response.__aiter__()
+
+                acc = TurnAccumulator(self._turns, controller)
+                acc.begin_turn(user_turn)
+
+                try:
+                    result = None
+                    while True:
+                        try:
+                            with activate_span(chat_span):
+                                chunk = await response_iter.__anext__()
+                        except StopAsyncIteration:
+                            break
+                        if controller.cancelled:
+                            break
+                        content = self.provider.stream_content(chunk)
+                        if content is not None:
+                            text = self.provider.stream_text(chunk)
+                            for item in acc.process_content(
+                                content, text, content_mode, emit
+                            ):
+                                yield item
+                        result = self.provider.stream_merge_chunks(result, chunk)
+
+                    for item in acc.flush_thinking(content_mode, emit):
+                        yield item
+
+                    if not controller.cancelled:
+                        turn = self.provider.stream_turn(
+                            result,
+                            has_data_model=data_model is not None,
+                        )
+                        if echo == "all":
+                            emit_other_contents(turn, emit)
+                        turn = finalize_assistant_turn(self.provider, turn)
+                        record_chat_result(chat_span, turn)
+                        acc.complete_turn(turn)
+                finally:
+                    acc.finalize_turn()
+                    await aclose_response(response)
+
+            else:
+                with activate_span(chat_span):
+                    response = await self.provider.chat_perform_async(
+                        stream=False,
+                        turns=[*self._turns, user_turn],
+                        tools=self._tools,
+                        data_model=data_model,
+                        kwargs=all_kwargs,
+                    )
+
+                turn = self.provider.value_turn(
+                    response, has_data_model=data_model is not None
+                )
+                if turn.text:
+                    emit(turn.text)
+                    yield turn.text
+
+                if echo == "all":
+                    emit_other_contents(turn, emit)
+
+                turn = finalize_assistant_turn(self.provider, turn)
+                record_chat_result(chat_span, turn)
+                self._turns.extend([user_turn, turn])
+        except Exception as e:
+            record_error(chat_span, e)
+            raise
+        finally:
+            end_span(chat_span)
 
     def _collect_all_kwargs(
         self,
@@ -2959,124 +3045,155 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         return all_kwargs
 
-    def _invoke_tool(self, request: ContentToolRequest):
+    def _invoke_tool(
+        self, request: ContentToolRequest, _otel_parent: Optional[Span] = None
+    ):
+        tool_span = start_tool_span(request, parent=_otel_parent)
         tool = self._tools.get(request.name)
 
-        if tool is None:
-            yield self._handle_tool_error_result(
-                request,
-                error=RuntimeError("Unknown tool."),
-            )
-            return
+        try:
+            if tool is None:
+                error = RuntimeError("Unknown tool.")
+                record_error(tool_span, error)
+                yield self._handle_tool_error_result(request, error=error)
+                return
 
-        if isinstance(tool, ToolBuiltIn):
-            yield self._handle_tool_error_result(
-                request,
-                error=RuntimeError(
+            if isinstance(tool, ToolBuiltIn):
+                error = RuntimeError(
                     f"Built-in tool '{request.name}' cannot be invoked directly. "
                     "It should be handled by the provider."
-                ),
-            )
-            return
+                )
+                record_error(tool_span, error)
+                yield self._handle_tool_error_result(request, error=error)
+                return
 
-        # First, invoke the request callbacks. If a ToolRejectError is raised,
-        # treat it like a tool failure (i.e., gracefully handle it).
-        result: ContentToolResult | None = None
-        try:
-            self._on_tool_request_callbacks.invoke(request)
-        except ToolRejectError as e:
-            yield self._handle_tool_error_result(request, e)
-            return
+            # First, invoke the request callbacks. If a ToolRejectError is raised,
+            # treat it like a tool failure (i.e., gracefully handle it).
+            result: ContentToolResult | None = None
+            try:
+                self._on_tool_request_callbacks.invoke(request)
+            except ToolRejectError as e:
+                record_error(tool_span, e)
+                yield self._handle_tool_error_result(request, e)
+                return
 
-        try:
-            if isinstance(request.arguments, dict):
-                res = tool.func(**request.arguments)
-            else:
-                res = tool.func(request.arguments)
+            try:
+                with activate_span(tool_span):
+                    if isinstance(request.arguments, dict):
+                        res = tool.func(**request.arguments)
+                    else:
+                        res = tool.func(request.arguments)
 
-            # Normalize res as a generator of results.
-            if not inspect.isgenerator(res):
+                if inspect.isgenerator(res):
+                    while True:
+                        try:
+                            with activate_span(tool_span):
+                                x = next(res)
+                        except StopIteration:
+                            break
 
-                def _as_generator(res):
-                    yield res
+                        if isinstance(x, ContentToolResult):
+                            result = x
+                        else:
+                            result = ContentToolResult(value=x)
 
-                res = _as_generator(res)
+                        result.request = request
 
-            for x in res:
-                if isinstance(x, ContentToolResult):
-                    result = x
+                        self._on_tool_result_callbacks.invoke(result)
+                        yield result
                 else:
-                    result = ContentToolResult(value=x)
+                    if isinstance(res, ContentToolResult):
+                        result = res
+                    else:
+                        result = ContentToolResult(value=res)
 
-                result.request = request
+                    result.request = request
 
-                self._on_tool_result_callbacks.invoke(result)
-                yield result
+                    self._on_tool_result_callbacks.invoke(result)
+                    yield result
 
-        except Exception as e:
-            yield self._handle_tool_error_result(request, e)
+            except Exception as e:
+                record_error(tool_span, e)
+                yield self._handle_tool_error_result(request, e)
+        finally:
+            end_span(tool_span)
 
-    async def _invoke_tool_async(self, request: ContentToolRequest):
+    async def _invoke_tool_async(
+        self, request: ContentToolRequest, _otel_parent: Optional[Span] = None
+    ):
+        tool_span = start_tool_span(request, parent=_otel_parent)
         tool = self._tools.get(request.name)
 
-        if tool is None:
-            yield self._handle_tool_error_result(
-                request,
-                error=RuntimeError("Unknown tool."),
-            )
-            return
+        try:
+            if tool is None:
+                error = RuntimeError("Unknown tool.")
+                record_error(tool_span, error)
+                yield self._handle_tool_error_result(request, error=error)
+                return
 
-        if isinstance(tool, ToolBuiltIn):
-            yield self._handle_tool_error_result(
-                request,
-                error=RuntimeError(
+            if isinstance(tool, ToolBuiltIn):
+                error = RuntimeError(
                     f"Built-in tool '{request.name}' cannot be invoked directly. "
                     "It should be handled by the provider."
-                ),
-            )
-            return
+                )
+                record_error(tool_span, error)
+                yield self._handle_tool_error_result(request, error=error)
+                return
 
-        # First, invoke the request callbacks. If a ToolRejectError is raised,
-        # treat it like a tool failure (i.e., gracefully handle it).
-        result: ContentToolResult | None = None
-        try:
-            await self._on_tool_request_callbacks.invoke_async(request)
-        except ToolRejectError as e:
-            yield self._handle_tool_error_result(request, e)
-            return
+            # First, invoke the request callbacks. If a ToolRejectError is raised,
+            # treat it like a tool failure (i.e., gracefully handle it).
+            result: ContentToolResult | None = None
+            try:
+                await self._on_tool_request_callbacks.invoke_async(request)
+            except ToolRejectError as e:
+                record_error(tool_span, e)
+                yield self._handle_tool_error_result(request, e)
+                return
 
-        if tool._is_async:
-            func = tool.func
-        else:
-            func = wrap_async(tool.func)
-
-        # Invoke the tool (if it hasn't been rejected).
-        try:
-            if isinstance(request.arguments, dict):
-                res = await func(**request.arguments)
+            if tool._is_async:
+                func = tool.func
             else:
-                res = await func(request.arguments)
+                func = wrap_async(tool.func)
 
-            # Normalize res into a generator of results.
-            if not inspect.isasyncgen(res):
+            # Invoke the tool (if it hasn't been rejected).
+            try:
+                with activate_span(tool_span):
+                    if isinstance(request.arguments, dict):
+                        res = await func(**request.arguments)
+                    else:
+                        res = await func(request.arguments)
 
-                async def _as_async_generator(res):
-                    yield res
+                if inspect.isasyncgen(res):
+                    while True:
+                        try:
+                            with activate_span(tool_span):
+                                x = await res.__anext__()
+                        except StopAsyncIteration:
+                            break
 
-                res = _as_async_generator(res)
+                        if isinstance(x, ContentToolResult):
+                            result = x
+                        else:
+                            result = ContentToolResult(value=x)
 
-            async for x in res:
-                if isinstance(x, ContentToolResult):
-                    result = x
+                        result.request = request
+                        await self._on_tool_result_callbacks.invoke_async(result)
+                        yield result
                 else:
-                    result = ContentToolResult(value=x)
+                    if isinstance(res, ContentToolResult):
+                        result = res
+                    else:
+                        result = ContentToolResult(value=res)
 
-                result.request = request
-                await self._on_tool_result_callbacks.invoke_async(result)
-                yield result
+                    result.request = request
+                    await self._on_tool_result_callbacks.invoke_async(result)
+                    yield result
 
-        except Exception as e:
-            yield self._handle_tool_error_result(request, e)
+            except Exception as e:
+                record_error(tool_span, e)
+                yield self._handle_tool_error_result(request, e)
+        finally:
+            end_span(tool_span)
 
     def _handle_tool_error_result(self, request: ContentToolRequest, error: Exception):
         warnings.warn(
