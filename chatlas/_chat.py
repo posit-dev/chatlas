@@ -3086,19 +3086,28 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     else:
                         res = tool.func(request.arguments)
 
-                # Normalize res as a generator of results.
-                if not inspect.isgenerator(res):
+                if inspect.isgenerator(res):
+                    while True:
+                        try:
+                            with activate_span(tool_span):
+                                x = next(res)
+                        except StopIteration:
+                            break
 
-                    def _as_generator(res):
-                        yield res
+                        if isinstance(x, ContentToolResult):
+                            result = x
+                        else:
+                            result = ContentToolResult(value=x)
 
-                    res = _as_generator(res)
+                        result.request = request
 
-                for x in res:
-                    if isinstance(x, ContentToolResult):
-                        result = x
+                        self._on_tool_result_callbacks.invoke(result)
+                        yield result
+                else:
+                    if isinstance(res, ContentToolResult):
+                        result = res
                     else:
-                        result = ContentToolResult(value=x)
+                        result = ContentToolResult(value=res)
 
                     result.request = request
 
@@ -3158,19 +3167,27 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     else:
                         res = await func(request.arguments)
 
-                # Normalize res into a generator of results.
-                if not inspect.isasyncgen(res):
+                if inspect.isasyncgen(res):
+                    while True:
+                        try:
+                            with activate_span(tool_span):
+                                x = await res.__anext__()
+                        except StopAsyncIteration:
+                            break
 
-                    async def _as_async_generator(res):
-                        yield res
+                        if isinstance(x, ContentToolResult):
+                            result = x
+                        else:
+                            result = ContentToolResult(value=x)
 
-                    res = _as_async_generator(res)
-
-                async for x in res:
-                    if isinstance(x, ContentToolResult):
-                        result = x
+                        result.request = request
+                        await self._on_tool_result_callbacks.invoke_async(result)
+                        yield result
+                else:
+                    if isinstance(res, ContentToolResult):
+                        result = res
                     else:
-                        result = ContentToolResult(value=x)
+                        result = ContentToolResult(value=res)
 
                     result.request = request
                     await self._on_tool_result_callbacks.invoke_async(result)
