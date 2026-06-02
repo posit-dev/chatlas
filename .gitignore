@@ -16,3 +16,6 @@ logs/
 
 # setuptools_scm
 chatlas/_version.py
+
+# superpowers visual companion working dir
+.superpowers/

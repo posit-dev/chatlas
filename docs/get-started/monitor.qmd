@@ -3,15 +3,22 @@ title: Monitor
 callout-appearance: simple
 ---
 
-As mentioned in the [debugging](debug.qmd) section, chatlas has support for gaining more insight into the behavior of your application through things like [logging](debug.qmd#logging).
+Once a chatlas app reaches production, new questions start to matter: Why is it slow for some users? Which model calls or tool executions dominate latency? Where are errors coming from? What sort of prompts are users entering and [are they getting good responses](../misc/evals.qmd)? 
 
-However, in a production setting, you may want to go beyond simple logging and use more sophisticated observability tools like [Datadog](https://www.datadoghq.com/), [Logfire](https://logfire.pydantic.dev/), etc., to monitor your application.
-These tools can give you a more structured way to view and monitor app performance, including things like latency, error rates, and other metrics.
-These tools tend to integrate well with open standards like [OpenTelemetry](https://opentelemetry.io/) (OTel), meaning if you "instrument" your app with OTel, you can view your app's telemetry data in any observability tool that supports OTel.
+This is what [OpenTelemetry](https://opentelemetry.io/) (OTel) is designed for. OTel is a vendor-neutral, open standard for collecting telemetry data (traces, metrics, and logs) from an application. Because it's a standard, you instrument your app once and can then view the resulting data in whatever observability backend you prefer — [Logfire](https://logfire.pydantic.dev/), [Datadog](https://www.datadoghq.com/), [Honeycomb](https://www.honeycomb.io/), [Jaeger](https://www.jaegertracing.io/), and many others all speak OTel. (We've been using Logfire internally at Posit while developing this integration.)
+
+Chatlas is instrumented with OTel out of the box, so you don't have to write any tracing code yourself — you just choose where to send the data.
 
 ## Framework-Level Tracing
 
-Chatlas can emit OpenTelemetry spans that capture the full structure of multi-turn conversations, including tool execution:
+### What is a trace?
+
+Two concepts cover most of what you need to know:
+
+- A **span** is a single timed unit of work — one model API call, one tool execution — with a name, a start/end time, and key/value **attributes** (token counts, model name, errors, and so on).
+- A **trace** is a tree of spans showing the full path of one request through your app, with each span nested under the one that triggered it.
+
+Chatlas emits spans that capture the structure of a multi-turn conversation, including tool execution. A single `chat()` that calls a tool produces a trace shaped like this:
 
 ```
 invoke_agent                      # wraps the full chat loop
@@ -20,6 +27,8 @@ invoke_agent                      # wraps the full chat loop
 ├── chat gpt-4o                   # follow-up model call
 └── ...
 ```
+
+These spans are always emitted, but they go nowhere until you configure a backend to receive them. That's because chatlas depends only on the lightweight `opentelemetry-api` package, which defines spans without recording them. To actually capture and export traces, you install the OpenTelemetry **SDK** and point it at a destination — which is exactly what the next section does.
 
 ### Quick Start: Console Output
 
@@ -42,6 +51,51 @@ trace.set_tracer_provider(provider)
 ```
 
 That's it — chatlas will automatically emit spans for every `chat()`, `stream()`, and tool invocation.
+
+### A worked example
+
+Here's a small travel assistant with a `get_weather` tool. The tool opens its own span (`fetch_forecast`) to represent the work it does, and we instrument [`httpx`](https://github.com/encode/httpx) — the HTTP library the provider SDKs use — so the underlying API request shows up too:
+
+```bash
+pip install opentelemetry-instrumentation-httpx
+```
+
+```python
+import time
+from opentelemetry import trace
+from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
+from chatlas import ChatOpenAI
+
+# Optional: nests the underlying HTTP call under each `chat` span
+HTTPXClientInstrumentor().instrument()
+
+tracer = trace.get_tracer("travel_assistant")
+
+def get_weather(city: str) -> str:
+    "Get the current weather forecast for a city."
+    with tracer.start_as_current_span("fetch_forecast"):
+        time.sleep(0.3)  # stand-in for a real forecast lookup
+        return f"{city}: 14°C, light rain, breezy this weekend."
+
+chat = ChatOpenAI(
+    model="gpt-4o",
+    system_prompt=(
+        "You are a concise travel assistant. "
+        "Always call get_weather before advising what to pack."
+    ),
+)
+chat.register_tool(get_weather)
+chat.chat("I'm headed to Tokyo this weekend — what should I pack?")
+```
+
+Sent to a backend with a timeline view, the resulting trace looks like this:
+
+<!-- otel-trace.svg is generated from a live run of this example by scripts/gen_otel_trace_svg.py -->
+![A trace waterfall showing the `invoke_agent` span over the full request, two `chat gpt-4o` spans for the model calls, an `execute_tool get_weather` span, and the nested `POST` and `fetch_forecast` spans underneath them.](/images/otel-trace.svg){class="rounded shadow mt-3" fig-alt="OpenTelemetry trace waterfall for a chatlas conversation with a tool call"}
+
+Read top to bottom, this is the whole agent loop in one connected trace: the model decides to call the tool, the tool runs (with its own `fetch_forecast` work nested inside `execute_tool`), and a follow-up model call produces the answer. The two `POST` rows are the real HTTP requests, nested under their `chat` spans because chatlas keeps each span active while the provider call is in flight. Drop the `HTTPXClientInstrumentor` line and you'd still get the `invoke_agent`, `chat`, and `execute_tool` spans — just without the HTTP detail.
+
+By default the trace captures this *structure* but not the *message text* — the prompts and responses are omitted unless you opt in (see [Content Capture](#content-capture)). Instrumenting `httpx` is the simplest way to add lower-level HTTP detail; [Lower-level instrumentation](#lower-level-instrumentation) covers the full range of options.
 
 ### Production: Logfire
 
@@ -79,16 +133,21 @@ from chatlas import ChatOpenAI
 
 ### What's Captured
 
-Each **chat span** records:
+Chatlas follows the [OpenTelemetry GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/), so attribute names (`gen_ai.*`) are consistent with other GenAI-instrumented libraries and are understood by OTel-aware backends out of the box. The lists below are representative rather than exhaustive — see the spec for the full set.
 
+The **agent span** (`invoke_agent`) brackets the whole chat loop and records the provider and requested model (`gen_ai.provider.name`, `gen_ai.request.model`).
+
+Each **chat span** (one per model API call) records:
+
+- Provider and requested model (`gen_ai.provider.name`, `gen_ai.request.model`)
 - Token usage (`gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`)
-- Response model and ID
-- Optionally: system prompt, input messages, output messages
+- Response model and ID (`gen_ai.response.model`, `gen_ai.response.id`)
+- Optionally, the message content itself (system prompt, input messages, output messages) — see [Content Capture](#content-capture) below
 
-Each **tool span** records:
+Each **tool span** (`execute_tool`, one per tool invocation) records:
 
-- Tool name, description, and call ID
-- Errors (if the tool raises)
+- Tool name, description, and call ID (`gen_ai.tool.name`, `gen_ai.tool.description`, `gen_ai.tool.call.id`)
+- Errors, if the tool raises (`error.type`, plus the exception is recorded on the span)
 
 ### Content Capture
 
@@ -98,27 +157,28 @@ Message content is **not** captured by default (it may contain sensitive data). 
 export OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true
 ```
 
-### Combining with Provider Instrumentors
+## Lower-Level Instrumentation
 
-Framework spans complement the provider-specific instrumentors described below.
-Because chatlas activates its spans in the OpenTelemetry context, spans created
-by other libraries nest underneath automatically:
+Chatlas's framework spans describe the *shape* of a conversation — the agent loop, each model call, each tool. To also capture what happens *inside* each step (the raw HTTP request, SDK-level retries, full request/response payloads), you add a lower-level instrumentor.
 
-- A provider instrumentor's **HTTP span** appears under the relevant `chat` span.
-- Any spans your **tools** emit (e.g. a database query or outbound HTTP call)
-  appear under that tool's `execute_tool` span.
+You don't have to do anything special to connect these to chatlas. Because chatlas keeps each span active while the call is in flight, spans created by other libraries nest underneath automatically:
 
-The result is one connected trace spanning the agent loop, each model call, each
-tool execution, and the underlying HTTP detail.
+- A transport- or SDK-level **HTTP span** appears under the relevant `chat` span.
+- Any spans your **tools** emit (e.g. a database query or outbound request) appear under that tool's `execute_tool` span.
 
+The result is one connected trace spanning the agent loop, each model call, each tool execution, and the underlying detail — exactly the trace shown in [the worked example](#a-worked-example) above.
 
-## Provider-Specific Instrumentors
+The options range from most general to most provider-aware:
 
-In addition to (or instead of) chatlas's built-in framework-level tracing, you can use provider-specific OpenTelemetry instrumentor libraries. These operate at the HTTP/SDK level and capture lower-level details about each API call.
+- **Transport level — `httpx`.** What the worked example used. It's the simplest, lowest-dependency option and works with every provider, since all of chatlas's provider SDKs make their requests through [`httpx`](https://github.com/encode/httpx). The tradeoff is that the spans are generic HTTP (method, URL, status) with no GenAI-specific attributes.
+- **Model-agnostic, SDK level — OpenLLMetry.** One library that adds GenAI-aware spans across many providers at once.
+- **Official, per-provider libraries.** One instrumentor per SDK, matched to the provider you're using.
+
+The SDK-level options are covered below.
 
 ### OpenLLMetry {#openllmetry}
 
-The simplest (and most model agnostic) way to add provider-level instrumentation is to leverage [openllmetry](https://github.com/traceloop/openllmetry), which can be as easy as adding the following code to your app:
+The most convenient way to get GenAI-aware spans across many providers at once is [openllmetry](https://github.com/traceloop/openllmetry), which can be as easy as adding the following code to your app:
 
 ```bash
 pip install traceloop-sdk
@@ -140,9 +200,7 @@ If you want to avoid the Traceloop Python SDK, you can also use these OTel instr
 
 ### Official OpenTelemetry Libraries
 
-To use OpenTelemetry's "official" instrumentation libraries, you'll need to first install the relevant instrumentation packages for the model providers you are using.
-
-
+Alternatively, the OpenTelemetry project (and its contributors) maintain instrumentation packages for individual provider SDKs. These give you more direct control than OpenLLMetry, at the cost of installing and enabling one package per SDK you use. Since each chatlas provider wraps a specific SDK, pick the instrumentor that matches the SDK behind your provider, as described below.
 
 ### OpenAI
 
@@ -214,3 +272,5 @@ chat.chat("Hello world!")
 ```
 
 </details>
+
+As with the OpenAI example, you may also want to tweak the environment variables in `.env` to target the relevant OTel collector and service name.
