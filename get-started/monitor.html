@@ -80,7 +80,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fd1d2e1f6ba78e2ea6a06ef935f3d571.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-d75be00fc6a35a28567140d074168097.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -118,11 +121,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <meta property="og:title" content="Monitor – chatlas">
 <meta property="og:description" content="Your friendly guide to building LLM chat apps in Python with less effort and more clarity.">
-<meta property="og:image" content="https://posit-dev.github.io/chatlas/get-started/images/logo.png">
+<meta property="og:image" content="https://posit-dev.github.io/chatlas/images/otel-trace.svg">
 <meta property="og:site_name" content="chatlas">
+<meta property="og:image:alt" content="OpenTelemetry trace waterfall for a chatlas conversation with a tool call">
 <meta name="twitter:title" content="Monitor – chatlas">
 <meta name="twitter:description" content="Your friendly guide to building LLM chat apps in Python with less effort and more clarity.">
-<meta name="twitter:image" content="https://posit-dev.github.io/chatlas/get-started/images/logo.png">
+<meta name="twitter:image" content="https://posit-dev.github.io/chatlas/images/otel-trace.svg">
+<meta name="twitter:image:alt" content="OpenTelemetry trace waterfall for a chatlas conversation with a tool call">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -377,9 +382,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#openllmetry" id="toc-openllmetry" class="nav-link active" data-scroll-target="#openllmetry">OpenLLMetry</a></li>
-  <li><a href="#opentelemetry" id="toc-opentelemetry" class="nav-link" data-scroll-target="#opentelemetry">OpenTelemetry</a>
+  <li><a href="#framework-level-tracing" id="toc-framework-level-tracing" class="nav-link active" data-scroll-target="#framework-level-tracing">Framework-Level Tracing</a>
   <ul class="collapse">
+  <li><a href="#what-is-a-trace" id="toc-what-is-a-trace" class="nav-link" data-scroll-target="#what-is-a-trace">What is a trace?</a></li>
+  <li><a href="#quick-start-console-output" id="toc-quick-start-console-output" class="nav-link" data-scroll-target="#quick-start-console-output">Quick Start: Console Output</a></li>
+  <li><a href="#a-worked-example" id="toc-a-worked-example" class="nav-link" data-scroll-target="#a-worked-example">A worked example</a></li>
+  <li><a href="#production-logfire" id="toc-production-logfire" class="nav-link" data-scroll-target="#production-logfire">Production: Logfire</a></li>
+  <li><a href="#configuration-module-pattern" id="toc-configuration-module-pattern" class="nav-link" data-scroll-target="#configuration-module-pattern">Configuration Module Pattern</a></li>
+  <li><a href="#environment-based-configuration" id="toc-environment-based-configuration" class="nav-link" data-scroll-target="#environment-based-configuration">Environment-based configuration</a></li>
+  <li><a href="#whats-captured" id="toc-whats-captured" class="nav-link" data-scroll-target="#whats-captured">What’s Captured</a></li>
+  <li><a href="#content-capture" id="toc-content-capture" class="nav-link" data-scroll-target="#content-capture">Content Capture</a></li>
+  </ul></li>
+  <li><a href="#lower-level-instrumentation" id="toc-lower-level-instrumentation" class="nav-link" data-scroll-target="#lower-level-instrumentation">Lower-Level Instrumentation</a>
+  <ul class="collapse">
+  <li><a href="#openllmetry" id="toc-openllmetry" class="nav-link" data-scroll-target="#openllmetry">OpenLLMetry</a></li>
+  <li><a href="#official-opentelemetry-libraries" id="toc-official-opentelemetry-libraries" class="nav-link" data-scroll-target="#official-opentelemetry-libraries">Official OpenTelemetry Libraries</a></li>
   <li><a href="#openai" id="toc-openai" class="nav-link" data-scroll-target="#openai">OpenAI</a></li>
   <li><a href="#anthropic" id="toc-anthropic" class="nav-link" data-scroll-target="#anthropic">Anthropic</a></li>
   <li><a href="#google" id="toc-google" class="nav-link" data-scroll-target="#google">Google</a></li>
@@ -409,24 +426,166 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>As mentioned in the <a href="../get-started/debug.html">debugging</a> section, chatlas has support for gaining more insight into the behavior of your application through things like <a href="../get-started/debug.html#logging">logging</a>.</p>
-<p>However, in a production setting, you may want to go beyond simple logging and use more sophisticated observability tools <a href="https://www.datadoghq.com/">Datadog</a>, <a href="https://logfire.io/">Logfire</a>, etc., to monitor your application. These tools can give you a more structured way to view and monitor app performance, including things like latency, error rates, and other metrics. These tools tend to integrate well with open standards like <a href="https://opentelemetry.io/">OpenTelemetry</a> (OTel), meaning if you “instrument” your app with OTel, you can view your app’s telemetry data in any observability tool that supports OTel. There are at least a few different ways to do this, but we’ll cover some of the more simpler approaches here.</p>
-<section id="openllmetry" class="level2">
-<h2 class="anchored" data-anchor-id="openllmetry">OpenLLMetry</h2>
-<p>The simplest (and most model agnostic) way to instrument your app with OTel is to leverage <a href="https://github.com/traceloop/openllmetry">openllmetry</a>, which can be as easy as adding the following code to your app:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install traceloop-sdk</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> traceloop.sdk <span class="im">import</span> Traceloop</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Traceloop.init(</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  app_name<span class="op">=</span><span class="st">"my app name"</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  disable_batch<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  telemetry_enabled<span class="op">=</span><span class="va">False</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Once a chatlas app reaches production, new questions start to matter: Why is it slow for some users? Which model calls or tool executions dominate latency? Where are errors coming from? What sort of prompts are users entering and <a href="../misc/evals.html">are they getting good responses</a>?</p>
+<p>This is what <a href="https://opentelemetry.io/">OpenTelemetry</a> (OTel) is designed for. OTel is a vendor-neutral, open standard for collecting telemetry data (traces, metrics, and logs) from an application. Because it’s a standard, you instrument your app once and can then view the resulting data in whatever observability backend you prefer — <a href="https://logfire.pydantic.dev/">Logfire</a>, <a href="https://www.datadoghq.com/">Datadog</a>, <a href="https://www.honeycomb.io/">Honeycomb</a>, <a href="https://www.jaegertracing.io/">Jaeger</a>, and many others all speak OTel. (We’ve been using Logfire internally at Posit while developing this integration.)</p>
+<p>Chatlas is instrumented with OTel out of the box, so you don’t have to write any tracing code yourself — you just choose where to send the data.</p>
+<section id="framework-level-tracing" class="level2">
+<h2 class="anchored" data-anchor-id="framework-level-tracing">Framework-Level Tracing</h2>
+<section id="what-is-a-trace" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-a-trace">What is a trace?</h3>
+<p>Two concepts cover most of what you need to know:</p>
+<ul>
+<li>A <strong>span</strong> is a single timed unit of work — one model API call, one tool execution — with a name, a start/end time, and key/value <strong>attributes</strong> (token counts, model name, errors, and so on).</li>
+<li>A <strong>trace</strong> is a tree of spans showing the full path of one request through your app, with each span nested under the one that triggered it.</li>
+</ul>
+<p>Chatlas emits spans that capture the structure of a multi-turn conversation, including tool execution. A single <code>chat()</code> that calls a tool produces a trace shaped like this:</p>
+<pre><code>invoke_agent                      # wraps the full chat loop
+├── chat gpt-4o                   # each model API call
+├── execute_tool get_weather      # each tool invocation
+├── chat gpt-4o                   # follow-up model call
+└── ...</code></pre>
+<p>These spans are always emitted, but they go nowhere until you configure a backend to receive them. That’s because chatlas depends only on the lightweight <code>opentelemetry-api</code> package, which defines spans without recording them. To actually capture and export traces, you install the OpenTelemetry <strong>SDK</strong> and point it at a destination — which is exactly what the next section does.</p>
+</section>
+<section id="quick-start-console-output" class="level3">
+<h3 class="anchored" data-anchor-id="quick-start-console-output">Quick Start: Console Output</h3>
+<p>The simplest way to see chatlas spans is to print them to the console. Install the OTel SDK via the <code>otel</code> extra:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="st">"chatlas[otel]"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then configure a console exporter before creating any chats:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> opentelemetry <span class="im">import</span> trace</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> opentelemetry.sdk.trace <span class="im">import</span> TracerProvider</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> opentelemetry.sdk.trace.export <span class="im">import</span> ConsoleSpanExporter, SimpleSpanProcessor</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>provider <span class="op">=</span> TracerProvider()</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>provider.add_span_processor(SimpleSpanProcessor(ConsoleSpanExporter()))</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>trace.set_tracer_provider(provider)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>That’s it — chatlas will automatically emit spans for every <code>chat()</code>, <code>stream()</code>, and tool invocation.</p>
+</section>
+<section id="a-worked-example" class="level3">
+<h3 class="anchored" data-anchor-id="a-worked-example">A worked example</h3>
+<p>Here’s a small travel assistant with a <code>get_weather</code> tool. The tool opens its own span (<code>fetch_forecast</code>) to represent the work it does, and we instrument <a href="https://github.com/encode/httpx"><code>httpx</code></a> — the HTTP library the provider SDKs use — so the underlying API request shows up too:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install opentelemetry-instrumentation-httpx</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> time</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> opentelemetry <span class="im">import</span> trace</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> opentelemetry.instrumentation.httpx <span class="im">import</span> HTTPXClientInstrumentor</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Optional: nests the underlying HTTP call under each `chat` span</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>HTTPXClientInstrumentor().instrument()</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>tracer <span class="op">=</span> trace.get_tracer(<span class="st">"travel_assistant"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_weather(city: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Get the current weather forecast for a city."</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> tracer.start_as_current_span(<span class="st">"fetch_forecast"</span>):</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        time.sleep(<span class="fl">0.3</span>)  <span class="co"># stand-in for a real forecast lookup</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="ss">f"</span><span class="sc">{</span>city<span class="sc">}</span><span class="ss">: 14°C, light rain, breezy this weekend."</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI(</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="st">"gpt-4o"</span>,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span>(</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">"You are a concise travel assistant. "</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Always call get_weather before advising what to pack."</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>chat.register_tool(get_weather)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"I'm headed to Tokyo this weekend — what should I pack?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Sent to a backend with a timeline view, the resulting trace looks like this:</p>
+<!-- otel-trace.svg is generated from a live run of this example by scripts/gen_otel_trace_svg.py -->
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="../images/otel-trace.svg" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="A trace waterfall showing the invoke_agent span over the full request, two chat gpt-4o spans for the model calls, an execute_tool get_weather span, and the nested POST and fetch_forecast spans underneath them."><img src="../images/otel-trace.svg" class="rounded shadow mt-3 img-fluid figure-img" alt="OpenTelemetry trace waterfall for a chatlas conversation with a tool call"></a></p>
+<figcaption>A trace waterfall showing the <code>invoke_agent</code> span over the full request, two <code>chat gpt-4o</code> spans for the model calls, an <code>execute_tool get_weather</code> span, and the nested <code>POST</code> and <code>fetch_forecast</code> spans underneath them.</figcaption>
+</figure>
+</div>
+<p>Read top to bottom, this is the whole agent loop in one connected trace: the model decides to call the tool, the tool runs (with its own <code>fetch_forecast</code> work nested inside <code>execute_tool</code>), and a follow-up model call produces the answer. The two <code>POST</code> rows are the real HTTP requests, nested under their <code>chat</code> spans because chatlas keeps each span active while the provider call is in flight. Drop the <code>HTTPXClientInstrumentor</code> line and you’d still get the <code>invoke_agent</code>, <code>chat</code>, and <code>execute_tool</code> spans — just without the HTTP detail.</p>
+<p>By default the trace captures this <em>structure</em> but not the <em>message text</em> — the prompts and responses are omitted unless you opt in (see <a href="#content-capture">Content Capture</a>). Instrumenting <code>httpx</code> is the simplest way to add lower-level HTTP detail; <a href="#lower-level-instrumentation">Lower-level instrumentation</a> covers the full range of options.</p>
+</section>
+<section id="production-logfire" class="level3">
+<h3 class="anchored" data-anchor-id="production-logfire">Production: Logfire</h3>
+<p>For production observability, we recommend <a href="https://logfire.pydantic.dev/">Pydantic Logfire</a>, which provides a dashboard for exploring traces with minimal setup:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install logfire</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">logfire</span> auth</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> logfire</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>logfire.configure()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Other OpenTelemetry-compatible backends (Datadog, Honeycomb, Jaeger, etc.) work too — just configure the appropriate exporter via the standard <code>opentelemetry-sdk</code> and <code>opentelemetry-exporter-*</code> packages.</p>
+</section>
+<section id="configuration-module-pattern" class="level3">
+<h3 class="anchored" data-anchor-id="configuration-module-pattern">Configuration Module Pattern</h3>
+<p>For apps (especially Shiny apps), extract OTel setup into a dedicated module that runs before any other imports:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># otel_config.py</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> logfire</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>logfire.configure()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># app.py</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> otel_config  <span class="co"># noqa: F401 — side-effect import</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># ...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="environment-based-configuration" class="level3">
+<h3 class="anchored" data-anchor-id="environment-based-configuration">Environment-based configuration</h3>
+<p>The OpenTelemetry SDK can read its exporter settings from <a href="https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/">standard environment variables</a>, so you can point chatlas’s traces at a backend without changing code — and without hard-coding the endpoint or its credentials in your app:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="va">OTEL_EXPORTER_OTLP_ENDPOINT</span><span class="op">=</span><span class="st">"https://logfire-eu.pydantic.dev"</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="va">OTEL_EXPORTER_OTLP_HEADERS</span><span class="op">=</span><span class="st">"Authorization=&lt;your-write-token&gt;"</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="va">OTEL_SERVICE_NAME</span><span class="op">=</span><span class="st">"my-chatlas-app"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>These are read when the SDK is configured from the environment — for example, the zero-code <code>opentelemetry-instrument</code> approach <a href="#lower-level-instrumentation">described below</a> — so the same app can run locally and in production with only its environment changed. Most hosting platforms let you set these per deployment; on <a href="https://posit.co/products/enterprise/connect/">Posit Connect</a>, for instance, you set them as <a href="https://docs.posit.co/connect/user/content-settings/#setting-env-vars">content environment variables</a>.</p>
+<p>Some platforms also emit their own OpenTelemetry data. Posit Connect (2026.02.0+) traces the <em>platform</em> — request latency, job queues, content execution and deployment — which administrators can export to the same backend. That’s separate from the spans your app emits (Connect doesn’t collect your application’s traces for you), but sending both to one tool puts your chatlas traces alongside the platform activity around them. See Connect’s <a href="https://docs.posit.co/connect/admin/opentelemetry/">OpenTelemetry guide</a>.</p>
+</section>
+<section id="whats-captured" class="level3">
+<h3 class="anchored" data-anchor-id="whats-captured">What’s Captured</h3>
+<p>Chatlas follows the <a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/">OpenTelemetry GenAI semantic conventions</a>, so attribute names (<code>gen_ai.*</code>) are consistent with other GenAI-instrumented libraries and are understood by OTel-aware backends out of the box. The lists below are representative rather than exhaustive — see the spec for the full set.</p>
+<p>The <strong>agent span</strong> (<code>invoke_agent</code>) brackets the whole chat loop and records the provider and requested model (<code>gen_ai.provider.name</code>, <code>gen_ai.request.model</code>).</p>
+<p>Each <strong>chat span</strong> (one per model API call) records:</p>
+<ul>
+<li>Provider and requested model (<code>gen_ai.provider.name</code>, <code>gen_ai.request.model</code>)</li>
+<li>Token usage (<code>gen_ai.usage.input_tokens</code>, <code>gen_ai.usage.output_tokens</code>)</li>
+<li>Response model and ID (<code>gen_ai.response.model</code>, <code>gen_ai.response.id</code>)</li>
+<li>Optionally, the message content itself (system prompt, input messages, output messages) — see <a href="#content-capture">Content Capture</a> below</li>
+</ul>
+<p>Each <strong>tool span</strong> (<code>execute_tool</code>, one per tool invocation) records:</p>
+<ul>
+<li>Tool name, description, and call ID (<code>gen_ai.tool.name</code>, <code>gen_ai.tool.description</code>, <code>gen_ai.tool.call.id</code>)</li>
+<li>Errors, if the tool raises (<code>error.type</code>, plus the exception is recorded on the span)</li>
+</ul>
+</section>
+<section id="content-capture" class="level3">
+<h3 class="anchored" data-anchor-id="content-capture">Content Capture</h3>
+<p>Message content is <strong>not</strong> captured by default (it may contain sensitive data). To enable:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT</span><span class="op">=</span>true</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="lower-level-instrumentation" class="level2">
+<h2 class="anchored" data-anchor-id="lower-level-instrumentation">Lower-Level Instrumentation</h2>
+<p>Chatlas’s framework spans describe the <em>shape</em> of a conversation — the agent loop, each model call, each tool. To also capture what happens <em>inside</em> each step (the raw HTTP request, SDK-level retries, full request/response payloads), you add a lower-level instrumentor.</p>
+<p>You don’t have to do anything special to connect these to chatlas. Because chatlas keeps each span active while the call is in flight, spans created by other libraries nest underneath automatically:</p>
+<ul>
+<li>A transport- or SDK-level <strong>HTTP span</strong> appears under the relevant <code>chat</code> span.</li>
+<li>Any spans your <strong>tools</strong> emit (e.g.&nbsp;a database query or outbound request) appear under that tool’s <code>execute_tool</code> span.</li>
+</ul>
+<p>The result is one connected trace spanning the agent loop, each model call, each tool execution, and the underlying detail — exactly the trace shown in <a href="#a-worked-example">the worked example</a> above.</p>
+<p>The options range from most general to most provider-aware:</p>
+<ul>
+<li><strong>Transport level — <code>httpx</code>.</strong> What the worked example used. It’s the simplest, lowest-dependency option and works with every provider, since all of chatlas’s provider SDKs make their requests through <a href="https://github.com/encode/httpx"><code>httpx</code></a>. The tradeoff is that the spans are generic HTTP (method, URL, status) with no GenAI-specific attributes.</li>
+<li><strong>Model-agnostic, SDK level — OpenLLMetry.</strong> One library that adds GenAI-aware spans across many providers at once.</li>
+<li><strong>Official, per-provider libraries.</strong> One instrumentor per SDK, matched to the provider you’re using.</li>
+</ul>
+<p>The SDK-level options are covered below.</p>
+<section id="openllmetry" class="level3">
+<h3 class="anchored" data-anchor-id="openllmetry">OpenLLMetry</h3>
+<p>The most convenient way to get GenAI-aware spans across many providers at once is <a href="https://github.com/traceloop/openllmetry">openllmetry</a>, which can be as easy as adding the following code to your app:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install traceloop-sdk</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> traceloop.sdk <span class="im">import</span> Traceloop</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>Traceloop.init(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  app_name<span class="op">=</span><span class="st">"my app name"</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  disable_batch<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  telemetry_enabled<span class="op">=</span><span class="va">False</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>From here, a quick and easy way to get started visualizing your app’s telemetry data is to sign up for a (free) <a href="https://traceloop.com/">Traceloop</a> account. Openllmetry does, however, <a href="https://www.traceloop.com/docs/openllmetry/integrations/introduction">integrate with many other observability platforms</a>. If you want to avoid the Traceloop Python SDK, you can also use these OTel instrumentation libraries from the openllmetry project more directly (e.g., <a href="https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-openai">openai</a> and <a href="https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-anthropic">anthropic</a>).</p>
 </section>
-<section id="opentelemetry" class="level2">
-<h2 class="anchored" data-anchor-id="opentelemetry">OpenTelemetry</h2>
-<p>To use OpenTelemetry’s “official” instrumentation libraries, you’ll need to first install the relevant instrumentation packages for the model providers you are using.</p>
+<section id="official-opentelemetry-libraries" class="level3">
+<h3 class="anchored" data-anchor-id="official-opentelemetry-libraries">Official OpenTelemetry Libraries</h3>
+<p>Alternatively, the OpenTelemetry project (and its contributors) maintain instrumentation packages for individual provider SDKs. These give you more direct control than OpenLLMetry, at the cost of installing and enabling one package per SDK you use. Since each chatlas provider wraps a specific SDK, pick the instrumentor that matches the SDK behind your provider, as described below.</p>
+</section>
 <section id="openai" class="level3">
 <h3 class="anchored" data-anchor-id="openai">OpenAI</h3>
 <p>More than a handful of chatlas’ <a href="../get-started/models.html">model providers</a> use the <a href="https://pypi.org/project/openai/">openai</a> Python SDK under the hood (e.g., <code>ChatOpenAI</code>, <code>ChatOllama</code>, etc).</p>
@@ -443,10 +602,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>To be sure a particular provider uses the <code>openai</code> SDK, make sure the class of the <code>.provider</code> attribute is <code>OpenAIProvider</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>chat.provider</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># &lt;chatlas._openai.OpenAIProvider object at 0x103d2fdd0&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>chat.provider</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># &lt;chatlas._openai.OpenAIProvider object at 0x103d2fdd0&gt;</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -455,9 +614,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <summary>
 <code>main.py</code>
 </summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Hello world!"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Hello world!"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <p>You may also want to tweak the environment variables in <code>.env</code> to target the relevant OTel collector and service name.</p>
 </section>
@@ -465,10 +624,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="anthropic">Anthropic</h3>
 <p>Both the <code>ChatAnthropic()</code> and <code>ChatBedrockAnthropic()</code> providers use the <a href="https://pypi.org/project/anthropic/">anthropic</a> Python SDK under the hood. As a result, you can use the <a href="https://github.com/traceloop/openllmetry/tree/main/packages/opentelemetry-instrumentation-anthropic">opentelemetry-instrumentation-anthropic</a> package to add OTel instrumentation your app.</p>
 <p>To do this, you’ll need to install the package:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install opentelemetry-instrumentation-anthropic</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install opentelemetry-instrumentation-anthropic</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Then, add the following instrumentation code to your app:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> opentelemetry.instrumentation.anthropic <span class="im">import</span> AnthropicInstrumentor</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>AnthropicInstrumentor().instrument()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> opentelemetry.instrumentation.anthropic <span class="im">import</span> AnthropicInstrumentor</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>AnthropicInstrumentor().instrument()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="google" class="level3">
 <h3 class="anchored" data-anchor-id="google">Google</h3>
@@ -477,10 +636,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <summary>
 <code>main.py</code>
 </summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatGoogle</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatGoogle()</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Hello world!"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatGoogle</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatGoogle()</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Hello world!"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
+<p>As with the OpenAI example, you may also want to tweak the environment variables in <code>.env</code> to target the relevant OTel collector and service name.</p>
 
 
 </section>
@@ -913,6 +1073,38 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </div>
   </div>
 </footer>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 

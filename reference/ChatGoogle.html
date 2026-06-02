@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fd1d2e1f6ba78e2ea6a06ef935f3d571.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-d75be00fc6a35a28567140d074168097.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -777,8 +777,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>The simplest way to authenticate is with an API key. Sign up for an account and <a href="https://ai.google.dev/gemini-api/docs/get-started/tutorial?lang=python">get an API key</a>, then pass it via <code>api_key</code> or set the <code>GOOGLE_API_KEY</code> environment variable.</p>
 <p>For OAuth, service accounts, or Application Default Credentials, pass a <code>google.auth.credentials.Credentials</code> object via <code>kwargs</code>:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> google.auth</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>credentials, _ <span class="op">=</span> google.auth.default()</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatGoogle(kwargs<span class="op">=</span>{<span class="st">"credentials"</span>: credentials})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>credentials, _ <span class="op">=</span> google.auth.default()</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatGoogle(kwargs<span class="op">=</span>{<span class="st">"credentials"</span>: credentials})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -829,8 +830,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="odd">
 <td>reasoning</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['int | ThinkingConfigDict']</td>
-<td>If provided, enables reasoning (a.k.a. “thoughts”) in the model’s responses. This can be an integer number of tokens to use for reasoning, or a full <code>ThinkingConfigDict</code> to customize the reasoning behavior.</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['int | ReasoningEffort | ThinkingConfigDict']</td>
+<td>If provided, enables reasoning (a.k.a. “thoughts”) in the model’s responses. This can be an integer number of tokens to use for reasoning (a thinking budget), a string thinking level (<code>"minimal"</code>, <code>"low"</code>, <code>"medium"</code>, or <code>"high"</code>), or a full <code>ThinkingConfigDict</code> to customize the reasoning behavior.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">

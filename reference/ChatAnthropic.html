@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-fd1d2e1f6ba78e2ea6a06ef935f3d571.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-d75be00fc6a35a28567140d074168097.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -836,8 +836,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="even">
 <td>reasoning</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['int | ThinkingConfigEnabledParam']</td>
-<td>Determines how many tokens Claude can be allocated to reasoning. Must be ≥1024 and less than <code>max_tokens</code>. Larger budgets can enable more thorough analysis for complex problems, improving response quality. See <a href="https://docs.claude.com/en/docs/build-with-claude/extended-thinking">extended thinking</a> for details.</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['int | ReasoningEffort | ThinkingConfigEnabledParam']</td>
+<td>Controls Claude’s extended thinking. Pass an integer to set a fixed thinking budget (the number of tokens allocated to reasoning; must be ≥1024 and less than <code>max_tokens</code>). Alternatively, pass a string effort level (<code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, <code>"xhigh"</code>, or <code>"max"</code>) to enable adaptive thinking, where Claude decides how much to think based on the requested effort. See <a href="https://docs.claude.com/en/docs/build-with-claude/extended-thinking">extended thinking</a> for details.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">

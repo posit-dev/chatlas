@@ -27,6 +27,7 @@ Chat with a Google Vertex AI model.
 >
 > ``` python
 > import google.auth
+>
 > credentials, project = google.auth.default()
 > chat = ChatVertex(
 >     project=project,

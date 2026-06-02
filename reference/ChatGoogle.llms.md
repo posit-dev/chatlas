@@ -22,6 +22,7 @@ Chat with a Google Gemini model.
 >
 > ``` python
 > import google.auth
+>
 > credentials, _ = google.auth.default()
 > chat = ChatGoogle(kwargs={"credentials": credentials})
 > ```
@@ -46,7 +47,7 @@ chat.chat("What is the capital of France?")
 |----|----|----|----|
 | system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
 | model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use. | `None` |
-| reasoning | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['int \| ThinkingConfigDict'\] | If provided, enables reasoning (a.k.a. “thoughts”) in the model’s responses. This can be an integer number of tokens to use for reasoning, or a full `ThinkingConfigDict` to customize the reasoning behavior. | `None` |
+| reasoning | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['int \| ReasoningEffort \| ThinkingConfigDict'\] | If provided, enables reasoning (a.k.a. “thoughts”) in the model’s responses. This can be an integer number of tokens to use for reasoning (a thinking budget), a string thinking level (`"minimal"`, `"low"`, `"medium"`, or `"high"`), or a full `ThinkingConfigDict` to customize the reasoning behavior. | `None` |
 | api_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The API key to use for authentication. You generally should not supply this directly, but instead set the `GOOGLE_API_KEY` environment variable. | `None` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['ChatClientArgs'\] | Additional arguments to pass to the `genai.Client` constructor. | `None` |
 

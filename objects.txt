@@ -78,6 +78,8 @@ chatlas.Chat.get_turns py:function 1 reference/Chat.html#chatlas.Chat.get_turns 
 chatlas._chat.Chat.get_turns py:function 1 reference/Chat.html#chatlas.Chat.get_turns chatlas.Chat.get_turns
 chatlas.Chat.list_models py:function 1 reference/Chat.html#chatlas.Chat.list_models -
 chatlas._chat.Chat.list_models py:function 1 reference/Chat.html#chatlas.Chat.list_models chatlas.Chat.list_models
+chatlas.Chat.model py:attribute 1 reference/Chat.html#chatlas.Chat.model -
+chatlas._chat.Chat.model py:attribute 1 reference/Chat.html#chatlas.Chat.model chatlas.Chat.model
 chatlas.Chat.on_tool_request py:function 1 reference/Chat.html#chatlas.Chat.on_tool_request -
 chatlas._chat.Chat.on_tool_request py:function 1 reference/Chat.html#chatlas.Chat.on_tool_request chatlas.Chat.on_tool_request
 chatlas.Chat.on_tool_result py:function 1 reference/Chat.html#chatlas.Chat.on_tool_result -
