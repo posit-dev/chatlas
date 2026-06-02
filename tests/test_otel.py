@@ -129,13 +129,12 @@ def test_content_capture_enabled(
     otel_setup: InMemorySpanExporter, monkeypatch: pytest.MonkeyPatch
 ):
     monkeypatch.setenv("OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT", "true")
-    # Flip the module-level flag for this test (env var is only read at import time).
-    _otel.capture_content = True
+    # Flip the module-level flag for this test (env var is only read at import
+    # time). monkeypatch restores it afterward even if an assertion below fails.
+    monkeypatch.setattr(_otel, "capture_content", True)
 
     chat = ChatOpenAI(model="gpt-4o-mini", system_prompt="Be terse.")
     chat.chat("Say hello.")
-
-    _otel.capture_content = False
 
     spans = otel_setup.get_finished_spans()
     chat_spans = [s for s in spans if s.name.startswith("chat ")]

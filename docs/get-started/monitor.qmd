@@ -23,10 +23,10 @@ invoke_agent                      # wraps the full chat loop
 
 ### Quick Start: Console Output
 
-The simplest way to see chatlas spans is to print them to the console. Install the OTel SDK:
+The simplest way to see chatlas spans is to print them to the console. Install the OTel SDK via the `otel` extra:
 
 ```bash
-pip install opentelemetry-sdk
+pip install "chatlas[otel]"
 ```
 
 Then configure a console exporter before creating any chats:

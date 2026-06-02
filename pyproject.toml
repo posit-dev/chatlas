@@ -37,6 +37,11 @@ Issues = "https://github.com/posit-dev/chatlas/issues/"
 Changelog = "https://github.com/posit-dev/chatlas/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
+otel = [
+    # opentelemetry-api is a hard dependency; the SDK is what users need to
+    # configure a TracerProvider/exporter and actually emit chatlas spans.
+    "opentelemetry-sdk>=1.0",
+]
 test = [
     "pyright>=1.1.379",
     "pytest>=8.3.2",
