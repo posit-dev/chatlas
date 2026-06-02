@@ -27,6 +27,7 @@ from typing import (
     overload,
 )
 
+import orjson
 from pydantic import BaseModel
 
 from ._callbacks import CallbackManager
@@ -2760,6 +2761,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
+        stream = self._resolve_stream(stream, data_model)
+
         def emit(text: str | Content):
             self._echo_content(str(text))
 
@@ -2791,7 +2794,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     content = self.provider.stream_content(chunk)
                     if content is not None:
                         text = self.provider.stream_text(chunk)
-                        yield from acc.process_content(content, text, content_mode, emit)
+                        yield from acc.process_content(
+                            content, text, content_mode, emit
+                        )
                     result = self.provider.stream_merge_chunks(result, chunk)
 
                 yield from acc.flush_thinking(content_mode, emit)
@@ -2821,9 +2826,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             turn = self.provider.value_turn(
                 response, has_data_model=data_model is not None
             )
-            if turn.text:
-                emit(turn.text)
-                yield turn.text
+            text = nonstream_yield_text(turn, data_model)
+            if text:
+                emit(text)
+                yield text
 
             if echo == "all":
                 emit_other_contents(turn, emit)
@@ -2868,6 +2874,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
+        stream = self._resolve_stream(stream, data_model)
+
         def emit(text: str | Content):
             self._echo_content(str(text))
 
@@ -2899,7 +2907,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     content = self.provider.stream_content(chunk)
                     if content is not None:
                         text = self.provider.stream_text(chunk)
-                        for item in acc.process_content(content, text, content_mode, emit):
+                        for item in acc.process_content(
+                            content, text, content_mode, emit
+                        ):
                             yield item
                     result = self.provider.stream_merge_chunks(result, chunk)
 
@@ -2931,15 +2941,33 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             turn = self.provider.value_turn(
                 response, has_data_model=data_model is not None
             )
-            if turn.text:
-                emit(turn.text)
-                yield turn.text
+            text = nonstream_yield_text(turn, data_model)
+            if text:
+                emit(text)
+                yield text
 
             if echo == "all":
                 emit_other_contents(turn, emit)
 
             turn = finalize_assistant_turn(self.provider, turn)
             self._turns.extend([user_turn, turn])
+
+    def _resolve_stream(
+        self,
+        stream: bool,
+        data_model: type[BaseModel] | None,
+    ) -> bool:
+        """Downgrade a streaming request when the provider can't stream it."""
+        if not stream or self.provider.can_stream(data_model):
+            return stream
+        warnings.warn(
+            "This provider does not support streaming structured data "
+            "extraction; falling back to a non-streaming request. The full "
+            "result is still yielded (as a single chunk) and recorded in the "
+            "conversation.",
+            stacklevel=2,
+        )
+        return False
 
     def _collect_all_kwargs(
         self,
@@ -3400,6 +3428,22 @@ async def aclose_response(response: Any) -> None:
             await response.close()
         else:
             response.close()
+
+
+def nonstream_yield_text(turn: Turn, data_model: type[BaseModel] | None) -> str:
+    """
+    Text to yield for a turn produced by a non-streaming request.
+
+    For structured data extraction, this is the JSON serialization of the
+    extracted object, so that `"".join(chunks)` honors the same contract as a
+    streamed response (see [](`~chatlas.Chat.stream`)). Otherwise it's the
+    turn's plain text.
+    """
+    if data_model is not None:
+        for content in turn.contents:
+            if isinstance(content, ContentJson):
+                return orjson.dumps(content.value).decode("utf-8")
+    return turn.text
 
 
 def finalize_assistant_turn(provider: Provider, turn: Turn) -> AssistantTurn:

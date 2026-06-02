@@ -229,6 +229,18 @@ class Provider(
         kwargs: SubmitInputArgsT,
     ) -> AsyncIterable[ChatCompletionChunkT] | ChatCompletionT: ...
 
+    def can_stream(self, data_model: Optional[type[BaseModel]]) -> bool:
+        """
+        Whether a streaming request is supported for the given inputs.
+
+        Returning `False` causes [](`~chatlas.Chat`) to transparently fall back
+        to a non-streaming request (emitting the full response as a single
+        chunk). Providers override this when a particular feature—most notably
+        structured data extraction via certain `data_model` strategies—cannot be
+        streamed.
+        """
+        return True
+
     @abstractmethod
     def stream_content(self, chunk: ChatCompletionChunkT) -> Optional["Content"]: ...
 
