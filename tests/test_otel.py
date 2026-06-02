@@ -8,6 +8,7 @@ import pytest
 pytest.importorskip("opentelemetry.sdk")
 
 from chatlas import ChatOpenAI, _otel
+from chatlas._content import ContentToolRequest, ToolInfo
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
@@ -361,6 +362,37 @@ def test_tool_internal_span_nests_under_tool_span(otel_setup: InMemorySpanExport
     )
 
 
+def test_generator_tool_internal_span_nests_under_tool_span(
+    otel_setup: InMemorySpanExporter,
+):
+    chat = ChatOpenAI()
+
+    def get_date():
+        "Return the current date."
+        with _otel.tracer.start_as_current_span("db_query"):
+            pass
+        yield "2026-05-12"
+
+    chat.register_tool(get_date)
+    tool = chat._tools["get_date"]
+    request = ContentToolRequest(
+        id="test-id",
+        name="get_date",
+        arguments={},
+        tool=ToolInfo.from_tool(tool),
+    )
+
+    results = list(chat._invoke_tool(request))
+
+    assert len(results) == 1
+    tool_span = next(s for s in otel_setup.get_finished_spans() if s.name == "execute_tool get_date")
+    db_span = next(s for s in otel_setup.get_finished_spans() if s.name == "db_query")
+    assert tool_span.context is not None
+    assert _parent_span_id(db_span) == tool_span.context.span_id, (
+        "span created inside a generator tool should nest under the execute_tool span"
+    )
+
+
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_tool_internal_span_nests_under_tool_span_async(
@@ -386,4 +418,38 @@ async def test_tool_internal_span_nests_under_tool_span_async(
     assert tool_span.context is not None
     assert _parent_span_id(db_span) == tool_span.context.span_id, (
         "span created inside an async tool should nest under the execute_tool span"
+    )
+
+
+@pytest.mark.asyncio
+async def test_async_generator_tool_internal_span_nests_under_tool_span(
+    otel_setup: InMemorySpanExporter,
+):
+    chat = ChatOpenAI()
+
+    async def get_date():
+        "Return the current date."
+        with _otel.tracer.start_as_current_span("db_query"):
+            pass
+        yield "2026-05-12"
+
+    chat.register_tool(get_date)
+    tool = chat._tools["get_date"]
+    request = ContentToolRequest(
+        id="test-id",
+        name="get_date",
+        arguments={},
+        tool=ToolInfo.from_tool(tool),
+    )
+
+    results = []
+    async for result in chat._invoke_tool_async(request):
+        results.append(result)
+
+    assert len(results) == 1
+    tool_span = next(s for s in otel_setup.get_finished_spans() if s.name == "execute_tool get_date")
+    db_span = next(s for s in otel_setup.get_finished_spans() if s.name == "db_query")
+    assert tool_span.context is not None
+    assert _parent_span_id(db_span) == tool_span.context.span_id, (
+        "span created inside an async generator tool should nest under the execute_tool span"
     )
