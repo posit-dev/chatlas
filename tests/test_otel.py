@@ -225,6 +225,12 @@ def test_streaming_span_lifecycle(otel_setup: InMemorySpanExporter):
     assert chat_span.end_time is not None, (
         "Chat span should be finished after stream is consumed"
     )
+    # Per the OTel spec, instrumentation libraries leave successful spans UNSET
+    # rather than marking them OK (OK is reserved for app/operator use and is
+    # treated as final, which would mask a later error on the same span).
+    assert chat_span.status.status_code.name == "UNSET", (
+        f"Successful chat span should be UNSET, got {chat_span.status.status_code.name}"
+    )
 
 
 def test_chat_error_recorded(otel_setup: InMemorySpanExporter):

@@ -122,7 +122,9 @@ def record_chat_result(
         except Exception:
             pass
 
-    span.set_status(StatusCode.OK)
+    # Per the OTel spec, instrumentation libraries leave a successful span's
+    # status UNSET rather than marking it OK; errors are recorded via
+    # `record_error`.
 
 
 def record_error(span: Span, error: Exception) -> None:
