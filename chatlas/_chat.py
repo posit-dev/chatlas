@@ -48,6 +48,15 @@ from ._display import (
 )
 from ._logging import log_tool_error
 from ._mcp_manager import MCPSessionManager
+from ._otel import (
+    activate_span,
+    end_span,
+    record_chat_result,
+    record_tool_error,
+    start_agent_span,
+    start_chat_span,
+    start_tool_span,
+)
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
 from ._stream_controller import StreamController
 from ._tokens import tokens_log
@@ -2591,8 +2600,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> Generator[str | Content, None, None]:
-        from ._otel import end_span, start_agent_span
-
         agent_span = start_agent_span(self.provider)
         try:
             user_turn_result: UserTurn | None = user_turn
@@ -2679,8 +2686,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
-        from ._otel import end_span, start_agent_span
-
         agent_span = start_agent_span(self.provider)
         try:
             user_turn_result: UserTurn | None = user_turn
@@ -2774,13 +2779,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> Generator[str | Content, None, None]:
-        from ._otel import (
-            activate_span,
-            end_span,
-            record_chat_result,
-            start_chat_span,
-        )
-
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
@@ -2919,13 +2917,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
-        from ._otel import (
-            activate_span,
-            end_span,
-            record_chat_result,
-            start_chat_span,
-        )
-
         system_turn = (
             self._turns[0]
             if self._turns and isinstance(self._turns[0], SystemTurn)
@@ -3042,13 +3033,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return all_kwargs
 
     def _invoke_tool(self, request: ContentToolRequest, _otel_parent: Any = None):
-        from ._otel import (
-            activate_span,
-            end_span,
-            record_tool_error,
-            start_tool_span,
-        )
-
         tool = self._tools.get(request.name)
 
         if tool is None:
@@ -3115,13 +3099,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def _invoke_tool_async(
         self, request: ContentToolRequest, _otel_parent: Any = None
     ):
-        from ._otel import (
-            activate_span,
-            end_span,
-            record_tool_error,
-            start_tool_span,
-        )
-
         tool = self._tools.get(request.name)
 
         if tool is None:
