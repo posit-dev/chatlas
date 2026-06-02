@@ -188,6 +188,96 @@ async def test_stream_async_with_data_model():
     assert turn.contents[0].value == {"name": "John", "age": 15}
 
 
+def _fake_tool_mode_message(model: str):
+    from anthropic.types import Message, ToolUseBlock, Usage
+
+    return Message(
+        id="msg_x",
+        content=[
+            ToolUseBlock(
+                id="toolu_x",
+                name="_structured_tool_call",
+                input={"data": {"name": "John", "age": 15}},
+                type="tool_use",
+            )
+        ],
+        model=model,
+        role="assistant",
+        stop_reason="tool_use",
+        stop_sequence=None,
+        type="message",
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+
+def test_stream_with_data_model_tool_mode_downgrades_gracefully():
+    from unittest.mock import patch
+
+    from chatlas._content import ContentJson
+
+    model = "claude-3-5-sonnet-20241022"
+    chat = ChatAnthropic(model=model, structured_output_mode="tool", api_key="x")
+
+    class Person(BaseModel):
+        name: str
+        age: int
+
+    fake = _fake_tool_mode_message(model)
+    provider = cast(AnthropicProvider, chat.provider)
+
+    with patch.object(provider._client.messages, "create", return_value=fake):
+        with pytest.warns(UserWarning, match="streaming"):
+            chunks = list(chat.stream("John, age 15", data_model=Person))
+
+    person = Person.model_validate_json("".join(chunks))
+    assert person == Person(name="John", age=15)
+
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert len(turn.contents) == 1
+    assert isinstance(turn.contents[0], ContentJson)
+    assert turn.contents[0].value == {"name": "John", "age": 15}
+
+
+@pytest.mark.asyncio
+async def test_stream_async_with_data_model_tool_mode_downgrades_gracefully():
+    from unittest.mock import AsyncMock, patch
+
+    from chatlas._content import ContentJson
+
+    model = "claude-3-5-sonnet-20241022"
+    chat = ChatAnthropic(model=model, structured_output_mode="tool", api_key="x")
+
+    class Person(BaseModel):
+        name: str
+        age: int
+
+    fake = _fake_tool_mode_message(model)
+    provider = cast(AnthropicProvider, chat.provider)
+
+    with patch.object(
+        provider._async_client.messages,
+        "create",
+        new=AsyncMock(return_value=fake),
+    ):
+        with pytest.warns(UserWarning, match="streaming"):
+            chunks = [
+                chunk
+                async for chunk in await chat.stream_async(
+                    "John, age 15", data_model=Person
+                )
+            ]
+
+    person = Person.model_validate_json("".join(chunks))
+    assert person == Person(name="John", age=15)
+
+    turn = chat.get_last_turn()
+    assert turn is not None
+    assert len(turn.contents) == 1
+    assert isinstance(turn.contents[0], ContentJson)
+    assert turn.contents[0].value == {"name": "John", "age": 15}
+
+
 @pytest.mark.vcr
 @retry_api_call
 def test_anthropic_images():

@@ -175,8 +175,9 @@ def ChatAnthropic(
         `"auto"` (default) uses Anthropic's native `output_config` API for
         models that support it and falls back to a tool-based approach for
         older models. `"native"` forces the `output_config` API (which
-        supports streaming). `"tool"` forces the legacy tool-based approach
-        (which does not support streaming).
+        streams the extracted JSON incrementally). `"tool"` forces the legacy
+        tool-based approach; this can't stream incrementally, so streaming
+        requests transparently fall back to a single non-streaming request.
     api_key
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `ANTHROPIC_API_KEY` environment
@@ -425,6 +426,21 @@ class AnthropicProvider(
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
         return await self._async_client.messages.create(**kwargs)  # type: ignore
 
+    def can_stream(self, data_model: Optional[type[BaseModel]]) -> bool:
+        # The tool-based structured output strategy can't stream (Anthropic
+        # streams tool input as `{"data": ...}`-wrapped JSON, which doesn't
+        # match the extracted-object contract). The native `output_config`
+        # strategy streams JSON as ordinary text deltas, so it's fine.
+        if data_model is None:
+            return True
+        return self._use_native_structured_output()
+
+    def _use_native_structured_output(self) -> bool:
+        mode = self._structured_output_mode
+        return mode == "native" or (
+            mode == "auto" and supports_structured_outputs(self.model)
+        )
+
     def _chat_perform_args(
         self,
         stream: bool,
@@ -435,10 +451,7 @@ class AnthropicProvider(
     ) -> "SubmitInputArgs":
         tool_schemas = [self._anthropic_tool_schema(tool) for tool in tools.values()]
 
-        mode = self._structured_output_mode
-        use_native = mode == "native" or (
-            mode == "auto" and supports_structured_outputs(self.model)
-        )
+        use_native = self._use_native_structured_output()
 
         if data_model is not None and use_native:
             from anthropic import transform_schema
@@ -459,12 +472,6 @@ class AnthropicProvider(
         elif data_model is not None:
             data_model_tool = self.create_data_model_tool(data_model)
             tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
-            if stream:
-                stream = False
-                warnings.warn(
-                    "Anthropic does not support structured data extraction in streaming mode.",
-                    stacklevel=2,
-                )
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,

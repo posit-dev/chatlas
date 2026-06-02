@@ -168,6 +168,12 @@ def test_stream_with_data_model():
     person = Person.model_validate_json(result)
     assert person == Person(name="John", age=15)
 
+    # The JSON arrives incrementally: chunks are fragments that are only valid
+    # JSON once fully concatenated (the "partial JSON" contract).
+    assert len(chunks) > 1
+    with pytest.raises(ValueError):
+        Person.model_validate_json("".join(chunks[:-1]))
+
     # Verify the last turn contains ContentJson with the structured data
     turn = chat.get_last_turn()
     assert turn is not None

@@ -219,3 +219,62 @@ This example only works with Claude, not GPT or Gemini, because only Claude supp
 
 That said, you could prompt an LLM to suggest a `BaseModel` for you from the unstructured input, and then use that to extract the data. This is a bit more work, but it can be done.
 :::
+
+
+## Streaming structured data
+
+`.chat_structured()` waits for the full response before returning a validated model instance.
+If you instead want to consume the response as it's generated (for example, to drive a progress indicator or a live UI), pass `data_model` to [`.stream()`](../reference/Chat.qmd#stream) (or `.stream_async()`).
+
+When `data_model` is provided, `.stream()` yields the model's **JSON, one fragment at a time**.
+Each chunk is a piece of a JSON string; only the *concatenation* of all the chunks is valid JSON.
+After the stream finishes, parse the joined chunks with `data_model.model_validate_json()`:
+
+```python
+import chatlas as ctl
+from pydantic import BaseModel
+
+class Person(BaseModel):
+    name: str
+    age: int
+
+chat = ctl.ChatOpenAI()
+
+chunks = []
+for chunk in chat.stream("John, age 15, won first prize", data_model=Person):
+    chunks.append(chunk)
+
+person = Person.model_validate_json("".join(chunks))
+```
+
+The streamed `chat` also records the result as a `ContentJson` in conversation history, so `chat.get_last_turn()` reflects the extracted data just as it would after `.chat_structured()`.
+
+### The partial JSON problem
+
+Because chunks arrive as raw JSON fragments, an individual chunk (or any prefix of the stream) is almost never valid JSON on its own.
+For the example above, the chunks look something like:
+
+```python
+['{"', 'name', '":"', 'John', '","', 'age', '":', '15', '}']
+```
+
+This means you **cannot** call `Person.model_validate_json()` on a partial accumulation and expect it to succeed — it will raise until the closing `}` arrives.
+Keep this in mind when deciding what to do with the stream:
+
+- **You just want the final object.** Accumulate every chunk and parse once at the end (as above), or simply use `.chat_structured()`, which does this for you.
+- **You want to show progress as it streams.** Display the raw text as it accumulates, but only attempt to *parse* it once the stream is complete. If you need to render *structured* partial state (e.g. populate fields as they arrive), you'll need a tolerant/partial JSON parser — chatlas does not attempt partial parsing for you, because there's no general, lossless way to interpret a half-written JSON value (is `"Jo` the final value or just the start of `"John"`?).
+
+::: callout-note
+### Provider support
+
+Streaming structured data works with providers that emit the JSON as ordinary
+output text, including `ChatOpenAI()`, `ChatGoogle()`, and recent Claude models
+via `ChatAnthropic()`.
+
+Older Claude models extract structured data through a *tool call* rather than
+plain text, which cannot be streamed incrementally. In that case chatlas
+transparently falls back to a single, non-streaming request: you'll get one
+chunk containing the complete JSON (and a warning noting the fallback). You can
+force this behavior with `ChatAnthropic(structured_output_mode="tool")`, or
+force native streaming with `structured_output_mode="native"`.
+:::
