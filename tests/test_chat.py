@@ -77,8 +77,7 @@ def test_model_property_get_and_set():
     assert chat.model == "gpt-4o"
     assert chat.provider.model == "gpt-4o"
 
-    # Setting the model updates both the Chat and the underlying provider.
-    # No validation is performed (matching ellmer's set_model()).
+    # The model name is intentionally not validated.
     chat.model = "some-unvalidated-model"
     assert chat.model == "some-unvalidated-model"
     assert chat.provider.model == "some-unvalidated-model"

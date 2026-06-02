@@ -97,13 +97,15 @@ def supports_structured_outputs(model: str) -> bool:
 
 StructuredOutputMode = Literal["auto", "native", "tool"]
 
+ReasoningEffort = Literal["low", "medium", "high", "xhigh", "max"]
+
 
 def ChatAnthropic(
     *,
     system_prompt: Optional[str] = None,
     model: "Optional[ModelParam]" = None,
     max_tokens: int = 4096,
-    reasoning: Optional["int | str | ThinkingConfigEnabledParam"] = None,
+    reasoning: Optional["int | ReasoningEffort | ThinkingConfigEnabledParam"] = None,
     cache: Literal["5m", "1h", "none"] = "5m",
     structured_output_mode: StructuredOutputMode = "auto",
     api_key: Optional[str] = None,
@@ -269,18 +271,16 @@ def ChatAnthropic(
         model = log_model_default("claude-sonnet-4-6")
 
     kwargs_chat: "SubmitInputArgs" = {}
-    if reasoning is not None:
-        if isinstance(reasoning, str):
-            # A string effort level enables Claude's adaptive thinking, where
-            # the model decides how much to think based on `output_config.effort`.
-            kwargs_chat = {
-                "thinking": {"type": "adaptive"},
-                "output_config": cast("OutputConfigParam", {"effort": reasoning}),
-            }
-        else:
-            if isinstance(reasoning, int):
-                reasoning = {"type": "enabled", "budget_tokens": reasoning}
-            kwargs_chat = {"thinking": reasoning}
+    if isinstance(reasoning, str):
+        output_config: "OutputConfigParam" = {"effort": reasoning}
+        kwargs_chat = {
+            "thinking": {"type": "adaptive"},
+            "output_config": output_config,
+        }
+    elif isinstance(reasoning, int):
+        kwargs_chat = {"thinking": {"type": "enabled", "budget_tokens": reasoning}}
+    elif reasoning is not None:
+        kwargs_chat = {"thinking": reasoning}
 
     return Chat(
         provider=AnthropicProvider(

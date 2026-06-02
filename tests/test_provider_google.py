@@ -28,10 +28,12 @@ def chat_func(vertex: bool = False, **kwargs):
 
 
 def test_google_reasoning_effort_string():
-    """A string `reasoning` maps to thinking_level (#998)."""
+    """A string `reasoning` maps to a `thinking_level` enum (#998)."""
+    from google.genai.types import ThinkingLevel
+
     chat = ChatGoogle(reasoning="low")
     assert chat.kwargs_chat["config"]["thinking_config"] == {
-        "thinking_level": "low",
+        "thinking_level": ThinkingLevel.LOW,
         "include_thoughts": True,
     }
 

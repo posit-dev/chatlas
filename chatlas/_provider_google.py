@@ -36,7 +36,6 @@ if TYPE_CHECKING:
         Part,
         PartDict,
         ThinkingConfigDict,
-        ThinkingLevel,
     )
 
     from .types.google import ChatClientArgs, SubmitInputArgs
@@ -44,11 +43,14 @@ else:
     GenerateContentResponse = object
 
 
+ReasoningEffort = Literal["minimal", "low", "medium", "high"]
+
+
 def ChatGoogle(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
-    reasoning: Optional["int | str | ThinkingConfigDict"] = None,
+    reasoning: Optional["int | ReasoningEffort | ThinkingConfigDict"] = None,
     api_key: Optional[str] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", GenerateContentResponse]:
@@ -167,8 +169,10 @@ def ChatGoogle(
                 "include_thoughts": True,
             }
         elif isinstance(reasoning, str):
+            from google.genai.types import ThinkingLevel
+
             thinking_config = {
-                "thinking_level": cast("ThinkingLevel", reasoning),
+                "thinking_level": ThinkingLevel(reasoning.upper()),
                 "include_thoughts": True,
             }
         else:
