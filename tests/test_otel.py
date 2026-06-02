@@ -238,3 +238,88 @@ def test_noop_without_provider():
     assert isinstance(span, NonRecordingSpan)
     assert not span.is_recording()
     span.end()
+
+
+def _parent_span_id(span: object) -> int | None:
+    parent = getattr(span, "parent", None)
+    return parent.span_id if parent is not None else None
+
+
+@pytest.mark.vcr
+def test_provider_http_span_nests_under_chat_span(otel_setup: InMemorySpanExporter):
+    # A provider auto-instrumentor (openllmetry, opentelemetry-instrumentation-openai)
+    # creates a span off the *current context* at the moment the SDK is called.
+    # chatlas must activate its chat span around that call so the HTTP span nests
+    # underneath it rather than starting a disconnected root trace.
+    chat = ChatOpenAI(model="gpt-4o-mini")
+
+    orig_perform = chat.provider.chat_perform
+
+    def wrapped_perform(*args, **kwargs):
+        with _otel.tracer.start_as_current_span("openai.request"):
+            return orig_perform(*args, **kwargs)
+
+    chat.provider.chat_perform = wrapped_perform  # type: ignore[method-assign]
+    chat.chat("Say hello.")
+
+    spans = otel_setup.get_finished_spans()
+    chat_span = next(s for s in spans if s.name.startswith("chat "))
+    http_span = next(s for s in spans if s.name == "openai.request")
+    assert chat_span.context is not None
+    assert _parent_span_id(http_span) == chat_span.context.span_id, (
+        "provider HTTP span should nest under the chatlas chat span"
+    )
+
+
+@pytest.mark.vcr
+def test_tool_internal_span_nests_under_tool_span(otel_setup: InMemorySpanExporter):
+    chat = ChatOpenAI(
+        model="gpt-4o-mini",
+        system_prompt="Always use the get_date tool to answer questions about the date.",
+    )
+
+    def get_date() -> str:
+        "Return the current date"
+        # A tool that does instrumented work (DB query, HTTP call, sub-agent).
+        with _otel.tracer.start_as_current_span("db_query"):
+            pass
+        return "2026-05-12"
+
+    chat.register_tool(get_date)
+    chat.chat("What is today's date?")
+
+    spans = otel_setup.get_finished_spans()
+    tool_span = next(s for s in spans if s.name.startswith("execute_tool "))
+    db_span = next(s for s in spans if s.name == "db_query")
+    assert tool_span.context is not None
+    assert _parent_span_id(db_span) == tool_span.context.span_id, (
+        "span created inside a tool should nest under the execute_tool span"
+    )
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_tool_internal_span_nests_under_tool_span_async(
+    otel_setup: InMemorySpanExporter,
+):
+    chat = ChatOpenAI(
+        model="gpt-4o-mini",
+        system_prompt="Always use the get_date tool to answer questions about the date.",
+    )
+
+    def get_date() -> str:
+        "Return the current date"
+        with _otel.tracer.start_as_current_span("db_query"):
+            pass
+        return "2026-05-12"
+
+    chat.register_tool(get_date)
+    await chat.chat_async("What is today's date?")
+
+    spans = otel_setup.get_finished_spans()
+    tool_span = next(s for s in spans if s.name.startswith("execute_tool "))
+    db_span = next(s for s in spans if s.name == "db_query")
+    assert tool_span.context is not None
+    assert _parent_span_id(db_span) == tool_span.context.span_id, (
+        "span created inside an async tool should nest under the execute_tool span"
+    )

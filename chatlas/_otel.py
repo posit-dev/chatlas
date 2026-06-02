@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from contextlib import AbstractContextManager, nullcontext
 from typing import TYPE_CHECKING, Any, Optional
 
 from opentelemetry import trace
@@ -125,6 +126,23 @@ def record_tool_error(span: Span, error: Exception) -> None:
 
 def end_span(span: Span) -> None:
     span.end()
+
+
+def activate_span(span: Span) -> AbstractContextManager[Span]:
+    """Make `span` the current span for the enclosing `with` block.
+
+    Wrap the bounded provider call and tool invocation so third-party spans (a
+    provider's HTTP instrumentor, or work done inside a tool) nest under ours via
+    the OTel context. Not used for the agent span, which brackets the whole
+    streaming loop -- staying active across a `yield` would leak the context into
+    the consumer's scope.
+
+    The span is not ended on exit (callers end it via `end_span`), and
+    non-recording spans are skipped so disabled tracing never touches the context.
+    """
+    if not span.is_recording():
+        return nullcontext(span)
+    return trace.use_span(span, end_on_exit=False)
 
 
 def as_otel_message(turn: Turn) -> dict[str, Any]:

@@ -2774,7 +2774,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> Generator[str | Content, None, None]:
-        from ._otel import end_span, record_chat_result, start_chat_span
+        from ._otel import (
+            activate_span,
+            end_span,
+            record_chat_result,
+            start_chat_span,
+        )
 
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
@@ -2805,13 +2810,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             all_kwargs = self._collect_all_kwargs(kwargs)
 
             if stream:
-                response = self.provider.chat_perform(
-                    stream=True,
-                    turns=[*self._turns, user_turn],
-                    tools=self._tools,
-                    data_model=data_model,
-                    kwargs=all_kwargs,
-                )
+                # Scope stays tight: the streaming loop below must not run while
+                # the span is active (it yields, which would leak the context).
+                with activate_span(chat_span):
+                    response = self.provider.chat_perform(
+                        stream=True,
+                        turns=[*self._turns, user_turn],
+                        tools=self._tools,
+                        data_model=data_model,
+                        kwargs=all_kwargs,
+                    )
 
                 acc = TurnAccumulator(self._turns, controller)
                 acc.begin_turn(user_turn)
@@ -2846,13 +2854,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     close_response(response)
 
             else:
-                response = self.provider.chat_perform(
-                    stream=False,
-                    turns=[*self._turns, user_turn],
-                    tools=self._tools,
-                    data_model=data_model,
-                    kwargs=all_kwargs,
-                )
+                with activate_span(chat_span):
+                    response = self.provider.chat_perform(
+                        stream=False,
+                        turns=[*self._turns, user_turn],
+                        tools=self._tools,
+                        data_model=data_model,
+                        kwargs=all_kwargs,
+                    )
 
                 turn = self.provider.value_turn(
                     response, has_data_model=data_model is not None
@@ -2910,7 +2919,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
-        from ._otel import end_span, record_chat_result, start_chat_span
+        from ._otel import (
+            activate_span,
+            end_span,
+            record_chat_result,
+            start_chat_span,
+        )
 
         system_turn = (
             self._turns[0]
@@ -2938,13 +2952,16 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             all_kwargs = self._collect_all_kwargs(kwargs)
 
             if stream:
-                response = await self.provider.chat_perform_async(
-                    stream=True,
-                    turns=[*self._turns, user_turn],
-                    tools=self._tools,
-                    data_model=data_model,
-                    kwargs=all_kwargs,
-                )
+                # Scope stays tight: the streaming loop below must not run while
+                # the span is active (it yields, which would leak the context).
+                with activate_span(chat_span):
+                    response = await self.provider.chat_perform_async(
+                        stream=True,
+                        turns=[*self._turns, user_turn],
+                        tools=self._tools,
+                        data_model=data_model,
+                        kwargs=all_kwargs,
+                    )
 
                 acc = TurnAccumulator(self._turns, controller)
                 acc.begin_turn(user_turn)
@@ -2981,13 +2998,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     await aclose_response(response)
 
             else:
-                response = await self.provider.chat_perform_async(
-                    stream=False,
-                    turns=[*self._turns, user_turn],
-                    tools=self._tools,
-                    data_model=data_model,
-                    kwargs=all_kwargs,
-                )
+                with activate_span(chat_span):
+                    response = await self.provider.chat_perform_async(
+                        stream=False,
+                        turns=[*self._turns, user_turn],
+                        tools=self._tools,
+                        data_model=data_model,
+                        kwargs=all_kwargs,
+                    )
 
                 turn = self.provider.value_turn(
                     response, has_data_model=data_model is not None
@@ -3024,7 +3042,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return all_kwargs
 
     def _invoke_tool(self, request: ContentToolRequest, _otel_parent: Any = None):
-        from ._otel import end_span, record_tool_error, start_tool_span
+        from ._otel import (
+            activate_span,
+            end_span,
+            record_tool_error,
+            start_tool_span,
+        )
 
         tool = self._tools.get(request.name)
 
@@ -3058,10 +3081,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 return
 
             try:
-                if isinstance(request.arguments, dict):
-                    res = tool.func(**request.arguments)
-                else:
-                    res = tool.func(request.arguments)
+                with activate_span(tool_span):
+                    if isinstance(request.arguments, dict):
+                        res = tool.func(**request.arguments)
+                    else:
+                        res = tool.func(request.arguments)
 
                 # Normalize res as a generator of results.
                 if not inspect.isgenerator(res):
@@ -3091,7 +3115,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def _invoke_tool_async(
         self, request: ContentToolRequest, _otel_parent: Any = None
     ):
-        from ._otel import end_span, record_tool_error, start_tool_span
+        from ._otel import (
+            activate_span,
+            end_span,
+            record_tool_error,
+            start_tool_span,
+        )
 
         tool = self._tools.get(request.name)
 
@@ -3131,10 +3160,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
             # Invoke the tool (if it hasn't been rejected).
             try:
-                if isinstance(request.arguments, dict):
-                    res = await func(**request.arguments)
-                else:
-                    res = await func(request.arguments)
+                with activate_span(tool_span):
+                    if isinstance(request.arguments, dict):
+                        res = await func(**request.arguments)
+                    else:
+                        res = await func(request.arguments)
 
                 # Normalize res into a generator of results.
                 if not inspect.isasyncgen(res):
