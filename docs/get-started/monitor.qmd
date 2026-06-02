@@ -131,6 +131,20 @@ from chatlas import ChatOpenAI
 # ...
 ```
 
+### Environment-based configuration
+
+The OpenTelemetry SDK can read its exporter settings from [standard environment variables](https://opentelemetry.io/docs/specs/otel/configuration/sdk-environment-variables/), so you can point chatlas's traces at a backend without changing code — and without hard-coding the endpoint or its credentials in your app:
+
+```bash
+OTEL_EXPORTER_OTLP_ENDPOINT="https://logfire-eu.pydantic.dev"
+OTEL_EXPORTER_OTLP_HEADERS="Authorization=<your-write-token>"
+OTEL_SERVICE_NAME="my-chatlas-app"
+```
+
+These are read when the SDK is configured from the environment — for example, the zero-code `opentelemetry-instrument` approach [described below](#lower-level-instrumentation) — so the same app can run locally and in production with only its environment changed. Most hosting platforms let you set these per deployment; on [Posit Connect](https://posit.co/products/enterprise/connect/), for instance, you set them as [content environment variables](https://docs.posit.co/connect/user/content-settings/#setting-env-vars).
+
+Some platforms also emit their own OpenTelemetry data. Posit Connect (2026.02.0+) traces the *platform* — request latency, job queues, content execution and deployment — which administrators can export to the same backend. That's separate from the spans your app emits (Connect doesn't collect your application's traces for you), but sending both to one tool puts your chatlas traces alongside the platform activity around them. See Connect's [OpenTelemetry guide](https://docs.posit.co/connect/admin/opentelemetry/).
+
 ### What's Captured
 
 Chatlas follows the [OpenTelemetry GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/), so attribute names (`gen_ai.*`) are consistent with other GenAI-instrumented libraries and are understood by OTel-aware backends out of the box. The lists below are representative rather than exhaustive — see the spec for the full set.
