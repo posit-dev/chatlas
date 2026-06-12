@@ -66,7 +66,7 @@ dev = [
     "pandas",
     "polars",
     "openai",
-    "anthropic[bedrock]",
+    "anthropic[bedrock]>=0.109.1",
     "google-genai>=1.14.0",
     "numpy>1.24.4",
     "tiktoken",
@@ -98,8 +98,8 @@ eval = [
     "inspect-ai;python_version>='3.10'"
 ]
 # Provider extras ----
-anthropic = ["anthropic"]
-bedrock-anthropic = ["anthropic[bedrock]"]
+anthropic = ["anthropic>=0.109.1"]
+bedrock-anthropic = ["anthropic[bedrock]>=0.109.1"]
 databricks = ["databricks-sdk"]
 # Intentionally empty since these providers used to require 
 # an additional openai install, but that's now included 
