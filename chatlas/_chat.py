@@ -23,6 +23,7 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
+    Union,
     cast,
     overload,
 )
@@ -32,10 +33,16 @@ from pydantic import BaseModel
 from ._callbacks import CallbackManager
 from ._content import (
     Content,
+    ContentCitation,
     ContentJson,
     ContentText,
+    ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentToolRequestFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
     ContentToolResult,
     ToolInfo,
 )
@@ -95,12 +102,34 @@ CompletionT = TypeVar("CompletionT")
 
 EchoOptions = Literal["output", "all", "none", "text"]
 
+# The values yielded by `.stream()`/`.stream_async()`. Plain text is always
+# yielded; the richer content objects only appear when `content="all"`.
+StreamedContent = Union[
+    str,
+    ContentThinkingDelta,
+    ContentToolRequest,
+    ContentToolResult,
+    ContentToolRequestSearch,
+    ContentToolResponseSearch,
+    ContentToolRequestFetch,
+    ContentToolResponseFetch,
+    ContentCitation,
+]
+
 T = TypeVar("T")
 BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
 
 
 def is_present(value: T | None | MISSING_TYPE) -> TypeGuard[T]:
     return value is not None and not isinstance(value, MISSING_TYPE)
+
+
+def _display_text(content: "Content") -> "Optional[str]":
+    if isinstance(content, ContentText):
+        return content.text
+    if isinstance(content, (ContentThinking, ContentThinkingDelta)):
+        return content.thinking
+    return None
 
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
@@ -1210,9 +1239,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> Generator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None, None
-    ]: ...
+    ) -> Generator[StreamedContent, None, None]: ...
 
     def stream(
         self,
@@ -1222,9 +1249,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> Generator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None, None
-    ]:
+    ) -> Generator[StreamedContent, None, None]:
         """
         Generate a response from the chat in a streaming fashion.
 
@@ -1298,11 +1323,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             controller=controller,
         )
 
-        def wrapper() -> Generator[
-            str | ContentThinkingDelta | ContentToolRequest | ContentToolResult,
-            None,
-            None,
-        ]:
+        def wrapper() -> Generator[StreamedContent, None, None]:
             with display:
                 for chunk in generator:
                     yield chunk
@@ -1329,9 +1350,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> AsyncGenerator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
-    ]: ...
+    ) -> AsyncGenerator[StreamedContent, None]: ...
 
     async def stream_async(
         self,
@@ -1341,9 +1360,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> AsyncGenerator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
-    ]:
+    ) -> AsyncGenerator[StreamedContent, None]:
         """
         Generate a response from the chat in a streaming fashion asynchronously.
 
@@ -1422,9 +1439,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             controller=controller,
         )
 
-        async def wrapper() -> AsyncGenerator[
-            str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
-        ]:
+        async def wrapper() -> AsyncGenerator[StreamedContent, None]:
             try:
                 with display:
                     async for chunk in generator:
@@ -2586,9 +2601,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         *,
         controller: StreamController,
-    ) -> Generator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None, None
-    ]: ...
+    ) -> Generator[StreamedContent, None, None]: ...
 
     def _chat_impl(
         self,
@@ -2675,9 +2688,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         *,
         controller: StreamController,
-    ) -> AsyncGenerator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
-    ]: ...
+    ) -> AsyncGenerator[StreamedContent, None]: ...
 
     async def _chat_impl_async(
         self,
@@ -2834,11 +2845,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             break
                         if controller.cancelled:
                             break
-                        content = self.provider.stream_content(chunk)
-                        if content is not None:
-                            text = self.provider.stream_text(chunk)
+                        for content in self.provider.stream_content(chunk):
                             yield from acc.process_content(
-                                content, text, content_mode, emit
+                                content, _display_text(content), content_mode, emit
                             )
                         result = self.provider.stream_merge_chunks(result, chunk)
 
@@ -2972,11 +2981,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             break
                         if controller.cancelled:
                             break
-                        content = self.provider.stream_content(chunk)
-                        if content is not None:
-                            text = self.provider.stream_text(chunk)
+                        for content in self.provider.stream_content(chunk):
                             for item in acc.process_content(
-                                content, text, content_mode, emit
+                                content, _display_text(content), content_mode, emit
                             ):
                                 yield item
                         result = self.provider.stream_merge_chunks(result, chunk)

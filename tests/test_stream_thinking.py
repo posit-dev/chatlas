@@ -42,8 +42,8 @@ class FakeProvider(Provider):
             return _gen()
         raise NotImplementedError
 
-    def stream_content(self, chunk) -> Optional[Content]:
-        return chunk.content
+    def stream_content(self, chunk) -> list[Content]:
+        return [chunk.content] if chunk.content is not None else []
 
     def stream_merge_chunks(self, completion, chunk):
         return completion or {}
