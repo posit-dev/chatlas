@@ -3,6 +3,7 @@ import warnings
 import httpx
 import pytest
 from chatlas import ChatOpenAI, tool_web_search
+from chatlas.types import ContentCitation, ContentText, ContentToolRequestSearch
 from openai.types.responses import ResponseOutputMessage, ResponseOutputText
 
 from .conftest import (
@@ -82,11 +83,51 @@ def test_openai_web_search():
     def chat_fun(**kwargs):
         return ChatOpenAI(model="gpt-4.1", **kwargs)
 
-    assert_tool_web_search(
+    chat = assert_tool_web_search(
         chat_fun,
         tool_web_search(),
         hint="The CRAN archive page has this info.",
     )
+
+    # Web search citations should be surfaced on ContentText (OpenAI provides offsets)
+    cites = [
+        cit
+        for turn in chat.get_turns()
+        for content in turn.contents
+        if isinstance(content, ContentText)
+        for cit in content.citations
+    ]
+    assert cites, "expected url_citation annotations surfaced as citations"
+    assert all(c.url for c in cites)
+    # cited_text is derived from the annotation offsets; every citation carries the span
+    answer = "".join(
+        content.text
+        for turn in chat.get_turns()
+        for content in turn.contents
+        if isinstance(content, ContentText)
+    )
+    assert all(c.cited_text and c.cited_text in answer for c in cites)
+
+
+@pytest.mark.vcr
+def test_openai_web_search_streaming():
+    chat = ChatOpenAI(model="gpt-4.1")
+    chat.register_tool(tool_web_search())
+    items = list(
+        chat.stream(
+            "When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format. The CRAN archive page has this info.",
+            content="all",
+        )
+    )
+    citations = [x for x in items if isinstance(x, ContentCitation)]
+    assert citations
+    assert all(c.citation.url for c in citations)
+    answer = "".join(x for x in items if isinstance(x, str))
+    assert all(c.citation.cited_text and c.citation.cited_text in answer for c in citations)
+    # interleaved: at least one citation arrives before the last item in the stream
+    cite_idx = [i for i, x in enumerate(items) if isinstance(x, ContentCitation)]
+    assert cite_idx and min(cite_idx) < len(items) - 1
+    assert any(isinstance(x, ContentToolRequestSearch) for x in items)
 
 
 @pytest.mark.vcr
@@ -236,9 +277,7 @@ def test_openai_web_search_call_action_types():
     assert turn.contents[0].query == "find this"
 
     # search action without query but with queries
-    resp = make_response(
-        {"type": "search", "query": "", "queries": ["first query"]}
-    )
+    resp = make_response({"type": "search", "query": "", "queries": ["first query"]})
     turn = provider._response_as_turn(resp, has_data_model=False)
     assert isinstance(turn.contents[0], ContentToolRequestSearch)
     assert turn.contents[0].query == "first query"

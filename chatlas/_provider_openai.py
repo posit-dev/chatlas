@@ -7,11 +7,17 @@ from urllib.parse import urlparse
 
 import orjson
 from openai.types.responses import Response, ResponseStreamEvent
+from openai.types.responses.response_function_web_search import (
+    ResponseFunctionWebSearch,
+)
+from openai.types.responses.response_output_text import AnnotationURLCitation
 from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
+    Citation,
     Content,
+    ContentCitation,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -299,21 +305,56 @@ class OpenAIProvider(
 
         return kwargs_full
 
-    def stream_content(self, chunk) -> Optional[Content]:
+    def stream_content(self, chunk) -> list[Content]:
         if chunk.type == "response.output_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/delta
-            return ContentText.model_construct(text=chunk.delta)
+            self._streaming_text = getattr(self, "_streaming_text", "") + (
+                chunk.delta or ""
+            )
+            return [ContentText.model_construct(text=chunk.delta)]
+        if chunk.type == "response.output_text.annotation.added":
+            # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/annotation_added
+            # annotation is a plain dict at runtime (SDK types it as `object`)
+            ann: dict = chunk.annotation  # type: ignore[assignment]
+            if ann.get("type") == "url_citation":
+                text = getattr(self, "_streaming_text", "")
+                start = ann.get("start_index")
+                end = ann.get("end_index")
+                cited = (
+                    text[start:end] if (start is not None and end is not None) else None
+                )
+                return [
+                    ContentCitation(
+                        citation=Citation(
+                            url=ann["url"],
+                            title=ann.get("title"),
+                            cited_text=cited,
+                        )
+                    )
+                ]
+            return []
+        if chunk.type == "response.output_item.done":
+            item = chunk.item
+            if isinstance(item, ResponseFunctionWebSearch):
+                action = item.action
+                query = getattr(action, "query", None) or None
+                if not query:
+                    queries = getattr(action, "queries", None) or []
+                    query = queries[0] if queries else None
+                if not query:
+                    query = getattr(action, "pattern", None) or None
+                if not query:
+                    query = getattr(action, "url", None) or "web search"
+                return [ContentToolRequestSearch(query=query, extra=item.model_dump())]
+            return []
         if chunk.type == "response.reasoning_summary_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/delta
-            return ContentThinkingDelta(thinking=chunk.delta)
-        if chunk.type == "response.reasoning_summary_text.done":
-            # The thinking→text transition in _submit_turns already emits
-            # "\n</thinking>\n\n" which provides the visual separator.
-            return None
-        return None
+            return [ContentThinkingDelta(thinking=chunk.delta)]
+        return []
 
     def stream_merge_chunks(self, completion, chunk):
         if chunk.type == "response.completed":
+            self._streaming_text = ""
             return chunk.response
         elif chunk.type == "response.failed":
             error = chunk.response.error
@@ -388,7 +429,21 @@ class OpenAIProvider(
                         data = orjson.loads(x.text)
                         contents.append(ContentJson(value=data))
                     else:
-                        contents.append(ContentText(text=x.text))
+                        citations = []
+                        for a in x.annotations or []:
+                            if not isinstance(a, AnnotationURLCitation):
+                                continue
+                            # OpenAI gives offsets but no cited_text; derive the
+                            # grounded span by slicing the block text so every
+                            # provider's citation carries cited_text uniformly.
+                            citations.append(
+                                Citation(
+                                    url=a.url,
+                                    title=a.title,
+                                    cited_text=x.text[a.start_index : a.end_index],
+                                )
+                            )
+                        contents.append(ContentText(text=x.text, citations=citations))
 
             elif output.type == "function_call":
                 args = load_tool_request_args(output.arguments, output.name)

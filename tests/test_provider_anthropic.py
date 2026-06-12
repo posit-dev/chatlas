@@ -10,6 +10,7 @@ from chatlas import (
     tool_web_fetch,
     tool_web_search,
 )
+from chatlas.types import ContentCitation, ContentText, ContentToolRequestSearch, ContentToolResponseFetch, ContentToolResponseSearch
 from chatlas._provider_anthropic import AnthropicProvider
 from pydantic import BaseModel, Field
 
@@ -104,12 +105,52 @@ def test_anthropic_web_fetch():
             **kwargs,
         )
 
-    assert_tool_web_fetch(chat_fun, tool_web_fetch())
+    chat = assert_tool_web_fetch(chat_fun, tool_web_fetch())
+    fetched = [
+        c
+        for turn in chat.get_turns()
+        for c in turn.contents
+        if isinstance(c, ContentToolResponseFetch)
+    ]
+    assert fetched and fetched[0].url
+    assert fetched[0].status == "success"
 
 
 @pytest.mark.vcr
 def test_anthropic_web_search():
-    assert_tool_web_search(chat_func, tool_web_search())
+    chat = assert_tool_web_search(chat_func, tool_web_search())
+    results = [
+        c
+        for turn in chat.get_turns()
+        for c in turn.contents
+        if isinstance(c, ContentToolResponseSearch)
+    ]
+    assert results and results[0].sources
+    assert all(s.url for s in results[0].sources)
+    assert any(s.title for s in results[0].sources)
+
+
+@pytest.mark.vcr
+def test_anthropic_web_search_streaming():
+    chat = chat_func()
+    chat.register_tool(tool_web_search())
+    items = list(
+        chat.stream(
+            "When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format.",
+            content="all",
+        )
+    )
+    cites = [x for x in items if isinstance(x, ContentCitation)]
+    results = [x for x in items if isinstance(x, ContentToolResponseSearch)]
+    reqs = [x for x in items if isinstance(x, ContentToolRequestSearch)]
+    assert results and results[0].sources
+    assert reqs and reqs[0].query
+    assert cites and all(c.citation.url for c in cites)
+    answer = "".join(x for x in items if isinstance(x, str))
+    assert all(c.citation.cited_text in answer for c in cites)
+    # interleaved: at least one citation is not the very last item
+    cite_idx = [i for i, x in enumerate(items) if isinstance(x, ContentCitation)]
+    assert cite_idx and min(cite_idx) < len(items) - 1
 
 
 @pytest.mark.vcr
@@ -131,6 +172,17 @@ def test_anthropic_web_search_citations():
     # At least one text block should have citations from web search
     has_citations = any(getattr(block, "citations", None) for block in text_blocks)
     assert has_citations, "Expected citations on text blocks from web search"
+
+    # Normalized: citations transferred onto ContentText
+    cites = [
+        cit
+        for content in turn.contents
+        if isinstance(content, ContentText)
+        for cit in content.citations
+    ]
+    assert cites, "expected citations transferred onto ContentText"
+    assert all(c.url for c in cites)
+    assert any(c.cited_text for c in cites)
 
 
 @pytest.mark.vcr

@@ -356,13 +356,13 @@ class SnowflakeProvider(
 
         return req
 
-    def stream_content(self, chunk) -> Optional[Content]:
+    def stream_content(self, chunk) -> list[Content]:
         if not chunk.choices:
-            return None
+            return []
         delta = chunk.choices[0].delta
         if delta is None or "content" not in delta:
-            return None
-        return ContentText.model_construct(text=delta["content"])
+            return []
+        return [ContentText.model_construct(text=delta["content"])]
 
     # Snowflake sort-of follows OpenAI/Anthropic streaming formats except they
     # don't have the critical "index" field in the delta that the merge logic
