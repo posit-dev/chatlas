@@ -141,6 +141,9 @@ class SubmitInputArgs(TypedDict, total=False):
     max_tokens: Union[int, None, openai.Omit]
     metadata: Union[dict[str, str], None, openai.Omit]
     modalities: Union[list[Literal["text", "audio"]], None, openai.Omit]
+    moderation: Union[
+        openai.types.chat.completion_create_params.Moderation, None, openai.Omit
+    ]
     n: Union[int, None, openai.Omit]
     parallel_tool_calls: bool | openai.Omit
     prediction: Union[

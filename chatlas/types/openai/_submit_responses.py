@@ -216,6 +216,9 @@ class SubmitInputArgs(TypedDict, total=False):
         ],
         openai.Omit,
     ]
+    moderation: Union[
+        openai.types.responses.response_create_params.Moderation, None, openai.Omit
+    ]
     parallel_tool_calls: Union[bool, None, openai.Omit]
     previous_response_id: Union[str, None, openai.Omit]
     prompt: Union[
