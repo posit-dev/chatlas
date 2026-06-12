@@ -3,7 +3,6 @@ import requests
 from chatlas import ChatGoogle, ChatVertex, tool_web_fetch, tool_web_search
 from chatlas.types import (
     ContentCitation,
-    ContentText,
     ContentToolRequestSearch,
     ContentToolResponseFetch,
     ContentToolResponseSearch,
@@ -220,15 +219,13 @@ def test_google_web_search():
     # Note: the cassette grounding chunks don't include a domain field, so
     # domain is None for all sources in this recording.
     cites = [
-        cit
+        c
         for turn in chat.get_turns()
         for c in turn.contents
-        if isinstance(c, ContentText)
-        for cit in c.citations
+        if isinstance(c, ContentCitation)
     ]
-    assert cites
-    # Google supplies the grounded span directly (segment.text)
-    assert all(c.cited_text for c in cites)
+    assert cites, "expected ContentCitation items in turn contents"
+    assert all(c.url for c in cites)
 
 
 @pytest.mark.vcr
@@ -246,7 +243,7 @@ def test_google_web_search_streaming():
     assert results and results[0].sources
     citations = [x for x in items if isinstance(x, ContentCitation)]
     assert citations
-    assert all(c.citation.cited_text for c in citations)
+    assert all(c.url for c in citations)
 
 
 @pytest.mark.vcr

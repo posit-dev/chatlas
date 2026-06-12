@@ -69,7 +69,6 @@ website:
       - reference/Provider.qmd
       section: Implement a model provider
     - contents:
-      - reference/types.Citation.qmd
       - reference/types.Content.qmd
       - reference/types.ContentCitation.qmd
       - reference/types.ContentImage.qmd

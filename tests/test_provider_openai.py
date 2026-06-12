@@ -3,7 +3,7 @@ import warnings
 import httpx
 import pytest
 from chatlas import ChatOpenAI, tool_web_search
-from chatlas.types import ContentCitation, ContentText, ContentToolRequestSearch
+from chatlas.types import ContentCitation, ContentToolRequestSearch
 from openai.types.responses import ResponseOutputMessage, ResponseOutputText
 
 from .conftest import (
@@ -89,24 +89,15 @@ def test_openai_web_search():
         hint="The CRAN archive page has this info.",
     )
 
-    # Web search citations should be surfaced on ContentText (OpenAI provides offsets)
+    # Citations should be ContentCitation items in the turn contents
     cites = [
-        cit
+        c
         for turn in chat.get_turns()
-        for content in turn.contents
-        if isinstance(content, ContentText)
-        for cit in content.citations
+        for c in turn.contents
+        if isinstance(c, ContentCitation)
     ]
-    assert cites, "expected url_citation annotations surfaced as citations"
+    assert cites, "expected ContentCitation items in turn contents"
     assert all(c.url for c in cites)
-    # cited_text is derived from the annotation offsets; every citation carries the span
-    answer = "".join(
-        content.text
-        for turn in chat.get_turns()
-        for content in turn.contents
-        if isinstance(content, ContentText)
-    )
-    assert all(c.cited_text and c.cited_text in answer for c in cites)
 
 
 @pytest.mark.vcr
@@ -121,9 +112,7 @@ def test_openai_web_search_streaming():
     )
     citations = [x for x in items if isinstance(x, ContentCitation)]
     assert citations
-    assert all(c.citation.url for c in citations)
-    answer = "".join(x for x in items if isinstance(x, str))
-    assert all(c.citation.cited_text and c.citation.cited_text in answer for c in citations)
+    assert all(c.url for c in citations)
     # interleaved: at least one citation arrives before the last item in the stream
     cite_idx = [i for i, x in enumerate(items) if isinstance(x, ContentCitation)]
     assert cite_idx and min(cite_idx) < len(items) - 1

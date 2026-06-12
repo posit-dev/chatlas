@@ -4,7 +4,6 @@ from .._chat import (  # noqa: A005
     SubmitInputArgsT,
 )
 from .._content import (
-    Citation,
     Content,
     ContentCitation,
     ContentImage,
@@ -32,7 +31,6 @@ from .._tokens import TokenUsage
 from .._utils import MISSING, MISSING_TYPE
 
 __all__ = (
-    "Citation",
     "Content",
     "ContentCitation",
     "ContentImage",

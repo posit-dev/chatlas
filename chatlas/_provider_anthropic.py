@@ -19,7 +19,6 @@ from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
-    Citation,
     Content,
     ContentCitation,
     ContentImageInline,
@@ -528,9 +527,6 @@ class AnthropicProvider(
     def stream_content(self, chunk) -> list[Content]:
         if chunk.type == "content_block_delta":
             if chunk.delta.type == "text_delta":
-                text_block = getattr(self, "_streaming_text_block", None)
-                if text_block is not None and chunk.index == text_block["index"]:
-                    text_block["text"] += chunk.delta.text
                 return [ContentText.model_construct(text=chunk.delta.text)]
             if chunk.delta.type == "thinking_delta":
                 return [ContentThinkingDelta(thinking=chunk.delta.thinking)]
@@ -549,7 +545,6 @@ class AnthropicProvider(
             if btype == "text":
                 self._streaming_text_block: Optional[dict] = {
                     "index": chunk.index,
-                    "text": "",
                     "citations": [],
                 }
             if (
@@ -592,7 +587,6 @@ class AnthropicProvider(
             result: list[Content] = []
             text_block = getattr(self, "_streaming_text_block", None)
             if text_block is not None and chunk.index == text_block["index"]:
-                full_text = text_block["text"]
                 buffered_citations = text_block["citations"]
                 self._streaming_text_block = None
                 for c in buffered_citations:
@@ -600,11 +594,8 @@ class AnthropicProvider(
                     if url:
                         result.append(
                             ContentCitation(
-                                citation=Citation(
-                                    url=url,
-                                    title=getattr(c, "title", None),
-                                    cited_text=full_text,
-                                )
+                                url=url,
+                                title=getattr(c, "title", None),
                             )
                         )
             tracked = getattr(self, "_streaming_server_tool_use", None)
@@ -780,7 +771,11 @@ class AnthropicProvider(
             if not isinstance(turn, (UserTurn, AssistantTurn)):
                 raise ValueError(f"Unknown role {turn.role}")
 
-            content = [self._as_content_block(c) for c in turn.contents]
+            content = [
+                self._as_content_block(c)
+                for c in turn.contents
+                if not isinstance(c, ContentCitation)
+            ]
 
             # Drop empty assistant turns to avoid an API error
             # (all messages must have non-empty content)
@@ -919,27 +914,17 @@ class AnthropicProvider(
                 if uses_new_output_format:
                     contents.append(ContentJson(value=orjson.loads(content.text)))
                 else:
-                    citations = []
+                    contents.append(ContentText(text=content.text))
                     for c in content.citations or []:
-                        # Anthropic citation locations are a union; only
-                        # web_search_result_location carries a `url`. Document-
-                        # grounding location types (char/page/content-block) and
-                        # custom-search-result locations have no url and are skipped.
                         url = getattr(c, "url", None)
                         if not url:
                             continue
-                        # `cited_text` is normalized to the *answer* span (this
-                        # text block), matching OpenAI/Google, so it can be located
-                        # in the reply. (Anthropic's own cited_text is the source
-                        # quote — that lives on the raw block if needed.)
-                        citations.append(
-                            Citation(
+                        contents.append(
+                            ContentCitation(
                                 url=url,
                                 title=getattr(c, "title", None),
-                                cited_text=content.text,
                             )
                         )
-                    contents.append(ContentText(text=content.text, citations=citations))
             elif content.type == "tool_use":
                 if uses_old_tool_approach and content.name == "_structured_tool_call":
                     if not isinstance(content.input, dict):

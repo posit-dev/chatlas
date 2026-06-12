@@ -8,7 +8,6 @@ from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
-    Citation,
     Content,
     ContentCitation,
     ContentImageInline,
@@ -544,6 +543,7 @@ class GoogleProvider(
                             ContentToolResponseSearch,
                             ContentToolRequestFetch,
                             ContentToolResponseFetch,
+                            ContentCitation,
                         ),
                     )
                 ]
@@ -638,7 +638,6 @@ class GoogleProvider(
             )
 
         contents: list[Content] = []
-        text_contents: list[ContentText] = []
         for part in parts:
             text = part.get("text")
             if text:
@@ -647,9 +646,7 @@ class GoogleProvider(
                 elif part.get("thought"):
                     contents.append(ContentThinking(thinking=text))
                 else:
-                    tc = ContentText(text=text)
-                    text_contents.append(tc)
-                    contents.append(tc)
+                    contents.append(ContentText(text=text))
             function_call = part.get("function_call")
             if function_call:
                 # Seems name is required but id is optional?
@@ -698,7 +695,7 @@ class GoogleProvider(
         if isinstance(finish_reason, FinishReason):
             finish_reason = finish_reason.name
 
-        search_contents = google_grounding_contents(grounding_metadata, text_contents)
+        search_contents = google_grounding_contents(grounding_metadata)
         url_ctx_contents = google_url_context_contents(url_context_metadata)
         contents = search_contents + contents + url_ctx_contents
 
@@ -757,9 +754,8 @@ class GoogleProvider(
 
 def google_grounding_contents(
     grounding_metadata: "GroundingMetadataDict | None",
-    text_contents: list[ContentText],
 ) -> list[Content]:
-    """Build request/results content and attach citations from Google grounding metadata."""
+    """Build search request/results + citations from Google grounding metadata."""
     if not grounding_metadata:
         return []
 
@@ -775,7 +771,6 @@ def google_grounding_contents(
         )
 
     chunks = grounding_metadata.get("grounding_chunks") or []
-    # Index-aligned with `chunks` so grounding_chunk_indices resolve correctly.
     chunk_sources: list[Source] = []
     for ch in chunks:
         web = ch.get("web") or {}
@@ -786,8 +781,6 @@ def google_grounding_contents(
                 domain=web.get("domain"),
             )
         )
-    # Only expose sources that have a usable URL (consistent with other providers,
-    # which never emit an empty-URL Source).
     display_sources = [s for s in chunk_sources if s.url]
     if display_sources:
         out.append(
@@ -797,35 +790,11 @@ def google_grounding_contents(
             )
         )
 
-    # NOTE: Google segment offsets are UTF-8 byte offsets. They equal character
-    # offsets for ASCII but will be off for multi-byte text; treat as approximate
-    # for non-ASCII. Proper conversion would need text.encode("utf-8")[s:e].decode().
-    supports = grounding_metadata.get("grounding_supports") or []
-    for sup in supports:
-        seg = sup.get("segment") or {}
-        part_index = seg.get("part_index")
-        if part_index is None:
-            part_index = 0
-        if part_index >= len(text_contents):
-            continue
-        target = text_contents[part_index]
-        # Google provides the grounded span directly as `segment.text`; prefer it
-        # as the (encoding-proof) cited_text over the byte offsets below.
-        cited_text = seg.get("text")
+    for sup in grounding_metadata.get("grounding_supports") or []:
         for idx in dict.fromkeys(sup.get("grounding_chunk_indices") or []):
-            if idx >= len(chunk_sources):
-                continue
-            src = chunk_sources[idx]
-            if not src.url:
-                continue
-            # NOTE: mutates the shared ContentText already present in `contents`.
-            target.citations.append(
-                Citation(
-                    url=src.url,
-                    title=src.title,
-                    cited_text=cited_text,
-                )
-            )
+            if 0 <= idx < len(chunk_sources) and chunk_sources[idx].url:
+                src = chunk_sources[idx]
+                out.append(ContentCitation(url=src.url, title=src.title))
 
     return out
 
@@ -833,12 +802,7 @@ def google_grounding_contents(
 def google_grounding_stream_contents(
     grounding_metadata: "GroundingMetadataDict",
 ) -> list[Content]:
-    """Build search request/results + standalone ContentCitations from grounding (streaming).
-
-    Called when a streamed chunk carries grounding_supports. Unlike the non-streaming
-    path (google_grounding_contents), there are no ContentText objects to attach
-    citations to, so citations are emitted as standalone ContentCitation items.
-    """
+    """Build search request/results + ContentCitations from grounding (streaming)."""
     out: list[Content] = []
 
     queries = grounding_metadata.get("web_search_queries") or []
@@ -871,18 +835,10 @@ def google_grounding_stream_contents(
         )
 
     for sup in grounding_metadata.get("grounding_supports") or []:
-        seg = sup.get("segment") or {}
-        cited_text = seg.get("text")
         for idx in dict.fromkeys(sup.get("grounding_chunk_indices") or []):
             if 0 <= idx < len(chunk_sources) and chunk_sources[idx].url:
                 src = chunk_sources[idx]
-                out.append(
-                    ContentCitation(
-                        citation=Citation(
-                            url=src.url, title=src.title, cited_text=cited_text
-                        )
-                    )
-                )
+                out.append(ContentCitation(url=src.url, title=src.title))
 
     return out
 

@@ -216,7 +216,6 @@ quartodoc:
         - Provider
     - title: User-facing types
       contents:
-        - types.Citation
         - types.Content
         - types.ContentCitation
         - types.ContentImage

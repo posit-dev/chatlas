@@ -171,35 +171,6 @@ class Content(BaseModel):
         return self.__str__()
 
 
-class Citation(BaseModel):
-    """
-    A source that grounds part of an assistant's answer.
-
-    Produced by built-in web search/fetch tools.
-
-    To render a citation, use ``url``/``title`` (the link) together with
-    ``cited_text`` (the placement key). ``cited_text`` is a verbatim span of
-    the assistant's answer that this source grounds; string-match it within the
-    answer text to position a marker, regardless of provider or streaming order.
-    It also doubles as the highlightable span shown to the user.
-
-    Parameters
-    ----------
-    url
-        Link to the cited source.
-    title
-        Title of the cited source, when the provider supplies one.
-    cited_text
-        A verbatim span of the assistant's answer that this source grounds.
-        The placement key: a consumer matches it to position a citation marker,
-        and it doubles as the highlightable span.
-    """
-
-    url: str
-    title: Optional[str] = None
-    cited_text: Optional[str] = None
-
-
 class Source(BaseModel):
     """A page surfaced by a web search (not necessarily cited in the answer)."""
 
@@ -214,7 +185,6 @@ class ContentText(Content):
     """
 
     text: str
-    citations: list[Citation] = []
     content_type: ContentTypeEnum = "text"
 
     def __init__(self, **data: Any):
@@ -226,10 +196,7 @@ class ContentText(Content):
     def __add__(self, other: object) -> "ContentText":
         if not isinstance(other, ContentText):
             return NotImplemented  # type: ignore[return-value]
-        return ContentText.model_construct(
-            text=self.text + other.text,
-            citations=[*self.citations, *other.citations],
-        )
+        return ContentText.model_construct(text=self.text + other.text)
 
     def __str__(self):
         return self.text
@@ -888,19 +855,19 @@ class ContentToolResponseFetch(Content):
 
 class ContentCitation(Content):
     """
-    A citation emitted during streaming (``content="all"``).
+    A citation emitted during streaming and stored on the final turn.
 
-    Mirrors the final-turn citation data (which lives on
-    ``ContentText.citations``). Emitted when a citation becomes known: mid-stream
-    for Anthropic (applies to the text streamed so far), at turn-end for
-    OpenAI/Google (``cited_text`` derived from annotation offsets).
+    Position in the turn's contents list (relative to surrounding
+    ``ContentText`` items) is the placement signal: a consumer renders
+    a citation marker at the text accumulated so far.
     """
 
-    citation: Citation
+    url: str
+    title: Optional[str] = None
     content_type: ContentTypeEnum = "citation"
 
     def __str__(self) -> str:
-        return f"[citation]: {self.citation.url}"
+        return f"[citation]: {self.url}"
 
 
 ContentUnion = Union[

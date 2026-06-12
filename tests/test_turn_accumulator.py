@@ -1,5 +1,4 @@
 from chatlas._content import (
-    Citation,
     ContentCitation,
     ContentText,
     ContentToolRequestSearch,
@@ -42,8 +41,8 @@ def test_update_turn_appends_non_mergeable_adjacent_content():
     acc.begin_turn(UserTurn("hello"))
     acc._update_turn(ContentToolRequestSearch(query="a"))
     acc._update_turn(ContentToolRequestSearch(query="b"))
-    acc._update_turn(ContentCitation(citation=Citation(url="https://a.com")))
-    acc._update_turn(ContentCitation(citation=Citation(url="https://b.com")))
+    acc._update_turn(ContentCitation(url="https://a.com"))
+    acc._update_turn(ContentCitation(url="https://b.com"))
     contents = turns[1].contents
     assert len(contents) == 4
     assert [type(c).__name__ for c in contents] == [
@@ -123,7 +122,7 @@ def _acc() -> TurnAccumulator:
 
 def test_process_content_yields_citation_in_all_mode():
     acc = _acc()
-    cit = ContentCitation(citation=Citation(url="https://a.com"))
+    cit = ContentCitation(url="https://a.com")
     out = list(acc.process_content(cit, None, "all", lambda x: None))
     assert out == [cit]
 
@@ -137,6 +136,6 @@ def test_process_content_yields_search_results_in_all_mode():
 
 def test_process_content_text_mode_does_not_yield_citation():
     acc = _acc()
-    cit = ContentCitation(citation=Citation(url="https://a.com"))
+    cit = ContentCitation(url="https://a.com")
     out = list(acc.process_content(cit, None, "text", lambda x: None))
     assert out == []

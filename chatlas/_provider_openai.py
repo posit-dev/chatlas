@@ -15,7 +15,6 @@ from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
-    Citation,
     Content,
     ContentCitation,
     ContentImageInline,
@@ -308,28 +307,16 @@ class OpenAIProvider(
     def stream_content(self, chunk) -> list[Content]:
         if chunk.type == "response.output_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/delta
-            self._streaming_text = getattr(self, "_streaming_text", "") + (
-                chunk.delta or ""
-            )
             return [ContentText.model_construct(text=chunk.delta)]
         if chunk.type == "response.output_text.annotation.added":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/annotation_added
             # annotation is a plain dict at runtime (SDK types it as `object`)
             ann: dict = chunk.annotation  # type: ignore[assignment]
             if ann.get("type") == "url_citation":
-                text = getattr(self, "_streaming_text", "")
-                start = ann.get("start_index")
-                end = ann.get("end_index")
-                cited = (
-                    text[start:end] if (start is not None and end is not None) else None
-                )
                 return [
                     ContentCitation(
-                        citation=Citation(
-                            url=ann["url"],
-                            title=ann.get("title"),
-                            cited_text=cited,
-                        )
+                        url=ann["url"],
+                        title=ann.get("title"),
                     )
                 ]
             return []
@@ -354,7 +341,6 @@ class OpenAIProvider(
 
     def stream_merge_chunks(self, completion, chunk):
         if chunk.type == "response.completed":
-            self._streaming_text = ""
             return chunk.response
         elif chunk.type == "response.failed":
             error = chunk.response.error
@@ -429,21 +415,16 @@ class OpenAIProvider(
                         data = orjson.loads(x.text)
                         contents.append(ContentJson(value=data))
                     else:
-                        citations = []
+                        contents.append(ContentText(text=x.text))
                         for a in x.annotations or []:
                             if not isinstance(a, AnnotationURLCitation):
                                 continue
-                            # OpenAI gives offsets but no cited_text; derive the
-                            # grounded span by slicing the block text so every
-                            # provider's citation carries cited_text uniformly.
-                            citations.append(
-                                Citation(
+                            contents.append(
+                                ContentCitation(
                                     url=a.url,
                                     title=a.title,
-                                    cited_text=x.text[a.start_index : a.end_index],
                                 )
                             )
-                        contents.append(ContentText(text=x.text, citations=citations))
 
             elif output.type == "function_call":
                 args = load_tool_request_args(output.arguments, output.name)
@@ -511,7 +492,10 @@ class OpenAIProvider(
     def _turns_as_inputs(self, turns: list[Turn]) -> "list[ResponseInputItemParam]":
         res: "list[ResponseInputItemParam]" = []
         for turn in turns:
-            res.extend([as_input_param(x, turn.role) for x in turn.contents])
+            for x in turn.contents:
+                if isinstance(x, ContentCitation):
+                    continue
+                res.append(as_input_param(x, turn.role))
         return res
 
     def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":

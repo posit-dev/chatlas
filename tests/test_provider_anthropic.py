@@ -10,7 +10,7 @@ from chatlas import (
     tool_web_fetch,
     tool_web_search,
 )
-from chatlas.types import ContentCitation, ContentText, ContentToolRequestSearch, ContentToolResponseFetch, ContentToolResponseSearch
+from chatlas.types import ContentCitation, ContentToolRequestSearch, ContentToolResponseFetch, ContentToolResponseSearch
 from chatlas._provider_anthropic import AnthropicProvider
 from pydantic import BaseModel, Field
 
@@ -145,9 +145,7 @@ def test_anthropic_web_search_streaming():
     reqs = [x for x in items if isinstance(x, ContentToolRequestSearch)]
     assert results and results[0].sources
     assert reqs and reqs[0].query
-    assert cites and all(c.citation.url for c in cites)
-    answer = "".join(x for x in items if isinstance(x, str))
-    assert all(c.citation.cited_text in answer for c in cites)
+    assert cites and all(c.url for c in cites)
     # interleaved: at least one citation is not the very last item
     cite_idx = [i for i, x in enumerate(items) if isinstance(x, ContentCitation)]
     assert cite_idx and min(cite_idx) < len(items) - 1
@@ -155,34 +153,17 @@ def test_anthropic_web_search_streaming():
 
 @pytest.mark.vcr
 def test_anthropic_web_search_citations():
-    """Test that citations from web search are preserved on the completion."""
+    """Test that citations from web search are ContentCitation items in the turn."""
     chat = chat_func()
     chat.register_tool(tool_web_search())
     chat.chat("When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format.")
 
-    # Get the turn and verify citations are on the completion
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.completion is not None
 
-    # Find a text content block that should have citations
-    text_blocks = [c for c in turn.completion.content if c.type == "text"]
-    assert len(text_blocks) > 0
-
-    # At least one text block should have citations from web search
-    has_citations = any(getattr(block, "citations", None) for block in text_blocks)
-    assert has_citations, "Expected citations on text blocks from web search"
-
-    # Normalized: citations transferred onto ContentText
-    cites = [
-        cit
-        for content in turn.contents
-        if isinstance(content, ContentText)
-        for cit in content.citations
-    ]
-    assert cites, "expected citations transferred onto ContentText"
+    cites = [c for c in turn.contents if isinstance(c, ContentCitation)]
+    assert cites, "expected ContentCitation items in turn contents"
     assert all(c.url for c in cites)
-    assert any(c.cited_text for c in cites)
 
 
 @pytest.mark.vcr
