@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 
 * chatlas is now instrumented with [OpenTelemetry](https://opentelemetry.io/) (OTel) out of the box, making it much easier to see how your app behaves in production — where time goes, how many tokens you're spending, which tools run, and where things fail. Without writing any tracing code, you get spans that capture the full structure of a conversation as one connected trace: an `invoke_agent` span over the whole chat loop, a `chat` span per model call, and an `execute_tool` span per tool invocation, with attributes (token usage, response model/ID, tool errors) that follow the [OTel GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/). Because chatlas keeps its spans active during each call, HTTP spans from provider instrumentors and any spans your own tools emit nest underneath automatically. Point it at any OTel-compatible backend (Logfire, Datadog, Honeycomb, Jaeger, …); message content is omitted by default and opt-in via `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true`. See the [monitoring guide](https://posit-dev.github.io/chatlas/get-started/monitor.html) to get started. (#310)
+* Web search and fetch results now surface their citations across all three providers (OpenAI, Anthropic, Google), both progressively during streaming and on the final turn:
+  * When streaming with `content="all"`, `ContentCitation` objects are emitted as citations arrive — interleaved with text for OpenAI and Anthropic, at stream-end for Google. `ContentCitation` carries `url` and optional `title`; its position in the stream (relative to surrounding text) is the placement signal for rendering footnote markers.
+  * On the final turn, `ContentCitation` items appear in the turn's `contents` list after the `ContentText` they ground, in the same order as during streaming. `ContentCitation` and `Source` are exported from `chatlas.types`.
+  * `ContentToolResponseFetch` gained a normalized `status` field, and web search results are now richer `Source` objects (see Breaking changes).
 * `Chat` gains a `model` property to get (or set) the model after the chat is created. Setting it does not validate the model name.
 * `ChatGoogle()`'s `reasoning` parameter now accepts a string thinking level (`"minimal"`, `"low"`, `"medium"`, or `"high"`) in addition to an integer token budget.
 * `ChatAnthropic()`'s `reasoning` parameter now accepts a string effort level (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`) to enable Claude's adaptive thinking, in addition to an integer token budget.
@@ -19,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 
 * OpenAI-compatible providers (e.g., `ChatOllama()` with models like qwen3) now capture thinking content returned in a `reasoning` field, not just `reasoning_content`. Previously this thinking content was silently dropped.
+
+### Breaking changes
+
+* `ContentToolResponseSearch.urls` (a `list[str]`) has been replaced by `.sources` (a `list[Source]`), where each `Source` carries the result's `url`, `title`, and `domain`. Code reading `.urls` should switch to `[s.url for s in x.sources]`.
 
 ## [0.18.1] - 2026-05-21
 

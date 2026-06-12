@@ -146,6 +146,7 @@ ContentTypeEnum = Literal[
     "web_search_results",
     "web_fetch_request",
     "web_fetch_results",
+    "citation",
 ]
 """
 A discriminated union of all content types.
@@ -168,6 +169,14 @@ class Content(BaseModel):
 
     def _repr_markdown_(self):
         return self.__str__()
+
+
+class Source(BaseModel):
+    """A page surfaced by a web search (not necessarily cited in the answer)."""
+
+    url: str
+    title: Optional[str] = None
+    domain: Optional[str] = None
 
 
 class ContentText(Content):
@@ -668,9 +677,7 @@ class ContentThinking(Content):
 
     @field_serializer("extra")
     @classmethod
-    def serialize_extra(
-        cls, v: Optional[dict[str, Any]]
-    ) -> Optional[dict[str, Any]]:
+    def serialize_extra(cls, v: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
         if v is None:
             return None
         return serialize_dict_with_bytes(v)
@@ -775,20 +782,20 @@ class ContentToolResponseSearch(Content):
 
     Parameters
     ----------
-    urls
-        The URLs returned by the search.
+    sources
+        The pages surfaced by the search.
     extra
         The raw provider-specific response data.
     """
 
-    urls: list[str]
+    sources: list[Source]
     extra: Optional[dict[str, Any]] = None
 
     content_type: ContentTypeEnum = "web_search_results"
 
     def __str__(self):
-        url_list = "\n".join(f"* {url}" for url in self.urls)
-        return f"[web search results]:\n{url_list}"
+        lines = "\n".join(f"* {s.url}" for s in self.sources)
+        return f"[web search results]:\n{lines}"
 
 
 class ContentToolRequestFetch(Content):
@@ -826,17 +833,41 @@ class ContentToolResponseFetch(Content):
     ----------
     url
         The URL that was fetched.
+    status
+        A normalized, cross-provider outcome: ``"success"`` if content was
+        retrieved, ``"error"`` if it was not, or ``None`` when the provider
+        doesn't report an outcome. Providers expose finer-grained, non-aligned
+        reasons (e.g. Anthropic's ``url_not_allowed``, Google's ``PAYWALL``);
+        those are not normalized here but remain available in ``extra``.
     extra
         The raw provider-specific response data.
     """
 
     url: str
+    status: Optional[Literal["success", "error"]] = None
     extra: Optional[dict[str, Any]] = None
 
     content_type: ContentTypeEnum = "web_fetch_results"
 
     def __str__(self):
         return f"[web fetch result]: {self.url}"
+
+
+class ContentCitation(Content):
+    """
+    A citation emitted during streaming and stored on the final turn.
+
+    Position in the turn's contents list (relative to surrounding
+    ``ContentText`` items) is the placement signal: a consumer renders
+    a citation marker at the text accumulated so far.
+    """
+
+    url: str
+    title: Optional[str] = None
+    content_type: ContentTypeEnum = "citation"
+
+    def __str__(self) -> str:
+        return f"[citation]: {self.url}"
 
 
 ContentUnion = Union[
@@ -852,6 +883,7 @@ ContentUnion = Union[
     ContentToolResponseSearch,
     ContentToolRequestFetch,
     ContentToolResponseFetch,
+    ContentCitation,
 ]
 
 
@@ -917,6 +949,8 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentToolRequestFetch.model_validate(data)
     elif ct == "web_fetch_results":
         return ContentToolResponseFetch.model_validate(data)
+    elif ct == "citation":
+        return ContentCitation.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
 

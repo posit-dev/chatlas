@@ -4,10 +4,23 @@ from typing import Callable, Literal, Sequence
 
 from ._content import (
     Content,
+    ContentCitation,
     ContentThinkingDelta,
+    ContentToolRequestFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
 )
 from ._stream_controller import StreamController
 from ._turn import AssistantTurn, Turn, UserTurn
+
+STREAMABLE_OTHER = (
+    ContentCitation,
+    ContentToolRequestSearch,
+    ContentToolResponseSearch,
+    ContentToolRequestFetch,
+    ContentToolResponseFetch,
+)
 
 
 class TurnAccumulator:
@@ -54,9 +67,7 @@ class TurnAccumulator:
         items: list[str | Content] = []
 
         if isinstance(content, ContentThinkingDelta) and not self._inside_thinking:
-            content = ContentThinkingDelta(
-                thinking=content.thinking, phase="start"
-            )
+            content = ContentThinkingDelta(thinking=content.thinking, phase="start")
             emit("<thinking>\n")
             self._inside_thinking = True
         elif not isinstance(content, ContentThinkingDelta) and self._inside_thinking:
@@ -73,6 +84,9 @@ class TurnAccumulator:
                 items.append(content)
         elif text:
             items.append(text)
+
+        if content_mode == "all" and isinstance(content, STREAMABLE_OTHER):
+            items.append(content)
 
         return items
 
@@ -120,7 +134,13 @@ class TurnAccumulator:
             raise RuntimeError("_update_turn called before begin_turn")
         contents = self._turns[self._turn_idx].contents
         if contents and type(contents[-1]) is type(content):
-            merged = contents[-1] + content  # type: ignore[operator]
+            try:
+                merged = contents[-1] + content  # type: ignore[operator]
+            except TypeError:
+                # Same-typed but non-mergeable: streamed web/citation content
+                # (ContentToolRequestSearch, ContentCitation, …) defines no
+                # __add__, so consecutive items are appended, not merged.
+                merged = NotImplemented
             if merged is not NotImplemented:
                 contents[-1] = merged
                 return

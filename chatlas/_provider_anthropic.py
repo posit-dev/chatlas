@@ -20,6 +20,7 @@ from pydantic import BaseModel
 from ._chat import Chat
 from ._content import (
     Content,
+    ContentCitation,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -33,6 +34,7 @@ from ._content import (
     ContentToolResponseFetch,
     ContentToolResponseSearch,
     ContentToolResult,
+    Source,
 )
 from ._logging import log_model_default
 from ._provider import (
@@ -522,13 +524,94 @@ class AnthropicProvider(
 
         return data_model_tool
 
-    def stream_content(self, chunk) -> Optional[Content]:
+    def stream_content(self, chunk) -> list[Content]:
         if chunk.type == "content_block_delta":
             if chunk.delta.type == "text_delta":
-                return ContentText.model_construct(text=chunk.delta.text)
+                return [ContentText.model_construct(text=chunk.delta.text)]
             if chunk.delta.type == "thinking_delta":
-                return ContentThinkingDelta(thinking=chunk.delta.thinking)
-        return None
+                return [ContentThinkingDelta(thinking=chunk.delta.thinking)]
+            if chunk.delta.type == "input_json_delta":
+                tracked = getattr(self, "_streaming_server_tool_use", None)
+                if tracked is not None and chunk.index == tracked["index"]:
+                    partial = getattr(chunk.delta, "partial_json", "")
+                    tracked["partial_json"] += partial
+            if chunk.delta.type == "citations_delta":
+                text_block = getattr(self, "_streaming_text_block", None)
+                if text_block is not None and chunk.index == text_block["index"]:
+                    text_block["citations"].append(chunk.delta.citation)
+        if chunk.type == "content_block_start":
+            block = chunk.content_block
+            btype = getattr(block, "type", None)
+            if btype == "text":
+                self._streaming_text_block: Optional[dict] = {
+                    "index": chunk.index,
+                    "citations": [],
+                }
+            if (
+                btype == "server_tool_use"
+                and getattr(block, "name", None) == "web_search"
+            ):
+                self._streaming_server_tool_use: Optional[dict] = {
+                    "index": chunk.index,
+                    "partial_json": "",
+                }
+            if btype == "web_search_tool_result":
+                sources: list[Source] = []
+                raw_content = getattr(block, "content", None)
+                if isinstance(raw_content, list):
+                    for x in raw_content:
+                        sources.append(Source(url=x.url, title=x.title))
+                return [ContentToolResponseSearch(sources=sources)]
+            if btype == "web_fetch_tool_result":
+                content_fetch = getattr(block, "content", None)
+                if content_fetch is None:
+                    return []
+                url = getattr(content_fetch, "url", "failed")
+                error_code = getattr(content_fetch, "error_code", None)
+                # `status` is normalized to success/error; keep the native
+                # reason (e.g. `url_not_allowed`) in extra, mirroring the turn
+                # path so streaming and final-turn data don't diverge.
+                extra = {
+                    "type": btype,
+                    "tool_use_id": getattr(block, "tool_use_id", None),
+                    "content": content_fetch.model_dump(exclude_none=True),
+                }
+                return [
+                    ContentToolResponseFetch(
+                        url=url,
+                        status="error" if error_code else "success",
+                        extra=extra,
+                    )
+                ]
+        if chunk.type == "content_block_stop":
+            result: list[Content] = []
+            text_block = getattr(self, "_streaming_text_block", None)
+            if text_block is not None and chunk.index == text_block["index"]:
+                buffered_citations = text_block["citations"]
+                self._streaming_text_block = None
+                for c in buffered_citations:
+                    url = getattr(c, "url", None)
+                    if url:
+                        result.append(
+                            ContentCitation(
+                                url=url,
+                                title=getattr(c, "title", None),
+                            )
+                        )
+            tracked = getattr(self, "_streaming_server_tool_use", None)
+            if tracked is not None and chunk.index == tracked["index"]:
+                partial_json = tracked["partial_json"]
+                self._streaming_server_tool_use = None
+                if partial_json:
+                    try:
+                        parsed = orjson.loads(partial_json)
+                        query = str(parsed.get("query", ""))
+                        if query:
+                            result.append(ContentToolRequestSearch(query=query))
+                    except orjson.JSONDecodeError:
+                        pass
+            return result
+        return []
 
     def stream_merge_chunks(self, completion, chunk):
         if chunk.type == "message_start":
@@ -688,7 +771,11 @@ class AnthropicProvider(
             if not isinstance(turn, (UserTurn, AssistantTurn)):
                 raise ValueError(f"Unknown role {turn.role}")
 
-            content = [self._as_content_block(c) for c in turn.contents]
+            content = [
+                self._as_content_block(c)
+                for c in turn.contents
+                if not isinstance(c, ContentCitation)
+            ]
 
             # Drop empty assistant turns to avoid an API error
             # (all messages must have non-empty content)
@@ -828,6 +915,16 @@ class AnthropicProvider(
                     contents.append(ContentJson(value=orjson.loads(content.text)))
                 else:
                     contents.append(ContentText(text=content.text))
+                    for c in content.citations or []:
+                        url = getattr(c, "url", None)
+                        if not url:
+                            continue
+                        contents.append(
+                            ContentCitation(
+                                url=url,
+                                title=getattr(c, "title", None),
+                            )
+                        )
             elif content.type == "tool_use":
                 if uses_old_tool_approach and content.name == "_structured_tool_call":
                     if not isinstance(content.input, dict):
@@ -894,11 +991,10 @@ class AnthropicProvider(
                     raise ValueError(f"Unknown server tool: {content.name}")
             elif content.type == "web_search_tool_result":
                 # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
-                urls: list[str] = []
+                sources: list[Source] = []
                 if isinstance(content.content, list):
-                    urls = [x.url for x in content.content]
-                # Manually construct the extra dict to avoid SDK-internal
-                # fields (e.g., "caller") that the API doesn't accept
+                    for x in content.content:
+                        sources.append(Source(url=x.url, title=x.title))
                 extra = {
                     "type": content.type,
                     "tool_use_id": content.tool_use_id,
@@ -906,12 +1002,7 @@ class AnthropicProvider(
                     if isinstance(content.content, list)
                     else content.content.model_dump(),
                 }
-                contents.append(
-                    ContentToolResponseSearch(
-                        urls=urls,
-                        extra=extra,
-                    )
-                )
+                contents.append(ContentToolResponseSearch(sources=sources, extra=extra))
             elif content.type == "web_fetch_tool_result":
                 # N.B. type checker thinks this is unreachable due to
                 # ToolUnionParam not including BetaWebFetchTool20250910Param
@@ -924,6 +1015,8 @@ class AnthropicProvider(
                 # content_fetch is a BetaWebFetchBlock (has .url) or
                 # BetaWebFetchToolResultErrorBlock (error case)
                 url = getattr(content_fetch, "url", "failed")
+                error_code = getattr(content_fetch, "error_code", None)
+                status = "error" if error_code else "success"
                 # Manually construct the extra dict to avoid SDK-internal
                 # fields (e.g., "caller") that the API doesn't accept
                 extra = {
@@ -934,6 +1027,7 @@ class AnthropicProvider(
                 contents.append(
                     ContentToolResponseFetch(
                         url=url,
+                        status=status,
                         extra=extra,
                     )
                 )
