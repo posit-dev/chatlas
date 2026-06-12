@@ -114,14 +114,34 @@ def get_type_string(typ: Any) -> tuple[str, set[str]]:
             return f"Literal[{args}]", imports
         if origin is collections.abc.Callable:
             type_args = typ.__args__ or ()
+
+            # typing.Callable is typically represented as (Ellipsis, R) or (A, B, R)
+            # (older versions may use ([A, B], R)).
+            if not type_args:
+                imports.add("from typing import Callable")
+                return "Callable[..., Any]", imports
+
+            ret_type = type_args[-1]
+            params = type_args[:-1]
+
+            # Handle Callable[..., R]
+            if len(type_args) == 2 and type_args[0] is Ellipsis:
+                ret_str, ret_imports = get_type_string(ret_type)
+                imports.update(ret_imports)
+                imports.add("from typing import Callable")
+                return f"Callable[..., {ret_str}]", imports
+
+            # Handle Callable[[A, B], R]
+            if len(type_args) == 2 and isinstance(type_args[0], (list, tuple)):
+                params = tuple(type_args[0])
+
             param_strs = []
-            for arg in type_args[:-1]:
+            for arg in params:
                 arg_str, arg_imports = get_type_string(arg)
                 param_strs.append(arg_str)
                 imports.update(arg_imports)
-            ret_str, ret_imports = (
-                get_type_string(type_args[-1]) if type_args else ("Any", set())
-            )
+
+            ret_str, ret_imports = get_type_string(ret_type)
             imports.update(ret_imports)
             imports.add("from typing import Callable")
             return f"Callable[[{', '.join(param_strs)}], {ret_str}]", imports
