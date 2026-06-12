@@ -9,12 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### Breaking changes
+
+* `ContentToolResponseSearch.urls` (a `list[str]`) has been replaced by `.sources` (a `list[Source]`), where each `Source` carries the result's `url`, `title`, and `domain`. Code reading `.urls` should switch to `[s.url for s in x.sources]`.
+* `Citation` no longer carries `start_index`/`end_index` (provider-native byte/character offsets). Use `cited_text` — a verbatim span of the answer — to locate a citation by string-matching instead. This is the normalized, cross-provider placement key.
+
 ### New features
 
 * chatlas is now instrumented with [OpenTelemetry](https://opentelemetry.io/) (OTel) out of the box, making it much easier to see how your app behaves in production — where time goes, how many tokens you're spending, which tools run, and where things fail. Without writing any tracing code, you get spans that capture the full structure of a conversation as one connected trace: an `invoke_agent` span over the whole chat loop, a `chat` span per model call, and an `execute_tool` span per tool invocation, with attributes (token usage, response model/ID, tool errors) that follow the [OTel GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/). Because chatlas keeps its spans active during each call, HTTP spans from provider instrumentors and any spans your own tools emit nest underneath automatically. Point it at any OTel-compatible backend (Logfire, Datadog, Honeycomb, Jaeger, …); message content is omitted by default and opt-in via `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true`. See the [monitoring guide](https://posit-dev.github.io/chatlas/get-started/monitor.html) to get started. (#310)
 * `Chat` gains a `model` property to get (or set) the model after the chat is created. Setting it does not validate the model name.
 * `ChatGoogle()`'s `reasoning` parameter now accepts a string thinking level (`"minimal"`, `"low"`, `"medium"`, or `"high"`) in addition to an integer token budget.
 * `ChatAnthropic()`'s `reasoning` parameter now accepts a string effort level (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`) to enable Claude's adaptive thinking, in addition to an integer token budget.
+* Web search and fetch answers now surface their citations. `ContentText` gained a `citations` list of the new `Citation` type, populated for OpenAI, Anthropic, and Google. Each `Citation` carries the link (`url`, optional `title`) plus `cited_text` — the span of the answer the source grounds — so a renderer can locate a citation by string-matching `cited_text` without provider-specific logic. `ContentToolResponseFetch` gained a normalized `status` field (`"success"`/`"error"`/`None`, with the provider-native reason preserved in `extra`), and web search results are now richer `Source` objects (see Breaking changes). The new `Citation` and `Source` types are exported from `chatlas.types`.
+* When streaming with `content="all"`, web search/fetch results and citations are now emitted **progressively** — yielded during the stream rather than only available on the final turn. OpenAI and Anthropic interleave `ContentCitation` objects with the answer text as it streams; Google emits them when the response completes. The yielded objects include the web search/fetch content blocks plus `ContentCitation` instances (each wrapping a `Citation`). `ContentCitation` is exported from `chatlas.types`.
 
 ### Bug fixes
 

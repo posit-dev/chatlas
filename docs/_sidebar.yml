@@ -27,9 +27,6 @@ website:
       - reference/Chat.qmd
       section: The chat object
     - contents:
-      - reference/StreamController.qmd
-      section: Streaming
-    - contents:
       - reference/content_image_file.qmd
       - reference/content_image_plot.qmd
       - reference/content_image_url.qmd
@@ -72,12 +69,17 @@ website:
       - reference/Provider.qmd
       section: Implement a model provider
     - contents:
+      - reference/types.Citation.qmd
       - reference/types.Content.qmd
+      - reference/types.ContentCitation.qmd
       - reference/types.ContentImage.qmd
       - reference/types.ContentImageInline.qmd
       - reference/types.ContentImageRemote.qmd
       - reference/types.ContentJson.qmd
+      - reference/types.ContentPDF.qmd
       - reference/types.ContentText.qmd
+      - reference/types.ContentThinking.qmd
+      - reference/types.ContentThinkingDelta.qmd
       - reference/types.ContentToolRequest.qmd
       - reference/types.ContentToolResult.qmd
       - reference/types.ContentToolRequestSearch.qmd
@@ -89,6 +91,7 @@ website:
       - reference/types.ImageContentTypes.qmd
       - reference/types.MISSING_TYPE.qmd
       - reference/types.MISSING.qmd
+      - reference/types.Source.qmd
       - reference/types.SubmitInputArgsT.qmd
       - reference/types.TokenUsage.qmd
       - reference/types.ToolAnnotations.qmd
