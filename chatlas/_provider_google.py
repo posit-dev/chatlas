@@ -190,6 +190,24 @@ def ChatGoogle(
     )
 
 
+# https://ai.google.dev/api/generate-content
+_GOOGLE_FINISH_REASON_MAP = {
+    "STOP": "success",
+    "MAX_TOKENS": "max_tokens",
+    "SAFETY": "content_filter",
+    "RECITATION": "content_filter",
+    "BLOCKLIST": "content_filter",
+    "PROHIBITED_CONTENT": "content_filter",
+    "SPII": "content_filter",
+}
+
+
+def normalize_finish_reason(reason: str | None) -> str | None:
+    if reason is None:
+        return None
+    return _GOOGLE_FINISH_REASON_MAP.get(reason, reason)
+
+
 class GoogleProvider(
     Provider[
         GenerateContentResponse,
@@ -650,7 +668,7 @@ class GoogleProvider(
 
         return AssistantTurn(
             contents,
-            finish_reason=finish_reason,
+            finish_reason=normalize_finish_reason(finish_reason),
             completion=message,
         )
 

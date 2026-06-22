@@ -117,6 +117,20 @@ def ChatOpenAICompletions(
     )
 
 
+# https://platform.openai.com/docs/api-reference/chat/create
+_OPENAI_COMPLETIONS_FINISH_REASON_MAP = {
+    "stop": "success",
+    "length": "max_tokens",
+    "content_filter": "content_filter",
+}
+
+
+def normalize_finish_reason(reason: str | None) -> str | None:
+    if reason is None:
+        return None
+    return _OPENAI_COMPLETIONS_FINISH_REASON_MAP.get(reason, reason)
+
+
 class OpenAICompletionsProvider(
     OpenAIAbstractProvider[
         ChatCompletion,
@@ -444,7 +458,7 @@ class OpenAICompletionsProvider(
 
         return AssistantTurn(
             contents,
-            finish_reason=completion.choices[0].finish_reason,
+            finish_reason=normalize_finish_reason(completion.choices[0].finish_reason),
             completion=completion,
         )
 

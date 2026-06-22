@@ -194,6 +194,26 @@ def ChatOpenAI(
     )
 
 
+# https://platform.openai.com/docs/api-reference/responses/get
+_OPENAI_INCOMPLETE_REASON_MAP = {
+    "max_output_tokens": "max_tokens",
+    "content_filter": "content_filter",
+}
+
+
+def normalize_finish_reason(
+    status: str | None, incomplete_reason: str | None = None
+) -> str | None:
+    if status is None:
+        return None
+    if status == "completed":
+        return "success"
+    if status != "incomplete":
+        return status
+    reason = incomplete_reason or status
+    return _OPENAI_INCOMPLETE_REASON_MAP.get(reason, reason)
+
+
 class OpenAIProvider(
     OpenAIAbstractProvider[
         Response,
@@ -313,7 +333,7 @@ class OpenAIProvider(
         return None
 
     def stream_merge_chunks(self, completion, chunk):
-        if chunk.type == "response.completed":
+        if chunk.type == "response.completed" or chunk.type == "response.incomplete":
             return chunk.response
         elif chunk.type == "response.failed":
             error = chunk.response.error
@@ -448,8 +468,15 @@ class OpenAIProvider(
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
 
+        incomplete_reason = None
+        if getattr(completion, "incomplete_details", None) is not None:
+            # getattr() check above confirms non-None, but pyright can't narrow through getattr
+            incomplete_reason = completion.incomplete_details.reason  # type: ignore[union-attr]
         return AssistantTurn(
             contents,
+            finish_reason=normalize_finish_reason(
+                getattr(completion, "status", None), incomplete_reason
+            ),
             completion=completion,
         )
 

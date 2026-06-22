@@ -296,6 +296,22 @@ def ChatAnthropic(
     )
 
 
+# https://docs.anthropic.com/en/api/handling-stop-reasons
+_ANTHROPIC_FINISH_REASON_MAP = {
+    "end_turn": "success",
+    "max_tokens": "max_tokens",
+    "model_context_window_exceeded": "context_window",
+    "stop_sequence": "stop_sequence",
+    "refusal": "content_filter",
+}
+
+
+def normalize_finish_reason(reason: str | None) -> str | None:
+    if reason is None:
+        return None
+    return _ANTHROPIC_FINISH_REASON_MAP.get(reason, reason)
+
+
 class AnthropicProvider(
     Provider[Message, RawMessageStreamEvent, Message, "SubmitInputArgs"]
 ):
@@ -940,7 +956,7 @@ class AnthropicProvider(
 
         return AssistantTurn(
             contents,
-            finish_reason=completion.stop_reason,
+            finish_reason=normalize_finish_reason(completion.stop_reason),
             completion=completion,
         )
 
