@@ -10,6 +10,7 @@ import anthropic.types.cache_control_ephemeral_param
 import anthropic.types.code_execution_tool_20250522_param
 import anthropic.types.code_execution_tool_20250825_param
 import anthropic.types.code_execution_tool_20260120_param
+import anthropic.types.code_execution_tool_20260521_param
 import anthropic.types.memory_tool_20250818_param
 import anthropic.types.message_param
 import anthropic.types.output_config_param
@@ -31,8 +32,10 @@ import anthropic.types.tool_text_editor_20250728_param
 import anthropic.types.web_fetch_tool_20250910_param
 import anthropic.types.web_fetch_tool_20260209_param
 import anthropic.types.web_fetch_tool_20260309_param
+import anthropic.types.web_fetch_tool_20260318_param
 import anthropic.types.web_search_tool_20250305_param
 import anthropic.types.web_search_tool_20260209_param
+import anthropic.types.web_search_tool_20260318_param
 
 
 class SubmitInputArgs(TypedDict, total=False):
@@ -40,6 +43,7 @@ class SubmitInputArgs(TypedDict, total=False):
     messages: Iterable[anthropic.types.message_param.MessageParam]
     model: Union[
         Literal[
+            "claude-sonnet-5",
             "claude-fable-5",
             "claude-mythos-5",
             "claude-opus-4-8",
@@ -55,11 +59,6 @@ class SubmitInputArgs(TypedDict, total=False):
             "claude-sonnet-4-5-20250929",
             "claude-opus-4-1",
             "claude-opus-4-1-20250805",
-            "claude-opus-4-0",
-            "claude-opus-4-20250514",
-            "claude-sonnet-4-0",
-            "claude-sonnet-4-20250514",
-            "claude-3-haiku-20240307",
         ],
         str,
     ]
@@ -101,6 +100,7 @@ class SubmitInputArgs(TypedDict, total=False):
                 anthropic.types.code_execution_tool_20250522_param.CodeExecutionTool20250522Param,
                 anthropic.types.code_execution_tool_20250825_param.CodeExecutionTool20250825Param,
                 anthropic.types.code_execution_tool_20260120_param.CodeExecutionTool20260120Param,
+                anthropic.types.code_execution_tool_20260521_param.CodeExecutionTool20260521Param,
                 anthropic.types.memory_tool_20250818_param.MemoryTool20250818Param,
                 anthropic.types.tool_text_editor_20250124_param.ToolTextEditor20250124Param,
                 anthropic.types.tool_text_editor_20250429_param.ToolTextEditor20250429Param,
@@ -110,6 +110,8 @@ class SubmitInputArgs(TypedDict, total=False):
                 anthropic.types.web_search_tool_20260209_param.WebSearchTool20260209Param,
                 anthropic.types.web_fetch_tool_20260209_param.WebFetchTool20260209Param,
                 anthropic.types.web_fetch_tool_20260309_param.WebFetchTool20260309Param,
+                anthropic.types.web_search_tool_20260318_param.WebSearchTool20260318Param,
+                anthropic.types.web_fetch_tool_20260318_param.WebFetchTool20260318Param,
                 anthropic.types.tool_search_tool_bm25_20251119_param.ToolSearchToolBm25_20251119Param,
                 anthropic.types.tool_search_tool_regex_20251119_param.ToolSearchToolRegex20251119Param,
             ]
@@ -118,6 +120,7 @@ class SubmitInputArgs(TypedDict, total=False):
     ]
     top_k: int | anthropic.Omit
     top_p: float | anthropic.Omit
+    user_profile_id: str | anthropic.Omit
     extra_headers: Optional[Mapping[str, Union[str, anthropic.Omit]]]
     extra_query: Optional[Mapping[str, object]]
     extra_body: object | None
