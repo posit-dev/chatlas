@@ -33,6 +33,7 @@ from ._provider_openai_completions import ChatOpenAICompletions
 from ._provider_openrouter import ChatOpenRouter
 from ._provider_perplexity import ChatPerplexity
 from ._provider_portkey import ChatPortkey
+from ._provider_posit import ChatPosit
 from ._provider_snowflake import ChatSnowflake
 from ._stream_controller import StreamController
 from ._tokens import token_usage
@@ -73,6 +74,7 @@ __all__ = (
     "ChatAzureOpenAICompletions",
     "ChatPerplexity",
     "ChatPortkey",
+    "ChatPosit",
     "ChatSnowflake",
     "ChatVertex",
     "Chat",

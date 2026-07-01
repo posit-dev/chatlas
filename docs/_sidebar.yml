@@ -20,6 +20,7 @@ website:
       - reference/ChatOpenRouter.qmd
       - reference/ChatPerplexity.qmd
       - reference/ChatPortkey.qmd
+      - reference/ChatPosit.qmd
       - reference/ChatSnowflake.qmd
       - reference/ChatVertex.qmd
       section: Chat model providers

@@ -159,6 +159,7 @@ quartodoc:
         - ChatOpenRouter
         - ChatPerplexity
         - ChatPortkey
+        - ChatPosit
         - ChatSnowflake
         - ChatVertex
     - title: The chat object
