@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### New features
 
+* Added `ChatPosit()` for chatting via the [Posit AI](https://posit.ai/) gateway. (#323)
 
 ## [0.19.0] - 2026-06-15
 
