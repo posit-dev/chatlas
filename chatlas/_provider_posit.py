@@ -7,11 +7,15 @@ import sys
 import time
 import webbrowser
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Literal, Optional
 
 import httpx
 import requests
 from platformdirs import user_cache_dir
+
+from ._provider import ModelInfo
+from ._provider_anthropic import AnthropicProvider, StructuredOutputMode
+from ._provider_openai_completions import OpenAICompletionsProvider
 
 DEVICE_AUTHORIZE_URL = "https://login.posit.cloud/oauth/device/authorize"
 TOKEN_URL = "https://login.posit.cloud/oauth/token"
@@ -215,3 +219,122 @@ def _make_posit_error_hook_async(error_cls: type[Exception]):
             raise error_cls(message)
 
     return hook
+
+
+def list_models_posit(
+    base_url: str = "https://gateway.posit.ai",
+    credentials: Optional[Callable[[], str]] = None,
+) -> list[ModelInfo]:
+    token_provider = credentials or PositCredentials().get_token
+
+    resp = requests.get(
+        f"{base_url.rstrip('/')}/models",
+        headers={"Authorization": f"Bearer {token_provider()}"},
+    )
+
+    if not resp.ok:
+        message = _posit_error_message(resp.status_code, _safe_json(resp))
+        if message is not None:
+            raise RuntimeError(message)
+        resp.raise_for_status()
+
+    data = resp.json()
+
+    res: list[ModelInfo] = []
+    for m in data.get("chat", []):
+        info: ModelInfo = {"id": m["id"], "name": m.get("display_name", m["id"])}
+        res.append(info)
+
+    return res
+
+
+class PositAnthropicProvider(AnthropicProvider):
+    def __init__(
+        self,
+        *,
+        base_url: str,
+        model: str,
+        credentials: Callable[[], str],
+        max_tokens: int = 4096,
+        cache: Literal["5m", "1h", "none"] = "5m",
+        structured_output_mode: StructuredOutputMode = "auto",
+        name: str = "Posit",
+    ):
+        super().__init__(
+            model=model,
+            api_key="not-used",
+            max_tokens=max_tokens,
+            cache=cache,
+            structured_output_mode=structured_output_mode,
+            name=name,
+        )
+
+        from anthropic import Anthropic, AnthropicError, AsyncAnthropic
+
+        self._gateway_base_url = base_url.rstrip("/")
+        self._credentials = credentials
+
+        auth = PositAuth(credentials)
+        flavor_base_url = f"{self._gateway_base_url}/anthropic/v1"
+
+        self._client = Anthropic(
+            api_key="not-used",
+            base_url=flavor_base_url,
+            http_client=httpx.Client(
+                auth=auth,
+                event_hooks={"response": [_make_posit_error_hook(AnthropicError)]},
+            ),
+        )
+        self._async_client = AsyncAnthropic(
+            api_key="not-used",
+            base_url=flavor_base_url,
+            http_client=httpx.AsyncClient(
+                auth=auth,
+                event_hooks={
+                    "response": [_make_posit_error_hook_async(AnthropicError)]
+                },
+            ),
+        )
+
+    def list_models(self) -> list[ModelInfo]:
+        return list_models_posit(self._gateway_base_url, self._credentials)
+
+
+class PositOpenAIProvider(OpenAICompletionsProvider):
+    def __init__(
+        self,
+        *,
+        base_url: str,
+        model: str,
+        credentials: Callable[[], str],
+        name: str = "Posit",
+    ):
+        super().__init__(model=model, api_key="not-used", name=name)
+
+        from openai import AsyncOpenAI, OpenAI, OpenAIError
+
+        self._gateway_base_url = base_url.rstrip("/")
+        self._credentials = credentials
+
+        auth = PositAuth(credentials)
+        flavor_base_url = f"{self._gateway_base_url}/openai/v1"
+
+        self._client = OpenAI(
+            api_key="not-used",
+            base_url=flavor_base_url,
+            http_client=httpx.Client(
+                auth=auth,
+                event_hooks={"response": [_make_posit_error_hook(OpenAIError)]},
+            ),
+        )
+        self._async_client = AsyncOpenAI(
+            api_key="not-used",
+            base_url=flavor_base_url,
+            http_client=httpx.AsyncClient(
+                auth=auth,
+                event_hooks={"response": [_make_posit_error_hook_async(OpenAIError)]},
+            ),
+        )
+
+    def list_models(self) -> list[ModelInfo]:
+        return list_models_posit(self._gateway_base_url, self._credentials)

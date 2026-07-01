@@ -111,6 +111,7 @@ ollama = []
 openai = []
 azure-openai = []
 perplexity = []
+posit = ["anthropic>=0.109.1"]
 # Version requirement avoids an install issue with recent Python versions.
 # Remove it when snowflake-ml-python can be installed without a requirement.
 snowflake = ["snowflake-ml-python<=1.9.0"]

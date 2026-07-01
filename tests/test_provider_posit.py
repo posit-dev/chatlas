@@ -7,12 +7,16 @@ from typing import Any, Optional
 import httpx
 import pytest
 import requests
+from chatlas._provider import ModelInfo
 from chatlas._provider_posit import (
+    PositAnthropicProvider,
     PositAuth,
     PositCredentials,
+    PositOpenAIProvider,
     _make_posit_error_hook,
     _make_posit_error_hook_async,
     _posit_error_message,
+    list_models_posit,
 )
 
 
@@ -363,3 +367,93 @@ def test_unrecognized_gateway_error_passes_through_unchanged():
             max_tokens=10,
             messages=[{"role": "user", "content": "hi"}],
         )
+
+
+def test_posit_anthropic_provider_uses_anthropic_flavor_base_url():
+    provider = PositAnthropicProvider(
+        base_url="https://gateway.posit.ai",
+        model="claude-sonnet-4-6",
+        credentials=lambda: "test-token",
+    )
+    assert (
+        str(provider._client.base_url).rstrip("/")
+        == "https://gateway.posit.ai/anthropic/v1"
+    )
+
+
+def test_posit_openai_provider_uses_openai_flavor_base_url():
+    provider = PositOpenAIProvider(
+        base_url="https://gateway.posit.ai",
+        model="qwen3-8b",
+        credentials=lambda: "test-token",
+    )
+    assert (
+        str(provider._client.base_url).rstrip("/")
+        == "https://gateway.posit.ai/openai/v1"
+    )
+
+
+def test_posit_provider_list_models_delegates_to_list_models_posit(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    provider = PositAnthropicProvider(
+        base_url="https://gateway.posit.ai",
+        model="claude-sonnet-4-6",
+        credentials=lambda: "test-token",
+    )
+
+    captured: dict[str, Any] = {}
+
+    def fake_list_models_posit(base_url: str, credentials: Any) -> list[ModelInfo]:
+        captured["base_url"] = base_url
+        captured["credentials"] = credentials
+        return [{"id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6"}]
+
+    monkeypatch.setattr(
+        "chatlas._provider_posit.list_models_posit", fake_list_models_posit
+    )
+
+    models = provider.list_models()
+
+    assert models == [{"id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6"}]
+    assert captured["base_url"] == "https://gateway.posit.ai"
+    assert captured["credentials"]() == "test-token"
+
+
+def test_list_models_posit_parses_response(monkeypatch: pytest.MonkeyPatch):
+    response = _FakeResponse(
+        200,
+        {
+            "chat": [
+                {"id": "claude-sonnet-4-6", "display_name": "Claude Sonnet 4.6"},
+                {"id": "qwen3-8b", "display_name": "Qwen3 8B"},
+            ]
+        },
+    )
+    captured_headers: dict[str, str] = {}
+
+    def fake_get(url: str, headers: Optional[dict[str, str]] = None, **kwargs: Any):
+        captured_headers.update(headers or {})
+        return response
+
+    monkeypatch.setattr("chatlas._provider_posit.requests.get", fake_get)
+
+    models = list_models_posit(
+        base_url="https://gateway.posit.ai", credentials=lambda: "test-token"
+    )
+
+    assert models == [
+        {"id": "claude-sonnet-4-6", "name": "Claude Sonnet 4.6"},
+        {"id": "qwen3-8b", "name": "Qwen3 8B"},
+    ]
+    assert captured_headers["Authorization"] == "Bearer test-token"
+
+
+def test_list_models_posit_raises_friendly_error(monkeypatch: pytest.MonkeyPatch):
+    response = _FakeResponse(402, {})
+    monkeypatch.setattr(
+        "chatlas._provider_posit.requests.get", lambda *a, **k: response
+    )
+
+    with pytest.raises(RuntimeError, match="credits are depleted"):
+        list_models_posit(credentials=lambda: "test-token")
