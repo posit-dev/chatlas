@@ -47,7 +47,10 @@ test = [
     "pytest>=8.3.2",
     "pytest-asyncio",
     "syrupy>=4",
-    "vcrpy>=6.0.0",
+    # vcrpy 8.2.0 switched from patching httpcore to patching httpx transports
+    # directly, which changes how request paths get recorded/matched and can
+    # desync our MCP cassettes/cleanup. Cap until our MCP tests are updated.
+    "vcrpy>=6.0.0,<8.2.0",
     "pytest-recording>=0.13",
     "opentelemetry-sdk>=1.0",
     # vcrpy's aiohttp stub breaks on aiohttp 3.14+ (it references the removed
@@ -92,9 +95,7 @@ docs = [
     "numpy",
 ]
 mcp = [
-    # <1.28.0 pinned to avoid a known upstream cancel-scope/session-teardown
-    # race in the streamable HTTP client (see modelcontextprotocol/python-sdk#577)
-    "mcp>=1.4.0,<1.28.0;python_version>='3.10'"
+    "mcp>=1.4.0;python_version>='3.10'"
 ]
 eval = [
     "inspect-ai;python_version>='3.10'"
