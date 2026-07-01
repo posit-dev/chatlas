@@ -373,7 +373,8 @@ def ChatPosit(
     ::: {.callout-note}
     ## Python requirements
 
-    `ChatPosit` requires the `anthropic` package: `pip install "chatlas[posit]"`.
+    Claude models require the `anthropic` package: `pip install "chatlas[posit]"`.
+    OpenAI-compatible models work with the base `chatlas` install.
     :::
 
     ::: {.callout-note}
