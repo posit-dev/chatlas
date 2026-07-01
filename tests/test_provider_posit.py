@@ -9,6 +9,7 @@ import pytest
 import requests
 from chatlas._provider import ModelInfo
 from chatlas._provider_posit import (
+    ChatPosit,
     PositAnthropicProvider,
     PositAuth,
     PositCredentials,
@@ -457,3 +458,33 @@ def test_list_models_posit_raises_friendly_error(monkeypatch: pytest.MonkeyPatch
 
     with pytest.raises(RuntimeError, match="credits are depleted"):
         list_models_posit(credentials=lambda: "test-token")
+
+
+def test_chat_posit_dispatches_to_anthropic_flavor():
+    chat = ChatPosit(model="claude-sonnet-4-6", credentials=lambda: "test-token")
+    assert isinstance(chat.provider, PositAnthropicProvider)
+
+
+def test_chat_posit_dispatches_to_openai_flavor():
+    chat = ChatPosit(model="qwen3-8b", credentials=lambda: "test-token")
+    assert isinstance(chat.provider, PositOpenAIProvider)
+
+
+def test_chat_posit_defaults_to_claude_sonnet():
+    chat = ChatPosit(credentials=lambda: "test-token")
+    assert chat.provider.model == "claude-sonnet-4-6"
+
+
+def test_chat_posit_custom_credentials_bypasses_device_flow(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    def fail_if_called(*args: Any, **kwargs: Any) -> Any:
+        raise AssertionError(
+            "should not hit the network when credentials= is supplied"
+        )
+
+    monkeypatch.setattr("chatlas._provider_posit.requests.post", fail_if_called)
+
+    chat = ChatPosit(model="claude-sonnet-4-6", credentials=lambda: "test-token")
+    assert isinstance(chat.provider, PositAnthropicProvider)
+    assert chat.provider._credentials() == "test-token"

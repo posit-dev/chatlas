@@ -13,6 +13,8 @@ import httpx
 import requests
 from platformdirs import user_cache_dir
 
+from ._chat import Chat
+from ._logging import log_model_default
 from ._provider import ModelInfo
 from ._provider_anthropic import AnthropicProvider, StructuredOutputMode
 from ._provider_openai_completions import OpenAICompletionsProvider
@@ -338,3 +340,99 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
 
     def list_models(self) -> list[ModelInfo]:
         return list_models_posit(self._gateway_base_url, self._credentials)
+
+
+def ChatPosit(
+    *,
+    system_prompt: Optional[str] = None,
+    base_url: str = "https://gateway.posit.ai",
+    model: Optional[str] = None,
+    credentials: Optional[Callable[[], str]] = None,
+    cache: Literal["5m", "1h", "none"] = "5m",
+) -> "Chat[Any, Any]":
+    """
+    Chat with a model hosted by Posit AI.
+
+    [Posit AI](https://posit.ai) provides access to a curated set of models
+    for Posit subscribers. The gateway exposes two API flavors: Claude models
+    are served via the Anthropic Messages API and all other models are
+    served via an OpenAI-compatible API. `ChatPosit()` automatically picks
+    the appropriate flavor based on the model name.
+
+    Prerequisites
+    -------------
+
+    ::: {.callout-note}
+    ## Python requirements
+
+    `ChatPosit` requires the `anthropic` package: `pip install "chatlas[posit]"`.
+    :::
+
+    ::: {.callout-note}
+    ## Authentication
+
+    By default, `ChatPosit()` authenticates with an OAuth device flow
+    against `login.posit.cloud`: the first time you use it, you'll be
+    prompted to visit a URL and enter a code. The resulting tokens are
+    cached on disk and refreshed automatically, so you should only need to
+    do this once per machine.
+    :::
+
+    Examples
+    --------
+
+    ```python
+    from chatlas import ChatPosit
+
+    chat = ChatPosit()
+    chat.chat("Tell me three jokes about statisticians")
+    ```
+
+    Parameters
+    ----------
+    system_prompt
+        A system prompt to set the behavior of the assistant.
+    base_url
+        The base URL of the Posit AI gateway.
+    model
+        The model to use for the chat. The default, None, will pick a
+        reasonable default, and warn you about it. We strongly recommend
+        explicitly choosing a model for all but the most casual use.
+    credentials
+        A zero-argument function that returns a bearer token string. If
+        omitted, `ChatPosit()` manages the OAuth device-flow login and its
+        on-disk token cache automatically.
+    cache
+        How long to cache inputs? Defaults to "5m" (five minutes). Only
+        applies when a Claude model is selected. See `ChatAnthropic` for
+        details.
+
+    Returns
+    -------
+    Chat
+        A chat object that retains the state of the conversation. Note that
+        the concrete provider (and hence some response-object typing
+        precision) depends on whether a Claude model or another model was
+        selected.
+    """
+    if model is None:
+        model = log_model_default("claude-sonnet-4-6")
+
+    token_provider = credentials or PositCredentials().get_token
+
+    provider: "PositAnthropicProvider | PositOpenAIProvider"
+    if model.startswith("claude"):
+        provider = PositAnthropicProvider(
+            base_url=base_url,
+            model=model,
+            credentials=token_provider,
+            cache=cache,
+        )
+    else:
+        provider = PositOpenAIProvider(
+            base_url=base_url,
+            model=model,
+            credentials=token_provider,
+        )
+
+    return Chat(provider=provider, system_prompt=system_prompt)
