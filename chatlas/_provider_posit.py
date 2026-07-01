@@ -22,6 +22,9 @@ from ._provider_openai_completions import OpenAICompletionsProvider
 DEVICE_AUTHORIZE_URL = "https://login.posit.cloud/oauth/device/authorize"
 TOKEN_URL = "https://login.posit.cloud/oauth/token"
 OAUTH_CLIENT_ID = "rstudio-ide"
+# posit.cloud only mints a gateway-authorized token when this is sent on
+# every token exchange (device-code poll and refresh), not just the
+# initial device authorize request.
 OAUTH_SCOPE = "prism"
 
 
@@ -86,6 +89,7 @@ class PositCredentials:
                 "grant_type": "refresh_token",
                 "refresh_token": refresh_token,
                 "client_id": OAUTH_CLIENT_ID,
+                "scope": OAUTH_SCOPE,
             },
         )
         resp.raise_for_status()
@@ -121,6 +125,7 @@ class PositCredentials:
                     "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
                     "device_code": device["device_code"],
                     "client_id": OAUTH_CLIENT_ID,
+                    "scope": OAUTH_SCOPE,
                 },
             )
             body = resp.json()
@@ -277,7 +282,10 @@ class PositAnthropicProvider(AnthropicProvider):
         self._credentials = credentials
 
         auth = PositAuth(credentials)
-        flavor_base_url = f"{self._gateway_base_url}/anthropic/v1"
+        # The anthropic SDK appends "/v1/messages" to base_url itself, so
+        # this must not also include "/v1" (unlike the OpenAI flavor below,
+        # whose SDK already includes "/v1" in its default base_url).
+        flavor_base_url = f"{self._gateway_base_url}/anthropic"
 
         self._client = Anthropic(
             api_key="not-used",

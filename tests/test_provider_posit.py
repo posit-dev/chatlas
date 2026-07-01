@@ -9,6 +9,7 @@ import pytest
 import requests
 from chatlas._provider import ModelInfo
 from chatlas._provider_posit import (
+    OAUTH_SCOPE,
     ChatPosit,
     PositAnthropicProvider,
     PositAuth,
@@ -96,6 +97,7 @@ def test_get_token_refreshes_expired_token(
     assert len(calls) == 1
     assert calls[0]["data"]["grant_type"] == "refresh_token"
     assert calls[0]["data"]["refresh_token"] == "old-refresh"
+    assert calls[0]["data"]["scope"] == OAUTH_SCOPE
 
     cached = json.loads(cache_path.read_text())
     assert cached["access_token"] == "new-token"
@@ -172,12 +174,12 @@ def test_get_token_runs_device_flow_when_no_cache(
             "expires_in": 3600,
         },
     )
-    calls = {"count": 0}
+    poll_calls: list[dict[str, Any]] = []
 
     def fake_post(url: str, data: Optional[dict[str, Any]] = None, **kwargs: Any):
-        calls["count"] += 1
         if url.endswith("/device/authorize"):
             return device_response
+        poll_calls.append({"url": url, "data": data})
         return poll_response
 
     monkeypatch.setattr("chatlas._provider_posit.requests.post", fake_post)
@@ -186,7 +188,8 @@ def test_get_token_runs_device_flow_when_no_cache(
 
     creds = PositCredentials(cache_path=cache_path)
     assert creds.get_token() == "new-token"
-    assert calls["count"] == 2  # one authorize call, one poll call
+    assert len(poll_calls) == 1
+    assert poll_calls[0]["data"]["scope"] == OAUTH_SCOPE
 
     assert cache_path.exists()
     assert (cache_path.stat().st_mode & 0o777) == 0o600
@@ -385,9 +388,11 @@ def test_posit_anthropic_provider_uses_anthropic_flavor_base_url():
         model="claude-sonnet-4-6",
         credentials=lambda: "test-token",
     )
+    # The anthropic SDK appends "/v1/messages" itself, so the base_url must
+    # not also include "/v1" or requests 404 against the gateway.
     assert (
         str(provider._client.base_url).rstrip("/")
-        == "https://gateway.posit.ai/anthropic/v1"
+        == "https://gateway.posit.ai/anthropic"
     )
 
 
