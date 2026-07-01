@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import sys
 import time
 import webbrowser
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
+import httpx
 import requests
 from platformdirs import user_cache_dir
 
@@ -135,3 +137,81 @@ class PositCredentials:
                 resp.raise_for_status()
 
         raise TimeoutError("Timed out waiting for Posit AI device-flow login.")
+
+
+def _safe_json(response: Any) -> Optional[dict[str, Any]]:
+    try:
+        return response.json()
+    except ValueError:
+        return None
+
+
+def _posit_error_message(
+    status_code: int, body: Optional[dict[str, Any]]
+) -> Optional[str]:
+    if status_code == 402:
+        return "Your Posit AI credits are depleted."
+
+    if body is None:
+        return None
+
+    error = body.get("error")
+    error_type = body.get("error_type")
+    if error_type is None and isinstance(error, dict):
+        error_type = error.get("error_type")
+
+    if error_type == "prism_account_not_found":
+        return (
+            "You must finish setting up your Posit AI account before using the "
+            "API. Visit https://posit.ai/ to accept the service agreement."
+        )
+
+    return None
+
+
+class PositAuth(httpx.Auth):
+    """
+    Turns a bearer-token callable into `Authorization: Bearer` headers on
+    every request, overriding any `x-api-key` header a client set by default.
+    """
+
+    def __init__(self, credentials: Callable[[], str]):
+        self._credentials = credentials
+
+    def _apply(self, request: httpx.Request, token: str) -> None:
+        request.headers.pop("x-api-key", None)
+        request.headers["Authorization"] = f"Bearer {token}"
+
+    def sync_auth_flow(self, request: httpx.Request):
+        token = self._credentials()
+        self._apply(request, token)
+        yield request
+
+    async def async_auth_flow(self, request: httpx.Request):
+        token = await asyncio.to_thread(self._credentials)
+        self._apply(request, token)
+        yield request
+
+
+def _make_posit_error_hook(error_cls: type[Exception]):
+    def hook(response: httpx.Response) -> None:
+        if response.status_code < 400:
+            return
+        response.read()
+        message = _posit_error_message(response.status_code, _safe_json(response))
+        if message is not None:
+            raise error_cls(message)
+
+    return hook
+
+
+def _make_posit_error_hook_async(error_cls: type[Exception]):
+    async def hook(response: httpx.Response) -> None:
+        if response.status_code < 400:
+            return
+        await response.aread()
+        message = _posit_error_message(response.status_code, _safe_json(response))
+        if message is not None:
+            raise error_cls(message)
+
+    return hook

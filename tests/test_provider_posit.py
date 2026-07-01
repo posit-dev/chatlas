@@ -1,12 +1,19 @@
+import asyncio
 import json
 import time
 from pathlib import Path
 from typing import Any, Optional
 
+import httpx
 import pytest
 import requests
-
-from chatlas._provider_posit import PositCredentials
+from chatlas._provider_posit import (
+    PositAuth,
+    PositCredentials,
+    _make_posit_error_hook,
+    _make_posit_error_hook_async,
+    _posit_error_message,
+)
 
 
 class _FakeResponse:
@@ -206,3 +213,153 @@ def test_device_flow_handles_pending_and_slow_down(
     creds = PositCredentials(cache_path=cache_path)
     assert creds.get_token() == "final-token"
     assert sleep_calls == [1, 1, 6]  # interval starts at 1s, +5s after slow_down
+
+
+def test_posit_error_message_for_credits_depleted():
+    assert _posit_error_message(402, None) == "Your Posit AI credits are depleted."
+
+
+def test_posit_error_message_for_account_not_found():
+    message = _posit_error_message(403, {"error_type": "prism_account_not_found"})
+    assert message is not None
+    assert "service agreement" in message
+
+
+def test_posit_error_message_for_nested_account_not_found():
+    message = _posit_error_message(
+        403, {"error": {"error_type": "prism_account_not_found"}}
+    )
+    assert message is not None
+    assert "service agreement" in message
+
+
+def test_posit_error_message_returns_none_for_unrecognized_errors():
+    assert _posit_error_message(400, {"error": "bad request"}) is None
+    assert _posit_error_message(500, None) is None
+    assert _posit_error_message(403, {"error_type": "something_else"}) is None
+
+
+def test_posit_auth_sets_bearer_token_and_strips_api_key():
+    auth = PositAuth(lambda: "test-token")
+    request = httpx.Request("GET", "https://gateway.posit.ai/anthropic/v1/messages")
+    request.headers["x-api-key"] = "not-used"
+
+    flow = auth.sync_auth_flow(request)
+    sent_request = next(flow)
+
+    assert sent_request.headers["Authorization"] == "Bearer test-token"
+    assert "x-api-key" not in sent_request.headers
+
+
+def test_posit_auth_async_sets_bearer_token():
+    async def run() -> httpx.Request:
+        auth = PositAuth(lambda: "test-token")
+        request = httpx.Request(
+            "GET", "https://gateway.posit.ai/openai/v1/chat/completions"
+        )
+        flow = auth.async_auth_flow(request)
+        return await flow.__anext__()
+
+    sent_request = asyncio.run(run())
+    assert sent_request.headers["Authorization"] == "Bearer test-token"
+
+
+def test_anthropic_error_hook_propagates_through_client_send():
+    from anthropic import Anthropic, AnthropicError
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            403, json={"error_type": "prism_account_not_found"}, request=request
+        )
+
+    client = Anthropic(
+        api_key="not-used",
+        base_url="https://gateway.posit.ai/anthropic/v1",
+        http_client=httpx.Client(
+            auth=PositAuth(lambda: "test-token"),
+            transport=httpx.MockTransport(handler),
+            event_hooks={"response": [_make_posit_error_hook(AnthropicError)]},
+        ),
+    )
+
+    with pytest.raises(AnthropicError, match="service agreement"):
+        client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=10,
+            messages=[{"role": "user", "content": "hi"}],
+        )
+
+
+@pytest.mark.asyncio
+async def test_anthropic_error_hook_propagates_through_async_client_send():
+    from anthropic import AnthropicError, AsyncAnthropic
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            403, json={"error_type": "prism_account_not_found"}, request=request
+        )
+
+    client = AsyncAnthropic(
+        api_key="not-used",
+        base_url="https://gateway.posit.ai/anthropic/v1",
+        http_client=httpx.AsyncClient(
+            auth=PositAuth(lambda: "test-token"),
+            transport=httpx.MockTransport(handler),
+            event_hooks={"response": [_make_posit_error_hook_async(AnthropicError)]},
+        ),
+    )
+
+    with pytest.raises(AnthropicError, match="service agreement"):
+        await client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=10,
+            messages=[{"role": "user", "content": "hi"}],
+        )
+
+
+def test_openai_error_hook_propagates_through_client_send():
+    from openai import OpenAI, OpenAIError
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(402, json={}, request=request)
+
+    client = OpenAI(
+        api_key="not-used",
+        base_url="https://gateway.posit.ai/openai/v1",
+        http_client=httpx.Client(
+            auth=PositAuth(lambda: "test-token"),
+            transport=httpx.MockTransport(handler),
+            event_hooks={"response": [_make_posit_error_hook(OpenAIError)]},
+        ),
+    )
+
+    with pytest.raises(OpenAIError, match="credits are depleted"):
+        client.chat.completions.create(
+            model="qwen3-8b", messages=[{"role": "user", "content": "hi"}]
+        )
+
+
+def test_unrecognized_gateway_error_passes_through_unchanged():
+    from anthropic import Anthropic, APIStatusError
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(500, json={"error": {"message": "boom"}}, request=request)
+
+    from anthropic import AnthropicError
+
+    client = Anthropic(
+        api_key="not-used",
+        base_url="https://gateway.posit.ai/anthropic/v1",
+        http_client=httpx.Client(
+            auth=PositAuth(lambda: "test-token"),
+            transport=httpx.MockTransport(handler),
+            event_hooks={"response": [_make_posit_error_hook(AnthropicError)]},
+        ),
+    )
+
+    with pytest.raises(APIStatusError):
+        client.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=10,
+            messages=[{"role": "user", "content": "hi"}],
+        )
