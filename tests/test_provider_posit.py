@@ -127,7 +127,11 @@ def test_get_token_falls_back_to_device_flow_when_refresh_fails(
     )
     poll_response = _FakeResponse(
         200,
-        {"access_token": "fresh-token", "refresh_token": "fresh-refresh", "expires_in": 3600},
+        {
+            "access_token": "fresh-token",
+            "refresh_token": "fresh-refresh",
+            "expires_in": 3600,
+        },
     )
 
     def fake_post(url: str, data: Optional[dict[str, Any]] = None, **kwargs: Any):
@@ -161,7 +165,12 @@ def test_get_token_runs_device_flow_when_no_cache(
         },
     )
     poll_response = _FakeResponse(
-        200, {"access_token": "new-token", "refresh_token": "new-refresh", "expires_in": 3600}
+        200,
+        {
+            "access_token": "new-token",
+            "refresh_token": "new-refresh",
+            "expires_in": 3600,
+        },
     )
     calls = {"count": 0}
 
@@ -479,12 +488,16 @@ def test_chat_posit_custom_credentials_bypasses_device_flow(
     monkeypatch: pytest.MonkeyPatch,
 ):
     def fail_if_called(*args: Any, **kwargs: Any) -> Any:
-        raise AssertionError(
-            "should not hit the network when credentials= is supplied"
-        )
+        raise AssertionError("should not hit the network when credentials= is supplied")
 
     monkeypatch.setattr("chatlas._provider_posit.requests.post", fail_if_called)
 
     chat = ChatPosit(model="claude-sonnet-4-6", credentials=lambda: "test-token")
     assert isinstance(chat.provider, PositAnthropicProvider)
     assert chat.provider._credentials() == "test-token"
+
+
+def test_chat_posit_importable_from_package_root():
+    import chatlas
+
+    assert chatlas.ChatPosit is ChatPosit
