@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>types.contentjson – chatlas</title>
+<title>chatposit – chatlas</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -68,8 +68,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/types.ContentPDF.html" rel="next">
-<link href="../reference/types.ContentImageRemote.html" rel="prev">
+<link href="../reference/ChatSnowflake.html" rel="next">
+<link href="../reference/ChatPortkey.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -167,7 +167,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.ContentJson.html">types.ContentJson</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/ChatAnthropic.html">Chat model providers</a></li><li class="breadcrumb-item"><a href="../reference/ChatPosit.html">ChatPosit</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -298,7 +298,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/ChatPosit.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/ChatPosit.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">ChatPosit</span></a>
   </div>
 </li>
@@ -611,7 +611,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/types.ContentJson.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/types.ContentJson.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.ContentJson</span></a>
   </div>
 </li>
@@ -741,24 +741,69 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.types.ContentJson" id="toc-chatlas.types.ContentJson" class="nav-link active" data-scroll-target="#chatlas.types.ContentJson">types.ContentJson</a>
+  <li><a href="#chatlas.ChatPosit" id="toc-chatlas.ChatPosit" class="nav-link active" data-scroll-target="#chatlas.ChatPosit">ChatPosit</a>
   <ul class="collapse">
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ContentJson.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatPosit.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.ContentJson.html">types.ContentJson</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/ChatAnthropic.html">Chat model providers</a></li><li class="breadcrumb-item"><a href="../reference/ChatPosit.html">ChatPosit</a></li></ol></nav></header>
 
 
 
 
-<section id="chatlas.types.ContentJson" class="level1">
-<h1>types.ContentJson</h1>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>types.ContentJson()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>JSON content</p>
-<p>This content type primarily exists to signal structured data extraction (i.e., data extracted via <a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat"><code>Chat</code></a>’s <code>.chat_structured()</code> method)</p>
+<section id="chatlas.ChatPosit" class="level1">
+<h1>ChatPosit</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ChatPosit(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span><span class="st">'https://gateway.posit.ai'</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    credentials<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    cache<span class="op">=</span><span class="st">'5m'</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Chat with a model hosted by Posit AI.</p>
+<p><a href="https://posit.ai">Posit AI</a> provides access to a curated set of models for Posit subscribers. The gateway exposes two API flavors: Claude models are served via the Anthropic Messages API and all other models are served via an OpenAI-compatible API. <code>ChatPosit()</code> automatically picks the appropriate flavor based on the model name.</p>
+<section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
+<h2 class="doc-section doc-section-prerequisites anchored" data-anchor-id="prerequisites">Prerequisites</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Python requirements
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Claude models require the <code>anthropic</code> package: <code>pip install "chatlas[posit]"</code>. OpenAI-compatible models work with the base <code>chatlas</code> install.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Authentication
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>By default, <code>ChatPosit()</code> authenticates with an OAuth device flow against <code>login.posit.cloud</code>: the first time you use it, you’ll be prompted to visit a URL and enter a code. The resulting tokens are cached on disk and refreshed automatically, so you should only need to do this once per machine.</p>
+</div>
+</div>
+</section>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatPosit</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatPosit()</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Tell me three jokes about statisticians"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
@@ -772,10 +817,53 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td>value</td>
+<td>system_prompt</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>A system prompt to set the behavior of the assistant.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>base_url</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
+<td>The base URL of the Posit AI gateway.</td>
+<td><code>'https://gateway.posit.ai'</code></td>
+</tr>
+<tr class="odd">
+<td>model</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>The model to use for the chat. The default, None, will pick a reasonable default, and warn you about it. We strongly recommend explicitly choosing a model for all but the most casual use.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>credentials</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[[], <a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]]</td>
+<td>A zero-argument function that returns a bearer token string. If omitted, <code>ChatPosit()</code> manages the OAuth device-flow login and its on-disk token cache automatically.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>cache</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['5m', '1h', 'none']</td>
+<td>How long to cache inputs? Defaults to “5m” (five minutes). Only applies when a Claude model is selected. See <code>ChatAnthropic</code> for details.</td>
+<td><code>'5m'</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
 <td></td>
-<td>The JSON data extracted</td>
-<td><em>required</em></td>
+<td><a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat">Chat</a></td>
+<td>A chat object that retains the state of the conversation. Note that the concrete provider (and hence some response-object typing precision) depends on whether a Claude model or another model was selected.</td>
 </tr>
 </tbody>
 </table>
@@ -1187,13 +1275,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/types.ContentImageRemote.html" class="pagination-link" aria-label="types.ContentImageRemote">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">types.ContentImageRemote</span>
+      <a href="../reference/ChatPortkey.html" class="pagination-link" aria-label="ChatPortkey">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">ChatPortkey</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/types.ContentPDF.html" class="pagination-link" aria-label="types.ContentPDF">
-        <span class="nav-page-text">types.ContentPDF</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/ChatSnowflake.html" class="pagination-link" aria-label="ChatSnowflake">
+        <span class="nav-page-text">ChatSnowflake</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1205,7 +1293,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ContentJson.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatPosit.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

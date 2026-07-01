@@ -23,6 +23,7 @@ Start a chat with a particular large language model (llm) provider.
 | [ChatOpenRouter](../reference/ChatOpenRouter.llms.md#chatlas.ChatOpenRouter) | Chat with one of the many models hosted on OpenRouter. |
 | [ChatPerplexity](../reference/ChatPerplexity.llms.md#chatlas.ChatPerplexity) | Chat with a model hosted on perplexity.ai. |
 | [ChatPortkey](../reference/ChatPortkey.llms.md#chatlas.ChatPortkey) | Chat with a model hosted on PortkeyAI |
+| [ChatPosit](../reference/ChatPosit.llms.md#chatlas.ChatPosit) | Chat with a model hosted by Posit AI. |
 | [ChatSnowflake](../reference/ChatSnowflake.llms.md#chatlas.ChatSnowflake) | Chat with a Snowflake Cortex LLM |
 | [ChatVertex](../reference/ChatVertex.llms.md#chatlas.ChatVertex) | Chat with a Google Vertex AI model. |
 

@@ -4,6 +4,12 @@
 
 ### New features
 
+- Added `ChatPosit()` for chatting via the [Posit AI](https://posit.ai/) gateway. (#323)
+
+## \[0.19.0\] - 2026-06-15
+
+### New features
+
 - chatlas is now instrumented with [OpenTelemetry](https://opentelemetry.io/) (OTel) out of the box, making it much easier to see how your app behaves in production — where time goes, how many tokens you’re spending, which tools run, and where things fail. Without writing any tracing code, you get spans that capture the full structure of a conversation as one connected trace: an `invoke_agent` span over the whole chat loop, a `chat` span per model call, and an `execute_tool` span per tool invocation, with attributes (token usage, response model/ID, tool errors) that follow the [OTel GenAI semantic conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/). Because chatlas keeps its spans active during each call, HTTP spans from provider instrumentors and any spans your own tools emit nest underneath automatically. Point it at any OTel-compatible backend (Logfire, Datadog, Honeycomb, Jaeger, …); message content is omitted by default and opt-in via `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT=true`. See the [monitoring guide](https://posit-dev.github.io/chatlas/get-started/monitor.html) to get started. (#310)
 - `Chat` gains a `model` property to get (or set) the model after the chat is created. Setting it does not validate the model name.
 - `ChatGoogle()`’s `reasoning` parameter now accepts a string thinking level (`"minimal"`, `"low"`, `"medium"`, or `"high"`) in addition to an integer token budget.

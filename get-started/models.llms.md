@@ -26,6 +26,7 @@ Below is a table of model providers that come pre-packaged with chatlas.
 | perplexity.ai | [`ChatPerplexity()`](../reference/ChatPerplexity.llms.md) |  |
 | Cloudflare | [`ChatCloudflare()`](../reference/ChatCloudflare.llms.md) |  |
 | Portkey | [`ChatPortkey()`](../reference/ChatPortkey.llms.md) | ✅ |
+| Posit AI | [`ChatPosit()`](../reference/ChatPosit.llms.md) | ✅ |
 
 > **TIP:**
 >
