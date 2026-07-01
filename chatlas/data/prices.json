@@ -43,6 +43,13 @@
   },
   {
     "provider": "AWS/Bedrock",
+    "model": "amazon.titan-embed-g1-text-02",
+    "variant": "",
+    "input": 0.1,
+    "output": 0
+  },
+  {
+    "provider": "AWS/Bedrock",
     "model": "amazon.titan-embed-image-v1",
     "variant": "",
     "input": 0.8,
@@ -59,7 +66,7 @@
     "provider": "AWS/Bedrock",
     "model": "amazon.titan-embed-text-v2:0",
     "variant": "",
-    "input": 0.2,
+    "input": 0.02,
     "output": 0
   },
   {
@@ -1547,6 +1554,14 @@
     "input": 6,
     "output": 22.5,
     "cached_input": 0.6
+  },
+  {
+    "provider": "Anthropic",
+    "model": "claude-fable-5",
+    "variant": "",
+    "input": 10,
+    "output": 50,
+    "cached_input": 1
   },
   {
     "provider": "Anthropic",
@@ -3502,6 +3517,20 @@
   },
   {
     "provider": "Google/Gemini",
+    "model": "gemini-3-pro-image",
+    "variant": "",
+    "input": 2,
+    "output": 12
+  },
+  {
+    "provider": "Google/Gemini",
+    "model": "gemini-3-pro-image",
+    "variant": "batches",
+    "input": 1,
+    "output": 6
+  },
+  {
+    "provider": "Google/Gemini",
     "model": "gemini-3-pro-image-preview",
     "variant": "",
     "input": 2,
@@ -3555,6 +3584,20 @@
   },
   {
     "provider": "Google/Gemini",
+    "model": "gemini-3.1-flash-image",
+    "variant": "",
+    "input": 0.25,
+    "output": 1.5
+  },
+  {
+    "provider": "Google/Gemini",
+    "model": "gemini-3.1-flash-image",
+    "variant": "batches",
+    "input": 0.125,
+    "output": 0.75
+  },
+  {
+    "provider": "Google/Gemini",
     "model": "gemini-3.1-flash-image-preview",
     "variant": "",
     "input": 0.25,
@@ -3580,8 +3623,7 @@
     "model": "gemini-3.1-flash-lite",
     "variant": "batches",
     "input": 0.125,
-    "output": 0.75,
-    "cached_input": 0.0125
+    "output": 0.75
   },
   {
     "provider": "Google/Gemini",
@@ -3996,6 +4038,20 @@
   },
   {
     "provider": "Google/Vertex",
+    "model": "gemini-3-pro-image",
+    "variant": "",
+    "input": 2,
+    "output": 12
+  },
+  {
+    "provider": "Google/Vertex",
+    "model": "gemini-3-pro-image",
+    "variant": "batches",
+    "input": 1,
+    "output": 6
+  },
+  {
+    "provider": "Google/Vertex",
     "model": "gemini-3-pro-image-preview",
     "variant": "",
     "input": 2,
@@ -4049,6 +4105,13 @@
   },
   {
     "provider": "Google/Vertex",
+    "model": "gemini-3.1-flash-image",
+    "variant": "",
+    "input": 0.5,
+    "output": 3
+  },
+  {
+    "provider": "Google/Vertex",
     "model": "gemini-3.1-flash-image-preview",
     "variant": "",
     "input": 0.5,
@@ -4067,8 +4130,7 @@
     "model": "gemini-3.1-flash-lite",
     "variant": "batches",
     "input": 0.125,
-    "output": 0.75,
-    "cached_input": 0.0125
+    "output": 0.75
   },
   {
     "provider": "Google/Vertex",
@@ -4212,6 +4274,20 @@
   },
   {
     "provider": "Google/Vertex",
+    "model": "vertex_ai/gemini-3-pro-image",
+    "variant": "",
+    "input": 2,
+    "output": 12
+  },
+  {
+    "provider": "Google/Vertex",
+    "model": "vertex_ai/gemini-3-pro-image",
+    "variant": "batches",
+    "input": 1,
+    "output": 6
+  },
+  {
+    "provider": "Google/Vertex",
     "model": "vertex_ai/gemini-3-pro-image-preview",
     "variant": "",
     "input": 2,
@@ -4223,6 +4299,13 @@
     "variant": "batches",
     "input": 1,
     "output": 6
+  },
+  {
+    "provider": "Google/Vertex",
+    "model": "vertex_ai/gemini-3.1-flash-image",
+    "variant": "",
+    "input": 0.5,
+    "output": 3
   },
   {
     "provider": "Google/Vertex",
@@ -4244,8 +4327,7 @@
     "model": "vertex_ai/gemini-3.1-flash-lite",
     "variant": "batches",
     "input": 0.125,
-    "output": 0.75,
-    "cached_input": 0.0125
+    "output": 0.75
   },
   {
     "provider": "Google/Vertex",
@@ -4603,6 +4685,20 @@
   },
   {
     "provider": "Mistral",
+    "model": "mistral-medium-2508",
+    "variant": "",
+    "input": 0.4,
+    "output": 2
+  },
+  {
+    "provider": "Mistral",
+    "model": "mistral-medium-2604",
+    "variant": "",
+    "input": 1.5,
+    "output": 7.5
+  },
+  {
+    "provider": "Mistral",
     "model": "mistral-medium-3-1-2508",
     "variant": "",
     "input": 0.4,
@@ -4610,10 +4706,17 @@
   },
   {
     "provider": "Mistral",
+    "model": "mistral-medium-3-5",
+    "variant": "",
+    "input": 1.5,
+    "output": 7.5
+  },
+  {
+    "provider": "Mistral",
     "model": "mistral-medium-latest",
     "variant": "",
-    "input": 0.4,
-    "output": 2
+    "input": 1.5,
+    "output": 7.5
   },
   {
     "provider": "Mistral",
@@ -5859,8 +5962,7 @@
     "model": "gpt-5.4-mini",
     "variant": "batches",
     "input": 0.375,
-    "output": 2.25,
-    "cached_input": 0.0375
+    "output": 2.25
   },
   {
     "provider": "OpenAI",
@@ -5891,8 +5993,7 @@
     "model": "gpt-5.4-mini-2026-03-17",
     "variant": "batches",
     "input": 0.375,
-    "output": 2.25,
-    "cached_input": 0.0375
+    "output": 2.25
   },
   {
     "provider": "OpenAI",
@@ -5923,8 +6024,7 @@
     "model": "gpt-5.4-nano",
     "variant": "batches",
     "input": 0.1,
-    "output": 0.625,
-    "cached_input": 0.01
+    "output": 0.625
   },
   {
     "provider": "OpenAI",
@@ -5947,8 +6047,7 @@
     "model": "gpt-5.4-nano-2026-03-17",
     "variant": "batches",
     "input": 0.1,
-    "output": 0.625,
-    "cached_input": 0.01
+    "output": 0.625
   },
   {
     "provider": "OpenAI",
@@ -7322,5 +7421,93 @@
     "variant": "",
     "input": 0.8,
     "output": 2.56
+  },
+  {
+    "provider": "OpenRouter",
+    "model": "z-ai/glm-5.1",
+    "variant": "",
+    "input": 1.05,
+    "output": 3.5,
+    "cached_input": 0.525
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-fable-5",
+    "variant": "",
+    "input": 11,
+    "output": 55,
+    "cached_input": 1.1
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-haiku-4-5",
+    "variant": "",
+    "input": 1.1,
+    "output": 5.5,
+    "cached_input": 0.11
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-opus-4-5",
+    "variant": "",
+    "input": 5.5,
+    "output": 27.5,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-opus-4-6",
+    "variant": "",
+    "input": 5.5,
+    "output": 27.5,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-opus-4-7",
+    "variant": "",
+    "input": 5.5,
+    "output": 27.5,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-opus-4-8",
+    "variant": "",
+    "input": 5.5,
+    "output": 27.5,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-sonnet-4-5",
+    "variant": "",
+    "input": 3.3,
+    "output": 16.5,
+    "cached_input": 0.33
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-sonnet-4-5",
+    "variant": "above_200k_tokens",
+    "input": 6.6,
+    "output": 24.75,
+    "cached_input": 0.66
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-sonnet-4-6",
+    "variant": "",
+    "input": 3.3,
+    "output": 16.5,
+    "cached_input": 0.33
+  },
+  {
+    "provider": "Posit",
+    "model": "google/gemma-4-26B-A4B-it",
+    "variant": "",
+    "input": 0.3,
+    "output": 1.5,
+    "cached_input": 0.03
   }
 ]
