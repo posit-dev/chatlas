@@ -1081,6 +1081,30 @@ def ChatBedrockAnthropic(
 
     Consider using the approach outlined in this guide to manage your AWS credentials:
     <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html>
+
+    Rather than passing credentials directly (via `aws_access_key`,
+    `aws_secret_key`, etc.), a common and more secure approach is to configure a
+    named profile in `~/.aws/config` and reference it via the `aws_profile`
+    argument (or the `AWS_PROFILE` environment variable). This works with both
+    static credentials and AWS IAM Identity Center (SSO).
+
+    For SSO-based profiles, log in from your terminal before starting a chat so
+    that a valid session token is available:
+
+    ```bash
+    aws sso login --profile my-profile
+    ```
+
+    Then reference that profile:
+
+    ```python
+    from chatlas import ChatBedrockAnthropic
+
+    chat = ChatBedrockAnthropic(aws_profile="my-profile")
+    ```
+
+    If the SSO session expires, you'll see an authentication error; just run
+    `aws sso login` again to refresh it.
     :::
 
     ::: {.callout-note}
@@ -1135,7 +1159,12 @@ def ChatBedrockAnthropic(
         The AWS region to use. Defaults to the AWS_REGION environment variable.
         If that is not set, defaults to `'us-east-1'`.
     aws_profile
-        The AWS profile to use.
+        The name of an AWS profile (as configured in `~/.aws/config` or
+        `~/.aws/credentials`) to use for authentication. Defaults to the
+        `AWS_PROFILE` environment variable. This is often the most convenient
+        way to authenticate, especially for AWS IAM Identity Center (SSO)
+        profiles: run `aws sso login --profile <name>` in your terminal first,
+        then pass the profile name here.
     aws_session_token
         The AWS session token to use.
     base_url
