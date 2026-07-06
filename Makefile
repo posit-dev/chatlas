@@ -49,14 +49,14 @@ docs-preview: quartodoc
 	quarto preview docs
 
 .PHONY: quartodoc
-quartodoc: 
+quartodoc: setup
 	@echo "📖 Generating python docs with quartodoc"
 	@$(eval export IN_QUARTODOC=true)
 	cd docs && uv run quartodoc build
 	cd docs && uv run quartodoc interlinks
 
 .PHONY: quartodoc-watch
-quartodoc-watch:
+quartodoc-watch: setup
 	@echo "📖 Generating python docs with quartodoc"
 	@$(eval export IN_QUARTODOC=true)
 	uv run quartodoc build --config docs/_quarto.yml --watch
