@@ -790,6 +790,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="callout-body-container callout-body">
 <p>Consider using the approach outlined in this guide to manage your AWS credentials: <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html" class="uri">https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html</a></p>
+<p>Rather than passing credentials directly (via <code>aws_access_key</code>, <code>aws_secret_key</code>, etc.), a common and more secure approach is to configure a named profile in <code>~/.aws/config</code> and reference it via the <code>aws_profile</code> argument (or the <code>AWS_PROFILE</code> environment variable). This works with both static credentials and AWS IAM Identity Center (SSO).</p>
+<p>For SSO-based profiles, log in from your terminal before starting a chat so that a valid session token is available:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">aws</span> sso login <span class="at">--profile</span> my-profile</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then reference that profile:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatBedrockAnthropic</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatBedrockAnthropic(aws_profile<span class="op">=</span><span class="st">"my-profile"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If the SSO session expires, you’ll see an authentication error; just run <code>aws sso login</code> again to refresh it.</p>
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -808,16 +816,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="examples" class="level2 doc-section doc-section-examples">
 <h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatBedrockAnthropic</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatBedrockAnthropic(</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    aws_profile<span class="op">=</span><span class="st">"..."</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    aws_region<span class="op">=</span><span class="st">"us-east"</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    aws_secret_key<span class="op">=</span><span class="st">"..."</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    aws_access_key<span class="op">=</span><span class="st">"..."</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    aws_session_token<span class="op">=</span><span class="st">"..."</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is the capital of France?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatBedrockAnthropic</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatBedrockAnthropic(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    aws_profile<span class="op">=</span><span class="st">"..."</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    aws_region<span class="op">=</span><span class="st">"us-east"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    aws_secret_key<span class="op">=</span><span class="st">"..."</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    aws_access_key<span class="op">=</span><span class="st">"..."</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    aws_session_token<span class="op">=</span><span class="st">"..."</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is the capital of France?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
@@ -882,7 +890,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>aws_profile</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The AWS profile to use.</td>
+<td>The name of an AWS profile (as configured in <code>~/.aws/config</code> or <code>~/.aws/credentials</code>) to use for authentication. Defaults to the <code>AWS_PROFILE</code> environment variable. This is often the most convenient way to authenticate, especially for AWS IAM Identity Center (SSO) profiles: run <code>aws sso login --profile &lt;name&gt;</code> in your terminal first, then pass the profile name here.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="even">

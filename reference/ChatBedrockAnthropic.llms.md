@@ -27,6 +27,24 @@ Chat with an AWS bedrock model.
 > **NOTE:**
 >
 > Consider using the approach outlined in this guide to manage your AWS credentials: <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html>
+>
+> Rather than passing credentials directly (via `aws_access_key`, `aws_secret_key`, etc.), a common and more secure approach is to configure a named profile in `~/.aws/config` and reference it via the `aws_profile` argument (or the `AWS_PROFILE` environment variable). This works with both static credentials and AWS IAM Identity Center (SSO).
+>
+> For SSO-based profiles, log in from your terminal before starting a chat so that a valid session token is available:
+>
+> ``` bash
+> aws sso login --profile my-profile
+> ```
+>
+> Then reference that profile:
+>
+> ``` python
+> from chatlas import ChatBedrockAnthropic
+>
+> chat = ChatBedrockAnthropic(aws_profile="my-profile")
+> ```
+>
+> If the SSO session expires, you’ll see an authentication error; just run `aws sso login` again to refresh it.
 
 > **NOTE:**
 >
@@ -59,7 +77,7 @@ chat.chat("What is the capital of France?")
 | aws_secret_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The AWS secret key to use for authentication. | `None` |
 | aws_access_key | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The AWS access key to use for authentication. | `None` |
 | aws_region | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The AWS region to use. Defaults to the AWS_REGION environment variable. If that is not set, defaults to `'us-east-1'`. | `None` |
-| aws_profile | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The AWS profile to use. | `None` |
+| aws_profile | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The name of an AWS profile (as configured in `~/.aws/config` or `~/.aws/credentials`) to use for authentication. Defaults to the `AWS_PROFILE` environment variable. This is often the most convenient way to authenticate, especially for AWS IAM Identity Center (SSO) profiles: run `aws sso login --profile <name>` in your terminal first, then pass the profile name here. | `None` |
 | aws_session_token | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The AWS session token to use. | `None` |
 | base_url | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The base URL to use. Defaults to the ANTHROPIC_BEDROCK_BASE_URL environment variable. If that is not set, defaults to `f"https://bedrock-runtime.{aws_region}.amazonaws.com"`. | `None` |
 | system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
