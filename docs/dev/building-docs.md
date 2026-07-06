@@ -6,8 +6,7 @@ The chatlas documentation site is built with [Quarto](https://quarto.org/) and
 ## Prerequisites
 
 1. **Quarto** must be installed on your system. See the
-   [Quarto install guide](https://quarto.org/docs/get-started/). CI currently
-   pins version `1.9.37`.
+   [Quarto install guide](https://quarto.org/docs/get-started/).
 2. **The `docs` dependency extra** from `pyproject.toml` must be installed.
    `quartodoc` and the other doc-building tools live in the `docs`
    optional-dependency group (see `[project.optional-dependencies]`
