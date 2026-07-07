@@ -792,7 +792,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         def server(input):  # noqa: A002
-            chat = Chat("chat", client=self)
+            _ = Chat("chat", client=self)
 
         app = App(app_ui, server)
 
