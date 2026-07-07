@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* The `.app()` method now includes latest shinychat features like history, file attachments, etc. (#xxx)
+* The `.app()` method now includes latest shinychat features like history, file attachments, etc.
 
 ## [0.19.1] - 2026-07-01
 
