@@ -1,4 +1,5 @@
 from . import types
+from ._api_headers import ApiHeaders
 from ._auto import ChatAuto
 from ._batch_chat import (
     batch_chat,
@@ -47,6 +48,7 @@ except ImportError:  # pragma: no cover
     __version__ = "0.0.0"  # stub value for docs
 
 __all__ = (
+    "ApiHeaders",
     "batch_chat",
     "batch_chat_completed",
     "batch_chat_structured",

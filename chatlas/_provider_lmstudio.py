@@ -3,10 +3,11 @@ from __future__ import annotations
 import os
 import re
 import urllib.request
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 import orjson
 
+from ._api_headers import ApiHeaders
 from ._chat import Chat
 from ._provider import ModelInfo
 from ._provider_openai_completions import OpenAICompletionsProvider
@@ -22,7 +23,8 @@ def ChatLMStudio(
     *,
     system_prompt: Optional[str] = None,
     base_url: str = "http://localhost:1234",
-    api_key: Optional[str] = None,
+    api_key: Optional[str | Callable[[], str]] = None,
+    api_headers: Optional[ApiHeaders] = None,
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> "Chat[SubmitInputArgs, ChatCompletion]":
@@ -79,6 +81,11 @@ def ChatLMStudio(
         usage. If you're accessing an LM Studio instance behind a reverse proxy
         or secured endpoint that enforces bearer-token authentication, you can
         set the `LMSTUDIO_API_KEY` environment variable or provide a value here.
+    api_headers
+        Extra HTTP headers to include with every chat API request. Can be a dict
+        of ``{header_name: header_value}`` pairs, or a zero-argument callable
+        returning such a dict. A callable is invoked on every request,
+        enabling dynamic auth patterns like token refresh.
     seed
         Optional integer seed that helps to make output more reproducible.
     kwargs
@@ -95,10 +102,12 @@ def ChatLMStudio(
     if api_key is None:
         api_key = os.getenv("LMSTUDIO_API_KEY", "")
 
-    if not has_lmstudio(base_url, api_key=api_key):
+    resolved_key = api_key() if callable(api_key) else api_key
+
+    if not has_lmstudio(base_url, api_key=resolved_key):
         raise RuntimeError("Can't find locally running LM Studio.")
 
-    models = lmstudio_model_info(base_url, api_key=api_key)
+    models = lmstudio_model_info(base_url, api_key=resolved_key)
     model_ids = [m["id"] for m in models]
 
     if model is None:
@@ -123,6 +132,7 @@ def ChatLMStudio(
             base_url=base_url,
             seed=seed,
             name="LM Studio",
+            api_headers=api_headers,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -130,13 +140,14 @@ def ChatLMStudio(
 
 
 class LMStudioProvider(OpenAICompletionsProvider):
-    def __init__(self, *, api_key, model, base_url, seed, name, kwargs):
+    def __init__(self, *, api_key: str | Callable[[], str], model, base_url, seed, name, api_headers=None, kwargs):
         super().__init__(
             api_key=api_key,
             model=model,
             base_url=f"{base_url}/v1",
             seed=seed,
             name=name,
+            api_headers=api_headers,
             kwargs=kwargs,
         )
         self.base_url = base_url

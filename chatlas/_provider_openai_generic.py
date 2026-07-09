@@ -6,13 +6,14 @@ import re
 import tempfile
 from abc import abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Generic, Literal, Optional
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, Optional
 
 import orjson
 from openai import AsyncOpenAI, OpenAI
 from openai.types.batch import Batch
 from pydantic import BaseModel
 
+from ._api_headers import ApiHeaders, resolve_api_headers
 from ._content import Content, ContentImage, ContentImageRemote
 from ._provider import (
     BatchStatus,
@@ -26,7 +27,7 @@ from ._provider import (
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
 from ._turn import AssistantTurn, Turn, UserTurn, user_turn
-from ._utils import split_http_client_kwargs
+from ._utils import split_http_client_kwargs, wrap_async
 
 if TYPE_CHECKING:
     from .types.openai import ChatClientArgs
@@ -72,26 +73,40 @@ class OpenAIAbstractProvider(
     def __init__(
         self,
         *,
-        api_key: Optional[str] = None,
+        api_key: Optional[str | Callable[[], str]] = None,
         model: str,
         base_url: str = "https://api.openai.com/v1",
         name: str = "OpenAI",
+        api_headers: Optional[ApiHeaders] = None,
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(name=name, model=model)
 
-        kwargs_full: "ChatClientArgs" = {
-            "api_key": api_key,
+        self._api_headers = api_headers
+
+        # AsyncOpenAI expects Callable[[], Awaitable[str]] so wrap sync callables
+        async_api_key = wrap_async(api_key) if callable(api_key) else api_key
+
+        sync_full: "ChatClientArgs" = {
+            "api_key": api_key,  # type: ignore
+            "base_url": base_url,
+            **(kwargs or {}),
+        }
+        async_full: "ChatClientArgs" = {
+            "api_key": async_api_key,  # type: ignore
             "base_url": base_url,
             **(kwargs or {}),
         }
 
-        # Avoid passing the wrong sync/async client to the OpenAI constructor.
-        sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
+        # Avoid passing the wrong sync/async http_client to each constructor.
+        sync_full, _ = split_http_client_kwargs(sync_full)
+        _, async_full = split_http_client_kwargs(async_full)
 
-        # TODO: worth bringing in AsyncOpenAI types?
-        self._client = OpenAI(**sync_kwargs)  # type: ignore
-        self._async_client = AsyncOpenAI(**async_kwargs)
+        self._client = OpenAI(**sync_full)  # type: ignore
+        self._async_client = AsyncOpenAI(**async_full)  # type: ignore
+
+    def _get_extra_headers(self) -> dict[str, str] | None:
+        return resolve_api_headers(self._api_headers)
 
     def list_models(self):
         models = self._client.models.list()

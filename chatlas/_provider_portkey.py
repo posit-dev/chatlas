@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
+from ._api_headers import ApiHeaders
 from ._chat import Chat
 from ._logging import log_model_default
 from ._provider_openai_completions import OpenAICompletionsProvider
@@ -17,7 +18,8 @@ def ChatPortkey(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    api_key: Optional[str | Callable[[], str]] = None,
+    api_headers: Optional[ApiHeaders] = None,
     virtual_key: Optional[str] = None,
     base_url: str = "https://api.portkey.ai/v1",
     kwargs: Optional["ChatClientArgs"] = None,
@@ -62,6 +64,11 @@ def ChatPortkey(
     api_key
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `PORTKEY_API_KEY` environment variable.
+    api_headers
+        Extra HTTP headers to include with every chat API request. Can be a dict
+        of ``{header_name: header_value}`` pairs, or a zero-argument callable
+        returning such a dict. A callable is invoked on every request,
+        enabling dynamic auth patterns like token refresh.
     virtual_key
         An (optional) virtual identifier, storing the LLM provider's API key. See
         [documentation](https://portkey.ai/docs/product/ai-gateway/virtual-keys).
@@ -89,6 +96,13 @@ def ChatPortkey(
     if api_key is None:
         api_key = os.getenv("PORTKEY_API_KEY")
 
+    if callable(api_key):
+        raise TypeError(
+            "ChatPortkey() does not support callable `api_key` because the key "
+            "must be sent as the `x-portkey-api-key` header at construction time. "
+            "For dynamic auth, use `api_headers` with a callable instead."
+        )
+
     kwargs2 = add_default_headers(
         kwargs or {},
         api_key=api_key,
@@ -101,6 +115,7 @@ def ChatPortkey(
             model=model,
             base_url=base_url,
             name="Portkey",
+            api_headers=api_headers,
             kwargs=kwargs2,
         ),
         system_prompt=system_prompt,
