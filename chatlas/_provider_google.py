@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import base64
+import re
+import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import orjson
@@ -21,7 +23,13 @@ from ._content import (
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
+from ._provider import (
+    BatchStatus,
+    ModelInfo,
+    Provider,
+    StandardModelParamNames,
+    StandardModelParams,
+)
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
@@ -349,6 +357,7 @@ class GoogleProvider(
             FunctionDeclaration,
             GenerateContentConfig,
             Schema,
+            ToolConfig,
             ToolListUnion,
         )
         from google.genai.types import Tool as GoogleTool
@@ -375,7 +384,14 @@ class GoogleProvider(
 
         if tools:
             google_tools: ToolListUnion = []
+            has_builtin_tool = False
+            has_custom_tool = False
             for tool in tools.values():
+                if isinstance(tool, ToolBuiltIn):
+                    has_builtin_tool = True
+                else:
+                    has_custom_tool = True
+
                 if isinstance(tool, ToolWebSearch):
                     gtool = GoogleTool(google_search=tool.get_definition("google"))
                     google_tools.append(gtool)
@@ -405,6 +421,23 @@ class GoogleProvider(
 
             if google_tools:
                 config.tools = google_tools
+
+            # Mixing built-in and custom tools requires an explicit opt-in on
+            # Gemini 3+ models. `include_server_side_tool_invocations` is only
+            # valid for the Gemini Developer API, not Vertex AI, which raises
+            # a client-side error if it's set at all.
+            if (
+                has_builtin_tool
+                and has_custom_tool
+                and self.name == "Google/Gemini"
+                and google_supports_mixed_tools(self.model)
+            ):
+                if config.tool_config is None:
+                    config.tool_config = ToolConfig(
+                        include_server_side_tool_invocations=True
+                    )
+                else:
+                    config.tool_config.include_server_side_tool_invocations = True
 
         kwargs_full["config"] = config
 
@@ -718,6 +751,98 @@ class GoogleProvider(
             "stop_sequences",
         }
 
+    def has_batch_support(self) -> bool:
+        # Only the Gemini Developer API has a batch API today; Vertex AI's
+        # batch API takes GCS bucket URIs instead of inline requests, which
+        # is a different shape entirely.
+        return self.name == "Google/Gemini"
+
+    def batch_submit(
+        self,
+        conversations: list[list[Turn]],
+        data_model: Optional[type[BaseModel]] = None,
+    ):
+        from google.genai import types
+        from google.genai.types import GenerateContentConfig
+
+        requests: list["types.InlinedRequest"] = []
+        for turns in conversations:
+            kwargs = self._chat_perform_args(turns, {}, data_model)
+            contents = cast(types.ContentListUnion, kwargs.get("contents"))
+            config = cast(Optional[GenerateContentConfig], kwargs.get("config"))
+            requests.append(types.InlinedRequest(contents=contents, config=config))
+
+        batch = self._client.batches.create(model=self.model, src=requests)
+        # mode="json" is required, not cosmetic: reasoning-capable Gemini
+        # models (e.g. gemini-3.6-flash) attach an opaque thought_signature
+        # byte blob to every response part, not just tool-call parts, and
+        # those bytes are not valid UTF-8. Plain model_dump() leaves them as
+        # raw bytes, which crashes BatchState.model_dump_json() once this
+        # dict is persisted to the batch state file. mode="json" base64-
+        # encodes bytes fields, and model_validate() decodes them back
+        # losslessly (verified against a real completed batch response).
+        return batch.model_dump(mode="json")
+
+    def batch_poll(self, batch):
+        from google.genai import types
+
+        batch = types.BatchJob.model_validate(batch)
+        if batch.name is None:
+            raise ValueError("Batch has no name")
+        b = self._client.batches.get(name=batch.name)
+        return b.model_dump(mode="json")
+
+    def batch_status(self, batch) -> "BatchStatus":
+        from google.genai import types
+
+        batch = types.BatchJob.model_validate(batch)
+        terminal_states = {
+            types.JobState.JOB_STATE_SUCCEEDED,
+            types.JobState.JOB_STATE_FAILED,
+            types.JobState.JOB_STATE_CANCELLED,
+            types.JobState.JOB_STATE_EXPIRED,
+            types.JobState.JOB_STATE_PARTIALLY_SUCCEEDED,
+        }
+
+        stats = batch.completion_stats
+        n_succeeded = (stats.successful_count or 0) if stats else 0
+        n_failed = (stats.failed_count or 0) if stats else 0
+        n_processing = (stats.incomplete_count or 0) if stats else 0
+
+        return BatchStatus(
+            working=batch.state not in terminal_states,
+            n_processing=n_processing,
+            n_succeeded=n_succeeded,
+            n_failed=n_failed,
+        )
+
+    def batch_retrieve(self, batch):
+        from google.genai import types
+
+        batch = types.BatchJob.model_validate(batch)
+        if batch.dest is None or batch.dest.inlined_responses is None:
+            raise ValueError("Batch has no results")
+
+        # No custom-id/index-based reordering needed here (unlike the
+        # file-based batch_retrieve() in _provider_openai_generic.py and
+        # _provider_anthropic.py): the SDK's inlined_responses are documented
+        # to preserve input order.
+        return [r.model_dump(mode="json") for r in batch.dest.inlined_responses]
+
+    def batch_result_turn(self, result, has_data_model: bool = False):
+        from google.genai import types
+
+        result = types.InlinedResponse.model_validate(result)
+        if result.error is not None:
+            warnings.warn(f"Batch request failed: {result.error}")
+            return None
+        if result.response is None:
+            warnings.warn("Batch request returned no response")
+            return None
+
+        completion = cast("GenerateContentResponseDict", result.response.model_dump())
+        return self._as_turn(completion, has_data_model)
+
 
 def ChatVertex(
     *,
@@ -816,6 +941,18 @@ def ChatVertex(
         ),
         system_prompt=system_prompt,
     )
+
+
+def google_supports_mixed_tools(model: str) -> bool:
+    """
+    Whether `model` supports combining custom (function-calling) tools with
+    built-in (server-side) tools in the same request. Only Gemini 3+ models
+    support this; older models reject the combination outright.
+    """
+    # `list_models()` surfaces IDs prefixed with "models/" (e.g.
+    # "models/gemini-3.5-flash"), so strip that before matching.
+    model = model.removeprefix("models/")
+    return bool(re.match(r"^gemini-([3-9]|[0-9]{2,})", model))
 
 
 def _strip_additional_properties(params: dict[str, Any]) -> dict[str, Any]:

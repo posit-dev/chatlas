@@ -153,6 +153,7 @@ quartodoc:
         - ChatGoogle
         - ChatGroq
         - ChatHuggingFace
+        - ChatLMStudio
         - ChatMistral
         - ChatOllama
         - ChatOpenAI

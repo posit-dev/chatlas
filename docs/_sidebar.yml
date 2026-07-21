@@ -14,6 +14,7 @@ website:
       - reference/ChatGoogle.qmd
       - reference/ChatGroq.qmd
       - reference/ChatHuggingFace.qmd
+      - reference/ChatLMStudio.qmd
       - reference/ChatMistral.qmd
       - reference/ChatOllama.qmd
       - reference/ChatOpenAI.qmd
@@ -27,9 +28,6 @@ website:
     - contents:
       - reference/Chat.qmd
       section: The chat object
-    - contents:
-      - reference/StreamController.qmd
-      section: Streaming
     - contents:
       - reference/content_image_file.qmd
       - reference/content_image_plot.qmd
@@ -78,7 +76,10 @@ website:
       - reference/types.ContentImageInline.qmd
       - reference/types.ContentImageRemote.qmd
       - reference/types.ContentJson.qmd
+      - reference/types.ContentPDF.qmd
       - reference/types.ContentText.qmd
+      - reference/types.ContentThinking.qmd
+      - reference/types.ContentThinkingDelta.qmd
       - reference/types.ContentToolRequest.qmd
       - reference/types.ContentToolResult.qmd
       - reference/types.ContentToolRequestSearch.qmd
