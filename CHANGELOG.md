@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Improvements
 
 * `ChatGoogle()` and `ChatVertex()` now default to `gemini-3.5-flash` instead of the older `gemini-2.5-flash`.
+* `ChatGroq()` now defaults to `openai/gpt-oss-20b` instead of `llama-3.1-8b-instant`.
 
 ### Bug fixes
 
