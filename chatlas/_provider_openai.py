@@ -195,7 +195,7 @@ def ChatOpenAI(
 
 
 # https://platform.openai.com/docs/api-reference/responses/get
-_OPENAI_INCOMPLETE_REASON_MAP = {
+_OPENAI_INCOMPLETE_REASON_MAP: dict[str, FinishReason] = {
     "max_output_tokens": "max_tokens",
     "content_filter": "content_filter",
 }
@@ -203,7 +203,7 @@ _OPENAI_INCOMPLETE_REASON_MAP = {
 
 def normalize_finish_reason(
     status: str | None, incomplete_reason: str | None = None
-) -> FinishReason | str | None:
+) -> str | None:
     if status is None:
         return None
     if status == "completed":

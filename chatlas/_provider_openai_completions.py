@@ -118,7 +118,7 @@ def ChatOpenAICompletions(
 
 
 # https://platform.openai.com/docs/api-reference/chat/create
-_OPENAI_COMPLETIONS_FINISH_REASON_MAP = {
+_OPENAI_COMPLETIONS_FINISH_REASON_MAP: dict[str, FinishReason] = {
     "stop": "success",
     "tool_calls": "tool_use",
     "length": "max_tokens",
@@ -126,7 +126,7 @@ _OPENAI_COMPLETIONS_FINISH_REASON_MAP = {
 }
 
 
-def normalize_finish_reason(reason: str | None) -> FinishReason | str | None:
+def normalize_finish_reason(reason: str | None) -> str | None:
     if reason is None:
         return None
     return _OPENAI_COMPLETIONS_FINISH_REASON_MAP.get(reason, reason)

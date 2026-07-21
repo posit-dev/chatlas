@@ -191,7 +191,7 @@ def ChatGoogle(
 
 
 # https://ai.google.dev/api/generate-content
-_GOOGLE_FINISH_REASON_MAP = {
+_GOOGLE_FINISH_REASON_MAP: dict[str, FinishReason] = {
     "STOP": "success",
     "MAX_TOKENS": "max_tokens",
     "SAFETY": "content_filter",
@@ -202,7 +202,7 @@ _GOOGLE_FINISH_REASON_MAP = {
 }
 
 
-def normalize_finish_reason(reason: str | None) -> FinishReason | str | None:
+def normalize_finish_reason(reason: str | None) -> str | None:
     if reason is None:
         return None
     return _GOOGLE_FINISH_REASON_MAP.get(reason, reason)

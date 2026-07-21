@@ -297,7 +297,7 @@ def ChatAnthropic(
 
 
 # https://docs.anthropic.com/en/api/handling-stop-reasons
-_ANTHROPIC_FINISH_REASON_MAP = {
+_ANTHROPIC_FINISH_REASON_MAP: dict[str, FinishReason] = {
     "end_turn": "success",
     "tool_use": "tool_use",
     "max_tokens": "max_tokens",
@@ -307,7 +307,7 @@ _ANTHROPIC_FINISH_REASON_MAP = {
 }
 
 
-def normalize_finish_reason(reason: str | None) -> FinishReason | str | None:
+def normalize_finish_reason(reason: str | None) -> str | None:
     if reason is None:
         return None
     return _ANTHROPIC_FINISH_REASON_MAP.get(reason, reason)
