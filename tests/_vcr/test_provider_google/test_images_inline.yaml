@@ -5,32 +5,36 @@ interactions:
       "mimeType": "image/png"}}], "role": "user"}], "generationConfig": {"temperature":
       0}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '7505'
-      Content-Type:
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
   response:
     body:
-      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"The
-        image is a solid, uniform field of **red**.\\n\\nThere are no discernible
-        objects, patterns, textures, or variations in color within the image; it is
-        simply a flat, vibrant red.\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\":
-        0}],\"usageMetadata\": {\"promptTokenCount\": 266,\"candidatesTokenCount\":
-        40,\"totalTokenCount\": 795,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
-        8},{\"modality\": \"IMAGE\",\"tokenCount\": 258}],\"thoughtsTokenCount\":
-        489},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"ebBVab_6Opmn_uMP-r6TOA\"}\r\n\r\n"
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"This
+        image is a solid, bright red color.\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 8,\"candidatesTokenCount\": 10,\"totalTokenCount\":
+        169,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 8}],\"thoughtsTokenCount\":
+        151,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        \"dYFfarTnA4vj_uMPu-m5gQE\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        {\"parts\": [{\"text\": \"\",\"thoughtSignature\": \"Er8FCrwFARFNMg8RKwAH5MFW5dYi2Db2cbunajr/4zLoyHrR5WdaME715m4xgWUbRYBMTJs6q4uyNd3weRzsHsYgN5fhFgdWOhVzda4yuq51k0hMi7nWyRndIHIkGglEWaqlSH0T+jsDDWPtSv0rDdflkK/yGWfrbjqGWRVcGsUvzipIoGUOk6pED7T8znXsAb/iJTB3G3KU8s2izKa+OXYDz7vEGxKJ/kFY6RjG64s/hFSI930UUZyNEOwQW5+lS9mc+cAI5Yg2Q+UgzxaBrUe6oPGaoWR3L9kYbYq24BeSuk1p5/AaJ/UdsduI+iX1OjGYeu+znvAcFf+Pzhb29JIoSCxUi4Oos9F6MobsI5piGLKcnVWInjvmpCx8ttn5OC+q0wdaiwdjRA8QuBsGqhjgFOjoj8tWgI2tMsbvpX+j9jiKa7HWmfgezVmXtihimuffud2HokAUgmcTc9Hnta2xA+zmLJnrm70CIPm2rXUfFkbWPtkuLvNJ4p3kpEo7LcX9vgwEw4kpPoJQtG+baOccFgyfU655zlDjAju40TDE/sgRP+eGEmBb6//bjtpen0F7UnIv8ELBOFZ0qjxxH0xfr2Z3aIhTGlOUXCBsiNz0aN7+q+h6L22N9jZ/tMnv17FUDNqC+XfOZ57xIvwf7lEbuUKPb7kzbyO3+5PZP6DU06qfIbf5fY1VF2UEXRwMx0s9LrrCDEaAKeV9eTLkmU2jjrDg4HVHTdnu2H+AbR5q4Yol+yZf2JVrKXzYjaFptw0LeQ11rDGRZPzKkxFP/+geqfHAOmRNDXV1rIb08WgrcZGkYDlqU61epkKOTs4KSL3nB92WD4RmjTf+1pJVulAF1Dvz/e5OwsQakq0zbW6iqgcA3LpPL9knwIB1udyLvyruUa7rU12b7oEjy/4JlNoZOT2DpF62akMG5jBSVsjSxA==\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        1089,\"candidatesTokenCount\": 10,\"totalTokenCount\": 1250,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 8},{\"modality\": \"IMAGE\",\"tokenCount\":
+        1081}],\"thoughtsTokenCount\": 151,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"dYFfarTnA4vj_uMPu-m5gQE\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -39,11 +43,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 23:23:40 GMT
+      - Tue, 21 Jul 2026 14:25:59 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=2870
+      - gfet4t7; dur=2161
       Transfer-Encoding:
       - chunked
       Vary:

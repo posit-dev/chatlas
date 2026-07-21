@@ -158,7 +158,7 @@ def ChatGoogle(
     """
 
     if model is None:
-        model = log_model_default("gemini-2.5-flash")
+        model = log_model_default("gemini-3.5-flash")
 
     kwargs_chat: "SubmitInputArgs" = {}
     if reasoning is not None:
@@ -787,7 +787,7 @@ def ChatVertex(
     kwargs["location"] = location
 
     if model is None:
-        model = log_model_default("gemini-2.5-flash")
+        model = log_model_default("gemini-3.5-flash")
 
     return Chat(
         provider=GoogleProvider(
