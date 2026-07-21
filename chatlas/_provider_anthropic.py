@@ -299,6 +299,7 @@ def ChatAnthropic(
 # https://docs.anthropic.com/en/api/handling-stop-reasons
 _ANTHROPIC_FINISH_REASON_MAP = {
     "end_turn": "success",
+    "tool_use": "tool_use",
     "max_tokens": "max_tokens",
     "model_context_window_exceeded": "context_window",
     "stop_sequence": "stop_sequence",

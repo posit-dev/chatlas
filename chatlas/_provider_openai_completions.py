@@ -120,6 +120,7 @@ def ChatOpenAICompletions(
 # https://platform.openai.com/docs/api-reference/chat/create
 _OPENAI_COMPLETIONS_FINISH_REASON_MAP = {
     "stop": "success",
+    "tool_calls": "tool_use",
     "length": "max_tokens",
     "content_filter": "content_filter",
 }

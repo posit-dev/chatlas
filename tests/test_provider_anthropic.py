@@ -10,7 +10,7 @@ from chatlas import (
     tool_web_fetch,
     tool_web_search,
 )
-from chatlas._provider_anthropic import AnthropicProvider
+from chatlas._provider_anthropic import _ANTHROPIC_FINISH_REASON_MAP, AnthropicProvider
 from chatlas._provider_anthropic import (
     normalize_finish_reason as anthropic_normalize_finish_reason,
 )
@@ -44,10 +44,16 @@ def test_normalize_finish_reason_maps_known_reasons():
         == "context_window"
     )
     assert anthropic_normalize_finish_reason("refusal") == "content_filter"
+    assert anthropic_normalize_finish_reason("tool_use") == "tool_use"
+
+
+def test_normalize_finish_reason_maps_tool_use_explicitly():
+    # tool_use must be an explicit mapping, not an incidental passthrough of an
+    # unknown reason, so it isn't confused with a truly unrecognized reason.
+    assert "tool_use" in _ANTHROPIC_FINISH_REASON_MAP
 
 
 def test_normalize_finish_reason_passes_through_unknown():
-    assert anthropic_normalize_finish_reason("tool_use") == "tool_use"
     assert anthropic_normalize_finish_reason("some_new_reason") == "some_new_reason"
 
 

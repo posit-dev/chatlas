@@ -33,10 +33,10 @@ def test_normalize_finish_reason_maps_known_reasons():
     assert completions_normalize_finish_reason("stop") == "success"
     assert completions_normalize_finish_reason("length") == "max_tokens"
     assert completions_normalize_finish_reason("content_filter") == "content_filter"
+    assert completions_normalize_finish_reason("tool_calls") == "tool_use"
 
 
 def test_normalize_finish_reason_passes_through_unknown():
-    assert completions_normalize_finish_reason("tool_calls") == "tool_calls"
     assert completions_normalize_finish_reason("function_call") == "function_call"
 
 
