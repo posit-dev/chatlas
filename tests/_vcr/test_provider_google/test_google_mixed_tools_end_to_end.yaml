@@ -1,0 +1,516 @@
+interactions:
+- request:
+    body: '{"contents": [{"parts": [{"text": "What is double 21?"}], "role": "user"}],
+      "tools": [{"googleSearch": {}}, {"functionDeclarations": [{"description": "Double
+      a number.", "name": "double", "parameters": {"properties": {"x": {"type": "NUMBER"}},
+      "required": ["x"], "type": "OBJECT"}}]}], "toolConfig": {"includeServerSideToolInvocations":
+      true}, "generationConfig": {"temperature": 0}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '383'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.11.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"double\",\"args\": {\"x\": 210.5},\"id\": \"22iommr8\"},\"thoughtSignature\":
+        \"EoMCCoACARFNMg9JxT6b1SyJ6gdpxB744HDjrEANU3ZBH+exKW9eIzQ3V2SaOOVh34w9SsRQXrOACChNhT4CZKvwFe0tO3pk7YkAkpFochXgiqN4elTvXqMmSbeb3fw8eqsKQTgPY9RDx5t2A/glWiaPVBgi2HpFZdsBY86dJVKeFxIfFctkJqrW3C9bqfTzys1cFYyfhaTa/O3itfOIj0Kt1JUrxLVZbqcJs80fi1wIeu2+8pmuXYwP5yXjE8MnWhZMxaWkIE1SZSX+/9kOJ4R8b5Skg8bP5nnF2yxsNDujkS5GD9GLWnmndg2vMpila7gfgCWsmzJRVP6N35I9BiLSZT2Jkw==\"},{\"text\":
+        \"\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 47,\"candidatesTokenCount\": 16,\"totalTokenCount\":
+        112,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 47}],\"thoughtsTokenCount\":
+        49,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        \"iKZfavX2Aca7jrEPwr7E0AM\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 21 Jul 2026 17:04:11 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=4007
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What is double 21?"}], "role": "user"},
+      {"parts": [{"functionCall": {"id": "22iommr8", "args": {"x": 210.5}, "name":
+      "double"}, "thoughtSignature": "EoMCCoACARFNMg9JxT6b1SyJ6gdpxB744HDjrEANU3ZBH-exKW9eIzQ3V2SaOOVh34w9SsRQXrOACChNhT4CZKvwFe0tO3pk7YkAkpFochXgiqN4elTvXqMmSbeb3fw8eqsKQTgPY9RDx5t2A_glWiaPVBgi2HpFZdsBY86dJVKeFxIfFctkJqrW3C9bqfTzys1cFYyfhaTa_O3itfOIj0Kt1JUrxLVZbqcJs80fi1wIeu2-8pmuXYwP5yXjE8MnWhZMxaWkIE1SZSX-_9kOJ4R8b5Skg8bP5nnF2yxsNDujkS5GD9GLWnmndg2vMpila7gfgCWsmzJRVP6N35I9BiLSZT2Jkw=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "22iommr8", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}], "tools": [{"googleSearch":
+      {}}, {"functionDeclarations": [{"description": "Double a number.", "name": "double",
+      "parameters": {"properties": {"x": {"type": "NUMBER"}}, "required": ["x"], "type":
+      "OBJECT"}}]}], "toolConfig": {"includeServerSideToolInvocations": true}, "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '989'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.11.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"double\",\"args\": {\"x\": 210.5},\"id\": \"s5108oje\"},\"thoughtSignature\":
+        \"Er4ECrsEARFNMg+GtEYXYbu8T5/SoA1KmpNdiR+Ib+L0e0EWdPS25/lYK9+EgG5Efu/zz3+ZcT+qMpg0j2QUZir5PDezhDHlie463X32hfawW615guIfbpp0Ss1cREyZaXdbKJxqrWkH3fyk9Gt1sKoXKFeyy2yFLZjciwWkiIHbb1j2w3IFxiFwz2XilrowQNmCQ5HOnvysxHH/Z5eZ4vU2SCtWrgGIvAJ+p1Q0DUC5z87vYgVBwT7CPrixo1ZFT58KcQkVW1InHAndpL8CXOJjOf+wX+WUdJXcWZIDCqlS+iLLW5S5CFqNu5/jdpsIsLXnp13s0wNe4jc0PUb1tSAsKflaMcnoBx+XUrdHGNlOrjpWel2FVrnK8WIR5AHXRAFlVPfzWE5JKZBdqS+96K2t3S8QvNL8YOjxUXgQPNz9mvSJbd5HjgRfF5qxVQQDkTPxPlRnreZGwGrLx9k8h5KaKHv+CCNGgWicylFIxhNXiWBe7nnNNU24tLATOEeatgYrNAcyoZKdf5tqXv0fjCbSPXMpfx/Gnz34Vsp5WpaFejqELtHlA6vY+mqRwaNaEUHhTI19wUkW7bfJXu+oKxnNYbzKeTnwBpZCTgU1+u0jaqnd1u5yasUkZiQZYtNh9ApIqvqXsf+cvFR0H/8bTKR4sb+Sufhv2b/qapg5OLfzowQz+R0zQ6/CwWFnN5gkJd81TJnjsq5FYZ0ca+f9OJY0kBQS1y83kXhnDXCpAQXoXMPwbxctq7/I/TQxxVFCQA==\"},{\"text\":
+        \"\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 128,\"candidatesTokenCount\": 16,\"totalTokenCount\":
+        302,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 128}],\"thoughtsTokenCount\":
+        158,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        \"jKZfasrcBr6vjrEPvb2HkAY\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 21 Jul 2026 17:04:15 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=3649
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What is double 21?"}], "role": "user"},
+      {"parts": [{"functionCall": {"id": "22iommr8", "args": {"x": 210.5}, "name":
+      "double"}, "thoughtSignature": "EoMCCoACARFNMg9JxT6b1SyJ6gdpxB744HDjrEANU3ZBH-exKW9eIzQ3V2SaOOVh34w9SsRQXrOACChNhT4CZKvwFe0tO3pk7YkAkpFochXgiqN4elTvXqMmSbeb3fw8eqsKQTgPY9RDx5t2A_glWiaPVBgi2HpFZdsBY86dJVKeFxIfFctkJqrW3C9bqfTzys1cFYyfhaTa_O3itfOIj0Kt1JUrxLVZbqcJs80fi1wIeu2-8pmuXYwP5yXjE8MnWhZMxaWkIE1SZSX-_9kOJ4R8b5Skg8bP5nnF2yxsNDujkS5GD9GLWnmndg2vMpila7gfgCWsmzJRVP6N35I9BiLSZT2Jkw=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "22iommr8", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "s5108oje", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "Er4ECrsEARFNMg-GtEYXYbu8T5_SoA1KmpNdiR-Ib-L0e0EWdPS25_lYK9-EgG5Efu_zz3-ZcT-qMpg0j2QUZir5PDezhDHlie463X32hfawW615guIfbpp0Ss1cREyZaXdbKJxqrWkH3fyk9Gt1sKoXKFeyy2yFLZjciwWkiIHbb1j2w3IFxiFwz2XilrowQNmCQ5HOnvysxHH_Z5eZ4vU2SCtWrgGIvAJ-p1Q0DUC5z87vYgVBwT7CPrixo1ZFT58KcQkVW1InHAndpL8CXOJjOf-wX-WUdJXcWZIDCqlS-iLLW5S5CFqNu5_jdpsIsLXnp13s0wNe4jc0PUb1tSAsKflaMcnoBx-XUrdHGNlOrjpWel2FVrnK8WIR5AHXRAFlVPfzWE5JKZBdqS-96K2t3S8QvNL8YOjxUXgQPNz9mvSJbd5HjgRfF5qxVQQDkTPxPlRnreZGwGrLx9k8h5KaKHv-CCNGgWicylFIxhNXiWBe7nnNNU24tLATOEeatgYrNAcyoZKdf5tqXv0fjCbSPXMpfx_Gnz34Vsp5WpaFejqELtHlA6vY-mqRwaNaEUHhTI19wUkW7bfJXu-oKxnNYbzKeTnwBpZCTgU1-u0jaqnd1u5yasUkZiQZYtNh9ApIqvqXsf-cvFR0H_8bTKR4sb-Sufhv2b_qapg5OLfzowQz-R0zQ6_CwWFnN5gkJd81TJnjsq5FYZ0ca-f9OJY0kBQS1y83kXhnDXCpAQXoXMPwbxctq7_I_TQxxVFCQA=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "s5108oje", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}], "tools": [{"googleSearch":
+      {}}, {"functionDeclarations": [{"description": "Double a number.", "name": "double",
+      "parameters": {"properties": {"x": {"type": "NUMBER"}}, "required": ["x"], "type":
+      "OBJECT"}}]}], "toolConfig": {"includeServerSideToolInvocations": true}, "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '2015'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.11.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"double\",\"args\": {\"x\": 210.5},\"id\": \"7bdf4dc4\"},\"thoughtSignature\":
+        \"EuUBCuIBARFNMg/IZ4i4yozaZYB0HU7gnhVW4xAMIaZX6FIcK8fxUd6fpCIm7DwXVSBqsRSVRc8PEvYLnHjl3kybbA/OwWLJnqqjqFE1KAQV1F1HJYDe4qGjvcdTcsWufubO7o268NcY/bE1OFIvkKF8LS7qkM0rEqQd+r0z8iqjKZudKFiNWsSv0t+/4ecTbsqjYOd6a5tVs9hjs7yg25buzgvF327Z7tUD4+66k2sg/6QHzRCJa3Z0lOCEWkCjkrKYWBtfxGrKESn77jvwYp5LrtOWG/2mll6i13jIc7vgBzvpZwZaIQ==\"},{\"text\":
+        \"\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 318,\"candidatesTokenCount\": 16,\"totalTokenCount\":
+        383,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 318}],\"thoughtsTokenCount\":
+        49,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        \"j6ZfaoyrNPWa-8YPltnyiQk\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 21 Jul 2026 17:04:16 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=1187
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What is double 21?"}], "role": "user"},
+      {"parts": [{"functionCall": {"id": "22iommr8", "args": {"x": 210.5}, "name":
+      "double"}, "thoughtSignature": "EoMCCoACARFNMg9JxT6b1SyJ6gdpxB744HDjrEANU3ZBH-exKW9eIzQ3V2SaOOVh34w9SsRQXrOACChNhT4CZKvwFe0tO3pk7YkAkpFochXgiqN4elTvXqMmSbeb3fw8eqsKQTgPY9RDx5t2A_glWiaPVBgi2HpFZdsBY86dJVKeFxIfFctkJqrW3C9bqfTzys1cFYyfhaTa_O3itfOIj0Kt1JUrxLVZbqcJs80fi1wIeu2-8pmuXYwP5yXjE8MnWhZMxaWkIE1SZSX-_9kOJ4R8b5Skg8bP5nnF2yxsNDujkS5GD9GLWnmndg2vMpila7gfgCWsmzJRVP6N35I9BiLSZT2Jkw=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "22iommr8", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "s5108oje", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "Er4ECrsEARFNMg-GtEYXYbu8T5_SoA1KmpNdiR-Ib-L0e0EWdPS25_lYK9-EgG5Efu_zz3-ZcT-qMpg0j2QUZir5PDezhDHlie463X32hfawW615guIfbpp0Ss1cREyZaXdbKJxqrWkH3fyk9Gt1sKoXKFeyy2yFLZjciwWkiIHbb1j2w3IFxiFwz2XilrowQNmCQ5HOnvysxHH_Z5eZ4vU2SCtWrgGIvAJ-p1Q0DUC5z87vYgVBwT7CPrixo1ZFT58KcQkVW1InHAndpL8CXOJjOf-wX-WUdJXcWZIDCqlS-iLLW5S5CFqNu5_jdpsIsLXnp13s0wNe4jc0PUb1tSAsKflaMcnoBx-XUrdHGNlOrjpWel2FVrnK8WIR5AHXRAFlVPfzWE5JKZBdqS-96K2t3S8QvNL8YOjxUXgQPNz9mvSJbd5HjgRfF5qxVQQDkTPxPlRnreZGwGrLx9k8h5KaKHv-CCNGgWicylFIxhNXiWBe7nnNNU24tLATOEeatgYrNAcyoZKdf5tqXv0fjCbSPXMpfx_Gnz34Vsp5WpaFejqELtHlA6vY-mqRwaNaEUHhTI19wUkW7bfJXu-oKxnNYbzKeTnwBpZCTgU1-u0jaqnd1u5yasUkZiQZYtNh9ApIqvqXsf-cvFR0H_8bTKR4sb-Sufhv2b_qapg5OLfzowQz-R0zQ6_CwWFnN5gkJd81TJnjsq5FYZ0ca-f9OJY0kBQS1y83kXhnDXCpAQXoXMPwbxctq7_I_TQxxVFCQA=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "s5108oje", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "7bdf4dc4", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "EuUBCuIBARFNMg_IZ4i4yozaZYB0HU7gnhVW4xAMIaZX6FIcK8fxUd6fpCIm7DwXVSBqsRSVRc8PEvYLnHjl3kybbA_OwWLJnqqjqFE1KAQV1F1HJYDe4qGjvcdTcsWufubO7o268NcY_bE1OFIvkKF8LS7qkM0rEqQd-r0z8iqjKZudKFiNWsSv0t-_4ecTbsqjYOd6a5tVs9hjs7yg25buzgvF327Z7tUD4-66k2sg_6QHzRCJa3Z0lOCEWkCjkrKYWBtfxGrKESn77jvwYp5LrtOWG_2mll6i13jIc7vgBzvpZwZaIQ=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "7bdf4dc4", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}], "tools": [{"googleSearch":
+      {}}, {"functionDeclarations": [{"description": "Double a number.", "name": "double",
+      "parameters": {"properties": {"x": {"type": "NUMBER"}}, "required": ["x"], "type":
+      "OBJECT"}}]}], "toolConfig": {"includeServerSideToolInvocations": true}, "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '2581'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.11.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"double\",\"args\": {\"x\": 210.5},\"id\": \"dpob6y0z\"},\"thoughtSignature\":
+        \"Eq4DCqsDARFNMg8fDU6fj4+xzNvDcPo7i5S7RPWzs6yv9DVeTMj/wzRtdjFFkvhrrmecApJqpodzZ2zJdd59k5W9TBrjlDLxWPcjZQC5i1n3ttgHgqKS65B0/jO43tY6cQ4UtGa/MGZBg33tYPey3O5cpkZqwk3710rvOUlBoDIwzpVYeyxjb9Mu2cp2RYUCmoixgMymdFH1GDqAIpWJMV+GvaTidXkNlL6U7EuEJeM3pQXAp8JXLuZcSTQ8OHTn+ltO8Ot7NA5UIY5MZV+to0lei/X1LDK+7AaUB0FbbMpUBZGFi1MJMwGuFvVgxWxM8CmfWJllQwDweu05EYqJQRRl+6GQTRQllr3Zg5Oes8AB9wMDX7EzqFYkzXz6Wg0DHIzN02xtkLOTAwIVqEdPDjdEpLONSdYwlqjIWB1CBKKaDWO3VLpyEszbc8rntS6htdIe45A8NfAGI3ewYuTIaKBGkYVv9uQ5cS7jrG/XrIx2xIhtEsoEsJOrnzaeTTGSPhXaUYpiV9NFc5EwEa2bYhpOGBuH81ySPgi2/nb6pOqFERDbfozc5HcEZc9bwDgSOQ==\"},{\"text\":
+        \"\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 399,\"candidatesTokenCount\": 16,\"totalTokenCount\":
+        518,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 399}],\"thoughtsTokenCount\":
+        103,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        \"kaZfao_pBJ6jjrEP2MfYoQ8\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 21 Jul 2026 17:04:20 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=3141
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What is double 21?"}], "role": "user"},
+      {"parts": [{"functionCall": {"id": "22iommr8", "args": {"x": 210.5}, "name":
+      "double"}, "thoughtSignature": "EoMCCoACARFNMg9JxT6b1SyJ6gdpxB744HDjrEANU3ZBH-exKW9eIzQ3V2SaOOVh34w9SsRQXrOACChNhT4CZKvwFe0tO3pk7YkAkpFochXgiqN4elTvXqMmSbeb3fw8eqsKQTgPY9RDx5t2A_glWiaPVBgi2HpFZdsBY86dJVKeFxIfFctkJqrW3C9bqfTzys1cFYyfhaTa_O3itfOIj0Kt1JUrxLVZbqcJs80fi1wIeu2-8pmuXYwP5yXjE8MnWhZMxaWkIE1SZSX-_9kOJ4R8b5Skg8bP5nnF2yxsNDujkS5GD9GLWnmndg2vMpila7gfgCWsmzJRVP6N35I9BiLSZT2Jkw=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "22iommr8", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "s5108oje", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "Er4ECrsEARFNMg-GtEYXYbu8T5_SoA1KmpNdiR-Ib-L0e0EWdPS25_lYK9-EgG5Efu_zz3-ZcT-qMpg0j2QUZir5PDezhDHlie463X32hfawW615guIfbpp0Ss1cREyZaXdbKJxqrWkH3fyk9Gt1sKoXKFeyy2yFLZjciwWkiIHbb1j2w3IFxiFwz2XilrowQNmCQ5HOnvysxHH_Z5eZ4vU2SCtWrgGIvAJ-p1Q0DUC5z87vYgVBwT7CPrixo1ZFT58KcQkVW1InHAndpL8CXOJjOf-wX-WUdJXcWZIDCqlS-iLLW5S5CFqNu5_jdpsIsLXnp13s0wNe4jc0PUb1tSAsKflaMcnoBx-XUrdHGNlOrjpWel2FVrnK8WIR5AHXRAFlVPfzWE5JKZBdqS-96K2t3S8QvNL8YOjxUXgQPNz9mvSJbd5HjgRfF5qxVQQDkTPxPlRnreZGwGrLx9k8h5KaKHv-CCNGgWicylFIxhNXiWBe7nnNNU24tLATOEeatgYrNAcyoZKdf5tqXv0fjCbSPXMpfx_Gnz34Vsp5WpaFejqELtHlA6vY-mqRwaNaEUHhTI19wUkW7bfJXu-oKxnNYbzKeTnwBpZCTgU1-u0jaqnd1u5yasUkZiQZYtNh9ApIqvqXsf-cvFR0H_8bTKR4sb-Sufhv2b_qapg5OLfzowQz-R0zQ6_CwWFnN5gkJd81TJnjsq5FYZ0ca-f9OJY0kBQS1y83kXhnDXCpAQXoXMPwbxctq7_I_TQxxVFCQA=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "s5108oje", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "7bdf4dc4", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "EuUBCuIBARFNMg_IZ4i4yozaZYB0HU7gnhVW4xAMIaZX6FIcK8fxUd6fpCIm7DwXVSBqsRSVRc8PEvYLnHjl3kybbA_OwWLJnqqjqFE1KAQV1F1HJYDe4qGjvcdTcsWufubO7o268NcY_bE1OFIvkKF8LS7qkM0rEqQd-r0z8iqjKZudKFiNWsSv0t-_4ecTbsqjYOd6a5tVs9hjs7yg25buzgvF327Z7tUD4-66k2sg_6QHzRCJa3Z0lOCEWkCjkrKYWBtfxGrKESn77jvwYp5LrtOWG_2mll6i13jIc7vgBzvpZwZaIQ=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "7bdf4dc4", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "dpob6y0z", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "Eq4DCqsDARFNMg8fDU6fj4-xzNvDcPo7i5S7RPWzs6yv9DVeTMj_wzRtdjFFkvhrrmecApJqpodzZ2zJdd59k5W9TBrjlDLxWPcjZQC5i1n3ttgHgqKS65B0_jO43tY6cQ4UtGa_MGZBg33tYPey3O5cpkZqwk3710rvOUlBoDIwzpVYeyxjb9Mu2cp2RYUCmoixgMymdFH1GDqAIpWJMV-GvaTidXkNlL6U7EuEJeM3pQXAp8JXLuZcSTQ8OHTn-ltO8Ot7NA5UIY5MZV-to0lei_X1LDK-7AaUB0FbbMpUBZGFi1MJMwGuFvVgxWxM8CmfWJllQwDweu05EYqJQRRl-6GQTRQllr3Zg5Oes8AB9wMDX7EzqFYkzXz6Wg0DHIzN02xtkLOTAwIVqEdPDjdEpLONSdYwlqjIWB1CBKKaDWO3VLpyEszbc8rntS6htdIe45A8NfAGI3ewYuTIaKBGkYVv9uQ5cS7jrG_XrIx2xIhtEsoEsJOrnzaeTTGSPhXaUYpiV9NFc5EwEa2bYhpOGBuH81ySPgi2_nb6pOqFERDbfozc5HcEZc9bwDgSOQ=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "dpob6y0z", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}], "tools": [{"googleSearch":
+      {}}, {"functionDeclarations": [{"description": "Double a number.", "name": "double",
+      "parameters": {"properties": {"x": {"type": "NUMBER"}}, "required": ["x"], "type":
+      "OBJECT"}}]}], "toolConfig": {"includeServerSideToolInvocations": true}, "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '3415'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.11.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"double\",\"args\": {\"x\": 210.5},\"id\": \"tcf70zpx\"},\"thoughtSignature\":
+        \"Ep0CCpoCARFNMg8On5GYG72OBg6xQgksI9g6DvI7uR7IzCiTa9qlxxvHPOS+e7GOLjK5fpvOuMS19RO5NJsVD8Ndr5gcwohNq+AgQHHuAkZ8Fs9gsUdbcPGrZA2e5j9aYICHO4gIKIy6L2SIRYp667RqNh0L7PGq5jlS4DLQ6oey1tMzwVHPZwNqZWVTEQWF0zVVFyzhacjzhxR9anuL5VWtgOeh+uhhtHNxNuegOzDIf4bvKQrIETF1hq50sR6+1kVXKpWNFKGnrHNH/2Jyc7Hvr7pRuREBgvVZ28MgG+pQTFX7ZdXgY+pNcmm3/zQDsE8EBUIHnBXMuignkc8yL/pJEz9C7VDYkkg8O6FJXXSiSLTP1jPbA6pmle9qd09m\"},{\"text\":
+        \"\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 534,\"candidatesTokenCount\": 16,\"totalTokenCount\":
+        604,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 534}],\"thoughtsTokenCount\":
+        54,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        \"lKZfap_WEK26jrEPj5Sr8Q4\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 21 Jul 2026 17:04:24 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=4664
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What is double 21?"}], "role": "user"},
+      {"parts": [{"functionCall": {"id": "22iommr8", "args": {"x": 210.5}, "name":
+      "double"}, "thoughtSignature": "EoMCCoACARFNMg9JxT6b1SyJ6gdpxB744HDjrEANU3ZBH-exKW9eIzQ3V2SaOOVh34w9SsRQXrOACChNhT4CZKvwFe0tO3pk7YkAkpFochXgiqN4elTvXqMmSbeb3fw8eqsKQTgPY9RDx5t2A_glWiaPVBgi2HpFZdsBY86dJVKeFxIfFctkJqrW3C9bqfTzys1cFYyfhaTa_O3itfOIj0Kt1JUrxLVZbqcJs80fi1wIeu2-8pmuXYwP5yXjE8MnWhZMxaWkIE1SZSX-_9kOJ4R8b5Skg8bP5nnF2yxsNDujkS5GD9GLWnmndg2vMpila7gfgCWsmzJRVP6N35I9BiLSZT2Jkw=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "22iommr8", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "s5108oje", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "Er4ECrsEARFNMg-GtEYXYbu8T5_SoA1KmpNdiR-Ib-L0e0EWdPS25_lYK9-EgG5Efu_zz3-ZcT-qMpg0j2QUZir5PDezhDHlie463X32hfawW615guIfbpp0Ss1cREyZaXdbKJxqrWkH3fyk9Gt1sKoXKFeyy2yFLZjciwWkiIHbb1j2w3IFxiFwz2XilrowQNmCQ5HOnvysxHH_Z5eZ4vU2SCtWrgGIvAJ-p1Q0DUC5z87vYgVBwT7CPrixo1ZFT58KcQkVW1InHAndpL8CXOJjOf-wX-WUdJXcWZIDCqlS-iLLW5S5CFqNu5_jdpsIsLXnp13s0wNe4jc0PUb1tSAsKflaMcnoBx-XUrdHGNlOrjpWel2FVrnK8WIR5AHXRAFlVPfzWE5JKZBdqS-96K2t3S8QvNL8YOjxUXgQPNz9mvSJbd5HjgRfF5qxVQQDkTPxPlRnreZGwGrLx9k8h5KaKHv-CCNGgWicylFIxhNXiWBe7nnNNU24tLATOEeatgYrNAcyoZKdf5tqXv0fjCbSPXMpfx_Gnz34Vsp5WpaFejqELtHlA6vY-mqRwaNaEUHhTI19wUkW7bfJXu-oKxnNYbzKeTnwBpZCTgU1-u0jaqnd1u5yasUkZiQZYtNh9ApIqvqXsf-cvFR0H_8bTKR4sb-Sufhv2b_qapg5OLfzowQz-R0zQ6_CwWFnN5gkJd81TJnjsq5FYZ0ca-f9OJY0kBQS1y83kXhnDXCpAQXoXMPwbxctq7_I_TQxxVFCQA=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "s5108oje", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "7bdf4dc4", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "EuUBCuIBARFNMg_IZ4i4yozaZYB0HU7gnhVW4xAMIaZX6FIcK8fxUd6fpCIm7DwXVSBqsRSVRc8PEvYLnHjl3kybbA_OwWLJnqqjqFE1KAQV1F1HJYDe4qGjvcdTcsWufubO7o268NcY_bE1OFIvkKF8LS7qkM0rEqQd-r0z8iqjKZudKFiNWsSv0t-_4ecTbsqjYOd6a5tVs9hjs7yg25buzgvF327Z7tUD4-66k2sg_6QHzRCJa3Z0lOCEWkCjkrKYWBtfxGrKESn77jvwYp5LrtOWG_2mll6i13jIc7vgBzvpZwZaIQ=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "7bdf4dc4", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "dpob6y0z", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "Eq4DCqsDARFNMg8fDU6fj4-xzNvDcPo7i5S7RPWzs6yv9DVeTMj_wzRtdjFFkvhrrmecApJqpodzZ2zJdd59k5W9TBrjlDLxWPcjZQC5i1n3ttgHgqKS65B0_jO43tY6cQ4UtGa_MGZBg33tYPey3O5cpkZqwk3710rvOUlBoDIwzpVYeyxjb9Mu2cp2RYUCmoixgMymdFH1GDqAIpWJMV-GvaTidXkNlL6U7EuEJeM3pQXAp8JXLuZcSTQ8OHTn-ltO8Ot7NA5UIY5MZV-to0lei_X1LDK-7AaUB0FbbMpUBZGFi1MJMwGuFvVgxWxM8CmfWJllQwDweu05EYqJQRRl-6GQTRQllr3Zg5Oes8AB9wMDX7EzqFYkzXz6Wg0DHIzN02xtkLOTAwIVqEdPDjdEpLONSdYwlqjIWB1CBKKaDWO3VLpyEszbc8rntS6htdIe45A8NfAGI3ewYuTIaKBGkYVv9uQ5cS7jrG_XrIx2xIhtEsoEsJOrnzaeTTGSPhXaUYpiV9NFc5EwEa2bYhpOGBuH81ySPgi2_nb6pOqFERDbfozc5HcEZc9bwDgSOQ=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "dpob6y0z", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "tcf70zpx", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "Ep0CCpoCARFNMg8On5GYG72OBg6xQgksI9g6DvI7uR7IzCiTa9qlxxvHPOS-e7GOLjK5fpvOuMS19RO5NJsVD8Ndr5gcwohNq-AgQHHuAkZ8Fs9gsUdbcPGrZA2e5j9aYICHO4gIKIy6L2SIRYp667RqNh0L7PGq5jlS4DLQ6oey1tMzwVHPZwNqZWVTEQWF0zVVFyzhacjzhxR9anuL5VWtgOeh-uhhtHNxNuegOzDIf4bvKQrIETF1hq50sR6-1kVXKpWNFKGnrHNH_2Jyc7Hvr7pRuREBgvVZ28MgG-pQTFX7ZdXgY-pNcmm3_zQDsE8EBUIHnBXMuignkc8yL_pJEz9C7VDYkkg8O6FJXXSiSLTP1jPbA6pmle9qd09m"}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "tcf70zpx", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}], "tools": [{"googleSearch":
+      {}}, {"functionDeclarations": [{"description": "Double a number.", "name": "double",
+      "parameters": {"properties": {"x": {"type": "NUMBER"}}, "required": ["x"], "type":
+      "OBJECT"}}]}], "toolConfig": {"includeServerSideToolInvocations": true}, "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '4053'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.11.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"double\",\"args\": {\"x\": 210.5},\"id\": \"x32knero\"},\"thoughtSignature\":
+        \"EosECogEARFNMg/bl1DAGqWoQw2cLtLx/YZW/Y/DEZCq43JPMw9O2u3Tri95qk3bv+MWCI7/ujfKLDJrqOfTyz8A5IIkv+8ojxicIsAu6hCwPhmiq6wOXit/GkrRots+BSaB6dwn8FeXZq9ilEKORXEc2bFmXli6ZIUhvWgD+3hgXZIbRjftq8TAdkw1H1mDVKxfaFe0GgH0eLm68MwxInymdzMAd74mYmWNGxIxfi1oZJSd5k/baDbobyoLvJmjsCB8KwJK2wC+QSSR9u4udY36ZC3TiVe2CeOGFQIwRbaGTD55IQHbWl8bHbmEg0C/UQmLAgffTm2rcTNXbsPPf/zJFPwARVY8VnRHDEEWvr/NkJBpkJc8yMqIAXKMb0fhK8HPy0OF1JN0n3k2omWbBzkropqKNuFEvRthx3BBu+h5WI1ETzhPVPzYo97qtAJIKUPKi/+m9pnGZHfbwr+HrAwLpfLQsGnDsR5v5QsH7DcY2k6u/7Lan77rWxfFwmHzYjtx0Zys2GbcGLyKUJ6eaLzwMmSW6Tp4sHr1MInsFZ0OoewytGcce1dfLIXH4B7LcIfwfMBPCwnWNUBazycwIyxfskqL9+xL8PdsLVe7yCCNk8WsOruY/Y/kTKUHo60j1nPUplC3wpT0S+jbLRDYluqyX/PRhXf2JZWS1pkDxNmJeKDr2d7FIqLsKEnUMQ==\"},{\"text\":
+        \"\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 620,\"candidatesTokenCount\": 16,\"totalTokenCount\":
+        760,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 620}],\"thoughtsTokenCount\":
+        124,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        \"maZfaofGAeeUjrEP8dXrkQU\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 21 Jul 2026 17:04:26 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=1334
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "What is double 21?"}], "role": "user"},
+      {"parts": [{"functionCall": {"id": "22iommr8", "args": {"x": 210.5}, "name":
+      "double"}, "thoughtSignature": "EoMCCoACARFNMg9JxT6b1SyJ6gdpxB744HDjrEANU3ZBH-exKW9eIzQ3V2SaOOVh34w9SsRQXrOACChNhT4CZKvwFe0tO3pk7YkAkpFochXgiqN4elTvXqMmSbeb3fw8eqsKQTgPY9RDx5t2A_glWiaPVBgi2HpFZdsBY86dJVKeFxIfFctkJqrW3C9bqfTzys1cFYyfhaTa_O3itfOIj0Kt1JUrxLVZbqcJs80fi1wIeu2-8pmuXYwP5yXjE8MnWhZMxaWkIE1SZSX-_9kOJ4R8b5Skg8bP5nnF2yxsNDujkS5GD9GLWnmndg2vMpila7gfgCWsmzJRVP6N35I9BiLSZT2Jkw=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "22iommr8", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "s5108oje", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "Er4ECrsEARFNMg-GtEYXYbu8T5_SoA1KmpNdiR-Ib-L0e0EWdPS25_lYK9-EgG5Efu_zz3-ZcT-qMpg0j2QUZir5PDezhDHlie463X32hfawW615guIfbpp0Ss1cREyZaXdbKJxqrWkH3fyk9Gt1sKoXKFeyy2yFLZjciwWkiIHbb1j2w3IFxiFwz2XilrowQNmCQ5HOnvysxHH_Z5eZ4vU2SCtWrgGIvAJ-p1Q0DUC5z87vYgVBwT7CPrixo1ZFT58KcQkVW1InHAndpL8CXOJjOf-wX-WUdJXcWZIDCqlS-iLLW5S5CFqNu5_jdpsIsLXnp13s0wNe4jc0PUb1tSAsKflaMcnoBx-XUrdHGNlOrjpWel2FVrnK8WIR5AHXRAFlVPfzWE5JKZBdqS-96K2t3S8QvNL8YOjxUXgQPNz9mvSJbd5HjgRfF5qxVQQDkTPxPlRnreZGwGrLx9k8h5KaKHv-CCNGgWicylFIxhNXiWBe7nnNNU24tLATOEeatgYrNAcyoZKdf5tqXv0fjCbSPXMpfx_Gnz34Vsp5WpaFejqELtHlA6vY-mqRwaNaEUHhTI19wUkW7bfJXu-oKxnNYbzKeTnwBpZCTgU1-u0jaqnd1u5yasUkZiQZYtNh9ApIqvqXsf-cvFR0H_8bTKR4sb-Sufhv2b_qapg5OLfzowQz-R0zQ6_CwWFnN5gkJd81TJnjsq5FYZ0ca-f9OJY0kBQS1y83kXhnDXCpAQXoXMPwbxctq7_I_TQxxVFCQA=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "s5108oje", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "7bdf4dc4", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "EuUBCuIBARFNMg_IZ4i4yozaZYB0HU7gnhVW4xAMIaZX6FIcK8fxUd6fpCIm7DwXVSBqsRSVRc8PEvYLnHjl3kybbA_OwWLJnqqjqFE1KAQV1F1HJYDe4qGjvcdTcsWufubO7o268NcY_bE1OFIvkKF8LS7qkM0rEqQd-r0z8iqjKZudKFiNWsSv0t-_4ecTbsqjYOd6a5tVs9hjs7yg25buzgvF327Z7tUD4-66k2sg_6QHzRCJa3Z0lOCEWkCjkrKYWBtfxGrKESn77jvwYp5LrtOWG_2mll6i13jIc7vgBzvpZwZaIQ=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "7bdf4dc4", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "dpob6y0z", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "Eq4DCqsDARFNMg8fDU6fj4-xzNvDcPo7i5S7RPWzs6yv9DVeTMj_wzRtdjFFkvhrrmecApJqpodzZ2zJdd59k5W9TBrjlDLxWPcjZQC5i1n3ttgHgqKS65B0_jO43tY6cQ4UtGa_MGZBg33tYPey3O5cpkZqwk3710rvOUlBoDIwzpVYeyxjb9Mu2cp2RYUCmoixgMymdFH1GDqAIpWJMV-GvaTidXkNlL6U7EuEJeM3pQXAp8JXLuZcSTQ8OHTn-ltO8Ot7NA5UIY5MZV-to0lei_X1LDK-7AaUB0FbbMpUBZGFi1MJMwGuFvVgxWxM8CmfWJllQwDweu05EYqJQRRl-6GQTRQllr3Zg5Oes8AB9wMDX7EzqFYkzXz6Wg0DHIzN02xtkLOTAwIVqEdPDjdEpLONSdYwlqjIWB1CBKKaDWO3VLpyEszbc8rntS6htdIe45A8NfAGI3ewYuTIaKBGkYVv9uQ5cS7jrG_XrIx2xIhtEsoEsJOrnzaeTTGSPhXaUYpiV9NFc5EwEa2bYhpOGBuH81ySPgi2_nb6pOqFERDbfozc5HcEZc9bwDgSOQ=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "dpob6y0z", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "tcf70zpx", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "Ep0CCpoCARFNMg8On5GYG72OBg6xQgksI9g6DvI7uR7IzCiTa9qlxxvHPOS-e7GOLjK5fpvOuMS19RO5NJsVD8Ndr5gcwohNq-AgQHHuAkZ8Fs9gsUdbcPGrZA2e5j9aYICHO4gIKIy6L2SIRYp667RqNh0L7PGq5jlS4DLQ6oey1tMzwVHPZwNqZWVTEQWF0zVVFyzhacjzhxR9anuL5VWtgOeh-uhhtHNxNuegOzDIf4bvKQrIETF1hq50sR6-1kVXKpWNFKGnrHNH_2Jyc7Hvr7pRuREBgvVZ28MgG-pQTFX7ZdXgY-pNcmm3_zQDsE8EBUIHnBXMuignkc8yL_pJEz9C7VDYkkg8O6FJXXSiSLTP1jPbA6pmle9qd09m"}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "tcf70zpx", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "x32knero", "args": {"x": 210.5}, "name": "double"}, "thoughtSignature":
+      "EosECogEARFNMg_bl1DAGqWoQw2cLtLx_YZW_Y_DEZCq43JPMw9O2u3Tri95qk3bv-MWCI7_ujfKLDJrqOfTyz8A5IIkv-8ojxicIsAu6hCwPhmiq6wOXit_GkrRots-BSaB6dwn8FeXZq9ilEKORXEc2bFmXli6ZIUhvWgD-3hgXZIbRjftq8TAdkw1H1mDVKxfaFe0GgH0eLm68MwxInymdzMAd74mYmWNGxIxfi1oZJSd5k_baDbobyoLvJmjsCB8KwJK2wC-QSSR9u4udY36ZC3TiVe2CeOGFQIwRbaGTD55IQHbWl8bHbmEg0C_UQmLAgffTm2rcTNXbsPPf_zJFPwARVY8VnRHDEEWvr_NkJBpkJc8yMqIAXKMb0fhK8HPy0OF1JN0n3k2omWbBzkropqKNuFEvRthx3BBu-h5WI1ETzhPVPzYo97qtAJIKUPKi_-m9pnGZHfbwr-HrAwLpfLQsGnDsR5v5QsH7DcY2k6u_7Lan77rWxfFwmHzYjtx0Zys2GbcGLyKUJ6eaLzwMmSW6Tp4sHr1MInsFZ0OoewytGcce1dfLIXH4B7LcIfwfMBPCwnWNUBazycwIyxfskqL9-xL8PdsLVe7yCCNk8WsOruY_Y_kTKUHo60j1nPUplC3wpT0S-jbLRDYluqyX_PRhXf2JZWS1pkDxNmJeKDr2d7FIqLsKEnUMQ=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "x32knero", "name":
+      "double", "response": {"result": "421.0"}}}], "role": "user"}], "tools": [{"googleSearch":
+      {}}, {"functionDeclarations": [{"description": "Double a number.", "name": "double",
+      "parameters": {"properties": {"x": {"type": "NUMBER"}}, "required": ["x"], "type":
+      "OBJECT"}}]}], "toolConfig": {"includeServerSideToolInvocations": true}, "generationConfig":
+      {"temperature": 0}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '5011'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.11.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Double
+        21 is **42**\\n\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 239,\"candidatesTokenCount\": 10,\"totalTokenCount\":
+        297,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 239}],\"thoughtsTokenCount\":
+        48,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        \"mqZfatDUG_vrjrEPwcqDwA8\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        {\"parts\": [{\"text\": \"\",\"thoughtSignature\": \"EpoCCpcCARFNMg8TA4fMkY/8eXxw5nbF/L6hmkb7lqOR2J2teIzPSaN8S3W5rRNQ/EvHxjXfVGRkjkd0qnzlcbH/bQttb4Vi3PpEFtsTQ1XyzOAA9qrtSuikyaw0rXiFz+Ahb9kaif8kIEll+VpLm05RIkVnNb+ZXq35DPp2cMC3y7+MgBC13D395uqW934PmK7t6OoMVndtIMCi5MRRCbR/xjZuBBTeGfgq42dNp7joko9exel+hFdSl0PZ35bwuuZjtMbOUu8GFDP5xbjDyodr7dnOrK8pNyj5SLtg8DiF9/9A+03FxMb/g5K0kEnougLH7aoCNI/lAB8QiRwmbtHKLLdRKwylVx76HmkfQQvepY4ad2MyKjQ9dU5p\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        776,\"candidatesTokenCount\": 10,\"totalTokenCount\": 834,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 776}],\"thoughtsTokenCount\": 48,\"serviceTier\":
+        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"mqZfatDUG_vrjrEPwcqDwA8\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 21 Jul 2026 17:04:31 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=4899
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

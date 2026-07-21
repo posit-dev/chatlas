@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `ChatGoogle()` and `ChatVertex()` now default to `gemini-3.5-flash` instead of the older `gemini-2.5-flash`.
 
+### Bug fixes
+
+* `ChatGoogle()` no longer errors when mixing custom tools and built-in tools (e.g. `tool_web_search()`) on Gemini 3+ models.
+
 ## [0.19.2] - 2026-07-08
 
 ### New features

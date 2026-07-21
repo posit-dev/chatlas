@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import re
 import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
@@ -338,6 +339,7 @@ class GoogleProvider(
             FunctionDeclaration,
             GenerateContentConfig,
             Schema,
+            ToolConfig,
             ToolListUnion,
         )
         from google.genai.types import Tool as GoogleTool
@@ -364,7 +366,14 @@ class GoogleProvider(
 
         if tools:
             google_tools: ToolListUnion = []
+            has_builtin_tool = False
+            has_custom_tool = False
             for tool in tools.values():
+                if isinstance(tool, ToolBuiltIn):
+                    has_builtin_tool = True
+                else:
+                    has_custom_tool = True
+
                 if isinstance(tool, ToolWebSearch):
                     gtool = GoogleTool(google_search=tool.get_definition("google"))
                     google_tools.append(gtool)
@@ -394,6 +403,23 @@ class GoogleProvider(
 
             if google_tools:
                 config.tools = google_tools
+
+            # Mixing built-in and custom tools requires an explicit opt-in on
+            # Gemini 3+ models. `include_server_side_tool_invocations` is only
+            # valid for the Gemini Developer API, not Vertex AI, which raises
+            # a client-side error if it's set at all.
+            if (
+                has_builtin_tool
+                and has_custom_tool
+                and self.name == "Google/Gemini"
+                and google_supports_mixed_tools(self.model)
+            ):
+                if config.tool_config is None:
+                    config.tool_config = ToolConfig(
+                        include_server_side_tool_invocations=True
+                    )
+                else:
+                    config.tool_config.include_server_side_tool_invocations = True
 
         kwargs_full["config"] = config
 
@@ -897,6 +923,18 @@ def ChatVertex(
         ),
         system_prompt=system_prompt,
     )
+
+
+def google_supports_mixed_tools(model: str) -> bool:
+    """
+    Whether `model` supports combining custom (function-calling) tools with
+    built-in (server-side) tools in the same request. Only Gemini 3+ models
+    support this; older models reject the combination outright.
+    """
+    # `list_models()` surfaces IDs prefixed with "models/" (e.g.
+    # "models/gemini-3.5-flash"), so strip that before matching.
+    model = model.removeprefix("models/")
+    return bool(re.match(r"^gemini-([3-9]|[0-9]{2,})", model))
 
 
 def _strip_additional_properties(params: dict[str, Any]) -> dict[str, Any]:

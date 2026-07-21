@@ -449,3 +449,134 @@ def test_google_batch_retrieve_handles_thought_signature_bytes():
     turn = provider.batch_result_turn(results[0], has_data_model=False)
     assert turn is not None
     assert turn.text == "42"
+@pytest.mark.vcr
+@retry_gemini_call
+def test_google_mixed_tools_end_to_end():
+    """Custom + built-in tools can be combined on Gemini 3+ (#1054)."""
+
+    def double(x: float) -> float:
+        """Double a number."""
+        return x * 2
+
+    chat = chat_func()
+    chat.register_tool(double)
+    chat.register_tool(tool_web_search())
+
+    response = chat.chat("What is double 21?")
+    assert "42" in str(response)
+
+
+def _double_tool():
+    from chatlas._tools import Tool
+
+    def double(x: int) -> int:
+        """Double a number."""
+        return x * 2
+
+    return Tool.from_func(double)
+
+
+@pytest.mark.parametrize(
+    "model",
+    [
+        "gemini-3.5-flash",
+        # `list_models()` surfaces IDs prefixed with "models/" (#1054)
+        "models/gemini-3.5-flash",
+    ],
+)
+def test_google_mixed_tools_sets_tool_config_on_gemini_3_plus(model: str):
+    """Mixing custom + built-in tools requires an explicit opt-in on Gemini 3+ (#1054)."""
+    from chatlas._provider_google import GoogleProvider
+    from chatlas._turn import user_turn
+
+    provider = GoogleProvider(model=model, api_key="dummy", kwargs=None)
+    tools = {"double": _double_tool(), "web_search": tool_web_search()}
+
+    kwargs = provider._chat_perform_args(turns=[user_turn("hi")], tools=tools)
+
+    tool_config = kwargs["config"].tool_config
+    assert tool_config is not None
+    assert tool_config.include_server_side_tool_invocations is True
+
+
+def test_google_mixed_tools_skips_tool_config_on_vertex():
+    """Vertex AI rejects `include_server_side_tool_invocations` outright, so it must
+    never be set there, regardless of whether tools are mixed."""
+    from chatlas._provider_google import GoogleProvider
+    from chatlas._turn import user_turn
+
+    provider = GoogleProvider(
+        model="gemini-3.5-flash",
+        api_key="dummy",
+        name="Google/Vertex",
+        kwargs=None,
+    )
+    tools = {"double": _double_tool(), "web_search": tool_web_search()}
+
+    kwargs = provider._chat_perform_args(turns=[user_turn("hi")], tools=tools)
+
+    assert kwargs["config"].tool_config is None
+
+
+def test_google_mixed_tools_skips_tool_config_on_older_model():
+    """Older Gemini models don't support mixing at all; setting the flag there
+    replaces a clear "pick one" API error with a confusing one, so leave it unset."""
+    from chatlas._provider_google import GoogleProvider
+    from chatlas._turn import user_turn
+
+    provider = GoogleProvider(model="gemini-2.5-flash", api_key="dummy", kwargs=None)
+    tools = {"double": _double_tool(), "web_search": tool_web_search()}
+
+    kwargs = provider._chat_perform_args(turns=[user_turn("hi")], tools=tools)
+
+    assert kwargs["config"].tool_config is None
+
+
+def test_google_mixed_tools_preserves_existing_tool_config():
+    """Setting the opt-in flag must not clobber a user-supplied `tool_config`."""
+    from chatlas._provider_google import GoogleProvider
+    from chatlas._turn import user_turn
+    from google.genai.types import (
+        FunctionCallingConfig,
+        FunctionCallingConfigMode,
+        GenerateContentConfig,
+        ToolConfig,
+    )
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    tools = {"double": _double_tool(), "web_search": tool_web_search()}
+
+    existing_config = GenerateContentConfig(
+        tool_config=ToolConfig(
+            function_calling_config=FunctionCallingConfig(
+                mode=FunctionCallingConfigMode.ANY
+            )
+        )
+    )
+
+    kwargs = provider._chat_perform_args(
+        turns=[user_turn("hi")],
+        tools=tools,
+        kwargs={"config": existing_config},
+    )
+
+    tool_config = kwargs["config"].tool_config
+    assert tool_config is not None
+    assert tool_config.include_server_side_tool_invocations is True
+    assert tool_config.function_calling_config.mode == FunctionCallingConfigMode.ANY
+
+
+def test_google_tool_config_not_set_when_tools_not_mixed():
+    """The opt-in is only needed when both custom and built-in tools are present."""
+    from chatlas._provider_google import GoogleProvider
+    from chatlas._turn import user_turn
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+
+    only_custom = {"double": _double_tool()}
+    kwargs = provider._chat_perform_args(turns=[user_turn("hi")], tools=only_custom)
+    assert kwargs["config"].tool_config is None
+
+    only_builtin = {"web_search": tool_web_search()}
+    kwargs = provider._chat_perform_args(turns=[user_turn("hi")], tools=only_builtin)
+    assert kwargs["config"].tool_config is None
