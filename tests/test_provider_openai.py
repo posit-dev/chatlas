@@ -2,7 +2,7 @@ import warnings
 
 import httpx
 import pytest
-from chatlas import ChatOpenAI, tool_web_search
+from chatlas import ChatOpenAI, tool_code_execution, tool_web_search
 from chatlas._provider_openai import (
     normalize_finish_reason as openai_normalize_finish_reason,
 )
@@ -14,6 +14,8 @@ from .conftest import (
     assert_images_remote,
     assert_list_models,
     assert_pdf_local,
+    assert_tool_code_execution,
+    assert_tool_code_execution_persistence,
     assert_tool_web_search,
     assert_tools_async,
     assert_tools_parallel,
@@ -128,6 +130,22 @@ def test_openai_web_search():
         tool_web_search(),
         hint="The CRAN archive page has this info.",
     )
+
+
+@pytest.mark.vcr
+def test_openai_code_execution():
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-4.1", **kwargs)
+
+    assert_tool_code_execution(chat_fun, tool_code_execution())
+
+
+@pytest.mark.vcr
+def test_openai_code_execution_persistence():
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-4.1", **kwargs)
+
+    assert_tool_code_execution_persistence(chat_fun, tool_code_execution())
 
 
 @pytest.mark.vcr
@@ -336,3 +354,111 @@ def test_openai_custom_base_url_warning():
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         check_base_url("https://api.openai.com/v1")
+
+
+def test_openai_code_execution_call_parses_request_and_response():
+    """A code_interpreter_call output splits into request + response content."""
+    from chatlas._content import (
+        ContentToolRequestCodeExecution,
+        ContentToolResponseCodeExecution,
+    )
+    from chatlas._provider_openai import OpenAIProvider
+
+    chat = ChatOpenAI()
+    provider = chat.provider
+    assert isinstance(provider, OpenAIProvider)
+
+    def make_response(outputs: list[dict]):
+        from openai.types.responses import Response
+
+        return Response.model_validate(
+            {
+                "id": "resp_1",
+                "created_at": 0,
+                "model": "gpt-4.1",
+                "object": "response",
+                "output": [
+                    {
+                        "id": "ci_1",
+                        "type": "code_interpreter_call",
+                        "status": "completed",
+                        "code": "print(1 + 1)",
+                        "container_id": "cntr_abc123",
+                        "outputs": outputs,
+                    }
+                ],
+                "parallel_tool_calls": True,
+                "tool_choice": "auto",
+                "tools": [],
+            }
+        )
+
+    resp = make_response([{"type": "logs", "logs": "2"}])
+    turn = provider._response_as_turn(resp, has_data_model=False)
+
+    assert len(turn.contents) == 2
+    request = turn.contents[0]
+    assert isinstance(request, ContentToolRequestCodeExecution)
+    assert request.code == "print(1 + 1)"
+
+    response = turn.contents[1]
+    assert isinstance(response, ContentToolResponseCodeExecution)
+    assert response.output == "2"
+    assert response.container_id == "cntr_abc123"
+
+
+def test_openai_code_execution_response_does_not_duplicate_on_round_trip():
+    """The response half shouldn't be resubmitted -- it's bundled into the request's extra."""
+    from chatlas._content import ContentToolResponseCodeExecution
+    from chatlas._provider_openai import as_input_param
+
+    content = ContentToolResponseCodeExecution(
+        output="2", extra={"type": "code_interpreter_call"}
+    )
+    assert as_input_param(content, "assistant") is None
+
+
+def test_openai_code_execution_tool_uses_auto_container_by_default():
+    from chatlas._provider_openai import OpenAIProvider
+
+    chat = ChatOpenAI()
+    chat.register_tool(tool_code_execution())
+    provider = chat.provider
+    assert isinstance(provider, OpenAIProvider)
+
+    kwargs = provider._chat_perform_args(
+        stream=False,
+        turns=[],
+        tools=chat._tools,  # type: ignore[reportPrivateUsage]
+        data_model=None,
+        kwargs=None,
+    )
+    tools = kwargs["tools"]
+    assert tools[0]["type"] == "code_interpreter"
+    assert tools[0]["container"] == {"type": "auto"}
+
+
+def test_openai_code_execution_tool_reuses_container_from_turn_history():
+    from chatlas._content import ContentToolResponseCodeExecution
+    from chatlas._provider_openai import OpenAIProvider
+    from chatlas._turn import AssistantTurn
+
+    chat = ChatOpenAI()
+    chat.register_tool(tool_code_execution())
+    provider = chat.provider
+    assert isinstance(provider, OpenAIProvider)
+
+    turns = [
+        AssistantTurn(
+            [ContentToolResponseCodeExecution(output="1", container_id="cntr_xyz")]
+        )
+    ]
+    kwargs = provider._chat_perform_args(
+        stream=False,
+        turns=turns,
+        tools=chat._tools,  # type: ignore[reportPrivateUsage]
+        data_model=None,
+        kwargs=None,
+    )
+    tools = kwargs["tools"]
+    assert tools[0]["container"] == "cntr_xyz"

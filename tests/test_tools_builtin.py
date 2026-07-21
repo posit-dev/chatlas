@@ -1,17 +1,22 @@
 """Tests for built-in web search and fetch tools."""
 
 import pytest
-
 from chatlas import (
     ChatAnthropic,
     ChatGoogle,
     ChatOpenAI,
+    tool_code_execution,
     tool_web_fetch,
     tool_web_search,
 )
 from chatlas._content import ToolAnnotations
 from chatlas._tools import ToolBuiltIn
-from chatlas._tools_builtin import ToolWebFetch, ToolWebSearch
+from chatlas._tools_builtin import (
+    ToolCodeExecution,
+    ToolWebFetch,
+    ToolWebSearch,
+    last_code_execution_container_id,
+)
 
 
 class TestToolBuiltInMetadata:
@@ -84,9 +89,7 @@ class TestToolWebSearchConfiguration:
         with pytest.raises(
             ValueError, match="Cannot specify both allowed_domains and blocked_domains"
         ):
-            tool_web_search(
-                allowed_domains=["good.com"], blocked_domains=["bad.com"]
-            )
+            tool_web_search(allowed_domains=["good.com"], blocked_domains=["bad.com"])
 
     def test_with_user_location(self):
         """Test web search tool with user location."""
@@ -127,9 +130,7 @@ class TestToolWebFetchConfiguration:
         with pytest.raises(
             ValueError, match="Cannot specify both allowed_domains and blocked_domains"
         ):
-            tool_web_fetch(
-                allowed_domains=["good.com"], blocked_domains=["bad.com"]
-            )
+            tool_web_fetch(allowed_domains=["good.com"], blocked_domains=["bad.com"])
 
 
 class TestToolWebSearchProviderDefinitions:
@@ -205,7 +206,9 @@ class TestToolWebSearchProviderDefinitions:
     def test_openai_warns_on_unsupported_params(self):
         """Test that OpenAI warns about unsupported parameters."""
         tool = tool_web_search(blocked_domains=["spam.com"], max_uses=5)
-        with pytest.warns(UserWarning, match="blocked_domains is not supported by OpenAI"):
+        with pytest.warns(
+            UserWarning, match="blocked_domains is not supported by OpenAI"
+        ):
             tool.get_definition("openai")
 
     def test_google_warns_on_unsupported_params(self):
@@ -287,7 +290,9 @@ class TestToolWebFetchProviderDefinitions:
         assert any("allowed_domains" in m for m in messages)
         assert any("max_uses" in m for m in messages)
 
-        with pytest.warns(UserWarning, match="blocked_domains is not supported by Google"):
+        with pytest.warns(
+            UserWarning, match="blocked_domains is not supported by Google"
+        ):
             tool2.get_definition("google")
 
     def test_anthropic_with_extra_params(self):
@@ -372,3 +377,116 @@ class TestChatRegistration:
         assert len(tools) == 2
         tool_names = {t.name for t in tools}
         assert tool_names == {"web_search", "add"}
+
+
+class TestToolCodeExecutionConfiguration:
+    """Test ToolCodeExecution configuration and provider definitions."""
+
+    def test_has_description_and_annotations(self):
+        tool = tool_code_execution()
+        assert tool.description == "Execute code in a sandboxed environment."
+        assert tool.annotations is not None
+        assert tool.annotations["title"] == "Code execution"
+        assert tool.annotations["readOnlyHint"] is False
+        assert tool.annotations["openWorldHint"] is False
+
+    def test_basic_configuration(self):
+        tool = tool_code_execution()
+        assert isinstance(tool, ToolCodeExecution)
+        assert tool.name == "code_execution"
+
+    def test_openai_definition_defaults_to_auto_container(self):
+        tool = tool_code_execution()
+        definition = tool.get_definition("openai")
+        assert definition["type"] == "code_interpreter"
+        assert definition["container"] == {"type": "auto"}
+
+    def test_openai_definition_reuses_container_id(self):
+        tool = tool_code_execution()
+        definition = tool.get_definition("openai", container_id="cntr_abc123")
+        assert definition["container"] == "cntr_abc123"
+
+    def test_anthropic_definition(self):
+        tool = tool_code_execution()
+        definition = tool.get_definition("anthropic")
+        assert definition["name"] == "code_execution"
+        assert definition["type"] == "code_execution_20250522"
+
+    def test_google_definition(self):
+        from google.genai.types import ToolCodeExecution as GoogleToolCodeExecution
+
+        tool = tool_code_execution()
+        definition = tool.get_definition("google")
+        assert isinstance(definition, GoogleToolCodeExecution)
+
+    def test_unsupported_provider(self):
+        tool = tool_code_execution()
+        with pytest.raises(ValueError, match="Code execution is not supported"):
+            tool.get_definition("unsupported_provider")
+
+
+class TestLastCodeExecutionContainerId:
+    """Test the turn-history scan that powers cross-turn sandbox reuse."""
+
+    def test_returns_none_with_no_turns(self):
+        assert last_code_execution_container_id([]) is None
+
+    def test_returns_none_when_no_code_execution_response(self):
+        from chatlas._content import ContentText
+        from chatlas._turn import AssistantTurn
+
+        turns = [AssistantTurn([ContentText(text="hi")])]
+        assert last_code_execution_container_id(turns) is None
+
+    def test_finds_container_id_from_last_assistant_turn(self):
+        from chatlas._content import ContentToolResponseCodeExecution
+        from chatlas._turn import AssistantTurn, UserTurn
+
+        turns = [
+            UserTurn("define x = 1"),
+            AssistantTurn(
+                [ContentToolResponseCodeExecution(output="", container_id="cntr_1")]
+            ),
+            UserTurn("now print x"),
+            AssistantTurn(
+                [ContentToolResponseCodeExecution(output="1", container_id="cntr_2")]
+            ),
+        ]
+        assert last_code_execution_container_id(turns) == "cntr_2"
+
+    def test_ignores_response_without_container_id(self):
+        from chatlas._content import ContentToolResponseCodeExecution
+        from chatlas._turn import AssistantTurn
+
+        turns = [
+            AssistantTurn(
+                [ContentToolResponseCodeExecution(output="1", container_id="cntr_1")]
+            ),
+            AssistantTurn([ContentToolResponseCodeExecution(output="2")]),
+        ]
+        assert last_code_execution_container_id(turns) == "cntr_1"
+
+
+class TestChatRegistrationCodeExecution:
+    """Test registering the code execution tool with chat instances."""
+
+    def test_register_code_execution_openai(self):
+        chat = ChatOpenAI()
+        chat.register_tool(tool_code_execution())
+        tools = chat.get_tools()
+        assert len(tools) == 1
+        assert tools[0].name == "code_execution"
+
+    def test_register_code_execution_anthropic(self):
+        chat = ChatAnthropic()
+        chat.register_tool(tool_code_execution())
+        tools = chat.get_tools()
+        assert len(tools) == 1
+        assert tools[0].name == "code_execution"
+
+    def test_register_code_execution_google(self):
+        chat = ChatGoogle()
+        chat.register_tool(tool_code_execution())
+        tools = chat.get_tools()
+        assert len(tools) == 1
+        assert tools[0].name == "code_execution"

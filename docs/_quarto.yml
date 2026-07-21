@@ -184,10 +184,11 @@ quartodoc:
         - Tool
         - ToolRejectError
     - title: Built-in tools
-      desc: Provider-agnostic access to built-in web search and fetch capabilities.
+      desc: Provider-agnostic access to built-in web search, fetch, and code execution capabilities.
       contents:
         - tool_web_search
         - tool_web_fetch
+        - tool_code_execution
     - title: Parallel and batch chat
       desc: Submit multiple chats in parallel (fast) or one batch (cheap)
       contents:

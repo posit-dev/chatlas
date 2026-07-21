@@ -110,6 +110,31 @@ See the [MCP tools guide](../misc/mcp-tools.qmd) for more information.
 :::
 
 
+### Code execution
+
+Some providers can run code for you in a server-side sandbox -- useful for
+math, data analysis, or letting the model verify its own logic. Register it
+the same way as web search or fetch:
+
+```python
+from chatlas import ChatAnthropic, tool_code_execution
+
+chat = ChatAnthropic(
+    kwargs={"default_headers": {"anthropic-beta": "code-execution-2025-05-22"}}
+)
+chat.register_tool(tool_code_execution())
+chat.chat("What's the 20th Fibonacci number?")
+```
+
+Supported providers: OpenAI, Claude (Anthropic), Google (Gemini). Only text
+output (stdout/stderr) is surfaced -- files the code produces (e.g. plots)
+aren't downloaded automatically. OpenAI reuses the same sandbox across turns
+in a conversation, so state (like a variable) persists. Claude also reuses
+the same container across turns, but doesn't persist Python interpreter
+state between executions -- each execution starts fresh. Google starts a
+fresh sandbox every turn too.
+
+
 ### Tool errors
 
 When a tool function is called, it may fail for various reasons, such as network issues, invalid input, or unexpected exceptions.
