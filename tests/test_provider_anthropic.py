@@ -10,7 +10,10 @@ from chatlas import (
     tool_web_fetch,
     tool_web_search,
 )
-from chatlas._provider_anthropic import AnthropicProvider
+from chatlas._provider_anthropic import _ANTHROPIC_FINISH_REASON_MAP, AnthropicProvider
+from chatlas._provider_anthropic import (
+    normalize_finish_reason as anthropic_normalize_finish_reason,
+)
 from pydantic import BaseModel, Field
 
 from .conftest import (
@@ -32,6 +35,32 @@ from .conftest import (
 )
 
 
+def test_normalize_finish_reason_maps_known_reasons():
+    assert anthropic_normalize_finish_reason("end_turn") == "success"
+    assert anthropic_normalize_finish_reason("max_tokens") == "max_tokens"
+    assert anthropic_normalize_finish_reason("stop_sequence") == "stop_sequence"
+    assert (
+        anthropic_normalize_finish_reason("model_context_window_exceeded")
+        == "context_window"
+    )
+    assert anthropic_normalize_finish_reason("refusal") == "content_filter"
+    assert anthropic_normalize_finish_reason("tool_use") == "tool_use"
+
+
+def test_normalize_finish_reason_maps_tool_use_explicitly():
+    # tool_use must be an explicit mapping, not an incidental passthrough of an
+    # unknown reason, so it isn't confused with a truly unrecognized reason.
+    assert "tool_use" in _ANTHROPIC_FINISH_REASON_MAP
+
+
+def test_normalize_finish_reason_passes_through_unknown():
+    assert anthropic_normalize_finish_reason("some_new_reason") == "some_new_reason"
+
+
+def test_normalize_finish_reason_handles_none():
+    assert anthropic_normalize_finish_reason(None) is None
+
+
 def chat_func(system_prompt: str = "", **kwargs):
     return ChatAnthropic(
         system_prompt=system_prompt,
@@ -49,7 +78,7 @@ def test_anthropic_simple_request():
     turn = chat.get_last_turn()
     assert turn is not None
     assert turn.tokens == (26, 5, 0)
-    assert turn.finish_reason == "end_turn"
+    assert turn.finish_reason == "success"
 
 
 @pytest.mark.vcr
@@ -65,7 +94,7 @@ async def test_anthropic_simple_streaming_request():
     assert "2" in "".join(res)
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.finish_reason == "end_turn"
+    assert turn.finish_reason == "success"
 
 
 @pytest.mark.vcr

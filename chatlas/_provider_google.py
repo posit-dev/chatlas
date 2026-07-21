@@ -33,7 +33,7 @@ from ._provider import (
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
+from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn, user_turn
 
 if TYPE_CHECKING:
     from google.genai.types import Content as GoogleContent
@@ -196,6 +196,24 @@ def ChatGoogle(
         system_prompt=system_prompt,
         kwargs_chat=kwargs_chat,
     )
+
+
+# https://ai.google.dev/api/generate-content
+_GOOGLE_FINISH_REASON_MAP: dict[str, FinishReason] = {
+    "STOP": "success",
+    "MAX_TOKENS": "max_tokens",
+    "SAFETY": "content_filter",
+    "RECITATION": "content_filter",
+    "BLOCKLIST": "content_filter",
+    "PROHIBITED_CONTENT": "content_filter",
+    "SPII": "content_filter",
+}
+
+
+def normalize_finish_reason(reason: str | None) -> str | None:
+    if reason is None:
+        return None
+    return _GOOGLE_FINISH_REASON_MAP.get(reason, reason)
 
 
 class GoogleProvider(
@@ -683,7 +701,7 @@ class GoogleProvider(
 
         return AssistantTurn(
             contents,
-            finish_reason=finish_reason,
+            finish_reason=normalize_finish_reason(finish_reason),
             completion=message,
         )
 

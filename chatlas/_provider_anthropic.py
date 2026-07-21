@@ -45,7 +45,7 @@ from ._provider import (
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
+from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -294,6 +294,23 @@ def ChatAnthropic(
         system_prompt=system_prompt,
         kwargs_chat=kwargs_chat,
     )
+
+
+# https://docs.anthropic.com/en/api/handling-stop-reasons
+_ANTHROPIC_FINISH_REASON_MAP: dict[str, FinishReason] = {
+    "end_turn": "success",
+    "tool_use": "tool_use",
+    "max_tokens": "max_tokens",
+    "model_context_window_exceeded": "context_window",
+    "stop_sequence": "stop_sequence",
+    "refusal": "content_filter",
+}
+
+
+def normalize_finish_reason(reason: str | None) -> str | None:
+    if reason is None:
+        return None
+    return _ANTHROPIC_FINISH_REASON_MAP.get(reason, reason)
 
 
 class AnthropicProvider(
@@ -940,7 +957,7 @@ class AnthropicProvider(
 
         return AssistantTurn(
             contents,
-            finish_reason=completion.stop_reason,
+            finish_reason=normalize_finish_reason(completion.stop_reason),
             completion=completion,
         )
 

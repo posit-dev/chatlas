@@ -1,6 +1,9 @@
 import pytest
 import requests
 from chatlas import ChatGoogle, ChatVertex, tool_web_fetch, tool_web_search
+from chatlas._provider_google import (
+    normalize_finish_reason as google_normalize_finish_reason,
+)
 from google.genai.errors import APIError
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
@@ -25,6 +28,25 @@ def chat_func(vertex: bool = False, **kwargs):
     chat = ChatGoogle(**kwargs) if not vertex else ChatVertex(**kwargs)
     chat.set_model_params(temperature=0)
     return chat
+
+
+def test_normalize_finish_reason_maps_known_reasons():
+    assert google_normalize_finish_reason("STOP") == "success"
+    assert google_normalize_finish_reason("MAX_TOKENS") == "max_tokens"
+    assert google_normalize_finish_reason("SAFETY") == "content_filter"
+    assert google_normalize_finish_reason("RECITATION") == "content_filter"
+    assert google_normalize_finish_reason("BLOCKLIST") == "content_filter"
+    assert google_normalize_finish_reason("PROHIBITED_CONTENT") == "content_filter"
+    assert google_normalize_finish_reason("SPII") == "content_filter"
+
+
+def test_normalize_finish_reason_passes_through_unknown():
+    assert google_normalize_finish_reason("OTHER") == "OTHER"
+    assert google_normalize_finish_reason("NEW_REASON") == "NEW_REASON"
+
+
+def test_normalize_finish_reason_handles_none():
+    assert google_normalize_finish_reason(None) is None
 
 
 def test_google_reasoning_effort_string():
@@ -80,7 +102,7 @@ def test_google_simple_request():
     assert turn.tokens[0] == 18  # input tokens
     # Output tokens can vary (1-29), so just check it's positive
     assert turn.tokens[1] > 0
-    assert turn.finish_reason == "STOP"
+    assert turn.finish_reason == "success"
     assert chat.provider.name == "Google/Gemini"
 
 
@@ -94,7 +116,7 @@ def test_google_simple_request():
 #    turn = chat.get_last_turn()
 #    assert turn is not None
 #    assert turn.tokens == (16, 2)
-#    assert turn.finish_reason == "STOP"
+#    assert turn.finish_reason == "success"
 #    assert chat.provider.name == "Google/Vertex"
 
 
@@ -125,7 +147,7 @@ def test_name_setting():
 #    assert "2" in "".join(res)
 #    turn = chat.get_last_turn()
 #    assert turn is not None
-#    assert turn.finish_reason == "STOP"
+#    assert turn.finish_reason == "success"
 
 
 @pytest.mark.vcr

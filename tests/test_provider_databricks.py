@@ -38,7 +38,7 @@ def test_databricks_simple_request():
     assert len(turn.tokens) == 3
     assert turn.tokens[0] == 26
     # Not testing turn.tokens[1] because it's not deterministic. Typically 1 or 2.
-    assert turn.finish_reason == "stop"
+    assert turn.finish_reason == "success"
 
 
 @pytest.mark.vcr
@@ -53,7 +53,7 @@ async def test_databricks_simple_streaming_request():
     assert "2" in "".join(res)
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.finish_reason == "stop"
+    assert turn.finish_reason == "success"
 
 
 @pytest.mark.vcr

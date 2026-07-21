@@ -29,7 +29,7 @@ from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, Turn
+from ._turn import AssistantTurn, FinishReason, Turn
 
 if TYPE_CHECKING:
     from openai.types.responses import (
@@ -194,6 +194,26 @@ def ChatOpenAI(
     )
 
 
+# https://platform.openai.com/docs/api-reference/responses/get
+_OPENAI_INCOMPLETE_REASON_MAP: dict[str, FinishReason] = {
+    "max_output_tokens": "max_tokens",
+    "content_filter": "content_filter",
+}
+
+
+def normalize_finish_reason(
+    status: str | None, incomplete_reason: str | None = None
+) -> str | None:
+    if status is None:
+        return None
+    if status == "completed":
+        return "success"
+    if status != "incomplete":
+        return status
+    reason = incomplete_reason or status
+    return _OPENAI_INCOMPLETE_REASON_MAP.get(reason, reason)
+
+
 class OpenAIProvider(
     OpenAIAbstractProvider[
         Response,
@@ -313,7 +333,7 @@ class OpenAIProvider(
         return None
 
     def stream_merge_chunks(self, completion, chunk):
-        if chunk.type == "response.completed":
+        if chunk.type == "response.completed" or chunk.type == "response.incomplete":
             return chunk.response
         elif chunk.type == "response.failed":
             error = chunk.response.error
@@ -448,8 +468,19 @@ class OpenAIProvider(
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
 
+        incomplete_reason = None
+        if completion.incomplete_details is not None:
+            incomplete_reason = completion.incomplete_details.reason
+
+        finish_reason = normalize_finish_reason(completion.status, incomplete_reason)
+        if finish_reason == "success" and any(
+            isinstance(x, ContentToolRequest) for x in contents
+        ):
+            finish_reason = "tool_use"
+
         return AssistantTurn(
             contents,
+            finish_reason=finish_reason,
             completion=completion,
         )
 

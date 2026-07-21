@@ -3,6 +3,9 @@ import warnings
 import httpx
 import pytest
 from chatlas import ChatOpenAI, tool_web_search
+from chatlas._provider_openai import (
+    normalize_finish_reason as openai_normalize_finish_reason,
+)
 from openai.types.responses import ResponseOutputMessage, ResponseOutputText
 
 from .conftest import (
@@ -20,6 +23,44 @@ from .conftest import (
     assert_turns_existing,
     assert_turns_system,
 )
+
+
+def test_normalize_finish_reason_completed():
+    assert openai_normalize_finish_reason("completed") == "success"
+
+
+def test_normalize_finish_reason_incomplete_max_tokens():
+    assert (
+        openai_normalize_finish_reason("incomplete", "max_output_tokens")
+        == "max_tokens"
+    )
+
+
+def test_normalize_finish_reason_incomplete_content_filter():
+    assert (
+        openai_normalize_finish_reason("incomplete", "content_filter")
+        == "content_filter"
+    )
+
+
+def test_normalize_finish_reason_incomplete_unknown_reason():
+    assert (
+        openai_normalize_finish_reason("incomplete", "some_other_reason")
+        == "some_other_reason"
+    )
+
+
+def test_normalize_finish_reason_incomplete_no_reason():
+    assert openai_normalize_finish_reason("incomplete", None) == "incomplete"
+
+
+def test_normalize_finish_reason_passes_through_unknown_status():
+    assert openai_normalize_finish_reason("failed") == "failed"
+    assert openai_normalize_finish_reason("cancelled") == "cancelled"
+
+
+def test_normalize_finish_reason_handles_none():
+    assert openai_normalize_finish_reason(None) is None
 
 
 @pytest.mark.vcr
@@ -236,9 +277,7 @@ def test_openai_web_search_call_action_types():
     assert turn.contents[0].query == "find this"
 
     # search action without query but with queries
-    resp = make_response(
-        {"type": "search", "query": "", "queries": ["first query"]}
-    )
+    resp = make_response({"type": "search", "query": "", "queries": ["first query"]})
     turn = provider._response_as_turn(resp, has_data_model=False)
     assert isinstance(turn.contents[0], ContentToolRequestSearch)
     assert turn.contents[0].query == "first query"
@@ -248,6 +287,40 @@ def test_openai_web_search_call_action_types():
     turn = provider._response_as_turn(resp, has_data_model=False)
     assert isinstance(turn.contents[0], ContentToolRequestSearch)
     assert turn.contents[0].query == "web search"
+
+
+def test_openai_function_call_finish_reason_is_tool_use():
+    """A completed response containing a function_call should normalize to tool_use."""
+    from chatlas._provider_openai import OpenAIProvider
+    from openai.types.responses import Response
+
+    chat = ChatOpenAI()
+    provider = chat.provider
+    assert isinstance(provider, OpenAIProvider)
+
+    resp = Response.model_validate(
+        {
+            "id": "resp_1",
+            "created_at": 0,
+            "model": "gpt-4.1",
+            "object": "response",
+            "status": "completed",
+            "output": [
+                {
+                    "id": "fc_1",
+                    "type": "function_call",
+                    "call_id": "call_1",
+                    "name": "get_date",
+                    "arguments": "{}",
+                }
+            ],
+            "parallel_tool_calls": True,
+            "tool_choice": "auto",
+            "tools": [],
+        }
+    )
+    turn = provider._response_as_turn(resp, has_data_model=False)
+    assert turn.finish_reason == "tool_use"
 
 
 def test_openai_custom_base_url_warning():
