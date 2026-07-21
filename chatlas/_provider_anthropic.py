@@ -45,7 +45,7 @@ from ._provider import (
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
+from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -307,7 +307,7 @@ _ANTHROPIC_FINISH_REASON_MAP = {
 }
 
 
-def normalize_finish_reason(reason: str | None) -> str | None:
+def normalize_finish_reason(reason: str | None) -> FinishReason | str | None:
     if reason is None:
         return None
     return _ANTHROPIC_FINISH_REASON_MAP.get(reason, reason)

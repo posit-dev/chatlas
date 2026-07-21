@@ -25,7 +25,7 @@ from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardMod
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
+from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn, user_turn
 
 if TYPE_CHECKING:
     from google.genai.types import Content as GoogleContent
@@ -202,7 +202,7 @@ _GOOGLE_FINISH_REASON_MAP = {
 }
 
 
-def normalize_finish_reason(reason: str | None) -> str | None:
+def normalize_finish_reason(reason: str | None) -> FinishReason | str | None:
     if reason is None:
         return None
     return _GOOGLE_FINISH_REASON_MAP.get(reason, reason)

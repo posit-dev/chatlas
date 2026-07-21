@@ -34,7 +34,7 @@ from ._merge import merge_dicts
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
-from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
+from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -126,7 +126,7 @@ _OPENAI_COMPLETIONS_FINISH_REASON_MAP = {
 }
 
 
-def normalize_finish_reason(reason: str | None) -> str | None:
+def normalize_finish_reason(reason: str | None) -> FinishReason | str | None:
     if reason is None:
         return None
     return _OPENAI_COMPLETIONS_FINISH_REASON_MAP.get(reason, reason)

@@ -29,7 +29,7 @@ from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, Turn
+from ._turn import AssistantTurn, FinishReason, Turn
 
 if TYPE_CHECKING:
     from openai.types.responses import (
@@ -203,7 +203,7 @@ _OPENAI_INCOMPLETE_REASON_MAP = {
 
 def normalize_finish_reason(
     status: str | None, incomplete_reason: str | None = None
-) -> str | None:
+) -> FinishReason | str | None:
     if status is None:
         return None
     if status == "completed":
