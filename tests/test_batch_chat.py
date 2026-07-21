@@ -1,7 +1,14 @@
 import tempfile
 
 import pytest
-from chatlas import AssistantTurn, ChatAnthropic, ChatGoogle, ChatOpenAI
+from chatlas import (
+    AssistantTurn,
+    ChatAnthropic,
+    ChatGoogle,
+    ChatGroq,
+    ChatOpenAI,
+    ChatVertex,
+)
 from chatlas._batch_chat import (
     BatchJob,
     batch_chat,
@@ -91,10 +98,39 @@ def test_can_submit_anthropic_batch():
         assert job.stage == "waiting"
 
 
+def test_groq_batch_support_via_inheritance():
+    """ChatGroq() gets full OpenAI-shaped batch support purely via inheritance.
+
+    Groq's real batch API (verified against ellmer's provider-groq.R) is the
+    OpenAI Batches API shape, verbatim -- so no Groq-specific batch code is
+    needed. This guards against something later overriding that inheritance.
+    """
+    from chatlas._provider_openai_generic import OpenAIAbstractProvider
+
+    chat = ChatGroq(api_key="dummy")
+    provider_cls = type(chat.provider)
+    assert chat.provider.has_batch_support()
+    assert provider_cls.batch_submit is OpenAIAbstractProvider.batch_submit
+    assert provider_cls.batch_poll is OpenAIAbstractProvider.batch_poll
+    assert provider_cls.batch_status is OpenAIAbstractProvider.batch_status
+    assert provider_cls.batch_retrieve is OpenAIAbstractProvider.batch_retrieve
+
+
+@pytest.mark.vcr
+def test_can_submit_google_batch():
+    with tempfile.NamedTemporaryFile() as temp_file:
+        chat = ChatGoogle()
+        prompts = ["What's the capital of France?", "What's the capital of Germany?"]
+        job = BatchJob(chat, prompts, temp_file.name, wait=False)
+        assert job.stage == "submitting"
+        job.step()
+        assert job.stage == "waiting"
+
+
 def test_informative_errors(test_batch_dir):
     with pytest.raises(ValueError, match="not supported by this provider"):
         batch_chat(
-            ChatGoogle(),
+            ChatVertex(),
             [],
             "foo.json",
         )

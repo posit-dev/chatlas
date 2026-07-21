@@ -113,9 +113,9 @@ def test_name_setting():
 
 # TODO: this test runs fine in isolation, but fails for some reason when run with the other tests
 # Seems google isn't handling async 100% correctly
-#@pytest.mark.vcr
-#@pytest.mark.asyncio
-#async def test_google_simple_streaming_request():
+# @pytest.mark.vcr
+# @pytest.mark.asyncio
+# async def test_google_simple_streaming_request():
 #    chat = chat_func(
 #        system_prompt="Be as terse as possible; no punctuation. Do not spell out numbers.",
 #    )
@@ -255,3 +255,131 @@ def test_google_thought_signature_roundtrip():
     # Verify it round-trips back into the Part
     part = provider._as_part_type(req)
     assert part.thought_signature == fake_signature
+
+
+def test_google_batch_supported_for_gemini_not_vertex():
+    """Batch is only supported on the Gemini Developer API, not Vertex."""
+    from chatlas._provider_google import GoogleProvider
+
+    gemini = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    assert gemini.has_batch_support() is True
+
+    vertex = GoogleProvider(
+        model="gemini-3.5-flash",
+        api_key="dummy",
+        name="Google/Vertex",
+        kwargs=None,
+    )
+    assert vertex.has_batch_support() is False
+
+
+def test_google_batch_submit_reuses_chat_perform_args():
+    """batch_submit() builds one InlinedRequest per conversation via _chat_perform_args."""
+    from unittest.mock import MagicMock
+
+    from chatlas._provider_google import GoogleProvider
+    from chatlas._turn import Turn, user_turn
+    from google.genai import types
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+
+    fake_batch = types.BatchJob(
+        name="batches/123", state=types.JobState.JOB_STATE_PENDING
+    )
+    mock_create = MagicMock(return_value=fake_batch)
+    provider._client.batches.create = mock_create
+
+    conversations: list[list[Turn]] = [
+        [user_turn("What's the capital of France?")],
+        [user_turn("What's the capital of Germany?")],
+    ]
+    result = provider.batch_submit(conversations)
+
+    assert result == fake_batch.model_dump()
+    assert mock_create.call_count == 1
+    _, kwargs = mock_create.call_args
+    assert kwargs["model"] == "gemini-3.5-flash"
+    requests = kwargs["src"]
+    assert len(requests) == 2
+    assert all(isinstance(r, types.InlinedRequest) for r in requests)
+
+
+def test_google_batch_status_mapping():
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+
+    working = provider.batch_status(
+        {
+            "name": "batches/123",
+            "state": "JOB_STATE_RUNNING",
+            "completion_stats": {
+                "successful_count": 1,
+                "failed_count": 0,
+                "incomplete_count": 1,
+            },
+        }
+    )
+    assert working.working is True
+    assert working.n_succeeded == 1
+    assert working.n_failed == 0
+    assert working.n_processing == 1
+
+    done = provider.batch_status(
+        {
+            "name": "batches/123",
+            "state": "JOB_STATE_SUCCEEDED",
+            "completion_stats": {
+                "successful_count": 2,
+                "failed_count": 0,
+                "incomplete_count": 0,
+            },
+        }
+    )
+    assert done.working is False
+    assert done.n_succeeded == 2
+
+    no_stats = provider.batch_status(
+        {"name": "batches/123", "state": "JOB_STATE_PENDING"}
+    )
+    assert no_stats.working is True
+    assert no_stats.n_processing == 0
+    assert no_stats.n_succeeded == 0
+    assert no_stats.n_failed == 0
+
+
+def test_google_batch_retrieve_and_result_turn():
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+
+    batch = {
+        "name": "batches/123",
+        "state": "JOB_STATE_SUCCEEDED",
+        "dest": {
+            "inlined_responses": [
+                {
+                    "response": {
+                        "candidates": [
+                            {
+                                "content": {"parts": [{"text": "Paris"}]},
+                                "finish_reason": "STOP",
+                            }
+                        ]
+                    }
+                },
+                {"error": {"code": 500, "message": "internal error"}},
+            ]
+        },
+    }
+
+    results = provider.batch_retrieve(batch)
+    assert len(results) == 2
+
+    turn = provider.batch_result_turn(results[0], has_data_model=False)
+    assert turn is not None
+    assert turn.text == "Paris"
+
+    with pytest.warns(UserWarning, match="Batch request failed"):
+        failed_turn = provider.batch_result_turn(results[1], has_data_model=False)
+    assert failed_turn is None
