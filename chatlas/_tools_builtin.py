@@ -18,7 +18,7 @@ from ._turn import AssistantTurn, Turn
 if TYPE_CHECKING:
     from anthropic.types import WebSearchTool20250305Param
     from anthropic.types.beta import (
-        BetaCodeExecutionTool20260521Param,
+        BetaCodeExecutionTool20250522Param,
         BetaWebFetchTool20250910Param,
     )
     from anthropic.types.beta.beta_citations_config_param import (
@@ -687,7 +687,7 @@ class ToolCodeExecution(ToolBuiltIn):
     def get_definition(
         self,
         provider_name: Literal["anthropic"],
-    ) -> "BetaCodeExecutionTool20260521Param": ...
+    ) -> "BetaCodeExecutionTool20250522Param": ...
 
     @overload
     def get_definition(
@@ -702,7 +702,7 @@ class ToolCodeExecution(ToolBuiltIn):
         # OpenAI-specific
         container_id: Optional[str] = None,
     ) -> (
-        "CodeInterpreter | BetaCodeExecutionTool20260521Param | GoogleToolCodeExecution"
+        "CodeInterpreter | BetaCodeExecutionTool20250522Param | GoogleToolCodeExecution"
     ):
         """
         Get the provider-specific tool definition.
@@ -742,12 +742,12 @@ class ToolCodeExecution(ToolBuiltIn):
         return {"type": "code_interpreter", "container": container}  # type: ignore
 
     @staticmethod
-    def _anthropic_definition() -> "BetaCodeExecutionTool20260521Param":
+    def _anthropic_definition() -> "BetaCodeExecutionTool20250522Param":
         """Generate Anthropic/Claude code execution tool definition."""
         # https://docs.claude.com/en/docs/agents-and-tools/tool-use/code-execution-tool
         return {
             "name": "code_execution",
-            "type": "code_execution_20260521",
+            "type": "code_execution_20250522",
         }
 
     @staticmethod
@@ -774,7 +774,7 @@ def tool_code_execution() -> ToolCodeExecution:
     -------------
     - **OpenAI**: Code execution is available by default with the Responses API.
     - **Claude**: The code execution tool requires the beta header
-      `anthropic-beta: code-execution-2026-05-21`. Pass this via the `kwargs`
+      `anthropic-beta: code-execution-2025-05-22`. Pass this via the `kwargs`
       parameter's `default_headers` option (see examples below).
     - **Google**: Code execution is available by default with Gemini.
 
@@ -797,7 +797,7 @@ def tool_code_execution() -> ToolCodeExecution:
     from chatlas import ChatAnthropic, tool_code_execution
 
     chat = ChatAnthropic(
-        kwargs={"default_headers": {"anthropic-beta": "code-execution-2026-05-21"}}
+        kwargs={"default_headers": {"anthropic-beta": "code-execution-2025-05-22"}}
     )
     chat.register_tool(tool_code_execution())
     chat.chat("What's the 20th Fibonacci number?")
@@ -810,9 +810,12 @@ def tool_code_execution() -> ToolCodeExecution:
     CSVs) aren't downloaded or decoded -- their raw provider references are
     still available via each content's `extra` attribute.
 
-    OpenAI and Claude reuse the same sandbox across turns in a conversation
+    OpenAI reuses the same sandbox across turns in a conversation
     automatically, so a variable defined in one turn is still available in
-    the next. Google starts a fresh sandbox on every turn.
+    the next. Claude also reuses the same container across turns, but its
+    code execution tool does not persist Python interpreter state (e.g.
+    variables) between separate executions -- each execution starts fresh.
+    Google starts a fresh sandbox on every turn.
     """
     return ToolCodeExecution()
 

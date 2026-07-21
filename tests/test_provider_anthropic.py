@@ -23,6 +23,7 @@ from .conftest import (
     assert_images_remote,
     assert_list_models,
     assert_pdf_local,
+    assert_tool_code_execution,
     assert_tool_web_fetch,
     assert_tool_web_search,
     assert_tools_async,
@@ -161,6 +162,28 @@ def test_anthropic_web_search_citations():
     # At least one text block should have citations from web search
     has_citations = any(getattr(block, "citations", None) for block in text_blocks)
     assert has_citations, "Expected citations on text blocks from web search"
+
+
+@pytest.mark.vcr
+def test_anthropic_code_execution():
+    def chat_fun(**kwargs):
+        return ChatAnthropic(
+            kwargs={
+                "default_headers": {"anthropic-beta": "code-execution-2025-05-22"}
+            },
+            **kwargs,
+        )
+
+    assert_tool_code_execution(chat_fun, tool_code_execution())
+
+
+# N.B. no code execution *persistence* test for Anthropic: despite chatlas
+# reusing the same `container` across turns, Claude's code execution tool
+# does not persist Python REPL state (e.g. variables) across separate turns
+# -- each execution starts a fresh interpreter. This was verified live and
+# contradicts the tool's own SDK docstring ("REPL state persistence"), so
+# it's treated the same as Google's documented per-turn-fresh-sandbox
+# limitation rather than a bug in chatlas.
 
 
 @pytest.mark.vcr
@@ -479,7 +502,7 @@ def test_anthropic_code_execution_tool_schema():
 
     schema = AnthropicProvider._anthropic_tool_schema(tool_code_execution())
     assert schema["name"] == "code_execution"
-    assert schema["type"] == "code_execution_20260521"
+    assert schema["type"] == "code_execution_20250522"
 
 
 def test_anthropic_code_execution_container_reuse():

@@ -410,7 +410,7 @@ class TestToolCodeExecutionConfiguration:
         tool = tool_code_execution()
         definition = tool.get_definition("anthropic")
         assert definition["name"] == "code_execution"
-        assert definition["type"] == "code_execution_20260521"
+        assert definition["type"] == "code_execution_20250522"
 
     def test_google_definition(self):
         from google.genai.types import ToolCodeExecution as GoogleToolCodeExecution

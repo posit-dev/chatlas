@@ -14,6 +14,8 @@ from .conftest import (
     assert_images_remote,
     assert_list_models,
     assert_pdf_local,
+    assert_tool_code_execution,
+    assert_tool_code_execution_persistence,
     assert_tool_web_search,
     assert_tools_async,
     assert_tools_parallel,
@@ -128,6 +130,22 @@ def test_openai_web_search():
         tool_web_search(),
         hint="The CRAN archive page has this info.",
     )
+
+
+@pytest.mark.vcr
+def test_openai_code_execution():
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-4.1", **kwargs)
+
+    assert_tool_code_execution(chat_fun, tool_code_execution())
+
+
+@pytest.mark.vcr
+def test_openai_code_execution_persistence():
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-4.1", **kwargs)
+
+    assert_tool_code_execution_persistence(chat_fun, tool_code_execution())
 
 
 @pytest.mark.vcr

@@ -19,6 +19,7 @@ from .conftest import (
     assert_images_remote_error,
     assert_list_models,
     assert_pdf_local,
+    assert_tool_code_execution,
     assert_tool_web_fetch,
     assert_tool_web_search,
     assert_tools_parallel,
@@ -213,6 +214,12 @@ def test_google_web_fetch():
 @retry_gemini_call
 def test_google_web_search():
     assert_tool_web_search(chat_func, tool_web_search())
+
+
+@pytest.mark.vcr
+@retry_gemini_call
+def test_google_code_execution():
+    assert_tool_code_execution(chat_func, tool_code_execution())
 
 
 @pytest.mark.vcr
