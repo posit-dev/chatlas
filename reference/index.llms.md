@@ -17,6 +17,7 @@ Start a chat with a particular large language model (llm) provider.
 | [ChatGoogle](../reference/ChatGoogle.llms.md#chatlas.ChatGoogle) | Chat with a Google Gemini model. |
 | [ChatGroq](../reference/ChatGroq.llms.md#chatlas.ChatGroq) | Chat with a model hosted on Groq. |
 | [ChatHuggingFace](../reference/ChatHuggingFace.llms.md#chatlas.ChatHuggingFace) | Chat with a model hosted on Hugging Face Inference API. |
+| [ChatLMStudio](../reference/ChatLMStudio.llms.md#chatlas.ChatLMStudio) | Chat with a local LM Studio model. |
 | [ChatMistral](../reference/ChatMistral.llms.md#chatlas.ChatMistral) | Chat with a model hosted on Mistral’s La Plateforme. |
 | [ChatOllama](../reference/ChatOllama.llms.md#chatlas.ChatOllama) | Chat with a local Ollama model. |
 | [ChatOpenAI](../reference/ChatOpenAI.llms.md#chatlas.ChatOpenAI) | Chat with an OpenAI model using the responses API. |

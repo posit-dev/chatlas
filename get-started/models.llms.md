@@ -16,6 +16,7 @@ Below is a table of model providers that come pre-packaged with chatlas.
 | Google (Vertex) | [`ChatVertex()`](../reference/ChatVertex.llms.md) | ✅ |
 | GitHub model marketplace | [`ChatGithub()`](../reference/ChatGithub.llms.md) |  |
 | Ollama (local models) | [`ChatOllama()`](../reference/ChatOllama.llms.md) |  |
+| LM Studio (local models) | [`ChatLMStudio()`](../reference/ChatLMStudio.llms.md) |  |
 | Open Router | [`ChatOpenRouter()`](../reference/ChatOpenRouter.llms.md) |  |
 | DeepSeek | [`ChatDeepSeek()`](../reference/ChatDeepSeek.llms.md) |  |
 | Hugging Face | [`ChatHuggingFace()`](../reference/ChatHuggingFace.llms.md) |  |

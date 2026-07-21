@@ -1,5 +1,26 @@
 # Changelog
 
+## \[UNRELEASED\]
+
+### New features
+
+- `batch_chat()` now supports `ChatGoogle()` (Gemini Developer API batch jobs). Batch is also now documented as supported for `ChatGroq()`, which already worked via its OpenAI-compatible provider. (Vertex AI is not supported, since its batch API requires GCS bucket URIs instead of inline requests.)
+- `ChatOllama()` gains a `reasoning_effort` parameter to enable extended “thinking” for models that support it (e.g. qwen3, gpt-oss).
+
+### Improvements
+
+- `ChatGoogle()` and `ChatVertex()` now default to `gemini-3.5-flash` instead of the older `gemini-2.5-flash`.
+
+### Bug fixes
+
+- `ChatGoogle()` no longer errors when mixing custom tools and built-in tools (e.g. `tool_web_search()`) on Gemini 3+ models.
+
+## \[0.19.2\] - 2026-07-08
+
+### New features
+
+- The `.app()` method now includes latest shinychat features like history, file attachments, etc.
+
 ## \[0.19.1\] - 2026-07-01
 
 ### New features

@@ -6,6 +6,7 @@ ChatOllama(
     *,
     system_prompt=None,
     base_url='http://localhost:11434',
+    reasoning_effort=None,
     seed=MISSING,
     kwargs=None,
 )
@@ -41,6 +42,7 @@ chat.chat("What is the capital of France?")
 | model | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | The model to use for the chat. If `None`, a list of locally installed models will be printed. | `None` |
 | system_prompt | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A system prompt to set the behavior of the assistant. | `None` |
 | base_url | [str](https://docs.python.org/3/library/stdtypes.html#str) | The base URL to the endpoint; the default uses ollama’s API. | `'http://localhost:11434'` |
+| reasoning_effort | 'ReasoningEffort' | Enables extended “thinking” for models that support it (e.g. qwen3, gpt-oss). Which values are accepted is model-dependent – qwen3 only distinguishes `"none"` from any other value (thinking on), while gpt-oss accepts `"low"`, `"medium"`, or `"high"` but ignores `"none"`. See <https://docs.ollama.com/capabilities/thinking> for details. | `None` |
 | seed | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Optional integer seed that helps to make output more reproducible. | `MISSING` |
 | kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\['ChatClientArgs'\] | Additional arguments to pass to the `openai.OpenAI()` client constructor. | `None` |
 

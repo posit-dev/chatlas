@@ -6,7 +6,7 @@ batch_chat(chat, prompts, path, wait=True)
 
 Submit multiple chat requests in a batch.
 
-This function allows you to submit multiple chat requests simultaneously using provider batch APIs (currently OpenAI and Anthropic). Batch processing can take up to 24 hours but offers significant cost savings.
+This function allows you to submit multiple chat requests simultaneously using provider batch APIs (currently OpenAI, Anthropic, Google, and Groq). Batch processing can take up to 24 hours but offers significant cost savings.
 
 ## Parameters
 

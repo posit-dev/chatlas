@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-8e55dc88053bf03a1312484fa5f53e7d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-5626ca84fdfd29112abcaec6059ffdde.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -258,6 +258,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../reference/ChatHuggingFace.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">ChatHuggingFace</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ChatLMStudio.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatLMStudio</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -765,9 +771,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span><span class="st">'http://localhost:11434'</span>,</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    seed<span class="op">=</span>MISSING,</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    reasoning_effort<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    seed<span class="op">=</span>MISSING,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Chat with a local Ollama model.</p>
 <p><a href="https://ollama.com">Ollama</a> makes it easy to run a wide-variety of open-source models locally, making it a great choice for privacy and security.</p>
 <section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
@@ -837,12 +844,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><code>'http://localhost:11434'</code></td>
 </tr>
 <tr class="even">
+<td>reasoning_effort</td>
+<td>'ReasoningEffort'</td>
+<td>Enables extended “thinking” for models that support it (e.g.&nbsp;qwen3, gpt-oss). Which values are accepted is model-dependent – qwen3 only distinguishes <code>"none"</code> from any other value (thinking on), while gpt-oss accepts <code>"low"</code>, <code>"medium"</code>, or <code>"high"</code> but ignores <code>"none"</code>. See <a href="https://docs.ollama.com/capabilities/thinking" class="uri">https://docs.ollama.com/capabilities/thinking</a> for details.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
 <td>seed</td>
 <td><a href="https://docs.python.org/3/library/functions.html#int">int</a> | None | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a></td>
 <td>Optional integer seed that helps to make output more reproducible.</td>
 <td><code>MISSING</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>kwargs</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['ChatClientArgs']</td>
 <td>Additional arguments to pass to the <code>openai.OpenAI()</code> client constructor.</td>
