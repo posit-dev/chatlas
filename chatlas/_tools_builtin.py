@@ -1,9 +1,9 @@
 """
-Built-in provider tools for web search and fetch.
+Built-in provider tools for web search, web fetch, and code execution.
 
 These classes provide a provider-agnostic way to configure built-in tools
-like web search and URL fetching. Each provider translates these configurations
-into their specific API format.
+like web search, URL fetching, and code execution. Each provider translates
+these configurations into their specific API format.
 """
 
 from __future__ import annotations
@@ -11,12 +11,16 @@ from __future__ import annotations
 import warnings
 from typing import TYPE_CHECKING, Literal, Optional, overload
 
-from ._content import ToolAnnotations
+from ._content import ContentToolResponseCodeExecution, ToolAnnotations
 from ._tools import ToolBuiltIn
+from ._turn import AssistantTurn, Turn
 
 if TYPE_CHECKING:
     from anthropic.types import WebSearchTool20250305Param
-    from anthropic.types.beta import BetaWebFetchTool20250910Param
+    from anthropic.types.beta import (
+        BetaCodeExecutionTool20260521Param,
+        BetaWebFetchTool20250910Param,
+    )
     from anthropic.types.beta.beta_citations_config_param import (
         BetaCitationsConfigParam,
     )
@@ -29,7 +33,9 @@ if TYPE_CHECKING:
         PhishBlockThreshold,
         UrlContext,
     )
+    from google.genai.types import ToolCodeExecution as GoogleToolCodeExecution
     from openai.types.responses import WebSearchToolParam
+    from openai.types.responses.tool_param import CodeInterpreter
 
     from ._typing_extensions import TypedDict
 
@@ -49,8 +55,10 @@ if TYPE_CHECKING:
 __all__ = (
     "tool_web_search",
     "tool_web_fetch",
+    "tool_code_execution",
     "ToolWebSearch",
     "ToolWebFetch",
+    "ToolCodeExecution",
 )
 
 
@@ -643,3 +651,185 @@ def tool_web_fetch(
         blocked_domains=blocked_domains,
         max_uses=max_uses,
     )
+
+
+class ToolCodeExecution(ToolBuiltIn):
+    """
+    A provider-agnostic code execution tool configuration.
+
+    This class stores configuration for server-side code execution
+    functionality. Each provider translates this configuration into their
+    specific API format.
+    """
+
+    def __init__(self):
+        _annotations: ToolAnnotations = {
+            "title": "Code execution",
+            "readOnlyHint": False,
+            "openWorldHint": False,
+        }
+        super().__init__(
+            name="code_execution",
+            definition={},
+            description="Execute code in a sandboxed environment.",
+            annotations=_annotations,
+        )
+
+    @overload
+    def get_definition(
+        self,
+        provider_name: Literal["openai"],
+        *,
+        container_id: Optional[str] = None,
+    ) -> "CodeInterpreter": ...
+
+    @overload
+    def get_definition(
+        self,
+        provider_name: Literal["anthropic"],
+    ) -> "BetaCodeExecutionTool20260521Param": ...
+
+    @overload
+    def get_definition(
+        self,
+        provider_name: Literal["google"],
+    ) -> "GoogleToolCodeExecution": ...
+
+    def get_definition(
+        self,
+        provider_name: Literal["openai", "anthropic", "google"],
+        *,
+        # OpenAI-specific
+        container_id: Optional[str] = None,
+    ) -> (
+        "CodeInterpreter | BetaCodeExecutionTool20260521Param | GoogleToolCodeExecution"
+    ):
+        """
+        Get the provider-specific tool definition.
+
+        Parameters
+        ----------
+        provider_name
+            The name of the provider ('openai', 'anthropic', or 'google').
+        container_id
+            OpenAI only. Reuse an existing sandbox container instead of
+            starting a fresh one. `chatlas.Chat` sets this automatically
+            from prior turns; you shouldn't need to pass it yourself.
+
+        Returns
+        -------
+        :
+            The provider-specific tool definition.
+        """
+        if provider_name == "openai":
+            return self._openai_definition(container_id=container_id)
+        elif provider_name == "anthropic":
+            return self._anthropic_definition()
+        elif provider_name == "google":
+            return self._google_definition()
+        else:
+            raise ValueError(
+                f"Code execution is not supported for provider '{provider_name}'. "
+                "Supported providers: openai, anthropic, google."
+            )
+
+    @staticmethod
+    def _openai_definition(*, container_id: Optional[str] = None) -> "CodeInterpreter":
+        """Generate OpenAI code interpreter tool definition."""
+        # https://platform.openai.com/docs/guides/tools-code-interpreter
+        container = container_id or {"type": "auto"}
+        return {"type": "code_interpreter", "container": container}  # type: ignore
+
+    @staticmethod
+    def _anthropic_definition() -> "BetaCodeExecutionTool20260521Param":
+        """Generate Anthropic/Claude code execution tool definition."""
+        # https://docs.claude.com/en/docs/agents-and-tools/tool-use/code-execution-tool
+        return {
+            "name": "code_execution",
+            "type": "code_execution_20260521",
+        }
+
+    @staticmethod
+    def _google_definition() -> "GoogleToolCodeExecution":
+        """Generate Google/Gemini code execution tool definition."""
+        # https://ai.google.dev/gemini-api/docs/code-execution
+        from google.genai.types import ToolCodeExecution as GoogleToolCodeExecution
+
+        return GoogleToolCodeExecution()
+
+
+def tool_code_execution() -> ToolCodeExecution:
+    """
+    Create a code execution tool for use with chat models.
+
+    This function creates a provider-agnostic code execution tool that can be
+    registered with any supported chat provider. The tool allows the model to
+    write and run code in a sandboxed environment and see the result -- e.g.
+    for math, data analysis, or verifying its own logic.
+
+    Supported providers: OpenAI, Claude (Anthropic), Google (Gemini)
+
+    Prerequisites
+    -------------
+    - **OpenAI**: Code execution is available by default with the Responses API.
+    - **Claude**: The code execution tool requires the beta header
+      `anthropic-beta: code-execution-2026-05-21`. Pass this via the `kwargs`
+      parameter's `default_headers` option (see examples below).
+    - **Google**: Code execution is available by default with Gemini.
+
+    Returns
+    -------
+    ToolCodeExecution
+        A code execution tool that can be registered with `chat.register_tool()`.
+
+    Examples
+    --------
+    ```python
+    from chatlas import ChatOpenAI, tool_code_execution
+
+    chat = ChatOpenAI()
+    chat.register_tool(tool_code_execution())
+    chat.chat("What's the 20th Fibonacci number?")
+    ```
+
+    ```python
+    from chatlas import ChatAnthropic, tool_code_execution
+
+    chat = ChatAnthropic(
+        kwargs={"default_headers": {"anthropic-beta": "code-execution-2026-05-21"}}
+    )
+    chat.register_tool(tool_code_execution())
+    chat.chat("What's the 20th Fibonacci number?")
+    ```
+
+    Note
+    ----
+    Only text output (stdout/stderr, or each provider's equivalent) is
+    surfaced as structured content. Files the code produces (e.g. plots,
+    CSVs) aren't downloaded or decoded -- their raw provider references are
+    still available via each content's `extra` attribute.
+
+    OpenAI and Claude reuse the same sandbox across turns in a conversation
+    automatically, so a variable defined in one turn is still available in
+    the next. Google starts a fresh sandbox on every turn.
+    """
+    return ToolCodeExecution()
+
+
+def last_code_execution_container_id(turns: list["Turn"]) -> Optional[str]:
+    """
+    Find the most recent code execution container/sandbox id in turn history.
+
+    Providers that support session reuse (OpenAI, Anthropic) key off this to
+    reuse the same sandbox across turns instead of starting a fresh one.
+    """
+    for turn in reversed(turns):
+        if not isinstance(turn, AssistantTurn):
+            continue
+        for content in reversed(turn.contents):
+            if (
+                isinstance(content, ContentToolResponseCodeExecution)
+                and content.container_id
+            ):
+                return content.container_id
+    return None
