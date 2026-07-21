@@ -1,0 +1,305 @@
+{
+  "version": 1,
+  "stage": "done",
+  "batch": {
+    "name": "batches/bftevn61yv30eixxykbs5m172oqzvhusmtxg",
+    "display_name": null,
+    "state": "JOB_STATE_SUCCEEDED",
+    "error": null,
+    "create_time": "2026-07-21T17:40:29.864564Z",
+    "start_time": null,
+    "end_time": "2026-07-21T17:42:06.432441Z",
+    "update_time": "2026-07-21T17:42:06.432442Z",
+    "model": "models/gemini-flash-latest",
+    "src": null,
+    "dest": {
+      "format": null,
+      "gcs_uri": null,
+      "bigquery_uri": null,
+      "file_name": null,
+      "inlined_responses": [
+        {
+          "response": {
+            "sdk_http_response": null,
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "media_resolution": null,
+                      "code_execution_result": null,
+                      "executable_code": null,
+                      "file_data": null,
+                      "function_call": null,
+                      "function_response": null,
+                      "inline_data": null,
+                      "text": "The capital of France is **Paris**.",
+                      "thought": null,
+                      "thought_signature": "Eo8DCowDARFNMg_PSXB6Dwc9YX-X9Umc6YmjvEEPSvJocu0TuOSy1jfPOpNEKSd0ZEMP10KEqiKvJqC7C7mTiTCHvwdxsUXUISIzX__BZ_wiMjd8dPKqFrLbJJd6O2teGjZ9-RRAgYWcZ8fm-c7_WcqQpfZYU5GoAwdGf6PpY0W5a0QQPzgXKvxJxCbENoCoZRHSzjsgYAdilNkjFDbuOoh9hJPCBy9Jhl0JO4ipA45zozjm72Ej6ti86e-aje7CZFEjBAfRUyYz5k4aZIJ4ns7GBAW_O0sXaH6Fmy9IVlDCnukkz6OLzOkXWD17W24lMn6o6-sqLyM_NcLkuneDUjn8n5PleRnzCTYuba2v_aAn9OR9q0xT1fXVmfVHqQnYLZdSmEAdd-w7oapcA5Qmc3E1dYGYr9viXLX_x3vsA7obBksulS9kYak8DTFDKT4kffKBHKs-lp4hZpdaUPMjFKmszMhHOcqhaMa-0SQo83CTB6-cMO5dgILKVnLcTiaYe5IHNOntm8yXEYyLztEQDmkW",
+                      "video_metadata": null,
+                      "tool_call": null,
+                      "tool_response": null,
+                      "part_metadata": null
+                    }
+                  ],
+                  "role": "model"
+                },
+                "citation_metadata": null,
+                "finish_message": null,
+                "token_count": null,
+                "finish_reason": "STOP",
+                "grounding_metadata": null,
+                "avg_logprobs": null,
+                "index": 0,
+                "logprobs_result": null,
+                "safety_ratings": null,
+                "url_context_metadata": null
+              }
+            ],
+            "create_time": null,
+            "model_version": "gemini-3.6-flash",
+            "prompt_feedback": null,
+            "response_id": "ZK9fase3OrGQ6dkPlv6VyQc",
+            "usage_metadata": {
+              "cache_tokens_details": null,
+              "cached_content_token_count": null,
+              "candidates_token_count": 8,
+              "candidates_tokens_details": null,
+              "prompt_token_count": 9,
+              "prompt_tokens_details": [
+                {
+                  "modality": "TEXT",
+                  "token_count": 9
+                }
+              ],
+              "thoughts_token_count": 86,
+              "tool_use_prompt_token_count": null,
+              "tool_use_prompt_tokens_details": null,
+              "total_token_count": 103,
+              "traffic_type": null
+            },
+            "model_status": null,
+            "automatic_function_calling_history": null,
+            "parsed": null
+          },
+          "metadata": null,
+          "error": null
+        },
+        {
+          "response": {
+            "sdk_http_response": null,
+            "candidates": [
+              {
+                "content": {
+                  "parts": [
+                    {
+                      "media_resolution": null,
+                      "code_execution_result": null,
+                      "executable_code": null,
+                      "file_data": null,
+                      "function_call": null,
+                      "function_response": null,
+                      "inline_data": null,
+                      "text": "The capital of Germany is **Berlin**.",
+                      "thought": null,
+                      "thought_signature": "EtgCCtUCARFNMg-Z_8ND9o8-c3y0-XWgJLD69Cvvk4t5GN1gmNiFNyLztF6TS-e-wz7bLPKhuk59JWpFyss8KZ-FAF3StoHR0vjCtpvkUQgp7_KJjriosClc0CZDik2-0KC30hekgSc7BqsidJYBGFV2CqdJA1JMxEW06hSYuKMBtf5s9Ow8cOVoFoQgukD52TQIY9oOxKvmCHlOvblzm3h-ZA6rK6I58BbLBPzf3V_iceaUaEg1R_C0_CA-RhdM39a_aU4xyaFlRfckH6z1e6gAhlzY9herfnNywWGXKJBLUWshhhXFqnErUfrBCrA-aXWVx4SS4u2lyR141ZBk32wBsCJshbU5gia3KFlRnbWmY07G7toLgiY48qUmz4PC_O4t7ALvCfDcPDkMLoxVGhHQOJcuIKxTzFl38az3m-uy90SqzoYZDM3Yus7xS9pY_0HIEt4n-hlS9rk=",
+                      "video_metadata": null,
+                      "tool_call": null,
+                      "tool_response": null,
+                      "part_metadata": null
+                    }
+                  ],
+                  "role": "model"
+                },
+                "citation_metadata": null,
+                "finish_message": null,
+                "token_count": null,
+                "finish_reason": "STOP",
+                "grounding_metadata": null,
+                "avg_logprobs": null,
+                "index": 0,
+                "logprobs_result": null,
+                "safety_ratings": null,
+                "url_context_metadata": null
+              }
+            ],
+            "create_time": null,
+            "model_version": "gemini-3.6-flash",
+            "prompt_feedback": null,
+            "response_id": "ZK9faqevMNGkqtsPrZKaqA4",
+            "usage_metadata": {
+              "cache_tokens_details": null,
+              "cached_content_token_count": null,
+              "candidates_token_count": 8,
+              "candidates_tokens_details": null,
+              "prompt_token_count": 9,
+              "prompt_tokens_details": [
+                {
+                  "modality": "TEXT",
+                  "token_count": 9
+                }
+              ],
+              "thoughts_token_count": 71,
+              "tool_use_prompt_token_count": null,
+              "tool_use_prompt_tokens_details": null,
+              "total_token_count": 88,
+              "traffic_type": null
+            },
+            "model_status": null,
+            "automatic_function_calling_history": null,
+            "parsed": null
+          },
+          "metadata": null,
+          "error": null
+        }
+      ],
+      "inlined_embed_content_responses": null,
+      "vertex_dataset": null
+    },
+    "completion_stats": null,
+    "output_info": null
+  },
+  "results": [
+    {
+      "response": {
+        "sdk_http_response": null,
+        "candidates": [
+          {
+            "content": {
+              "parts": [
+                {
+                  "media_resolution": null,
+                  "code_execution_result": null,
+                  "executable_code": null,
+                  "file_data": null,
+                  "function_call": null,
+                  "function_response": null,
+                  "inline_data": null,
+                  "text": "The capital of France is **Paris**.",
+                  "thought": null,
+                  "thought_signature": "Eo8DCowDARFNMg_PSXB6Dwc9YX-X9Umc6YmjvEEPSvJocu0TuOSy1jfPOpNEKSd0ZEMP10KEqiKvJqC7C7mTiTCHvwdxsUXUISIzX__BZ_wiMjd8dPKqFrLbJJd6O2teGjZ9-RRAgYWcZ8fm-c7_WcqQpfZYU5GoAwdGf6PpY0W5a0QQPzgXKvxJxCbENoCoZRHSzjsgYAdilNkjFDbuOoh9hJPCBy9Jhl0JO4ipA45zozjm72Ej6ti86e-aje7CZFEjBAfRUyYz5k4aZIJ4ns7GBAW_O0sXaH6Fmy9IVlDCnukkz6OLzOkXWD17W24lMn6o6-sqLyM_NcLkuneDUjn8n5PleRnzCTYuba2v_aAn9OR9q0xT1fXVmfVHqQnYLZdSmEAdd-w7oapcA5Qmc3E1dYGYr9viXLX_x3vsA7obBksulS9kYak8DTFDKT4kffKBHKs-lp4hZpdaUPMjFKmszMhHOcqhaMa-0SQo83CTB6-cMO5dgILKVnLcTiaYe5IHNOntm8yXEYyLztEQDmkW",
+                  "video_metadata": null,
+                  "tool_call": null,
+                  "tool_response": null,
+                  "part_metadata": null
+                }
+              ],
+              "role": "model"
+            },
+            "citation_metadata": null,
+            "finish_message": null,
+            "token_count": null,
+            "finish_reason": "STOP",
+            "grounding_metadata": null,
+            "avg_logprobs": null,
+            "index": 0,
+            "logprobs_result": null,
+            "safety_ratings": null,
+            "url_context_metadata": null
+          }
+        ],
+        "create_time": null,
+        "model_version": "gemini-3.6-flash",
+        "prompt_feedback": null,
+        "response_id": "ZK9fase3OrGQ6dkPlv6VyQc",
+        "usage_metadata": {
+          "cache_tokens_details": null,
+          "cached_content_token_count": null,
+          "candidates_token_count": 8,
+          "candidates_tokens_details": null,
+          "prompt_token_count": 9,
+          "prompt_tokens_details": [
+            {
+              "modality": "TEXT",
+              "token_count": 9
+            }
+          ],
+          "thoughts_token_count": 86,
+          "tool_use_prompt_token_count": null,
+          "tool_use_prompt_tokens_details": null,
+          "total_token_count": 103,
+          "traffic_type": null
+        },
+        "model_status": null,
+        "automatic_function_calling_history": null,
+        "parsed": null
+      },
+      "metadata": null,
+      "error": null
+    },
+    {
+      "response": {
+        "sdk_http_response": null,
+        "candidates": [
+          {
+            "content": {
+              "parts": [
+                {
+                  "media_resolution": null,
+                  "code_execution_result": null,
+                  "executable_code": null,
+                  "file_data": null,
+                  "function_call": null,
+                  "function_response": null,
+                  "inline_data": null,
+                  "text": "The capital of Germany is **Berlin**.",
+                  "thought": null,
+                  "thought_signature": "EtgCCtUCARFNMg-Z_8ND9o8-c3y0-XWgJLD69Cvvk4t5GN1gmNiFNyLztF6TS-e-wz7bLPKhuk59JWpFyss8KZ-FAF3StoHR0vjCtpvkUQgp7_KJjriosClc0CZDik2-0KC30hekgSc7BqsidJYBGFV2CqdJA1JMxEW06hSYuKMBtf5s9Ow8cOVoFoQgukD52TQIY9oOxKvmCHlOvblzm3h-ZA6rK6I58BbLBPzf3V_iceaUaEg1R_C0_CA-RhdM39a_aU4xyaFlRfckH6z1e6gAhlzY9herfnNywWGXKJBLUWshhhXFqnErUfrBCrA-aXWVx4SS4u2lyR141ZBk32wBsCJshbU5gia3KFlRnbWmY07G7toLgiY48qUmz4PC_O4t7ALvCfDcPDkMLoxVGhHQOJcuIKxTzFl38az3m-uy90SqzoYZDM3Yus7xS9pY_0HIEt4n-hlS9rk=",
+                  "video_metadata": null,
+                  "tool_call": null,
+                  "tool_response": null,
+                  "part_metadata": null
+                }
+              ],
+              "role": "model"
+            },
+            "citation_metadata": null,
+            "finish_message": null,
+            "token_count": null,
+            "finish_reason": "STOP",
+            "grounding_metadata": null,
+            "avg_logprobs": null,
+            "index": 0,
+            "logprobs_result": null,
+            "safety_ratings": null,
+            "url_context_metadata": null
+          }
+        ],
+        "create_time": null,
+        "model_version": "gemini-3.6-flash",
+        "prompt_feedback": null,
+        "response_id": "ZK9faqevMNGkqtsPrZKaqA4",
+        "usage_metadata": {
+          "cache_tokens_details": null,
+          "cached_content_token_count": null,
+          "candidates_token_count": 8,
+          "candidates_tokens_details": null,
+          "prompt_token_count": 9,
+          "prompt_tokens_details": [
+            {
+              "modality": "TEXT",
+              "token_count": 9
+            }
+          ],
+          "thoughts_token_count": 71,
+          "tool_use_prompt_token_count": null,
+          "tool_use_prompt_tokens_details": null,
+          "total_token_count": 88,
+          "traffic_type": null
+        },
+        "model_status": null,
+        "automatic_function_calling_history": null,
+        "parsed": null
+      },
+      "metadata": null,
+      "error": null
+    }
+  ],
+  "started_at": 1784655629,
+  "hash": {
+    "provider": "Google/Gemini",
+    "model": "gemini-flash-latest",
+    "prompts": "123ef0f8b30649a2e428cd300ed0e78a",
+    "user_turns": "d751713988987e9331980363e24189ce"
+  }
+}

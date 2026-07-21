@@ -383,3 +383,69 @@ def test_google_batch_retrieve_and_result_turn():
     with pytest.warns(UserWarning, match="Batch request failed"):
         failed_turn = provider.batch_result_turn(results[1], has_data_model=False)
     assert failed_turn is None
+
+
+def test_google_batch_retrieve_handles_thought_signature_bytes():
+    """Regression test for a real crash: reasoning-capable Gemini models attach
+    a non-UTF-8 thought_signature byte blob to every response part, and a
+    plain model_dump() leaves those as raw bytes, which crashes
+    BatchState.model_dump_json() once persisted to the batch state file
+    (reproduced against a live gemini-3.6-flash batch response)."""
+    from unittest.mock import MagicMock
+
+    from chatlas._batch_job import BatchState
+    from chatlas._provider_google import GoogleProvider
+    from google.genai import types
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+
+    non_utf8_signature = bytes([0x12, 0xE9, 0x03, 0x0A, 0xE6, 0x03, 0x01])
+    completed_batch = types.BatchJob(
+        name="batches/123",
+        state=types.JobState.JOB_STATE_SUCCEEDED,
+        dest=types.BatchJobDestination(
+            inlined_responses=[
+                types.InlinedResponse(
+                    response=types.GenerateContentResponse(
+                        candidates=[
+                            types.Candidate(
+                                content=types.Content(
+                                    parts=[
+                                        types.Part(
+                                            text="42",
+                                            thought_signature=non_utf8_signature,
+                                        )
+                                    ]
+                                ),
+                                finish_reason=types.FinishReason.STOP,
+                            )
+                        ]
+                    )
+                )
+            ]
+        ),
+    )
+
+    # batch_poll() and batch_retrieve() both go through model_dump(mode="json"),
+    # so their output must already be JSON-safe -- exercise that boundary here
+    # rather than passing the raw pydantic-object dump directly.
+    provider._client.batches.get = MagicMock(return_value=completed_batch)
+    polled = provider.batch_poll({"name": "batches/123"})
+
+    # This is the exact call that crashed in production: persisting the batch
+    # dict into the on-disk job state.
+    BatchState(
+        version=1,
+        stage="retrieving",
+        batch=polled,
+        results=[],
+        started_at=0,
+        hash={"provider": "x", "model": "x", "prompts": "x", "user_turns": "x"},
+    ).model_dump_json()
+
+    results = provider.batch_retrieve(polled)
+    assert len(results) == 1
+
+    turn = provider.batch_result_turn(results[0], has_data_model=False)
+    assert turn is not None
+    assert turn.text == "42"

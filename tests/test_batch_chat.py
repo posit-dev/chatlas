@@ -76,6 +76,45 @@ def test_can_retrieve_batch(test_batch_dir):
     assert capitals[1].name == "Berlin"
 
 
+def test_can_retrieve_google_batch(test_batch_dir):
+    """Replays a real, completed Gemini batch job recorded live end-to-end
+    (submit -> poll -> retrieve -> parse). This is also a regression test for
+    a real crash found during that live run: gemini-3.6-flash attaches a
+    non-UTF-8 thought_signature byte blob to every response part, which broke
+    JSON-serializing the on-disk batch state (fixed via model_dump(mode="json")
+    in GoogleProvider's batch_submit/batch_poll/batch_retrieve)."""
+    chat = ChatGoogle(model="gemini-flash-latest")
+    prompts = ["What's the capital of France?", "What's the capital of Germany?"]
+
+    chats = batch_chat(
+        chat,
+        prompts,
+        test_batch_dir / "google-capitals.json",
+    )
+    assert chats is not None
+    assert len(chats) == 2
+    assert chats[0] is not None
+    assert chats[1] is not None
+    turns1 = chats[0].get_turns()
+    turns2 = chats[1].get_turns()
+    assert len(turns1) == 2
+    assert len(turns2) == 2
+    assert isinstance(turns1[1], AssistantTurn)
+    assert turns1[1].tokens is not None
+
+    out = batch_chat_text(
+        chat,
+        prompts,
+        test_batch_dir / "google-capitals.json",
+    )
+    assert out is not None
+    assert len(out) == 2
+    assert out[0] is not None
+    assert out[1] is not None
+    assert "Paris" in out[0]
+    assert "Berlin" in out[1]
+
+
 @pytest.mark.vcr
 def test_can_submit_openai_batch():
     with tempfile.NamedTemporaryFile() as temp_file:

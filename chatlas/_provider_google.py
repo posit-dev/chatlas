@@ -729,7 +729,15 @@ class GoogleProvider(
             requests.append(types.InlinedRequest(contents=contents, config=config))
 
         batch = self._client.batches.create(model=self.model, src=requests)
-        return batch.model_dump()
+        # mode="json" is required, not cosmetic: reasoning-capable Gemini
+        # models (e.g. gemini-3.6-flash) attach an opaque thought_signature
+        # byte blob to every response part, not just tool-call parts, and
+        # those bytes are not valid UTF-8. Plain model_dump() leaves them as
+        # raw bytes, which crashes BatchState.model_dump_json() once this
+        # dict is persisted to the batch state file. mode="json" base64-
+        # encodes bytes fields, and model_validate() decodes them back
+        # losslessly (verified against a real completed batch response).
+        return batch.model_dump(mode="json")
 
     def batch_poll(self, batch):
         from google.genai import types
@@ -738,7 +746,7 @@ class GoogleProvider(
         if batch.name is None:
             raise ValueError("Batch has no name")
         b = self._client.batches.get(name=batch.name)
-        return b.model_dump()
+        return b.model_dump(mode="json")
 
     def batch_status(self, batch) -> "BatchStatus":
         from google.genai import types
@@ -775,7 +783,7 @@ class GoogleProvider(
         # file-based batch_retrieve() in _provider_openai_generic.py and
         # _provider_anthropic.py): the SDK's inlined_responses are documented
         # to preserve input order.
-        return [r.model_dump() for r in batch.dest.inlined_responses]
+        return [r.model_dump(mode="json") for r in batch.dest.inlined_responses]
 
     def batch_result_turn(self, result, has_data_model: bool = False):
         from google.genai import types
