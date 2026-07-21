@@ -43,6 +43,13 @@
   },
   {
     "provider": "AWS/Bedrock",
+    "model": "amazon.titan-embed-g1-text-02",
+    "variant": "",
+    "input": 0.1,
+    "output": 0
+  },
+  {
+    "provider": "AWS/Bedrock",
     "model": "amazon.titan-embed-image-v1",
     "variant": "",
     "input": 0.8,
@@ -59,7 +66,7 @@
     "provider": "AWS/Bedrock",
     "model": "amazon.titan-embed-text-v2:0",
     "variant": "",
-    "input": 0.2,
+    "input": 0.02,
     "output": 0
   },
   {
@@ -974,13 +981,6 @@
   },
   {
     "provider": "AWS/Bedrock",
-    "model": "us-east-1/minimax.minimax-m2.5",
-    "variant": "",
-    "input": 0.3,
-    "output": 1.2
-  },
-  {
-    "provider": "AWS/Bedrock",
     "model": "us-east-1/mistral.mistral-7b-instruct-v0:2",
     "variant": "",
     "input": 0.15,
@@ -1328,13 +1328,6 @@
   },
   {
     "provider": "AWS/Bedrock",
-    "model": "us-west-2/minimax.minimax-m2.5",
-    "variant": "",
-    "input": 0.3,
-    "output": 1.2
-  },
-  {
-    "provider": "AWS/Bedrock",
     "model": "us-west-2/mistral.mistral-7b-instruct-v0:2",
     "variant": "",
     "input": 0.15,
@@ -1550,6 +1543,14 @@
   },
   {
     "provider": "Anthropic",
+    "model": "claude-fable-5",
+    "variant": "",
+    "input": 10,
+    "output": 50,
+    "cached_input": 1
+  },
+  {
+    "provider": "Anthropic",
     "model": "claude-haiku-4-5",
     "variant": "",
     "input": 1,
@@ -1701,6 +1702,14 @@
     "cached_input": 0.3
   },
   {
+    "provider": "Anthropic",
+    "model": "claude-sonnet-5",
+    "variant": "",
+    "input": 2,
+    "output": 10,
+    "cached_input": 0.2
+  },
+  {
     "provider": "Azure/OpenAI",
     "model": "ada",
     "variant": "",
@@ -1838,6 +1847,182 @@
     "input": 0.275,
     "output": 2.2,
     "cached_input": 0.028
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.4",
+    "variant": "",
+    "input": 2.75,
+    "output": 16.5,
+    "cached_input": 0.28
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.4",
+    "variant": "priority",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.4-2026-03-05",
+    "variant": "",
+    "input": 2.75,
+    "output": 16.5,
+    "cached_input": 0.28
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.4-2026-03-05",
+    "variant": "priority",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.5",
+    "variant": "",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.5",
+    "variant": "above_272k_tokens",
+    "input": 11,
+    "output": 49.5,
+    "cached_input": 1.1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.5",
+    "variant": "priority",
+    "input": 13.75,
+    "output": 82.5,
+    "cached_input": 1.38
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.5-2026-04-23",
+    "variant": "",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.5-2026-04-23",
+    "variant": "above_272k_tokens",
+    "input": 11,
+    "output": 49.5,
+    "cached_input": 1.1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.5-2026-04-23",
+    "variant": "priority",
+    "input": 13.75,
+    "output": 82.5,
+    "cached_input": 1.38
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6",
+    "variant": "",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6",
+    "variant": "above_272k_tokens",
+    "input": 11,
+    "output": 49.5,
+    "cached_input": 1.1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6",
+    "variant": "priority",
+    "input": 13.75,
+    "output": 82.5,
+    "cached_input": 1.375
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6-luna",
+    "variant": "",
+    "input": 1.1,
+    "output": 6.6,
+    "cached_input": 0.11
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6-luna",
+    "variant": "above_272k_tokens",
+    "input": 2.2,
+    "output": 9.9,
+    "cached_input": 0.22
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6-luna",
+    "variant": "priority",
+    "input": 2.75,
+    "output": 16.5,
+    "cached_input": 0.275
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6-sol",
+    "variant": "",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6-sol",
+    "variant": "above_272k_tokens",
+    "input": 11,
+    "output": 49.5,
+    "cached_input": 1.1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6-sol",
+    "variant": "priority",
+    "input": 13.75,
+    "output": 82.5,
+    "cached_input": 1.375
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6-terra",
+    "variant": "",
+    "input": 2.75,
+    "output": 16.5,
+    "cached_input": 0.275
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6-terra",
+    "variant": "above_272k_tokens",
+    "input": 5.5,
+    "output": 24.75,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "eu/gpt-5.6-terra",
+    "variant": "priority",
+    "input": 6.875,
+    "output": 41.25,
+    "cached_input": 0.6875
   },
   {
     "provider": "Azure/OpenAI",
@@ -2797,6 +2982,134 @@
   },
   {
     "provider": "Azure/OpenAI",
+    "model": "gpt-5.6",
+    "variant": "",
+    "input": 5,
+    "output": 30,
+    "cached_input": 0.5
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6",
+    "variant": "above_272k_tokens",
+    "input": 10,
+    "output": 45,
+    "cached_input": 1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6",
+    "variant": "above_272k_tokens_priority",
+    "input": 20,
+    "output": 90,
+    "cached_input": 2
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6",
+    "variant": "priority",
+    "input": 10,
+    "output": 60,
+    "cached_input": 1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-luna",
+    "variant": "",
+    "input": 1,
+    "output": 6,
+    "cached_input": 0.1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-luna",
+    "variant": "above_272k_tokens",
+    "input": 2,
+    "output": 9,
+    "cached_input": 0.2
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-luna",
+    "variant": "above_272k_tokens_priority",
+    "input": 4,
+    "output": 18,
+    "cached_input": 0.4
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-luna",
+    "variant": "priority",
+    "input": 2,
+    "output": 12,
+    "cached_input": 0.2
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-sol",
+    "variant": "",
+    "input": 5,
+    "output": 30,
+    "cached_input": 0.5
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-sol",
+    "variant": "above_272k_tokens",
+    "input": 10,
+    "output": 45,
+    "cached_input": 1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-sol",
+    "variant": "above_272k_tokens_priority",
+    "input": 20,
+    "output": 90,
+    "cached_input": 2
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-sol",
+    "variant": "priority",
+    "input": 10,
+    "output": 60,
+    "cached_input": 1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-terra",
+    "variant": "",
+    "input": 2.5,
+    "output": 15,
+    "cached_input": 0.25
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-terra",
+    "variant": "above_272k_tokens",
+    "input": 5,
+    "output": 22.5,
+    "cached_input": 0.5
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-terra",
+    "variant": "above_272k_tokens_priority",
+    "input": 10,
+    "output": 45,
+    "cached_input": 1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "gpt-5.6-terra",
+    "variant": "priority",
+    "input": 5,
+    "output": 30,
+    "cached_input": 0.5
+  },
+  {
+    "provider": "Azure/OpenAI",
     "model": "gpt-audio-1.5-2026-02-23",
     "variant": "",
     "input": 2.5,
@@ -3201,6 +3514,182 @@
   },
   {
     "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.4",
+    "variant": "",
+    "input": 2.75,
+    "output": 16.5,
+    "cached_input": 0.28
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.4",
+    "variant": "priority",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.4-2026-03-05",
+    "variant": "",
+    "input": 2.75,
+    "output": 16.5,
+    "cached_input": 0.28
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.4-2026-03-05",
+    "variant": "priority",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.5",
+    "variant": "",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.5",
+    "variant": "above_272k_tokens",
+    "input": 11,
+    "output": 49.5,
+    "cached_input": 1.1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.5",
+    "variant": "priority",
+    "input": 13.75,
+    "output": 82.5,
+    "cached_input": 1.38
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.5-2026-04-23",
+    "variant": "",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.5-2026-04-23",
+    "variant": "above_272k_tokens",
+    "input": 11,
+    "output": 49.5,
+    "cached_input": 1.1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.5-2026-04-23",
+    "variant": "priority",
+    "input": 13.75,
+    "output": 82.5,
+    "cached_input": 1.38
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6",
+    "variant": "",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6",
+    "variant": "above_272k_tokens",
+    "input": 11,
+    "output": 49.5,
+    "cached_input": 1.1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6",
+    "variant": "priority",
+    "input": 13.75,
+    "output": 82.5,
+    "cached_input": 1.375
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6-luna",
+    "variant": "",
+    "input": 1.1,
+    "output": 6.6,
+    "cached_input": 0.11
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6-luna",
+    "variant": "above_272k_tokens",
+    "input": 2.2,
+    "output": 9.9,
+    "cached_input": 0.22
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6-luna",
+    "variant": "priority",
+    "input": 2.75,
+    "output": 16.5,
+    "cached_input": 0.275
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6-sol",
+    "variant": "",
+    "input": 5.5,
+    "output": 33,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6-sol",
+    "variant": "above_272k_tokens",
+    "input": 11,
+    "output": 49.5,
+    "cached_input": 1.1
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6-sol",
+    "variant": "priority",
+    "input": 13.75,
+    "output": 82.5,
+    "cached_input": 1.375
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6-terra",
+    "variant": "",
+    "input": 2.75,
+    "output": 16.5,
+    "cached_input": 0.275
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6-terra",
+    "variant": "above_272k_tokens",
+    "input": 5.5,
+    "output": 24.75,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Azure/OpenAI",
+    "model": "us/gpt-5.6-terra",
+    "variant": "priority",
+    "input": 6.875,
+    "output": 41.25,
+    "cached_input": 0.6875
+  },
+  {
+    "provider": "Azure/OpenAI",
     "model": "us/o1-2024-12-17",
     "variant": "",
     "input": 16.5,
@@ -3502,6 +3991,20 @@
   },
   {
     "provider": "Google/Gemini",
+    "model": "gemini-3-pro-image",
+    "variant": "",
+    "input": 2,
+    "output": 12
+  },
+  {
+    "provider": "Google/Gemini",
+    "model": "gemini-3-pro-image",
+    "variant": "batches",
+    "input": 1,
+    "output": 6
+  },
+  {
+    "provider": "Google/Gemini",
     "model": "gemini-3-pro-image-preview",
     "variant": "",
     "input": 2,
@@ -3555,6 +4058,20 @@
   },
   {
     "provider": "Google/Gemini",
+    "model": "gemini-3.1-flash-image",
+    "variant": "",
+    "input": 0.25,
+    "output": 1.5
+  },
+  {
+    "provider": "Google/Gemini",
+    "model": "gemini-3.1-flash-image",
+    "variant": "batches",
+    "input": 0.125,
+    "output": 0.75
+  },
+  {
+    "provider": "Google/Gemini",
     "model": "gemini-3.1-flash-image-preview",
     "variant": "",
     "input": 0.25,
@@ -3580,8 +4097,7 @@
     "model": "gemini-3.1-flash-lite",
     "variant": "batches",
     "input": 0.125,
-    "output": 0.75,
-    "cached_input": 0.0125
+    "output": 0.75
   },
   {
     "provider": "Google/Gemini",
@@ -3800,6 +4316,13 @@
   },
   {
     "provider": "Google/Gemini",
+    "model": "gemini-omni-flash-preview",
+    "variant": "",
+    "input": 1.5,
+    "output": 9
+  },
+  {
+    "provider": "Google/Gemini",
     "model": "gemini-pro-latest",
     "variant": "",
     "input": 1.25,
@@ -3996,6 +4519,20 @@
   },
   {
     "provider": "Google/Vertex",
+    "model": "gemini-3-pro-image",
+    "variant": "",
+    "input": 2,
+    "output": 12
+  },
+  {
+    "provider": "Google/Vertex",
+    "model": "gemini-3-pro-image",
+    "variant": "batches",
+    "input": 1,
+    "output": 6
+  },
+  {
+    "provider": "Google/Vertex",
     "model": "gemini-3-pro-image-preview",
     "variant": "",
     "input": 2,
@@ -4049,6 +4586,13 @@
   },
   {
     "provider": "Google/Vertex",
+    "model": "gemini-3.1-flash-image",
+    "variant": "",
+    "input": 0.5,
+    "output": 3
+  },
+  {
+    "provider": "Google/Vertex",
     "model": "gemini-3.1-flash-image-preview",
     "variant": "",
     "input": 0.5,
@@ -4067,8 +4611,7 @@
     "model": "gemini-3.1-flash-lite",
     "variant": "batches",
     "input": 0.125,
-    "output": 0.75,
-    "cached_input": 0.0125
+    "output": 0.75
   },
   {
     "provider": "Google/Vertex",
@@ -4182,6 +4725,13 @@
   },
   {
     "provider": "Google/Vertex",
+    "model": "gemini-omni-flash-preview",
+    "variant": "",
+    "input": 1.5,
+    "output": 9
+  },
+  {
+    "provider": "Google/Vertex",
     "model": "gemini-robotics-er-1.5-preview",
     "variant": "",
     "input": 0.3,
@@ -4212,6 +4762,20 @@
   },
   {
     "provider": "Google/Vertex",
+    "model": "vertex_ai/gemini-3-pro-image",
+    "variant": "",
+    "input": 2,
+    "output": 12
+  },
+  {
+    "provider": "Google/Vertex",
+    "model": "vertex_ai/gemini-3-pro-image",
+    "variant": "batches",
+    "input": 1,
+    "output": 6
+  },
+  {
+    "provider": "Google/Vertex",
     "model": "vertex_ai/gemini-3-pro-image-preview",
     "variant": "",
     "input": 2,
@@ -4223,6 +4787,13 @@
     "variant": "batches",
     "input": 1,
     "output": 6
+  },
+  {
+    "provider": "Google/Vertex",
+    "model": "vertex_ai/gemini-3.1-flash-image",
+    "variant": "",
+    "input": 0.5,
+    "output": 3
   },
   {
     "provider": "Google/Vertex",
@@ -4244,8 +4815,7 @@
     "model": "vertex_ai/gemini-3.1-flash-lite",
     "variant": "batches",
     "input": 0.125,
-    "output": 0.75,
-    "cached_input": 0.0125
+    "output": 0.75
   },
   {
     "provider": "Google/Vertex",
@@ -4603,6 +5173,20 @@
   },
   {
     "provider": "Mistral",
+    "model": "mistral-medium-2508",
+    "variant": "",
+    "input": 0.4,
+    "output": 2
+  },
+  {
+    "provider": "Mistral",
+    "model": "mistral-medium-2604",
+    "variant": "",
+    "input": 1.5,
+    "output": 7.5
+  },
+  {
+    "provider": "Mistral",
     "model": "mistral-medium-3-1-2508",
     "variant": "",
     "input": 0.4,
@@ -4610,10 +5194,17 @@
   },
   {
     "provider": "Mistral",
+    "model": "mistral-medium-3-5",
+    "variant": "",
+    "input": 1.5,
+    "output": 7.5
+  },
+  {
+    "provider": "Mistral",
     "model": "mistral-medium-latest",
     "variant": "",
-    "input": 0.4,
-    "output": 2
+    "input": 1.5,
+    "output": 7.5
   },
   {
     "provider": "Mistral",
@@ -5859,8 +6450,7 @@
     "model": "gpt-5.4-mini",
     "variant": "batches",
     "input": 0.375,
-    "output": 2.25,
-    "cached_input": 0.0375
+    "output": 2.25
   },
   {
     "provider": "OpenAI",
@@ -5891,8 +6481,7 @@
     "model": "gpt-5.4-mini-2026-03-17",
     "variant": "batches",
     "input": 0.375,
-    "output": 2.25,
-    "cached_input": 0.0375
+    "output": 2.25
   },
   {
     "provider": "OpenAI",
@@ -5923,8 +6512,7 @@
     "model": "gpt-5.4-nano",
     "variant": "batches",
     "input": 0.1,
-    "output": 0.625,
-    "cached_input": 0.01
+    "output": 0.625
   },
   {
     "provider": "OpenAI",
@@ -5947,8 +6535,7 @@
     "model": "gpt-5.4-nano-2026-03-17",
     "variant": "batches",
     "input": 0.1,
-    "output": 0.625,
-    "cached_input": 0.01
+    "output": 0.625
   },
   {
     "provider": "OpenAI",
@@ -6155,6 +6742,162 @@
     "variant": "flex",
     "input": 15,
     "output": 90
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6",
+    "variant": "",
+    "input": 5,
+    "output": 30,
+    "cached_input": 0.5
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6",
+    "variant": "above_272k_tokens",
+    "input": 10,
+    "output": 45,
+    "cached_input": 1
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6",
+    "variant": "batches",
+    "input": 2.5,
+    "output": 15
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6",
+    "variant": "flex",
+    "input": 2.5,
+    "output": 15,
+    "cached_input": 0.25
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6",
+    "variant": "priority",
+    "input": 10,
+    "output": 60,
+    "cached_input": 1
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-luna",
+    "variant": "",
+    "input": 1,
+    "output": 6,
+    "cached_input": 0.1
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-luna",
+    "variant": "above_272k_tokens",
+    "input": 2,
+    "output": 9,
+    "cached_input": 0.2
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-luna",
+    "variant": "batches",
+    "input": 0.5,
+    "output": 3
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-luna",
+    "variant": "flex",
+    "input": 0.5,
+    "output": 3,
+    "cached_input": 0.05
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-luna",
+    "variant": "priority",
+    "input": 2,
+    "output": 12,
+    "cached_input": 0.2
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-sol",
+    "variant": "",
+    "input": 5,
+    "output": 30,
+    "cached_input": 0.5
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-sol",
+    "variant": "above_272k_tokens",
+    "input": 10,
+    "output": 45,
+    "cached_input": 1
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-sol",
+    "variant": "batches",
+    "input": 2.5,
+    "output": 15
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-sol",
+    "variant": "flex",
+    "input": 2.5,
+    "output": 15,
+    "cached_input": 0.25
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-sol",
+    "variant": "priority",
+    "input": 10,
+    "output": 60,
+    "cached_input": 1
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-terra",
+    "variant": "",
+    "input": 2.5,
+    "output": 15,
+    "cached_input": 0.25
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-terra",
+    "variant": "above_272k_tokens",
+    "input": 5,
+    "output": 22.5,
+    "cached_input": 0.5
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-terra",
+    "variant": "batches",
+    "input": 1.25,
+    "output": 7.5
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-terra",
+    "variant": "flex",
+    "input": 1.25,
+    "output": 7.5,
+    "cached_input": 0.125
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-5.6-terra",
+    "variant": "priority",
+    "input": 5,
+    "output": 30,
+    "cached_input": 0.5
   },
   {
     "provider": "OpenAI",
@@ -6267,6 +7010,22 @@
     "input": 4,
     "output": 16,
     "cached_input": 0.4
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-realtime-2.1",
+    "variant": "",
+    "input": 4,
+    "output": 24,
+    "cached_input": 0.4
+  },
+  {
+    "provider": "OpenAI",
+    "model": "gpt-realtime-2.1-mini",
+    "variant": "",
+    "input": 0.6,
+    "output": 2.4,
+    "cached_input": 0.06
   },
   {
     "provider": "OpenAI",
@@ -7322,5 +8081,93 @@
     "variant": "",
     "input": 0.8,
     "output": 2.56
+  },
+  {
+    "provider": "OpenRouter",
+    "model": "z-ai/glm-5.1",
+    "variant": "",
+    "input": 1.05,
+    "output": 3.5,
+    "cached_input": 0.525
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-fable-5",
+    "variant": "",
+    "input": 11,
+    "output": 55,
+    "cached_input": 1.1
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-haiku-4-5",
+    "variant": "",
+    "input": 1.1,
+    "output": 5.5,
+    "cached_input": 0.11
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-opus-4-5",
+    "variant": "",
+    "input": 5.5,
+    "output": 27.5,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-opus-4-6",
+    "variant": "",
+    "input": 5.5,
+    "output": 27.5,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-opus-4-7",
+    "variant": "",
+    "input": 5.5,
+    "output": 27.5,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-opus-4-8",
+    "variant": "",
+    "input": 5.5,
+    "output": 27.5,
+    "cached_input": 0.55
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-sonnet-4-5",
+    "variant": "",
+    "input": 3.3,
+    "output": 16.5,
+    "cached_input": 0.33
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-sonnet-4-5",
+    "variant": "above_200k_tokens",
+    "input": 6.6,
+    "output": 24.75,
+    "cached_input": 0.66
+  },
+  {
+    "provider": "Posit",
+    "model": "claude-sonnet-4-6",
+    "variant": "",
+    "input": 3.3,
+    "output": 16.5,
+    "cached_input": 0.33
+  },
+  {
+    "provider": "Posit",
+    "model": "google/gemma-4-26B-A4B-it",
+    "variant": "",
+    "input": 0.3,
+    "output": 1.5,
+    "cached_input": 0.03
   }
 ]

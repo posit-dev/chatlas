@@ -21,6 +21,18 @@ __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
 CompletionT = TypeVar("CompletionT")
 Role = Literal["user", "assistant", "system"]
 
+# The reasons chatlas normalizes provider-specific finish/stop reasons to.
+# Not exhaustive: providers may surface a reason chatlas doesn't yet
+# recognize, so usages pair this with `| str` (see AssistantTurn.finish_reason).
+FinishReason = Literal[
+    "success",
+    "tool_use",
+    "max_tokens",
+    "content_filter",
+    "context_window",
+    "stop_sequence",
+]
+
 
 class Turn(BaseModel):
     """
@@ -301,7 +313,11 @@ class AssistantTurn(Turn, Generic[CompletionT]):
         A numeric vector of length 3 representing the number of input, output, and cached
         tokens (respectively) used in this turn.
     finish_reason
-        A string indicating the reason why the conversation ended.
+        The (normalized) reason why the turn ended, e.g. `"success"`,
+        `"tool_use"`, `"max_tokens"`, `"content_filter"`, `"context_window"`,
+        or `"stop_sequence"`. Providers may also surface a reason chatlas
+        doesn't yet recognize, in which case the raw string is passed through
+        unchanged.
     completion
         The completion object returned by the provider. This is useful if there's
         information returned by the provider that chatlas doesn't otherwise expose.
@@ -322,7 +338,7 @@ class AssistantTurn(Turn, Generic[CompletionT]):
         frozen=True,
     )
     tokens: Optional[tuple[int, int, int]] = None
-    finish_reason: Optional[str] = None
+    finish_reason: Optional[FinishReason | str] = None
     completion: Optional[CompletionT] = Field(default=None, exclude=True)
     cost: Optional[float] = None
     partial_reason: Optional[str] = None
@@ -345,7 +361,7 @@ class AssistantTurn(Turn, Generic[CompletionT]):
         contents: str | Sequence[Content | str],
         *,
         tokens: Optional[tuple[int, int, int] | list[int]] = None,
-        finish_reason: Optional[str] = None,
+        finish_reason: Optional[FinishReason | str] = None,
         completion: Optional[CompletionT] = None,
         cost: Optional[float] = None,
         partial_reason: Optional[str] = None,

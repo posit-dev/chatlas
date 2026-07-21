@@ -153,12 +153,14 @@ quartodoc:
         - ChatGoogle
         - ChatGroq
         - ChatHuggingFace
+        - ChatLMStudio
         - ChatMistral
         - ChatOllama
         - ChatOpenAI
         - ChatOpenRouter
         - ChatPerplexity
         - ChatPortkey
+        - ChatPosit
         - ChatSnowflake
         - ChatVertex
     - title: The chat object

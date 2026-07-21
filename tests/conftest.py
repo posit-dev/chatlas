@@ -482,6 +482,10 @@ def make_vcr_config(match_on: list[str] = VCR_MATCH_ON_DEFAULT) -> dict:
         VCR configuration dictionary suitable for pytest-recording.
     """
     return {
+        # MCP tests spin up local subprocess servers; their traffic isn't a
+        # real API we need to record/replay, and routing it through VCR ties
+        # our cassettes to vcrpy's internal httpx-transport path formatting.
+        "ignore_localhost": True,
         "filter_headers": [
             "authorization",
             "x-api-key",

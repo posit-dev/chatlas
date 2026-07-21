@@ -34,7 +34,7 @@ from ._merge import merge_dicts
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
-from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
+from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -115,6 +115,21 @@ def ChatOpenAICompletions(
         ),
         system_prompt=system_prompt,
     )
+
+
+# https://platform.openai.com/docs/api-reference/chat/create
+_OPENAI_COMPLETIONS_FINISH_REASON_MAP: dict[str, FinishReason] = {
+    "stop": "success",
+    "tool_calls": "tool_use",
+    "length": "max_tokens",
+    "content_filter": "content_filter",
+}
+
+
+def normalize_finish_reason(reason: str | None) -> str | None:
+    if reason is None:
+        return None
+    return _OPENAI_COMPLETIONS_FINISH_REASON_MAP.get(reason, reason)
 
 
 class OpenAICompletionsProvider(
@@ -444,7 +459,7 @@ class OpenAICompletionsProvider(
 
         return AssistantTurn(
             contents,
-            finish_reason=completion.choices[0].finish_reason,
+            finish_reason=normalize_finish_reason(completion.choices[0].finish_reason),
             completion=completion,
         )
 

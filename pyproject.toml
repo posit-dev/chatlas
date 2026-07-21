@@ -4,9 +4,10 @@ description = "A simple and consistent interface for chatting with LLMs"
 license = "MIT"
 dynamic = ["version"]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
   "requests",
+  "platformdirs",
   "pydantic>=2.0",
   "jinja2",
   "orjson",
@@ -61,7 +62,7 @@ dev = [
     "Pillow",
     "shiny",
     "htmltools>=0.7.0;python_version>='3.10'",
-    "shinychat",
+    "shinychat>=0.6.0",
     "narwhals",
     "pandas",
     "polars",
@@ -110,6 +111,7 @@ ollama = []
 openai = []
 azure-openai = []
 perplexity = []
+posit = ["anthropic>=0.109.1"]
 # Version requirement avoids an install issue with recent Python versions.
 # Remove it when snowflake-ml-python can be installed without a requirement.
 snowflake = ["snowflake-ml-python<=1.9.0"]

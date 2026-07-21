@@ -22,7 +22,7 @@ def test_openrouter_simple_request():
     assert turn.tokens is not None
     assert len(turn.tokens) == 3
     assert turn.tokens[0] >= 1
-    assert turn.finish_reason == "stop"
+    assert turn.finish_reason == "success"
 
 
 @pytest.mark.vcr
@@ -38,7 +38,7 @@ async def test_openrouter_simple_streaming_request():
     assert "2" in "".join(res)
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.finish_reason == "stop"
+    assert turn.finish_reason == "success"
 
 
 @pytest.mark.vcr

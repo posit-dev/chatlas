@@ -28,6 +28,7 @@ from .._content import (
 from .._parallel import StructuredChatResult
 from .._provider import ModelInfo
 from .._tokens import TokenUsage
+from .._turn import FinishReason
 from .._utils import MISSING, MISSING_TYPE
 
 __all__ = (
@@ -47,6 +48,7 @@ __all__ = (
     "ContentToolResponseFetch",
     "ContentToolRequestSearch",
     "ContentToolResponseSearch",
+    "FinishReason",
     "StructuredChatResult",
     "ChatResponse",
     "ChatResponseAsync",

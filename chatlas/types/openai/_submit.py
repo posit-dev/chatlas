@@ -41,6 +41,9 @@ class SubmitInputArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "gpt-5.6-sol",
+            "gpt-5.6-terra",
+            "gpt-5.6-luna",
             "gpt-5.4",
             "gpt-5.4-mini",
             "gpt-5.4-nano",
@@ -153,9 +156,14 @@ class SubmitInputArgs(TypedDict, total=False):
     ]
     presence_penalty: Union[float, None, openai.Omit]
     prompt_cache_key: str | openai.Omit
+    prompt_cache_options: (
+        openai.types.chat.completion_create_params.PromptCacheOptions | openai.Omit
+    )
     prompt_cache_retention: Union[Literal["in_memory", "24h"], None, openai.Omit]
     reasoning_effort: Union[
-        Literal["none", "minimal", "low", "medium", "high", "xhigh"], None, openai.Omit
+        Literal["none", "minimal", "low", "medium", "high", "xhigh", "max"],
+        None,
+        openai.Omit,
     ]
     response_format: Union[
         openai.types.shared_params.response_format_text.ResponseFormatText,

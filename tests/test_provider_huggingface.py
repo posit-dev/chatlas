@@ -24,7 +24,7 @@ def test_huggingface_simple_request():
     assert len(turn.tokens) == 3
     assert turn.tokens[0] > 0  # input tokens
     assert turn.tokens[1] > 0  # output tokens
-    assert turn.finish_reason == "stop"
+    assert turn.finish_reason == "success"
 
 
 @pytest.mark.vcr
@@ -40,7 +40,7 @@ async def test_huggingface_simple_streaming_request():
     assert "2" in "".join(res)
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.finish_reason == "stop"
+    assert turn.finish_reason == "success"
 
 
 @pytest.mark.vcr

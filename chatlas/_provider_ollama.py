@@ -12,6 +12,8 @@ from ._provider_openai_completions import OpenAICompletionsProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
+    from openai.types.shared.reasoning_effort import ReasoningEffort
+
     from ._provider_openai_completions import ChatCompletion
     from .types.openai import ChatClientArgs, SubmitInputArgs
 
@@ -21,6 +23,7 @@ def ChatOllama(
     *,
     system_prompt: Optional[str] = None,
     base_url: str = "http://localhost:11434",
+    reasoning_effort: "ReasoningEffort" = None,
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
@@ -69,6 +72,12 @@ def ChatOllama(
         A system prompt to set the behavior of the assistant.
     base_url
         The base URL to the endpoint; the default uses ollama's API.
+    reasoning_effort
+        Enables extended "thinking" for models that support it (e.g. qwen3,
+        gpt-oss). Which values are accepted is model-dependent -- qwen3 only
+        distinguishes `"none"` from any other value (thinking on), while
+        gpt-oss accepts `"low"`, `"medium"`, or `"high"` but ignores `"none"`.
+        See <https://docs.ollama.com/capabilities/thinking> for details.
     seed
         Optional integer seed that helps to make output more reproducible.
     kwargs
@@ -99,6 +108,10 @@ def ChatOllama(
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
 
+    kwargs_chat: "SubmitInputArgs" = {}
+    if reasoning_effort is not None:
+        kwargs_chat["reasoning_effort"] = reasoning_effort
+
     return Chat(
         provider=OllamaProvider(
             api_key="ollama",  # ignored
@@ -109,6 +122,7 @@ def ChatOllama(
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+        kwargs_chat=kwargs_chat,
     )
 
 

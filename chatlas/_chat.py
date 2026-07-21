@@ -821,34 +821,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
 
         def server(input):  # noqa: A002
-            chat = Chat("chat")
+            _ = Chat("chat", client=self)
 
-            chat.enable_bookmarking(self)
-
-            @chat.on_user_submit
-            async def _(user_input: str):
-                if stream:
-                    await chat.append_message_stream(
-                        await self.stream_async(
-                            user_input,
-                            kwargs=kwargs,
-                            echo=echo or "none",
-                            content=content,
-                        )
-                    )
-                else:
-                    await chat.append_message(
-                        str(
-                            self.chat(
-                                user_input,
-                                kwargs=kwargs,
-                                stream=False,
-                                echo=echo or "text",
-                            )
-                        )
-                    )
-
-        app = App(app_ui, server, bookmark_store=bookmark_store)
+        app = App(app_ui, server)
 
         def _run_app():
             run_app(app, launch_browser=launch_browser, port=port, host=host)
