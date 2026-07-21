@@ -295,7 +295,7 @@ def test_google_batch_submit_reuses_chat_perform_args():
     ]
     result = provider.batch_submit(conversations)
 
-    assert result == fake_batch.model_dump()
+    assert result == fake_batch.model_dump(mode="json")
     assert mock_create.call_count == 1
     _, kwargs = mock_create.call_args
     assert kwargs["model"] == "gemini-3.5-flash"

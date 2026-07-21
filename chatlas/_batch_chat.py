@@ -2,9 +2,9 @@
 Batch chat processing for submitting multiple requests simultaneously.
 
 This module provides functionality for submitting multiple chat requests
-in batches to providers that support it (currently OpenAI, Anthropic, and
-Groq). Batch processing can take up to 24 hours but offers significant cost
-savings (up to 50% less than regular requests).
+in batches to providers that support it (currently OpenAI, Anthropic,
+Google, and Groq). Batch processing can take up to 24 hours but offers
+significant cost savings (up to 50% less than regular requests).
 """
 
 from __future__ import annotations
