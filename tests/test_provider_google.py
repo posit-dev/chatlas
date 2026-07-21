@@ -1,6 +1,12 @@
 import pytest
 import requests
 from chatlas import ChatGoogle, ChatVertex, tool_web_fetch, tool_web_search
+from chatlas.types import (
+    ContentCitation,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
+)
 from chatlas._provider_google import (
     normalize_finish_reason as google_normalize_finish_reason,
 )
@@ -200,13 +206,82 @@ def test_data_extraction():
 @pytest.mark.vcr
 @retry_gemini_call
 def test_google_web_fetch():
-    assert_tool_web_fetch(chat_func, tool_web_fetch())
+    chat = assert_tool_web_fetch(chat_func, tool_web_fetch())
+    fetched = [
+        c
+        for turn in chat.get_turns()
+        for c in turn.contents
+        if isinstance(c, ContentToolResponseFetch)
+    ]
+    assert fetched and fetched[0].url
+    assert fetched[0].status == "success"
+    # The normalized status doesn't drop the provider-native value
+    assert fetched[0].extra is not None
+    assert "URL_RETRIEVAL_STATUS" in str(fetched[0].extra["url_metadata"])
 
 
 @pytest.mark.vcr
 @retry_gemini_call
 def test_google_web_search():
-    assert_tool_web_search(chat_func, tool_web_search())
+    chat = assert_tool_web_search(
+        lambda: chat_func(model="gemini-2.5-flash"), tool_web_search()
+    )
+    search_requests = [
+        c
+        for turn in chat.get_turns()
+        for c in turn.contents
+        if isinstance(c, ContentToolRequestSearch)
+    ]
+    results = [
+        c
+        for turn in chat.get_turns()
+        for c in turn.contents
+        if isinstance(c, ContentToolResponseSearch)
+    ]
+    assert search_requests
+    assert results and results[0].sources
+    # Note: the cassette grounding chunks don't include a domain field, so
+    # domain is None for all sources in this recording.
+    cites = [
+        c
+        for turn in chat.get_turns()
+        for c in turn.contents
+        if isinstance(c, ContentCitation)
+    ]
+    assert cites, "expected ContentCitation items in turn contents"
+    assert all(c.url for c in cites)
+
+
+@pytest.mark.vcr
+def test_google_web_search_streaming():
+    chat = chat_func(model="gemini-2.5-flash")
+    chat.register_tool(tool_web_search())
+    items = list(
+        chat.stream(
+            "When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format.",
+            content="all",
+        )
+    )
+    assert any(isinstance(x, ContentToolRequestSearch) for x in items)
+    results = [x for x in items if isinstance(x, ContentToolResponseSearch)]
+    assert results and results[0].sources
+    citations = [x for x in items if isinstance(x, ContentCitation)]
+    assert citations
+    assert all(c.url for c in citations)
+
+
+@pytest.mark.vcr
+def test_google_web_fetch_streaming():
+    chat = chat_func(model="gemini-2.5-flash")
+    chat.register_tool(tool_web_fetch())
+    items = list(
+        chat.stream(
+            "What's the first movie listed on https://rvest.tidyverse.org/articles/starwars.html?",
+            content="all",
+        )
+    )
+    fetched = [x for x in items if isinstance(x, ContentToolResponseFetch)]
+    assert fetched and fetched[0].url and fetched[0].status == "success"
 
 
 @pytest.mark.vcr
@@ -277,6 +352,30 @@ def test_google_thought_signature_roundtrip():
     # Verify it round-trips back into the Part
     part = provider._as_part_type(req)
     assert part.thought_signature == fake_signature
+
+
+def test_normalize_retrieval_status():
+    from chatlas._provider_google import normalize_retrieval_status
+
+    assert normalize_retrieval_status("URL_RETRIEVAL_STATUS_SUCCESS") == "success"
+    assert normalize_retrieval_status("URL_RETRIEVAL_STATUS_UNSPECIFIED") is None
+    # Every other reported status collapses to "error" (native value kept in extra)
+    assert normalize_retrieval_status("URL_RETRIEVAL_STATUS_ERROR") == "error"
+    assert normalize_retrieval_status("URL_RETRIEVAL_STATUS_PAYWALL") == "error"
+    assert normalize_retrieval_status("URL_RETRIEVAL_STATUS_UNSAFE") == "error"
+    assert normalize_retrieval_status(None) is None
+
+    # Accepts the SDK enum (str-enum) as well as the raw string
+    from google.genai.types import UrlRetrievalStatus
+
+    assert (
+        normalize_retrieval_status(UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS)
+        == "success"
+    )
+    assert (
+        normalize_retrieval_status(UrlRetrievalStatus.URL_RETRIEVAL_STATUS_PAYWALL)
+        == "error"
+    )
 
 
 def test_google_batch_supported_for_gemini_not_vertex():
@@ -471,6 +570,8 @@ def test_google_batch_retrieve_handles_thought_signature_bytes():
     turn = provider.batch_result_turn(results[0], has_data_model=False)
     assert turn is not None
     assert turn.text == "42"
+
+
 @pytest.mark.vcr
 @retry_gemini_call
 def test_google_mixed_tools_end_to_end():

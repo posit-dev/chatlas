@@ -72,6 +72,7 @@ website:
       section: Implement a model provider
     - contents:
       - reference/types.Content.qmd
+      - reference/types.ContentCitation.qmd
       - reference/types.ContentImage.qmd
       - reference/types.ContentImageInline.qmd
       - reference/types.ContentImageRemote.qmd
@@ -91,6 +92,7 @@ website:
       - reference/types.ImageContentTypes.qmd
       - reference/types.MISSING_TYPE.qmd
       - reference/types.MISSING.qmd
+      - reference/types.Source.qmd
       - reference/types.SubmitInputArgsT.qmd
       - reference/types.TokenUsage.qmd
       - reference/types.ToolAnnotations.qmd

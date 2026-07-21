@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from ._chat import Chat
 from ._content import (
     Content,
+    ContentCitation,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -19,7 +20,12 @@ from ._content import (
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentToolRequestFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
     ContentToolResult,
+    Source,
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
@@ -41,9 +47,11 @@ if TYPE_CHECKING:
         GenerateContentConfigDict,
         GenerateContentResponse,
         GenerateContentResponseDict,
+        GroundingMetadataDict,
         Part,
         PartDict,
         ThinkingConfigDict,
+        UrlContextMetadataDict,
     )
 
     from .types.google import ChatClientArgs, SubmitInputArgs
@@ -443,23 +451,37 @@ class GoogleProvider(
 
         return kwargs_full
 
-    def stream_content(self, chunk) -> Optional[Content]:
+    def stream_content(self, chunk) -> list[Content]:
         candidates = getattr(chunk, "candidates", None)
         if not candidates:
-            return None
-        content = candidates[0].content
-        if content is None:
-            return None
-        parts = content.parts
-        if not parts:
-            return None
-        part = parts[0]
-        text = getattr(part, "text", None)
-        if text is None:
-            return None
-        if getattr(part, "thought", None):
-            return ContentThinkingDelta(thinking=text)
-        return ContentText.model_construct(text=text)
+            return []
+        candidate = candidates[0]
+        content = candidate.content
+        part_contents: list[Content] = []
+        if content is not None:
+            parts = content.parts
+            if parts:
+                part = parts[0]
+                text = getattr(part, "text", None)
+                if text is not None:
+                    if getattr(part, "thought", None):
+                        part_contents.append(ContentThinkingDelta(thinking=text))
+                    else:
+                        part_contents.append(ContentText.model_construct(text=text))
+
+        grounding_metadata = getattr(candidate, "grounding_metadata", None)
+        url_context_metadata = getattr(candidate, "url_context_metadata", None)
+
+        grounding_contents: list[Content] = []
+        if grounding_metadata is not None:
+            gm_dict = grounding_metadata.model_dump()
+            if gm_dict.get("grounding_supports"):
+                grounding_contents.extend(google_grounding_stream_contents(gm_dict))
+        if url_context_metadata is not None:
+            uc_dict = url_context_metadata.model_dump()
+            grounding_contents.extend(google_url_context_contents(uc_dict))
+
+        return part_contents + grounding_contents
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()
@@ -559,7 +581,24 @@ class GoogleProvider(
                 parts = [self._as_part_type(c) for c in turn.contents]
                 contents.append(GoogleContent(role=turn.role, parts=parts))
             elif isinstance(turn, AssistantTurn):
-                parts = [self._as_part_type(c) for c in turn.contents]
+                # Grounding/url-context metadata content types are client-side annotations
+                # extracted from Google's response; they have no corresponding Part to
+                # send back in the conversation history.
+                sendable = [
+                    c
+                    for c in turn.contents
+                    if not isinstance(
+                        c,
+                        (
+                            ContentToolRequestSearch,
+                            ContentToolResponseSearch,
+                            ContentToolRequestFetch,
+                            ContentToolResponseFetch,
+                            ContentCitation,
+                        ),
+                    )
+                ]
+                parts = [self._as_part_type(c) for c in sendable]
                 contents.append(GoogleContent(role="model", parts=parts))
             else:
                 raise ValueError(f"Unknown role {turn.role}")
@@ -633,6 +672,8 @@ class GoogleProvider(
 
         parts: list["PartDict"] = []
         finish_reason = None
+        grounding_metadata = None
+        url_context_metadata = None
         for candidate in candidates:
             content = candidate.get("content")
             if content:
@@ -640,6 +681,12 @@ class GoogleProvider(
             finish = candidate.get("finish_reason")
             if finish:
                 finish_reason = finish
+            grounding_metadata = grounding_metadata or candidate.get(
+                "grounding_metadata"
+            )
+            url_context_metadata = url_context_metadata or candidate.get(
+                "url_context_metadata"
+            )
 
         contents: list[Content] = []
         for part in parts:
@@ -698,6 +745,10 @@ class GoogleProvider(
 
         if isinstance(finish_reason, FinishReason):
             finish_reason = finish_reason.name
+
+        search_contents = google_grounding_contents(grounding_metadata)
+        url_ctx_contents = google_url_context_contents(url_context_metadata)
+        contents = search_contents + contents + url_ctx_contents
 
         return AssistantTurn(
             contents,
@@ -842,6 +893,137 @@ class GoogleProvider(
 
         completion = cast("GenerateContentResponseDict", result.response.model_dump())
         return self._as_turn(completion, has_data_model)
+
+
+def google_grounding_contents(
+    grounding_metadata: "GroundingMetadataDict | None",
+) -> list[Content]:
+    """Build search request/results + citations from Google grounding metadata."""
+    if not grounding_metadata:
+        return []
+
+    out: list[Content] = []
+
+    queries = grounding_metadata.get("web_search_queries") or []
+    if queries:
+        out.append(
+            ContentToolRequestSearch(
+                query=queries[0],
+                extra={"web_search_queries": list(queries)},
+            )
+        )
+
+    chunks = grounding_metadata.get("grounding_chunks") or []
+    chunk_sources: list[Source] = []
+    for ch in chunks:
+        web = ch.get("web") or {}
+        chunk_sources.append(
+            Source(
+                url=web.get("uri", "") or "",
+                title=web.get("title"),
+                domain=web.get("domain"),
+            )
+        )
+    display_sources = [s for s in chunk_sources if s.url]
+    if display_sources:
+        out.append(
+            ContentToolResponseSearch(
+                sources=display_sources,
+                extra={"grounding_metadata": grounding_metadata},
+            )
+        )
+
+    for sup in grounding_metadata.get("grounding_supports") or []:
+        for idx in dict.fromkeys(sup.get("grounding_chunk_indices") or []):
+            if 0 <= idx < len(chunk_sources) and chunk_sources[idx].url:
+                src = chunk_sources[idx]
+                out.append(ContentCitation(url=src.url, title=src.title))
+
+    return out
+
+
+def google_grounding_stream_contents(
+    grounding_metadata: "GroundingMetadataDict",
+) -> list[Content]:
+    """Build search request/results + ContentCitations from grounding (streaming)."""
+    out: list[Content] = []
+
+    queries = grounding_metadata.get("web_search_queries") or []
+    if queries:
+        out.append(
+            ContentToolRequestSearch(
+                query=str(queries[0]),
+                extra={"web_search_queries": list(queries)},
+            )
+        )
+
+    chunks = grounding_metadata.get("grounding_chunks") or []
+    chunk_sources: list[Source] = []
+    for ch in chunks:
+        web = ch.get("web") or {}
+        chunk_sources.append(
+            Source(
+                url=web.get("uri", "") or "",
+                title=web.get("title"),
+                domain=web.get("domain"),
+            )
+        )
+    display_sources = [s for s in chunk_sources if s.url]
+    if display_sources:
+        out.append(
+            ContentToolResponseSearch(
+                sources=display_sources,
+                extra={"grounding_metadata": grounding_metadata},
+            )
+        )
+
+    for sup in grounding_metadata.get("grounding_supports") or []:
+        for idx in dict.fromkeys(sup.get("grounding_chunk_indices") or []):
+            if 0 <= idx < len(chunk_sources) and chunk_sources[idx].url:
+                src = chunk_sources[idx]
+                out.append(ContentCitation(url=src.url, title=src.title))
+
+    return out
+
+
+def google_url_context_contents(
+    url_context_metadata: "UrlContextMetadataDict | None",
+) -> list[Content]:
+    """Build fetch request/result content from Google url_context_metadata."""
+    if not url_context_metadata:
+        return []
+    out: list[Content] = []
+    for meta in url_context_metadata.get("url_metadata") or []:
+        url = meta.get("retrieved_url")
+        if not url:
+            continue
+        out.append(ContentToolRequestFetch(url=url, extra={"url_metadata": meta}))
+        out.append(
+            ContentToolResponseFetch(
+                url=url,
+                status=normalize_retrieval_status(meta.get("url_retrieval_status")),
+                # The native status (PAYWALL/UNSAFE/etc.) is preserved in `meta`.
+                extra={"url_metadata": meta},
+            )
+        )
+    return out
+
+
+def normalize_retrieval_status(raw: object) -> Optional[Literal["success", "error"]]:
+    """Map Google's UrlRetrievalStatus onto the normalized success/error/None.
+
+    `UNSPECIFIED` carries no outcome, so it maps to `None`; every non-success
+    status (ERROR/PAYWALL/UNSAFE) collapses to `"error"` (the finer-grained
+    distinction stays in the content's `extra`).
+    """
+    if raw is None:
+        return None
+    value = getattr(raw, "value", raw)
+    if value == "URL_RETRIEVAL_STATUS_SUCCESS":
+        return "success"
+    if value == "URL_RETRIEVAL_STATUS_UNSPECIFIED":
+        return None
+    return "error"
 
 
 def ChatVertex(

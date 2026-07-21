@@ -386,7 +386,7 @@ def assert_list_models(chat_fun: ChatFun):
 # ---------------------------------------------------------------------------
 
 
-def assert_tool_web_fetch(chat_fun: ChatFun, tool, stream: bool = True):
+def assert_tool_web_fetch(chat_fun: ChatFun, tool, stream: bool = True) -> Chat:
     """Test web fetch tool functionality."""
     chat = chat_fun()
     chat.register_tool(tool)
@@ -397,9 +397,10 @@ def assert_tool_web_fetch(chat_fun: ChatFun, tool, stream: bool = True):
 
     response = chat.chat("Who directed it?", stream=stream)
     assert "George Lucas" in str(response)
+    return chat
 
 
-def assert_tool_web_search(chat_fun: ChatFun, tool, hint: str = "", stream: bool = True):
+def assert_tool_web_search(chat_fun: ChatFun, tool, hint: str = "", stream: bool = True) -> Chat:
     """Test web search tool functionality."""
     chat = chat_fun()
     chat.register_tool(tool)
@@ -415,6 +416,7 @@ def assert_tool_web_search(chat_fun: ChatFun, tool, hint: str = "", stream: bool
 
     response = chat.chat("What month was that?", stream=stream)
     assert "May" in str(response)
+    return chat
 
 
 retry_api_call = retry(

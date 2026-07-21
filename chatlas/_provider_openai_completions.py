@@ -236,9 +236,9 @@ class OpenAICompletionsProvider(
 
         return kwargs_full
 
-    def stream_content(self, chunk) -> Optional[Content]:
+    def stream_content(self, chunk) -> list[Content]:
         if not chunk.choices:
-            return None
+            return []
         delta = chunk.choices[0].delta
 
         # Some OpenAI-compatible providers (e.g. Ollama with qwen3) return
@@ -247,12 +247,12 @@ class OpenAICompletionsProvider(
             delta, "reasoning_content", None
         )
         if reasoning is not None:
-            return ContentThinkingDelta(thinking=reasoning)
+            return [ContentThinkingDelta(thinking=reasoning)]
 
         text = delta.content
         if text is None:
-            return None
-        return ContentText.model_construct(text=text)
+            return []
+        return [ContentText.model_construct(text=text)]
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()
