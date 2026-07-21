@@ -257,6 +257,198 @@ def test_google_thought_signature_roundtrip():
     assert part.thought_signature == fake_signature
 
 
+def test_google_batch_supported_for_gemini_not_vertex():
+    """Batch is only supported on the Gemini Developer API, not Vertex."""
+    from chatlas._provider_google import GoogleProvider
+
+    gemini = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    assert gemini.has_batch_support() is True
+
+    vertex = GoogleProvider(
+        model="gemini-3.5-flash",
+        api_key="dummy",
+        name="Google/Vertex",
+        kwargs=None,
+    )
+    assert vertex.has_batch_support() is False
+
+
+def test_google_batch_submit_reuses_chat_perform_args():
+    """batch_submit() builds one InlinedRequest per conversation via _chat_perform_args."""
+    from unittest.mock import MagicMock
+
+    from chatlas._provider_google import GoogleProvider
+    from chatlas._turn import Turn, user_turn
+    from google.genai import types
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+
+    fake_batch = types.BatchJob(
+        name="batches/123", state=types.JobState.JOB_STATE_PENDING
+    )
+    mock_create = MagicMock(return_value=fake_batch)
+    provider._client.batches.create = mock_create
+
+    conversations: list[list[Turn]] = [
+        [user_turn("What's the capital of France?")],
+        [user_turn("What's the capital of Germany?")],
+    ]
+    result = provider.batch_submit(conversations)
+
+    assert result == fake_batch.model_dump(mode="json")
+    assert mock_create.call_count == 1
+    _, kwargs = mock_create.call_args
+    assert kwargs["model"] == "gemini-3.5-flash"
+    requests = kwargs["src"]
+    assert len(requests) == 2
+    assert all(isinstance(r, types.InlinedRequest) for r in requests)
+
+
+def test_google_batch_status_mapping():
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+
+    working = provider.batch_status(
+        {
+            "name": "batches/123",
+            "state": "JOB_STATE_RUNNING",
+            "completion_stats": {
+                "successful_count": 1,
+                "failed_count": 0,
+                "incomplete_count": 1,
+            },
+        }
+    )
+    assert working.working is True
+    assert working.n_succeeded == 1
+    assert working.n_failed == 0
+    assert working.n_processing == 1
+
+    done = provider.batch_status(
+        {
+            "name": "batches/123",
+            "state": "JOB_STATE_SUCCEEDED",
+            "completion_stats": {
+                "successful_count": 2,
+                "failed_count": 0,
+                "incomplete_count": 0,
+            },
+        }
+    )
+    assert done.working is False
+    assert done.n_succeeded == 2
+
+    no_stats = provider.batch_status(
+        {"name": "batches/123", "state": "JOB_STATE_PENDING"}
+    )
+    assert no_stats.working is True
+    assert no_stats.n_processing == 0
+    assert no_stats.n_succeeded == 0
+    assert no_stats.n_failed == 0
+
+
+def test_google_batch_retrieve_and_result_turn():
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+
+    batch = {
+        "name": "batches/123",
+        "state": "JOB_STATE_SUCCEEDED",
+        "dest": {
+            "inlined_responses": [
+                {
+                    "response": {
+                        "candidates": [
+                            {
+                                "content": {"parts": [{"text": "Paris"}]},
+                                "finish_reason": "STOP",
+                            }
+                        ]
+                    }
+                },
+                {"error": {"code": 500, "message": "internal error"}},
+            ]
+        },
+    }
+
+    results = provider.batch_retrieve(batch)
+    assert len(results) == 2
+
+    turn = provider.batch_result_turn(results[0], has_data_model=False)
+    assert turn is not None
+    assert turn.text == "Paris"
+
+    with pytest.warns(UserWarning, match="Batch request failed"):
+        failed_turn = provider.batch_result_turn(results[1], has_data_model=False)
+    assert failed_turn is None
+
+
+def test_google_batch_retrieve_handles_thought_signature_bytes():
+    """Regression test for a real crash: reasoning-capable Gemini models attach
+    a non-UTF-8 thought_signature byte blob to every response part, and a
+    plain model_dump() leaves those as raw bytes, which crashes
+    BatchState.model_dump_json() once persisted to the batch state file
+    (reproduced against a live gemini-3.6-flash batch response)."""
+    from unittest.mock import MagicMock
+
+    from chatlas._batch_job import BatchState
+    from chatlas._provider_google import GoogleProvider
+    from google.genai import types
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+
+    non_utf8_signature = bytes([0x12, 0xE9, 0x03, 0x0A, 0xE6, 0x03, 0x01])
+    completed_batch = types.BatchJob(
+        name="batches/123",
+        state=types.JobState.JOB_STATE_SUCCEEDED,
+        dest=types.BatchJobDestination(
+            inlined_responses=[
+                types.InlinedResponse(
+                    response=types.GenerateContentResponse(
+                        candidates=[
+                            types.Candidate(
+                                content=types.Content(
+                                    parts=[
+                                        types.Part(
+                                            text="42",
+                                            thought_signature=non_utf8_signature,
+                                        )
+                                    ]
+                                ),
+                                finish_reason=types.FinishReason.STOP,
+                            )
+                        ]
+                    )
+                )
+            ]
+        ),
+    )
+
+    # batch_poll() and batch_retrieve() both go through model_dump(mode="json"),
+    # so their output must already be JSON-safe -- exercise that boundary here
+    # rather than passing the raw pydantic-object dump directly.
+    provider._client.batches.get = MagicMock(return_value=completed_batch)
+    polled = provider.batch_poll({"name": "batches/123"})
+
+    # This is the exact call that crashed in production: persisting the batch
+    # dict into the on-disk job state.
+    BatchState(
+        version=1,
+        stage="retrieving",
+        batch=polled,
+        results=[],
+        started_at=0,
+        hash={"provider": "x", "model": "x", "prompts": "x", "user_turns": "x"},
+    ).model_dump_json()
+
+    results = provider.batch_retrieve(polled)
+    assert len(results) == 1
+
+    turn = provider.batch_result_turn(results[0], has_data_model=False)
+    assert turn is not None
+    assert turn.text == "42"
 @pytest.mark.vcr
 @retry_gemini_call
 def test_google_mixed_tools_end_to_end():
