@@ -22,9 +22,8 @@ CompletionT = TypeVar("CompletionT")
 Role = Literal["user", "assistant", "system"]
 
 # The reasons chatlas normalizes provider-specific finish/stop reasons to.
-# Providers may still surface a reason chatlas doesn't yet recognize, so
-# consumers should treat this as open-ended (hence the trailing `| str`)
-# rather than exhaustive.
+# Not exhaustive: providers may surface a reason chatlas doesn't yet
+# recognize, so usages pair this with `| str` (see AssistantTurn.finish_reason).
 FinishReason = Literal[
     "success",
     "tool_use",

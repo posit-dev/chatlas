@@ -1,7 +1,9 @@
 import pytest
 import requests
 from chatlas import ChatGoogle, ChatVertex, tool_web_fetch, tool_web_search
-from chatlas._provider_google import normalize_finish_reason as google_normalize_finish_reason
+from chatlas._provider_google import (
+    normalize_finish_reason as google_normalize_finish_reason,
+)
 from google.genai.errors import APIError
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
@@ -133,9 +135,9 @@ def test_name_setting():
 
 # TODO: this test runs fine in isolation, but fails for some reason when run with the other tests
 # Seems google isn't handling async 100% correctly
-#@pytest.mark.vcr
-#@pytest.mark.asyncio
-#async def test_google_simple_streaming_request():
+# @pytest.mark.vcr
+# @pytest.mark.asyncio
+# async def test_google_simple_streaming_request():
 #    chat = chat_func(
 #        system_prompt="Be as terse as possible; no punctuation. Do not spell out numbers.",
 #    )

@@ -289,6 +289,40 @@ def test_openai_web_search_call_action_types():
     assert turn.contents[0].query == "web search"
 
 
+def test_openai_function_call_finish_reason_is_tool_use():
+    """A completed response containing a function_call should normalize to tool_use."""
+    from chatlas._provider_openai import OpenAIProvider
+    from openai.types.responses import Response
+
+    chat = ChatOpenAI()
+    provider = chat.provider
+    assert isinstance(provider, OpenAIProvider)
+
+    resp = Response.model_validate(
+        {
+            "id": "resp_1",
+            "created_at": 0,
+            "model": "gpt-4.1",
+            "object": "response",
+            "status": "completed",
+            "output": [
+                {
+                    "id": "fc_1",
+                    "type": "function_call",
+                    "call_id": "call_1",
+                    "name": "get_date",
+                    "arguments": "{}",
+                }
+            ],
+            "parallel_tool_calls": True,
+            "tool_choice": "auto",
+            "tools": [],
+        }
+    )
+    turn = provider._response_as_turn(resp, has_data_model=False)
+    assert turn.finish_reason == "tool_use"
+
+
 def test_openai_custom_base_url_warning():
     from chatlas._provider_openai import check_base_url
 

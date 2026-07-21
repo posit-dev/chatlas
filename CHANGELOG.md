@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Improvements
 
 * `ChatGoogle()` and `ChatVertex()` now default to `gemini-3.5-flash` instead of the older `gemini-2.5-flash`.
-* `Turn.finish_reason` is now normalized to a consistent set of values (`"success"`, `"tool_use"`, `"max_tokens"`, `"content_filter"`, `"context_window"`, `"stop_sequence"`) across all providers, so you no longer need provider-specific logic to check why a turn ended. Previously each provider surfaced its own raw string (e.g. Anthropic's `"end_turn"`/`"tool_use"` vs. OpenAI Completions' `"stop"`/`"tool_calls"` vs. Google's `"STOP"`/`"SAFETY"`), so the same outcome could require different checks depending on which `Chat*()` you used. Reasons chatlas doesn't yet recognize still pass through unchanged.
+* `Turn.finish_reason` is now normalized to a consistent set of values (`"success"`, `"tool_use"`, `"max_tokens"`, `"content_filter"`, `"context_window"`, `"stop_sequence"`) across most providers, so you no longer need provider-specific logic to check why a turn ended. Previously each provider surfaced its own raw string (e.g. Anthropic's `"end_turn"`/`"tool_use"` vs. OpenAI Completions' `"stop"`/`"tool_calls"` vs. Google's `"STOP"`/`"SAFETY"`), so the same outcome could require different checks depending on which `Chat*()` you used. Reasons chatlas doesn't yet recognize still pass through unchanged. (`ChatSnowflake()` does not yet set `finish_reason`.)
 
 ## [0.19.2] - 2026-07-08
 

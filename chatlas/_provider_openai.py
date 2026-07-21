@@ -469,14 +469,18 @@ class OpenAIProvider(
                 raise ValueError(f"Unknown output type: {output.type}")
 
         incomplete_reason = None
-        if getattr(completion, "incomplete_details", None) is not None:
-            # getattr() check above confirms non-None, but pyright can't narrow through getattr
-            incomplete_reason = completion.incomplete_details.reason  # type: ignore[union-attr]
+        if completion.incomplete_details is not None:
+            incomplete_reason = completion.incomplete_details.reason
+
+        finish_reason = normalize_finish_reason(completion.status, incomplete_reason)
+        if finish_reason == "success" and any(
+            isinstance(x, ContentToolRequest) for x in contents
+        ):
+            finish_reason = "tool_use"
+
         return AssistantTurn(
             contents,
-            finish_reason=normalize_finish_reason(
-                getattr(completion, "status", None), incomplete_reason
-            ),
+            finish_reason=finish_reason,
             completion=completion,
         )
 
