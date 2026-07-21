@@ -19,6 +19,8 @@ from ._content import (
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentToolRequestCodeExecution,
+    ContentToolResponseCodeExecution,
     ContentToolResult,
 )
 from ._logging import log_model_default
@@ -32,7 +34,7 @@ from ._provider import (
 )
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
-from ._tools_builtin import ToolWebFetch, ToolWebSearch
+from ._tools_builtin import ToolCodeExecution, ToolWebFetch, ToolWebSearch
 from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn, user_turn
 
 if TYPE_CHECKING:
@@ -398,6 +400,9 @@ class GoogleProvider(
                 elif isinstance(tool, ToolWebFetch):
                     gtool = GoogleTool(url_context=tool.get_definition("google"))
                     google_tools.append(gtool)
+                elif isinstance(tool, ToolCodeExecution):
+                    gtool = GoogleTool(code_execution=tool.get_definition("google"))
+                    google_tools.append(gtool)
                 elif isinstance(tool, ToolBuiltIn):
                     gtool = GoogleTool.model_validate(tool.definition)
                     google_tools.append(gtool)
@@ -618,6 +623,26 @@ class GoogleProvider(
                     response=resp,
                 )
             )
+        elif isinstance(content, ContentToolRequestCodeExecution):
+            from google.genai.types import ExecutableCode, Language
+
+            return Part(
+                executable_code=ExecutableCode(
+                    code=content.code,
+                    language=Language.PYTHON,
+                )
+            )
+        elif isinstance(content, ContentToolResponseCodeExecution):
+            from google.genai.types import CodeExecutionResult, Outcome
+
+            return Part(
+                code_execution_result=CodeExecutionResult(
+                    outcome=Outcome.OUTCOME_FAILED
+                    if content.error
+                    else Outcome.OUTCOME_OK,
+                    output=content.error or content.output,
+                )
+            )
         raise ValueError(f"Unknown content type: {type(content)}")
 
     def _as_turn(
@@ -695,6 +720,28 @@ class GoogleProvider(
                             image_content_type=mime_type,  # type: ignore
                         )
                     )
+            executable_code = part.get("executable_code")
+            if executable_code:
+                code = executable_code.get("code")
+                if code:
+                    contents.append(
+                        ContentToolRequestCodeExecution(
+                            code=code,
+                            language=executable_code.get("language"),
+                            extra=dict(executable_code),
+                        )
+                    )
+            code_execution_result = part.get("code_execution_result")
+            if code_execution_result:
+                outcome = code_execution_result.get("outcome")
+                output = code_execution_result.get("output")
+                contents.append(
+                    ContentToolResponseCodeExecution(
+                        output=output if outcome == "OUTCOME_OK" else None,
+                        error=output if outcome != "OUTCOME_OK" else None,
+                        extra=dict(code_execution_result),
+                    )
+                )
 
         if isinstance(finish_reason, FinishReason):
             finish_reason = finish_reason.name

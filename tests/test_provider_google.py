@@ -1,6 +1,12 @@
 import pytest
 import requests
-from chatlas import ChatGoogle, ChatVertex, tool_web_fetch, tool_web_search
+from chatlas import (
+    ChatGoogle,
+    ChatVertex,
+    tool_code_execution,
+    tool_web_fetch,
+    tool_web_search,
+)
 from chatlas._provider_google import (
     normalize_finish_reason as google_normalize_finish_reason,
 )
@@ -602,3 +608,133 @@ def test_google_tool_config_not_set_when_tools_not_mixed():
     only_builtin = {"web_search": tool_web_search()}
     kwargs = provider._chat_perform_args(turns=[user_turn("hi")], tools=only_builtin)
     assert kwargs["config"].tool_config is None
+
+
+def test_google_code_execution_parses_request_and_response():
+    """executable_code + code_execution_result parts parse correctly."""
+    from chatlas._content import (
+        ContentToolRequestCodeExecution,
+        ContentToolResponseCodeExecution,
+    )
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash-preview-04-17",
+        api_key="dummy",
+        kwargs=None,
+    )
+
+    message = {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [
+                        {
+                            "executable_code": {
+                                "code": "print(1 + 1)",
+                                "language": "PYTHON",
+                            }
+                        },
+                        {
+                            "code_execution_result": {
+                                "outcome": "OUTCOME_OK",
+                                "output": "2\n",
+                            }
+                        },
+                    ]
+                },
+                "finish_reason": "STOP",
+            }
+        ],
+    }
+
+    turn = provider._as_turn(message, has_data_model=False)
+    assert len(turn.contents) == 2
+
+    request = turn.contents[0]
+    assert isinstance(request, ContentToolRequestCodeExecution)
+    assert request.code == "print(1 + 1)"
+    assert request.language == "PYTHON"
+
+    response = turn.contents[1]
+    assert isinstance(response, ContentToolResponseCodeExecution)
+    assert response.output == "2\n"
+    assert response.error is None
+
+
+def test_google_code_execution_failed_outcome_maps_to_error():
+    from chatlas._content import ContentToolResponseCodeExecution
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash-preview-04-17",
+        api_key="dummy",
+        kwargs=None,
+    )
+
+    message = {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [
+                        {
+                            "code_execution_result": {
+                                "outcome": "OUTCOME_FAILED",
+                                "output": "NameError: x is not defined",
+                            }
+                        },
+                    ]
+                },
+                "finish_reason": "STOP",
+            }
+        ],
+    }
+
+    turn = provider._as_turn(message, has_data_model=False)
+    response = turn.contents[0]
+    assert isinstance(response, ContentToolResponseCodeExecution)
+    assert response.output is None
+    assert response.error == "NameError: x is not defined"
+
+
+def test_google_code_execution_round_trip():
+    from chatlas._content import (
+        ContentToolRequestCodeExecution,
+        ContentToolResponseCodeExecution,
+    )
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash-preview-04-17",
+        api_key="dummy",
+        kwargs=None,
+    )
+
+    request = ContentToolRequestCodeExecution(code="print(1 + 1)", language="PYTHON")
+    part = provider._as_part_type(request)
+    assert part.executable_code is not None
+    assert part.executable_code.code == "print(1 + 1)"
+
+    response = ContentToolResponseCodeExecution(output="2\n")
+    part = provider._as_part_type(response)
+    assert part.code_execution_result is not None
+    assert part.code_execution_result.output == "2\n"
+
+
+def test_google_code_execution_tool_definition_registered():
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash-preview-04-17",
+        api_key="dummy",
+        kwargs=None,
+    )
+    kwargs = provider._chat_perform_args(
+        turns=[],
+        tools={"code_execution": tool_code_execution()},
+        data_model=None,
+        kwargs=None,
+    )
+    tools = kwargs["config"].tools
+    assert tools is not None
+    assert tools[0].code_execution is not None
