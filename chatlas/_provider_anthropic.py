@@ -28,8 +28,10 @@ from ._content import (
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentToolRequestCodeExecution,
     ContentToolRequestFetch,
     ContentToolRequestSearch,
+    ContentToolResponseCodeExecution,
     ContentToolResponseFetch,
     ContentToolResponseSearch,
     ContentToolResult,
@@ -44,7 +46,12 @@ from ._provider import (
 )
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
-from ._tools_builtin import ToolWebFetch, ToolWebSearch
+from ._tools_builtin import (
+    ToolCodeExecution,
+    ToolWebFetch,
+    ToolWebSearch,
+    last_code_execution_container_id,
+)
 from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn, user_turn
 from ._utils import split_http_client_kwargs
 
@@ -492,6 +499,13 @@ class AnthropicProvider(
             **(kwargs or {}),
         }
 
+        if "container" not in kwargs_full and any(
+            isinstance(tool, ToolCodeExecution) for tool in tools.values()
+        ):
+            container_id = last_code_execution_container_id(turns)
+            if container_id is not None:
+                kwargs_full["container"] = container_id
+
         if data_model is not None and use_native:
             kwargs_full["output_config"] = output_config  # type: ignore[reportPossiblyUnbound]
         elif data_model is not None:
@@ -716,9 +730,13 @@ class AnthropicProvider(
             # https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-automatic-prefix-checking-works
             is_last_turn = i == len(turns) - 1
             if self._cache_control() and is_last_turn and len(content) > 0:
-                # Note: ThinkingBlockParam (i.e., type: "thinking") doesn't support cache_control
-                if content[-1].get("type") != "thinking":
-                    content[-1]["cache_control"] = self._cache_control()  # type: ignore
+                last_block = content[-1]
+                # Note: ThinkingBlockParam (i.e., type: "thinking") doesn't support
+                # cache_control. `last_block` can also be None for round-tripped
+                # server tool content missing `extra` (e.g. manually constructed
+                # in tests), in which case there's nothing to attach cache_control to.
+                if last_block is not None and last_block.get("type") != "thinking":
+                    last_block["cache_control"] = self._cache_control()  # type: ignore
 
             role = "user" if isinstance(turn, UserTurn) else "assistant"
             messages.append({"role": role, "content": content})
@@ -788,6 +806,8 @@ class AnthropicProvider(
                 ContentToolResponseSearch,
                 ContentToolRequestFetch,
                 ContentToolResponseFetch,
+                ContentToolRequestCodeExecution,
+                ContentToolResponseCodeExecution,
             ),
         ):
             # extra contains the full original content block param
@@ -802,6 +822,9 @@ class AnthropicProvider(
         if isinstance(tool, ToolWebFetch):
             # N.B. seems the return type here (BetaWebFetchTool20250910Param) is
             # not a member of ToolUnionParam since it's still in beta?
+            return tool.get_definition("anthropic")  # type: ignore
+        if isinstance(tool, ToolCodeExecution):
+            # N.B. same beta-type situation as ToolWebFetch above.
             return tool.get_definition("anthropic")  # type: ignore
         if isinstance(tool, ToolBuiltIn):
             return tool.definition  # type: ignore
@@ -907,6 +930,13 @@ class AnthropicProvider(
                             extra=extra,
                         )
                     )
+                elif content.name == "code_execution":
+                    contents.append(
+                        ContentToolRequestCodeExecution(
+                            code=str(input_data.get("code", "")),
+                            extra=extra,
+                        )
+                    )
                 else:
                     raise ValueError(f"Unknown server tool: {content.name}")
             elif content.type == "web_search_tool_result":
@@ -951,6 +981,34 @@ class AnthropicProvider(
                 contents.append(
                     ContentToolResponseFetch(
                         url=url,
+                        extra=extra,
+                    )
+                )
+            elif content.type == "code_execution_tool_result":
+                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/code-execution-tool#result
+                result = content.content
+                if result.type == "code_execution_tool_result_error":
+                    output = None
+                    error = result.error_code
+                elif result.type == "code_execution_result":
+                    output = result.stdout or None
+                    error = result.stderr or None
+                else:
+                    # encrypted_code_execution_result: stdout isn't available in plaintext
+                    output = None
+                    error = result.stderr or None
+                extra = {
+                    "type": content.type,
+                    "tool_use_id": content.tool_use_id,
+                    "content": result.model_dump(exclude_none=True),
+                }
+                contents.append(
+                    ContentToolResponseCodeExecution(
+                        output=output,
+                        error=error,
+                        container_id=completion.container.id
+                        if completion.container
+                        else None,
                         extra=extra,
                     )
                 )

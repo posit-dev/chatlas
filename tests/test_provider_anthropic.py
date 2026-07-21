@@ -7,6 +7,7 @@ from chatlas import (
     ChatAnthropic,
     UserTurn,
     content_image_file,
+    tool_code_execution,
     tool_web_fetch,
     tool_web_search,
 )
@@ -371,3 +372,136 @@ def test_anthropic_adaptive_effort_merges_with_structured_output():
     output_config = args["output_config"]
     assert output_config["effort"] == "high"
     assert output_config["format"]["type"] == "json_schema"
+
+
+def test_anthropic_code_execution_parses_request_and_response():
+    """server_tool_use(code_execution) + code_execution_tool_result parse correctly."""
+    from anthropic.types import Message
+    from chatlas._content import (
+        ContentToolRequestCodeExecution,
+        ContentToolResponseCodeExecution,
+    )
+    from chatlas._provider_anthropic import AnthropicProvider
+
+    chat = ChatAnthropic()
+    provider = chat.provider
+    assert isinstance(provider, AnthropicProvider)
+
+    message = Message.model_validate(
+        {
+            "id": "msg_1",
+            "type": "message",
+            "role": "assistant",
+            "model": "claude-opus-4-6",
+            "content": [
+                {
+                    "type": "server_tool_use",
+                    "id": "srvtoolu_1",
+                    "name": "code_execution",
+                    "input": {"code": "print(1 + 1)"},
+                },
+                {
+                    "type": "code_execution_tool_result",
+                    "tool_use_id": "srvtoolu_1",
+                    "content": {
+                        "type": "code_execution_result",
+                        "stdout": "2\n",
+                        "stderr": "",
+                        "return_code": 0,
+                        "content": [],
+                    },
+                },
+            ],
+            "stop_reason": "end_turn",
+            "usage": {"input_tokens": 10, "output_tokens": 5},
+            "container": {
+                "id": "cntr_xyz",
+                "expires_at": "2026-07-21T00:00:00Z",
+            },
+        }
+    )
+
+    turn = provider._as_turn(message, has_data_model=False)
+
+    assert len(turn.contents) == 2
+    request = turn.contents[0]
+    assert isinstance(request, ContentToolRequestCodeExecution)
+    assert request.code == "print(1 + 1)"
+
+    response = turn.contents[1]
+    assert isinstance(response, ContentToolResponseCodeExecution)
+    assert response.output == "2\n"
+    assert response.error is None
+    assert response.container_id == "cntr_xyz"
+
+
+def test_anthropic_code_execution_error_result():
+    """An error result maps to `error`, not `output`."""
+    from anthropic.types import Message
+    from chatlas._content import ContentToolResponseCodeExecution
+    from chatlas._provider_anthropic import AnthropicProvider
+
+    chat = ChatAnthropic()
+    provider = chat.provider
+    assert isinstance(provider, AnthropicProvider)
+
+    message = Message.model_validate(
+        {
+            "id": "msg_1",
+            "type": "message",
+            "role": "assistant",
+            "model": "claude-opus-4-6",
+            "content": [
+                {
+                    "type": "code_execution_tool_result",
+                    "tool_use_id": "srvtoolu_1",
+                    "content": {
+                        "type": "code_execution_tool_result_error",
+                        "error_code": "execution_time_exceeded",
+                    },
+                },
+            ],
+            "stop_reason": "end_turn",
+            "usage": {"input_tokens": 10, "output_tokens": 5},
+        }
+    )
+
+    turn = provider._as_turn(message, has_data_model=False)
+    response = turn.contents[0]
+    assert isinstance(response, ContentToolResponseCodeExecution)
+    assert response.output is None
+    assert response.error == "execution_time_exceeded"
+    assert response.container_id is None
+
+
+def test_anthropic_code_execution_tool_schema():
+    from chatlas._provider_anthropic import AnthropicProvider
+
+    schema = AnthropicProvider._anthropic_tool_schema(tool_code_execution())
+    assert schema["name"] == "code_execution"
+    assert schema["type"] == "code_execution_20260521"
+
+
+def test_anthropic_code_execution_container_reuse():
+    from chatlas._content import ContentToolResponseCodeExecution
+    from chatlas._provider_anthropic import AnthropicProvider
+    from chatlas._turn import AssistantTurn
+
+    chat = ChatAnthropic()
+    chat.register_tool(tool_code_execution())
+    provider = chat.provider
+    assert isinstance(provider, AnthropicProvider)
+
+    turns = [
+        AssistantTurn(
+            [ContentToolResponseCodeExecution(output="1", container_id="cntr_xyz")]
+        )
+    ]
+    kwargs = provider._chat_perform_args(
+        stream=False,
+        turns=turns,
+        tools=chat._tools,  # type: ignore[reportPrivateUsage]
+        data_model=None,
+        kwargs=None,
+    )
+    assert kwargs["container"] == "cntr_xyz"
