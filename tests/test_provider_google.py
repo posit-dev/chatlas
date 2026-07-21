@@ -284,12 +284,20 @@ def _double_tool():
     return Tool.from_func(double)
 
 
-def test_google_mixed_tools_sets_tool_config_on_gemini_3_plus():
+@pytest.mark.parametrize(
+    "model",
+    [
+        "gemini-3.5-flash",
+        # `list_models()` surfaces IDs prefixed with "models/" (#1054)
+        "models/gemini-3.5-flash",
+    ],
+)
+def test_google_mixed_tools_sets_tool_config_on_gemini_3_plus(model: str):
     """Mixing custom + built-in tools requires an explicit opt-in on Gemini 3+ (#1054)."""
     from chatlas._provider_google import GoogleProvider
     from chatlas._turn import user_turn
 
-    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    provider = GoogleProvider(model=model, api_key="dummy", kwargs=None)
     tools = {"double": _double_tool(), "web_search": tool_web_search()}
 
     kwargs = provider._chat_perform_args(turns=[user_turn("hi")], tools=tools)

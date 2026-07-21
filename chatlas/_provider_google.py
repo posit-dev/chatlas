@@ -832,6 +832,9 @@ def google_supports_mixed_tools(model: str) -> bool:
     built-in (server-side) tools in the same request. Only Gemini 3+ models
     support this; older models reject the combination outright.
     """
+    # `list_models()` surfaces IDs prefixed with "models/" (e.g.
+    # "models/gemini-3.5-flash"), so strip that before matching.
+    model = model.removeprefix("models/")
     return bool(re.match(r"^gemini-([3-9]|[0-9]{2,})", model))
 
 
