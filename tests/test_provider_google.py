@@ -332,6 +332,40 @@ def test_google_mixed_tools_skips_tool_config_on_older_model():
     assert kwargs["config"].tool_config is None
 
 
+def test_google_mixed_tools_preserves_existing_tool_config():
+    """Setting the opt-in flag must not clobber a user-supplied `tool_config`."""
+    from chatlas._provider_google import GoogleProvider
+    from chatlas._turn import user_turn
+    from google.genai.types import (
+        FunctionCallingConfig,
+        FunctionCallingConfigMode,
+        GenerateContentConfig,
+        ToolConfig,
+    )
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    tools = {"double": _double_tool(), "web_search": tool_web_search()}
+
+    existing_config = GenerateContentConfig(
+        tool_config=ToolConfig(
+            function_calling_config=FunctionCallingConfig(
+                mode=FunctionCallingConfigMode.ANY
+            )
+        )
+    )
+
+    kwargs = provider._chat_perform_args(
+        turns=[user_turn("hi")],
+        tools=tools,
+        kwargs={"config": existing_config},
+    )
+
+    tool_config = kwargs["config"].tool_config
+    assert tool_config is not None
+    assert tool_config.include_server_side_tool_invocations is True
+    assert tool_config.function_calling_config.mode == FunctionCallingConfigMode.ANY
+
+
 def test_google_tool_config_not_set_when_tools_not_mixed():
     """The opt-in is only needed when both custom and built-in tools are present."""
     from chatlas._provider_google import GoogleProvider

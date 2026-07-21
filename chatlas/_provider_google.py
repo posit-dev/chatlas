@@ -362,20 +362,21 @@ class GoogleProvider(
             has_builtin_tool = False
             has_custom_tool = False
             for tool in tools.values():
-                if isinstance(tool, ToolWebSearch):
+                if isinstance(tool, ToolBuiltIn):
                     has_builtin_tool = True
+                else:
+                    has_custom_tool = True
+
+                if isinstance(tool, ToolWebSearch):
                     gtool = GoogleTool(google_search=tool.get_definition("google"))
                     google_tools.append(gtool)
                 elif isinstance(tool, ToolWebFetch):
-                    has_builtin_tool = True
                     gtool = GoogleTool(url_context=tool.get_definition("google"))
                     google_tools.append(gtool)
                 elif isinstance(tool, ToolBuiltIn):
-                    has_builtin_tool = True
                     gtool = GoogleTool.model_validate(tool.definition)
                     google_tools.append(gtool)
                 else:
-                    has_custom_tool = True
                     func = tool.schema["function"]
                     params = func.get("parameters")
                     gtool = GoogleTool(
@@ -406,9 +407,12 @@ class GoogleProvider(
                 and self.name == "Google/Gemini"
                 and google_supports_mixed_tools(self.model)
             ):
-                config.tool_config = ToolConfig(
-                    include_server_side_tool_invocations=True
-                )
+                if config.tool_config is None:
+                    config.tool_config = ToolConfig(
+                        include_server_side_tool_invocations=True
+                    )
+                else:
+                    config.tool_config.include_server_side_tool_invocations = True
 
         kwargs_full["config"] = config
 
