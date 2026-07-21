@@ -168,9 +168,7 @@ def test_anthropic_web_search_citations():
 def test_anthropic_code_execution():
     def chat_fun(**kwargs):
         return ChatAnthropic(
-            kwargs={
-                "default_headers": {"anthropic-beta": "code-execution-2025-05-22"}
-            },
+            kwargs={"default_headers": {"anthropic-beta": "code-execution-2025-05-22"}},
             **kwargs,
         )
 
@@ -528,3 +526,51 @@ def test_anthropic_code_execution_container_reuse():
         kwargs=None,
     )
     assert kwargs["container"] == "cntr_xyz"
+
+
+def test_anthropic_container_captured_from_streaming_message_delta():
+    """Anthropic only sends `container` on the message_delta event (not
+    message_start), so the streaming accumulator must copy it over -- otherwise
+    cross-turn container reuse silently never works when streaming (the
+    default `chat.chat()` mode)."""
+    from anthropic.types import Message, RawMessageDeltaEvent, RawMessageStartEvent
+    from chatlas._provider_anthropic import AnthropicProvider
+
+    chat = ChatAnthropic()
+    provider = chat.provider
+    assert isinstance(provider, AnthropicProvider)
+
+    start_message = Message.model_validate(
+        {
+            "id": "msg_1",
+            "type": "message",
+            "role": "assistant",
+            "model": "claude-opus-4-6",
+            "content": [],
+            "stop_reason": None,
+            "usage": {"input_tokens": 10, "output_tokens": 0},
+        }
+    )
+    start_chunk = RawMessageStartEvent.model_validate(
+        {"type": "message_start", "message": start_message.model_dump()}
+    )
+    completion = provider.stream_merge_chunks(None, start_chunk)
+    assert completion.container is None
+
+    delta_chunk = RawMessageDeltaEvent.model_validate(
+        {
+            "type": "message_delta",
+            "delta": {
+                "stop_reason": "end_turn",
+                "stop_sequence": None,
+                "container": {
+                    "id": "cntr_stream_xyz",
+                    "expires_at": "2026-07-21T00:00:00Z",
+                },
+            },
+            "usage": {"output_tokens": 5},
+        }
+    )
+    completion = provider.stream_merge_chunks(completion, delta_chunk)
+    assert completion.container is not None
+    assert completion.container.id == "cntr_stream_xyz"

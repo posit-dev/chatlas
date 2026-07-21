@@ -605,6 +605,10 @@ class AnthropicProvider(
             completion.stop_reason = chunk.delta.stop_reason
             completion.stop_sequence = chunk.delta.stop_sequence
             completion.usage.output_tokens = chunk.usage.output_tokens
+            # Anthropic only sends `container` (e.g. from the code execution
+            # tool) on the message_delta event, not message_start.
+            if chunk.delta.container is not None:
+                completion.container = chunk.delta.container
 
         return completion
 
