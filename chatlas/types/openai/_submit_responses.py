@@ -108,6 +108,8 @@ class SubmitInputArgs(TypedDict, total=False):
                 openai.types.responses.response_custom_tool_call_param.ResponseCustomToolCallParam,
                 openai.types.responses.response_input_param.CompactionTrigger,
                 openai.types.responses.response_input_param.ItemReference,
+                openai.types.responses.response_input_param.Program,
+                openai.types.responses.response_input_param.ProgramOutput,
             ]
         ],
         openai.Omit,
@@ -119,6 +121,9 @@ class SubmitInputArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "gpt-5.6-sol",
+            "gpt-5.6-terra",
+            "gpt-5.6-luna",
             "gpt-5.4",
             "gpt-5.4-mini",
             "gpt-5.4-nano",
@@ -227,6 +232,9 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.Omit,
     ]
     prompt_cache_key: str | openai.Omit
+    prompt_cache_options: (
+        openai.types.responses.response_create_params.PromptCacheOptions | openai.Omit
+    )
     prompt_cache_retention: Union[Literal["in_memory", "24h"], None, openai.Omit]
     reasoning: Union[openai.types.shared_params.reasoning.Reasoning, None, openai.Omit]
     safety_identifier: str | openai.Omit
@@ -250,6 +258,7 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.types.responses.tool_choice_function_param.ToolChoiceFunctionParam,
         openai.types.responses.tool_choice_mcp_param.ToolChoiceMcpParam,
         openai.types.responses.tool_choice_custom_param.ToolChoiceCustomParam,
+        openai.types.responses.response_create_params.ToolChoiceSpecificProgrammaticToolCallingParam,
         openai.types.responses.tool_choice_apply_patch_param.ToolChoiceApplyPatchParam,
         openai.types.responses.tool_choice_shell_param.ToolChoiceShellParam,
         openai.Omit,
@@ -264,6 +273,7 @@ class SubmitInputArgs(TypedDict, total=False):
                 openai.types.responses.web_search_tool_param.WebSearchToolParam,
                 openai.types.responses.tool_param.Mcp,
                 openai.types.responses.tool_param.CodeInterpreter,
+                openai.types.responses.tool_param.ProgrammaticToolCalling,
                 openai.types.responses.tool_param.ImageGeneration,
                 openai.types.responses.tool_param.LocalShell,
                 openai.types.responses.function_shell_tool_param.FunctionShellToolParam,
