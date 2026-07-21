@@ -9,7 +9,7 @@ these configurations into their specific API format.
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, Literal, Optional, overload
+from typing import TYPE_CHECKING, Literal, Optional, Sequence, overload
 
 from ._content import ContentToolResponseCodeExecution, ToolAnnotations
 from ._tools import ToolBuiltIn
@@ -738,6 +738,7 @@ class ToolCodeExecution(ToolBuiltIn):
         """Generate OpenAI code interpreter tool definition."""
         # https://platform.openai.com/docs/guides/tools-code-interpreter
         container = container_id or {"type": "auto"}
+        # dict[str, str] doesn't structurally satisfy CodeInterpreter's container union
         return {"type": "code_interpreter", "container": container}  # type: ignore
 
     @staticmethod
@@ -816,7 +817,7 @@ def tool_code_execution() -> ToolCodeExecution:
     return ToolCodeExecution()
 
 
-def last_code_execution_container_id(turns: list["Turn"]) -> Optional[str]:
+def last_code_execution_container_id(turns: Sequence["Turn"]) -> Optional[str]:
     """
     Find the most recent code execution container/sandbox id in turn history.
 
