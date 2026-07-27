@@ -647,6 +647,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def token_count(
         self,
         *args: Content | str,
+        include: Literal["new", "complete"] = "new",
         data_model: Optional[type[BaseModel]] = None,
     ) -> int:
         """
@@ -660,6 +661,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         args
             The input to get a token count for.
+        include
+            What to include in the count. `"new"` (default) counts only the
+            content in `args` plus any registered tools. `"complete"` estimates
+            the total input tokens for the next request, adding the system
+            prompt and conversation history (`.get_turns()`).
         data_model
             If the input is meant for data extraction (i.e., `.chat_structured()`), then
             this should be the Pydantic model that describes the structure of the data to
@@ -693,7 +699,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         return self.provider.token_count(
-            [user_turn(*args)],
+            self._token_count_turns(include, *args),
             tools=self._tools,
             data_model=data_model,
         )
@@ -701,6 +707,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def token_count_async(
         self,
         *args: Content | str,
+        include: Literal["new", "complete"] = "new",
         data_model: Optional[type[BaseModel]] = None,
     ) -> int:
         """
@@ -714,6 +721,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         args
             The input to get a token count for.
+        include
+            What to include in the count. `"new"` (default) counts only the
+            content in `args` plus any registered tools. `"complete"` estimates
+            the total input tokens for the next request, adding the system
+            prompt and conversation history (`.get_turns()`).
         data_model
             If this input is meant for data extraction (i.e., `.chat_structured_async()`),
             then this should be the Pydantic model that describes the structure of the data
@@ -726,10 +738,18 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         return await self.provider.token_count_async(
-            [user_turn(*args)],
+            self._token_count_turns(include, *args),
             tools=self._tools,
             data_model=data_model,
         )
+
+    def _token_count_turns(
+        self, include: Literal["new", "complete"], *args: Content | str
+    ) -> list[Turn]:
+        new_turn = user_turn(*args)
+        if include == "complete":
+            return self.get_turns(include_system_prompt=True) + [new_turn]
+        return [new_turn]
 
     def app(
         self,

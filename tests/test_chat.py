@@ -5,6 +5,7 @@ import pytest
 from chatlas import (
     AssistantTurn,
     ChatOpenAI,
+    ChatOpenAICompletions,
     ContentToolRequest,
     ContentToolResult,
     ToolRejectError,
@@ -754,3 +755,21 @@ def test_content_add():
 
     # Mismatched types return NotImplemented
     assert a.__add__(t1) is NotImplemented
+
+
+def test_token_count_complete_includes_history_and_system():
+    chat = ChatOpenAICompletions(
+        model="gpt-4o", system_prompt="You are a terse assistant."
+    )
+    new_only = chat.token_count("hello there", include="new")
+
+    chat.set_turns(
+        [
+            UserTurn("a much earlier and quite lengthy question"),
+            AssistantTurn("an earlier answer", tokens=(5, 5, 0)),
+        ]
+    )
+    complete = chat.token_count("hello there", include="complete")
+
+    assert new_only > 0
+    assert complete > new_only

@@ -371,3 +371,19 @@ def test_anthropic_adaptive_effort_merges_with_structured_output():
     output_config = args["output_config"]
     assert output_config["effort"] == "high"
     assert output_config["format"]["type"] == "json_schema"
+
+
+@pytest.mark.vcr
+def test_anthropic_token_count_complete_exceeds_new():
+    chat = ChatAnthropic(system_prompt="You are a terse assistant.")
+    chat.set_turns(
+        [
+            UserTurn("an earlier question with some length to it"),
+            AssistantTurn("an earlier answer", tokens=(10, 5, 0)),
+        ]
+    )
+    new_only = chat.token_count("and one more question", include="new")
+    complete = chat.token_count("and one more question", include="complete")
+
+    assert new_only > 0
+    assert complete > new_only
