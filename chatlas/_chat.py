@@ -693,7 +693,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         return self.provider.token_count(
-            *args,
+            [user_turn(*args)],
             tools=self._tools,
             data_model=data_model,
         )
@@ -726,7 +726,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         return await self.provider.token_count_async(
-            *args,
+            [user_turn(*args)],
             tools=self._tools,
             data_model=data_model,
         )
