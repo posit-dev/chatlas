@@ -164,6 +164,22 @@ def test_openai_pdf():
     assert_pdf_local(ChatOpenAI)
 
 
+@pytest.mark.vcr
+def test_openai_token_count_uses_endpoint_and_counts_tools():
+    def get_weather(city: str) -> str:
+        "Get weather for a city."
+        return "sunny"
+
+    chat = ChatOpenAI()
+    without_tool = chat.token_count("What is the weather?")
+
+    chat.register_tool(get_weather)
+    with_tool = chat.token_count("What is the weather?")
+
+    assert isinstance(without_tool, int) and without_tool > 0
+    assert with_tool > without_tool
+
+
 def test_openai_custom_http_client():
     ChatOpenAI(kwargs={"http_client": httpx.AsyncClient()})
 
