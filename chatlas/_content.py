@@ -146,6 +146,8 @@ ContentTypeEnum = Literal[
     "web_search_results",
     "web_fetch_request",
     "web_fetch_results",
+    "code_execution_request",
+    "code_execution_result",
 ]
 """
 A discriminated union of all content types.
@@ -839,6 +841,74 @@ class ContentToolResponseFetch(Content):
         return f"[web fetch result]: {self.url}"
 
 
+class ContentToolRequestCodeExecution(Content):
+    """
+    A code execution request from the model.
+
+    This content type represents the model's request to run code in a
+    sandboxed environment. It's automatically generated when a built-in code
+    execution tool is used.
+
+    Parameters
+    ----------
+    code
+        The code the model wants to run.
+    language
+        The programming language of `code`, if the provider reports it.
+    extra
+        The raw provider-specific response data.
+    """
+
+    code: str
+    language: Optional[str] = None
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "code_execution_request"
+
+    def __str__(self):
+        return f"[code execution request]:\n```\n{self.code}\n```"
+
+
+class ContentToolResponseCodeExecution(Content):
+    """
+    Code execution results from the model.
+
+    This content type represents the result of running code in a sandboxed
+    environment. It's automatically generated when a built-in code execution
+    tool returns results.
+
+    Only text output (stdout/stderr or each provider's equivalent) is
+    surfaced here. Files the code produced (e.g. plots, CSVs) aren't
+    downloaded or decoded -- their raw provider references are still
+    available via `extra`.
+
+    Parameters
+    ----------
+    output
+        The text output of the code (e.g. stdout).
+    error
+        The error output of the code (e.g. stderr), if any.
+    container_id
+        The id of the sandbox/container the code ran in, if the provider
+        exposes one. Used by `chatlas.Chat` to reuse the same sandbox across
+        turns for providers that support it (OpenAI, Anthropic).
+    extra
+        The raw provider-specific response data.
+    """
+
+    output: Optional[str] = None
+    error: Optional[str] = None
+    container_id: Optional[str] = None
+    extra: Optional[dict[str, Any]] = None
+
+    content_type: ContentTypeEnum = "code_execution_result"
+
+    def __str__(self):
+        if self.error:
+            return f"[code execution error]:\n```\n{self.error}\n```"
+        return f"[code execution result]:\n```\n{self.output or ''}\n```"
+
+
 ContentUnion = Union[
     ContentText,
     ContentImageRemote,
@@ -852,6 +922,8 @@ ContentUnion = Union[
     ContentToolResponseSearch,
     ContentToolRequestFetch,
     ContentToolResponseFetch,
+    ContentToolRequestCodeExecution,
+    ContentToolResponseCodeExecution,
 ]
 
 
@@ -917,6 +989,10 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentToolRequestFetch.model_validate(data)
     elif ct == "web_fetch_results":
         return ContentToolResponseFetch.model_validate(data)
+    elif ct == "code_execution_request":
+        return ContentToolRequestCodeExecution.model_validate(data)
+    elif ct == "code_execution_result":
+        return ContentToolResponseCodeExecution.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
 

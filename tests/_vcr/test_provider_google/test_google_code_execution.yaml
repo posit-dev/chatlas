@@ -1,0 +1,80 @@
+interactions:
+- request:
+    body: '{"contents": [{"parts": [{"text": "Use code execution to compute the 20th
+      Fibonacci number (0-indexed, so fib(0) = 0, fib(1) = 1). Just give me the number."}],
+      "role": "user"}], "tools": [{"codeExecution": {}}], "generationConfig": {"temperature":
+      0}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '251'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.13.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"executableCode\":
+        {\"language\": \"PYTHON\",\"code\": \"def fib(n):\\n    a, b = 0, 1\\n    for
+        _ in range(n):\\n        a, b = b, a + b\\n    return a\\n\\nprint(fib(20))\\n\",\"id\":
+        \"2ydsz5r8\"},\"thoughtSignature\": \"EtEDCs4DARFNMg9yXq63pfAU+5EIHV1gUziVmbRPItM89YwjikWVR+GszBzKz0NBHKG6dfDNmNYOlcsGgMACcXqhbj/t6pLQ6eAEe1a8BzO0AavIIP37l6lsap9ihFyDLtgnPx/sHCcSG/5efbQZigZZc+bGZVcymO3JSO2Y4KUx8ZUdVVcpY8wFJs4U1qa8v4UVReoTvdfnyBQVGqnHakAfrh6soDHsX0jEsm+LGU+n6mdFlS54KT+jUgwtbAvxy1p1p9Oc83LshluQqZSTIdF6930VrAJMA+a50nXx3g68LrIQ2glKl/rDdzupfNC/U0nUryFUAHYPlE9wwVDptLBZEMmm4iBBzu3cPxxtsOQ35neqB7tZrhZ2n/gNwx9BgUTmiWtpnsMK8Xv80N571ikBeXruGxoaUWiMJctm8BdP6DRxo9b/o9M5WzKS7Fw+j+nlGbH35lDG7wXxNMLpPDUPW6aZqSxLNxS6FoylUn+J1L+n66CDJFSRM+YQHKjja7XexCBsH0uqyVTwhsn2xeDRihhBTBabGAdOJs+pr7HFTtLCtbKp4YJHLZj34xZ2Ch1lkWC6VJ3Kfjoi85vudBypP7pzuvxf57GxqdEz8UrmFojP\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 41,\"candidatesTokenCount\":
+        62,\"totalTokenCount\": 219,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        41}],\"thoughtsTokenCount\": 116,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"F-1fapjUPPzN-8YPr4a9mQ8\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"codeExecutionResult\": {\"outcome\":
+        \"OUTCOME_OK\",\"output\": \"6765\\n\",\"id\": \"2ydsz5r8\"}}],\"role\": \"model\"}}],\"usageMetadata\":
+        {\"promptTokenCount\": 41,\"totalTokenCount\": 41,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 41}],\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"F-1fapjUPPzN-8YPr4a9mQ8\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"6765\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 41,\"candidatesTokenCount\":
+        4,\"totalTokenCount\": 82,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        41}],\"thoughtsTokenCount\": 37,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"F-1fapjUPPzN-8YPr4a9mQ8\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
+        \"Er8BCrwBARFNMg+sMxy77lRN7eSUv8M2cz7iRPN8mgg/5TNPkYX5gp+mG0Y04XPSfSOs3v6p/0W6wmvbCq8ZEg/f0Q/57f5P5bPIhDoIOo9sIdTZSzBf55lu6gQLsPbF5AJQBGdD4Q+NgR+SAt9Zrb/3hTBjkhFDAU3qlwLlygeS84fYD+8ESgKch32f3Pu4tkkfBK067o/faYQSOoxV45AC+qiRqcjHxPXOkcQqwBnL0rk+rG3M55v4WnuZbdRkGmI=\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        157,\"candidatesTokenCount\": 66,\"totalTokenCount\": 598,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 157}],\"toolUsePromptTokenCount\":
+        222,\"toolUsePromptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        222}],\"thoughtsTokenCount\": 153,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"F-1fapjUPPzN-8YPr4a9mQ8\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Tue, 21 Jul 2026 22:05:13 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=1306
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

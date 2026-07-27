@@ -38,7 +38,7 @@ from ._provider_snowflake import ChatSnowflake
 from ._stream_controller import StreamController
 from ._tokens import token_usage
 from ._tools import Tool, ToolBuiltIn, ToolRejectError
-from ._tools_builtin import tool_web_fetch, tool_web_search
+from ._tools_builtin import tool_code_execution, tool_web_fetch, tool_web_search
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 
 try:
@@ -93,6 +93,7 @@ __all__ = (
     "Tool",
     "ToolBuiltIn",
     "ToolRejectError",
+    "tool_code_execution",
     "tool_web_fetch",
     "tool_web_search",
     "Turn",

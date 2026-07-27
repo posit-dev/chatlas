@@ -417,6 +417,39 @@ def assert_tool_web_search(chat_fun: ChatFun, tool, hint: str = "", stream: bool
     assert "May" in str(response)
 
 
+def assert_tool_code_execution(chat_fun: ChatFun, tool, stream: bool = True):
+    """Test code execution tool functionality."""
+    chat = chat_fun()
+    chat.register_tool(tool)
+
+    response = chat.chat(
+        "Use code execution to compute the 20th Fibonacci number "
+        "(0-indexed, so fib(0) = 0, fib(1) = 1). Just give me the number.",
+        stream=stream,
+    )
+    assert "6765" in str(response)
+
+
+def assert_tool_code_execution_persistence(
+    chat_fun: ChatFun, tool, stream: bool = True
+):
+    """Test that the sandbox persists a variable across turns."""
+    chat = chat_fun()
+    chat.register_tool(tool)
+
+    chat.chat(
+        "Use code execution to define a variable `x = 42`. "
+        "Don't print anything yet.",
+        stream=stream,
+    )
+    response = chat.chat(
+        "Now use code execution to print `x * 2`, reusing the same `x` "
+        "from before -- don't redefine it.",
+        stream=stream,
+    )
+    assert "84" in str(response)
+
+
 retry_api_call = retry(
     wait=wait_exponential(min=1, max=60),
     stop=stop_after_attempt(3),

@@ -20,7 +20,9 @@ from ._content import (
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentToolRequestCodeExecution,
     ContentToolRequestSearch,
+    ContentToolResponseCodeExecution,
     ContentToolResult,
 )
 from ._logging import log_model_default
@@ -28,7 +30,12 @@ from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
-from ._tools_builtin import ToolWebFetch, ToolWebSearch
+from ._tools_builtin import (
+    ToolCodeExecution,
+    ToolWebFetch,
+    ToolWebSearch,
+    last_code_execution_container_id,
+)
 from ._turn import AssistantTurn, FinishReason, Turn
 
 if TYPE_CHECKING:
@@ -272,6 +279,11 @@ class OpenAIProvider(
                     "Consider using the MCP Fetch server instead via chat.register_mcp_tools_stdio_async(). "
                     "See help(tool_web_fetch) for details."
                 )
+            elif isinstance(tool, ToolCodeExecution):
+                container_id = last_code_execution_container_id(turns)
+                tool_params.append(
+                    tool.get_definition("openai", container_id=container_id)
+                )
             elif isinstance(tool, ToolBuiltIn):
                 tool_params.append(cast("ToolParam", tool.definition))
             else:
@@ -465,6 +477,23 @@ class OpenAIProvider(
                     )
                 )
 
+            elif output.type == "code_interpreter_call":
+                # https://platform.openai.com/docs/guides/tools-code-interpreter#understanding-code-interpreter-output
+                contents.append(
+                    ContentToolRequestCodeExecution(
+                        code=output.code or "",
+                        extra=output.model_dump(),
+                    )
+                )
+                logs = [o.logs for o in (output.outputs or []) if o.type == "logs"]
+                contents.append(
+                    ContentToolResponseCodeExecution(
+                        output="\n".join(logs) or None,
+                        container_id=output.container_id,
+                        extra=output.model_dump(),
+                    )
+                )
+
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
 
@@ -487,7 +516,11 @@ class OpenAIProvider(
     def _turns_as_inputs(self, turns: list[Turn]) -> "list[ResponseInputItemParam]":
         res: "list[ResponseInputItemParam]" = []
         for turn in turns:
-            res.extend([as_input_param(x, turn.role) for x in turn.contents])
+            res.extend(
+                x
+                for x in (as_input_param(c, turn.role) for c in turn.contents)
+                if x is not None
+            )
         return res
 
     def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
@@ -525,7 +558,9 @@ class OpenAIProvider(
         return "/v1/responses"
 
 
-def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
+def as_input_param(
+    content: Content, role: Role
+) -> "Optional[ResponseInputItemParam]":
     if isinstance(content, ContentText):
         if role == "assistant":
             # OpenAI's type for this value (ResponseOutputMessageParam) currently has a bunch
@@ -598,6 +633,13 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
         }
     elif isinstance(content, ContentToolRequestSearch):
         return cast("ResponseInputItemParam", content.extra)
+    elif isinstance(content, ContentToolRequestCodeExecution):
+        return cast("ResponseInputItemParam", content.extra)
+    elif isinstance(content, ContentToolResponseCodeExecution):
+        # OpenAI bundles code + result into a single code_interpreter_call
+        # item, already captured by the paired
+        # ContentToolRequestCodeExecution's extra above.
+        return None
     else:
         raise ValueError(f"Unsupported content type: {type(content)}")
 
