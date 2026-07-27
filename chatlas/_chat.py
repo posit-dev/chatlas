@@ -678,9 +678,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Note
         ----
-        Remember that the token count is an estimate. Also, models based on
-        `ChatOpenAI()` currently does not take tools into account when
-        estimating token counts.
+        The token count is an estimate, and what it accounts for depends on the
+        provider:
+
+        - `ChatOpenAI()` (Responses API) and `ChatAnthropic()` use the provider's
+          token-counting endpoint and account for registered tools (and, with
+          `include="complete"`, the system prompt and conversation history).
+        - `ChatGoogle()` uses Google's token-counting endpoint but counts only the
+          message contents: it does not account for registered tools or the system
+          prompt (a limitation of the `google-genai` SDK's `count_tokens` on the
+          Gemini Developer API). With `include="complete"` the count reflects
+          conversation history but not the system prompt.
+        - `ChatOpenAICompletions()` and other OpenAI-compatible providers fall back
+          to a local `tiktoken` estimate that does not account for tools.
 
         Examples
         --------
@@ -735,6 +745,22 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         -------
         int
             The token count for the input.
+
+        Note
+        ----
+        The token count is an estimate, and what it accounts for depends on the
+        provider:
+
+        - `ChatOpenAI()` (Responses API) and `ChatAnthropic()` use the provider's
+          token-counting endpoint and account for registered tools (and, with
+          `include="complete"`, the system prompt and conversation history).
+        - `ChatGoogle()` uses Google's token-counting endpoint but counts only the
+          message contents: it does not account for registered tools or the system
+          prompt (a limitation of the `google-genai` SDK's `count_tokens` on the
+          Gemini Developer API). With `include="complete"` the count reflects
+          conversation history but not the system prompt.
+        - `ChatOpenAICompletions()` and other OpenAI-compatible providers fall back
+          to a local `tiktoken` estimate that does not account for tools.
         """
 
         return await self.provider.token_count_async(

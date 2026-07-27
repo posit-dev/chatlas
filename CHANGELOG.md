@@ -14,11 +14,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `batch_chat()` now supports `ChatGoogle()` (Gemini Developer API batch jobs). Batch is also now documented as supported for `ChatGroq()`, which already worked via its OpenAI-compatible provider. (Vertex AI is not supported, since its batch API requires GCS bucket URIs instead of inline requests.)
 * `ChatOllama()` gains a `reasoning_effort` parameter to enable extended "thinking" for models that support it (e.g. qwen3, gpt-oss).
+* `Chat.token_count()` gained an `include=` argument. The default
+  `include="new"` counts only the supplied input (plus registered tools where
+  the provider supports it), while `include="complete"` estimates the total
+  input tokens for the next request by also including the system prompt and
+  conversation history.
 
 ### Improvements
 
 * `ChatGoogle()` and `ChatVertex()` now default to `gemini-3.5-flash` instead of the older `gemini-2.5-flash`.
 * `ChatGroq()` now defaults to `openai/gpt-oss-20b` instead of `llama-3.1-8b-instant`.
+* `ChatOpenAI().token_count()` now uses OpenAI's token-counting endpoint,
+  which is accurate and accounts for registered tools, instead of a local
+  `tiktoken` estimate. (`ChatGoogle().token_count()` continues to count only
+  message contents — not tools or the system prompt — due to a `google-genai`
+  SDK limitation.)
 
 ### Changes
 
