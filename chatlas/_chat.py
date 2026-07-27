@@ -665,7 +665,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             What to include in the count. `"new"` (default) counts only the
             content in `args` plus any registered tools. `"complete"` estimates
             the total input tokens for the next request, adding the system
-            prompt and conversation history (`.get_turns()`).
+            prompt and conversation history (`.get_turns()`). Exactly what
+            each mode counts is provider-dependent; see the Note below.
         data_model
             If the input is meant for data extraction (i.e., `.chat_structured()`), then
             this should be the Pydantic model that describes the structure of the data to
@@ -735,7 +736,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             What to include in the count. `"new"` (default) counts only the
             content in `args` plus any registered tools. `"complete"` estimates
             the total input tokens for the next request, adding the system
-            prompt and conversation history (`.get_turns()`).
+            prompt and conversation history (`.get_turns()`). Exactly what
+            each mode counts is provider-dependent; see the Note below.
         data_model
             If this input is meant for data extraction (i.e., `.chat_structured_async()`),
             then this should be the Pydantic model that describes the structure of the data

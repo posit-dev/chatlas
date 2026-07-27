@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `include="new"` counts only the supplied input (plus registered tools where
   the provider supports it), while `include="complete"` estimates the total
   input tokens for the next request by also including the system prompt and
-  conversation history.
+  conversation history (where the provider's token counter supports it; see
+  the API docs for per-provider details).
 
 ### Improvements
 
