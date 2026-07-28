@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import os
 from abc import ABC, abstractmethod
 from datetime import date
 from typing import (
+    IO,
     Any,
     AsyncIterable,
     Generic,
@@ -16,7 +18,8 @@ from typing import (
 
 from pydantic import BaseModel
 
-from ._content import Content
+from ._content import Content, ContentUploaded
+from ._files import FileMetadata
 from ._tools import Tool, ToolBuiltIn
 from ._turn import AssistantTurn, Turn
 from ._typing_extensions import NotRequired, TypedDict
@@ -405,3 +408,57 @@ class Provider(
             Turn object or None if the result was an error
         """
         raise NotImplementedError("This provider does not support batch processing")
+
+    def file_upload(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> "ContentUploaded":
+        raise self._no_file_support()
+
+    async def file_upload_async(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> "ContentUploaded":
+        raise self._no_file_support()
+
+    def file_list(self) -> "list[FileMetadata]":
+        raise self._no_file_support()
+
+    async def file_list_async(self) -> "list[FileMetadata]":
+        raise self._no_file_support()
+
+    def file_get(self, id: str) -> "FileMetadata":  # noqa: A002
+        raise self._no_file_support()
+
+    async def file_get_async(self, id: str) -> "FileMetadata":  # noqa: A002
+        raise self._no_file_support()
+
+    def file_download(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        raise self._no_file_support()
+
+    async def file_download_async(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        raise self._no_file_support()
+
+    def file_delete(self, id: str) -> None:  # noqa: A002
+        raise self._no_file_support()
+
+    async def file_delete_async(self, id: str) -> None:  # noqa: A002
+        raise self._no_file_support()
+
+    def _no_file_support(self) -> NotImplementedError:
+        return NotImplementedError(
+            f"Provider '{self.name}' does not support file management. "
+            "Supported providers: ChatOpenAI, ChatAnthropic, ChatGoogle."
+        )

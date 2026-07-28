@@ -73,6 +73,7 @@ if TYPE_CHECKING:
     from opentelemetry.trace import Span
 
     from ._content import ToolAnnotations
+    from ._files import FileManager
 
 
 class TokensDict(TypedDict):
@@ -414,6 +415,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             self._turns.pop(0)
         if value is not None:
             self._turns.insert(0, SystemTurn(value))
+
+    @property
+    def files(self) -> "FileManager":
+        """
+        Manage files hosted by this chat's provider.
+
+        Upload a file once and reference it across turns without re-sending its
+        bytes. Only OpenAI, Anthropic, and Google chats support this; others
+        raise `NotImplementedError`.
+        """
+        from ._files import FileManager
+
+        return FileManager(self.provider)
 
     @property
     def model(self) -> str:
