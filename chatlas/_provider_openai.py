@@ -7,10 +7,16 @@ from urllib.parse import urlparse
 
 import orjson
 from openai.types.responses import Response, ResponseStreamEvent
+from openai.types.responses.response_function_web_search import (
+    ActionFind,
+    ActionOpenPage,
+    ResponseFunctionWebSearch,
+)
 from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
+    PROVIDER_ANNOTATION_TYPES,
     Content,
     ContentImageInline,
     ContentImageRemote,
@@ -20,8 +26,10 @@ from ._content import (
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentToolRequestFetch,
     ContentToolRequestSearch,
     ContentToolResult,
+    ProviderAnnotation,
 )
 from ._logging import log_model_default
 from ._provider import StandardModelParamNames, StandardModelParams
@@ -447,23 +455,7 @@ class OpenAIProvider(
                     )
 
             elif output.type == "web_search_call":
-                # https://platform.openai.com/docs/guides/tools-web-search#output-and-citations
-                # Not all action types have a query field (e.g., open_page, find_in_page)
-                action = output.action
-                query = getattr(action, "query", None) or None
-                if not query:
-                    queries = getattr(action, "queries", None) or []
-                    query = queries[0] if queries else None
-                if not query:
-                    query = getattr(action, "pattern", None) or None
-                if not query:
-                    query = getattr(action, "url", None) or "web search"
-                contents.append(
-                    ContentToolRequestSearch(
-                        query=query,
-                        extra=output.model_dump(),
-                    )
-                )
+                contents.append(openai_web_search_request(output))
 
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
@@ -487,7 +479,12 @@ class OpenAIProvider(
     def _turns_as_inputs(self, turns: list[Turn]) -> "list[ResponseInputItemParam]":
         res: "list[ResponseInputItemParam]" = []
         for turn in turns:
-            res.extend([as_input_param(x, turn.role) for x in turn.contents])
+            for x in turn.contents:
+                if isinstance(x, PROVIDER_ANNOTATION_TYPES) and not openai_replayable(
+                    x
+                ):
+                    continue
+                res.append(as_input_param(x, turn.role))
         return res
 
     def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
@@ -523,6 +520,46 @@ class OpenAIProvider(
     @staticmethod
     def _batch_endpoint():
         return "/v1/responses"
+
+
+def openai_web_search_request(
+    item: "ResponseFunctionWebSearch",
+) -> ContentToolRequestSearch | ContentToolRequestFetch:
+    """Map a `web_search_call` item onto request content.
+
+    https://platform.openai.com/docs/guides/tools-web-search#output-and-citations
+
+    The action is a closed union of three verbs, and they aren't all searches:
+    `open_page` fetches a URL, and `find_in_page` matches a pattern within an
+    already-open page.
+    """
+    action = item.action
+    extra = item.model_dump()
+    if isinstance(action, ActionOpenPage):
+        return ContentToolRequestFetch(url=action.url or "", extra=extra)
+    if isinstance(action, ActionFind):
+        return ContentToolRequestSearch(query=action.pattern, extra=extra)
+    queries = action.queries or []
+    return ContentToolRequestSearch(
+        query=action.query or (queries[0] if queries else "web search"),
+        extra=extra,
+    )
+
+
+def openai_replayable(content: ProviderAnnotation) -> bool:
+    """Whether `content.extra` holds a Responses API item we can resend.
+
+    Only the `web_search_call` item round-trips; the rest of what a web search
+    produces (results, citations) is reported client-side with no item to send
+    back. Content from another provider carries that provider's payload, which
+    the Responses API would reject.
+    """
+    extra = content.extra
+    return (
+        isinstance(content, (ContentToolRequestSearch, ContentToolRequestFetch))
+        and isinstance(extra, dict)
+        and extra.get("type") == "web_search_call"
+    )
 
 
 def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
@@ -596,7 +633,8 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
             "name": content.name,
             "arguments": orjson.dumps(content.arguments).decode("utf-8"),
         }
-    elif isinstance(content, ContentToolRequestSearch):
+    elif isinstance(content, (ContentToolRequestSearch, ContentToolRequestFetch)):
+        # The raw `web_search_call` item, replayed verbatim (see openai_replayable)
         return cast("ResponseInputItemParam", content.extra)
     else:
         raise ValueError(f"Unsupported content type: {type(content)}")

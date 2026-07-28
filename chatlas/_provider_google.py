@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
+    PROVIDER_ANNOTATION_TYPES,
     Content,
     ContentImageInline,
     ContentImageRemote,
@@ -559,7 +560,14 @@ class GoogleProvider(
                 parts = [self._as_part_type(c) for c in turn.contents]
                 contents.append(GoogleContent(role=turn.role, parts=parts))
             elif isinstance(turn, AssistantTurn):
-                parts = [self._as_part_type(c) for c in turn.contents]
+                # Google's grounding/url-context metadata has no corresponding
+                # Part to send back, so none of it is replayable here.
+                sendable = [
+                    c
+                    for c in turn.contents
+                    if not isinstance(c, PROVIDER_ANNOTATION_TYPES)
+                ]
+                parts = [self._as_part_type(c) for c in sendable]
                 contents.append(GoogleContent(role="model", parts=parts))
             else:
                 raise ValueError(f"Unknown role {turn.role}")
