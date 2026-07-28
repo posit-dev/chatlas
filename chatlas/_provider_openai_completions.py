@@ -28,6 +28,7 @@ from ._content import (
     ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
+    ContentUploaded,
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
@@ -390,6 +391,19 @@ class OpenAICompletionsProvider(
                                 },
                             }
                         )
+                    elif isinstance(x, ContentUploaded):
+                        if x.provider != "openai":
+                            raise ValueError(
+                                f"This file was uploaded to provider '{x.provider}', "
+                                "but is being used with an OpenAI-compatible chat."
+                            )
+                        if x.mime_type.startswith("image/"):
+                            raise ValueError(
+                                "Referencing an uploaded image by id isn't supported "
+                                "by the Chat Completions API. Use ChatOpenAI (Responses "
+                                "API), or pass the image inline via content_image_file()."
+                            )
+                        contents.append({"type": "file", "file": {"file_id": x.id}})
                     elif isinstance(x, ContentToolResult):
                         tool_results.append(
                             ChatCompletionToolMessageParam(
