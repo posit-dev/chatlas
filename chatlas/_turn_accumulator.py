@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Callable, Literal, Sequence
 
 from ._content import (
+    PROVIDER_ANNOTATION_TYPES,
     Content,
     ContentThinkingDelta,
 )
@@ -119,7 +120,15 @@ class TurnAccumulator:
         if self._turn_idx is None:
             raise RuntimeError("_update_turn called before begin_turn")
         contents = self._turns[self._turn_idx].contents
-        if contents and type(contents[-1]) is type(content):
+        # Provider annotations define no __add__, so consecutive ones are appended
+        # rather than merged (two search results aren't one search result). The
+        # `NotImplemented` check below can't catch that: Python raises TypeError
+        # when neither operand implements the operator.
+        if (
+            contents
+            and type(contents[-1]) is type(content)
+            and not isinstance(content, PROVIDER_ANNOTATION_TYPES)
+        ):
             merged = contents[-1] + content  # type: ignore[operator]
             if merged is not NotImplemented:
                 contents[-1] = merged

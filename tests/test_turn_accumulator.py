@@ -1,4 +1,4 @@
-from chatlas._content import ContentText
+from chatlas._content import ContentText, ContentToolRequestSearch
 from chatlas._turn import AssistantTurn, UserTurn
 from chatlas._turn_accumulator import TurnAccumulator
 from chatlas._stream_controller import StreamController
@@ -25,6 +25,19 @@ def test_update_turn_merges_adjacent_content():
     acc._update_turn(ContentText.model_construct(text="b"))
     assert len(turns[1].contents) == 1
     assert turns[1].contents[0].text == "ab"
+
+
+def test_update_turn_appends_non_mergeable_adjacent_content():
+    # Same-typed content with no __add__ must append. `contents[-1] + content`
+    # would raise TypeError rather than returning NotImplemented.
+    turns: list = []
+    acc = TurnAccumulator(turns, StreamController())
+    acc.begin_turn(UserTurn("hello"))
+    acc._update_turn(ContentToolRequestSearch(query="a"))
+    acc._update_turn(ContentToolRequestSearch(query="b"))
+    contents = turns[1].contents
+    assert len(contents) == 2
+    assert [c.query for c in contents] == ["a", "b"]
 
 
 def test_complete_turn_replaces_partial():

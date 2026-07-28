@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `ChatGoogle()` no longer errors when mixing custom tools and built-in tools (e.g. `tool_web_search()`) on Gemini 3+ models.
 * Turns containing web search/fetch content can now be passed to a different provider (e.g. `ChatAnthropic().set_turns(openai_chat.get_turns())`). Previously this raised `ValueError: Unsupported content type` on `ChatOpenAI()`, and `ChatAnthropic()` forwarded the other provider's raw payload as if it were its own, producing an invalid request. Each provider now replays only the built-in tool content it produced and drops the rest.
 * `ChatOpenAI()` web search `open_page` actions now surface as `ContentToolRequestFetch` (with the URL) rather than a `ContentToolRequestSearch` whose "query" was the URL, so renderers no longer show "searched for: https://…". Relatedly, a `search` action that reports only the plural `queries` field no longer falls through to the literal string `"web search"`.
+* Streaming two adjacent pieces of same-typed content that can't be merged (e.g. two web search requests) no longer raises `TypeError`.
 
 ### Breaking changes
 
