@@ -81,6 +81,12 @@ update-types:
 	@echo "📝 Updating chat provider types"
 	uv run python scripts/main.py
 
+.PHONY: update-pricing
+update-pricing:
+	@echo "💰 Updating pricing data from Ellmer"
+	curl -sSLf -o chatlas/data/prices.json https://raw.githubusercontent.com/tidyverse/ellmer/main/data-raw/prices.json
+	@python3 -c "import json; json.load(open('chatlas/data/prices.json'))"
+
 .PHONY: help
 help:  ## Show help messages for make targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; { \
