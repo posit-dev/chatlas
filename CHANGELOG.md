@@ -28,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `ChatGoogle()` no longer errors when mixing custom tools and built-in tools (e.g. `tool_web_search()`) on Gemini 3+ models.
 
+### Breaking changes
+
+* The `Provider` abstract base class changed shape, which affects third-party `Provider` subclasses (not users of the built-in `Chat*()` functions): `stream_text()` was removed, and `stream_content()` both returns a `Sequence[Content]` (subsuming what `stream_text()` did) and takes a second `completion` argument holding the merged-so-far completion. Implementations needing state across chunks should read it from `completion` rather than storing it on `self`, since one provider instance is shared across forked chats.
+
 ## [0.19.2] - 2026-07-08
 
 ### New features

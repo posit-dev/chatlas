@@ -319,18 +319,14 @@ class OpenAIProvider(
 
         return kwargs_full
 
-    def stream_content(self, chunk) -> Optional[Content]:
+    def stream_content(self, chunk, completion) -> list[Content]:
         if chunk.type == "response.output_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/delta
-            return ContentText.model_construct(text=chunk.delta)
+            return [ContentText.model_construct(text=chunk.delta)]
         if chunk.type == "response.reasoning_summary_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/delta
-            return ContentThinkingDelta(thinking=chunk.delta)
-        if chunk.type == "response.reasoning_summary_text.done":
-            # The thinking→text transition in _submit_turns already emits
-            # "\n</thinking>\n\n" which provides the visual separator.
-            return None
-        return None
+            return [ContentThinkingDelta(thinking=chunk.delta)]
+        return []
 
     def stream_merge_chunks(self, completion, chunk):
         if chunk.type == "response.completed" or chunk.type == "response.incomplete":

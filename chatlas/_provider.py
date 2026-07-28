@@ -9,13 +9,14 @@ from typing import (
     Iterable,
     Literal,
     Optional,
+    Sequence,
     TypeVar,
     overload,
 )
 
 from pydantic import BaseModel
 
-from ._content import Content, ContentText, ContentThinking
+from ._content import Content
 from ._tools import Tool, ToolBuiltIn
 from ._turn import AssistantTurn, Turn
 from ._typing_extensions import NotRequired, TypedDict
@@ -230,17 +231,22 @@ class Provider(
     ) -> AsyncIterable[ChatCompletionChunkT] | ChatCompletionT: ...
 
     @abstractmethod
-    def stream_content(self, chunk: ChatCompletionChunkT) -> Optional["Content"]: ...
+    def stream_content(
+        self,
+        chunk: ChatCompletionChunkT,
+        completion: Optional[ChatCompletionDictT],
+    ) -> "Sequence[Content]":
+        """
+        Content to yield for `chunk`.
 
-    def stream_text(self, chunk: ChatCompletionChunkT) -> Optional[str]:
-        content = self.stream_content(chunk)
-        if content is None:
-            return None
-        if isinstance(content, ContentThinking):
-            return content.thinking
-        if isinstance(content, ContentText):
-            return content.text
-        return str(content)
+        `completion` is the result of merging every chunk up to and including
+        `chunk` (i.e. `stream_merge_chunks` runs first). Providers needing
+        cross-chunk state read it from there rather than storing it on `self`: a
+        single provider instance is shared across forked chats
+        (`Chat.__deepcopy__` keeps `provider` by reference), so several streams
+        can be in flight at once.
+        """
+        ...
 
     @abstractmethod
     def stream_merge_chunks(
