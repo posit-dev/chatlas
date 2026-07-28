@@ -1,8 +1,8 @@
 import os
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
-app = FastMCP("test", port=int(os.getenv("MCP_PORT", "8000")))
+app = MCPServer("test")
 
 
 @app.tool(description="Add two numbers.")
@@ -10,4 +10,4 @@ def add(x: int, y: int) -> int:
     return x + y
 
 
-app.run(transport="streamable-http")
+app.run(transport="streamable-http", port=int(os.getenv("MCP_PORT", "8000")))

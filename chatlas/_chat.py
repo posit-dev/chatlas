@@ -1788,7 +1788,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             for mathematical operations, you might use `math` as the namespace.
         transport_kwargs
             Additional keyword arguments for the transport layer (i.e.,
-            `mcp.client.streamable_http.streamablehttp_client`).
+            `mcp.client.streamable_http.streamable_http_client`).
 
         Returns
         -------
@@ -1813,9 +1813,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         MCP server like so:
 
         ```python
-        from mcp.server.fastmcp import FastMCP
+        from mcp.server.mcpserver import MCPServer
 
-        app = FastMCP("my_server")
+        app = MCPServer("my_server")
 
         @app.tool(description="Add two numbers.")
         def add(x: int, y: int) -> int:
@@ -1945,9 +1945,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         MCP server like so
 
         ```python
-        from mcp.server.fastmcp import FastMCP
+        from mcp.server.mcpserver import MCPServer
 
-        app = FastMCP("my_server")
+        app = MCPServer("my_server")
 
         @app.tool(description="Add two numbers.")
         def add(y: int, z: int) -> int:
