@@ -84,7 +84,8 @@ update-types:
 .PHONY: update-pricing
 update-pricing:
 	@echo "💰 Updating pricing data from Ellmer"
-	curl -sL -o chatlas/data/prices.json https://raw.githubusercontent.com/tidyverse/ellmer/main/data-raw/prices.json
+	curl -sSLf -o chatlas/data/prices.json https://raw.githubusercontent.com/tidyverse/ellmer/main/data-raw/prices.json
+	@python3 -c "import json; json.load(open('chatlas/data/prices.json'))"
 
 .PHONY: help
 help:  ## Show help messages for make targets
