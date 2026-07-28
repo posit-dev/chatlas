@@ -138,7 +138,7 @@ def test_multiple_contents_from_one_chunk_are_all_processed():
         ContentThinkingDelta(thinking="why"),
         ContentText.model_construct(text="what"),
     ]
-    provider.chat_perform = lambda **kwargs: iter([Chunk("x")])  # type: ignore[method-assign]
+    provider.chat_perform = lambda **kwargs: iter([Chunk("what")])  # type: ignore[method-assign]
 
     out = list(chat.stream("hi", content="all"))
 
