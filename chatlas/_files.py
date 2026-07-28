@@ -72,7 +72,8 @@ class FileManager:
         Some providers restrict downloading files a caller uploaded. Notably,
         OpenAI does not allow downloading files uploaded with
         `purpose="user_data"` (i.e. any file uploaded via `chat.files.upload()`),
-        so this may raise a provider error for OpenAI-hosted files.
+        and Anthropic marks such files as not downloadable too, so this may
+        raise a provider error for OpenAI- or Anthropic-hosted files.
         """
         return self._provider.file_download(id, path)
 
@@ -86,7 +87,8 @@ class FileManager:
         Some providers restrict downloading files a caller uploaded. Notably,
         OpenAI does not allow downloading files uploaded with
         `purpose="user_data"` (i.e. any file uploaded via `chat.files.upload()`),
-        so this may raise a provider error for OpenAI-hosted files.
+        and Anthropic marks such files as not downloadable too, so this may
+        raise a provider error for OpenAI- or Anthropic-hosted files.
         """
         return await self._provider.file_download_async(id, path)
 
