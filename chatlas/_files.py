@@ -67,6 +67,13 @@ class FileManager:
         id: str,  # noqa: A002
         path: str | os.PathLike[str] | None = None,
     ) -> bytes:
+        """Download a file's raw bytes, optionally writing them to `path`.
+
+        Some providers restrict downloading files a caller uploaded. Notably,
+        OpenAI does not allow downloading files uploaded with
+        `purpose="user_data"` (i.e. any file uploaded via `chat.files.upload()`),
+        so this may raise a provider error for OpenAI-hosted files.
+        """
         return self._provider.file_download(id, path)
 
     async def download_async(
@@ -74,6 +81,13 @@ class FileManager:
         id: str,  # noqa: A002
         path: str | os.PathLike[str] | None = None,
     ) -> bytes:
+        """Download a file's raw bytes, optionally writing them to `path`.
+
+        Some providers restrict downloading files a caller uploaded. Notably,
+        OpenAI does not allow downloading files uploaded with
+        `purpose="user_data"` (i.e. any file uploaded via `chat.files.upload()`),
+        so this may raise a provider error for OpenAI-hosted files.
+        """
         return await self._provider.file_download_async(id, path)
 
     def delete(self, id: str) -> None:  # noqa: A002
@@ -84,7 +98,7 @@ class FileManager:
 
 
 @contextmanager
-def _open_binary(file: str | os.PathLike[str] | IO[bytes]) -> Iterator[IO[bytes]]:
+def open_binary(file: str | os.PathLike[str] | IO[bytes]) -> Iterator[IO[bytes]]:
     """Open `file` for reading if it's a path, otherwise yield it unchanged.
 
     File-like objects are left open on exit since the caller may not own them.
@@ -99,7 +113,7 @@ def _open_binary(file: str | os.PathLike[str] | IO[bytes]) -> Iterator[IO[bytes]
         yield file
 
 
-def _maybe_write(data: bytes, path: str | os.PathLike[str] | None) -> bytes:
+def maybe_write(data: bytes, path: str | os.PathLike[str] | None) -> bytes:
     """Write `data` to `path` when given, always returning `data`."""
     if path is not None:
         with open(path, "wb") as f:

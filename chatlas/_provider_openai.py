@@ -34,7 +34,7 @@ from ._content import (
     ContentUploaded,
     ProviderAnnotation,
 )
-from ._files import FileMetadata, _maybe_write, _open_binary
+from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
@@ -531,9 +531,9 @@ class OpenAIProvider(
         *,
         mime_type: Optional[str] = None,
     ) -> ContentUploaded:
-        with _open_binary(file) as f:
+        with open_binary(file) as f:
             obj = self._client.files.create(file=f, purpose="user_data")
-        return _openai_uploaded(obj, mime_type)
+        return openai_uploaded(obj, mime_type)
 
     async def file_upload_async(
         self,
@@ -541,22 +541,22 @@ class OpenAIProvider(
         *,
         mime_type: Optional[str] = None,
     ) -> ContentUploaded:
-        with _open_binary(file) as f:
+        with open_binary(file) as f:
             obj = await self._async_client.files.create(file=f, purpose="user_data")
-        return _openai_uploaded(obj, mime_type)
+        return openai_uploaded(obj, mime_type)
 
     def file_list(self) -> list[FileMetadata]:
-        return [_openai_meta(o) for o in self._client.files.list()]
+        return [openai_meta(o) for o in self._client.files.list()]
 
     async def file_list_async(self) -> list[FileMetadata]:
         page = await self._async_client.files.list()
-        return [_openai_meta(o) async for o in page]
+        return [openai_meta(o) async for o in page]
 
     def file_get(self, id: str) -> FileMetadata:  # noqa: A002
-        return _openai_meta(self._client.files.retrieve(id))
+        return openai_meta(self._client.files.retrieve(id))
 
     async def file_get_async(self, id: str) -> FileMetadata:  # noqa: A002
-        return _openai_meta(await self._async_client.files.retrieve(id))
+        return openai_meta(await self._async_client.files.retrieve(id))
 
     def file_download(
         self,
@@ -564,7 +564,7 @@ class OpenAIProvider(
         path: "str | os.PathLike[str] | None" = None,
     ) -> bytes:
         data = self._client.files.content(id).read()
-        return _maybe_write(data, path)
+        return maybe_write(data, path)
 
     async def file_download_async(
         self,
@@ -572,7 +572,7 @@ class OpenAIProvider(
         path: "str | os.PathLike[str] | None" = None,
     ) -> bytes:
         resp = await self._async_client.files.content(id)
-        return _maybe_write(resp.read(), path)
+        return maybe_write(resp.read(), path)
 
     def file_delete(self, id: str) -> None:  # noqa: A002
         self._client.files.delete(id)
@@ -735,7 +735,7 @@ def is_reasoning_model(model: str) -> bool:
     return model.startswith("o") or model.startswith("gpt-5")
 
 
-def _openai_uploaded(obj: "FileObject", mime_type: Optional[str]) -> ContentUploaded:
+def openai_uploaded(obj: "FileObject", mime_type: Optional[str]) -> ContentUploaded:
     guessed = (
         mime_type
         or mimetypes.guess_type(obj.filename or "")[0]
@@ -749,7 +749,7 @@ def _openai_uploaded(obj: "FileObject", mime_type: Optional[str]) -> ContentUplo
     )
 
 
-def _openai_meta(obj: "FileObject") -> FileMetadata:
+def openai_meta(obj: "FileObject") -> FileMetadata:
     return FileMetadata(
         id=obj.id,
         filename=obj.filename,
