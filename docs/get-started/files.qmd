@@ -1,0 +1,74 @@
+---
+title: File uploads
+callout-appearance: simple
+---
+
+[`content_pdf_file()`](../reference/content_pdf_file.qmd) and [`content_image_file()`](../reference/content_image_file.qmd) re-send the file's bytes on every turn. For large files, or files you want to reference repeatedly, upload the file to the provider once and reference it by id instead — the bytes are sent a single time, and every later turn just points at the reference.
+
+Use [`chat.files`](../reference/Chat.qmd#files) to upload, list, fetch metadata for, download, and delete provider-hosted files.
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+uploaded = chat.files.upload("quarterly-report.pdf")
+chat.chat(uploaded, "Summarize the key findings.")
+```
+
+`upload()` returns a [`ContentUploaded`](../reference/types.ContentUploaded.qmd), a reference (id, mime type, provider) rather than the file's content. Pass it to `.chat()` just like any other content object, and reuse it across as many turns as you like:
+
+```python
+chat.chat(uploaded, "Now list the risks mentioned.")
+```
+
+## Managing uploaded files
+
+```python
+chat.files.list()          # -> list[FileMetadata]
+meta = chat.files.get(uploaded.id)
+chat.files.delete(uploaded.id)
+```
+
+Each of these has an `_async` counterpart (`upload_async()`, `list_async()`, `get_async()`, `download_async()`, `delete_async()`) for use with [async chats](async.qmd).
+
+[`FileMetadata`](../reference/types.FileMetadata.qmd) normalizes fields across providers (`id`, `filename`, `mime_type`, `size_bytes`, `created_at`, `expires_at`, `provider`, plus provider-native fields in `extra`).
+
+::: callout-warning
+### Downloading is usually not possible
+
+`chat.files.download()` is meant for files the *model generates* (e.g. Gemini video output), not files you uploaded. OpenAI refuses to download files uploaded with `purpose="user_data"` (which is every file uploaded via `chat.files.upload()`), Anthropic marks uploaded files as non-downloadable, and Google's Files API only serves bytes back for `state=GENERATED` files. Expect a provider error if you call `download()` on something you uploaded yourself.
+:::
+
+## Supported providers
+
+File management works with `ChatOpenAI()` (the Responses API), `ChatAnthropic()`, and `ChatGoogle()` (the Gemini Developer API). Everything else — `ChatOpenAICompletions()`, OpenAI-compatible third parties (`ChatGroq()`, `ChatMistral()`, `ChatOllama()`, etc.), `ChatAzureOpenAI()`, `ChatBedrockAnthropic()`, and Vertex-backed chats (`ChatVertex()`, or `ChatGoogle()` configured for Vertex) — raises `NotImplementedError` from `chat.files.*`.
+
+::: callout-note
+### Anthropic: beta API
+
+Anthropic's Files API is still in beta. chatlas automatically adds the required `anthropic-beta: files-api-2025-04-14` header whenever a turn references an uploaded file — there's nothing you need to configure.
+:::
+
+::: callout-note
+### Google: 48-hour expiry, no Vertex support
+
+Files uploaded to the Gemini Developer API automatically expire after 48 hours. The Files API isn't available on Vertex AI at all, so `chat.files.upload()` raises `NotImplementedError` on a Vertex-backed chat. To reference a file you've already put in Cloud Storage, construct the reference by hand instead:
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatVertex()
+gcs_file = ctl.types.ContentUploaded(
+    id="gs://my-bucket/report.pdf",
+    mime_type="application/pdf",
+    provider="google",
+)
+chat.chat(gcs_file, "Summarize this.")
+```
+:::
+
+::: callout-note
+### OpenAI Chat Completions: no uploaded images
+
+`ChatOpenAICompletions()` can reference an uploaded PDF or text document, but not an uploaded image — the Chat Completions API doesn't support it. Use `ChatOpenAI()` (Responses API) for uploaded images, or pass the image inline with `content_image_file()`.
+:::

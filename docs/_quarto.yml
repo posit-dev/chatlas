@@ -90,6 +90,7 @@ website:
           contents:
             - get-started/models.qmd
             - get-started/chat.qmd
+            - get-started/files.qmd
             - get-started/system-prompt.qmd
             - get-started/tools.qmd
             - get-started/stream.qmd
@@ -233,8 +234,10 @@ quartodoc:
         - types.ContentToolResponseSearch
         - types.ContentToolRequestFetch
         - types.ContentToolResponseFetch
+        - types.ContentUploaded
         - types.ChatResponse
         - types.ChatResponseAsync
+        - types.FileMetadata
         - types.ImageContentTypes
         - types.MISSING_TYPE
         - types.MISSING

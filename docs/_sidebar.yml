@@ -86,8 +86,10 @@ website:
       - reference/types.ContentToolResponseSearch.qmd
       - reference/types.ContentToolRequestFetch.qmd
       - reference/types.ContentToolResponseFetch.qmd
+      - reference/types.ContentUploaded.qmd
       - reference/types.ChatResponse.qmd
       - reference/types.ChatResponseAsync.qmd
+      - reference/types.FileMetadata.qmd
       - reference/types.ImageContentTypes.qmd
       - reference/types.MISSING_TYPE.qmd
       - reference/types.MISSING.qmd
