@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import os
+from contextlib import contextmanager
 from datetime import datetime
-from typing import IO, TYPE_CHECKING, Any, Optional
+from typing import IO, TYPE_CHECKING, Any, Iterator, Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -80,3 +81,27 @@ class FileManager:
 
     async def delete_async(self, id: str) -> None:  # noqa: A002
         return await self._provider.file_delete_async(id)
+
+
+@contextmanager
+def _open_binary(file: str | os.PathLike[str] | IO[bytes]) -> Iterator[IO[bytes]]:
+    """Open `file` for reading if it's a path, otherwise yield it unchanged.
+
+    File-like objects are left open on exit since the caller may not own them.
+    """
+    if isinstance(file, (str, os.PathLike)):
+        f = open(file, "rb")
+        try:
+            yield f
+        finally:
+            f.close()
+    else:
+        yield file
+
+
+def _maybe_write(data: bytes, path: str | os.PathLike[str] | None) -> bytes:
+    """Write `data` to `path` when given, always returning `data`."""
+    if path is not None:
+        with open(path, "wb") as f:
+            f.write(data)
+    return data
