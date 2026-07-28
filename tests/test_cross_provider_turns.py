@@ -1,10 +1,10 @@
 """Turns from one provider must be sendable to another.
 
-Built-in tool content (web search / fetch) is a provider-native annotation: the
-provider that produced it stashes its own raw payload in `extra` and replays it
-verbatim on the next request. That payload is meaningless to a different
-provider, so each provider replays only what it produced and drops the rest --
-otherwise `Chat.set_turns()` across providers (documented in
+Built-in tool content (web search / fetch) and citations are provider-native
+annotations: the provider that produced them stashes its own raw payload in
+`extra` and replays it verbatim on the next request. That payload is meaningless
+to a different provider, so each provider replays only what it produced and
+drops the rest -- otherwise `Chat.set_turns()` across providers (documented in
 docs/reference/Turn.qmd) raises, or silently sends an invalid payload.
 """
 
@@ -14,15 +14,18 @@ from chatlas._provider_google import GoogleProvider
 from chatlas._provider_openai import OpenAIProvider
 from chatlas._turn import AssistantTurn, Turn, UserTurn
 from chatlas.types import (
+    ContentCitation,
     ContentText,
     ContentToolRequestFetch,
     ContentToolRequestSearch,
     ContentToolResponseFetch,
     ContentToolResponseSearch,
+    WebSource,
 )
 
 
 def google_grounded_turns() -> list[Turn]:
+    source = WebSource(url="https://a.com", title="A")
     return [
         UserTurn("When was ggplot2 1.0.0 released?"),
         AssistantTurn(
@@ -31,14 +34,19 @@ def google_grounded_turns() -> list[Turn]:
                     query="ggplot2 1.0.0", extra={"web_search_queries": ["ggplot2"]}
                 ),
                 ContentToolResponseSearch(
-                    urls=["https://a.com"], extra={"grounding_metadata": {}}
+                    sources=[source], extra={"grounding_metadata": {}}
                 ),
                 ContentText(text="2014-05-21"),
+                ContentCitation(
+                    source=source,
+                    grounded_text="2014-05-21",
+                    extra={"grounding_support": {}},
+                ),
                 ContentToolRequestFetch(
                     url="https://a.com", extra={"url_metadata": {}}
                 ),
                 ContentToolResponseFetch(
-                    url="https://a.com", extra={"url_metadata": {}}
+                    url="https://a.com", status="success", extra={"url_metadata": {}}
                 ),
             ]
         ),
@@ -46,6 +54,7 @@ def google_grounded_turns() -> list[Turn]:
 
 
 def openai_grounded_turns() -> list[Turn]:
+    source = WebSource(url="https://a.com", title="A")
     return [
         UserTurn("When was ggplot2 1.0.0 released?"),
         AssistantTurn(
@@ -59,12 +68,18 @@ def openai_grounded_turns() -> list[Turn]:
                     },
                 ),
                 ContentText(text="2014-05-21"),
+                ContentCitation(
+                    source=source,
+                    grounded_text="2014-05-21",
+                    extra={"type": "url_citation", "url": "https://a.com"},
+                ),
             ]
         ),
     ]
 
 
 def anthropic_grounded_turns() -> list[Turn]:
+    source = WebSource(url="https://a.com", title="A")
     return [
         UserTurn("When was ggplot2 1.0.0 released?"),
         AssistantTurn(
@@ -79,7 +94,7 @@ def anthropic_grounded_turns() -> list[Turn]:
                     },
                 ),
                 ContentToolResponseSearch(
-                    urls=["https://a.com"],
+                    sources=[source],
                     extra={
                         "type": "web_search_tool_result",
                         "tool_use_id": "srvtoolu_1",
@@ -87,6 +102,11 @@ def anthropic_grounded_turns() -> list[Turn]:
                     },
                 ),
                 ContentText(text="2014-05-21"),
+                ContentCitation(
+                    source=source,
+                    grounded_text="2014-05-21",
+                    extra={"type": "web_search_result_location"},
+                ),
             ]
         ),
     ]
@@ -174,10 +194,11 @@ def test_providers_drop_annotations_with_no_payload():
         AssistantTurn(
             [
                 ContentToolRequestSearch(query="q"),
-                ContentToolResponseSearch(urls=["https://a.com"]),
+                ContentToolResponseSearch(sources=[WebSource(url="https://a.com")]),
                 ContentText(text="answer"),
+                ContentCitation(source=WebSource(url="https://a.com")),
                 ContentToolRequestFetch(url="https://a.com"),
-                ContentToolResponseFetch(url="https://a.com"),
+                ContentToolResponseFetch(url="https://a.com", status="success"),
             ]
         ),
     ]

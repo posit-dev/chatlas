@@ -11,6 +11,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    SerializeAsAny,
     field_serializer,
     field_validator,
 )
@@ -146,6 +147,7 @@ ContentTypeEnum = Literal[
     "web_search_results",
     "web_fetch_request",
     "web_fetch_results",
+    "citation",
 ]
 """
 A discriminated union of all content types.
@@ -168,6 +170,34 @@ class Content(BaseModel):
 
     def _repr_markdown_(self):
         return self.__str__()
+
+
+SourceTypeEnum = Literal["web"]
+
+
+class Source(BaseModel):
+    """Identity of a piece of evidence a citation or search result points to.
+
+    Subclasses set a distinct ``type`` and add their identity fields. Today the
+    only concrete source is :class:`WebSource`; file/document/RAG variants are
+    added when that support lands.
+    """
+
+    type: SourceTypeEnum
+
+    def __str__(self) -> str:
+        return f"[{self.type} source]"
+
+
+class WebSource(Source):
+    """A web page surfaced by a search (not necessarily cited in the answer)."""
+
+    type: SourceTypeEnum = "web"
+    url: str
+    title: Optional[str] = None
+
+    def __str__(self) -> str:
+        return self.url or self.title or "[web source]"
 
 
 class ContentText(Content):
@@ -668,9 +698,7 @@ class ContentThinking(Content):
 
     @field_serializer("extra")
     @classmethod
-    def serialize_extra(
-        cls, v: Optional[dict[str, Any]]
-    ) -> Optional[dict[str, Any]]:
+    def serialize_extra(cls, v: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
         if v is None:
             return None
         return serialize_dict_with_bytes(v)
@@ -775,20 +803,20 @@ class ContentToolResponseSearch(Content):
 
     Parameters
     ----------
-    urls
-        The URLs returned by the search.
+    sources
+        The pages surfaced by the search.
     extra
         The raw provider-specific response data.
     """
 
-    urls: list[str]
+    sources: list[WebSource]
     extra: Optional[dict[str, Any]] = None
 
     content_type: ContentTypeEnum = "web_search_results"
 
     def __str__(self):
-        url_list = "\n".join(f"* {url}" for url in self.urls)
-        return f"[web search results]:\n{url_list}"
+        lines = "\n".join(f"* {s}" for s in self.sources)
+        return f"[web search results]:\n{lines}"
 
 
 class ContentToolRequestFetch(Content):
@@ -826,17 +854,54 @@ class ContentToolResponseFetch(Content):
     ----------
     url
         The URL that was fetched.
+    status
+        A normalized, cross-provider outcome: ``"success"`` if content was
+        retrieved, ``"error"`` if it was not, or ``None`` when the provider
+        doesn't report an outcome. Providers expose finer-grained, non-aligned
+        reasons (e.g. Anthropic's ``url_not_allowed``, Google's ``PAYWALL``);
+        those are not normalized here but remain available in ``extra``.
     extra
         The raw provider-specific response data.
     """
 
     url: str
+    status: Optional[Literal["success", "error"]] = None
     extra: Optional[dict[str, Any]] = None
 
     content_type: ContentTypeEnum = "web_fetch_results"
 
     def __str__(self):
         return f"[web fetch result]: {self.url}"
+
+
+class ContentCitation(Content):
+    """
+    A source that grounds part of the assistant's answer.
+
+    ``grounded_text`` is the span of the assistant's answer this citation
+    grounds — the words a footnote marker attaches to. It is answer-side (from
+    the reply). ``cited_text`` is the source-side evidence quote, when the
+    provider supplies one (e.g. Anthropic web search). ``source`` identifies the
+    evidence; it is ``None`` when the citation grounds answer text with no
+    resolvable source.
+    """
+
+    source: SerializeAsAny[Optional[Source]] = None
+    grounded_text: Optional[str] = None
+    cited_text: Optional[str] = None
+    extra: Optional[dict[str, Any]] = None
+    content_type: ContentTypeEnum = "citation"
+
+    @field_validator("source", mode="before")
+    @classmethod
+    def _rebuild_source(cls, v: Any) -> Any:
+        return create_source(v) if isinstance(v, dict) else v
+
+    def __str__(self) -> str:
+        label = (
+            str(self.source) if self.source is not None else (self.grounded_text or "")
+        )
+        return f"[citation]: {label}"
 
 
 ContentUnion = Union[
@@ -852,10 +917,12 @@ ContentUnion = Union[
     ContentToolResponseSearch,
     ContentToolRequestFetch,
     ContentToolResponseFetch,
+    ContentCitation,
 ]
 
 
 ProviderAnnotation = Union[
+    ContentCitation,
     ContentToolRequestSearch,
     ContentToolResponseSearch,
     ContentToolRequestFetch,
@@ -865,12 +932,17 @@ ProviderAnnotation = Union[
 Content a provider reports about its own server-side work, rather than content
 the user authored. When produced by a provider, this content may carry a raw provider payload in `extra`.
 
-Because `extra` is in the producing provider's own shape, only that provider can
-resend one. Providers replay their own and drop the rest, so turns stay portable
-across providers.
+Two consequences follow, and every provider has to handle both:
+
+1. On the way out, these are the extra content types worth surfacing during
+   streaming (beyond text and thinking).
+2. On the way back in, only the provider that produced one can resend it, since
+   `extra` is in that provider's own shape. Providers replay their own and drop
+   the rest, so turns stay portable across providers.
 """
 
 PROVIDER_ANNOTATION_TYPES = (
+    ContentCitation,
     ContentToolRequestSearch,
     ContentToolResponseSearch,
     ContentToolRequestFetch,
@@ -904,6 +976,14 @@ def validate_dict_with_bytes(d: dict[str, Any]) -> dict[str, Any]:
         else:
             result[key] = value
     return result
+
+
+def create_source(data: dict[str, Any]) -> Source:
+    """Rebuild the concrete `Source` subclass from a serialized dict."""
+    t = data.get("type")
+    if t == "web":
+        return WebSource.model_validate(data)
+    raise ValueError(f"Unknown source type: {t}")
 
 
 def create_content(data: dict[str, Any]) -> ContentUnion:
@@ -941,6 +1021,8 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentToolRequestFetch.model_validate(data)
     elif ct == "web_fetch_results":
         return ContentToolResponseFetch.model_validate(data)
+    elif ct == "citation":
+        return ContentCitation.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
 

@@ -13,6 +13,7 @@ from chatlas import (
     content_image_url,
     content_pdf_file,
 )
+from chatlas._content import ContentCitation, ContentText
 from pydantic import BaseModel
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -386,6 +387,18 @@ def assert_list_models(chat_fun: ChatFun):
 # ---------------------------------------------------------------------------
 
 
+def assert_citations_grounded(chat: Chat) -> None:
+    """Every non-None grounded_text must be a substring of the answer text."""
+    turn = chat.get_last_turn()
+    assert turn is not None
+    answer = "".join(c.text for c in turn.contents if isinstance(c, ContentText))
+    for c in turn.contents:
+        if isinstance(c, ContentCitation) and c.grounded_text is not None:
+            assert c.grounded_text in answer, (
+                f"grounded_text {c.grounded_text!r} not found in answer"
+            )
+
+
 def assert_tool_web_fetch(chat_fun: ChatFun, tool, stream: bool = True) -> Chat:
     """Test web fetch tool functionality."""
     chat = chat_fun()
@@ -418,6 +431,7 @@ def assert_tool_web_search(
 
     response = chat.chat("What month was that?", stream=stream)
     assert "May" in str(response)
+    assert_citations_grounded(chat)
     return chat
 
 

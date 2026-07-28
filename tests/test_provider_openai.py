@@ -6,6 +6,7 @@ from chatlas import ChatOpenAI, tool_web_search
 from chatlas._provider_openai import (
     normalize_finish_reason as openai_normalize_finish_reason,
 )
+from chatlas.types import ContentCitation, ContentText, ContentToolRequestSearch
 from openai.types.responses import ResponseOutputMessage, ResponseOutputText
 
 from .conftest import (
@@ -123,11 +124,52 @@ def test_openai_web_search():
     def chat_fun(**kwargs):
         return ChatOpenAI(model="gpt-4.1", **kwargs)
 
-    assert_tool_web_search(
+    chat = assert_tool_web_search(
         chat_fun,
         tool_web_search(),
         hint="The CRAN archive page has this info.",
     )
+
+    # Citations should be ContentCitation items in the turn contents
+    cites = [
+        c
+        for turn in chat.get_turns()
+        for c in turn.contents
+        if isinstance(c, ContentCitation)
+    ]
+    assert cites, "expected ContentCitation items in turn contents"
+    assert all(c.source and c.source.url for c in cites)
+
+    # grounded_text should be sliced from the answer text on each turn
+    found_grounded_text = False
+    for turn in chat.get_turns():
+        answer = "".join(c.text for c in turn.contents if isinstance(c, ContentText))
+        for c in turn.contents:
+            if not isinstance(c, ContentCitation):
+                continue
+            assert c.grounded_text is not None
+            assert c.grounded_text in answer
+            found_grounded_text = True
+    assert found_grounded_text, "expected at least one citation with grounded_text"
+
+
+@pytest.mark.vcr
+def test_openai_web_search_streaming():
+    chat = ChatOpenAI(model="gpt-4.1")
+    chat.register_tool(tool_web_search())
+    items = list(
+        chat.stream(
+            "When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format. The CRAN archive page has this info.",
+            content="all",
+        )
+    )
+    citations = [x for x in items if isinstance(x, ContentCitation)]
+    assert citations
+    assert all(c.source and c.source.url for c in citations)
+    # interleaved: at least one citation arrives before the last item in the stream
+    cite_idx = [i for i, x in enumerate(items) if isinstance(x, ContentCitation)]
+    assert cite_idx and min(cite_idx) < len(items) - 1
+    assert any(isinstance(x, ContentToolRequestSearch) for x in items)
 
 
 @pytest.mark.vcr

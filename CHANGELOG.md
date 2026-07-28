@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `batch_chat()` now supports `ChatGoogle()` (Gemini Developer API batch jobs). Batch is also now documented as supported for `ChatGroq()`, which already worked via its OpenAI-compatible provider. (Vertex AI is not supported, since its batch API requires GCS bucket URIs instead of inline requests.)
 * `ChatOllama()` gains a `reasoning_effort` parameter to enable extended "thinking" for models that support it (e.g. qwen3, gpt-oss).
+* Web search and fetch results now surface their citations across all three providers (OpenAI, Anthropic, Google), both progressively during streaming and on the final turn. `ContentCitation` nests a typed `source` (a `Source` subclass — `WebSource` today, carrying `url`/`title`) instead of flat `url`/`title` fields, and carries `grounded_text` (the answer-side span it grounds) plus `cited_text` (the source-side quote, populated for `ChatAnthropic()` web search). `source` is optional — a citation can ground answer text with no resolvable link. `ContentCitation`, `Source`, and `WebSource` are exported from `chatlas.types`. A future file/document/RAG source becomes another `Source` subclass without breaking `ContentCitation.source`; note that `ContentToolResponseSearch.sources` is typed narrowly as `list[WebSource]` and would need widening at that point.
+  * When streaming with `content="all"`, `ContentCitation` objects are emitted as citations arrive — interleaved with text for OpenAI and Anthropic, at stream-end for Google. Its position in the stream (relative to surrounding text) is the placement signal for rendering footnote markers.
+  * On the final turn, `ContentCitation` items appear in the turn's `contents` list after the `ContentText` they ground, in the same order as during streaming.
+* Built-in web search and fetch content (`ContentToolRequestSearch`/`ContentToolResponseSearch` and `ContentToolRequestFetch`/`ContentToolResponseFetch`) is now also emitted while streaming with `content="all"`, for `ChatOpenAI()`, `ChatAnthropic()`, and `ChatGoogle()`. Previously it appeared only on the completed turn, so a UI had no way to show search activity until the whole response had arrived.
+* `ContentToolResponseFetch` gained a normalized `status` field (`"success"`, `"error"`, or `None` when the provider doesn't report an outcome). Providers' finer-grained reasons (Anthropic's `url_not_allowed`, Google's `PAYWALL`, …) aren't aligned across providers, so they stay available in `extra`.
 
 ### Improvements
 
@@ -35,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Breaking changes
 
+* `ContentToolResponseSearch.urls` (a `list[str]`) has been replaced by `.sources` (a `list[WebSource]`), each carrying the result's `url` and `title`. Code reading `.urls` should switch to `[s.url for s in x.sources]`.
 * The `Provider` abstract base class changed shape, which affects third-party `Provider` subclasses (not users of the built-in `Chat*()` functions): `stream_text()` was removed, and `stream_content()` both returns a `Sequence[Content]` (subsuming what `stream_text()` did) and takes a second `completion` argument holding the merged-so-far completion. Implementations needing state across chunks should read it from `completion` rather than storing it on `self`, since one provider instance is shared across forked chats.
 
 ## [0.19.2] - 2026-07-08
