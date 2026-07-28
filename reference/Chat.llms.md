@@ -594,7 +594,7 @@ Connects to an MCP server (that communicates over a streamable HTTP transport) a
 | include_tools | [Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | List of tool names to include. By default, all available tools are included. | `()` |
 | exclude_tools | [Sequence](https://docs.python.org/3/library/typing.html#typing.Sequence)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | List of tool names to exclude. This parameter and `include_tools` are mutually exclusive. | `()` |
 | namespace | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[str](https://docs.python.org/3/library/stdtypes.html#str)\] | A namespace to prepend to tool names (i.e., `namespace.tool_name`) from this MCP server. This is primarily useful to avoid name collisions with other tools already registered with the chat. This namespace applies when tools are advertised to the LLM, so try to use a meaningful name that describes the server and/or the tools it provides. For example, if you have a server that provides tools for mathematical operations, you might use `math` as the namespace. | `None` |
-| transport_kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | Additional keyword arguments for the transport layer (i.e., `mcp.client.streamable_http.streamablehttp_client`). | `None` |
+| transport_kwargs | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | Additional keyword arguments for the transport layer (i.e., `mcp.client.streamable_http.streamable_http_client`). | `None` |
 
 #### Returns
 
@@ -616,9 +616,9 @@ Unlike the `.register_mcp_tools_stdio_async()` method, this method does not laun
 Assuming you have a Python script `my_mcp_server.py` that implements an MCP server like so:
 
 ``` python
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
-app = FastMCP("my_server")
+app = MCPServer("my_server")
 
 @app.tool(description="Add two numbers.")
 def add(x: int, y: int) -> int:
@@ -705,9 +705,9 @@ In more detail, this method:
 Assuming you have a Python script `my_mcp_server.py` that implements an MCP server like so
 
 ``` python
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
-app = FastMCP("my_server")
+app = MCPServer("my_server")
 
 @app.tool(description="Add two numbers.")
 def add(y: int, z: int) -> int:

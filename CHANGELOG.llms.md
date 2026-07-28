@@ -10,10 +10,22 @@
 ### Improvements
 
 - `ChatGoogle()` and `ChatVertex()` now default to `gemini-3.5-flash` instead of the older `gemini-2.5-flash`.
+- `ChatGroq()` now defaults to `openai/gpt-oss-20b` instead of `llama-3.1-8b-instant`.
+
+### Changes
+
+- MCP support now requires `mcp>=2.0.0`. The 2.0 release of the `mcp` SDK renamed its model fields (and removed `mcp.server.fastmcp.FastMCP`), so older `mcp` versions are no longer compatible. This only affects users of the optional `mcp` extra (i.e., `register_mcp_tools_*()`).
+- `Turn.finish_reason` is now normalized to a consistent set of values (`"success"`, `"tool_use"`, `"max_tokens"`, `"content_filter"`, `"context_window"`, `"stop_sequence"`) across most providers, so you no longer need provider-specific logic to check why a turn ended. Previously each provider surfaced its own raw string (e.g. Anthropic’s `"end_turn"`/`"tool_use"` vs. OpenAI Completions’ `"stop"`/`"tool_calls"` vs. Google’s `"STOP"`/`"SAFETY"`), so the same outcome could require different checks depending on which `Chat*()` you used. Reasons chatlas doesn’t yet recognize still pass through unchanged.
 
 ### Bug fixes
 
 - `ChatGoogle()` no longer errors when mixing custom tools and built-in tools (e.g. `tool_web_search()`) on Gemini 3+ models.
+- Turns containing web search/fetch content can now be passed to a different provider (e.g. `ChatAnthropic().set_turns(openai_chat.get_turns())`). Previously this raised `ValueError: Unsupported content type` on `ChatOpenAI()`, and `ChatAnthropic()` forwarded the other provider’s raw payload as if it were its own, producing an invalid request. Each provider now replays only the built-in tool content it produced and drops the rest.
+- `ChatOpenAI()` web search `open_page` actions now surface as `ContentToolRequestFetch` (with the URL) rather than a `ContentToolRequestSearch` whose “query” was the URL, so renderers no longer show “searched for: https://…”. Relatedly, a `search` action that reports only the plural `queries` field no longer falls through to the literal string `"web search"`.
+
+### Breaking changes
+
+- The `Provider` abstract base class changed shape, which affects third-party `Provider` subclasses (not users of the built-in `Chat*()` functions): `stream_text()` was removed, and `stream_content()` both returns a `Sequence[Content]` (subsuming what `stream_text()` did) and takes a second `completion` argument holding the merged-so-far completion. Implementations needing state across chunks should read it from `completion` rather than storing it on `self`, since one provider instance is shared across forked chats.
 
 ## \[0.19.2\] - 2026-07-08
 

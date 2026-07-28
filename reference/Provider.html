@@ -80,7 +80,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../site_libs/quarto-html/quarto-syntax-highlighting-8f68c619070a9997a612f17db9fc177b.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-5626ca84fdfd29112abcaec6059ffdde.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-d371f0ab0b9878dc2c083d135a92b822.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -759,6 +759,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#chatlas.Provider.batch_submit" id="toc-chatlas.Provider.batch_submit" class="nav-link" data-scroll-target="#chatlas.Provider.batch_submit">batch_submit</a></li>
   <li><a href="#chatlas.Provider.has_batch_support" id="toc-chatlas.Provider.has_batch_support" class="nav-link" data-scroll-target="#chatlas.Provider.has_batch_support">has_batch_support</a></li>
   <li><a href="#chatlas.Provider.list_models" id="toc-chatlas.Provider.list_models" class="nav-link" data-scroll-target="#chatlas.Provider.list_models">list_models</a></li>
+  <li><a href="#chatlas.Provider.stream_content" id="toc-chatlas.Provider.stream_content" class="nav-link" data-scroll-target="#chatlas.Provider.stream_content">stream_content</a></li>
   <li><a href="#chatlas.Provider.value_cost" id="toc-chatlas.Provider.value_cost" class="nav-link" data-scroll-target="#chatlas.Provider.value_cost">value_cost</a></li>
   </ul></li>
   </ul></li>
@@ -837,6 +838,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>List all available models for the provider.</td>
 </tr>
 <tr class="even">
+<td><a href="#chatlas.Provider.stream_content">stream_content</a></td>
+<td>Content to yield for <code>chunk</code>.</td>
+</tr>
+<tr class="odd">
 <td><a href="#chatlas.Provider.value_cost">value_cost</a></td>
 <td>Compute the cost for a completion.</td>
 </tr>
@@ -887,9 +892,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Provider.list_models()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>List all available models for the provider.</p>
 </section>
+<section id="chatlas.Provider.stream_content" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Provider.stream_content">stream_content</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Provider.stream_content(chunk, completion)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Content to yield for <code>chunk</code>.</p>
+<p><code>completion</code> is the result of merging every chunk up to and including <code>chunk</code> (i.e.&nbsp;<code>stream_merge_chunks</code> runs first). Providers needing cross-chunk state read it from there rather than storing it on <code>self</code>: a single provider instance is shared across forked chats (<code>Chat.__deepcopy__</code> keeps <code>provider</code> by reference), so several streams can be in flight at once.</p>
+</section>
 <section id="chatlas.Provider.value_cost" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Provider.value_cost">value_cost</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Provider.value_cost(completion, tokens<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Provider.value_cost(completion, tokens<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Compute the cost for a completion.</p>
 <section id="parameters" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h4>

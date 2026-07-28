@@ -28,6 +28,7 @@ Note that this class is exposed for developers who wish to implement their own p
 | [batch_submit](#chatlas.Provider.batch_submit) | Submit a batch of conversations for processing. |
 | [has_batch_support](#chatlas.Provider.has_batch_support) | Returns whether this provider supports batch processing. |
 | [list_models](#chatlas.Provider.list_models) | List all available models for the provider. |
+| [stream_content](#chatlas.Provider.stream_content) | Content to yield for `chunk`. |
 | [value_cost](#chatlas.Provider.value_cost) | Compute the cost for a completion. |
 
 ### batch_poll
@@ -105,6 +106,16 @@ Provider.list_models()
 ```
 
 List all available models for the provider.
+
+### stream_content
+
+``` python
+Provider.stream_content(chunk, completion)
+```
+
+Content to yield for `chunk`.
+
+`completion` is the result of merging every chunk up to and including `chunk` (i.e. `stream_merge_chunks` runs first). Providers needing cross-chunk state read it from there rather than storing it on `self`: a single provider instance is shared across forked chats (`Chat.__deepcopy__` keeps `provider` by reference), so several streams can be in flight at once.
 
 ### value_cost
 
