@@ -30,3 +30,17 @@ def test_openai_file_lifecycle():
     assert got.id == f.id
     assert any(m.id == f.id for m in chat.files.list())
     chat.files.delete(f.id)
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_openai_file_lifecycle_async():
+    pdf = Path(__file__).parent / "apples.pdf"
+    chat = ChatOpenAI()
+    f = await chat.files.upload_async(str(pdf))
+    assert isinstance(f, ContentUploaded)
+    assert f.provider == "openai"
+    got = await chat.files.get_async(f.id)
+    assert got.id == f.id
+    assert any(m.id == f.id for m in await chat.files.list_async())
+    await chat.files.delete_async(f.id)

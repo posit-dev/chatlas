@@ -30,3 +30,17 @@ def test_anthropic_file_lifecycle():
     assert "ok" in resp.lower()
     assert any(m.id == f.id for m in chat.files.list())
     chat.files.delete(f.id)
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_anthropic_file_lifecycle_async():
+    pdf = Path(__file__).parent / "apples.pdf"
+    chat = ChatAnthropic()
+    f = await chat.files.upload_async(str(pdf))
+    assert isinstance(f, ContentUploaded)
+    assert f.provider == "anthropic"
+    resp = await chat.chat_async("Reply with the single word: ok", f)
+    assert "ok" in (await resp.get_content()).lower()
+    assert any(m.id == f.id for m in await chat.files.list_async())
+    await chat.files.delete_async(f.id)

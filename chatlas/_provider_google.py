@@ -1054,7 +1054,13 @@ def ChatVertex(
 
 def google_file_uri(obj: "GoogleFile") -> str:
     if obj.uri is None:
-        raise ValueError(f"File {obj.name!r} has no URI yet (state={obj.state}).")
+        raise ValueError(
+            f"File {obj.name!r} has no URI yet (state={obj.state}). "
+            "Gemini processes large media (e.g. video, audio, multi-GB uploads) "
+            "asynchronously, and this file is likely still PROCESSING; chatlas "
+            "does not poll for readiness, so re-check with `chat.files.get(...)` "
+            "until its state becomes ACTIVE before referencing it."
+        )
     return obj.uri
 
 

@@ -274,6 +274,16 @@ def test_anthropic_no_uploaded_omits_beta_header():
     assert "anthropic-beta" not in (args.get("extra_headers") or {})
 
 
+def test_anthropic_token_count_args_keeps_beta_header():
+    provider = AnthropicProvider(model="claude-sonnet-4-6")
+    args = provider._token_count_args(
+        ContentUploaded(id="file_1", mime_type="application/pdf", provider="anthropic"),
+        tools={},
+        data_model=None,
+    )
+    assert args["extra_headers"]["anthropic-beta"] == "files-api-2025-04-14"
+
+
 @pytest.mark.vcr
 def test_anthropic_empty_response():
     chat = chat_func()

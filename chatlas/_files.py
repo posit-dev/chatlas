@@ -40,6 +40,24 @@ class FileManager:
         *,
         mime_type: Optional[str] = None,
     ) -> ContentUploaded:
+        """Upload a file to the chat's provider, once, for reuse across turns.
+
+        Only supported for ChatOpenAI, ChatAnthropic, and ChatGoogle; other
+        providers raise `NotImplementedError`.
+
+        Parameters
+        ----------
+        file
+            A path to a file, or a binary file-like object, to upload.
+        mime_type
+            The file's MIME type. If not provided, it's guessed from `file`.
+
+        Returns
+        -------
+        ContentUploaded
+            A reference to the uploaded file that can be passed to `.chat()`
+            (and other chat methods) in place of the file's raw bytes.
+        """
         return self._provider.file_upload(file, mime_type=mime_type)
 
     async def upload_async(
@@ -48,18 +66,46 @@ class FileManager:
         *,
         mime_type: Optional[str] = None,
     ) -> ContentUploaded:
+        """Async version of `.upload()`."""
         return await self._provider.file_upload_async(file, mime_type=mime_type)
 
     def list(self) -> list[FileMetadata]:
+        """List files previously uploaded to the chat's provider.
+
+        Only supported for ChatOpenAI, ChatAnthropic, and ChatGoogle; other
+        providers raise `NotImplementedError`.
+
+        Returns
+        -------
+        list[FileMetadata]
+            Metadata for each file hosted by the provider.
+        """
         return self._provider.file_list()
 
     async def list_async(self) -> list[FileMetadata]:
+        """Async version of `.list()`."""
         return await self._provider.file_list_async()
 
     def get(self, id: str) -> FileMetadata:  # noqa: A002
+        """Get metadata for a previously uploaded file.
+
+        Only supported for ChatOpenAI, ChatAnthropic, and ChatGoogle; other
+        providers raise `NotImplementedError`.
+
+        Parameters
+        ----------
+        id
+            The provider-assigned file id (e.g., `ContentUploaded.id`).
+
+        Returns
+        -------
+        FileMetadata
+            Metadata for the file.
+        """
         return self._provider.file_get(id)
 
     async def get_async(self, id: str) -> FileMetadata:  # noqa: A002
+        """Async version of `.get()`."""
         return await self._provider.file_get_async(id)
 
     def download(
@@ -97,9 +143,17 @@ class FileManager:
         return await self._provider.file_download_async(id, path)
 
     def delete(self, id: str) -> None:  # noqa: A002
+        """Delete a previously uploaded file from the provider.
+
+        Parameters
+        ----------
+        id
+            The provider-assigned file id (e.g., `ContentUploaded.id`).
+        """
         return self._provider.file_delete(id)
 
     async def delete_async(self, id: str) -> None:  # noqa: A002
+        """Async version of `.delete()`."""
         return await self._provider.file_delete_async(id)
 
 

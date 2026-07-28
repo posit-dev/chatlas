@@ -68,6 +68,12 @@ chat.chat(gcs_file, "Summarize this.")
 :::
 
 ::: callout-note
+### Google: large media may still be PROCESSING
+
+Gemini processes large media (video, audio, multi-GB uploads) asynchronously, so a file returned by `chat.files.upload()` may still be in the `PROCESSING` state — with no URI yet — immediately after upload. chatlas v1 does not poll for readiness. For large media, call `chat.files.get(uploaded.id)` and check its state (or wait) until the file becomes `ACTIVE` before referencing it in `.chat()`.
+:::
+
+::: callout-note
 ### OpenAI Chat Completions: no uploaded images
 
 `ChatOpenAICompletions()` can reference an uploaded PDF or text document, but not an uploaded image — the Chat Completions API doesn't support it. Use `ChatOpenAI()` (Responses API) for uploaded images, or pass the image inline with `content_image_file()`.

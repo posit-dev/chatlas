@@ -680,6 +680,7 @@ class AnthropicProvider(
             "system",
             "tools",
             "tool_choice",
+            "extra_headers",
         ]
 
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
@@ -1063,6 +1064,7 @@ class AnthropicProvider(
         from anthropic import NotGiven
 
         requests: list["BatchRequest"] = []
+        extra_headers: dict[str, str] = {}
 
         for i, turns in enumerate(conversations):
             kwargs = self._chat_perform_args(
@@ -1090,7 +1092,21 @@ class AnthropicProvider(
 
             requests.append({"custom_id": f"request-{i}", "params": params})
 
-        batch = self._client.messages.batches.create(requests=requests)
+            # The beta header applies to the batch-create HTTP request as a
+            # whole (not to individual requests within the batch), so union
+            # it across conversations rather than keeping only the last one.
+            headers = kwargs.get("extra_headers")
+            if headers:
+                for k, v in headers.items():
+                    if isinstance(v, str):
+                        extra_headers[k] = v
+
+        if extra_headers:
+            batch = self._client.messages.batches.create(
+                requests=requests, extra_headers=extra_headers
+            )
+        else:
+            batch = self._client.messages.batches.create(requests=requests)
         return batch.model_dump()
 
     def batch_poll(self, batch):

@@ -395,7 +395,8 @@ class OpenAICompletionsProvider(
                         if x.provider != "openai":
                             raise ValueError(
                                 f"This file was uploaded to provider '{x.provider}', "
-                                "but is being used with an OpenAI-compatible chat."
+                                "but is being used with an OpenAI-compatible chat. "
+                                "Re-upload it with a ChatOpenAI() chat."
                             )
                         if x.mime_type.startswith("image/"):
                             raise ValueError(
