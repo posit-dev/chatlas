@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 
+* MCP support now requires `mcp>=2.0.0`. The 2.0 release of the `mcp` SDK renamed its model fields (and removed `mcp.server.fastmcp.FastMCP`), so older `mcp` versions are no longer compatible. This only affects users of the optional `mcp` extra (i.e., `register_mcp_tools_*()`).
 * `Turn.finish_reason` is now normalized to a consistent set of values (`"success"`, `"tool_use"`, `"max_tokens"`, `"content_filter"`, `"context_window"`, `"stop_sequence"`) across most providers, so you no longer need provider-specific logic to check why a turn ended. Previously each provider surfaced its own raw string (e.g. Anthropic's `"end_turn"`/`"tool_use"` vs. OpenAI Completions' `"stop"`/`"tool_calls"` vs. Google's `"STOP"`/`"SAFETY"`), so the same outcome could require different checks depending on which `Chat*()` you used. Reasons chatlas doesn't yet recognize still pass through unchanged.
 
 ### Bug fixes

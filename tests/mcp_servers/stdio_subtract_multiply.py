@@ -1,8 +1,6 @@
-import os
+from mcp.server.mcpserver import MCPServer
 
-from mcp.server.fastmcp import FastMCP
-
-app = FastMCP("test", port=int(os.getenv("MCP_PORT", "8000")))
+app = MCPServer("test")
 
 
 @app.tool(description="Subtract two numbers.")
