@@ -22,6 +22,10 @@ from ._content import (
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentToolRequestFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
     ContentToolResult,
     ContentUploaded,
 )
@@ -51,10 +55,12 @@ if TYPE_CHECKING:
         GenerateContentConfigDict,
         GenerateContentResponse,
         GenerateContentResponseDict,
+        GroundingMetadataDict,
         Part,
         PartDict,
         ThinkingConfigDict,
         UploadFileConfigDict,
+        UrlContextMetadataDict,
     )
 
     from .types.google import ChatClientArgs, SubmitInputArgs
@@ -659,6 +665,13 @@ class GoogleProvider(
 
         parts: list["PartDict"] = []
         finish_reason = None
+        # Verified live (gemini-2.5-flash, gemini-3-flash-preview): a streamed
+        # response carries grounding metadata on exactly one chunk -- the last --
+        # and every candidate carries `index=0`, so `merge_lists` collapses them
+        # into one candidate. Collect per candidate anyway rather than first-wins,
+        # so a response that doesn't follow that shape loses nothing.
+        grounding_metadatas: list["GroundingMetadataDict"] = []
+        url_context_metadatas: list["UrlContextMetadataDict"] = []
         for candidate in candidates:
             content = candidate.get("content")
             if content:
@@ -666,6 +679,12 @@ class GoogleProvider(
             finish = candidate.get("finish_reason")
             if finish:
                 finish_reason = finish
+            grounding_metadata = candidate.get("grounding_metadata")
+            if grounding_metadata:
+                grounding_metadatas.append(grounding_metadata)
+            url_context_metadata = candidate.get("url_context_metadata")
+            if url_context_metadata:
+                url_context_metadatas.append(url_context_metadata)
 
         contents: list[Content] = []
         for part in parts:
@@ -724,6 +743,15 @@ class GoogleProvider(
 
         if isinstance(finish_reason, FinishReason):
             finish_reason = finish_reason.name
+
+        search_contents = [
+            c for gm in grounding_metadatas for c in google_search_contents(gm)
+        ]
+        url_ctx_contents = [
+            c for uc in url_context_metadatas for c in google_url_context_contents(uc)
+        ]
+        # The search that produced the answer precedes the answer text.
+        contents = search_contents + contents + url_ctx_contents
 
         return AssistantTurn(
             contents,
@@ -961,6 +989,66 @@ class GoogleProvider(
                 "file to a Cloud Storage bucket and reference it with "
                 "ContentUploaded(id='gs://bucket/obj', mime_type=..., provider='google')."
             )
+
+
+def google_search_contents(
+    grounding_metadata: "GroundingMetadataDict | None",
+) -> list[Content]:
+    """Search requests + results from Google grounding metadata.
+
+    One request per query: Gemini reports every query it issued in a flat
+    `web_search_queries` list, so N queries means N searches happened. Results
+    stay a single item because Gemini doesn't attribute grounding chunks back to
+    the query that produced them.
+    """
+    if not grounding_metadata:
+        return []
+    out: list[Content] = []
+    queries = grounding_metadata.get("web_search_queries") or []
+    for query in queries:
+        out.append(
+            ContentToolRequestSearch(
+                query=str(query),
+                # The sibling queries are kept so a caller can tell which
+                # searches were issued together.
+                extra={"web_search_queries": list(queries)},
+            )
+        )
+    urls = google_web_urls(grounding_metadata)
+    if urls:
+        out.append(
+            ContentToolResponseSearch(
+                urls=urls,
+                extra={"grounding_metadata": grounding_metadata},
+            )
+        )
+    return out
+
+
+def google_web_urls(grounding_metadata: "GroundingMetadataDict") -> list[str]:
+    """URLs of the pages Google surfaced, skipping chunks that carry none."""
+    out: list[str] = []
+    for ch in grounding_metadata.get("grounding_chunks") or []:
+        uri = (ch.get("web") or {}).get("uri")
+        if uri:
+            out.append(uri)
+    return out
+
+
+def google_url_context_contents(
+    url_context_metadata: "UrlContextMetadataDict | None",
+) -> list[Content]:
+    """Fetch request + result content from Google url_context_metadata."""
+    if not url_context_metadata:
+        return []
+    out: list[Content] = []
+    for meta in url_context_metadata.get("url_metadata") or []:
+        url = meta.get("retrieved_url")
+        if not url:
+            continue
+        out.append(ContentToolRequestFetch(url=url, extra={"url_metadata": meta}))
+        out.append(ContentToolResponseFetch(url=url, extra={"url_metadata": meta}))
+    return out
 
 
 def ChatVertex(
