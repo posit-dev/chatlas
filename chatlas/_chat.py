@@ -23,6 +23,7 @@ from typing import (
     Optional,
     Sequence,
     TypeVar,
+    Union,
     cast,
     overload,
 )
@@ -95,6 +96,15 @@ class TokensDict(TypedDict):
 CompletionT = TypeVar("CompletionT")
 
 EchoOptions = Literal["output", "all", "none", "text"]
+
+# The values yielded by `.stream()`/`.stream_async()`. Plain text is always
+# yielded; the richer content objects only appear when `content="all"`.
+StreamedContent = Union[
+    str,
+    ContentThinkingDelta,
+    ContentToolRequest,
+    ContentToolResult,
+]
 
 T = TypeVar("T")
 BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
@@ -1194,9 +1204,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> Generator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None, None
-    ]: ...
+    ) -> Generator[StreamedContent, None, None]: ...
 
     def stream(
         self,
@@ -1206,9 +1214,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> Generator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None, None
-    ]:
+    ) -> Generator[StreamedContent, None, None]:
         """
         Generate a response from the chat in a streaming fashion.
 
@@ -1282,11 +1288,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             controller=controller,
         )
 
-        def wrapper() -> Generator[
-            str | ContentThinkingDelta | ContentToolRequest | ContentToolResult,
-            None,
-            None,
-        ]:
+        def wrapper() -> Generator[StreamedContent, None, None]:
             with display:
                 for chunk in generator:
                     yield chunk
@@ -1313,9 +1315,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> AsyncGenerator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
-    ]: ...
+    ) -> AsyncGenerator[StreamedContent, None]: ...
 
     async def stream_async(
         self,
@@ -1325,9 +1325,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         kwargs: Optional[SubmitInputArgsT] = None,
         controller: StreamController | None = None,
-    ) -> AsyncGenerator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
-    ]:
+    ) -> AsyncGenerator[StreamedContent, None]:
         """
         Generate a response from the chat in a streaming fashion asynchronously.
 
@@ -1406,9 +1404,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             controller=controller,
         )
 
-        async def wrapper() -> AsyncGenerator[
-            str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
-        ]:
+        async def wrapper() -> AsyncGenerator[StreamedContent, None]:
             try:
                 with display:
                     async for chunk in generator:
@@ -2570,9 +2566,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         *,
         controller: StreamController,
-    ) -> Generator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None, None
-    ]: ...
+    ) -> Generator[StreamedContent, None, None]: ...
 
     def _chat_impl(
         self,
@@ -2659,9 +2653,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         data_model: Optional[type[BaseModel]] = None,
         *,
         controller: StreamController,
-    ) -> AsyncGenerator[
-        str | ContentThinkingDelta | ContentToolRequest | ContentToolResult, None
-    ]: ...
+    ) -> AsyncGenerator[StreamedContent, None]: ...
 
     async def _chat_impl_async(
         self,

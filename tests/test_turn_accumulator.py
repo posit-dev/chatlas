@@ -1,7 +1,13 @@
-from chatlas._content import ContentText
+import pytest
+from chatlas._content import (
+    ContentJson,
+    ContentText,
+    ContentToolRequest,
+    ContentToolRequestSearch,
+)
+from chatlas._stream_controller import StreamController
 from chatlas._turn import AssistantTurn, UserTurn
 from chatlas._turn_accumulator import TurnAccumulator
-from chatlas._stream_controller import StreamController
 
 
 def test_begin_turn_inserts_partial():
@@ -25,6 +31,29 @@ def test_update_turn_merges_adjacent_content():
     acc._update_turn(ContentText.model_construct(text="b"))
     assert len(turns[1].contents) == 1
     assert turns[1].contents[0].text == "ab"
+
+
+@pytest.mark.parametrize(
+    "first,second",
+    [
+        (ContentToolRequestSearch(query="a"), ContentToolRequestSearch(query="b")),
+        (
+            ContentToolRequest(id="1", name="f", arguments={}),
+            ContentToolRequest(id="2", name="f", arguments={}),
+        ),
+        (ContentJson(value={"a": 1}), ContentJson(value={"b": 2})),
+    ],
+)
+def test_update_turn_appends_non_mergeable_adjacent_content(first, second):
+    # Same-typed content with no __add__ must append. `contents[-1] + content`
+    # would raise TypeError rather than returning NotImplemented.
+    turns: list = []
+    acc = TurnAccumulator(turns, StreamController())
+    acc.begin_turn(UserTurn("hello"))
+    acc._update_turn(first)
+    acc._update_turn(second)
+    contents = turns[1].contents
+    assert contents == [first, second]
 
 
 def test_complete_turn_replaces_partial():

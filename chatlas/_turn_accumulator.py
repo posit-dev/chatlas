@@ -119,11 +119,18 @@ class TurnAccumulator:
         if self._turn_idx is None:
             raise RuntimeError("_update_turn called before begin_turn")
         contents = self._turns[self._turn_idx].contents
-        if contents and type(contents[-1]) is type(content):
-            merged = contents[-1] + content  # type: ignore[operator]
-            if merged is not NotImplemented:
-                contents[-1] = merged
-                return
+        # Only content that opts in via __add__ (text, thinking) merges with its
+        # predecessor; everything else appends, since two tool requests aren't
+        # one tool request. Testing for __add__ rather than catching TypeError
+        # keeps a genuine bug inside __add__ from silently degrading into an
+        # append.
+        if (
+            contents
+            and type(contents[-1]) is type(content)
+            and hasattr(content, "__add__")
+        ):
+            contents[-1] = contents[-1] + content  # type: ignore[operator]
+            return
         # Content is the base class; contents is typed as list[ContentUnion]
         # (discriminated union). At runtime all Content subclasses are ContentUnion
         # members, so the append is safe.
