@@ -962,15 +962,18 @@ def google_grounding_citations(
         for idx in dict.fromkeys(sup.get("grounding_chunk_indices") or []):
             # Gemini has been observed referencing indices past the end of the
             # chunk list it sent, so the bounds check isn't just belt-and-braces.
-            src = sources[idx] if 0 <= idx < len(sources) else None
-            if src is not None:
-                out.append(
-                    ContentCitation(
-                        source=src.model_copy(),
-                        grounded_text=grounded,
-                        extra={"grounding_support": sup},
-                    )
+            if not 0 <= idx < len(sources):
+                continue
+            src = sources[idx]
+            # A chunk without a web URI (e.g. retrieved_context) still grounds
+            # the span, so it becomes a citation with no `source`.
+            out.append(
+                ContentCitation(
+                    source=src.model_copy() if src is not None else None,
+                    grounded_text=grounded,
+                    extra={"grounding_support": sup},
                 )
+            )
     return out
 
 

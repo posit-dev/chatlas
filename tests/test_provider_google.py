@@ -3,6 +3,7 @@ import requests
 from chatlas import ChatGoogle, ChatVertex, tool_web_fetch, tool_web_search
 from chatlas._provider_google import (
     GoogleProvider,
+    google_grounding_citations,
 )
 from chatlas._provider_google import (
     normalize_finish_reason as google_normalize_finish_reason,
@@ -17,6 +18,7 @@ from chatlas.types import (
     WebSource,
 )
 from google.genai.errors import APIError
+from google.genai.types import GroundingMetadataDict
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from .conftest import (
@@ -283,7 +285,9 @@ def test_google_web_search_streaming():
     assert all(c.source and c.source.url for c in citations)
 
 
-def _grounding_chunk(text: str, url: str, title: str, query: str, index: int | None = 0):
+def _grounding_chunk(
+    text: str, url: str, title: str, query: str, index: int | None = 0
+):
     """One streamed chunk carrying text plus grounding metadata for that text."""
     from google.genai.types import (
         Candidate,
@@ -411,6 +415,28 @@ def test_google_late_grounding_metadata_not_dropped():
         c.query for c in turn.contents if isinstance(c, ContentToolRequestSearch)
     ]
     assert queries == ["q1", "q2"]
+
+
+def test_google_grounding_citations_without_a_web_source():
+    """A chunk with no URL still grounds text; a bogus index grounds nothing."""
+    grounding_metadata: GroundingMetadataDict = {
+        "grounding_chunks": [
+            {"retrieved_context": {"title": "internal doc"}},
+            {"web": {"uri": "https://a.com", "title": "A"}},
+        ],
+        "grounding_supports": [
+            {"segment": {"text": "sourceless span"}, "grounding_chunk_indices": [0]},
+            {"segment": {"text": "linked span"}, "grounding_chunk_indices": [1]},
+            {"segment": {"text": "out of range"}, "grounding_chunk_indices": [7]},
+        ],
+    }
+
+    citations = google_grounding_citations(grounding_metadata)
+
+    assert [(c.grounded_text, c.source) for c in citations] == [
+        ("sourceless span", None),
+        ("linked span", WebSource(url="https://a.com", title="A")),
+    ]
 
 
 @pytest.mark.vcr
