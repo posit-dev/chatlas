@@ -41,7 +41,7 @@ Each of these has an `_async` counterpart (`upload_async()`, `list_async()`, `ge
 
 ## Supported providers
 
-File management works with `ChatOpenAI()` (the Responses API), `ChatAnthropic()`, and `ChatGoogle()` (the Gemini Developer API). Everything else — `ChatOpenAICompletions()`, OpenAI-compatible third parties (`ChatGroq()`, `ChatMistral()`, `ChatOllama()`, etc.), `ChatAzureOpenAI()`, `ChatBedrockAnthropic()`, and Vertex-backed chats (`ChatVertex()`, or `ChatGoogle()` configured for Vertex) — raises `NotImplementedError` from `chat.files.*`.
+File management works with `ChatOpenAI()` (the Responses API), `ChatAnthropic()`, and `ChatGoogle()` (the Gemini Developer API). Everything else — `ChatOpenAICompletions()`, OpenAI-compatible third parties (`ChatGroq()`, `ChatMistral()`, `ChatOllama()`, etc.), `ChatAzureOpenAI()`, `ChatBedrockAnthropic()`, `ChatPosit()` (its Anthropic flavor proxies through a gateway that doesn't support the beta Files API), and Vertex-backed chats (`ChatVertex()`, or `ChatGoogle()` configured for Vertex) — raises `NotImplementedError` from `chat.files.*`.
 
 ::: callout-note
 ### Anthropic: beta API
