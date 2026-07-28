@@ -863,7 +863,7 @@ ProviderAnnotation = Union[
 ]
 """
 Content a provider reports about its own server-side work, rather than content
-the user authored. All of it carries a raw provider payload in `extra`.
+the user authored. When produced by a provider, this content may carry a raw provider payload in `extra`.
 
 Because `extra` is in the producing provider's own shape, only that provider can
 resend one. Providers replay their own and drop the rest, so turns stay portable
