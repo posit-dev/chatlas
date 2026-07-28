@@ -855,6 +855,30 @@ ContentUnion = Union[
 ]
 
 
+ProviderAnnotation = Union[
+    ContentToolRequestSearch,
+    ContentToolResponseSearch,
+    ContentToolRequestFetch,
+    ContentToolResponseFetch,
+]
+"""
+Content a provider reports about its own server-side work, rather than content
+the user authored. When produced by a provider, this content may carry a raw provider payload in `extra`.
+
+Because `extra` is in the producing provider's own shape, only that provider can
+resend one. Providers replay their own and drop the rest, so turns stay portable
+across providers.
+"""
+
+PROVIDER_ANNOTATION_TYPES = (
+    ContentToolRequestSearch,
+    ContentToolResponseSearch,
+    ContentToolRequestFetch,
+    ContentToolResponseFetch,
+)
+"""Runtime `isinstance` form of `ProviderAnnotation` (keep the two in sync)."""
+
+
 BYTES_SENTINEL = "__base64_bytes__"
 
 

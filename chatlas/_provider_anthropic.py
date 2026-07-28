@@ -19,6 +19,7 @@ from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
+    PROVIDER_ANNOTATION_TYPES,
     Content,
     ContentImageInline,
     ContentImageRemote,
@@ -33,6 +34,7 @@ from ._content import (
     ContentToolResponseFetch,
     ContentToolResponseSearch,
     ContentToolResult,
+    ProviderAnnotation,
 )
 from ._logging import log_model_default
 from ._provider import (
@@ -705,7 +707,12 @@ class AnthropicProvider(
             if not isinstance(turn, (UserTurn, AssistantTurn)):
                 raise ValueError(f"Unknown role {turn.role}")
 
-            content = [self._as_content_block(c) for c in turn.contents]
+            content = [
+                self._as_content_block(c)
+                for c in turn.contents
+                if not isinstance(c, PROVIDER_ANNOTATION_TYPES)
+                or anthropic_replayable(c)
+            ]
 
             # Drop empty assistant turns to avoid an API error
             # (all messages must have non-empty content)
@@ -1343,3 +1350,24 @@ class AnthropicBedrockProvider(AnthropicProvider):
             res.append(info)
 
         return res
+
+
+ANTHROPIC_SERVER_TOOL_BLOCK_TYPES = frozenset(
+    {"server_tool_use", "web_search_tool_result", "web_fetch_tool_result"}
+)
+
+
+def anthropic_replayable(content: ProviderAnnotation) -> bool:
+    """Whether `content.extra` holds an Anthropic block param we can resend.
+
+    Anthropic wants its server-side tool blocks back in the conversation history
+    (citations reference the search results they came from), so we replay the raw
+    block stashed in `extra`. Content produced by another provider carries that
+    provider's payload instead, which we can't translate -- drop it rather than
+    send something the API will reject.
+    """
+    extra = content.extra
+    return (
+        isinstance(extra, dict)
+        and extra.get("type") in ANTHROPIC_SERVER_TOOL_BLOCK_TYPES
+    )

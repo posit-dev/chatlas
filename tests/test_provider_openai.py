@@ -225,7 +225,7 @@ def test_can_extract_custom_id_from_malformed_json():
 
 def test_openai_web_search_call_action_types():
     """Handle non-search web_search_call action types (open_page, find_in_page)."""
-    from chatlas._content import ContentToolRequestSearch
+    from chatlas._content import ContentToolRequestFetch, ContentToolRequestSearch
     from chatlas._provider_openai import OpenAIProvider
 
     chat = ChatOpenAI()
@@ -262,13 +262,19 @@ def test_openai_web_search_call_action_types():
     assert isinstance(turn.contents[0], ContentToolRequestSearch)
     assert turn.contents[0].query == "test query"
 
-    # open_page action with url
-    resp = make_response({"type": "open_page", "url": "https://example.com"})
+    # search action with only the plural `queries`
+    resp = make_response({"type": "search", "queries": ["first", "second"]})
     turn = provider._response_as_turn(resp, has_data_model=False)
     assert isinstance(turn.contents[0], ContentToolRequestSearch)
-    assert turn.contents[0].query == "https://example.com"
+    assert turn.contents[0].query == "first"
 
-    # find_in_page action with pattern
+    # open_page is a fetch, not a search
+    resp = make_response({"type": "open_page", "url": "https://example.com"})
+    turn = provider._response_as_turn(resp, has_data_model=False)
+    assert isinstance(turn.contents[0], ContentToolRequestFetch)
+    assert turn.contents[0].url == "https://example.com"
+
+    # find_in_page action carries an in-page pattern, not a query
     resp = make_response(
         {"type": "find_in_page", "pattern": "find this", "url": "https://example.com"}
     )
