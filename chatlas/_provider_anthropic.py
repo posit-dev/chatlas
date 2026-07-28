@@ -55,11 +55,14 @@ if TYPE_CHECKING:
         Message,
         MessageParam,
         RawMessageStreamEvent,
+        ServerToolUseBlock,
         TextBlock,
         ThinkingBlock,
         ThinkingBlockParam,
         ToolUnionParam,
         ToolUseBlock,
+        WebFetchToolResultBlock,
+        WebSearchToolResultBlock,
     )
     from anthropic.types.cache_control_ephemeral_param import CacheControlEphemeralParam
     from anthropic.types.document_block_param import DocumentBlockParam
@@ -881,86 +884,14 @@ class AnthropicProvider(
                     )
                 )
             elif content.type == "server_tool_use":
-                # Unfortunately, content.model_dump() includes fields like "url"
-                # that aren't acceptable as API input, so we manually construct
-                # the extra dict
-                if isinstance(content.input, str):
-                    input_data = orjson.loads(content.input)
-                else:
-                    input_data = content.input
-
-                extra = {
-                    "type": content.type,
-                    "id": content.id,
-                    "name": content.name,
-                    "input": input_data,
-                }
-                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
-                if content.name == "web_search":
-                    contents.append(
-                        ContentToolRequestSearch(
-                            query=str(input_data.get("query", "")),
-                            extra=extra,
-                        )
-                    )
-                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
-                elif content.name == "web_fetch":
-                    # N.B. type checker thinks this is unreachable due to
-                    # ToolUnionParam not including BetaWebFetchTool20250910Param
-                    # yet
-                    contents.append(
-                        ContentToolRequestFetch(
-                            url=str(input_data.get("url", "")),
-                            extra=extra,
-                        )
-                    )
-                else:
+                request = anthropic_server_tool_request(content)
+                if request is None:
                     raise ValueError(f"Unknown server tool: {content.name}")
+                contents.append(request)
             elif content.type == "web_search_tool_result":
-                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
-                urls: list[str] = []
-                if isinstance(content.content, list):
-                    urls = [x.url for x in content.content]
-                # Manually construct the extra dict to avoid SDK-internal
-                # fields (e.g., "caller") that the API doesn't accept
-                extra = {
-                    "type": content.type,
-                    "tool_use_id": content.tool_use_id,
-                    "content": [x.model_dump() for x in content.content]
-                    if isinstance(content.content, list)
-                    else content.content.model_dump(),
-                }
-                contents.append(
-                    ContentToolResponseSearch(
-                        urls=urls,
-                        extra=extra,
-                    )
-                )
+                contents.append(anthropic_search_result(content))
             elif content.type == "web_fetch_tool_result":
-                # N.B. type checker thinks this is unreachable due to
-                # ToolUnionParam not including BetaWebFetchTool20250910Param
-                # yet.
-                content_fetch = getattr(content, "content", None)
-                if content_fetch is None:
-                    raise ValueError(
-                        "web_fetch_tool_result content is empty. Please report this issue."
-                    )
-                # content_fetch is a BetaWebFetchBlock (has .url) or
-                # BetaWebFetchToolResultErrorBlock (error case)
-                url = getattr(content_fetch, "url", "failed")
-                # Manually construct the extra dict to avoid SDK-internal
-                # fields (e.g., "caller") that the API doesn't accept
-                extra = {
-                    "type": content.type,
-                    "tool_use_id": content.tool_use_id,  # type: ignore
-                    "content": content_fetch.model_dump(exclude_none=True),
-                }
-                contents.append(
-                    ContentToolResponseFetch(
-                        url=url,
-                        extra=extra,
-                    )
-                )
+                contents.append(anthropic_fetch_result(content))
 
         return AssistantTurn(
             contents,
@@ -1350,6 +1281,75 @@ class AnthropicBedrockProvider(AnthropicProvider):
             res.append(info)
 
         return res
+
+
+def anthropic_server_tool_request(
+    block: "ServerToolUseBlock",
+) -> Optional[ContentToolRequestSearch | ContentToolRequestFetch]:
+    """Search/fetch request from a server_tool_use block, or None if unknown."""
+    if isinstance(block.input, str):
+        input_data = cast(dict[str, Any], orjson.loads(block.input))
+    else:
+        input_data = block.input
+
+    # block.model_dump() includes fields like "url" that aren't acceptable as API
+    # input, so build `extra` by hand.
+    extra = {
+        "type": block.type,
+        "id": block.id,
+        "name": block.name,
+        "input": input_data,
+    }
+    # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
+    if block.name == "web_search":
+        return ContentToolRequestSearch(
+            query=str(input_data.get("query", "")), extra=extra
+        )
+    # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
+    if block.name == "web_fetch":
+        return ContentToolRequestFetch(url=str(input_data.get("url", "")), extra=extra)
+    return None
+
+
+def anthropic_search_result(
+    block: "WebSearchToolResultBlock",
+) -> ContentToolResponseSearch:
+    """Search results from a web_search_tool_result block."""
+    content = block.content
+    if isinstance(content, list):
+        urls = [x.url for x in content]
+        raw: object = [x.model_dump() for x in content]
+    else:
+        urls = []
+        raw = content.model_dump()
+    # Build `extra` by hand to avoid SDK-internal fields (e.g. "caller") that the
+    # API doesn't accept.
+    return ContentToolResponseSearch(
+        urls=urls,
+        extra={
+            "type": block.type,
+            "tool_use_id": block.tool_use_id,
+            "content": raw,
+        },
+    )
+
+
+def anthropic_fetch_result(
+    block: "WebFetchToolResultBlock",
+) -> ContentToolResponseFetch:
+    """Fetch result from a web_fetch_tool_result block."""
+    from anthropic.types import WebFetchBlock
+
+    content = block.content
+    extra = {
+        "type": block.type,
+        "tool_use_id": block.tool_use_id,
+        "content": content.model_dump(exclude_none=True),
+    }
+    # Either a WebFetchBlock (has .url) or a WebFetchToolResultErrorBlock
+    if isinstance(content, WebFetchBlock):
+        return ContentToolResponseFetch(url=content.url, extra=extra)
+    return ContentToolResponseFetch(url="failed", extra=extra)
 
 
 ANTHROPIC_SERVER_TOOL_BLOCK_TYPES = frozenset(
