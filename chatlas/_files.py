@@ -72,8 +72,10 @@ class FileManager:
         Some providers restrict downloading files a caller uploaded. Notably,
         OpenAI does not allow downloading files uploaded with
         `purpose="user_data"` (i.e. any file uploaded via `chat.files.upload()`),
-        and Anthropic marks such files as not downloadable too, so this may
-        raise a provider error for OpenAI- or Anthropic-hosted files.
+        Anthropic marks such files as not downloadable too, and Google's Files
+        API only serves bytes back for model-generated files (e.g. Veo video
+        output), not files a caller uploaded. So this may raise a provider
+        error for OpenAI-, Anthropic-, or Google-hosted files.
         """
         return self._provider.file_download(id, path)
 
@@ -87,8 +89,10 @@ class FileManager:
         Some providers restrict downloading files a caller uploaded. Notably,
         OpenAI does not allow downloading files uploaded with
         `purpose="user_data"` (i.e. any file uploaded via `chat.files.upload()`),
-        and Anthropic marks such files as not downloadable too, so this may
-        raise a provider error for OpenAI- or Anthropic-hosted files.
+        Anthropic marks such files as not downloadable too, and Google's Files
+        API only serves bytes back for model-generated files (e.g. Veo video
+        output), not files a caller uploaded. So this may raise a provider
+        error for OpenAI-, Anthropic-, or Google-hosted files.
         """
         return await self._provider.file_download_async(id, path)
 

@@ -21,7 +21,9 @@ from ._content import (
     ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
+    ContentUploaded,
 )
+from ._files import FileMetadata, maybe_write
 from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import (
@@ -37,7 +39,12 @@ from ._tools_builtin import ToolWebFetch, ToolWebSearch
 from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn, user_turn
 
 if TYPE_CHECKING:
+    import io
+    import os
+    from typing import IO
+
     from google.genai.types import Content as GoogleContent
+    from google.genai.types import File as GoogleFile
     from google.genai.types import (
         GenerateContentConfigDict,
         GenerateContentResponse,
@@ -45,6 +52,7 @@ if TYPE_CHECKING:
         Part,
         PartDict,
         ThinkingConfigDict,
+        UploadFileConfigDict,
     )
 
     from .types.google import ChatClientArgs, SubmitInputArgs
@@ -626,6 +634,14 @@ class GoogleProvider(
                     response=resp,
                 )
             )
+        elif isinstance(content, ContentUploaded):
+            if content.provider != "google":
+                raise ValueError(
+                    f"This file was uploaded to provider '{content.provider}', "
+                    "but is being used with Google. Re-upload it with a "
+                    "ChatGoogle() chat."
+                )
+            return Part.from_uri(file_uri=content.id, mime_type=content.mime_type)
         raise ValueError(f"Unknown content type: {type(content)}")
 
     def _as_turn(
@@ -851,6 +867,91 @@ class GoogleProvider(
         completion = cast("GenerateContentResponseDict", result.response.model_dump())
         return self._as_turn(completion, has_data_model)
 
+    def file_upload(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        self._require_files_api()
+        cfg: Optional["UploadFileConfigDict"] = (
+            {"mime_type": mime_type} if mime_type else None
+        )
+        # google-genai types file-likes as io.IOBase; typing.IO[bytes] (our
+        # public upload() contract, shared with the other providers) covers
+        # the same runtime file-like objects.
+        obj = self._client.files.upload(
+            file=cast("str | os.PathLike[str] | io.IOBase", file), config=cfg
+        )
+        return google_uploaded(obj)
+
+    async def file_upload_async(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        self._require_files_api()
+        cfg: Optional["UploadFileConfigDict"] = (
+            {"mime_type": mime_type} if mime_type else None
+        )
+        obj = await self._client.aio.files.upload(
+            file=cast("str | os.PathLike[str] | io.IOBase", file), config=cfg
+        )
+        return google_uploaded(obj)
+
+    def file_list(self) -> list[FileMetadata]:
+        self._require_files_api()
+        return [google_meta(o) for o in self._client.files.list()]
+
+    async def file_list_async(self) -> list[FileMetadata]:
+        self._require_files_api()
+        return [google_meta(o) async for o in await self._client.aio.files.list()]
+
+    def file_get(self, id: str) -> FileMetadata:  # noqa: A002
+        self._require_files_api()
+        return google_meta(self._client.files.get(name=id))
+
+    async def file_get_async(self, id: str) -> FileMetadata:  # noqa: A002
+        self._require_files_api()
+        return google_meta(await self._client.aio.files.get(name=id))
+
+    def file_download(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        # Gemini's Files API only serves bytes back for model-GENERATED files
+        # (e.g. Veo video output); files uploaded via file_upload() raise a
+        # ClientError ("Only GENERATED files can be downloaded").
+        self._require_files_api()
+        return maybe_write(self._client.files.download(file=id), path)
+
+    async def file_download_async(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        self._require_files_api()
+        data = await self._client.aio.files.download(file=id)
+        return maybe_write(data, path)
+
+    def file_delete(self, id: str) -> None:  # noqa: A002
+        self._require_files_api()
+        self._client.files.delete(name=id)
+
+    async def file_delete_async(self, id: str) -> None:  # noqa: A002
+        self._require_files_api()
+        await self._client.aio.files.delete(name=id)
+
+    def _require_files_api(self) -> None:
+        if getattr(self._client, "vertexai", False):
+            raise NotImplementedError(
+                "The Gemini Files API is not available on Vertex AI. Upload the "
+                "file to a Cloud Storage bucket and reference it with "
+                "ContentUploaded(id='gs://bucket/obj', mime_type=..., provider='google')."
+            )
+
 
 def ChatVertex(
     *,
@@ -948,6 +1049,38 @@ def ChatVertex(
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+    )
+
+
+def google_file_uri(obj: "GoogleFile") -> str:
+    if obj.uri is None:
+        raise ValueError(f"File {obj.name!r} has no URI yet (state={obj.state}).")
+    return obj.uri
+
+
+def google_uploaded(obj: "GoogleFile") -> ContentUploaded:
+    return ContentUploaded(
+        id=google_file_uri(obj),
+        mime_type=obj.mime_type or "application/octet-stream",
+        provider="google",
+        extra={
+            "name": obj.name,
+            "size_bytes": obj.size_bytes,
+            "state": obj.state.value if obj.state else None,
+        },
+    )
+
+
+def google_meta(obj: "GoogleFile") -> FileMetadata:
+    return FileMetadata(
+        id=google_file_uri(obj),
+        filename=obj.display_name,
+        mime_type=obj.mime_type,
+        size_bytes=obj.size_bytes,
+        created_at=obj.create_time,
+        expires_at=obj.expiration_time,
+        provider="google",
+        extra=obj,
     )
 
 
