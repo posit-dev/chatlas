@@ -706,10 +706,7 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
             part = {"type": "input_image", "file_id": content.id, "detail": "auto"}
         else:
             part = {"type": "input_file", "file_id": content.id}
-        return cast(
-            "EasyInputMessageParam",
-            {"role": role, "type": "message", "content": [part]},
-        )
+        return as_message(part, role)
     else:
         raise ValueError(f"Unsupported content type: {type(content)}")
 

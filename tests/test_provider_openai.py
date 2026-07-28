@@ -68,7 +68,6 @@ def test_normalize_finish_reason_handles_none():
 def test_openai_uploaded_serializes_to_input_file():
     c = ContentUploaded(id="file_abc", mime_type="application/pdf", provider="openai")
     param = as_input_param(c, role="user")
-    assert param["type"] == "message"
     part = param["content"][0]
     assert part["type"] == "input_file"
     assert part["file_id"] == "file_abc"

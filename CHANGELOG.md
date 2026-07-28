@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * `batch_chat()` now supports `ChatGoogle()` (Gemini Developer API batch jobs). Batch is also now documented as supported for `ChatGroq()`, which already worked via its OpenAI-compatible provider. (Vertex AI is not supported, since its batch API requires GCS bucket URIs instead of inline requests.)
 * `ChatOllama()` gains a `reasoning_effort` parameter to enable extended "thinking" for models that support it (e.g. qwen3, gpt-oss).
-* `Chat` gains a `.files` accessor for uploading files to a provider once and referencing them across turns without re-sending bytes, plus listing, fetching metadata, downloading, and deleting them. Supported for OpenAI, Anthropic, and Google Gemini. A new `ContentUploaded` type represents the reference and can be constructed directly to point at a file uploaded out-of-band (e.g. a Vertex `gs://` URI).
+* `Chat` gains a `.files` accessor for uploading files to a provider once and referencing them across turns without re-sending bytes, plus listing, fetching metadata, downloading, and deleting them. Supported for OpenAI, Anthropic, and Google Gemini. A new `ContentUploaded` type represents the reference and can be constructed directly to point at a file uploaded out-of-band (e.g. a Vertex `gs://` URI). For Google, `upload()` waits for Gemini to finish processing large media (video, audio) before returning, since the API rejects references to files that aren't yet `ACTIVE`.
 
 ### Improvements
 

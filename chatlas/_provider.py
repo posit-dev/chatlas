@@ -462,3 +462,25 @@ class Provider(
             f"Provider '{self.name}' does not support file management. "
             "Supported providers: ChatOpenAI, ChatAnthropic, ChatGoogle."
         )
+
+
+ProviderClassT = TypeVar("ProviderClassT", bound=type[Provider[Any, Any, Any, Any]])
+
+
+def no_file_management(cls: ProviderClassT) -> ProviderClassT:
+    """
+    Opt a provider class out of the file management it inherits.
+
+    Some providers subclass a parent for its chat behavior while the underlying
+    service has no Files API (e.g. `OpenAIAzureProvider` subclasses
+    `OpenAIProvider`). Decorating such a subclass restores the `Provider` base
+    methods, which raise `NotImplementedError`.
+
+    Every `file_*` method is opted out, so adding one to `Provider` later can't
+    leave these subclasses silently inheriting an implementation their client
+    can't serve.
+    """
+    for name, member in vars(Provider).items():
+        if name.startswith("file_"):
+            setattr(cls, name, member)
+    return cls

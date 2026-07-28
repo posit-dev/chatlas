@@ -34,9 +34,9 @@ Each of these has an `_async` counterpart (`upload_async()`, `list_async()`, `ge
 [`FileMetadata`](../reference/types.FileMetadata.qmd) normalizes fields across providers (`id`, `filename`, `mime_type`, `size_bytes`, `created_at`, `expires_at`, `provider`, plus provider-native fields in `extra`).
 
 ::: callout-warning
-### Downloading is usually not possible
+### You can't download what you uploaded
 
-`chat.files.download()` is meant for files the *model generates* (e.g. Gemini video output), not files you uploaded. OpenAI refuses to download files uploaded with `purpose="user_data"` (which is every file uploaded via `chat.files.upload()`), Anthropic marks uploaded files as non-downloadable, and Google's Files API only serves bytes back for `state=GENERATED` files. Expect a provider error if you call `download()` on something you uploaded yourself.
+Providers gate downloads on how a file was created, and none of them allow it for files sent via `chat.files.upload()` — expect a provider error there. OpenAI refuses `purpose="user_data"` (what `upload()` uses) while allowing `purpose="batch"`/`"batch_output"`, so the input and result files behind [`batch_chat()`](../reference/batch_chat.qmd) *are* downloadable. Anthropic marks uploaded files non-downloadable, and Google only serves bytes back for model-generated files (e.g. Gemini video output).
 :::
 
 ## Supported providers
@@ -68,9 +68,9 @@ chat.chat(gcs_file, "Summarize this.")
 :::
 
 ::: callout-note
-### Google: large media may still be PROCESSING
+### Google: large media uploads block until ready
 
-Gemini processes large media (video, audio, multi-GB uploads) asynchronously, so a file returned by `chat.files.upload()` may still be in the `PROCESSING` state — with no URI yet — immediately after upload. chatlas v1 does not poll for readiness. For large media, call `chat.files.get(uploaded.id)` and check its state (or wait) until the file becomes `ACTIVE` before referencing it in `.chat()`.
+Gemini processes large media (video, audio, multi-GB uploads) asynchronously, and refuses to use a file that isn't yet `ACTIVE`. So for Google, `upload()` waits for processing to finish before returning — meaning it can block for a while on a big video, and raises if the file fails to process. The reference you get back is always ready to use.
 :::
 
 ::: callout-note

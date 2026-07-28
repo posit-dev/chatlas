@@ -667,7 +667,9 @@ class ContentUploaded(Content):
         The provider the file was uploaded to (`"openai"`, `"anthropic"`, or
         `"google"`). Used to detect cross-provider misuse.
     extra
-        Provider-native metadata (filename, size, ...) when available.
+        A plain dict of provider-native metadata (filename, size, ...) when
+        available. Unlike `FileMetadata.extra`, this can't hold the provider's
+        own file object, since this type is serialized as part of a chat's turns.
     """
 
     id: str

@@ -45,6 +45,7 @@ from ._provider import (
     Provider,
     StandardModelParamNames,
     StandardModelParams,
+    no_file_management,
 )
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
@@ -1410,6 +1411,8 @@ def ChatBedrockAnthropic(
     )
 
 
+# Bedrock's Anthropic client has no `.beta.files`.
+@no_file_management
 class AnthropicBedrockProvider(AnthropicProvider):
     def __init__(
         self,
@@ -1455,19 +1458,6 @@ class AnthropicBedrockProvider(AnthropicProvider):
 
         self._client = AnthropicBedrock(**kwargs_full)  # type: ignore
         self._async_client = AsyncAnthropicBedrock(**kwargs_full)  # type: ignore
-
-    # Bedrock's Anthropic client has no `.beta.files`, so undo the file
-    # management this class would otherwise inherit from AnthropicProvider.
-    file_upload = Provider.file_upload
-    file_upload_async = Provider.file_upload_async
-    file_list = Provider.file_list
-    file_list_async = Provider.file_list_async
-    file_get = Provider.file_get
-    file_get_async = Provider.file_get_async
-    file_download = Provider.file_download
-    file_download_async = Provider.file_download_async
-    file_delete = Provider.file_delete
-    file_delete_async = Provider.file_delete_async
 
     def list_models(self):
         # boto3 should come via anthropic's bedrock extras

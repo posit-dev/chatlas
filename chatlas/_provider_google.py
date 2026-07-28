@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import re
+import time
 import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
@@ -883,6 +885,10 @@ class GoogleProvider(
         obj = self._client.files.upload(
             file=cast("str | os.PathLike[str] | io.IOBase", file), config=cfg
         )
+        name = obj.name
+        while name is not None and google_file_processing(obj):
+            time.sleep(GOOGLE_FILE_POLL_SECONDS)
+            obj = self._client.files.get(name=name)
         return google_uploaded(obj)
 
     async def file_upload_async(
@@ -898,6 +904,10 @@ class GoogleProvider(
         obj = await self._client.aio.files.upload(
             file=cast("str | os.PathLike[str] | io.IOBase", file), config=cfg
         )
+        name = obj.name
+        while name is not None and google_file_processing(obj):
+            await asyncio.sleep(GOOGLE_FILE_POLL_SECONDS)
+            obj = await self._client.aio.files.get(name=name)
         return google_uploaded(obj)
 
     def file_list(self) -> list[FileMetadata]:
@@ -1052,21 +1062,27 @@ def ChatVertex(
     )
 
 
-def google_file_uri(obj: "GoogleFile") -> str:
-    if obj.uri is None:
-        raise ValueError(
-            f"File {obj.name!r} has no URI yet (state={obj.state}). "
-            "Gemini processes large media (e.g. video, audio, multi-GB uploads) "
-            "asynchronously, and this file is likely still PROCESSING; chatlas "
-            "does not poll for readiness, so re-check with `chat.files.get(...)` "
-            "until its state becomes ACTIVE before referencing it."
-        )
-    return obj.uri
+GOOGLE_FILE_POLL_SECONDS = 0.5
+
+
+def google_file_processing(obj: "GoogleFile") -> bool:
+    return obj.state is not None and obj.state.value == "PROCESSING"
 
 
 def google_uploaded(obj: "GoogleFile") -> ContentUploaded:
+    if obj.state is not None and obj.state.value == "FAILED":
+        detail = obj.error.message if obj.error else "no error detail given"
+        raise ValueError(f"File {obj.name!r} failed to process: {detail}")
+
+    if obj.uri is None:
+        raise ValueError(
+            f"File {obj.name!r} has no URI (state={obj.state}). Gemini returns a "
+            "URI for every uploaded file -- including while it is still "
+            "processing -- so this most likely means the upload didn't complete."
+        )
+
     return ContentUploaded(
-        id=google_file_uri(obj),
+        id=obj.uri,
         mime_type=obj.mime_type or "application/octet-stream",
         provider="google",
         extra={
@@ -1078,8 +1094,16 @@ def google_uploaded(obj: "GoogleFile") -> ContentUploaded:
 
 
 def google_meta(obj: "GoogleFile") -> FileMetadata:
+    # Prefer the full URI, since it's the only form `.chat()` accepts as a
+    # reference. Fall back to the resource name so that listing still works for
+    # files that never got one (e.g. a FAILED upload): `name` is a valid id for
+    # the management calls, which is all such a file is good for anyway.
+    id = obj.uri or obj.name  # noqa: A001
+    if id is None:
+        raise ValueError(f"Gemini returned a file with neither a URI nor a name: {obj}")
+
     return FileMetadata(
-        id=google_file_uri(obj),
+        id=id,
         filename=obj.display_name,
         mime_type=obj.mime_type,
         size_bytes=obj.size_bytes,

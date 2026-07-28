@@ -25,7 +25,14 @@ class FileMetadata(BaseModel):
     created_at: Optional[datetime] = None
     expires_at: Optional[datetime] = None
     provider: str
+
     extra: Any = None
+    """
+    The provider's own file object, unmodified, for fields this class doesn't
+    normalize (e.g. Gemini's processing `state`). Note this differs from
+    `ContentUploaded.extra`, which is a plain dict because that type gets
+    serialized as part of a chat's turns.
+    """
 
 
 class FileManager:
@@ -115,13 +122,15 @@ class FileManager:
     ) -> bytes:
         """Download a file's raw bytes, optionally writing them to `path`.
 
-        Some providers restrict downloading files a caller uploaded. Notably,
-        OpenAI does not allow downloading files uploaded with
-        `purpose="user_data"` (i.e. any file uploaded via `chat.files.upload()`),
-        Anthropic marks such files as not downloadable too, and Google's Files
-        API only serves bytes back for model-generated files (e.g. Veo video
-        output), not files a caller uploaded. So this may raise a provider
-        error for OpenAI-, Anthropic-, or Google-hosted files.
+        Whether a file is downloadable depends on how it was created, so this
+        raises a provider error for anything `.upload()` produced:
+
+        - OpenAI refuses `purpose="user_data"` (what `.upload()` uses), but
+          allows `purpose="batch"`/`"batch_output"` — i.e. the input and result
+          files behind `batch_chat()`.
+        - Anthropic marks uploaded files as not downloadable.
+        - Google only serves bytes back for model-generated files (e.g. Veo
+          video output).
         """
         return self._provider.file_download(id, path)
 
@@ -130,16 +139,7 @@ class FileManager:
         id: str,  # noqa: A002
         path: str | os.PathLike[str] | None = None,
     ) -> bytes:
-        """Download a file's raw bytes, optionally writing them to `path`.
-
-        Some providers restrict downloading files a caller uploaded. Notably,
-        OpenAI does not allow downloading files uploaded with
-        `purpose="user_data"` (i.e. any file uploaded via `chat.files.upload()`),
-        Anthropic marks such files as not downloadable too, and Google's Files
-        API only serves bytes back for model-generated files (e.g. Veo video
-        output), not files a caller uploaded. So this may raise a provider
-        error for OpenAI-, Anthropic-, or Google-hosted files.
-        """
+        """Async version of `.download()`."""
         return await self._provider.file_download_async(id, path)
 
     def delete(self, id: str) -> None:  # noqa: A002
