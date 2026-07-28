@@ -9,6 +9,17 @@ uv.lock
 sandbox/
 logs/
 
+# Local scratch / AI-generated planning docs
+docs/plans/
+docs/superpowers/
+
+# Root-level scratch scripts
+/bedrock.py
+/deepseek.py
+/reprex.py
+/think.py
+/think.R
+
 /.luarc.json
 
 # worktrees
