@@ -34,6 +34,7 @@ from ._content import (
     Content,
     ContentJson,
     ContentText,
+    ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
@@ -101,6 +102,14 @@ BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
 
 def is_present(value: T | None | MISSING_TYPE) -> TypeGuard[T]:
     return value is not None and not isinstance(value, MISSING_TYPE)
+
+
+def display_text(content: "Content") -> "Optional[str]":
+    if isinstance(content, ContentText):
+        return content.text
+    if isinstance(content, (ContentThinking, ContentThinkingDelta)):
+        return content.thinking
+    return None
 
 
 class Chat(Generic[SubmitInputArgsT, CompletionT]):
@@ -2809,13 +2818,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             break
                         if controller.cancelled:
                             break
-                        content = self.provider.stream_content(chunk)
-                        if content is not None:
-                            text = self.provider.stream_text(chunk)
-                            yield from acc.process_content(
-                                content, text, content_mode, emit
-                            )
                         result = self.provider.stream_merge_chunks(result, chunk)
+                        for content in self.provider.stream_content(chunk, result):
+                            yield from acc.process_content(
+                                content, display_text(content), content_mode, emit
+                            )
 
                     yield from acc.flush_thinking(content_mode, emit)
 
@@ -2947,14 +2954,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             break
                         if controller.cancelled:
                             break
-                        content = self.provider.stream_content(chunk)
-                        if content is not None:
-                            text = self.provider.stream_text(chunk)
+                        result = self.provider.stream_merge_chunks(result, chunk)
+                        for content in self.provider.stream_content(chunk, result):
                             for item in acc.process_content(
-                                content, text, content_mode, emit
+                                content, display_text(content), content_mode, emit
                             ):
                                 yield item
-                        result = self.provider.stream_merge_chunks(result, chunk)
 
                     for item in acc.flush_thinking(content_mode, emit):
                         yield item

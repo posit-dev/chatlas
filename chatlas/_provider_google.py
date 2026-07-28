@@ -443,23 +443,23 @@ class GoogleProvider(
 
         return kwargs_full
 
-    def stream_content(self, chunk) -> Optional[Content]:
+    def stream_content(self, chunk, completion) -> list[Content]:
         candidates = getattr(chunk, "candidates", None)
         if not candidates:
-            return None
+            return []
         content = candidates[0].content
         if content is None:
-            return None
+            return []
         parts = content.parts
         if not parts:
-            return None
+            return []
         part = parts[0]
         text = getattr(part, "text", None)
         if text is None:
-            return None
+            return []
         if getattr(part, "thought", None):
-            return ContentThinkingDelta(thinking=text)
-        return ContentText.model_construct(text=text)
+            return [ContentThinkingDelta(thinking=text)]
+        return [ContentText.model_construct(text=text)]
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()

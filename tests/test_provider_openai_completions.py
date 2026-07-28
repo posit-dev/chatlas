@@ -155,14 +155,12 @@ def test_stream_content_extracts_reasoning_content():
             self.choices = choices
 
     chunk = FakeChunk([FakeChoice(FakeDelta(reasoning_content="think"))])
-    result = provider.stream_content(chunk)
-    assert isinstance(result, ContentThinkingDelta)
-    assert result.thinking == "think"
+    result = provider.stream_content(chunk, None)
+    assert result == [ContentThinkingDelta(thinking="think")]
 
     chunk = FakeChunk([FakeChoice(FakeDelta(content="hello"))])
-    result = provider.stream_content(chunk)
-    assert isinstance(result, ContentText)
-    assert result.text == "hello"
+    result = provider.stream_content(chunk, None)
+    assert result == [ContentText(text="hello")]
 
 
 def test_response_as_turn_extracts_reasoning_content():
@@ -203,9 +201,8 @@ def test_stream_content_extracts_reasoning_field():
             self.choices = choices
 
     chunk = FakeChunk([FakeChoice(FakeDelta(reasoning="think"))])
-    result = provider.stream_content(chunk)
-    assert isinstance(result, ContentThinkingDelta)
-    assert result.thinking == "think"
+    result = provider.stream_content(chunk, None)
+    assert result == [ContentThinkingDelta(thinking="think")]
 
 
 def test_response_as_turn_extracts_reasoning_field():

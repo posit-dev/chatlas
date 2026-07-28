@@ -220,7 +220,7 @@ When implementing a new LLM provider, follow this systematic approach:
 
 **Custom API Providers**:
 - Inherit from `Provider` directly
-- Implement all abstract methods: `chat_perform()`, `chat_perform_async()`, `stream_text()`, etc.
+- Implement all abstract methods: `chat_perform()`, `chat_perform_async()`, `stream_content()`, `stream_merge_chunks()`, etc.
 - Handle model-specific response formats
 
 ### 6. Common Patterns

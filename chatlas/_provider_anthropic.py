@@ -539,13 +539,13 @@ class AnthropicProvider(
 
         return data_model_tool
 
-    def stream_content(self, chunk) -> Optional[Content]:
+    def stream_content(self, chunk, completion) -> list[Content]:
         if chunk.type == "content_block_delta":
             if chunk.delta.type == "text_delta":
-                return ContentText.model_construct(text=chunk.delta.text)
+                return [ContentText.model_construct(text=chunk.delta.text)]
             if chunk.delta.type == "thinking_delta":
-                return ContentThinkingDelta(thinking=chunk.delta.thinking)
-        return None
+                return [ContentThinkingDelta(thinking=chunk.delta.thinking)]
+        return []
 
     def stream_merge_chunks(self, completion, chunk):
         if chunk.type == "message_start":
