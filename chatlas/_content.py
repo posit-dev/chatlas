@@ -659,7 +659,7 @@ class ContentUploaded(Content):
     ----------
     id
         The provider's file identifier (OpenAI/Anthropic `file_id`, or a
-        Google/Vertex URI such as `files/abc` or `gs://bucket/obj`).
+        Google/Vertex URI such as `https://.../files/abc` or `gs://bucket/obj`).
     mime_type
         The file's MIME type. Determines image-vs-document serialization and is
         required by Google's file references.
@@ -675,7 +675,7 @@ class ContentUploaded(Content):
     id: str
     mime_type: str
     provider: str
-    extra: dict[str, Any] = {}
+    extra: dict[str, Any] = Field(default_factory=dict)
 
     content_type: ContentTypeEnum = "uploaded"
 
