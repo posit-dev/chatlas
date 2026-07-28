@@ -1,8 +1,14 @@
 import pytest
 import requests
 from chatlas import ChatGoogle, ChatVertex, tool_web_fetch, tool_web_search
+from chatlas._provider_google import GoogleProvider
 from chatlas._provider_google import (
     normalize_finish_reason as google_normalize_finish_reason,
+)
+from chatlas.types import (
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
 )
 from google.genai.errors import APIError
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
@@ -197,16 +203,99 @@ def test_data_extraction():
     assert_data_extraction(chat_func)
 
 
+def _contents_of_type(chat, cls: type):
+    return [c for turn in chat.get_turns() for c in turn.contents if isinstance(c, cls)]
+
+
 @pytest.mark.vcr
 @retry_gemini_call
 def test_google_web_fetch():
-    assert_tool_web_fetch(chat_func, tool_web_fetch())
+    chat = assert_tool_web_fetch(chat_func, tool_web_fetch())
+    fetched = _contents_of_type(chat, ContentToolResponseFetch)
+    assert fetched and fetched[0].url
+    # The provider-native retrieval status is preserved for callers who want it
+    assert fetched[0].extra is not None
+    assert "URL_RETRIEVAL_STATUS" in str(fetched[0].extra["url_metadata"])
 
 
 @pytest.mark.vcr
 @retry_gemini_call
 def test_google_web_search():
-    assert_tool_web_search(chat_func, tool_web_search())
+    chat = assert_tool_web_search(
+        lambda: chat_func(model="gemini-2.5-flash"), tool_web_search()
+    )
+    # Gemini issued two queries for this prompt; each is its own request, so a
+    # renderer showing "searched for ..." doesn't silently drop the second.
+    queries = [c.query for c in _contents_of_type(chat, ContentToolRequestSearch)]
+    assert "ggplot2 1.0.0 CRAN release date" in queries
+    assert "ggplot2 release history" in queries
+    results = _contents_of_type(chat, ContentToolResponseSearch)
+    assert results and results[0].urls
+
+
+def _grounding_chunk(url: str, query: str, index: int | None = 0):
+    """A chunk carrying text plus the grounding metadata for that text."""
+    from google.genai.types import (
+        Candidate,
+        GenerateContentResponse,
+        GroundingChunk,
+        GroundingChunkWeb,
+        GroundingMetadata,
+        Part,
+    )
+    from google.genai.types import (
+        Content as GoogleContent,
+    )
+
+    return GenerateContentResponse(
+        candidates=[
+            Candidate(
+                content=GoogleContent(parts=[Part(text="text")], role="model"),
+                index=index,
+                grounding_metadata=GroundingMetadata(
+                    web_search_queries=[query],
+                    grounding_chunks=[
+                        GroundingChunk(web=GroundingChunkWeb(uri=url, title="t"))
+                    ],
+                ),
+            )
+        ]
+    )
+
+
+def test_google_late_grounding_metadata_not_dropped():
+    """Metadata on a later candidate must survive into the final turn.
+
+    Gemini has only ever been observed sending one metadata-bearing chunk, but
+    when candidates arrive without an `index` they don't merge, and collapsing
+    them first-wins would silently discard everything after the first.
+    """
+    provider = GoogleProvider(
+        model="gemini-2.5-flash", api_key="dummy", name="Google/Gemini", kwargs=None
+    )
+    chunks = [
+        _grounding_chunk("https://a.com", "q1", index=None),
+        _grounding_chunk("https://b.com", "q2", index=None),
+    ]
+
+    completion = None
+    for chunk in chunks:
+        completion = provider.stream_merge_chunks(completion, chunk)
+
+    assert completion is not None
+    turn = provider.stream_turn(completion, has_data_model=False)
+
+    queries = [
+        c.query for c in turn.contents if isinstance(c, ContentToolRequestSearch)
+    ]
+    assert queries == ["q1", "q2"]
+    urls = [
+        u
+        for c in turn.contents
+        if isinstance(c, ContentToolResponseSearch)
+        for u in c.urls
+    ]
+    assert urls == ["https://a.com", "https://b.com"]
 
 
 @pytest.mark.vcr
