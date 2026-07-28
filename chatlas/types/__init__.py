@@ -19,10 +19,12 @@ from .._content import (
     ContentToolResponseFetch,
     ContentToolResponseSearch,
     ContentToolResult,
+    ContentUploaded,
     ImageContentTypes,
     ToolAnnotations,
     ToolInfo,
 )
+from .._files import FileMetadata
 from .._parallel import StructuredChatResult
 from .._provider import ModelInfo
 from .._tokens import TokenUsage
@@ -45,6 +47,8 @@ __all__ = (
     "ContentToolResponseFetch",
     "ContentToolRequestSearch",
     "ContentToolResponseSearch",
+    "ContentUploaded",
+    "FileMetadata",
     "FinishReason",
     "StructuredChatResult",
     "ChatResponse",

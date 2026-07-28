@@ -140,6 +140,7 @@ ContentTypeEnum = Literal[
     "tool_result_resource",
     "json",
     "pdf",
+    "uploaded",
     "thinking",
     "thinking_delta",
     "web_search_request",
@@ -646,6 +647,40 @@ class ContentPDF(Content):
         return f"<PDF document file={self.filename} size={len(self.data)} bytes>"
 
 
+class ContentUploaded(Content):
+    """
+    A reference to a file already uploaded to a provider.
+
+    Returned by `chat.files.upload(...)` and usable directly in `.chat()` so the
+    file bytes are not re-sent each turn. Can also be constructed directly to
+    reference a file uploaded out-of-band (e.g. a Google Vertex `gs://` URI).
+
+    Parameters
+    ----------
+    id
+        The provider's file identifier (OpenAI/Anthropic `file_id`, or a
+        Google/Vertex URI such as `files/abc` or `gs://bucket/obj`).
+    mime_type
+        The file's MIME type. Determines image-vs-document serialization and is
+        required by Google's file references.
+    provider
+        The provider the file was uploaded to (`"openai"`, `"anthropic"`, or
+        `"google"`). Used to detect cross-provider misuse.
+    extra
+        Provider-native metadata (filename, size, ...) when available.
+    """
+
+    id: str
+    mime_type: str
+    provider: str
+    extra: dict[str, Any] = {}
+
+    content_type: ContentTypeEnum = "uploaded"
+
+    def __str__(self):
+        return f"<uploaded file id={self.id} mime_type={self.mime_type}>"
+
+
 class ContentThinking(Content):
     """
     Thinking/reasoning content
@@ -668,9 +703,7 @@ class ContentThinking(Content):
 
     @field_serializer("extra")
     @classmethod
-    def serialize_extra(
-        cls, v: Optional[dict[str, Any]]
-    ) -> Optional[dict[str, Any]]:
+    def serialize_extra(cls, v: Optional[dict[str, Any]]) -> Optional[dict[str, Any]]:
         if v is None:
             return None
         return serialize_dict_with_bytes(v)
@@ -847,6 +880,7 @@ ContentUnion = Union[
     ContentToolResult,
     ContentJson,
     ContentPDF,
+    ContentUploaded,
     ContentThinking,
     ContentToolRequestSearch,
     ContentToolResponseSearch,
@@ -931,6 +965,8 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentJson.model_validate(data)
     elif ct == "pdf":
         return ContentPDF.model_validate(data)
+    elif ct == "uploaded":
+        return ContentUploaded.model_validate(data)
     elif ct == "thinking":
         return ContentThinking.model_validate(data)
     elif ct == "web_search_request":
