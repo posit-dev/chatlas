@@ -20,6 +20,7 @@ from ._chat import Chat
 from ._content import (
     PROVIDER_ANNOTATION_TYPES,
     Content,
+    ContentAudio,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -702,6 +703,12 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
                 "detail": "auto",
             },
             role,
+        )
+    elif isinstance(content, ContentAudio):
+        raise NotImplementedError(
+            "Audio input isn't supported by the OpenAI Responses API. Use "
+            "ChatOpenAICompletions() (Chat Completions API) or ChatGoogle() "
+            "instead."
         )
     elif isinstance(content, ContentPDF):
         return as_message(

@@ -21,6 +21,7 @@ from ._chat import Chat
 from ._content import (
     PROVIDER_ANNOTATION_TYPES,
     Content,
+    ContentAudio,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -830,6 +831,11 @@ class AnthropicProvider(
                     "url": content.url,
                 },
             }
+        elif isinstance(content, ContentAudio):
+            raise NotImplementedError(
+                "Audio input isn't supported by Anthropic. Use ChatGoogle() or "
+                "ChatOpenAICompletions() instead."
+            )
         elif isinstance(content, ContentToolRequest):
             return {
                 "type": "tool_use",

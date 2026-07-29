@@ -10,7 +10,7 @@ from chatlas import (
     tool_web_fetch,
     tool_web_search,
 )
-from chatlas._content import ContentUploaded
+from chatlas._content import ContentAudio, ContentUploaded
 from chatlas._provider_anthropic import _ANTHROPIC_FINISH_REASON_MAP, AnthropicProvider
 from chatlas._provider_anthropic import (
     normalize_finish_reason as anthropic_normalize_finish_reason,
@@ -228,6 +228,12 @@ def test_anthropic_images():
 @pytest.mark.vcr
 def test_anthropic_pdfs():
     assert_pdf_local(chat_func)
+
+
+def test_anthropic_audio_input_not_supported():
+    c = ContentAudio(data=b"\x00\x01", mime_type="audio/wav")
+    with pytest.raises(NotImplementedError, match="Audio input isn't supported"):
+        AnthropicProvider._as_content_block(c)
 
 
 def test_anthropic_uploaded_document_block():

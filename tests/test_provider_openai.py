@@ -3,7 +3,7 @@ import warnings
 import httpx
 import pytest
 from chatlas import ChatOpenAI, tool_web_search
-from chatlas._content import ContentUploaded
+from chatlas._content import ContentAudio, ContentUploaded
 from chatlas._provider_openai import as_input_param
 from chatlas._provider_openai import (
     normalize_finish_reason as openai_normalize_finish_reason,
@@ -84,6 +84,12 @@ def test_openai_uploaded_image_serializes_to_input_image():
 def test_openai_uploaded_wrong_provider_raises():
     c = ContentUploaded(id="x", mime_type="application/pdf", provider="anthropic")
     with pytest.raises(ValueError, match="uploaded to provider 'anthropic'"):
+        as_input_param(c, role="user")
+
+
+def test_openai_audio_input_not_supported():
+    c = ContentAudio(data=b"\x00\x01", mime_type="audio/wav")
+    with pytest.raises(NotImplementedError, match="Audio input isn't supported"):
         as_input_param(c, role="user")
 
 
