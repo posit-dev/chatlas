@@ -1,0 +1,115 @@
+---
+title: Reasoning
+callout-appearance: simple
+---
+
+Modern frontier models can "think" before they answer: they spend tokens working through a problem privately before committing to a response.
+This tends to produce better answers on hard problems (math, code, multi-step planning), at the cost of extra latency and output tokens.
+Providers expose this in different ways and under different names -- reasoning, thinking, thoughts -- but chatlas gives you one consistent interface to enable it, see it, and program against it.
+
+## Enabling reasoning
+
+Reasoning-capable providers accept a `reasoning` parameter when you construct the chat client.
+The simplest option is a string effort level, which works the same way across providers:
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatAnthropic(reasoning="medium")
+chat.chat("What's the average airspeed velocity of an unladen swallow?")
+```
+
+```python
+chat = ctl.ChatOpenAI(reasoning="medium")
+chat = ctl.ChatGoogle(reasoning="medium")
+```
+
+`"low"`, `"medium"`, and `"high"` are accepted everywhere; individual providers offer more (e.g., [`ChatAnthropic()`](../reference/ChatAnthropic.qmd) goes up to `"max"`, and [`ChatGoogle()`](../reference/ChatGoogle.qmd) down to `"minimal"`).
+Your IDE will autocomplete the levels available for the provider you're using, and each provider's reference page documents its full set.
+[`ChatAzureOpenAI()`](../reference/ChatAzureOpenAI.qmd) and [`ChatBedrockAnthropic()`](../reference/ChatBedrockAnthropic.qmd) take `reasoning` too (Bedrock accepts a token budget rather than an effort level).
+
+If you'd rather control the budget directly, `ChatAnthropic()` and `ChatGoogle()` also accept an integer number of tokens to allocate to reasoning:
+
+```python
+chat = ctl.ChatAnthropic(reasoning=2048)
+```
+
+And for full control, pass the provider's native configuration type:
+
+```python
+chat = ctl.ChatOpenAI(reasoning={"effort": "high", "summary": "detailed"})
+```
+
+::: callout-note
+## Open models think on their own
+
+Many open-weight models (e.g., DeepSeek R1, Qwen QwQ) decide for themselves when to think -- there's no parameter to set.
+[`ChatDeepSeek()`](../reference/ChatDeepSeek.qmd), [`ChatOllama()`](../reference/ChatOllama.qmd), and [`ChatOpenAICompletions()`](../reference/ChatOpenAICompletions.qmd) (LM Studio, vLLM, etc.) capture that reasoning automatically.
+:::
+
+## Seeing reasoning {#seeing-reasoning}
+
+When reasoning is enabled, [`.chat()`](../reference/Chat.qmd#chat) shows it to you as it streams.
+At the console, reasoning appears in a Thinking panel ahead of the response:
+
+```
+╭─ Thinking ───────────────────────────────────────────────╮
+│ Let me work through this. 2+2 is a basic addition        │
+│ problem, so the answer is 4.                             │
+╰──────────────────────────────────────────────────────────╯
+
+The answer is **4**.
+```
+
+Reasoning can get long, so the panel is capped: it keeps the most recent lines (10 by default) and the title notes how many earlier lines scrolled away (e.g., `Thinking (… 12 earlier lines)`).
+Tune this with [`.set_echo_options()`](../reference/Chat.qmd#set_echo_options) -- pass `thinking_max_lines=None` to keep it all.
+
+In a notebook, reasoning renders as a collapsible "Thinking" block instead: open while the model is thinking, collapsed once the response arrives, so it never crowds out the answer.
+
+How much you see is controlled by the `echo` parameter.
+The default (`echo="output"`) includes reasoning and [tool calls](tools.qmd); `echo="text"` shows just the model's answer; `echo="none"` shows nothing at all.
+
+## Accessing reasoning programmatically {#programmatic-access}
+
+For text, reasoning stays out of your way: `str()` on a [`.chat()`](chat.qmd) result and the chunks from [`.stream()`](stream.qmd) contain only the model's answer.
+To consume reasoning yourself -- say, to render it in a [chatbot](chatbots.qmd) UI -- set `content="all"` and the stream yields rich content objects as they're generated:
+
+```python
+stream = chat.stream("What is 2+2?", content="all")
+for chunk in stream:
+    print(type(chunk))
+```
+
+```
+<class 'chatlas._content.ContentThinkingDelta'>
+<class 'chatlas._content.ContentThinkingDelta'>
+<class 'str'>
+<class 'str'>
+```
+
+Each [`ContentThinkingDelta`](../reference/types.ContentThinkingDelta.qmd) carries a fragment of reasoning text (`.thinking`), plus a `.phase` (`"start"`, `"body"`, or `"end"`) marking where one thinking block begins and ends -- handy for opening and closing a collapsible region in your UI.
+This is the same pattern used for [displaying tool calls](../tool-calling/displays.qmd) in bespoke apps.
+
+Once the response completes, the reasoning is stored on the assistant turn as [`ContentThinking`](../reference/types.ContentThinking.qmd):
+
+```python
+turn = chat.get_last_turn()
+print([type(c).__name__ for c in turn.contents])
+```
+
+```
+['ContentThinking', 'ContentText']
+```
+
+## Reasoning across turns {#reasoning-across-turns}
+
+You generally don't need to think about what happens to reasoning on the *next* request -- chatlas handles each provider's requirements for you:
+
+- **Anthropic** returns its full thinking and requires it to be replayed (with cryptographic signatures) for subsequent requests, which chatlas does automatically.
+- **OpenAI** keeps raw reasoning private and returns only a summary.
+  chatlas also requests the *encrypted* reasoning and sends it back on your behalf, so multi-turn reasoning works without OpenAI-side state.
+- **OpenAI-compatible backends** vary: most expect prior reasoning to be dropped from the conversation, which is what [`ChatOpenAICompletions()`](../reference/ChatOpenAICompletions.qmd) does by default (the reasoning stays on the turn -- it's just not sent back).
+  Pass `preserve_thinking=True` for backends that want it replayed, as [`ChatDeepSeek()`](../reference/ChatDeepSeek.qmd) does.
+
+One thing to keep in mind: reasoning tokens are billed as *output* tokens, so higher effort levels cost more.
+See [monitoring](monitor.qmd) for keeping an eye on token usage and cost.
