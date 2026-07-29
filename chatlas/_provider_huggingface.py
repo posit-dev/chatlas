@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
+from ._api_headers import ApiHeaders
 from ._chat import Chat
 from ._logging import log_model_default
 from ._provider_openai_completions import OpenAICompletionsProvider
@@ -17,7 +18,8 @@ def ChatHuggingFace(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    api_key: Optional[str | Callable[[], str]] = None,
+    api_headers: Optional[ApiHeaders] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", ChatCompletion]:
     """
@@ -63,6 +65,11 @@ def ChatHuggingFace(
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `HUGGINGFACE_API_KEY` environment
         variable.
+    api_headers
+        Extra HTTP headers to include with every chat API request. Can be a dict
+        of ``{header_name: header_value}`` pairs, or a zero-argument callable
+        returning such a dict. A callable is invoked on every request,
+        enabling dynamic auth patterns like token refresh.
     kwargs
         Additional arguments to pass to the underlying OpenAI client
         constructor.
@@ -131,6 +138,7 @@ def ChatHuggingFace(
         provider=HuggingFaceProvider(
             api_key=api_key,
             model=model,
+            api_headers=api_headers,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -141,8 +149,9 @@ class HuggingFaceProvider(OpenAICompletionsProvider):
     def __init__(
         self,
         *,
-        api_key: Optional[str] = None,
+        api_key: Optional[str | Callable[[], str]] = None,
         model: str,
+        api_headers: Optional[ApiHeaders] = None,
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         # https://huggingface.co/docs/inference-providers/en/index?python-clients=requests#http--curl
@@ -151,5 +160,6 @@ class HuggingFaceProvider(OpenAICompletionsProvider):
             model=model,
             api_key=api_key,
             base_url="https://router.huggingface.co/v1",
+            api_headers=api_headers,
             kwargs=kwargs,
         )

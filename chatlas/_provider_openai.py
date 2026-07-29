@@ -4,7 +4,7 @@ import base64
 import mimetypes
 import warnings
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Literal, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, Literal, Optional, cast
 from urllib.parse import urlparse
 
 import orjson
@@ -17,6 +17,7 @@ from openai.types.responses.response_function_web_search import (
 from openai.types.responses.response_output_text import AnnotationURLCitation
 from pydantic import BaseModel
 
+from ._api_headers import ApiHeaders
 from ._chat import Chat
 from ._content import (
     PROVIDER_ANNOTATION_TYPES,
@@ -76,7 +77,8 @@ def ChatOpenAI(
     service_tier: Optional[
         Literal["auto", "default", "flex", "scale", "priority"]
     ] = None,
-    api_key: Optional[str] = None,
+    api_key: Optional[str | Callable[[], str]] = None,
+    api_headers: Optional[ApiHeaders] = None,
     kwargs: Optional["ChatClientArgs"] = None,
 ) -> Chat["SubmitInputArgs", Response]:
     """
@@ -134,6 +136,11 @@ def ChatOpenAI(
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `OPENAI_API_KEY` environment
         variable.
+    api_headers
+        Extra HTTP headers to include with every chat API request. Can be a dict
+        of ``{header_name: header_value}`` pairs, or a zero-argument callable
+        returning such a dict. A callable is invoked on every request,
+        enabling dynamic auth patterns like token refresh.
     kwargs
         Additional arguments to pass to the `openai.OpenAI()` client
         constructor.
@@ -206,6 +213,7 @@ def ChatOpenAI(
             api_key=api_key,
             model=model,
             base_url=base_url,
+            api_headers=api_headers,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -251,7 +259,10 @@ class OpenAIProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        return self._client.responses.create(**kwargs)  # type: ignore
+        return self._client.responses.create(  # type: ignore
+            **kwargs,
+            extra_headers=self._get_extra_headers(),
+        )
 
     async def chat_perform_async(
         self,
@@ -263,7 +274,10 @@ class OpenAIProvider(
         kwargs: Optional["SubmitInputArgs"] = None,
     ):
         kwargs = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
-        return await self._async_client.responses.create(**kwargs)  # type: ignore
+        return await self._async_client.responses.create(  # type: ignore
+            **kwargs,
+            extra_headers=self._get_extra_headers(),
+        )
 
     def _chat_perform_args(
         self,

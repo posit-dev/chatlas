@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
+from ._api_headers import ApiHeaders
 from ._chat import Chat
 from ._logging import log_model_default
 from ._provider_openai_completions import OpenAICompletionsProvider
@@ -18,7 +19,8 @@ def ChatMistral(
     *,
     system_prompt: Optional[str] = None,
     model: Optional[str] = None,
-    api_key: Optional[str] = None,
+    api_key: Optional[str | Callable[[], str]] = None,
+    api_headers: Optional[ApiHeaders] = None,
     base_url: str = "https://api.mistral.ai/v1/",
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
@@ -65,6 +67,11 @@ def ChatMistral(
         The API key to use for authentication. You generally should not supply
         this directly, but instead set the `MISTRAL_API_KEY` environment
         variable.
+    api_headers
+        Extra HTTP headers to include with every chat API request. Can be a dict
+        of ``{header_name: header_value}`` pairs, or a zero-argument callable
+        returning such a dict. A callable is invoked on every request,
+        enabling dynamic auth patterns like token refresh.
     base_url
         The base URL to the endpoint; the default uses Mistral AI.
     seed
@@ -130,6 +137,7 @@ def ChatMistral(
             model=model,
             base_url=base_url,
             seed=seed,
+            api_headers=api_headers,
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
@@ -140,11 +148,12 @@ class MistralProvider(OpenAICompletionsProvider):
     def __init__(
         self,
         *,
-        api_key: Optional[str] = None,
+        api_key: Optional[str | Callable[[], str]] = None,
         model: str,
         base_url: str = "https://api.mistral.ai/v1/",
         seed: Optional[int] = None,
         name: str = "Mistral",
+        api_headers: Optional[ApiHeaders] = None,
         kwargs: Optional["ChatClientArgs"] = None,
     ):
         super().__init__(
@@ -153,6 +162,7 @@ class MistralProvider(OpenAICompletionsProvider):
             base_url=base_url,
             seed=seed,
             name=name,
+            api_headers=api_headers,
             kwargs=kwargs,
         )
 
