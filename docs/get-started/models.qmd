@@ -24,6 +24,7 @@ To see the pre-requisites for a given provider, visit the relevant usage page in
 | Google (Vertex)          | [`ChatVertex()`](../reference/ChatVertex.qmd)           | ✅ |
 | GitHub model marketplace | [`ChatGithub()`](../reference/ChatGithub.qmd)           |    |
 | Ollama (local models)    | [`ChatOllama()`](../reference/ChatOllama.qmd)           |    |
+| LM Studio (local models) | [`ChatLMStudio()`](../reference/ChatLMStudio.qmd)       |    |
 | Open Router              | [`ChatOpenRouter()`](../reference/ChatOpenRouter.qmd)   |    |
 | DeepSeek                 | [`ChatDeepSeek()`](../reference/ChatDeepSeek.qmd)       |    |
 | Hugging Face             | [`ChatHuggingFace()`](../reference/ChatHuggingFace.qmd) |    |
@@ -34,6 +35,7 @@ To see the pre-requisites for a given provider, visit the relevant usage page in
 | perplexity.ai            | [`ChatPerplexity()`](../reference/ChatPerplexity.qmd)   |    |
 | Cloudflare               | [`ChatCloudflare()`](../reference/ChatCloudflare.qmd)   |    |
 | Portkey                  | [`ChatPortkey()`](../reference/ChatPortkey.qmd)         | ✅ |
+| Posit AI                 | [`ChatPosit()`](../reference/ChatPosit.qmd)             | ✅ |
 
 
 ::: callout-tip

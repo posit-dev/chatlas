@@ -6,9 +6,14 @@ from chatlas._content import (
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentUploaded,
 )
 from chatlas._provider_openai_completions import OpenAICompletionsProvider
-from chatlas._turn import AssistantTurn
+from chatlas._provider_openai_completions import (
+    normalize_finish_reason as completions_normalize_finish_reason,
+)
+from chatlas._turn import AssistantTurn, UserTurn
+from openai.types.chat import ChatCompletion
 
 from .conftest import (
     assert_data_extraction,
@@ -26,6 +31,21 @@ from .conftest import (
 )
 
 
+def test_normalize_finish_reason_maps_known_reasons():
+    assert completions_normalize_finish_reason("stop") == "success"
+    assert completions_normalize_finish_reason("length") == "max_tokens"
+    assert completions_normalize_finish_reason("content_filter") == "content_filter"
+    assert completions_normalize_finish_reason("tool_calls") == "tool_use"
+
+
+def test_normalize_finish_reason_passes_through_unknown():
+    assert completions_normalize_finish_reason("function_call") == "function_call"
+
+
+def test_normalize_finish_reason_handles_none():
+    assert completions_normalize_finish_reason(None) is None
+
+
 @pytest.mark.vcr
 def test_openai_simple_request():
     chat = ChatOpenAICompletions(
@@ -38,7 +58,7 @@ def test_openai_simple_request():
     assert len(turn.tokens) == 3
     assert turn.tokens[0] == 26
     # Not testing turn.tokens[1] because it's not deterministic. Typically 1 or 2.
-    assert turn.finish_reason == "stop"
+    assert turn.finish_reason == "success"
 
 
 @pytest.mark.vcr
@@ -53,7 +73,7 @@ async def test_openai_simple_streaming_request():
     assert "2" in "".join(res)
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.finish_reason == "stop"
+    assert turn.finish_reason == "success"
 
 
 @pytest.mark.vcr
@@ -137,14 +157,12 @@ def test_stream_content_extracts_reasoning_content():
             self.choices = choices
 
     chunk = FakeChunk([FakeChoice(FakeDelta(reasoning_content="think"))])
-    result = provider.stream_content(chunk)
-    assert isinstance(result, ContentThinkingDelta)
-    assert result.thinking == "think"
+    result = provider.stream_content(chunk, None)
+    assert result == [ContentThinkingDelta(thinking="think")]
 
     chunk = FakeChunk([FakeChoice(FakeDelta(content="hello"))])
-    result = provider.stream_content(chunk)
-    assert isinstance(result, ContentText)
-    assert result.text == "hello"
+    result = provider.stream_content(chunk, None)
+    assert result == [ContentText(text="hello")]
 
 
 def test_response_as_turn_extracts_reasoning_content():
@@ -185,9 +203,8 @@ def test_stream_content_extracts_reasoning_field():
             self.choices = choices
 
     chunk = FakeChunk([FakeChoice(FakeDelta(reasoning="think"))])
-    result = provider.stream_content(chunk)
-    assert isinstance(result, ContentThinkingDelta)
-    assert result.thinking == "think"
+    result = provider.stream_content(chunk, None)
+    assert result == [ContentThinkingDelta(thinking="think")]
 
 
 def test_response_as_turn_extracts_reasoning_field():
@@ -256,9 +273,7 @@ def test_response_as_turn_treats_empty_content_as_none():
     message.reasoning = None
     message.reasoning_content = None
     message.content = ""
-    message.tool_calls = [
-        Mock(type="function", id="call_1", function=mock_func)
-    ]
+    message.tool_calls = [Mock(type="function", id="call_1", function=mock_func)]
     completion.choices = [Mock(message=message, finish_reason="stop")]
 
     turn = OpenAICompletionsProvider._response_as_turn(completion, has_data_model=False)
@@ -284,6 +299,35 @@ def test_turns_as_inputs_drops_empty_content_text():
     assert result[0]["content"] == [{"type": "text", "text": "Hello"}]
 
 
+def test_completions_uploaded_document_serializes():
+    provider = OpenAICompletionsProvider(model="gpt-4o")
+    turn = UserTurn(
+        [ContentUploaded(id="file_1", mime_type="application/pdf", provider="openai")]
+    )
+    msgs = provider._turns_as_inputs([turn])
+    part = msgs[-1]["content"][0]
+    assert part["type"] == "file"
+    assert part["file"]["file_id"] == "file_1"
+
+
+def test_completions_uploaded_image_raises():
+    provider = OpenAICompletionsProvider(model="gpt-4o")
+    turn = UserTurn(
+        [ContentUploaded(id="img_1", mime_type="image/png", provider="openai")]
+    )
+    with pytest.raises(ValueError, match="Chat Completions API"):
+        provider._turns_as_inputs([turn])
+
+
+def test_completions_uploaded_wrong_provider_raises():
+    provider = OpenAICompletionsProvider(model="gpt-4o")
+    turn = UserTurn(
+        [ContentUploaded(id="x", mime_type="application/pdf", provider="anthropic")]
+    )
+    with pytest.raises(ValueError, match="uploaded to provider 'anthropic'"):
+        provider._turns_as_inputs([turn])
+
+
 def test_turns_as_inputs_empty_text_with_tool_request():
     """Empty ContentText is stripped but tool requests are preserved."""
     provider = OpenAICompletionsProvider(model="test")
@@ -299,3 +343,39 @@ def test_turns_as_inputs_empty_text_with_tool_request():
     assert result[0]["role"] == "assistant"
     assert "content" not in result[0]
     assert len(result[0]["tool_calls"]) == 1
+
+
+def truncated_structured_completion() -> "ChatCompletion":
+    """A structured-output response cut short by the token limit (gh-315)."""
+    return ChatCompletion.construct(
+        id="c1",
+        object="chat.completion",
+        created=0,
+        model="gpt-4.1-nano",
+        choices=[
+            {
+                "index": 0,
+                "finish_reason": "length",
+                "message": {
+                    "role": "assistant",
+                    "content": '{"comments": [{"body": "trunc',
+                },
+            }
+        ],
+    )
+
+
+def test_openai_completions_truncated_structured_output_errors_helpfully():
+    with pytest.raises(ValueError, match="max_tokens"):
+        OpenAICompletionsProvider._response_as_turn(
+            truncated_structured_completion(), has_data_model=True
+        )
+
+
+def test_openai_completions_truncated_plain_text_still_returns_a_turn():
+    turn = OpenAICompletionsProvider._response_as_turn(
+        truncated_structured_completion(), has_data_model=False
+    )
+
+    assert turn.text == '{"comments": [{"body": "trunc'
+    assert turn.finish_reason == "max_tokens"

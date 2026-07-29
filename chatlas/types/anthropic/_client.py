@@ -3,9 +3,19 @@
 # ---------------------------------------------------------
 
 
-from typing import Any, Mapping, Optional, TypedDict
+from typing import (
+    Any,
+    Awaitable,
+    Callable,
+    Mapping,
+    Optional,
+    Sequence,
+    TypedDict,
+    Union,
+)
 
 import anthropic
+import anthropic._response
 import anthropic.lib.credentials._cache
 import anthropic.lib.credentials._types
 import httpx
@@ -24,6 +34,32 @@ class ChatClientArgs(TypedDict, total=False):
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
     http_client: httpx.AsyncClient | None
+    middleware: Optional[
+        Sequence[
+            Union[
+                anthropic.Middleware,
+                Callable[
+                    [
+                        anthropic.APIRequest,
+                        Callable[
+                            [anthropic.APIRequest], anthropic._response.APIResponse[Any]
+                        ],
+                    ],
+                    anthropic._response.APIResponse[Any],
+                ],
+                Callable[
+                    [
+                        anthropic.APIRequest,
+                        Callable[
+                            [anthropic.APIRequest],
+                            Awaitable[anthropic._response.AsyncAPIResponse[Any]],
+                        ],
+                    ],
+                    Awaitable[anthropic._response.AsyncAPIResponse[Any]],
+                ],
+            ]
+        ]
+    ]
     _strict_response_validation: bool
     _token_cache: (
         anthropic.lib.credentials._cache.TokenCache | None | anthropic.NotGiven

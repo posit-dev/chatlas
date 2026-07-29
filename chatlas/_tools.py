@@ -176,7 +176,7 @@ class Tool:
             # very well defined how to get at the error message, but it appears that it gets
             # stored in the `text` attribute of the content. Also, empirically, the error
             # message seems to include `Error executing tool {tool_name}: ...`, so
-            if result.isError:
+            if result.is_error:
                 err_msg = getattr(
                     result.content[0],
                     "text",
@@ -188,19 +188,19 @@ class Tool:
                 if content.type == "text":
                     yield ContentToolResult(value=content.text)
                 elif content.type == "image":
-                    if content.mimeType not in (
+                    if content.mime_type not in (
                         "image/png",
                         "image/jpeg",
                         "image/webp",
                         "image/gif",
                     ):
                         raise ValueError(
-                            f"Unsupported image MIME type: {content.mimeType}"
+                            f"Unsupported image MIME type: {content.mime_type}"
                         )
 
                     img = ContentImageInline(
                         data=content.data,
-                        image_content_type=content.mimeType,
+                        image_content_type=content.mime_type,
                     )
                     yield ContentToolResult(value=img)
                 elif content.type == "resource":
@@ -212,7 +212,7 @@ class Tool:
                     else:
                         blob = resource.blob.encode("utf-8")
 
-                    mime_type = content.resource.mimeType
+                    mime_type = content.resource.mime_type
                     if mime_type != "application/pdf":
                         raise ValueError(f"Unsupported resource MIME type: {mime_type}")
 
@@ -221,12 +221,16 @@ class Tool:
                 else:
                     raise RuntimeError(f"Unexpected content type: {content.type}")
 
-        params = mcp_tool_input_schema_to_param_schema(mcp_tool.inputSchema)
+        params = mcp_tool_input_schema_to_param_schema(mcp_tool.input_schema)
 
-        # Convert MCP ToolAnnotations to our TypedDict format
+        # Convert MCP ToolAnnotations to our TypedDict format. mcp 2.0 renamed
+        # its fields to snake_case, so dump by alias to keep the camelCase names
+        # that match the MCP wire spec (and chatlas's ToolAnnotations).
         annotations = None
         if mcp_tool.annotations:
-            annotations = cast(ToolAnnotations, mcp_tool.annotations.model_dump())
+            annotations = cast(
+                ToolAnnotations, mcp_tool.annotations.model_dump(by_alias=True)
+            )
 
         return cls(
             func=_utils.wrap_async(_call),

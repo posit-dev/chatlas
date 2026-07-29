@@ -7,6 +7,7 @@ from typing import Awaitable, Callable, Mapping, Optional, TypedDict, Union
 
 import httpx
 import openai
+import openai._provider
 import openai.auth._workload
 
 
@@ -17,6 +18,7 @@ class ChatClientArgs(TypedDict, total=False):
     organization: str | None
     project: str | None
     webhook_secret: str | None
+    provider: openai._provider._Provider | None
     base_url: str | httpx.URL | None
     websocket_base_url: str | httpx.URL | None
     timeout: float | openai.Timeout | None | openai.NotGiven

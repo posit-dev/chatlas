@@ -1,4 +1,4 @@
-name: Check Provider Types
+name: Check Provider Types & Pricing
 
 on:
   workflow_dispatch:
@@ -13,13 +13,18 @@ env:
   UV_VERSION: "0.4.x"
   PYTHON_VERSION: 3.13
 
+permissions:
+  contents: write
+
 jobs:
-  check-types-updated:
-    name: Check provider types
+  check-types-and-pricing:
+    name: Check provider types and pricing
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
 
       - name: 🚀 Install uv
         uses: astral-sh/setup-uv@v7
@@ -30,18 +35,43 @@ jobs:
       - name: 📦 Install the project
         run: uv sync --python ${{ env.PYTHON_VERSION }} --all-extras
 
-      - name: Run type update
-        run: make update-types
-
-      # Fail if there are changes under chatlas/types and throw a useful error message
-      - name: Check for changes
+      - name: Run type and pricing update
         run: |
-          echo "Checking for changes in types..."
-          git status chatlas/types
-          git diff --stat chatlas/types
-          if [[ -n $(git diff chatlas/types) ]]; then
-            echo "Changes detected:"
-            git diff chatlas/types
-            echo "::error::Types are out of date. Please run 'make update-types' and commit the changes."
-            exit 1
+          make update-types
+          make update-pricing
+
+      - name: Check for changes
+        id: check
+        run: |
+          echo "Checking for changes in types and pricing..."
+          git status chatlas/types chatlas/data/prices.json
+          git diff --stat chatlas/types chatlas/data/prices.json
+          if [[ -n $(git status --porcelain chatlas/types chatlas/data/prices.json) ]]; then
+            echo "dirty=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "dirty=false" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Commit and push fix (same-repo PRs only)
+        if: >
+          steps.check.outputs.dirty == 'true' &&
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add chatlas/types chatlas/data/prices.json
+          git commit -m "chore: update provider types and pricing data"
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          echo "::error::Provider types and/or pricing were out of date. A fix commit was pushed to this branch; CI will re-run automatically."
+          exit 1
+
+      - name: Fail with diff (fork PRs / push / workflow_dispatch / release)
+        if: >
+          steps.check.outputs.dirty == 'true' &&
+          !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+        run: |
+          git status --porcelain chatlas/types chatlas/data/prices.json
+          git diff chatlas/types chatlas/data/prices.json
+          echo "::error::Provider types and/or pricing are out of date. Please run 'make update-types' and 'make update-pricing' locally and commit the changes."
+          exit 1

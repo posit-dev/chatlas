@@ -41,6 +41,9 @@ class SubmitInputArgs(TypedDict, total=False):
     model: Union[
         str,
         Literal[
+            "gpt-5.6-sol",
+            "gpt-5.6-terra",
+            "gpt-5.6-luna",
             "gpt-5.4",
             "gpt-5.4-mini",
             "gpt-5.4-nano",
@@ -141,6 +144,9 @@ class SubmitInputArgs(TypedDict, total=False):
     max_tokens: Union[int, None, openai.Omit]
     metadata: Union[dict[str, str], None, openai.Omit]
     modalities: Union[list[Literal["text", "audio"]], None, openai.Omit]
+    moderation: Union[
+        openai.types.chat.completion_create_params.Moderation, None, openai.Omit
+    ]
     n: Union[int, None, openai.Omit]
     parallel_tool_calls: bool | openai.Omit
     prediction: Union[
@@ -149,10 +155,15 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.Omit,
     ]
     presence_penalty: Union[float, None, openai.Omit]
-    prompt_cache_key: str | openai.Omit
+    prompt_cache_key: Union[str, None, openai.Omit]
+    prompt_cache_options: (
+        openai.types.chat.completion_create_params.PromptCacheOptions | openai.Omit
+    )
     prompt_cache_retention: Union[Literal["in_memory", "24h"], None, openai.Omit]
     reasoning_effort: Union[
-        Literal["none", "minimal", "low", "medium", "high", "xhigh"], None, openai.Omit
+        Literal["none", "minimal", "low", "medium", "high", "xhigh", "max"],
+        None,
+        openai.Omit,
     ]
     response_format: Union[
         openai.types.shared_params.response_format_text.ResponseFormatText,
@@ -160,7 +171,7 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.types.shared_params.response_format_json_object.ResponseFormatJSONObject,
         openai.Omit,
     ]
-    safety_identifier: str | openai.Omit
+    safety_identifier: Union[str, None, openai.Omit]
     seed: Union[int, None, openai.Omit]
     service_tier: Union[
         Literal["auto", "default", "flex", "scale", "priority"], None, openai.Omit

@@ -90,7 +90,7 @@ async def test_anthropic_simple_streaming_request():
     assert "2" in "".join(res)
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.finish_reason == "end_turn"
+    assert turn.finish_reason == "success"
 
 
 @requires_bedrock

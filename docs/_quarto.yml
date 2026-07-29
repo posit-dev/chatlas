@@ -153,18 +153,21 @@ quartodoc:
         - ChatGoogle
         - ChatGroq
         - ChatHuggingFace
+        - ChatLMStudio
         - ChatMistral
         - ChatOllama
         - ChatOpenAI
         - ChatOpenRouter
         - ChatPerplexity
         - ChatPortkey
+        - ChatPosit
         - ChatSnowflake
         - ChatVertex
     - title: The chat object
       desc: Methods and attributes available on a chat instance
       contents:
         - Chat
+        - FileManager
     - title: Image input
       desc: Submit image input to the chat
       contents:
@@ -217,6 +220,7 @@ quartodoc:
     - title: User-facing types
       contents:
         - types.Content
+        - types.ContentCitation
         - types.ContentImage
         - types.ContentImageInline
         - types.ContentImageRemote
@@ -231,15 +235,19 @@ quartodoc:
         - types.ContentToolResponseSearch
         - types.ContentToolRequestFetch
         - types.ContentToolResponseFetch
+        - types.ContentUploaded
         - types.ChatResponse
         - types.ChatResponseAsync
+        - types.FileMetadata
         - types.ImageContentTypes
         - types.MISSING_TYPE
         - types.MISSING
+        - types.Source
         - types.SubmitInputArgsT
         - types.TokenUsage
         - types.ToolAnnotations
         - types.ToolInfo
+        - types.WebSource
 
 
 

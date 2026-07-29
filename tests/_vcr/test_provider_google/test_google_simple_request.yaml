@@ -4,29 +4,35 @@ interactions:
       "systemInstruction": {"parts": [{"text": "Be as terse as possible; no punctuation"}],
       "role": "user"}, "generationConfig": {"temperature": 0}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '214'
-      Content-Type:
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"2\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 18,\"candidatesTokenCount\":
+        1,\"totalTokenCount\": 135,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        18}],\"thoughtsTokenCount\": 116,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"KIFfapaQMca7jrEPwr7E0AM\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
+        \"EpcECpQEARFNMg87XCWlnQ6gqRdW9sWM4lt8JnU0a2g/YTOMoAT951jWO75cc2wpj77NfTDr4ekNOV3YD4+rqQTOFj4hbF84XHdF0SP7/+IDOBDs03GvuCJx9DC5VOqvrTFGf9eaUiWJ3RMTd7bpKxUz8KyzdexJ0cqz6zgXmqUKM4RybLIz/H14N473T41I5Cr/oVFTf+0Y+GuZa2Uw1zKggfZWawGJboScAAXQkmRbTIw1+VPNY5aIWSbuqizjo3v6hBX687hm00bCmLsO9wtIi5V5QU4GKPJemv5DsiESrWZv1BrYWvOkQ/vA7esPBFjKlHDAYTukElUcpshv+nOkJbtsU3hHawcBOI+om5ZUgOv0gF7zpAL/JlS17OmQR8jA1MBnxfnSQ4bU5+4PW62psBwCgwKnaoh8h1DYmQGYvxGmSMaBGZg5y2JRDsmnt7pjanM3EwHliswZHefVQMxtkDl54QKizXyMReImYYdLsXrIc4Bs/6OXh+xoniLmL0H4QVas6pd2xVZv56zzpJTi5F6+yzbok3oFErtV5Z6WDPU/HzrjHoo70WgmafYvaMn1iWXP6TISJGCpGAVI2wYFc984ut5EEzNE1smWpveWKEZ1z0F2HRQPEiXxAwo0RYs6pOUbcPPKRJ2eE6tsZ/2EZv5lUjogtFynTPxRkww78U/8nRzN5fxd/pQy/LtwngLzoAb1QFxSvw==\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
-        18,\"candidatesTokenCount\": 1,\"totalTokenCount\": 47,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 18}],\"thoughtsTokenCount\": 28},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"wbFVabfhLdql_uMPt9e6qAw\"}\r\n\r\n"
+        18,\"candidatesTokenCount\": 1,\"totalTokenCount\": 135,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 18}],\"thoughtsTokenCount\": 116,\"serviceTier\":
+        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"KIFfapaQMca7jrEPwr7E0AM\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -35,11 +41,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 23:29:05 GMT
+      - Tue, 21 Jul 2026 14:24:41 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=510
+      - gfet4t7; dur=1322
       Transfer-Encoding:
       - chunked
       Vary:

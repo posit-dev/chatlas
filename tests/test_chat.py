@@ -1,17 +1,19 @@
 import re
 import tempfile
+import warnings
 
 import pytest
 from chatlas import (
     AssistantTurn,
     ChatOpenAI,
+    ChatOpenAICompletions,
     ContentToolRequest,
     ContentToolResult,
     ToolRejectError,
     Turn,
     UserTurn,
 )
-from chatlas._chat import ToolFailureWarning
+from chatlas._chat import ToolFailureWarning, finalize_assistant_turn
 from pydantic import BaseModel
 
 
@@ -760,3 +762,52 @@ def test_content_add():
 
     # Mismatched types return NotImplemented
     assert a.__add__(t1) is NotImplemented
+
+
+def test_token_count_complete_includes_history_and_system():
+    chat = ChatOpenAICompletions(
+        model="gpt-4o", system_prompt="You are a terse assistant."
+    )
+    new_only = chat.token_count("hello there", include="new")
+
+    chat.set_turns(
+        [
+            UserTurn("a much earlier and quite lengthy question"),
+            AssistantTurn("an earlier answer", tokens=(5, 5, 0)),
+        ]
+    )
+    complete = chat.token_count("hello there", include="complete")
+
+    assert new_only > 0
+    assert complete > new_only
+
+
+def test_token_count_invalid_include_raises():
+    chat = ChatOpenAICompletions(model="gpt-4o")
+
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Expected `include` to be one of 'new' or 'complete', not 'bad_option'"
+        ),
+    ):
+        chat.token_count("hello", include="bad_option")  # type: ignore
+
+
+def test_truncated_plain_chat_warns():
+    # Structured extraction errors on a truncated response; plain chat keeps the
+    # partial text but shouldn't hand it back silently (gh-315).
+    chat = ChatOpenAI()
+    turn = AssistantTurn("partial ans", finish_reason="max_tokens")
+
+    with pytest.warns(UserWarning, match="max_tokens"):
+        finalize_assistant_turn(chat.provider, turn)
+
+
+def test_complete_plain_chat_does_not_warn():
+    chat = ChatOpenAI()
+    turn = AssistantTurn("full answer", finish_reason="success")
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        finalize_assistant_turn(chat.provider, turn)

@@ -13,6 +13,7 @@ from chatlas import (
     content_image_url,
     content_pdf_file,
 )
+from chatlas._content import ContentCitation, ContentText
 from pydantic import BaseModel
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -386,7 +387,19 @@ def assert_list_models(chat_fun: ChatFun):
 # ---------------------------------------------------------------------------
 
 
-def assert_tool_web_fetch(chat_fun: ChatFun, tool, stream: bool = True):
+def assert_citations_grounded(chat: Chat) -> None:
+    """Every non-None grounded_span must be a substring of the answer text."""
+    turn = chat.get_last_turn()
+    assert turn is not None
+    answer = "".join(c.text for c in turn.contents if isinstance(c, ContentText))
+    for c in turn.contents:
+        if isinstance(c, ContentCitation) and c.grounded_span is not None:
+            assert c.grounded_span in answer, (
+                f"grounded_span {c.grounded_span!r} not found in answer"
+            )
+
+
+def assert_tool_web_fetch(chat_fun: ChatFun, tool, stream: bool = True) -> Chat:
     """Test web fetch tool functionality."""
     chat = chat_fun()
     chat.register_tool(tool)
@@ -397,9 +410,12 @@ def assert_tool_web_fetch(chat_fun: ChatFun, tool, stream: bool = True):
 
     response = chat.chat("Who directed it?", stream=stream)
     assert "George Lucas" in str(response)
+    return chat
 
 
-def assert_tool_web_search(chat_fun: ChatFun, tool, hint: str = "", stream: bool = True):
+def assert_tool_web_search(
+    chat_fun: ChatFun, tool, hint: str = "", stream: bool = True
+) -> Chat:
     """Test web search tool functionality."""
     chat = chat_fun()
     chat.register_tool(tool)
@@ -415,6 +431,8 @@ def assert_tool_web_search(chat_fun: ChatFun, tool, hint: str = "", stream: bool
 
     response = chat.chat("What month was that?", stream=stream)
     assert "May" in str(response)
+    assert_citations_grounded(chat)
+    return chat
 
 
 retry_api_call = retry(
@@ -480,6 +498,10 @@ def make_vcr_config(match_on: list[str] = VCR_MATCH_ON_DEFAULT) -> dict:
         VCR configuration dictionary suitable for pytest-recording.
     """
     return {
+        # MCP tests spin up local subprocess servers; their traffic isn't a
+        # real API we need to record/replay, and routing it through VCR ties
+        # our cassettes to vcrpy's internal httpx-transport path formatting.
+        "ignore_localhost": True,
         "filter_headers": [
             "authorization",
             "x-api-key",

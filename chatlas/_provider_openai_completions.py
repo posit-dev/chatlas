@@ -28,13 +28,21 @@ from ._content import (
     ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
+    ContentUploaded,
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
-from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
+from ._turn import (
+    AssistantTurn,
+    FinishReason,
+    SystemTurn,
+    Turn,
+    UserTurn,
+    check_finish_reason,
+)
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -115,6 +123,21 @@ def ChatOpenAICompletions(
         ),
         system_prompt=system_prompt,
     )
+
+
+# https://platform.openai.com/docs/api-reference/chat/create
+_OPENAI_COMPLETIONS_FINISH_REASON_MAP: dict[str, FinishReason] = {
+    "stop": "success",
+    "tool_calls": "tool_use",
+    "length": "max_tokens",
+    "content_filter": "content_filter",
+}
+
+
+def normalize_finish_reason(reason: str | None) -> str | None:
+    if reason is None:
+        return None
+    return _OPENAI_COMPLETIONS_FINISH_REASON_MAP.get(reason, reason)
 
 
 class OpenAICompletionsProvider(
@@ -221,9 +244,9 @@ class OpenAICompletionsProvider(
 
         return kwargs_full
 
-    def stream_content(self, chunk) -> Optional[Content]:
+    def stream_content(self, chunk, completion) -> list[Content]:
         if not chunk.choices:
-            return None
+            return []
         delta = chunk.choices[0].delta
 
         # Some OpenAI-compatible providers (e.g. Ollama with qwen3) return
@@ -232,12 +255,12 @@ class OpenAICompletionsProvider(
             delta, "reasoning_content", None
         )
         if reasoning is not None:
-            return ContentThinkingDelta(thinking=reasoning)
+            return [ContentThinkingDelta(thinking=reasoning)]
 
         text = delta.content
         if text is None:
-            return None
-        return ContentText.model_construct(text=text)
+            return []
+        return [ContentText.model_construct(text=text)]
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()
@@ -375,6 +398,20 @@ class OpenAICompletionsProvider(
                                 },
                             }
                         )
+                    elif isinstance(x, ContentUploaded):
+                        if x.provider != "openai":
+                            raise ValueError(
+                                f"This file was uploaded to provider '{x.provider}', "
+                                "but is being used with an OpenAI-compatible chat. "
+                                "Re-upload it with a ChatOpenAI() chat."
+                            )
+                        if x.mime_type.startswith("image/"):
+                            raise ValueError(
+                                "Referencing an uploaded image by id isn't supported "
+                                "by the Chat Completions API. Use ChatOpenAI (Responses "
+                                "API), or pass the image inline via content_image_file()."
+                            )
+                        contents.append({"type": "file", "file": {"file_id": x.id}})
                     elif isinstance(x, ContentToolResult):
                         tool_results.append(
                             ChatCompletionToolMessageParam(
@@ -404,6 +441,11 @@ class OpenAICompletionsProvider(
     def _response_as_turn(
         completion: "ChatCompletion", has_data_model: bool
     ) -> AssistantTurn[ChatCompletion]:
+        finish_reason = normalize_finish_reason(completion.choices[0].finish_reason)
+        if has_data_model:
+            # Must precede the JSON parse below; see check_finish_reason().
+            check_finish_reason(finish_reason, "error")
+
         message = completion.choices[0].message
 
         contents: list[Content] = []
@@ -444,7 +486,7 @@ class OpenAICompletionsProvider(
 
         return AssistantTurn(
             contents,
-            finish_reason=completion.choices[0].finish_reason,
+            finish_reason=finish_reason,
             completion=completion,
         )
 

@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import base64
+import re
+import time
+import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
 import orjson
@@ -8,7 +12,9 @@ from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
+    PROVIDER_ANNOTATION_TYPES,
     Content,
+    ContentCitation,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -17,25 +23,53 @@ from ._content import (
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentToolRequestFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
     ContentToolResult,
+    ContentUploaded,
+    WebSource,
 )
+from ._files import FileMetadata, maybe_write
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._provider import ModelInfo, Provider, StandardModelParamNames, StandardModelParams
+from ._provider import (
+    BatchStatus,
+    ModelInfo,
+    Provider,
+    StandardModelParamNames,
+    StandardModelParams,
+)
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
+from ._turn import (
+    AssistantTurn,
+    FinishReason,
+    SystemTurn,
+    Turn,
+    UserTurn,
+    check_finish_reason,
+)
 
 if TYPE_CHECKING:
+    import io
+    import os
+    from typing import IO
+
     from google.genai.types import Content as GoogleContent
+    from google.genai.types import File as GoogleFile
     from google.genai.types import (
         GenerateContentConfigDict,
         GenerateContentResponse,
         GenerateContentResponseDict,
+        GroundingMetadataDict,
         Part,
         PartDict,
         ThinkingConfigDict,
+        UploadFileConfigDict,
+        UrlContextMetadataDict,
     )
 
     from .types.google import ChatClientArgs, SubmitInputArgs
@@ -158,7 +192,7 @@ def ChatGoogle(
     """
 
     if model is None:
-        model = log_model_default("gemini-2.5-flash")
+        model = log_model_default("gemini-3.5-flash")
 
     kwargs_chat: "SubmitInputArgs" = {}
     if reasoning is not None:
@@ -188,6 +222,24 @@ def ChatGoogle(
         system_prompt=system_prompt,
         kwargs_chat=kwargs_chat,
     )
+
+
+# https://ai.google.dev/api/generate-content
+_GOOGLE_FINISH_REASON_MAP: dict[str, FinishReason] = {
+    "STOP": "success",
+    "MAX_TOKENS": "max_tokens",
+    "SAFETY": "content_filter",
+    "RECITATION": "content_filter",
+    "BLOCKLIST": "content_filter",
+    "PROHIBITED_CONTENT": "content_filter",
+    "SPII": "content_filter",
+}
+
+
+def normalize_finish_reason(reason: str | None) -> str | None:
+    if reason is None:
+        return None
+    return _GOOGLE_FINISH_REASON_MAP.get(reason, reason)
 
 
 class GoogleProvider(
@@ -331,6 +383,7 @@ class GoogleProvider(
             FunctionDeclaration,
             GenerateContentConfig,
             Schema,
+            ToolConfig,
             ToolListUnion,
         )
         from google.genai.types import Tool as GoogleTool
@@ -357,7 +410,14 @@ class GoogleProvider(
 
         if tools:
             google_tools: ToolListUnion = []
+            has_builtin_tool = False
+            has_custom_tool = False
             for tool in tools.values():
+                if isinstance(tool, ToolBuiltIn):
+                    has_builtin_tool = True
+                else:
+                    has_custom_tool = True
+
                 if isinstance(tool, ToolWebSearch):
                     gtool = GoogleTool(google_search=tool.get_definition("google"))
                     google_tools.append(gtool)
@@ -388,27 +448,58 @@ class GoogleProvider(
             if google_tools:
                 config.tools = google_tools
 
+            # Mixing built-in and custom tools requires an explicit opt-in on
+            # Gemini 3+ models. `include_server_side_tool_invocations` is only
+            # valid for the Gemini Developer API, not Vertex AI, which raises
+            # a client-side error if it's set at all.
+            if (
+                has_builtin_tool
+                and has_custom_tool
+                and self.name == "Google/Gemini"
+                and google_supports_mixed_tools(self.model)
+            ):
+                if config.tool_config is None:
+                    config.tool_config = ToolConfig(
+                        include_server_side_tool_invocations=True
+                    )
+                else:
+                    config.tool_config.include_server_side_tool_invocations = True
+
         kwargs_full["config"] = config
 
         return kwargs_full
 
-    def stream_content(self, chunk) -> Optional[Content]:
+    def stream_content(self, chunk, completion) -> list[Content]:
         candidates = getattr(chunk, "candidates", None)
         if not candidates:
-            return None
-        content = candidates[0].content
-        if content is None:
-            return None
-        parts = content.parts
-        if not parts:
-            return None
-        part = parts[0]
-        text = getattr(part, "text", None)
-        if text is None:
-            return None
-        if getattr(part, "thought", None):
-            return ContentThinkingDelta(thinking=text)
-        return ContentText.model_construct(text=text)
+            return []
+        candidate = candidates[0]
+        content = candidate.content
+        part_contents: list[Content] = []
+        if content is not None:
+            parts = content.parts
+            if parts:
+                part = parts[0]
+                text = getattr(part, "text", None)
+                if text is not None:
+                    if getattr(part, "thought", None):
+                        part_contents.append(ContentThinkingDelta(thinking=text))
+                    else:
+                        part_contents.append(ContentText.model_construct(text=text))
+
+        grounding_metadata = getattr(candidate, "grounding_metadata", None)
+        url_context_metadata = getattr(candidate, "url_context_metadata", None)
+
+        grounding_contents: list[Content] = []
+        if grounding_metadata is not None:
+            gm_dict = grounding_metadata.model_dump()
+            grounding_contents.extend(google_search_contents(gm_dict))
+            grounding_contents.extend(google_grounding_citations(gm_dict))
+        if url_context_metadata is not None:
+            uc_dict = url_context_metadata.model_dump()
+            grounding_contents.extend(google_url_context_contents(uc_dict))
+
+        return part_contents + grounding_contents
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()
@@ -451,50 +542,39 @@ class GoogleProvider(
 
     def token_count(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
-    ):
-        kwargs = self._token_count_args(
-            *args,
-            tools=tools,
-            data_model=data_model,
-        )
-
+    ) -> int:
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
         res = self._client.models.count_tokens(**kwargs)
         return res.total_tokens or 0
 
     async def token_count_async(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
-    ):
-        kwargs = self._token_count_args(
-            *args,
-            tools=tools,
-            data_model=data_model,
-        )
-
+    ) -> int:
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
         res = await self._client.aio.models.count_tokens(**kwargs)
         return res.total_tokens or 0
 
     def _token_count_args(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> dict[str, Any]:
-        turn = user_turn(*args)
-
         kwargs = self._chat_perform_args(
-            turns=[turn],
+            turns=turns,
             tools=tools,
             data_model=data_model,
         )
-
-        args_to_keep = ["model", "contents", "tools"]
-
+        args_to_keep = ["model", "contents"]
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
     def _google_contents(self, turns: list[Turn]) -> list["GoogleContent"]:
@@ -508,7 +588,14 @@ class GoogleProvider(
                 parts = [self._as_part_type(c) for c in turn.contents]
                 contents.append(GoogleContent(role=turn.role, parts=parts))
             elif isinstance(turn, AssistantTurn):
-                parts = [self._as_part_type(c) for c in turn.contents]
+                # Google's grounding/url-context metadata has no corresponding
+                # Part to send back, so none of it is replayable here.
+                sendable = [
+                    c
+                    for c in turn.contents
+                    if not isinstance(c, PROVIDER_ANNOTATION_TYPES)
+                ]
+                parts = [self._as_part_type(c) for c in sendable]
                 contents.append(GoogleContent(role="model", parts=parts))
             else:
                 raise ValueError(f"Unknown role {turn.role}")
@@ -567,6 +654,14 @@ class GoogleProvider(
                     response=resp,
                 )
             )
+        elif isinstance(content, ContentUploaded):
+            if content.provider != "google":
+                raise ValueError(
+                    f"This file was uploaded to provider '{content.provider}', "
+                    "but is being used with Google. Re-upload it with a "
+                    "ChatGoogle() chat."
+                )
+            return Part.from_uri(file_uri=content.id, mime_type=content.mime_type)
         raise ValueError(f"Unknown content type: {type(content)}")
 
     def _as_turn(
@@ -582,6 +677,14 @@ class GoogleProvider(
 
         parts: list["PartDict"] = []
         finish_reason = None
+        # Verified live (gemini-2.5-flash, gemini-3-flash-preview): a streamed
+        # response carries grounding metadata on exactly one chunk -- the last --
+        # with segment offsets absolute into the whole answer, and every candidate
+        # carries `index=0`, so `merge_lists` collapses them into one candidate.
+        # Collect per candidate anyway rather than first-wins, so a response that
+        # doesn't follow that shape loses nothing.
+        grounding_metadatas: list["GroundingMetadataDict"] = []
+        url_context_metadatas: list["UrlContextMetadataDict"] = []
         for candidate in candidates:
             content = candidate.get("content")
             if content:
@@ -589,6 +692,19 @@ class GoogleProvider(
             finish = candidate.get("finish_reason")
             if finish:
                 finish_reason = finish
+            grounding_metadata = candidate.get("grounding_metadata")
+            if grounding_metadata:
+                grounding_metadatas.append(grounding_metadata)
+            url_context_metadata = candidate.get("url_context_metadata")
+            if url_context_metadata:
+                url_context_metadatas.append(url_context_metadata)
+
+        if isinstance(finish_reason, FinishReason):
+            finish_reason = finish_reason.name
+        finish_reason = normalize_finish_reason(finish_reason)
+        if has_data_model:
+            # Must precede the JSON parse below; see check_finish_reason().
+            check_finish_reason(finish_reason, "error")
 
         contents: list[Content] = []
         for part in parts:
@@ -645,8 +761,17 @@ class GoogleProvider(
                         )
                     )
 
-        if isinstance(finish_reason, FinishReason):
-            finish_reason = finish_reason.name
+        search_contents = [
+            c for gm in grounding_metadatas for c in google_search_contents(gm)
+        ]
+        citations = [
+            c for gm in grounding_metadatas for c in google_grounding_citations(gm)
+        ]
+        url_ctx_contents = [
+            c for uc in url_context_metadatas for c in google_url_context_contents(uc)
+        ]
+        # search request/results precede the text; citations follow it.
+        contents = search_contents + contents + citations + url_ctx_contents
 
         return AssistantTurn(
             contents,
@@ -699,6 +824,308 @@ class GoogleProvider(
             "log_probs",
             "stop_sequences",
         }
+
+    def has_batch_support(self) -> bool:
+        # Only the Gemini Developer API has a batch API today; Vertex AI's
+        # batch API takes GCS bucket URIs instead of inline requests, which
+        # is a different shape entirely.
+        return self.name == "Google/Gemini"
+
+    def batch_submit(
+        self,
+        conversations: list[list[Turn]],
+        data_model: Optional[type[BaseModel]] = None,
+    ):
+        from google.genai import types
+        from google.genai.types import GenerateContentConfig
+
+        requests: list["types.InlinedRequest"] = []
+        for turns in conversations:
+            kwargs = self._chat_perform_args(turns, {}, data_model)
+            contents = cast(types.ContentListUnion, kwargs.get("contents"))
+            config = cast(Optional[GenerateContentConfig], kwargs.get("config"))
+            requests.append(types.InlinedRequest(contents=contents, config=config))
+
+        batch = self._client.batches.create(model=self.model, src=requests)
+        # mode="json" is required, not cosmetic: reasoning-capable Gemini
+        # models (e.g. gemini-3.6-flash) attach an opaque thought_signature
+        # byte blob to every response part, not just tool-call parts, and
+        # those bytes are not valid UTF-8. Plain model_dump() leaves them as
+        # raw bytes, which crashes BatchState.model_dump_json() once this
+        # dict is persisted to the batch state file. mode="json" base64-
+        # encodes bytes fields, and model_validate() decodes them back
+        # losslessly (verified against a real completed batch response).
+        return batch.model_dump(mode="json")
+
+    def batch_poll(self, batch):
+        from google.genai import types
+
+        batch = types.BatchJob.model_validate(batch)
+        if batch.name is None:
+            raise ValueError("Batch has no name")
+        b = self._client.batches.get(name=batch.name)
+        return b.model_dump(mode="json")
+
+    def batch_status(self, batch) -> "BatchStatus":
+        from google.genai import types
+
+        batch = types.BatchJob.model_validate(batch)
+        terminal_states = {
+            types.JobState.JOB_STATE_SUCCEEDED,
+            types.JobState.JOB_STATE_FAILED,
+            types.JobState.JOB_STATE_CANCELLED,
+            types.JobState.JOB_STATE_EXPIRED,
+            types.JobState.JOB_STATE_PARTIALLY_SUCCEEDED,
+        }
+
+        stats = batch.completion_stats
+        n_succeeded = (stats.successful_count or 0) if stats else 0
+        n_failed = (stats.failed_count or 0) if stats else 0
+        n_processing = (stats.incomplete_count or 0) if stats else 0
+
+        return BatchStatus(
+            working=batch.state not in terminal_states,
+            n_processing=n_processing,
+            n_succeeded=n_succeeded,
+            n_failed=n_failed,
+        )
+
+    def batch_retrieve(self, batch):
+        from google.genai import types
+
+        batch = types.BatchJob.model_validate(batch)
+        if batch.dest is None or batch.dest.inlined_responses is None:
+            raise ValueError("Batch has no results")
+
+        # No custom-id/index-based reordering needed here (unlike the
+        # file-based batch_retrieve() in _provider_openai_generic.py and
+        # _provider_anthropic.py): the SDK's inlined_responses are documented
+        # to preserve input order.
+        return [r.model_dump(mode="json") for r in batch.dest.inlined_responses]
+
+    def batch_result_turn(self, result, has_data_model: bool = False):
+        from google.genai import types
+
+        result = types.InlinedResponse.model_validate(result)
+        if result.error is not None:
+            warnings.warn(f"Batch request failed: {result.error}")
+            return None
+        if result.response is None:
+            warnings.warn("Batch request returned no response")
+            return None
+
+        completion = cast("GenerateContentResponseDict", result.response.model_dump())
+        return self._as_turn(completion, has_data_model)
+
+    def file_upload(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        self._require_files_api()
+        cfg: Optional["UploadFileConfigDict"] = (
+            {"mime_type": mime_type} if mime_type else None
+        )
+        # google-genai types file-likes as io.IOBase; typing.IO[bytes] (our
+        # public upload() contract, shared with the other providers) covers
+        # the same runtime file-like objects.
+        obj = self._client.files.upload(
+            file=cast("str | os.PathLike[str] | io.IOBase", file), config=cfg
+        )
+        name = obj.name
+        while name is not None and google_file_processing(obj):
+            time.sleep(GOOGLE_FILE_POLL_SECONDS)
+            obj = self._client.files.get(name=name)
+        return google_uploaded(obj)
+
+    async def file_upload_async(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        self._require_files_api()
+        cfg: Optional["UploadFileConfigDict"] = (
+            {"mime_type": mime_type} if mime_type else None
+        )
+        obj = await self._client.aio.files.upload(
+            file=cast("str | os.PathLike[str] | io.IOBase", file), config=cfg
+        )
+        name = obj.name
+        while name is not None and google_file_processing(obj):
+            await asyncio.sleep(GOOGLE_FILE_POLL_SECONDS)
+            obj = await self._client.aio.files.get(name=name)
+        return google_uploaded(obj)
+
+    def file_list(self) -> list[FileMetadata]:
+        self._require_files_api()
+        return [google_meta(o) for o in self._client.files.list()]
+
+    async def file_list_async(self) -> list[FileMetadata]:
+        self._require_files_api()
+        return [google_meta(o) async for o in await self._client.aio.files.list()]
+
+    def file_get(self, id: str) -> FileMetadata:  # noqa: A002
+        self._require_files_api()
+        return google_meta(self._client.files.get(name=id))
+
+    async def file_get_async(self, id: str) -> FileMetadata:  # noqa: A002
+        self._require_files_api()
+        return google_meta(await self._client.aio.files.get(name=id))
+
+    def file_download(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        # Gemini's Files API only serves bytes back for model-GENERATED files
+        # (e.g. Veo video output); files uploaded via file_upload() raise a
+        # ClientError ("Only GENERATED files can be downloaded").
+        self._require_files_api()
+        return maybe_write(self._client.files.download(file=id), path)
+
+    async def file_download_async(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        self._require_files_api()
+        data = await self._client.aio.files.download(file=id)
+        return maybe_write(data, path)
+
+    def file_delete(self, id: str) -> None:  # noqa: A002
+        self._require_files_api()
+        self._client.files.delete(name=id)
+
+    async def file_delete_async(self, id: str) -> None:  # noqa: A002
+        self._require_files_api()
+        await self._client.aio.files.delete(name=id)
+
+    def _require_files_api(self) -> None:
+        if getattr(self._client, "vertexai", False):
+            raise NotImplementedError(
+                "The Gemini Files API is not available on Vertex AI. Upload the "
+                "file to a Cloud Storage bucket and reference it with "
+                "ContentUploaded(id='gs://bucket/obj', mime_type=..., provider='google')."
+            )
+
+
+def google_search_contents(
+    grounding_metadata: "GroundingMetadataDict | None",
+) -> list[Content]:
+    """Search requests + results from Google grounding metadata (no citations).
+
+    One request per query: Gemini reports every query it issued in a flat
+    `web_search_queries` list, so N queries means N searches happened. Results
+    stay a single item because Gemini doesn't attribute grounding chunks back to
+    the query that produced them.
+    """
+    if not grounding_metadata:
+        return []
+    out: list[Content] = []
+    queries = grounding_metadata.get("web_search_queries") or []
+    for query in queries:
+        out.append(
+            ContentToolRequestSearch(
+                query=str(query),
+                # The sibling queries are kept so a caller can tell which
+                # searches were issued together.
+                extra={"web_search_queries": list(queries)},
+            )
+        )
+    display = [s for s in google_web_sources(grounding_metadata) if s is not None]
+    if display:
+        out.append(
+            ContentToolResponseSearch(
+                sources=display,
+                extra={"grounding_metadata": grounding_metadata},
+            )
+        )
+    return out
+
+
+def google_web_sources(
+    grounding_metadata: "GroundingMetadataDict",
+) -> list[Optional[WebSource]]:
+    """Sources by grounding-chunk index, `None` where a chunk has no URL.
+
+    Positions are load-bearing: `grounding_supports` reference chunks by index.
+    """
+    out: list[Optional[WebSource]] = []
+    for ch in grounding_metadata.get("grounding_chunks") or []:
+        web = ch.get("web") or {}
+        uri = web.get("uri")
+        out.append(WebSource(url=uri, title=web.get("title")) if uri else None)
+    return out
+
+
+def google_grounding_citations(
+    grounding_metadata: "GroundingMetadataDict | None",
+) -> list[ContentCitation]:
+    """ContentCitations (with answer-side grounded_span) from grounding metadata."""
+    if not grounding_metadata:
+        return []
+    sources = google_web_sources(grounding_metadata)
+    out: list[ContentCitation] = []
+    for sup in grounding_metadata.get("grounding_supports") or []:
+        grounded = (sup.get("segment") or {}).get("text")
+        for idx in dict.fromkeys(sup.get("grounding_chunk_indices") or []):
+            # Gemini has been observed referencing indices past the end of the
+            # chunk list it sent, so the bounds check isn't just belt-and-braces.
+            if not 0 <= idx < len(sources):
+                continue
+            src = sources[idx]
+            # A chunk without a web URI (e.g. retrieved_context) still grounds
+            # the span, so it becomes a citation with no `source`.
+            out.append(
+                ContentCitation(
+                    source=src.model_copy() if src is not None else None,
+                    grounded_span=grounded,
+                    extra={"grounding_support": sup},
+                )
+            )
+    return out
+
+
+def google_url_context_contents(
+    url_context_metadata: "UrlContextMetadataDict | None",
+) -> list[Content]:
+    """Build fetch request/result content from Google url_context_metadata."""
+    if not url_context_metadata:
+        return []
+    out: list[Content] = []
+    for meta in url_context_metadata.get("url_metadata") or []:
+        url = meta.get("retrieved_url")
+        if not url:
+            continue
+        out.append(ContentToolRequestFetch(url=url, extra={"url_metadata": meta}))
+        out.append(
+            ContentToolResponseFetch(
+                url=url,
+                status=normalize_retrieval_status(meta.get("url_retrieval_status")),
+                # The native status (PAYWALL/UNSAFE/etc.) is preserved in `meta`.
+                extra={"url_metadata": meta},
+            )
+        )
+    return out
+
+
+def normalize_retrieval_status(raw: object) -> Optional[Literal["success", "error"]]:
+    """Map Google's UrlRetrievalStatus onto the normalized success/error/None.
+
+    `UNSPECIFIED` carries no outcome, so it maps to `None`; every non-success
+    status (ERROR/PAYWALL/UNSAFE) collapses to `"error"` (the finer-grained
+    distinction stays in the content's `extra`).
+    """
+    if raw is None:
+        return None
+    value = getattr(raw, "value", raw)
+    if value == "URL_RETRIEVAL_STATUS_SUCCESS":
+        return "success"
+    if value == "URL_RETRIEVAL_STATUS_UNSPECIFIED":
+        return None
+    return "error"
 
 
 def ChatVertex(
@@ -787,7 +1214,7 @@ def ChatVertex(
     kwargs["location"] = location
 
     if model is None:
-        model = log_model_default("gemini-2.5-flash")
+        model = log_model_default("gemini-3.5-flash")
 
     return Chat(
         provider=GoogleProvider(
@@ -798,6 +1225,70 @@ def ChatVertex(
         ),
         system_prompt=system_prompt,
     )
+
+
+GOOGLE_FILE_POLL_SECONDS = 0.5
+
+
+def google_file_processing(obj: "GoogleFile") -> bool:
+    return obj.state is not None and obj.state.value == "PROCESSING"
+
+
+def google_uploaded(obj: "GoogleFile") -> ContentUploaded:
+    if obj.state is not None and obj.state.value == "FAILED":
+        detail = obj.error.message if obj.error else "no error detail given"
+        raise ValueError(f"File {obj.name!r} failed to process: {detail}")
+
+    if obj.uri is None:
+        raise ValueError(
+            f"File {obj.name!r} has no URI (state={obj.state}). Gemini returns a "
+            "URI for every uploaded file -- including while it is still "
+            "processing -- so this most likely means the upload didn't complete."
+        )
+
+    return ContentUploaded(
+        id=obj.uri,
+        mime_type=obj.mime_type or "application/octet-stream",
+        provider="google",
+        extra={
+            "name": obj.name,
+            "size_bytes": obj.size_bytes,
+            "state": obj.state.value if obj.state else None,
+        },
+    )
+
+
+def google_meta(obj: "GoogleFile") -> FileMetadata:
+    # Prefer the full URI, since it's the only form `.chat()` accepts as a
+    # reference. Fall back to the resource name so that listing still works for
+    # files that never got one (e.g. a FAILED upload): `name` is a valid id for
+    # the management calls, which is all such a file is good for anyway.
+    id = obj.uri or obj.name  # noqa: A001
+    if id is None:
+        raise ValueError(f"Gemini returned a file with neither a URI nor a name: {obj}")
+
+    return FileMetadata(
+        id=id,
+        filename=obj.display_name,
+        mime_type=obj.mime_type,
+        size_bytes=obj.size_bytes,
+        created_at=obj.create_time,
+        expires_at=obj.expiration_time,
+        provider="google",
+        extra=obj,
+    )
+
+
+def google_supports_mixed_tools(model: str) -> bool:
+    """
+    Whether `model` supports combining custom (function-calling) tools with
+    built-in (server-side) tools in the same request. Only Gemini 3+ models
+    support this; older models reject the combination outright.
+    """
+    # `list_models()` surfaces IDs prefixed with "models/" (e.g.
+    # "models/gemini-3.5-flash"), so strip that before matching.
+    model = model.removeprefix("models/")
+    return bool(re.match(r"^gemini-([3-9]|[0-9]{2,})", model))
 
 
 def _strip_additional_properties(params: dict[str, Any]) -> dict[str, Any]:

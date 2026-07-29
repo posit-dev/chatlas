@@ -13,6 +13,7 @@ from ._content import (
 )
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._content_pdf import content_pdf_file, content_pdf_url
+from ._files import FileManager
 from ._interpolate import interpolate, interpolate_file
 from ._parallel import parallel_chat, parallel_chat_structured, parallel_chat_text
 from ._provider import Provider
@@ -33,6 +34,7 @@ from ._provider_openai_completions import ChatOpenAICompletions
 from ._provider_openrouter import ChatOpenRouter
 from ._provider_perplexity import ChatPerplexity
 from ._provider_portkey import ChatPortkey
+from ._provider_posit import ChatPosit
 from ._provider_snowflake import ChatSnowflake
 from ._stream_controller import StreamController
 from ._tokens import token_usage
@@ -73,6 +75,7 @@ __all__ = (
     "ChatAzureOpenAICompletions",
     "ChatPerplexity",
     "ChatPortkey",
+    "ChatPosit",
     "ChatSnowflake",
     "ChatVertex",
     "Chat",
@@ -83,6 +86,7 @@ __all__ = (
     "content_pdf_url",
     "ContentToolRequest",
     "ContentToolResult",
+    "FileManager",
     "interpolate",
     "interpolate_file",
     "Provider",

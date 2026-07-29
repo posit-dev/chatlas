@@ -12,32 +12,36 @@ interactions:
       "STRING"}}, "required": ["weather"], "type": "OBJECT"}}]}], "generationConfig":
       {"temperature": 0}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate, zstd
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '832'
-      Content-Type:
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.64.0 gl-python/3.12.11
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
-        {\"name\": \"weather_forecast\",\"args\": {\"city\": \"New York\"}},\"thoughtSignature\":
-        \"CiQBvj72+xxMEex6SHIQZulbUX7wtWNnRGXXxKbhSaW9tkOp5zcKeQG+Pvb7m1c68mQ/MVJ/DT/Y0kSd4gESZdh7Wgn3+TsDk713oVFMXFBt2Y6Al8g600gGl1YYFEyHjf2DG3HyTKjXvW+cNzjAka4dzqyZSh1tXdhfZfrVN+6qlz2N+omWiuvA2TCd/ZLX43RzusaFeay3oEM2EXswTn4KjAIBvj72+z1xp+zi3e9hnBl0c4wjVDKT9AluzMLQKKkQPGeckj7uvW8IaujdcwqWdWuTCQqcEGSDk42yRzggZ6ZJSb+mhIn1GO2q8Wpx5IKCm/vvh1uuC4lfCGOhqjj3XgcZlmkJEdu90aWk4858EszU8OTwUcc0PBxRZHzvFW4QPvyIwZEZmV+R15nuOHnPHIkmVnigntFQjdMEQrdN7bjuXGAxjFiQDOYjco6+eR0szvVwOhSHzlUUZZbJcZwKO+0okGkEiNzsEHC5c0VJHfbgGthSOy75n6rIUmqLMOjf5XzDuYjLdz+SPFfZHWO6/Le6ynLvEOSPe/leyg60y1ewK0jz/l2tmF70A/BQCl0Bvj72+0E4RcowLNheQ7kFGBUvXsa5ub+8oFruOcPiRjmfUEGq8TFEJPYrBWz+BP5nVZRsRzBsc6abneT689SpeXf2KEhd2zSpT05jKpDNXoEisHgjAiAQEvjhpM8=\"}],\"role\":
-        \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
-        generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
-        133,\"candidatesTokenCount\": 16,\"totalTokenCount\": 231,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 133}],\"thoughtsTokenCount\": 82},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"s63NaYSvHeCTjMcP5Yi98Ac\"}\r\n\r\n"
+        {\"name\": \"weather_forecast\",\"args\": {\"city\": \"New York\"},\"id\":
+        \"2oaiqhji\"},\"thoughtSignature\": \"EvEFCu4FARFNMg++nSaOgFhDiFIZosrGyEJjH3hMgMF6sp7yXaONeDjoNJfa6WvrKdw1cCEkrui9JlqIrAwy7IJIM94RlYT2aGRW3sz8smNPXkrWgmRT5b+65GJU/e0jBO9ul0d6YBXs6+J5+PRHHwkfIjKV8gP0snpj7Dn/XCUtgFfFK4kwvowFpV2I7Tn3HytMUYTxaOQN6qh8+q2qtZmHYzbziHvZDbIXqcqiAsv9fMAUD4If19l5Mmm0pSWxwBUbhBu46ly2jSd1F6Mlu0FDmSWS0UktrvvE+WY6Qh5qlkYd2bPCY5olsC68Fphm0rT6vnx998zUU8JbTEi2Zr75EH7mPwAxn3LXL10oueD+33bJO+RhD6fXHpI78rvP2CNRYuzSBBhdcumWPArHwEcMD6o9XaptEx5aHPNYSOOlJFm6iwjao3hJjf4Q28trNTchDCQBRD+Lw+nmXZVG7R+WhNpSztTnBXgSJ3U1P/VXO29Jj/gbQj8V/Z6O4GLTXqY3ZGWHNEFnCUDpRH59LKdK0xNPozJroSASy9UmL7ZXl8dEB9+wIs0TxDYbJLnRbTBaDAi6PuAmZYgydMfcvQHLAXE/HU5VYgMWRa1k6ZDk92Veo/0izYwcY+7T8z8M3PjbbuUfIzngU7JJ2GqO80sTsmAIvLDjfYjWD3AtKCsoNlbDUboWOg0cVRA8pOWg7wZZoj2T41fqfTwz+4cYNFtk1H95W2B/xjyVWSkIQiwYaiBiTfHseUPhBToFioFEHJhq/09zadLgNseG5ICSSKb3gz5hsrPUMLCFD6zc+RDBGJZYIi0mLWSavbdxSaOIaDcBU/+X7rju1KUgG4hl5+yVtCpZqJYfIgN+pFlRdcOHpy6696SeIsi05AEkjzhzHx2RNTDIP636M8KwdP6TNGw8o7MCpSlmDj9RxsqxQOoYuWaBCgrjvC8tBXK5cts8gfm7RVk8PRPA1cUcKWzRWFYxGm5PSVPVYmiO2OrNatLu7nkT\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 143,\"candidatesTokenCount\":
+        17,\"totalTokenCount\": 314,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        143}],\"thoughtsTokenCount\": 154,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"OoFfatmhFsidjrEP3fymkA4\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\"}],\"role\": \"model\"},\"finishReason\":
+        \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 143,\"candidatesTokenCount\":
+        17,\"totalTokenCount\": 314,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        143}],\"thoughtsTokenCount\": 154,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"OoFfatmhFsidjrEP3fymkA4\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -46,11 +50,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 01 Apr 2026 23:43:48 GMT
+      - Tue, 21 Jul 2026 14:24:59 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=869
+      - gfet4t7; dur=1375
       Transfer-Encoding:
       - chunked
       Vary:
@@ -68,46 +72,51 @@ interactions:
       message: OK
 - request:
     body: '{"contents": [{"parts": [{"text": "What should I pack for New York this
-      weekend?"}], "role": "user"}, {"parts": [{"functionCall": {"args": {"city":
-      "New York"}, "name": "weather_forecast"}, "thoughtSignature": "CiQBvj72-xxMEex6SHIQZulbUX7wtWNnRGXXxKbhSaW9tkOp5zcKeQG-Pvb7m1c68mQ_MVJ_DT_Y0kSd4gESZdh7Wgn3-TsDk713oVFMXFBt2Y6Al8g600gGl1YYFEyHjf2DG3HyTKjXvW-cNzjAka4dzqyZSh1tXdhfZfrVN-6qlz2N-omWiuvA2TCd_ZLX43RzusaFeay3oEM2EXswTn4KjAIBvj72-z1xp-zi3e9hnBl0c4wjVDKT9AluzMLQKKkQPGeckj7uvW8IaujdcwqWdWuTCQqcEGSDk42yRzggZ6ZJSb-mhIn1GO2q8Wpx5IKCm_vvh1uuC4lfCGOhqjj3XgcZlmkJEdu90aWk4858EszU8OTwUcc0PBxRZHzvFW4QPvyIwZEZmV-R15nuOHnPHIkmVnigntFQjdMEQrdN7bjuXGAxjFiQDOYjco6-eR0szvVwOhSHzlUUZZbJcZwKO-0okGkEiNzsEHC5c0VJHfbgGthSOy75n6rIUmqLMOjf5XzDuYjLdz-SPFfZHWO6_Le6ynLvEOSPe_leyg60y1ewK0jz_l2tmF70A_BQCl0Bvj72-0E4RcowLNheQ7kFGBUvXsa5ub-8oFruOcPiRjmfUEGq8TFEJPYrBWz-BP5nVZRsRzBsc6abneT689SpeXf2KEhd2zSpT05jKpDNXoEisHgjAiAQEvjhpM8="}],
-      "role": "model"}, {"parts": [{"functionResponse": {"name": "weather_forecast",
-      "response": {"result": "rainy"}}}], "role": "user"}], "systemInstruction": {"parts":
-      [{"text": "\n        Be very terse, not even punctuation. If asked for equipment
-      to pack,\n        first use the weather_forecast tool provided to you. Then,
-      use the\n        equipment tool provided to you.\n        "}], "role": "user"},
-      "tools": [{"functionDeclarations": [{"description": "Gets the weather forecast
-      for a city", "name": "weather_forecast", "parameters": {"properties": {"city":
-      {"type": "STRING"}}, "required": ["city"], "type": "OBJECT"}}, {"description":
+      weekend?"}], "role": "user"}, {"parts": [{"functionCall": {"id": "2oaiqhji",
+      "args": {"city": "New York"}, "name": "weather_forecast"}, "thoughtSignature":
+      "EvEFCu4FARFNMg--nSaOgFhDiFIZosrGyEJjH3hMgMF6sp7yXaONeDjoNJfa6WvrKdw1cCEkrui9JlqIrAwy7IJIM94RlYT2aGRW3sz8smNPXkrWgmRT5b-65GJU_e0jBO9ul0d6YBXs6-J5-PRHHwkfIjKV8gP0snpj7Dn_XCUtgFfFK4kwvowFpV2I7Tn3HytMUYTxaOQN6qh8-q2qtZmHYzbziHvZDbIXqcqiAsv9fMAUD4If19l5Mmm0pSWxwBUbhBu46ly2jSd1F6Mlu0FDmSWS0UktrvvE-WY6Qh5qlkYd2bPCY5olsC68Fphm0rT6vnx998zUU8JbTEi2Zr75EH7mPwAxn3LXL10oueD-33bJO-RhD6fXHpI78rvP2CNRYuzSBBhdcumWPArHwEcMD6o9XaptEx5aHPNYSOOlJFm6iwjao3hJjf4Q28trNTchDCQBRD-Lw-nmXZVG7R-WhNpSztTnBXgSJ3U1P_VXO29Jj_gbQj8V_Z6O4GLTXqY3ZGWHNEFnCUDpRH59LKdK0xNPozJroSASy9UmL7ZXl8dEB9-wIs0TxDYbJLnRbTBaDAi6PuAmZYgydMfcvQHLAXE_HU5VYgMWRa1k6ZDk92Veo_0izYwcY-7T8z8M3PjbbuUfIzngU7JJ2GqO80sTsmAIvLDjfYjWD3AtKCsoNlbDUboWOg0cVRA8pOWg7wZZoj2T41fqfTwz-4cYNFtk1H95W2B_xjyVWSkIQiwYaiBiTfHseUPhBToFioFEHJhq_09zadLgNseG5ICSSKb3gz5hsrPUMLCFD6zc-RDBGJZYIi0mLWSavbdxSaOIaDcBU_-X7rju1KUgG4hl5-yVtCpZqJYfIgN-pFlRdcOHpy6696SeIsi05AEkjzhzHx2RNTDIP636M8KwdP6TNGw8o7MCpSlmDj9RxsqxQOoYuWaBCgrjvC8tBXK5cts8gfm7RVk8PRPA1cUcKWzRWFYxGm5PSVPVYmiO2OrNatLu7nkT"}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "2oaiqhji", "name":
+      "weather_forecast", "response": {"result": "rainy"}}}], "role": "user"}], "systemInstruction":
+      {"parts": [{"text": "\n        Be very terse, not even punctuation. If asked
+      for equipment to pack,\n        first use the weather_forecast tool provided
+      to you. Then, use the\n        equipment tool provided to you.\n        "}],
+      "role": "user"}, "tools": [{"functionDeclarations": [{"description": "Gets the
+      weather forecast for a city", "name": "weather_forecast", "parameters": {"properties":
+      {"city": {"type": "STRING"}}, "required": ["city"], "type": "OBJECT"}}, {"description":
       "Gets the equipment needed for a weather condition", "name": "equipment", "parameters":
       {"properties": {"weather": {"type": "STRING"}}, "required": ["weather"], "type":
       "OBJECT"}}]}], "generationConfig": {"temperature": 0}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate, zstd
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
-      - '1782'
-      Content-Type:
+      content-length:
+      - '2122'
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.64.0 gl-python/3.12.11
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
-        {\"name\": \"equipment\",\"args\": {\"weather\": \"rainy\"}},\"thoughtSignature\":
-        \"CiQBvj72+2PIPZW2BEXWn2H6BpCDUD41n62tzhc3O54ZQ3WZJQMKagG+Pvb7dCWuKwT3wOQH5hm98sa4C6P8v5kQIc9jURAqgyslANBijYPs1P3GfMAbqHi4CZjzTIHjYtLtTE9Njw7DNl8P1jGbq6dBmBu3kPviFTLivL8t6r5+U6OEcXvc6LedzKpf9quleBYKwQEBvj72+xxnMwQIMBq3X/h0pQNMPfCsaS3y2GmpUwtxfwmoVl5DlpD9nskb/Mu/R6D6h41TYCURQsKw62b1vULNyyEIBUuv45vnNXgnTjo9RZSzN30bL4YuUmJii2sqinpa2HAUoFtE1T0sEEfSmoYUdZqMIqzO9ZAiRyk+XMhj5Zh8l5W+LRmJVCyE/o1NgVO4feZLxa7QeHwdbC2BoAJxr9gzgnN43AmpNpMgZnxs/guiwrpYmjss08Ud6Zr328cE\"}],\"role\":
-        \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
-        generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
-        247,\"candidatesTokenCount\": 14,\"totalTokenCount\": 318,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 247}],\"thoughtsTokenCount\": 57},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"tK3NaZuwIu_RjMcPjoP02As\"}\r\n\r\n"
+        {\"name\": \"equipment\",\"args\": {\"weather\": \"rainy\"},\"id\": \"xdds9n0p\"},\"thoughtSignature\":
+        \"ErYCCrMCARFNMg/+eVwwz4mqF7rRCoSYalSlVfYUoL5QN0ejC1hvLxzzAbMjHlh9ng4Unv63kqPyD6koswDXTJbs4/NJXVM9c89T1QtlDLD6Q0S8R3aNzSmxpr/cjS9O2wVV2i5DG8eSWXW+5rT5Dr3agsojleRL2xizh5IJovsieaRwwf8WlE7xW3CHCzlxkgE+g/FU/Ft1Ms33k9NKAwRZIzwtkThrJPizoarLRfZU4pb0Q6iWY0QaCj5YiVdjnWo7/4ZL9+3/cj7Ks4bE2NQlPb0VWPrngv6dGMEs/2kfbAJWW+o3CvJlozVFqfcC8U/L/vtTblTBKqHToDlfXxE8HMt0bwTY2dlJrLlYaXbBln8w3IOphbz6w49gzv3FW66zIbGzPbvd4+Gcd+2q3fr3YM+VPiHwXg==\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 175,\"candidatesTokenCount\":
+        15,\"totalTokenCount\": 243,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        175}],\"thoughtsTokenCount\": 53,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"O4FfarPzMtKkjrEP4bHf8A0\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\"}],\"role\": \"model\"},\"finishReason\":
+        \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 329,\"candidatesTokenCount\":
+        15,\"totalTokenCount\": 397,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        329}],\"thoughtsTokenCount\": 53,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"O4FfarPzMtKkjrEP4bHf8A0\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -116,11 +125,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 01 Apr 2026 23:43:49 GMT
+      - Tue, 21 Jul 2026 14:25:00 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=749
+      - gfet4t7; dur=990
       Transfer-Encoding:
       - chunked
       Vary:
@@ -138,47 +147,54 @@ interactions:
       message: OK
 - request:
     body: '{"contents": [{"parts": [{"text": "What should I pack for New York this
-      weekend?"}], "role": "user"}, {"parts": [{"functionCall": {"args": {"city":
-      "New York"}, "name": "weather_forecast"}, "thoughtSignature": "CiQBvj72-xxMEex6SHIQZulbUX7wtWNnRGXXxKbhSaW9tkOp5zcKeQG-Pvb7m1c68mQ_MVJ_DT_Y0kSd4gESZdh7Wgn3-TsDk713oVFMXFBt2Y6Al8g600gGl1YYFEyHjf2DG3HyTKjXvW-cNzjAka4dzqyZSh1tXdhfZfrVN-6qlz2N-omWiuvA2TCd_ZLX43RzusaFeay3oEM2EXswTn4KjAIBvj72-z1xp-zi3e9hnBl0c4wjVDKT9AluzMLQKKkQPGeckj7uvW8IaujdcwqWdWuTCQqcEGSDk42yRzggZ6ZJSb-mhIn1GO2q8Wpx5IKCm_vvh1uuC4lfCGOhqjj3XgcZlmkJEdu90aWk4858EszU8OTwUcc0PBxRZHzvFW4QPvyIwZEZmV-R15nuOHnPHIkmVnigntFQjdMEQrdN7bjuXGAxjFiQDOYjco6-eR0szvVwOhSHzlUUZZbJcZwKO-0okGkEiNzsEHC5c0VJHfbgGthSOy75n6rIUmqLMOjf5XzDuYjLdz-SPFfZHWO6_Le6ynLvEOSPe_leyg60y1ewK0jz_l2tmF70A_BQCl0Bvj72-0E4RcowLNheQ7kFGBUvXsa5ub-8oFruOcPiRjmfUEGq8TFEJPYrBWz-BP5nVZRsRzBsc6abneT689SpeXf2KEhd2zSpT05jKpDNXoEisHgjAiAQEvjhpM8="}],
-      "role": "model"}, {"parts": [{"functionResponse": {"name": "weather_forecast",
-      "response": {"result": "rainy"}}}], "role": "user"}, {"parts": [{"functionCall":
-      {"args": {"weather": "rainy"}, "name": "equipment"}, "thoughtSignature": "CiQBvj72-2PIPZW2BEXWn2H6BpCDUD41n62tzhc3O54ZQ3WZJQMKagG-Pvb7dCWuKwT3wOQH5hm98sa4C6P8v5kQIc9jURAqgyslANBijYPs1P3GfMAbqHi4CZjzTIHjYtLtTE9Njw7DNl8P1jGbq6dBmBu3kPviFTLivL8t6r5-U6OEcXvc6LedzKpf9quleBYKwQEBvj72-xxnMwQIMBq3X_h0pQNMPfCsaS3y2GmpUwtxfwmoVl5DlpD9nskb_Mu_R6D6h41TYCURQsKw62b1vULNyyEIBUuv45vnNXgnTjo9RZSzN30bL4YuUmJii2sqinpa2HAUoFtE1T0sEEfSmoYUdZqMIqzO9ZAiRyk-XMhj5Zh8l5W-LRmJVCyE_o1NgVO4feZLxa7QeHwdbC2BoAJxr9gzgnN43AmpNpMgZnxs_guiwrpYmjss08Ud6Zr328cE"}],
-      "role": "model"}, {"parts": [{"functionResponse": {"name": "equipment", "response":
-      {"result": "umbrella"}}}], "role": "user"}], "systemInstruction": {"parts":
-      [{"text": "\n        Be very terse, not even punctuation. If asked for equipment
-      to pack,\n        first use the weather_forecast tool provided to you. Then,
-      use the\n        equipment tool provided to you.\n        "}], "role": "user"},
-      "tools": [{"functionDeclarations": [{"description": "Gets the weather forecast
-      for a city", "name": "weather_forecast", "parameters": {"properties": {"city":
-      {"type": "STRING"}}, "required": ["city"], "type": "OBJECT"}}, {"description":
+      weekend?"}], "role": "user"}, {"parts": [{"functionCall": {"id": "2oaiqhji",
+      "args": {"city": "New York"}, "name": "weather_forecast"}, "thoughtSignature":
+      "EvEFCu4FARFNMg--nSaOgFhDiFIZosrGyEJjH3hMgMF6sp7yXaONeDjoNJfa6WvrKdw1cCEkrui9JlqIrAwy7IJIM94RlYT2aGRW3sz8smNPXkrWgmRT5b-65GJU_e0jBO9ul0d6YBXs6-J5-PRHHwkfIjKV8gP0snpj7Dn_XCUtgFfFK4kwvowFpV2I7Tn3HytMUYTxaOQN6qh8-q2qtZmHYzbziHvZDbIXqcqiAsv9fMAUD4If19l5Mmm0pSWxwBUbhBu46ly2jSd1F6Mlu0FDmSWS0UktrvvE-WY6Qh5qlkYd2bPCY5olsC68Fphm0rT6vnx998zUU8JbTEi2Zr75EH7mPwAxn3LXL10oueD-33bJO-RhD6fXHpI78rvP2CNRYuzSBBhdcumWPArHwEcMD6o9XaptEx5aHPNYSOOlJFm6iwjao3hJjf4Q28trNTchDCQBRD-Lw-nmXZVG7R-WhNpSztTnBXgSJ3U1P_VXO29Jj_gbQj8V_Z6O4GLTXqY3ZGWHNEFnCUDpRH59LKdK0xNPozJroSASy9UmL7ZXl8dEB9-wIs0TxDYbJLnRbTBaDAi6PuAmZYgydMfcvQHLAXE_HU5VYgMWRa1k6ZDk92Veo_0izYwcY-7T8z8M3PjbbuUfIzngU7JJ2GqO80sTsmAIvLDjfYjWD3AtKCsoNlbDUboWOg0cVRA8pOWg7wZZoj2T41fqfTwz-4cYNFtk1H95W2B_xjyVWSkIQiwYaiBiTfHseUPhBToFioFEHJhq_09zadLgNseG5ICSSKb3gz5hsrPUMLCFD6zc-RDBGJZYIi0mLWSavbdxSaOIaDcBU_-X7rju1KUgG4hl5-yVtCpZqJYfIgN-pFlRdcOHpy6696SeIsi05AEkjzhzHx2RNTDIP636M8KwdP6TNGw8o7MCpSlmDj9RxsqxQOoYuWaBCgrjvC8tBXK5cts8gfm7RVk8PRPA1cUcKWzRWFYxGm5PSVPVYmiO2OrNatLu7nkT"}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "2oaiqhji", "name":
+      "weather_forecast", "response": {"result": "rainy"}}}], "role": "user"}, {"parts":
+      [{"functionCall": {"id": "xdds9n0p", "args": {"weather": "rainy"}, "name": "equipment"},
+      "thoughtSignature": "ErYCCrMCARFNMg_-eVwwz4mqF7rRCoSYalSlVfYUoL5QN0ejC1hvLxzzAbMjHlh9ng4Unv63kqPyD6koswDXTJbs4_NJXVM9c89T1QtlDLD6Q0S8R3aNzSmxpr_cjS9O2wVV2i5DG8eSWXW-5rT5Dr3agsojleRL2xizh5IJovsieaRwwf8WlE7xW3CHCzlxkgE-g_FU_Ft1Ms33k9NKAwRZIzwtkThrJPizoarLRfZU4pb0Q6iWY0QaCj5YiVdjnWo7_4ZL9-3_cj7Ks4bE2NQlPb0VWPrngv6dGMEs_2kfbAJWW-o3CvJlozVFqfcC8U_L_vtTblTBKqHToDlfXxE8HMt0bwTY2dlJrLlYaXbBln8w3IOphbz6w49gzv3FW66zIbGzPbvd4-Gcd-2q3fr3YM-VPiHwXg=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "xdds9n0p", "name":
+      "equipment", "response": {"result": "umbrella"}}}], "role": "user"}], "systemInstruction":
+      {"parts": [{"text": "\n        Be very terse, not even punctuation. If asked
+      for equipment to pack,\n        first use the weather_forecast tool provided
+      to you. Then, use the\n        equipment tool provided to you.\n        "}],
+      "role": "user"}, "tools": [{"functionDeclarations": [{"description": "Gets the
+      weather forecast for a city", "name": "weather_forecast", "parameters": {"properties":
+      {"city": {"type": "STRING"}}, "required": ["city"], "type": "OBJECT"}}, {"description":
       "Gets the equipment needed for a weather condition", "name": "equipment", "parameters":
       {"properties": {"weather": {"type": "STRING"}}, "required": ["weather"], "type":
       "OBJECT"}}]}], "generationConfig": {"temperature": 0}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate, zstd
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
-      - '2473'
-      Content-Type:
+      content-length:
+      - '2813'
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.64.0 gl-python/3.12.11
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
   response:
     body:
-      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"umbrella\",\"thoughtSignature\":
-        \"ClkBvj72+7p1dLlUg6fRnabMIuDBWLknGn1SWmd1z0KoZUGbWs5Kfgla4W0d07MWZB6mq27C3cNCdpbjd/QQfBiKDmX6zB2cVdfEzlsuxdaF1OE21C8DjkzPMArSAQG+Pvb7vnX79doa/d1YhajXr9N33/tQXxHWQCPSnKfAUikE8gFrCiaf5RKTeoCOJiJ7FgzT4nARYwklnHJmMYYyi6WNuLxME8M+1SHRYL2kxTqP1Zel1fMnMUX6329Y6CfKrWyZkkQNkKNiNHwdah0cqtKgc9qJnrloUkYzb8GbxPzViAw1C3LqJXzSE+fbcuMdCjPMpekqZhZ8N+Y7Zij7/WlybHgedArAfKViITO857rgMBpeMXsW5qqB4QR8/6gBBCq1d4Bc4/1uH9AzVBVzoAoqAb4+9vuNlRhXbKUCh26x8R5FdRjiDpd8pSQEqRvE8Lw9f47cvgbSpoEt\"}],\"role\":
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"umbrella\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 202,\"candidatesTokenCount\":
+        1,\"totalTokenCount\": 238,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        202}],\"thoughtsTokenCount\": 35,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"PIFfavHXOJzJ-8YPuK2GiAk\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
+        \"EvwBCvkBARFNMg+iNOBMKDgGfwYClm2bBQV/0AoXa9NepLuvXvOvxJL2SPdxOctq3seUnWm2qFOBG6A2hj+goqwVGqLOaTO+troImQM8bpYBO/zlvpEonj9cDydp4XgfMeIJFFH3cvENVYfbrET7a7FNtbiuwm5Ffhe09/xCAg9tghrQvHxR2KP+DFYXTg/sMqxW0m05/OKzuvEdE5MaEYB/qtbH0GwfqILQPwYiv2Euc20R1aBn1en/l6C6xyIyST8VkGvxJS/7JaKSc5o7V0KPzb5SKs2/RP8iIiuYiIuOyy99Wj2suzJY0yKN92GTnOg06YjHvhazXVuCMyza\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
-        331,\"candidatesTokenCount\": 1,\"totalTokenCount\": 397,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 331}],\"thoughtsTokenCount\": 65},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"ta3NaYXIH-CTjMcP5Yi98Ac\"}\r\n\r\n"
+        409,\"candidatesTokenCount\": 1,\"totalTokenCount\": 445,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 409}],\"thoughtsTokenCount\": 35,\"serviceTier\":
+        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"PIFfavHXOJzJ-8YPuK2GiAk\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -187,11 +203,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 01 Apr 2026 23:43:50 GMT
+      - Tue, 21 Jul 2026 14:25:01 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=780
+      - gfet4t7; dur=883
       Transfer-Encoding:
       - chunked
       Vary:
