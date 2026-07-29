@@ -25,10 +25,12 @@ from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponen
 
 from .conftest import (
     assert_data_extraction,
+    assert_document_local,
     assert_images_inline,
     assert_images_remote_error,
     assert_list_models,
     assert_pdf_local,
+    assert_pdf_remote,
     assert_tool_web_fetch,
     assert_tool_web_search,
     assert_tools_parallel,
@@ -471,6 +473,18 @@ def test_images_remote_error():
 @retry_gemini_call
 def test_google_pdfs():
     assert_pdf_local(chat_func)
+
+
+@pytest.mark.vcr
+@retry_gemini_call
+def test_google_pdf_url():
+    assert_pdf_remote(chat_func)
+
+
+@pytest.mark.vcr
+@retry_gemini_call
+def test_google_document():
+    assert_document_local(chat_func)
 
 
 @pytest.mark.vcr
