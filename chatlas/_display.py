@@ -248,10 +248,10 @@ class IPyMarkdownDisplay(MarkdownDisplay):
         if self._css_styles:
             id_ = uuid4().hex
             css = "".join(f"{k}: {v}; " for k, v in self._css_styles.items())
+            # A compound selector (no combinator): id and class are on the same
+            # element, the wrapper div displayed just below.
             display(
-                HTML(
-                    f"<style>{TOOL_CSS}\n#{id_} + .chatlas-markdown {{ {css} }}</style>"
-                )
+                HTML(f"<style>{TOOL_CSS}\n#{id_}.chatlas-markdown {{ {css} }}</style>")
             )
             display(
                 HTML(

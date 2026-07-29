@@ -656,6 +656,14 @@ def test_ipy_display_keeps_css_styles_option(monkeypatch):
     assert "max-height: 300px;" in styles[0]
     assert ".chatlas-tool-result" in styles[0]
 
+    # The styles must target the wrapper div itself: its id and the
+    # `chatlas-markdown` class are on the same element, so a sibling
+    # selector (`#id + .chatlas-markdown`) would never match anything.
+    wrapper = next(h for h in html if h.startswith("<div"))
+    match = re.search(r"id='([^']+)'", wrapper)
+    assert match
+    assert f"#{match.group(1)}.chatlas-markdown {{" in styles[0]
+
 
 def test_live_terminal_output_contains_final_frame():
     """
