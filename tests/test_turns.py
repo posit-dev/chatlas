@@ -1,8 +1,18 @@
+import warnings
+from typing import Literal
+
 import pytest
 
 from chatlas import ChatAnthropic
+from chatlas._chat import finalize_assistant_turn
 from chatlas._content import ToolInfo
-from chatlas._turn import AssistantTurn, SystemTurn, Turn, UserTurn
+from chatlas._turn import (
+    AssistantTurn,
+    SystemTurn,
+    Turn,
+    UserTurn,
+    check_finish_reason,
+)
 from chatlas.types import ContentJson, ContentText, ContentToolRequest, ContentToolResult
 
 
@@ -366,3 +376,67 @@ def test_get_turns_tool_result_role_no_tool_results():
     assert len(turns_assistant) == 2
     assert turns_user[0].role == turns_assistant[0].role == "user"
     assert turns_user[1].role == turns_assistant[1].role == "assistant"
+
+
+@pytest.mark.parametrize(
+    "reason, match",
+    [
+        ("max_tokens", "max_tokens"),
+        ("context_window", "context window"),
+        ("content_filter", "content moderation"),
+    ],
+)
+def test_check_finish_reason_errors_on_incomplete_response(reason: str, match: str):
+    with pytest.raises(ValueError, match=match):
+        check_finish_reason(reason, "error")
+
+
+@pytest.mark.parametrize(
+    "reason, match",
+    [
+        ("max_tokens", "max_tokens"),
+        ("context_window", "context window"),
+        ("content_filter", "content moderation"),
+    ],
+)
+def test_check_finish_reason_warns_on_incomplete_response(reason: str, match: str):
+    with pytest.warns(UserWarning, match=match):
+        check_finish_reason(reason, "warn")
+
+
+def test_check_finish_reason_error_suggests_increasing_max_tokens():
+    # The whole point of gh-315: point the user at the knob they need to turn.
+    with pytest.raises(ValueError, match="Increase"):
+        check_finish_reason("max_tokens", "error")
+
+
+@pytest.mark.parametrize(
+    "reason", [None, "success", "tool_use", "stop_sequence", "some_new_reason"]
+)
+@pytest.mark.parametrize("signal", ["error", "warn"])
+def test_check_finish_reason_ignores_complete_responses(
+    reason: str | None, signal: Literal["error", "warn"]
+):
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        assert check_finish_reason(reason, signal) is None
+
+
+def test_check_finish_reason_warning_points_at_caller():
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        check_finish_reason("max_tokens", "warn")
+
+    assert caught[0].filename == __file__
+
+
+def test_check_finish_reason_warning_points_past_intervening_chatlas_frames():
+    # Same warning, one frame deeper inside chatlas. The attributed frame must
+    # still be this test, so the stacklevel can't be a fixed constant.
+    turn = AssistantTurn("partial", finish_reason="max_tokens")
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        finalize_assistant_turn(ChatAnthropic().provider, turn)
+
+    assert caught[0].filename == __file__

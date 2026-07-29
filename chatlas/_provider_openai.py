@@ -44,7 +44,7 @@ from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, FinishReason, Turn
+from ._turn import AssistantTurn, FinishReason, Turn, check_finish_reason
 
 if TYPE_CHECKING:
     import os
@@ -472,6 +472,15 @@ class OpenAIProvider(
 
     @staticmethod
     def _response_as_turn(completion: Response, has_data_model: bool) -> AssistantTurn:
+        incomplete_reason = None
+        if completion.incomplete_details is not None:
+            incomplete_reason = completion.incomplete_details.reason
+
+        finish_reason = normalize_finish_reason(completion.status, incomplete_reason)
+        if has_data_model:
+            # Must precede the JSON parse below; see check_finish_reason().
+            check_finish_reason(finish_reason, "error")
+
         contents: list[Content] = []
         for output in completion.output:
             if output.type == "message":
@@ -538,11 +547,6 @@ class OpenAIProvider(
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
 
-        incomplete_reason = None
-        if completion.incomplete_details is not None:
-            incomplete_reason = completion.incomplete_details.reason
-
-        finish_reason = normalize_finish_reason(completion.status, incomplete_reason)
         if finish_reason == "success" and any(
             isinstance(x, ContentToolRequest) for x in contents
         ):

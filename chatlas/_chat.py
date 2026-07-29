@@ -68,7 +68,14 @@ from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgs
 from ._stream_controller import StreamController
 from ._tokens import tokens_log
 from ._tools import Tool, ToolBuiltIn, ToolRejectError
-from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
+from ._turn import (
+    AssistantTurn,
+    SystemTurn,
+    Turn,
+    UserTurn,
+    check_finish_reason,
+    user_turn,
+)
 from ._turn_accumulator import TurnAccumulator
 from ._typing_extensions import TypedDict, TypeGuard
 from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
@@ -3568,9 +3575,12 @@ async def aclose_response(response: Any) -> None:
 
 
 def finalize_assistant_turn(provider: Provider, turn: Turn) -> AssistantTurn:
-    """Validate turn type, compute tokens and cost, and log usage."""
+    """Validate turn type, warn on incomplete responses, compute tokens and cost."""
     if not isinstance(turn, AssistantTurn):
         raise TypeError(f"Expected turn to be AssistantTurn, got {type(turn).__name__}")
+    # Structured extraction already errored out in the provider, so anything
+    # reaching here is a partial response the caller can still use.
+    check_finish_reason(turn.finish_reason, "warn")
     if turn.tokens is None and turn.completion:
         turn.tokens = provider.value_tokens(turn.completion)
     if turn.cost is None and turn.completion:

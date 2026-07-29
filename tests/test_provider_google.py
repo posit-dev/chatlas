@@ -1,3 +1,5 @@
+from typing import cast
+
 import pytest
 import requests
 from chatlas import ChatGoogle, ChatVertex, tool_web_fetch, tool_web_search
@@ -872,3 +874,35 @@ def test_google_tool_config_not_set_when_tools_not_mixed():
     only_builtin = {"web_search": tool_web_search()}
     kwargs = provider._chat_perform_args(turns=[user_turn("hi")], tools=only_builtin)
     assert kwargs["config"].tool_config is None
+
+
+def truncated_structured_completion() -> dict:
+    """A structured-output response cut short by the token limit (gh-315)."""
+    return {
+        "candidates": [
+            {
+                "index": 0,
+                "finish_reason": "MAX_TOKENS",
+                "content": {
+                    "role": "model",
+                    "parts": [{"text": '{"comments": [{"body": "trunc'}],
+                },
+            }
+        ]
+    }
+
+
+def test_google_truncated_structured_output_errors_helpfully():
+    provider = cast(GoogleProvider, chat_func().provider)
+
+    with pytest.raises(ValueError, match="max_tokens"):
+        provider._as_turn(truncated_structured_completion(), has_data_model=True)
+
+
+def test_google_truncated_plain_text_still_returns_a_turn():
+    provider = cast(GoogleProvider, chat_func().provider)
+
+    turn = provider._as_turn(truncated_structured_completion(), has_data_model=False)
+
+    assert turn.text == '{"comments": [{"body": "trunc'
+    assert turn.finish_reason == "max_tokens"

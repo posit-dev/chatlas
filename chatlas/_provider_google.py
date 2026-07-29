@@ -44,7 +44,14 @@ from ._provider import (
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn
+from ._turn import (
+    AssistantTurn,
+    FinishReason,
+    SystemTurn,
+    Turn,
+    UserTurn,
+    check_finish_reason,
+)
 
 if TYPE_CHECKING:
     import io
@@ -692,6 +699,13 @@ class GoogleProvider(
             if url_context_metadata:
                 url_context_metadatas.append(url_context_metadata)
 
+        if isinstance(finish_reason, FinishReason):
+            finish_reason = finish_reason.name
+        finish_reason = normalize_finish_reason(finish_reason)
+        if has_data_model:
+            # Must precede the JSON parse below; see check_finish_reason().
+            check_finish_reason(finish_reason, "error")
+
         contents: list[Content] = []
         for part in parts:
             text = part.get("text")
@@ -747,9 +761,6 @@ class GoogleProvider(
                         )
                     )
 
-        if isinstance(finish_reason, FinishReason):
-            finish_reason = finish_reason.name
-
         search_contents = [
             c for gm in grounding_metadatas for c in google_search_contents(gm)
         ]
@@ -764,7 +775,7 @@ class GoogleProvider(
 
         return AssistantTurn(
             contents,
-            finish_reason=normalize_finish_reason(finish_reason),
+            finish_reason=finish_reason,
             completion=message,
         )
 

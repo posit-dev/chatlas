@@ -4,12 +4,16 @@ import httpx
 import pytest
 from chatlas import ChatOpenAI, tool_web_search
 from chatlas._content import ContentUploaded
-from chatlas._provider_openai import as_input_param
+from chatlas._provider_openai import OpenAIProvider, as_input_param
 from chatlas._provider_openai import (
     normalize_finish_reason as openai_normalize_finish_reason,
 )
 from chatlas.types import ContentCitation, ContentText, ContentToolRequestSearch
-from openai.types.responses import ResponseOutputMessage, ResponseOutputText
+from openai.types.responses import (
+    Response,
+    ResponseOutputMessage,
+    ResponseOutputText,
+)
 
 from .conftest import (
     assert_data_extraction,
@@ -424,3 +428,45 @@ def test_openai_custom_base_url_warning():
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         check_base_url("https://api.openai.com/v1")
+
+
+def truncated_structured_response() -> "Response":
+    """A structured-output response cut short by the token limit (gh-315)."""
+    return Response.construct(
+        id="resp_1",
+        object="response",
+        model="gpt-4.1-nano",
+        status="incomplete",
+        incomplete_details={"reason": "max_output_tokens"},
+        output=[
+            {
+                "type": "message",
+                "id": "m1",
+                "role": "assistant",
+                "status": "incomplete",
+                "content": [
+                    {
+                        "type": "output_text",
+                        "text": '{"comments": [{"body": "trunc',
+                        "annotations": [],
+                    }
+                ],
+            }
+        ],
+    )
+
+
+def test_openai_truncated_structured_output_errors_helpfully():
+    with pytest.raises(ValueError, match="max_tokens"):
+        OpenAIProvider._response_as_turn(
+            truncated_structured_response(), has_data_model=True
+        )
+
+
+def test_openai_truncated_plain_text_still_returns_a_turn():
+    turn = OpenAIProvider._response_as_turn(
+        truncated_structured_response(), has_data_model=False
+    )
+
+    assert turn.text == '{"comments": [{"body": "trunc'
+    assert turn.finish_reason == "max_tokens"
