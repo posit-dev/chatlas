@@ -915,17 +915,17 @@ class ContentCitation(Content):
     """
     A source that grounds part of the assistant's answer.
 
-    ``grounded_text`` is the span of the assistant's answer this citation
+    ``grounded_span`` is the span of the assistant's answer this citation
     grounds — the words a footnote marker attaches to. It is answer-side (from
-    the reply). ``cited_text`` is the source-side evidence quote, when the
+    the reply). ``cited_quote`` is the source-side evidence quote, when the
     provider supplies one (e.g. Anthropic web search). ``source`` identifies the
     evidence; it is ``None`` when the citation grounds answer text with no
     resolvable source.
     """
 
     source: SerializeAsAny[Optional[Source]] = None
-    grounded_text: Optional[str] = None
-    cited_text: Optional[str] = None
+    grounded_span: Optional[str] = None
+    cited_quote: Optional[str] = None
     extra: Optional[dict[str, Any]] = None
     content_type: ContentTypeEnum = "citation"
 
@@ -936,7 +936,7 @@ class ContentCitation(Content):
 
     def __str__(self) -> str:
         label = (
-            str(self.source) if self.source is not None else (self.grounded_text or "")
+            str(self.source) if self.source is not None else (self.grounded_span or "")
         )
         return f"[citation]: {label}"
 

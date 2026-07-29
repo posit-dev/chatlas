@@ -390,7 +390,7 @@ class OpenAIProvider(
                 return [
                     ContentCitation(
                         source=WebSource(url=ann["url"], title=ann.get("title")),
-                        # No grounded_text here: OpenAI streams the annotation
+                        # No grounded_span here: OpenAI streams the annotation
                         # with start_index/end_index into text that hasn't fully
                         # arrived yet, so the span is resolved on the final turn.
                         extra=ann,
@@ -500,7 +500,7 @@ class OpenAIProvider(
                             contents.append(
                                 ContentCitation(
                                     source=WebSource(url=a.url, title=a.title),
-                                    grounded_text=grounded,
+                                    grounded_span=grounded,
                                     extra=a.model_dump(),
                                 )
                             )

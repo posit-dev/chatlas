@@ -168,17 +168,17 @@ def test_openai_web_search():
     assert cites, "expected ContentCitation items in turn contents"
     assert all(c.source and c.source.url for c in cites)
 
-    # grounded_text should be sliced from the answer text on each turn
-    found_grounded_text = False
+    # grounded_span should be sliced from the answer text on each turn
+    found_grounded_span = False
     for turn in chat.get_turns():
         answer = "".join(c.text for c in turn.contents if isinstance(c, ContentText))
         for c in turn.contents:
             if not isinstance(c, ContentCitation):
                 continue
-            assert c.grounded_text is not None
-            assert c.grounded_text in answer
-            found_grounded_text = True
-    assert found_grounded_text, "expected at least one citation with grounded_text"
+            assert c.grounded_span is not None
+            assert c.grounded_span in answer
+            found_grounded_span = True
+    assert found_grounded_span, "expected at least one citation with grounded_span"
 
 
 @pytest.mark.vcr

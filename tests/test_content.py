@@ -69,13 +69,13 @@ def test_content_citation_nests_source():
     assert "https://python.org" in str(c)
 
 
-def test_content_citation_cited_text():
+def test_content_citation_cited_quote():
     c = ContentCitation(
         source=WebSource(url="https://a.com"),
-        grounded_text="the sky is blue",
-        cited_text="The sky is blue on a clear day.",
+        grounded_span="the sky is blue",
+        cited_quote="The sky is blue on a clear day.",
     )
-    assert c.cited_text == "The sky is blue on a clear day."
+    assert c.cited_quote == "The sky is blue on a clear day."
 
 
 def test_content_citation_roundtrip_rebuilds_web_source():
@@ -88,14 +88,14 @@ def test_content_citation_roundtrip_rebuilds_web_source():
 
 
 def test_content_citation_link_less_source_none():
-    c = ContentCitation(grounded_text="ggplot2 1.0.0 was released on 2014-05-21.")
+    c = ContentCitation(grounded_span="ggplot2 1.0.0 was released on 2014-05-21.")
     assert c.source is None
-    assert c.grounded_text == "ggplot2 1.0.0 was released on 2014-05-21."
+    assert c.grounded_span == "ggplot2 1.0.0 was released on 2014-05-21."
     assert c.extra is None
     restored = create_content(c.model_dump())
     assert isinstance(restored, ContentCitation)
     assert restored.source is None
-    assert restored.grounded_text == c.grounded_text
+    assert restored.grounded_span == c.grounded_span
 
 
 def test_source_and_web_source_exported_from_types():

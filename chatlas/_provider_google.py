@@ -1063,7 +1063,7 @@ def google_web_sources(
 def google_grounding_citations(
     grounding_metadata: "GroundingMetadataDict | None",
 ) -> list[ContentCitation]:
-    """ContentCitations (with answer-side grounded_text) from grounding metadata."""
+    """ContentCitations (with answer-side grounded_span) from grounding metadata."""
     if not grounding_metadata:
         return []
     sources = google_web_sources(grounding_metadata)
@@ -1081,7 +1081,7 @@ def google_grounding_citations(
             out.append(
                 ContentCitation(
                     source=src.model_copy() if src is not None else None,
-                    grounded_text=grounded,
+                    grounded_span=grounded,
                     extra={"grounding_support": sup},
                 )
             )

@@ -195,10 +195,10 @@ def test_anthropic_web_search_streaming():
     assert results and results[0].sources
     assert reqs and reqs[0].query
     assert cites and all(c.source and c.source.url for c in cites)
-    assert any(c.cited_text for c in cites)  # Anthropic supplies source-side quotes
+    assert any(c.cited_quote for c in cites)  # Anthropic supplies source-side quotes
     for c in cites:
-        assert c.grounded_text is not None
-        assert c.grounded_text in answer  # answer-side span
+        assert c.grounded_span is not None
+        assert c.grounded_span in answer  # answer-side span
         assert c.extra is not None  # raw payload retained
     # interleaved: at least one citation is not the very last item
     cite_idx = [i for i, x in enumerate(items) if isinstance(x, ContentCitation)]
@@ -220,8 +220,8 @@ def test_anthropic_web_search_citations():
     assert cites, "expected ContentCitation items in turn contents"
     assert all(c.source and c.source.url for c in cites)
     for c in cites:
-        assert c.grounded_text is not None
-        assert c.grounded_text in answer  # answer-side span
+        assert c.grounded_span is not None
+        assert c.grounded_span in answer  # answer-side span
         assert c.extra is not None  # raw payload retained
 
 
@@ -299,9 +299,9 @@ def test_anthropic_concurrent_streams_dont_share_state():
     assert len(cites["b"]) == 1
     cite_a, cite_b = cites["a"][0], cites["b"][0]
     assert cite_a.source and cite_a.source.url == "https://a.com"
-    assert cite_a.grounded_text == "alpha answer"
+    assert cite_a.grounded_span == "alpha answer"
     assert cite_b.source and cite_b.source.url == "https://b.com"
-    assert cite_b.grounded_text == "beta answer"
+    assert cite_b.grounded_span == "beta answer"
 
 
 @pytest.mark.vcr
@@ -418,7 +418,11 @@ def test_anthropic_no_uploaded_omits_beta_header():
 def test_anthropic_token_count_args_keeps_beta_header():
     provider = AnthropicProvider(model="claude-sonnet-4-6")
     turn = UserTurn(
-        [ContentUploaded(id="file_1", mime_type="application/pdf", provider="anthropic")]
+        [
+            ContentUploaded(
+                id="file_1", mime_type="application/pdf", provider="anthropic"
+            )
+        ]
     )
     args = provider._token_count_args(
         [turn],

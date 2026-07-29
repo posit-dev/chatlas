@@ -388,14 +388,14 @@ def assert_list_models(chat_fun: ChatFun):
 
 
 def assert_citations_grounded(chat: Chat) -> None:
-    """Every non-None grounded_text must be a substring of the answer text."""
+    """Every non-None grounded_span must be a substring of the answer text."""
     turn = chat.get_last_turn()
     assert turn is not None
     answer = "".join(c.text for c in turn.contents if isinstance(c, ContentText))
     for c in turn.contents:
-        if isinstance(c, ContentCitation) and c.grounded_text is not None:
-            assert c.grounded_text in answer, (
-                f"grounded_text {c.grounded_text!r} not found in answer"
+        if isinstance(c, ContentCitation) and c.grounded_span is not None:
+            assert c.grounded_span in answer, (
+                f"grounded_span {c.grounded_span!r} not found in answer"
             )
 
 

@@ -39,7 +39,7 @@ def google_grounded_turns() -> list[Turn]:
                 ContentText(text="2014-05-21"),
                 ContentCitation(
                     source=source,
-                    grounded_text="2014-05-21",
+                    grounded_span="2014-05-21",
                     extra={"grounding_support": {}},
                 ),
                 ContentToolRequestFetch(
@@ -70,7 +70,7 @@ def openai_grounded_turns() -> list[Turn]:
                 ContentText(text="2014-05-21"),
                 ContentCitation(
                     source=source,
-                    grounded_text="2014-05-21",
+                    grounded_span="2014-05-21",
                     extra={"type": "url_citation", "url": "https://a.com"},
                 ),
             ]
@@ -104,7 +104,7 @@ def anthropic_grounded_turns() -> list[Turn]:
                 ContentText(text="2014-05-21"),
                 ContentCitation(
                     source=source,
-                    grounded_text="2014-05-21",
+                    grounded_span="2014-05-21",
                     extra={"type": "web_search_result_location"},
                 ),
             ]

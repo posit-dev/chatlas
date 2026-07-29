@@ -1461,8 +1461,8 @@ def anthropic_citations(block: "TextBlock") -> list[ContentCitation]:
                 if url
                 else None,
                 # Anthropic scopes a citation to the text block it arrived on.
-                grounded_text=block.text,
-                cited_text=c.cited_text,
+                grounded_span=block.text,
+                cited_quote=c.cited_text,
                 extra=c.model_dump(exclude_none=True),
             )
         )

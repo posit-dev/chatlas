@@ -246,7 +246,7 @@ def test_google_web_search():
     assert cites, "expected ContentCitation items in turn contents"
     assert all(c.source and c.source.url for c in cites)
 
-    # grounded_text: citations carry the answer-side span they ground, and
+    # grounded_span: citations carry the answer-side span they ground, and
     # that span is drawn from the turn's own text.
     grounded_citations_found = False
     for turn in chat.get_turns():
@@ -256,8 +256,8 @@ def test_google_web_search():
             continue
         answer = "".join(c.text for c in contents if isinstance(c, ContentText))
         for c in turn_cites:
-            assert c.grounded_text is not None
-            assert c.grounded_text in answer
+            assert c.grounded_span is not None
+            assert c.grounded_span in answer
             grounded_citations_found = True
         # Ordering fix: citations follow the grounded text they annotate.
         first_text = next(
@@ -375,11 +375,11 @@ def test_google_grounding_metadata_matches_streamed_content():
     turn_cites = [c for c in turn.contents if isinstance(c, ContentCitation)]
     assert len(streamed_cites) == 1
     assert [
-        (c.source.url, c.grounded_text)
+        (c.source.url, c.grounded_span)
         for c in streamed_cites
         if isinstance(c.source, WebSource)
     ] == [
-        (c.source.url, c.grounded_text)
+        (c.source.url, c.grounded_span)
         for c in turn_cites
         if isinstance(c.source, WebSource)
     ]
@@ -435,7 +435,7 @@ def test_google_grounding_citations_without_a_web_source():
 
     citations = google_grounding_citations(grounding_metadata)
 
-    assert [(c.grounded_text, c.source) for c in citations] == [
+    assert [(c.grounded_span, c.source) for c in citations] == [
         ("sourceless span", None),
         ("linked span", WebSource(url="https://a.com", title="A")),
     ]
