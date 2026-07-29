@@ -86,6 +86,22 @@ Allowable content types for images.
 """
 
 
+VideoContentTypes = Literal[
+    "video/mp4",
+    "video/mpeg",
+    "video/mov",
+    "video/avi",
+    "video/x-flv",
+    "video/mpg",
+    "video/webm",
+    "video/wmv",
+    "video/3gpp",
+]
+"""
+Allowable content types for inline video. Only Gemini accepts video input.
+"""
+
+
 class ToolInfo(BaseModel):
     """
     Serializable tool information
@@ -134,6 +150,8 @@ ContentTypeEnum = Literal[
     "text",
     "image_remote",
     "image_inline",
+    "video_inline",
+    "video_url",
     "tool_request",
     "tool_result",
     "tool_result_image",
@@ -253,6 +271,77 @@ class ContentImageInline(ContentImage):
 
     def __str__(self):
         return f"![](data:{self.image_content_type};base64,{self.data})"
+
+
+class ContentVideo(Content):
+    """
+    Base class for video content.
+
+    This class is not meant to be used directly. Instead, use
+    [](`~chatlas.content_video_file`) or [](`~chatlas.content_video_youtube`).
+    """
+
+    pass
+
+
+class ContentVideoInline(ContentVideo):
+    """
+    Inline video content, for small clips.
+
+    This is the return type for [](`~chatlas.content_video_file`).
+    It's not meant to be used directly.
+
+    Only Gemini accepts video input, and only for requests that stay under
+    roughly 100 MB once base64-encoded; use `chat.files.upload()` for larger
+    files instead.
+
+    Parameters
+    ----------
+    video_content_type
+        The content type of the video.
+    data
+        The base64-encoded video data.
+    filename
+        The name of the video file, if known.
+    """
+
+    video_content_type: VideoContentTypes
+    data: str
+    filename: Optional[str] = None
+
+    content_type: ContentTypeEnum = "video_inline"
+
+    def __str__(self):
+        name = f" file={self.filename}" if self.filename else ""
+        return f"<video{name} mime_type={self.video_content_type}>"
+
+
+class ContentVideoUrl(ContentVideo):
+    """
+    A video referenced by URL, with no upload involved.
+
+    This is the return type for [](`~chatlas.content_video_youtube`).
+    It's not meant to be used directly.
+
+    Unlike [](`~chatlas.types.ContentUploaded`), this isn't a file a provider
+    is hosting on your behalf -- there's nothing to list, download, or
+    delete, and it doesn't expire. It's sent with no MIME type, since Gemini
+    determines the video format itself. As of this writing, Gemini only
+    accepts public YouTube URLs this way (up to 10 per request on Gemini
+    2.5+), and only Gemini accepts video URLs at all.
+
+    Parameters
+    ----------
+    url
+        The URL of the video.
+    """
+
+    url: str
+
+    content_type: ContentTypeEnum = "video_url"
+
+    def __str__(self):
+        return f"<video url={self.url}>"
 
 
 class ContentToolRequest(Content):
@@ -878,6 +967,8 @@ ContentUnion = Union[
     ContentText,
     ContentImageRemote,
     ContentImageInline,
+    ContentVideoInline,
+    ContentVideoUrl,
     ContentToolRequest,
     ContentToolResult,
     ContentJson,
@@ -959,6 +1050,10 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentImageRemote.model_validate(data)
     elif ct == "image_inline":
         return ContentImageInline.model_validate(data)
+    elif ct == "video_inline":
+        return ContentVideoInline.model_validate(data)
+    elif ct == "video_url":
+        return ContentVideoUrl.model_validate(data)
     elif ct == "tool_request":
         return ContentToolRequest.model_validate(data)
     elif ct == "tool_result":

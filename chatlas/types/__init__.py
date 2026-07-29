@@ -20,9 +20,13 @@ from .._content import (
     ContentToolResponseSearch,
     ContentToolResult,
     ContentUploaded,
+    ContentVideo,
+    ContentVideoInline,
+    ContentVideoUrl,
     ImageContentTypes,
     ToolAnnotations,
     ToolInfo,
+    VideoContentTypes,
 )
 from .._files import FileMetadata
 from .._parallel import StructuredChatResult
@@ -48,6 +52,9 @@ __all__ = (
     "ContentToolRequestSearch",
     "ContentToolResponseSearch",
     "ContentUploaded",
+    "ContentVideo",
+    "ContentVideoInline",
+    "ContentVideoUrl",
     "FileMetadata",
     "FinishReason",
     "StructuredChatResult",
@@ -58,6 +65,7 @@ __all__ = (
     "TokenUsage",
     "ToolAnnotations",
     "ToolInfo",
+    "VideoContentTypes",
     "MISSING_TYPE",
     "MISSING",
     "ModelInfo",
