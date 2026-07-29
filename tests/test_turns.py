@@ -4,6 +4,7 @@ from typing import Literal
 import pytest
 
 from chatlas import ChatAnthropic
+from chatlas._chat import finalize_assistant_turn
 from chatlas._content import ToolInfo
 from chatlas._turn import (
     AssistantTurn,
@@ -419,3 +420,23 @@ def test_check_finish_reason_ignores_complete_responses(
     with warnings.catch_warnings():
         warnings.simplefilter("error")
         assert check_finish_reason(reason, signal) is None
+
+
+def test_check_finish_reason_warning_points_at_caller():
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        check_finish_reason("max_tokens", "warn")
+
+    assert caught[0].filename == __file__
+
+
+def test_check_finish_reason_warning_points_past_intervening_chatlas_frames():
+    # Same warning, one frame deeper inside chatlas. The attributed frame must
+    # still be this test, so the stacklevel can't be a fixed constant.
+    turn = AssistantTurn("partial", finish_reason="max_tokens")
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        finalize_assistant_turn(ChatAnthropic().provider, turn)
+
+    assert caught[0].filename == __file__

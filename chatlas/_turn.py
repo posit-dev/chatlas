@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import inspect
 import json
+import os
 import warnings
 from typing import Any, Generic, Literal, Optional, Sequence, TypeVar, cast
 
@@ -452,7 +454,34 @@ def check_finish_reason(
 
     if signal == "error":
         raise ValueError(msg)
-    warnings.warn(msg, UserWarning, stacklevel=2)
+    warnings.warn(msg, UserWarning, stacklevel=caller_stacklevel())
+
+
+def caller_stacklevel() -> int:
+    """
+    The `warnings.warn()` stacklevel of the nearest frame outside chatlas.
+
+    A fixed stacklevel can't work here: the distance from a warning to the user's
+    own code depends on how they got there (`.chat()` sits two frames deeper than
+    `.stream()`, and both move again under `parallel_chat()`), so a constant
+    tuned for one entry point misattributes every other one. Python 3.12's
+    `warnings.warn(skip_file_prefixes=)` does exactly this, but chatlas supports
+    3.10+.
+    """
+    package_dir = os.path.dirname(os.path.abspath(__file__)) + os.sep
+
+    frame = inspect.currentframe()
+    frame = frame.f_back if frame else None  # start at our caller
+    level = 1
+    while frame is not None:
+        if not os.path.abspath(frame.f_code.co_filename).startswith(package_dir):
+            return level
+        frame = frame.f_back
+        level += 1
+
+    # Nothing outside chatlas on the stack (e.g. a worker thread); blame the
+    # warn() site rather than overshooting the top of the stack.
+    return 1
 
 
 # Finish reasons that mean the response isn't the one the model set out to give.
