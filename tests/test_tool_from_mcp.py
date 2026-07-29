@@ -144,12 +144,8 @@ class TestToolFromMCP:
         tool = Tool.from_mcp(session, mcp_tool)
 
         # Call the tool function
-        results = []
-        async for result in await tool.func(message="Hello"):
-            results.append(result)
+        result = await tool.func(message="Hello")
 
-        assert len(results) == 1
-        result = results[0]
         assert isinstance(result, ContentToolResult)
         assert result.value == "Hello World"
 
@@ -179,12 +175,8 @@ class TestToolFromMCP:
 
         tool = Tool.from_mcp(session, mcp_tool)
 
-        results = []
-        async for result in await tool.func():
-            results.append(result)
+        result = await tool.func()
 
-        assert len(results) == 1
-        result = results[0]
         assert isinstance(result, ContentToolResult)
         val = result.value
         assert isinstance(val, ContentImageInline)
@@ -222,12 +214,8 @@ class TestToolFromMCP:
 
         tool = Tool.from_mcp(session, mcp_tool)
 
-        results = []
-        async for result in await tool.func():
-            results.append(result)
+        result = await tool.func()
 
-        assert len(results) == 1
-        result = results[0]
         assert isinstance(result, ContentToolResult)
         val = result.value
         assert isinstance(val, ContentPDF)
@@ -235,8 +223,8 @@ class TestToolFromMCP:
         assert val.content_type == "pdf"
 
     @pytest.mark.asyncio
-    async def test_mcp_tool_call_multiple_results(self):
-        """Test calling an MCP tool that returns multiple content items."""
+    async def test_mcp_tool_call_multiple_text_parts(self):
+        """Several text parts become one result."""
         mcp_tool = self.create_mock_mcp_tool(
             name="multi_result",
             description="Return multiple results",
@@ -262,14 +250,10 @@ class TestToolFromMCP:
 
         tool = Tool.from_mcp(session, mcp_tool)
 
-        results = []
-        async for result in await tool.func():
-            results.append(result)
+        result = await tool.func()
 
-        assert len(results) == 2
-        assert all(isinstance(r, ContentToolResult) for r in results)
-        assert results[0].value == "First result"
-        assert results[1].value == "Second result"
+        assert isinstance(result, ContentToolResult)
+        assert result.value == "First result\nSecond result"
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_error(self):
@@ -295,8 +279,7 @@ class TestToolFromMCP:
         with pytest.raises(
             RuntimeError, match="Error executing tool error_tool: Something went wrong"
         ):
-            async for result in await tool.func():
-                pass
+            await tool.func()
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_error_no_text_attribute(self):
@@ -321,8 +304,7 @@ class TestToolFromMCP:
         tool = Tool.from_mcp(session, mcp_tool)
 
         with pytest.raises(RuntimeError, match="Error executing tool error_tool"):
-            async for result in await tool.func():
-                pass
+            await tool.func()
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_unsupported_image_type(self):
@@ -350,8 +332,7 @@ class TestToolFromMCP:
         with pytest.raises(
             ValueError, match="Unsupported image MIME type: image/unsupported"
         ):
-            async for result in await tool.func():
-                pass
+            await tool.func()
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_unexpected_content_type(self):
@@ -375,8 +356,7 @@ class TestToolFromMCP:
         tool = Tool.from_mcp(session, mcp_tool)
 
         with pytest.raises(RuntimeError, match="Unexpected content type: unknown_type"):
-            async for result in await tool.func():
-                pass
+            await tool.func()
 
     def test_mcp_tool_input_schema_conversion(self):
         """Test that MCP tool input schema is properly converted."""
@@ -497,16 +477,8 @@ class TestToolFromMCP:
 
 
 @pytest.mark.asyncio
-async def test_multi_part_mcp_result_becomes_one_tool_result():
-    """The end-to-end path behind "each tool_use must have a single result".
-
-    An MCP server may answer one call with several content parts; `from_mcp`
-    yields one result per part and `Chat` stamps them all with the same
-    request. They must collapse to a single result before reaching a provider.
-    """
-    from chatlas import UserTurn
-    from chatlas._content import ContentToolRequest, ToolInfo
-
+async def test_multi_part_mcp_result_is_one_list_valued_result():
+    """Mixed text and image parts become one list-valued result."""
     tool_obj = TestToolFromMCP()
     mcp_tool = tool_obj.create_mock_mcp_tool(
         name="repl",
@@ -528,23 +500,9 @@ async def test_multi_part_mcp_result_becomes_one_tool_result():
 
     tool = Tool.from_mcp(session, mcp_tool)
 
-    request = ContentToolRequest(
-        id="call_multi",
-        name="repl",
-        arguments={},
-        tool=ToolInfo(name="repl", description="", parameters={}),
-    )
-    results = []
-    async for result in await tool.func():
-        result.request = request  # mirrors Chat._invoke_tool
-        results.append(result)
+    expected_image = ContentImageInline(data="aGVsbG8=", image_content_type="image/png")
 
-    assert len(results) == 3
+    result = await tool.func()
 
-    turn = UserTurn(results)
-    merged = [c for c in turn.contents if isinstance(c, ContentToolResult)]
-    assert len(merged) == 1
-    assert merged[0].id == "call_multi"
-
-    # The image survives as its own content item rather than being dropped.
-    assert any(isinstance(c, ContentImageInline) for c in turn.contents)
+    assert isinstance(result, ContentToolResult)
+    assert result.value == ["stdout: rendering", "Done.", expected_image]

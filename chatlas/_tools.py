@@ -6,7 +6,6 @@ from typing import (
     TYPE_CHECKING,
     Annotated,
     Any,
-    AsyncGenerator,
     Awaitable,
     Callable,
     Optional,
@@ -37,6 +36,7 @@ __all__ = (
 if TYPE_CHECKING:
     from mcp import ClientSession as MCPClientSession
     from mcp import Tool as MCPTool
+    from mcp.types import ContentBlock as MCPContentBlock
     from openai.types.chat import ChatCompletionToolParam
 
 
@@ -169,7 +169,7 @@ class Tool:
             A new Tool instance wrapping the MCP tool.
         """
 
-        async def _call(**args: Any) -> AsyncGenerator[ContentToolResult, None]:
+        async def _call(**args: Any) -> ContentToolResult:
             result = await session.call_tool(mcp_tool.name, args)
 
             # Raise an error if the tool call resulted in an error. It doesn't seem to be
@@ -184,42 +184,21 @@ class Tool:
                 )
                 raise RuntimeError(err_msg)
 
-            for content in result.content:
-                if content.type == "text":
-                    yield ContentToolResult(value=content.text)
-                elif content.type == "image":
-                    if content.mime_type not in (
-                        "image/png",
-                        "image/jpeg",
-                        "image/webp",
-                        "image/gif",
-                    ):
-                        raise ValueError(
-                            f"Unsupported image MIME type: {content.mime_type}"
-                        )
+            parts = [mcp_content_to_value(mcp_tool.name, c) for c in result.content]
 
-                    img = ContentImageInline(
-                        data=content.data,
-                        image_content_type=content.mime_type,
-                    )
-                    yield ContentToolResult(value=img)
-                elif content.type == "resource":
-                    from mcp.types import TextResourceContents
+            # A call gets exactly one result. Several parts become a list value,
+            # which _content_expand unrolls for providers that only take text.
+            value: str | ContentImageInline | ContentPDF | list[
+                str | ContentImageInline | ContentPDF
+            ]
+            if len(parts) == 1:
+                value = parts[0]
+            elif all(isinstance(p, str) for p in parts):
+                value = "\n".join(cast("list[str]", parts))
+            else:
+                value = parts
 
-                    resource = content.resource
-                    if isinstance(resource, TextResourceContents):
-                        blob = resource.text.encode("utf-8")
-                    else:
-                        blob = resource.blob.encode("utf-8")
-
-                    mime_type = content.resource.mime_type
-                    if mime_type != "application/pdf":
-                        raise ValueError(f"Unsupported resource MIME type: {mime_type}")
-
-                    pdf = ContentPDF(data=blob, filename=f"{mcp_tool.name}-result.pdf")
-                    yield ContentToolResult(value=pdf)
-                else:
-                    raise RuntimeError(f"Unexpected content type: {content.type}")
+            return ContentToolResult(value=value, model_format="as_is")
 
         params = mcp_tool_input_schema_to_param_schema(mcp_tool.input_schema)
 
@@ -463,6 +442,44 @@ def _validate_model_vs_function(model: type[BaseModel], func: Callable) -> None:
         raise ValueError(
             f"Function parameters {extra_params} have no corresponding model fields."
         )
+
+
+def mcp_content_to_value(
+    tool_name: str, content: "MCPContentBlock"
+) -> str | ContentImageInline | ContentPDF:
+    if content.type == "text":
+        return content.text
+
+    if content.type == "image":
+        if content.mime_type not in (
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            "image/gif",
+        ):
+            raise ValueError(f"Unsupported image MIME type: {content.mime_type}")
+
+        return ContentImageInline(
+            data=content.data,
+            image_content_type=content.mime_type,
+        )
+
+    if content.type == "resource":
+        from mcp.types import TextResourceContents
+
+        resource = content.resource
+        if isinstance(resource, TextResourceContents):
+            blob = resource.text.encode("utf-8")
+        else:
+            blob = resource.blob.encode("utf-8")
+
+        mime_type = resource.mime_type
+        if mime_type != "application/pdf":
+            raise ValueError(f"Unsupported resource MIME type: {mime_type}")
+
+        return ContentPDF(data=blob, filename=f"{tool_name}-result.pdf")
+
+    raise RuntimeError(f"Unexpected content type: {content.type}")
 
 
 def mcp_tool_input_schema_to_param_schema(
