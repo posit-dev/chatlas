@@ -2,6 +2,7 @@ import httpx
 import pytest
 from chatlas import ChatOpenAICompletions
 from chatlas._content import (
+    ContentAudio,
     ContentText,
     ContentThinking,
     ContentThinkingDelta,
@@ -15,6 +16,7 @@ from chatlas._provider_openai_completions import (
 from chatlas._turn import AssistantTurn, UserTurn
 
 from .conftest import (
+    assert_audio_local,
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote,
@@ -130,6 +132,12 @@ def test_openai_pdf():
     assert_pdf_local(ChatOpenAICompletions)
 
 
+@pytest.mark.vcr
+def test_openai_audio_input():
+    # Audio input on Chat Completions requires an audio-capable model.
+    assert_audio_local(lambda: ChatOpenAICompletions(model="gpt-audio-mini"))
+
+
 def test_openai_custom_http_client():
     ChatOpenAICompletions(kwargs={"http_client": httpx.AsyncClient()})
 
@@ -172,6 +180,7 @@ def test_response_as_turn_extracts_reasoning_content():
     message.reasoning = None
     message.reasoning_content = "Let me think..."
     message.content = "The answer is 42."
+    message.audio = None
     message.tool_calls = None
     completion.choices = [Mock(message=message, finish_reason="stop")]
 
@@ -215,6 +224,7 @@ def test_response_as_turn_extracts_reasoning_field():
     message.reasoning = "Let me think..."
     message.reasoning_content = None
     message.content = "The answer is 42."
+    message.audio = None
     message.tool_calls = None
     completion.choices = [Mock(message=message, finish_reason="stop")]
 
@@ -272,6 +282,7 @@ def test_response_as_turn_treats_empty_content_as_none():
     message.reasoning = None
     message.reasoning_content = None
     message.content = ""
+    message.audio = None
     message.tool_calls = [Mock(type="function", id="call_1", function=mock_func)]
     completion.choices = [Mock(message=message, finish_reason="stop")]
 
@@ -296,6 +307,50 @@ def test_turns_as_inputs_drops_empty_content_text():
     )
     result = provider._turns_as_inputs([turn])
     assert result[0]["content"] == [{"type": "text", "text": "Hello"}]
+
+
+def test_completions_audio_input_serializes():
+    provider = OpenAICompletionsProvider(model="gpt-4o-audio-preview")
+    turn = UserTurn([ContentAudio(data=b"\x00\x01\x02", mime_type="audio/wav")])
+    msgs = provider._turns_as_inputs([turn])
+    part = msgs[-1]["content"][0]
+    assert part["type"] == "input_audio"
+    assert part["input_audio"]["format"] == "wav"
+    import base64
+
+    assert part["input_audio"]["data"] == base64.b64encode(b"\x00\x01\x02").decode(
+        "utf-8"
+    )
+
+
+def test_completions_audio_input_unsupported_format_raises():
+    provider = OpenAICompletionsProvider(model="gpt-4o-audio-preview")
+    turn = UserTurn([ContentAudio(data=b"\x00\x01", mime_type="audio/flac")])
+    with pytest.raises(ValueError, match="only accepts wav or mp3"):
+        provider._turns_as_inputs([turn])
+
+
+def test_response_as_turn_surfaces_audio_transcript():
+    """
+    ChatCompletionAudio has no format/mime field, so chatlas can't yet
+    represent the audio bytes -- but the transcript is plain text and should
+    still show up rather than yielding an empty turn.
+    """
+    from unittest.mock import Mock
+
+    completion = Mock()
+    message = Mock()
+    message.reasoning = None
+    message.reasoning_content = None
+    message.content = None
+    message.tool_calls = None
+    message.audio = Mock(transcript="Hello there.")
+    completion.choices = [Mock(message=message, finish_reason="stop")]
+
+    turn = OpenAICompletionsProvider._response_as_turn(completion, has_data_model=False)
+    assert len(turn.contents) == 1
+    assert isinstance(turn.contents[0], ContentText)
+    assert turn.contents[0].text == "Hello there."
 
 
 def test_completions_uploaded_document_serializes():
