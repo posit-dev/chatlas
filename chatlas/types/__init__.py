@@ -4,7 +4,9 @@ from .._chat import (  # noqa: A005
     SubmitInputArgsT,
 )
 from .._content import (
+    AudioContentTypes,
     Content,
+    ContentAudio,
     ContentImage,
     ContentImageInline,
     ContentImageRemote,
@@ -32,7 +34,9 @@ from .._turn import FinishReason
 from .._utils import MISSING, MISSING_TYPE
 
 __all__ = (
+    "AudioContentTypes",
     "Content",
+    "ContentAudio",
     "ContentImage",
     "ContentImageInline",
     "ContentImageRemote",
