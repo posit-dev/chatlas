@@ -5,6 +5,7 @@ from .._chat import (  # noqa: A005
 )
 from .._content import (
     Content,
+    ContentDocument,
     ContentImage,
     ContentImageInline,
     ContentImageRemote,
@@ -33,6 +34,7 @@ from .._utils import MISSING, MISSING_TYPE
 
 __all__ = (
     "Content",
+    "ContentDocument",
     "ContentImage",
     "ContentImageInline",
     "ContentImageRemote",

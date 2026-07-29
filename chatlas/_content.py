@@ -13,6 +13,7 @@ from pydantic import (
     Field,
     field_serializer,
     field_validator,
+    model_validator,
 )
 
 from ._typing_extensions import TypedDict
@@ -80,10 +81,43 @@ ImageContentTypes = Literal[
     "image/jpeg",
     "image/webp",
     "image/gif",
+    "image/heic",
+    "image/heif",
 ]
 """
 Allowable content types for images.
+
+Note that not every provider accepts every type here: `image/heic` and
+`image/heif` are only supported by `ChatGoogle()` today. Providers that can't
+accept a given type raise a clear error rather than silently sending it.
 """
+
+HEIC_HEIF_IMAGE_TYPES = ("image/heic", "image/heif")
+
+DOCX_MIME_TYPE = (
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+)
+XLSX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+OFFICE_MIME_TYPES = frozenset({DOCX_MIME_TYPE, XLSX_MIME_TYPE})
+"""
+`ContentDocument` MIME types that only `ChatOpenAI()`/`ChatOpenAICompletions()`
+accept -- Anthropic and Google can't extract text from docx/xlsx and require
+converting to plain text or PDF first.
+"""
+
+
+def check_image_content_type_supported(provider_name: str, content_type: str) -> None:
+    """Raise a clear error if `provider_name` can't accept `content_type` images.
+
+    Only `ChatGoogle()` supports HEIC/HEIF today; every other provider rejects
+    them outright rather than sending bytes the API will reject anyway.
+    """
+    if content_type in HEIC_HEIF_IMAGE_TYPES:
+        raise ValueError(
+            f"{provider_name} doesn't support {content_type} images. Convert "
+            "to image/png, image/jpeg, image/webp, or image/gif first, or "
+            "use ChatGoogle(), which supports HEIC/HEIF natively."
+        )
 
 
 class ToolInfo(BaseModel):
@@ -140,6 +174,7 @@ ContentTypeEnum = Literal[
     "tool_result_resource",
     "json",
     "pdf",
+    "document",
     "uploaded",
     "thinking",
     "thinking_delta",
@@ -618,33 +653,116 @@ class ContentPDF(Content):
     Parameters
     ----------
     data
-        The PDF data extracted
+        The PDF's bytes. Optional when `url` is set: some providers (e.g.
+        Anthropic, `ChatOpenAI()`'s Responses API) can fetch the URL directly,
+        so the bytes are only downloaded (and cached back onto this field) if
+        the target provider actually needs them.
     filename
         The name of the PDF file
     url
-        An optional URL where the PDF can be accessed
+        An optional URL where the PDF can be accessed. When set and the
+        target provider supports it, the URL is sent as-is instead of
+        downloading and re-uploading the PDF's bytes.
     """
 
-    data: bytes
+    data: Optional[bytes] = None
     filename: str
     url: Optional[str] = None
 
     content_type: ContentTypeEnum = "pdf"
 
+    @model_validator(mode="after")
+    def _check_data_or_url(self) -> "ContentPDF":
+        if self.data is None and self.url is None:
+            raise ValueError("ContentPDF requires either `data` or `url` to be set.")
+        return self
+
     @field_serializer("data")
     @classmethod
-    def serialize_data(cls, v: bytes) -> str:
+    def serialize_data(cls, v: Optional[bytes]) -> Optional[str]:
+        if v is None:
+            return None
         return base64.b64encode(v).decode("ascii")
 
     @field_validator("data", mode="before")
     @classmethod
-    def validate_data(cls, v: bytes | str) -> bytes:
+    def validate_data(cls, v: Optional[bytes | str]) -> Optional[bytes]:
         if isinstance(v, str):
             return base64.b64decode(v, validate=True)
         return v
 
     def __str__(self):
-        return f"<PDF document file={self.filename} size={len(self.data)} bytes>"
+        size = f"{len(self.data)} bytes" if self.data is not None else f"url={self.url}"
+        return f"<PDF document file={self.filename} {size}>"
+
+
+class ContentDocument(Content):
+    """
+    Generic document content (plain text, Markdown, CSV, code, and -- on
+    providers that support it -- docx/xlsx).
+
+    This is the type returned by [](`~chatlas.content_document_file`). Unlike
+    [](`~chatlas.ContentPDF`), documents carry a real `mime_type` since they
+    span many formats; PDFs should always go through
+    [](`~chatlas.content_pdf_file`)/[](`~chatlas.content_pdf_url`) instead,
+    which unlock PDF-specific handling (page-image understanding on
+    Anthropic, citations, and URL passthrough).
+
+    Parameters
+    ----------
+    data
+        The document's bytes. Optional when `url` is set.
+    filename
+        The name of the document file.
+    mime_type
+        The document's MIME type (e.g. `"text/plain"`, `"text/csv"`,
+        `"application/vnd.openxmlformats-officedocument.wordprocessingml.document"`).
+        Not every provider accepts every MIME type -- providers that can't
+        accept a given type raise a clear error.
+    url
+        An optional URL where the document can be accessed. When set and the
+        target provider supports it, the URL is sent as-is instead of
+        downloading the document's bytes.
+    """
+
+    data: Optional[bytes] = None
+    filename: str
+    mime_type: str
+    url: Optional[str] = None
+
+    content_type: ContentTypeEnum = "document"
+
+    @model_validator(mode="after")
+    def _check_data_or_url(self) -> "ContentDocument":
+        if self.data is None and self.url is None:
+            raise ValueError(
+                "ContentDocument requires either `data` or `url` to be set."
+            )
+        if self.mime_type == "application/pdf":
+            raise ValueError(
+                "ContentDocument doesn't support PDF files. Use "
+                "content_pdf_file() or content_pdf_url() instead, which "
+                "unlock PDF-specific handling (page-image understanding, "
+                "citations, and URL passthrough)."
+            )
+        return self
+
+    @field_serializer("data")
+    @classmethod
+    def serialize_data(cls, v: Optional[bytes]) -> Optional[str]:
+        if v is None:
+            return None
+        return base64.b64encode(v).decode("ascii")
+
+    @field_validator("data", mode="before")
+    @classmethod
+    def validate_data(cls, v: Optional[bytes | str]) -> Optional[bytes]:
+        if isinstance(v, str):
+            return base64.b64decode(v, validate=True)
+        return v
+
+    def __str__(self):
+        return f"<document file={self.filename} mime_type={self.mime_type}>"
 
 
 class ContentUploaded(Content):
@@ -882,6 +1000,7 @@ ContentUnion = Union[
     ContentToolResult,
     ContentJson,
     ContentPDF,
+    ContentDocument,
     ContentUploaded,
     ContentThinking,
     ContentToolRequestSearch,
@@ -967,6 +1086,8 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentJson.model_validate(data)
     elif ct == "pdf":
         return ContentPDF.model_validate(data)
+    elif ct == "document":
+        return ContentDocument.model_validate(data)
     elif ct == "uploaded":
         return ContentUploaded.model_validate(data)
     elif ct == "thinking":
