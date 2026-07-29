@@ -18,6 +18,7 @@ website:
       - reference/ChatMistral.qmd
       - reference/ChatOllama.qmd
       - reference/ChatOpenAI.qmd
+      - reference/ChatOpenAICompletions.qmd
       - reference/ChatOpenRouter.qmd
       - reference/ChatPerplexity.qmd
       - reference/ChatPortkey.qmd

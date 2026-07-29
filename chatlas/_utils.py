@@ -145,6 +145,18 @@ class MISSING_TYPE:
 MISSING = MISSING_TYPE()
 
 
+def default_if_missing(value: T | None | MISSING_TYPE, default: T) -> T | None:
+    """
+    Resolve an option, keeping `None` distinct from "not passed".
+
+    For use where `None` is itself meaningful (e.g. it turns a bound off), so it
+    can't double as the "use the default" signal.
+    """
+    if isinstance(value, MISSING_TYPE):
+        return default
+    return value
+
+
 # --------------------------------------------------------------------
 # html_escape was copied from htmltools/_utils.py
 # --------------------------------------------------------------------
@@ -163,6 +175,21 @@ HTML_ATTRS_ESCAPE_TABLE = {
     "\r": "&#13;",
     "\n": "&#10;",
 }
+
+
+def truncate_lines(text: str, max_lines: int) -> str:
+    """
+    Cap `text` at `max_lines`, noting how many lines were dropped.
+
+    A terminal can't scroll inside a region the way a browser can, so the count is
+    what stands in for a scrollbar: it tells you the output was cut and by how much.
+    """
+    lines = text.splitlines()
+    if len(lines) <= max_lines:
+        return text
+    n_dropped = len(lines) - max_lines
+    plural = "" if n_dropped == 1 else "s"
+    return "\n".join([*lines[:max_lines], f"# … {n_dropped} more line{plural}"])
 
 
 def html_escape(text: str, attr: bool = True) -> str:

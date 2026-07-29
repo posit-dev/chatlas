@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 
+## [UNRELEASED]
+
+### Improvements
+
+* Reasoning is now visible when echoing. Previously, thinking content was wrapped in literal `<thinking>` tags that a markdown renderer treated as an HTML block and dropped, so reasoning never appeared at all — even with `echo="all"`. It now renders in a "Thinking" panel in the console, and in a `<details>` block in notebooks that stays expanded while reasoning streams in and collapses once it's done. `echo="text"` continues to show only the assistant's answer. (#361)
+* Long tool results no longer dominate the display. In notebooks they render collapsed, with the same look shinychat uses, and scroll internally beyond a bounded height once expanded. In the console they're truncated with a count of the dropped lines. Either way a big tool result now costs a fixed amount of vertical space, and the full value remains on the turn. `Chat.set_echo_options()` gained `tool_result_max_lines` (console, default 20) and `tool_result_max_height` (notebook, default `"400px"`) to tune this. (#361)
+* Long reasoning is likewise bounded in the console, capped at `thinking_max_lines` (default 10). Unlike a tool result it's cropped from the *top*, keeping the newest reasoning — cropping the other way would pin the panel to text you've already read while new text streamed in unseen. The title reports how many earlier lines were dropped. The cap counts rendered (wrapped) lines rather than newlines, since reasoning is prose that wraps well past its own line count, so the dropped count stays correct at any console width.
+* All three echo size options (`tool_result_max_lines`, `tool_result_max_height`, `thinking_max_lines`) accept `None` to turn the bound off entirely.
+
+### Bug fixes
+
+* `echo="all"` no longer displays tool results twice — once in full as part of the user turn they're attached to, and again on their own.
+* `Chat.set_echo_options(css_styles=)` now actually applies in notebooks: the styles were previously attached to a CSS sibling selector that could never match the wrapper they were meant to style.
+* Tool names and argument names are now HTML-escaped in the notebook/shiny rendering of tool requests and results, closing an HTML-injection hole (both are model-controlled).
+
 ## [0.20.0] - 2026-07-29
 
 ### New features
