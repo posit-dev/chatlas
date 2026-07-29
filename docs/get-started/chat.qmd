@@ -112,7 +112,13 @@ bytes are only fetched if the target provider actually needs them (e.g.
 Not every model supports every content type. Please refer to the documentation for the specific model you're using to see which content types are supported. For example, `.docx`/`.xlsx` documents and `image/heic`/`image/heif` images are each only supported by one provider (OpenAI and Google, respectively); other providers raise a clear error rather than silently failing.
 :::
 
-For a large file, or one you want to reference across many turns, upload it once with [`chat.files.upload()`](../reference/FileManager.qmd#upload) instead of re-sending its bytes every time:
+### Sending bytes vs. uploading a file {#inline-vs-upload}
+
+There are two ways to get a file to a model, and they differ in more than convenience.
+
+The `content_*_file()` functions above **embed the file's bytes in the request**. Those bytes are re-sent on every turn that includes the file, so a large file referenced across a long conversation is uploaded repeatedly -- and the whole request has to fit under the provider's payload ceiling (32 MB for Anthropic, 50 MB for OpenAI).
+
+[`chat.files.upload()`](../reference/FileManager.qmd#upload) instead **stores the file with the provider once** and gives you a small [`ContentUploaded`](../reference/types.ContentUploaded.qmd) reference to pass in its place:
 
 ```python
 uploaded = chat.files.upload("quarterly-report.pdf")
@@ -120,7 +126,12 @@ chat.chat(uploaded, "Summarize the key findings.")
 chat.chat(uploaded, "Now list the risks mentioned.")
 ```
 
-See [`chat.files`](../reference/FileManager.qmd) for the full set of upload/list/download/delete operations and provider support notes, and [`ContentUploaded`](../reference/types.ContentUploaded.qmd) for the reference type it returns.
+Reach for `content_*_file()` by default, and `chat.files.upload()` when the file is large or you'll reference it across many turns. Two things to know before uploading:
+
+* **Uploads only work on some providers.** `ChatOpenAI()`, `ChatAnthropic()`, and `ChatGoogle()` (the Gemini Developer API) support them; everything else raises `NotImplementedError`. The `content_*_file()` functions work everywhere.
+* **A `ContentUploaded` belongs to the provider that issued it.** It's an id, not data, so a chat containing one can't be replayed against a different provider -- and provider-side files have their own lifecycle (Gemini's expire after 48 hours). Inline content is self-contained and portable.
+
+See [`chat.files`](../reference/FileManager.qmd) for the full set of upload/list/download/delete operations and provider support notes.
 
 ## Chat history
 

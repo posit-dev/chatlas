@@ -42,6 +42,12 @@ def content_document_file(
     with `ChatOpenAI()`, and Anthropic only accepts documents it can treat as
     plain text -- so check the documentation for the provider you are using.
 
+    This embeds the file's bytes in every request that includes it. For a
+    large document, or one referenced across many turns, upload it once with
+    `chat.files.upload()` instead and pass the resulting
+    [](`~chatlas.types.ContentUploaded`) -- at the cost of working on fewer
+    providers and tying the chat to the one that hosts the file.
+
     Parameters
     ----------
     path
