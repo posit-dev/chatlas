@@ -75,8 +75,8 @@ chat.chat("What's my name?", echo="text")
 
 ## Multi-modal input {#multi-modal-input}
 
-The `.chat()` method also accepts input other than text, such as images, pdfs, and more.
-These content objects can be created using a function such as [`content_image_url()`](../reference/content_image_url.qmd), [`content_pdf_file()`](../reference/content_pdf_file.qmd), etc.
+The `.chat()` method also accepts input other than text, such as images, PDFs, plain-text/data files, and more.
+These content objects can be created using a function such as [`content_image_url()`](../reference/content_image_url.qmd), [`content_pdf_file()`](../reference/content_pdf_file.qmd), [`content_document_file()`](../reference/content_document_file.qmd), etc.
 
 ```python
 import chatlas as ctl
@@ -92,10 +92,24 @@ The Python logo features two intertwined snakes in yellow and blue,
 representing the Python programming language. The design symbolizes...
 ```
 
+Use [`content_document_file()`](../reference/content_document_file.qmd) for plain text, Markdown, CSV, code, and other non-PDF documents -- it keeps the filename and (on Anthropic) makes the content eligible for citations, instead of reading the file yourself and pasting its contents into a prompt string:
+
+```python
+chat.chat(
+  ctl.content_document_file("quarterly-report.csv"),
+  "Summarize the trends in this data.",
+)
+```
+
+`content_pdf_url()` doesn't download the PDF's bytes up front -- Anthropic and
+`ChatOpenAI()` (the Responses API) can reference the URL directly, so the
+bytes are only fetched if the target provider actually needs them (e.g.
+`ChatGoogle()` or `ChatOpenAICompletions()`).
+
 ::: callout-warning
 ### Supported content types
 
-Not every model supports every content type. Please refer to the documentation for the specific model you're using to see which content types are supported.
+Not every model supports every content type. Please refer to the documentation for the specific model you're using to see which content types are supported. For example, `.docx`/`.xlsx` documents and `image/heic`/`image/heif` images are each only supported by one provider (OpenAI and Google, respectively); other providers raise a clear error rather than silently failing.
 :::
 
 For a large file, or one you want to reference across many turns, upload it once with [`chat.files.upload()`](../reference/FileManager.qmd#upload) instead of re-sending its bytes every time:

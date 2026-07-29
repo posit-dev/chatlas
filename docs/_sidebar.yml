@@ -39,6 +39,9 @@ website:
       - reference/content_pdf_url.qmd
       section: PDF input
     - contents:
+      - reference/content_document_file.qmd
+      section: Document input
+    - contents:
       - reference/Tool.qmd
       - reference/ToolRejectError.qmd
       section: Tool calling
@@ -78,6 +81,7 @@ website:
       - reference/types.ContentImageRemote.qmd
       - reference/types.ContentJson.qmd
       - reference/types.ContentPDF.qmd
+      - reference/types.ContentDocument.qmd
       - reference/types.ContentText.qmd
       - reference/types.ContentThinking.qmd
       - reference/types.ContentThinkingDelta.qmd

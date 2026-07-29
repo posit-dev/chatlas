@@ -179,6 +179,10 @@ quartodoc:
       contents:
         - content_pdf_file
         - content_pdf_url
+    - title: Document input
+      desc: Submit plain text, Markdown, CSV, code, and other non-PDF document input to the chat
+      contents:
+        - content_document_file
     - title: Tool calling
       desc: Add context to python function before registering it as a tool.
       contents:
@@ -225,6 +229,7 @@ quartodoc:
         - types.ContentImageRemote
         - types.ContentJson
         - types.ContentPDF
+        - types.ContentDocument
         - types.ContentText
         - types.ContentThinking
         - types.ContentThinkingDelta
