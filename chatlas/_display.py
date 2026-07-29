@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional, Union
 from uuid import uuid4
 
-from rich._loop import loop_last
 from rich.live import Live
 from rich.logging import RichHandler
 
@@ -241,7 +240,9 @@ class IPyMarkdownDisplay(MarkdownDisplay):
                 "Install it with `pip install ipython`."
             )
 
-        max_height = self._echo_options["tool_result_max_height"]
+        # `none` (the CSS keyword) rather than omitting the property, which
+        # would fall through to the 400px fallback baked into TOOL_CSS.
+        max_height = self._echo_options["tool_result_max_height"] or "none"
         wrapper_style = f"--chatlas-tool-result-max-height: {max_height}"
 
         if self._css_styles:
@@ -356,10 +357,10 @@ class ThinkingPanel:
                     kept.pop(0)
                     dropped += 1
                 segments: list[Segment] = []
-                for last, line in loop_last(kept):
-                    segments.extend(line)
-                    if not last:
+                for i, line in enumerate(kept):
+                    if i > 0:
                         segments.append(Segment.line())
+                    segments.extend(line)
                 body = Segments(segments)
                 plural = "" if dropped == 1 else "s"
                 title = f"Thinking (… {dropped} earlier line{plural})"

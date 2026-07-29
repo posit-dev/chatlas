@@ -145,6 +145,18 @@ class MISSING_TYPE:
 MISSING = MISSING_TYPE()
 
 
+def default_if_missing(value: T | None | MISSING_TYPE, default: T) -> T | None:
+    """
+    Resolve an option, keeping `None` distinct from "not passed".
+
+    For use where `None` is itself meaningful (e.g. it turns a bound off), so it
+    can't double as the "use the default" signal.
+    """
+    if isinstance(value, MISSING_TYPE):
+        return default
+    return value
+
+
 # --------------------------------------------------------------------
 # html_escape was copied from htmltools/_utils.py
 # --------------------------------------------------------------------

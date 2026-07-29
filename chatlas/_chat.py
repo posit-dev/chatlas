@@ -81,7 +81,13 @@ from ._turn import (
 )
 from ._turn_accumulator import TurnAccumulator
 from ._typing_extensions import TypedDict, TypeGuard
-from ._utils import MISSING, MISSING_TYPE, html_escape, wrap_async
+from ._utils import (
+    MISSING,
+    MISSING_TYPE,
+    default_if_missing,
+    html_escape,
+    wrap_async,
+)
 
 if TYPE_CHECKING:
     from inspect_ai.model import ChatMessage as InspectChatMessage
@@ -3317,6 +3323,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         Set echo styling options for the chat.
 
+        Note that each call replaces *all* of the options: anything not passed
+        reverts to its default rather than keeping a previously set value.
+
         Parameters
         ----------
         rich_markdown
@@ -3535,18 +3544,6 @@ def emit_user_contents(
     emit(f"## 👤 User turn:\n\n{x.text}\n\n")
     emit_other_contents(x, emit)
     emit("\n\n## 🤖 Assistant turn:\n\n")
-
-
-def default_if_missing(value: "T | None | MISSING_TYPE", default: T) -> Optional[T]:
-    """
-    Resolve an echo size option, keeping `None` distinct from "not passed".
-
-    `None` is meaningful for these -- it turns the bound off -- so it can't
-    double as the "use the default" signal.
-    """
-    if isinstance(value, MISSING_TYPE):
-        return default
-    return value
 
 
 def emit_thinking_contents(

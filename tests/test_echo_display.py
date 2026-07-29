@@ -508,6 +508,14 @@ def test_set_echo_options_passes_rich_markdown_options():
     assert "https://example.com" in output()
 
 
+def test_set_echo_options_replaces_all_options():
+    """Each call replaces the full set: unspecified options revert to defaults."""
+    chat = make_chat([[text("Hello")]])
+    chat.set_echo_options(thinking_max_lines=None)
+    chat.set_echo_options(rich_markdown={"hyperlinks": False})
+    assert chat._echo_options["thinking_max_lines"] == 10
+
+
 def test_logs_are_routed_into_the_live_console():
     """
     `LiveMarkdownDisplay.__enter__` repoints any `RichHandler` at the live
@@ -622,6 +630,19 @@ def test_ipy_display_honors_max_height_option(monkeypatch):
 
     wrapper = next(h for h in html if "chatlas-markdown" in h)
     assert "--chatlas-tool-result-max-height: 12rem" in wrapper
+
+
+def test_ipy_display_max_height_None_means_unbounded(monkeypatch):
+    html = capture_ipy_html(monkeypatch)
+    chat = make_chat([[text("Hello")]])
+    chat.set_echo_options(tool_result_max_height=None)
+    chat.chat("hi", echo="output")
+
+    wrapper = next(h for h in html if "chatlas-markdown" in h)
+    # `none` is CSS for "no max-height"; it must not fall through to the
+    # 400px fallback in TOOL_CSS (or worse, a stringified Python None).
+    assert "--chatlas-tool-result-max-height: none" in wrapper
+    assert "None" not in wrapper
 
 
 def test_ipy_display_keeps_css_styles_option(monkeypatch):
