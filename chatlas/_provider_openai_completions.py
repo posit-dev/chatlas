@@ -35,7 +35,14 @@ from ._merge import merge_dicts
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
-from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn
+from ._turn import (
+    AssistantTurn,
+    FinishReason,
+    SystemTurn,
+    Turn,
+    UserTurn,
+    check_finish_reason,
+)
 from ._utils import MISSING, MISSING_TYPE, is_testing
 
 if TYPE_CHECKING:
@@ -434,6 +441,11 @@ class OpenAICompletionsProvider(
     def _response_as_turn(
         completion: "ChatCompletion", has_data_model: bool
     ) -> AssistantTurn[ChatCompletion]:
+        finish_reason = normalize_finish_reason(completion.choices[0].finish_reason)
+        if has_data_model:
+            # Must precede the JSON parse below; see check_finish_reason().
+            check_finish_reason(finish_reason, "error")
+
         message = completion.choices[0].message
 
         contents: list[Content] = []
@@ -474,7 +486,7 @@ class OpenAICompletionsProvider(
 
         return AssistantTurn(
             contents,
-            finish_reason=normalize_finish_reason(completion.choices[0].finish_reason),
+            finish_reason=finish_reason,
             completion=completion,
         )
 

@@ -2,6 +2,7 @@ from typing import Literal, cast
 
 import httpx
 import pytest
+from anthropic.types import Message, TextBlock
 from chatlas import (
     AssistantTurn,
     ChatAnthropic,
@@ -445,3 +446,35 @@ def test_anthropic_token_count_complete_exceeds_new():
 
     assert new_only > 0
     assert complete > new_only
+
+
+def truncated_structured_message() -> "Message":
+    """A structured-output response cut short by the `max_tokens` limit (gh-315)."""
+    return Message.construct(
+        id="msg_1",
+        type="message",
+        role="assistant",
+        model="claude-haiku-4-5-20251001",
+        stop_reason="max_tokens",
+        stop_sequence=None,
+        content=[TextBlock(type="text", text='{"comments": [{"body": "trunc')],
+        usage=None,
+    )
+
+
+def test_anthropic_truncated_structured_output_errors_helpfully():
+    provider = cast(AnthropicProvider, chat_func().provider)
+
+    with pytest.raises(ValueError, match="max_tokens"):
+        provider._as_turn(truncated_structured_message(), has_data_model=True)
+
+
+def test_anthropic_truncated_plain_text_still_returns_a_turn():
+    # Without a data model there's nothing to parse, so the partial text is
+    # still worth handing back -- `Chat` warns about it instead.
+    provider = cast(AnthropicProvider, chat_func().provider)
+
+    turn = provider._as_turn(truncated_structured_message(), has_data_model=False)
+
+    assert turn.text == '{"comments": [{"body": "trunc'
+    assert turn.finish_reason == "max_tokens"

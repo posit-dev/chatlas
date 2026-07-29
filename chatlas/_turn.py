@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import warnings
 from typing import Any, Generic, Literal, Optional, Sequence, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -429,6 +430,45 @@ def complete_dangling_tool_requests(turns: Sequence[Turn]) -> list[ContentToolRe
         )
         for req in tool_requests
     ]
+
+
+def check_finish_reason(
+    finish_reason: FinishReason | str | None,
+    signal: Literal["error", "warn"],
+) -> None:
+    """
+    Signal that a response finished for a reason that leaves it incomplete.
+
+    Use `signal="error"` where nothing useful can be done with a partial response
+    and `signal="warn"` where it's still worth handing back. Structured data
+    extraction is the former: truncated JSON fails to parse, and the resulting
+    decode error says nothing about the cause. So providers call this with
+    `"error"` *before* parsing a data model out of the response (gh-315), leaving
+    `Chat` to `"warn"` about whatever partial responses do get through.
+    """
+    msg = INCOMPLETE_FINISH_REASONS.get(finish_reason) if finish_reason else None
+    if msg is None:
+        return
+
+    if signal == "error":
+        raise ValueError(msg)
+    warnings.warn(msg, UserWarning, stacklevel=2)
+
+
+# Finish reasons that mean the response isn't the one the model set out to give.
+# Keyed by the normalized reason (see `FinishReason`).
+INCOMPLETE_FINISH_REASONS: dict[str, str] = {
+    "max_tokens": (
+        "Response was truncated because it hit the `max_tokens` limit. "
+        "Increase `max_tokens` to allow the model to generate the full response."
+    ),
+    "context_window": (
+        "Response was truncated because it exceeded the model's context window."
+    ),
+    "content_filter": (
+        "Response was filtered by the provider's content moderation policy."
+    ),
+}
 
 
 class ToolNotInvokedError(Exception):
