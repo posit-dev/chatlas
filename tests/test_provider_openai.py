@@ -3,6 +3,8 @@ import warnings
 import httpx
 import pytest
 from chatlas import ChatOpenAI, tool_web_search
+from chatlas._content import ContentUploaded
+from chatlas._provider_openai import as_input_param
 from chatlas._provider_openai import (
     normalize_finish_reason as openai_normalize_finish_reason,
 )
@@ -61,6 +63,28 @@ def test_normalize_finish_reason_passes_through_unknown_status():
 
 def test_normalize_finish_reason_handles_none():
     assert openai_normalize_finish_reason(None) is None
+
+
+def test_openai_uploaded_serializes_to_input_file():
+    c = ContentUploaded(id="file_abc", mime_type="application/pdf", provider="openai")
+    param = as_input_param(c, role="user")
+    part = param["content"][0]
+    assert part["type"] == "input_file"
+    assert part["file_id"] == "file_abc"
+
+
+def test_openai_uploaded_image_serializes_to_input_image():
+    c = ContentUploaded(id="file_img", mime_type="image/png", provider="openai")
+    param = as_input_param(c, role="user")
+    part = param["content"][0]
+    assert part["type"] == "input_image"
+    assert part["file_id"] == "file_img"
+
+
+def test_openai_uploaded_wrong_provider_raises():
+    c = ContentUploaded(id="x", mime_type="application/pdf", provider="anthropic")
+    with pytest.raises(ValueError, match="uploaded to provider 'anthropic'"):
+        as_input_param(c, role="user")
 
 
 @pytest.mark.vcr

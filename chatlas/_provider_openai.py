@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import base64
+import mimetypes
 import warnings
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast
 from urllib.parse import urlparse
 
@@ -29,8 +31,10 @@ from ._content import (
     ContentToolRequestFetch,
     ContentToolRequestSearch,
     ContentToolResult,
+    ContentUploaded,
     ProviderAnnotation,
 )
+from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
@@ -40,6 +44,10 @@ from ._tools_builtin import ToolWebFetch, ToolWebSearch
 from ._turn import AssistantTurn, FinishReason, Turn
 
 if TYPE_CHECKING:
+    import os
+    from typing import IO
+
+    from openai.types.file_object import FileObject
     from openai.types.responses import (
         ResponseInputContentParam,
         ResponseInputItemParam,
@@ -557,6 +565,61 @@ class OpenAIProvider(
     def _batch_endpoint():
         return "/v1/responses"
 
+    def file_upload(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        with open_binary(file) as f:
+            obj = self._client.files.create(file=f, purpose="user_data")
+        return openai_uploaded(obj, mime_type)
+
+    async def file_upload_async(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        with open_binary(file) as f:
+            obj = await self._async_client.files.create(file=f, purpose="user_data")
+        return openai_uploaded(obj, mime_type)
+
+    def file_list(self) -> list[FileMetadata]:
+        return [openai_meta(o) for o in self._client.files.list()]
+
+    async def file_list_async(self) -> list[FileMetadata]:
+        page = await self._async_client.files.list()
+        return [openai_meta(o) async for o in page]
+
+    def file_get(self, id: str) -> FileMetadata:  # noqa: A002
+        return openai_meta(self._client.files.retrieve(id))
+
+    async def file_get_async(self, id: str) -> FileMetadata:  # noqa: A002
+        return openai_meta(await self._async_client.files.retrieve(id))
+
+    def file_download(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        data = self._client.files.content(id).read()
+        return maybe_write(data, path)
+
+    async def file_download_async(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        resp = await self._async_client.files.content(id)
+        return maybe_write(resp.read(), path)
+
+    def file_delete(self, id: str) -> None:  # noqa: A002
+        self._client.files.delete(id)
+
+    async def file_delete_async(self, id: str) -> None:  # noqa: A002
+        await self._async_client.files.delete(id)
+
 
 def openai_web_search_request(
     item: "ResponseFunctionWebSearch",
@@ -672,6 +735,18 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
     elif isinstance(content, (ContentToolRequestSearch, ContentToolRequestFetch)):
         # The raw `web_search_call` item, replayed verbatim (see openai_replayable)
         return cast("ResponseInputItemParam", content.extra)
+    elif isinstance(content, ContentUploaded):
+        if content.provider != "openai":
+            raise ValueError(
+                f"This file was uploaded to provider '{content.provider}', but "
+                "is being used with OpenAI. Re-upload it with an OpenAI chat."
+            )
+        part: "ResponseInputContentParam"
+        if content.mime_type.startswith("image/"):
+            part = {"type": "input_image", "file_id": content.id, "detail": "auto"}
+        else:
+            part = {"type": "input_file", "file_id": content.id}
+        return as_message(part, role)
     else:
         raise ValueError(f"Unsupported content type: {type(content)}")
 
@@ -695,3 +770,30 @@ def check_base_url(base_url: str) -> None:
 def is_reasoning_model(model: str) -> bool:
     # https://platform.openai.com/docs/models/compare
     return model.startswith("o") or model.startswith("gpt-5")
+
+
+def openai_uploaded(obj: "FileObject", mime_type: Optional[str]) -> ContentUploaded:
+    guessed = (
+        mime_type
+        or mimetypes.guess_type(obj.filename or "")[0]
+        or "application/octet-stream"
+    )
+    return ContentUploaded(
+        id=obj.id,
+        mime_type=guessed,
+        provider="openai",
+        extra={"filename": obj.filename, "bytes": obj.bytes},
+    )
+
+
+def openai_meta(obj: "FileObject") -> FileMetadata:
+    return FileMetadata(
+        id=obj.id,
+        filename=obj.filename,
+        mime_type=None,
+        size_bytes=obj.bytes,
+        created_at=datetime.fromtimestamp(obj.created_at, tz=timezone.utc),
+        expires_at=None,
+        provider="openai",
+        extra=obj,
+    )

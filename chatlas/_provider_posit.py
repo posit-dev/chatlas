@@ -15,7 +15,7 @@ from platformdirs import user_cache_dir
 
 from ._chat import Chat
 from ._logging import log_model_default
-from ._provider import ModelInfo
+from ._provider import ModelInfo, no_file_management
 from ._provider_anthropic import AnthropicProvider, StructuredOutputMode
 from ._provider_openai_completions import OpenAICompletionsProvider
 
@@ -255,6 +255,8 @@ def list_models_posit(
     return res
 
 
+# Posit's Anthropic gateway proxy doesn't support the beta Files API.
+@no_file_management
 class PositAnthropicProvider(AnthropicProvider):
     def __init__(
         self,
