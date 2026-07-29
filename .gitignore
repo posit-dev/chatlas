@@ -13,13 +13,6 @@ logs/
 docs/plans/
 docs/superpowers/
 
-# Root-level scratch scripts
-/bedrock.py
-/deepseek.py
-/reprex.py
-/think.py
-/think.R
-
 /.luarc.json
 
 # worktrees
