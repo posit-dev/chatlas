@@ -101,10 +101,23 @@ chat.chat(
 )
 ```
 
-::: callout-warning
 ### Supported content types
 
-Not every model supports every content type. Please refer to the documentation for the specific model you're using to see which content types are supported. For example, `.docx`/`.xlsx` documents and `image/heic`/`image/heif` images are each only supported by one provider (OpenAI and Google, respectively); other providers raise a clear error rather than silently failing.
+Support varies by provider, most noticeably for documents. Where a provider can't accept a type at all, chatlas raises before sending the request, with a message naming what to convert to:
+
+| Input | `ChatOpenAI()` | `ChatOpenAICompletions()` | `ChatAnthropic()` | `ChatGoogle()` |
+|---|---|---|---|---|
+| `.txt`, `.md`, code files | ✅ | ✅ | ✅ | ✅ |
+| `.csv`, `.tsv`, `.json`, `.xml`, `.html` | ✅ | ✅ | ✅ | ✅ |
+| `.docx`, `.xlsx`, `.doc`, `.xls`, `.rtf`, `.odt` | ✅ | ✅ | ❌ | ❌ |
+| `.pdf` | ✅ | ✅ | ✅ | ✅ |
+| `.png`, `.jpeg`, `.webp`, `.gif` | ✅ | ✅ | ✅ | ✅ |
+| `.heic`, `.heif` | ❌ | ❌ | ❌ | ✅ |
+
+Anthropic accepts documents it can read as plain text, which is why the binary office formats need converting first -- to plain text, or to PDF via [`content_pdf_file()`](../reference/content_pdf_file.qmd). Google accepts HEIC/HEIF natively; elsewhere, convert to one of the four common image formats.
+
+::: callout-warning
+A ✅ above means chatlas will send the content, not that every model behind that provider can interpret it -- vision and document understanding both vary by model. Check the documentation for the specific model you're using.
 :::
 
 ### Sending bytes vs. uploading a file {#inline-vs-upload}
