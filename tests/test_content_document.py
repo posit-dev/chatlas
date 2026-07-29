@@ -1,9 +1,57 @@
 import base64
 
 import pytest
-from chatlas import content_document_file
+from chatlas import content_document_file, content_document_url
 from chatlas._content import ContentDocument
 from chatlas._turn import Turn, UserTurn
+
+
+def test_infers_mime_type_for_binary_office_extensions(tmp_path):
+    """These are OpenAI-only, but must not fall through to the text/plain default."""
+    cases = {
+        "a.rtf": "application/rtf",
+        "a.doc": "application/msword",
+        "a.odt": "application/vnd.oasis.opendocument.text",
+        "a.xls": "application/vnd.ms-excel",
+    }
+    for name, mime in cases.items():
+        path = tmp_path / name
+        path.write_bytes(b"\xd0\xcf\x11\xe0")
+        obj = content_document_file(path)
+        assert obj.mime_type == mime, name
+
+
+def test_content_document_url_keeps_url_without_downloading():
+    obj = content_document_url("https://example.com/data/q3.csv")
+    assert isinstance(obj, ContentDocument)
+    assert obj.url == "https://example.com/data/q3.csv"
+    assert obj.data is None
+    assert obj.filename == "q3.csv"
+    assert obj.mime_type == "text/csv"
+
+
+def test_content_document_url_honors_explicit_mime_type():
+    obj = content_document_url("https://example.com/export", mime_type="text/markdown")
+    assert obj.mime_type == "text/markdown"
+    assert obj.data is None
+
+
+def test_content_document_url_falls_back_to_a_filename():
+    obj = content_document_url("https://example.com/")
+    assert obj.filename
+    assert obj.mime_type == "text/plain"
+
+
+def test_content_document_url_inlines_data_urls():
+    obj = content_document_url("data:text/csv;base64,YSxiCjEsMgo=")
+    assert obj.data == b"a,b\n1,2\n"
+    assert obj.mime_type == "text/csv"
+    assert obj.url is None
+
+
+def test_content_document_url_rejects_pdfs():
+    with pytest.raises(ValueError, match="content_pdf_url"):
+        content_document_url("https://example.com/report.pdf")
 
 
 def test_can_create_document_from_local_txt_file(tmp_path):

@@ -115,11 +115,20 @@ DOCX_MIME_TYPE = (
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 )
 XLSX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-OFFICE_MIME_TYPES = frozenset({DOCX_MIME_TYPE, XLSX_MIME_TYPE})
+BINARY_DOCUMENT_MIME_TYPES = frozenset(
+    {
+        DOCX_MIME_TYPE,
+        XLSX_MIME_TYPE,
+        "application/rtf",
+        "application/msword",
+        "application/vnd.oasis.opendocument.text",
+        "application/vnd.ms-excel",
+    }
+)
 """
 `ContentDocument` MIME types that only `ChatOpenAI()`/`ChatOpenAICompletions()`
-accept -- Anthropic and Google can't extract text from docx/xlsx and require
-converting to plain text or PDF first.
+accept -- Anthropic and Google can't extract text from these binary formats and
+require converting to plain text or PDF first.
 """
 
 

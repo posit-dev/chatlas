@@ -41,6 +41,7 @@ website:
       section: PDF input
     - contents:
       - reference/content_document_file.qmd
+      - reference/content_document_url.qmd
       section: Document input
     - contents:
       - reference/Tool.qmd

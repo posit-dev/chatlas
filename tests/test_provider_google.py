@@ -925,6 +925,24 @@ def test_google_document_rejects_office_types():
         provider._as_part_type(c)
 
 
+@pytest.mark.parametrize(
+    "mime_type",
+    [
+        "application/rtf",
+        "application/msword",
+        "application/vnd.oasis.opendocument.text",
+        "application/vnd.ms-excel",
+    ],
+)
+def test_google_document_rejects_other_binary_types(mime_type):
+    from chatlas._content import ContentDocument
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    c = ContentDocument(data=b"\xd0\xcf\x11\xe0", filename="a.doc", mime_type=mime_type)
+    with pytest.raises(ValueError, match="doesn't support"):
+        provider._as_part_type(c)
+
+
 def test_google_accepts_heic_images():
     from chatlas._content import ContentImageInline
 

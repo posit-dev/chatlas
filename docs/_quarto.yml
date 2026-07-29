@@ -185,6 +185,7 @@ quartodoc:
       desc: Submit plain text, Markdown, CSV, code, and other non-PDF document input to the chat
       contents:
         - content_document_file
+        - content_document_url
     - title: Tool calling
       desc: Add context to python function before registering it as a tool.
       contents:

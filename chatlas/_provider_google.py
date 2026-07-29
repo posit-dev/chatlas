@@ -12,7 +12,7 @@ from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
-    OFFICE_MIME_TYPES,
+    BINARY_DOCUMENT_MIME_TYPES,
     PROVIDER_ANNOTATION_TYPES,
     Content,
     ContentCitation,
@@ -627,7 +627,7 @@ class GoogleProvider(
         elif isinstance(content, ContentDocument):
             from google.genai.types import Blob
 
-            if content.mime_type in OFFICE_MIME_TYPES:
+            if content.mime_type in BINARY_DOCUMENT_MIME_TYPES:
                 raise ValueError(
                     f"Google (Gemini) doesn't support document content type "
                     f"'{content.mime_type}'. Convert the file to plain text "
