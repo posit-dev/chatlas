@@ -39,6 +39,9 @@ website:
       - reference/content_pdf_url.qmd
       section: PDF input
     - contents:
+      - reference/content_audio_file.qmd
+      section: Audio input
+    - contents:
       - reference/Tool.qmd
       - reference/ToolRejectError.qmd
       section: Tool calling
@@ -73,6 +76,7 @@ website:
       section: Implement a model provider
     - contents:
       - reference/types.Content.qmd
+      - reference/types.ContentAudio.qmd
       - reference/types.ContentImage.qmd
       - reference/types.ContentImageInline.qmd
       - reference/types.ContentImageRemote.qmd
@@ -91,6 +95,7 @@ website:
       - reference/types.ChatResponse.qmd
       - reference/types.ChatResponseAsync.qmd
       - reference/types.FileMetadata.qmd
+      - reference/types.AudioContentTypes.qmd
       - reference/types.ImageContentTypes.qmd
       - reference/types.MISSING_TYPE.qmd
       - reference/types.MISSING.qmd
