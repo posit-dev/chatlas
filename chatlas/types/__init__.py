@@ -7,6 +7,7 @@ from .._content import (
     AudioContentTypes,
     Content,
     ContentAudio,
+    ContentCitation,
     ContentImage,
     ContentImageInline,
     ContentImageRemote,
@@ -23,8 +24,10 @@ from .._content import (
     ContentToolResult,
     ContentUploaded,
     ImageContentTypes,
+    Source,
     ToolAnnotations,
     ToolInfo,
+    WebSource,
 )
 from .._files import FileMetadata
 from .._parallel import StructuredChatResult
@@ -37,6 +40,7 @@ __all__ = (
     "AudioContentTypes",
     "Content",
     "ContentAudio",
+    "ContentCitation",
     "ContentImage",
     "ContentImageInline",
     "ContentImageRemote",
@@ -58,6 +62,8 @@ __all__ = (
     "ChatResponse",
     "ChatResponseAsync",
     "ImageContentTypes",
+    "Source",
+    "WebSource",
     "SubmitInputArgsT",
     "TokenUsage",
     "ToolAnnotations",

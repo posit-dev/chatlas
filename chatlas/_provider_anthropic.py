@@ -22,6 +22,7 @@ from ._content import (
     PROVIDER_ANNOTATION_TYPES,
     Content,
     ContentAudio,
+    ContentCitation,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -37,6 +38,7 @@ from ._content import (
     ContentToolResult,
     ContentUploaded,
     ProviderAnnotation,
+    WebSource,
 )
 from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
@@ -51,7 +53,14 @@ from ._provider import (
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn
+from ._turn import (
+    AssistantTurn,
+    FinishReason,
+    SystemTurn,
+    Turn,
+    UserTurn,
+    check_finish_reason,
+)
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -565,6 +574,28 @@ class AnthropicProvider(
                 return [ContentText.model_construct(text=chunk.delta.text)]
             if chunk.delta.type == "thinking_delta":
                 return [ContentThinkingDelta(thinking=chunk.delta.thinking)]
+            return []
+        if chunk.type == "content_block_start":
+            block = chunk.content_block
+            if block.type == "web_search_tool_result":
+                return [anthropic_search_result(block)]
+            if block.type == "web_fetch_tool_result":
+                return [anthropic_fetch_result(block)]
+            return []
+        if chunk.type == "content_block_stop":
+            # By now `stream_merge_chunks` has accumulated this block's text,
+            # citations, and (for server tool use) input JSON onto `completion`,
+            # so the same helpers as the final-turn path can read it off there.
+            if completion is None or chunk.index >= len(completion.content):
+                return []
+            block = completion.content[chunk.index]
+            if block.type == "text":
+                # list() widens list[ContentCitation] to the list[Content] return
+                return list(anthropic_citations(block))
+            if block.type == "server_tool_use":
+                request = anthropic_server_tool_request(block)
+                return [request] if request is not None else []
+            return []
         return []
 
     def stream_merge_chunks(self, completion, chunk):
@@ -597,9 +628,13 @@ class AnthropicProvider(
                 this_content.signature += chunk.delta.signature
             elif chunk.delta.type == "citations_delta":
                 # https://docs.claude.com/en/docs/build-with-claude/citations#streaming-support
-                # Accumulate citations on the content block
-                if hasattr(this_content, "citations"):
-                    this_content.citations.append(chunk.delta.citation)  # type: ignore
+                # Accumulate citations on the content block. Anthropic sends
+                # `citations: []` on blocks that will carry citations, but the
+                # field is omitted (hence None) on plain text blocks.
+                if this_content.type == "text":
+                    if this_content.citations is None:
+                        this_content.citations = []
+                    this_content.citations.append(chunk.delta.citation)
         elif chunk.type == "content_block_stop":
             this_content = completion.content[chunk.index]
             if this_content.type == "tool_use" and isinstance(this_content.input, str):
@@ -923,6 +958,11 @@ class AnthropicProvider(
         return res
 
     def _as_turn(self, completion: Message, has_data_model=False) -> AssistantTurn:
+        finish_reason = normalize_finish_reason(completion.stop_reason)
+        if has_data_model:
+            # Must precede the JSON parse below; see check_finish_reason().
+            check_finish_reason(finish_reason, "error")
+
         contents = []
 
         # Detect which structured output approach was used:
@@ -940,6 +980,7 @@ class AnthropicProvider(
                     contents.append(ContentJson(value=orjson.loads(content.text)))
                 else:
                     contents.append(ContentText(text=content.text))
+                    contents.extend(anthropic_citations(content))
             elif content.type == "tool_use":
                 if uses_old_tool_approach and content.name == "_structured_tool_call":
                     if not isinstance(content.input, dict):
@@ -980,7 +1021,7 @@ class AnthropicProvider(
 
         return AssistantTurn(
             contents,
-            finish_reason=normalize_finish_reason(completion.stop_reason),
+            finish_reason=finish_reason,
             completion=completion,
         )
 
@@ -1413,14 +1454,43 @@ class AnthropicBedrockProvider(AnthropicProvider):
         return res
 
 
+def anthropic_citations(block: "TextBlock") -> list[ContentCitation]:
+    """ContentCitations for one fully-accumulated text block."""
+    out: list[ContentCitation] = []
+    for c in block.citations or []:
+        # `url`/`title` only exist on the web-search/search-result members of the
+        # TextCitation union (document citations carry `document_title` instead).
+        url = getattr(c, "url", None)
+        out.append(
+            ContentCitation(
+                source=WebSource(url=url, title=getattr(c, "title", None))
+                if url
+                else None,
+                # Anthropic scopes a citation to the text block it arrived on.
+                grounded_span=block.text,
+                cited_quote=c.cited_text,
+                extra=c.model_dump(exclude_none=True),
+            )
+        )
+    return out
+
+
 def anthropic_server_tool_request(
     block: "ServerToolUseBlock",
 ) -> Optional[ContentToolRequestSearch | ContentToolRequestFetch]:
-    """Search/fetch request from a server_tool_use block, or None if unknown."""
+    """Search/fetch request from a server_tool_use block, or None if unknown.
+
+    Mid-stream `input` is the accumulated JSON string rather than a dict.
+    """
     if isinstance(block.input, str):
-        input_data = cast(dict[str, Any], orjson.loads(block.input))
+        try:
+            input_data = cast(dict[str, Any], orjson.loads(block.input or "{}"))
+        except orjson.JSONDecodeError:
+            return None
     else:
         input_data = block.input
+    if not input_data:
+        return None
 
     # block.model_dump() includes fields like "url" that aren't acceptable as API
     # input, so build `extra` by hand.
@@ -1447,15 +1517,15 @@ def anthropic_search_result(
     """Search results from a web_search_tool_result block."""
     content = block.content
     if isinstance(content, list):
-        urls = [x.url for x in content]
+        sources = [WebSource(url=x.url, title=x.title) for x in content]
         raw: object = [x.model_dump() for x in content]
     else:
-        urls = []
+        sources = []
         raw = content.model_dump()
     # Build `extra` by hand to avoid SDK-internal fields (e.g. "caller") that the
     # API doesn't accept.
     return ContentToolResponseSearch(
-        urls=urls,
+        sources=sources,
         extra={
             "type": block.type,
             "tool_use_id": block.tool_use_id,
@@ -1476,10 +1546,12 @@ def anthropic_fetch_result(
         "tool_use_id": block.tool_use_id,
         "content": content.model_dump(exclude_none=True),
     }
-    # Either a WebFetchBlock (has .url) or a WebFetchToolResultErrorBlock
+    # Either a WebFetchBlock (has .url) or a WebFetchToolResultErrorBlock.
+    # `status` is normalized to success/error; the native reason (e.g.
+    # `url_not_allowed`) stays in `extra`.
     if isinstance(content, WebFetchBlock):
-        return ContentToolResponseFetch(url=content.url, extra=extra)
-    return ContentToolResponseFetch(url="failed", extra=extra)
+        return ContentToolResponseFetch(url=content.url, status="success", extra=extra)
+    return ContentToolResponseFetch(url="failed", status="error", extra=extra)
 
 
 ANTHROPIC_SERVER_TOOL_BLOCK_TYPES = frozenset(

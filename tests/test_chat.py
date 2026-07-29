@@ -1,5 +1,6 @@
 import re
 import tempfile
+import warnings
 
 import pytest
 from chatlas import (
@@ -12,7 +13,7 @@ from chatlas import (
     Turn,
     UserTurn,
 )
-from chatlas._chat import ToolFailureWarning
+from chatlas._chat import ToolFailureWarning, finalize_assistant_turn
 from pydantic import BaseModel
 
 
@@ -785,3 +786,22 @@ def test_token_count_invalid_include_raises():
         ),
     ):
         chat.token_count("hello", include="bad_option")  # type: ignore
+
+
+def test_truncated_plain_chat_warns():
+    # Structured extraction errors on a truncated response; plain chat keeps the
+    # partial text but shouldn't hand it back silently (gh-315).
+    chat = ChatOpenAI()
+    turn = AssistantTurn("partial ans", finish_reason="max_tokens")
+
+    with pytest.warns(UserWarning, match="max_tokens"):
+        finalize_assistant_turn(chat.provider, turn)
+
+
+def test_complete_plain_chat_does_not_warn():
+    chat = ChatOpenAI()
+    turn = AssistantTurn("full answer", finish_reason="success")
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        finalize_assistant_turn(chat.provider, turn)

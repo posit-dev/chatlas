@@ -14,6 +14,7 @@ from openai.types.responses.response_function_web_search import (
     ActionOpenPage,
     ResponseFunctionWebSearch,
 )
+from openai.types.responses.response_output_text import AnnotationURLCitation
 from pydantic import BaseModel
 
 from ._chat import Chat
@@ -21,6 +22,7 @@ from ._content import (
     PROVIDER_ANNOTATION_TYPES,
     Content,
     ContentAudio,
+    ContentCitation,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -34,6 +36,7 @@ from ._content import (
     ContentToolResult,
     ContentUploaded,
     ProviderAnnotation,
+    WebSource,
 )
 from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
@@ -42,7 +45,7 @@ from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, FinishReason, Turn
+from ._turn import AssistantTurn, FinishReason, Turn, check_finish_reason
 
 if TYPE_CHECKING:
     import os
@@ -380,6 +383,26 @@ class OpenAIProvider(
         if chunk.type == "response.output_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/delta
             return [ContentText.model_construct(text=chunk.delta)]
+        if chunk.type == "response.output_text.annotation.added":
+            # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/annotation_added
+            # annotation is a plain dict at runtime (SDK types it as `object`)
+            ann: dict = chunk.annotation  # type: ignore[assignment]
+            if ann.get("type") == "url_citation":
+                return [
+                    ContentCitation(
+                        source=WebSource(url=ann["url"], title=ann.get("title")),
+                        # No grounded_span here: OpenAI streams the annotation
+                        # with start_index/end_index into text that hasn't fully
+                        # arrived yet, so the span is resolved on the final turn.
+                        extra=ann,
+                    )
+                ]
+            return []
+        if chunk.type == "response.output_item.done":
+            item = chunk.item
+            if isinstance(item, ResponseFunctionWebSearch):
+                return [openai_web_search_request(item)]
+            return []
         if chunk.type == "response.reasoning_summary_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/reasoning_summary_text/delta
             return [ContentThinkingDelta(thinking=chunk.delta)]
@@ -450,6 +473,15 @@ class OpenAIProvider(
 
     @staticmethod
     def _response_as_turn(completion: Response, has_data_model: bool) -> AssistantTurn:
+        incomplete_reason = None
+        if completion.incomplete_details is not None:
+            incomplete_reason = completion.incomplete_details.reason
+
+        finish_reason = normalize_finish_reason(completion.status, incomplete_reason)
+        if has_data_model:
+            # Must precede the JSON parse below; see check_finish_reason().
+            check_finish_reason(finish_reason, "error")
+
         contents: list[Content] = []
         for output in completion.output:
             if output.type == "message":
@@ -462,6 +494,17 @@ class OpenAIProvider(
                         contents.append(ContentJson(value=data))
                     else:
                         contents.append(ContentText(text=x.text))
+                        for a in x.annotations or []:
+                            if not isinstance(a, AnnotationURLCitation):
+                                continue
+                            grounded = x.text[a.start_index : a.end_index] or None
+                            contents.append(
+                                ContentCitation(
+                                    source=WebSource(url=a.url, title=a.title),
+                                    grounded_span=grounded,
+                                    extra=a.model_dump(),
+                                )
+                            )
 
             elif output.type == "function_call":
                 args = load_tool_request_args(output.arguments, output.name)
@@ -505,11 +548,6 @@ class OpenAIProvider(
             else:
                 raise ValueError(f"Unknown output type: {output.type}")
 
-        incomplete_reason = None
-        if completion.incomplete_details is not None:
-            incomplete_reason = completion.incomplete_details.reason
-
-        finish_reason = normalize_finish_reason(completion.status, incomplete_reason)
         if finish_reason == "success" and any(
             isinstance(x, ContentToolRequest) for x in contents
         ):

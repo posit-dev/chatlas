@@ -2,6 +2,18 @@ from typing import Literal, cast
 
 import httpx
 import pytest
+from anthropic.types import (
+    CitationsDelta,
+    CitationsWebSearchResultLocation,
+    Message,
+    RawContentBlockDeltaEvent,
+    RawContentBlockStartEvent,
+    RawContentBlockStopEvent,
+    RawMessageStartEvent,
+    TextBlock,
+    TextDelta,
+    Usage,
+)
 from chatlas import (
     AssistantTurn,
     ChatAnthropic,
@@ -14,6 +26,13 @@ from chatlas._content import ContentAudio, ContentUploaded
 from chatlas._provider_anthropic import _ANTHROPIC_FINISH_REASON_MAP, AnthropicProvider
 from chatlas._provider_anthropic import (
     normalize_finish_reason as anthropic_normalize_finish_reason,
+)
+from chatlas.types import (
+    ContentCitation,
+    ContentText,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
 )
 from pydantic import BaseModel, Field
 
@@ -134,33 +153,155 @@ def test_anthropic_web_fetch():
             **kwargs,
         )
 
-    assert_tool_web_fetch(chat_fun, tool_web_fetch())
+    chat = assert_tool_web_fetch(chat_fun, tool_web_fetch())
+    fetched = [
+        c
+        for turn in chat.get_turns()
+        for c in turn.contents
+        if isinstance(c, ContentToolResponseFetch)
+    ]
+    assert fetched and fetched[0].url
+    assert fetched[0].status == "success"
 
 
 @pytest.mark.vcr
 def test_anthropic_web_search():
-    assert_tool_web_search(chat_func, tool_web_search())
+    chat = assert_tool_web_search(chat_func, tool_web_search())
+    results = [
+        c
+        for turn in chat.get_turns()
+        for c in turn.contents
+        if isinstance(c, ContentToolResponseSearch)
+    ]
+    assert results and results[0].sources
+    assert all(s.url for s in results[0].sources)
+    assert any(s.title for s in results[0].sources)
+
+
+@pytest.mark.vcr
+def test_anthropic_web_search_streaming():
+    chat = chat_func()
+    chat.register_tool(tool_web_search())
+    items = list(
+        chat.stream(
+            "When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format.",
+            content="all",
+        )
+    )
+    answer = "".join(x for x in items if isinstance(x, str))
+    cites = [x for x in items if isinstance(x, ContentCitation)]
+    results = [x for x in items if isinstance(x, ContentToolResponseSearch)]
+    reqs = [x for x in items if isinstance(x, ContentToolRequestSearch)]
+    assert results and results[0].sources
+    assert reqs and reqs[0].query
+    assert cites and all(c.source and c.source.url for c in cites)
+    assert any(c.cited_quote for c in cites)  # Anthropic supplies source-side quotes
+    for c in cites:
+        assert c.grounded_span is not None
+        assert c.grounded_span in answer  # answer-side span
+        assert c.extra is not None  # raw payload retained
+    # interleaved: at least one citation is not the very last item
+    cite_idx = [i for i, x in enumerate(items) if isinstance(x, ContentCitation)]
+    assert cite_idx and min(cite_idx) < len(items) - 1
 
 
 @pytest.mark.vcr
 def test_anthropic_web_search_citations():
-    """Test that citations from web search are preserved on the completion."""
+    """Test that citations from web search are ContentCitation items in the turn."""
     chat = chat_func()
     chat.register_tool(tool_web_search())
     chat.chat("When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format.")
 
-    # Get the turn and verify citations are on the completion
     turn = chat.get_last_turn()
     assert turn is not None
-    assert turn.completion is not None
 
-    # Find a text content block that should have citations
-    text_blocks = [c for c in turn.completion.content if c.type == "text"]
-    assert len(text_blocks) > 0
+    answer = "".join(c.text for c in turn.contents if isinstance(c, ContentText))
+    cites = [c for c in turn.contents if isinstance(c, ContentCitation)]
+    assert cites, "expected ContentCitation items in turn contents"
+    assert all(c.source and c.source.url for c in cites)
+    for c in cites:
+        assert c.grounded_span is not None
+        assert c.grounded_span in answer  # answer-side span
+        assert c.extra is not None  # raw payload retained
 
-    # At least one text block should have citations from web search
-    has_citations = any(getattr(block, "citations", None) for block in text_blocks)
-    assert has_citations, "Expected citations on text blocks from web search"
+
+def test_anthropic_concurrent_streams_dont_share_state():
+    """Two streams on one provider must not cross-contaminate citations.
+
+    `Chat.__deepcopy__` shares a single provider across forked chats (e.g. every
+    `eval_inspect` sample), and those forks stream concurrently, so anything
+    `stream_content` needs across chunks has to live with the stream -- not on
+    the provider.
+    """
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+
+    def events(text: str, url: str):
+        return [
+            RawMessageStartEvent(
+                type="message_start",
+                message=Message(
+                    id="msg",
+                    type="message",
+                    role="assistant",
+                    model="claude-sonnet-4-5",
+                    content=[],
+                    stop_reason=None,
+                    stop_sequence=None,
+                    usage=Usage(input_tokens=1, output_tokens=1),
+                ),
+            ),
+            RawContentBlockStartEvent(
+                type="content_block_start",
+                index=0,
+                # Anthropic sends `citations: []` on citation-bearing blocks
+                content_block=TextBlock(type="text", text="", citations=[]),
+            ),
+            RawContentBlockDeltaEvent(
+                type="content_block_delta",
+                index=0,
+                delta=TextDelta(type="text_delta", text=text),
+            ),
+            RawContentBlockDeltaEvent(
+                type="content_block_delta",
+                index=0,
+                delta=CitationsDelta(
+                    type="citations_delta",
+                    citation=CitationsWebSearchResultLocation(
+                        type="web_search_result_location",
+                        cited_text=f"quote from {url}",
+                        encrypted_index="x",
+                        title="t",
+                        url=url,
+                    ),
+                ),
+            ),
+            RawContentBlockStopEvent(type="content_block_stop", index=0),
+        ]
+
+    stream_a = events("alpha answer", "https://a.com")
+    stream_b = events("beta answer", "https://b.com")
+
+    # Interleave the two streams chunk-for-chunk, as concurrent samples would.
+    completions: dict[str, object] = {"a": None, "b": None}
+    cites: dict[str, list[ContentCitation]] = {"a": [], "b": []}
+    for chunk_a, chunk_b in zip(stream_a, stream_b):
+        for key, chunk in (("a", chunk_a), ("b", chunk_b)):
+            completions[key] = provider.stream_merge_chunks(completions[key], chunk)
+            cites[key].extend(
+                c
+                for c in provider.stream_content(chunk, completions[key])
+                if isinstance(c, ContentCitation)
+            )
+
+    assert len(cites["a"]) == 1
+    assert len(cites["b"]) == 1
+    cite_a, cite_b = cites["a"][0], cites["b"][0]
+    assert cite_a.source and cite_a.source.url == "https://a.com"
+    assert cite_a.grounded_span == "alpha answer"
+    assert cite_b.source and cite_b.source.url == "https://b.com"
+    assert cite_b.grounded_span == "beta answer"
 
 
 @pytest.mark.vcr
@@ -283,7 +424,11 @@ def test_anthropic_no_uploaded_omits_beta_header():
 def test_anthropic_token_count_args_keeps_beta_header():
     provider = AnthropicProvider(model="claude-sonnet-4-6")
     turn = UserTurn(
-        [ContentUploaded(id="file_1", mime_type="application/pdf", provider="anthropic")]
+        [
+            ContentUploaded(
+                id="file_1", mime_type="application/pdf", provider="anthropic"
+            )
+        ]
     )
     args = provider._token_count_args(
         [turn],
@@ -451,3 +596,35 @@ def test_anthropic_token_count_complete_exceeds_new():
 
     assert new_only > 0
     assert complete > new_only
+
+
+def truncated_structured_message() -> "Message":
+    """A structured-output response cut short by the `max_tokens` limit (gh-315)."""
+    return Message.construct(
+        id="msg_1",
+        type="message",
+        role="assistant",
+        model="claude-haiku-4-5-20251001",
+        stop_reason="max_tokens",
+        stop_sequence=None,
+        content=[TextBlock(type="text", text='{"comments": [{"body": "trunc')],
+        usage=None,
+    )
+
+
+def test_anthropic_truncated_structured_output_errors_helpfully():
+    provider = cast(AnthropicProvider, chat_func().provider)
+
+    with pytest.raises(ValueError, match="max_tokens"):
+        provider._as_turn(truncated_structured_message(), has_data_model=True)
+
+
+def test_anthropic_truncated_plain_text_still_returns_a_turn():
+    # Without a data model there's nothing to parse, so the partial text is
+    # still worth handing back -- `Chat` warns about it instead.
+    provider = cast(AnthropicProvider, chat_func().provider)
+
+    turn = provider._as_turn(truncated_structured_message(), has_data_model=False)
+
+    assert turn.text == '{"comments": [{"body": "trunc'
+    assert turn.finish_reason == "max_tokens"

@@ -77,6 +77,7 @@ website:
     - contents:
       - reference/types.Content.qmd
       - reference/types.ContentAudio.qmd
+      - reference/types.ContentCitation.qmd
       - reference/types.ContentImage.qmd
       - reference/types.ContentImageInline.qmd
       - reference/types.ContentImageRemote.qmd
@@ -99,10 +100,12 @@ website:
       - reference/types.ImageContentTypes.qmd
       - reference/types.MISSING_TYPE.qmd
       - reference/types.MISSING.qmd
+      - reference/types.Source.qmd
       - reference/types.SubmitInputArgsT.qmd
       - reference/types.TokenUsage.qmd
       - reference/types.ToolAnnotations.qmd
       - reference/types.ToolInfo.qmd
+      - reference/types.WebSource.qmd
       section: User-facing types
     id: reference
   - id: dummy-sidebar
