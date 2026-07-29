@@ -23,10 +23,13 @@ from openai.types.responses import (
 
 from .conftest import (
     assert_data_extraction,
+    assert_document_local,
+    assert_document_local_docx,
     assert_images_inline,
     assert_images_remote,
     assert_list_models,
     assert_pdf_local,
+    assert_pdf_remote,
     assert_tool_web_search,
     assert_tools_async,
     assert_tools_parallel,
@@ -105,6 +108,8 @@ def test_openai_pdf_with_url_uses_file_url_without_downloading():
     assert part["type"] == "input_file"
     assert part["file_url"] == "https://example.com/a.pdf"
     assert "file_data" not in part
+    # The API rejects `filename` and `file_url` together.
+    assert "filename" not in part
 
 
 def test_openai_pdf_with_data_uses_file_data():
@@ -128,6 +133,7 @@ def test_openai_document_with_url_uses_file_url_without_downloading():
     assert part["type"] == "input_file"
     assert part["file_url"] == "https://example.com/notes.txt"
     assert "file_data" not in part
+    assert "filename" not in part
 
 
 def test_openai_document_with_data_uses_file_data():
@@ -292,6 +298,21 @@ async def test_openai_logprobs():
 @pytest.mark.vcr
 def test_openai_pdf():
     assert_pdf_local(ChatOpenAI)
+
+
+@pytest.mark.vcr
+def test_openai_pdf_url():
+    assert_pdf_remote(ChatOpenAI)
+
+
+@pytest.mark.vcr
+def test_openai_document():
+    assert_document_local(ChatOpenAI)
+
+
+@pytest.mark.vcr
+def test_openai_document_docx():
+    assert_document_local_docx(ChatOpenAI)
 
 
 @pytest.mark.vcr

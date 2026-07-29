@@ -800,11 +800,12 @@ def as_input_file_param(
 
     The Responses API accepts `file_url` for any file type (not just PDFs),
     so a `ContentPDF`/`ContentDocument` with a URL never needs to download it.
+    `filename` is deliberately omitted on that path: the API treats it as
+    mutually exclusive with `file_url` and rejects requests carrying both.
     """
     if content.url is not None:
         return {
             "type": "input_file",
-            "filename": content.filename,
             "file_url": content.url,
         }
     data = ensure_bytes(content, "file")
