@@ -4,7 +4,7 @@ import base64
 import inspect
 import warnings
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, get_args
 
 import orjson
 from pydantic import (
@@ -17,7 +17,7 @@ from pydantic import (
     model_validator,
 )
 
-from ._typing_extensions import TypedDict
+from ._typing_extensions import TypedDict, TypeIs
 
 if TYPE_CHECKING:
     from htmltools import Tagified
@@ -93,7 +93,22 @@ Note that not every provider accepts every type here: `image/heic` and
 accept a given type raise a clear error rather than silently sending it.
 """
 
-HEIC_HEIF_IMAGE_TYPES = ("image/heic", "image/heif")
+HeicHeifImageTypes = Literal["image/heic", "image/heif"]
+NonHeicImageContentTypes = Literal[
+    "image/png",
+    "image/jpeg",
+    "image/webp",
+    "image/gif",
+]
+"""
+The subset of [](`~chatlas.types.ImageContentTypes`) every provider accepts.
+
+Returned by `check_image_content_type_supported()` so providers whose SDKs type
+`media_type` this narrowly can use the result without casting.
+"""
+
+IMAGE_CONTENT_TYPES: tuple[ImageContentTypes, ...] = get_args(ImageContentTypes)
+HEIC_HEIF_IMAGE_TYPES: tuple[HeicHeifImageTypes, ...] = get_args(HeicHeifImageTypes)
 
 DOCX_MIME_TYPE = (
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -107,18 +122,31 @@ converting to plain text or PDF first.
 """
 
 
-def check_image_content_type_supported(provider_name: str, content_type: str) -> None:
-    """Raise a clear error if `provider_name` can't accept `content_type` images.
+def check_image_content_type_supported(
+    provider_name: str, content_type: ImageContentTypes
+) -> NonHeicImageContentTypes:
+    """Return `content_type`, or raise if `provider_name` can't accept it.
 
     Only `ChatGoogle()` supports HEIC/HEIF today; every other provider rejects
-    them outright rather than sending bytes the API will reject anyway.
+    them outright rather than sending bytes the API will reject anyway. The
+    return value is narrowed to what's left, so callers passing it to an SDK
+    that only types the universal four don't need a cast.
     """
-    if content_type in HEIC_HEIF_IMAGE_TYPES:
+    if is_heic_heif(content_type):
         raise ValueError(
             f"{provider_name} doesn't support {content_type} images. Convert "
             "to image/png, image/jpeg, image/webp, or image/gif first, or "
             "use ChatGoogle(), which supports HEIC/HEIF natively."
         )
+    return content_type
+
+
+def is_heic_heif(content_type: ImageContentTypes) -> TypeIs[HeicHeifImageTypes]:
+    return content_type in HEIC_HEIF_IMAGE_TYPES
+
+
+def is_image_content_type(content_type: str) -> TypeIs[ImageContentTypes]:
+    return content_type in IMAGE_CONTENT_TYPES
 
 
 class ToolInfo(BaseModel):

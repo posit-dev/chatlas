@@ -5,13 +5,17 @@ import io
 import os
 import re
 import warnings
-from typing import Literal, Union, cast, get_args
+from typing import Literal, Union
 
-from ._content import ContentImageInline, ContentImageRemote, ImageContentTypes
+from ._content import (
+    HEIC_HEIF_IMAGE_TYPES,
+    ContentImageInline,
+    ContentImageRemote,
+    ImageContentTypes,
+    is_image_content_type,
+)
 from ._content_pdf import parse_data_url
 from ._utils import MISSING, MISSING_TYPE
-
-IMAGE_CONTENT_TYPES = get_args(ImageContentTypes)
 
 __all__ = (
     "content_image_url",
@@ -64,9 +68,8 @@ def content_image_url(
 
     if url.startswith("data:"):
         content_type, base64_data = parse_data_url(url)
-        if content_type not in IMAGE_CONTENT_TYPES:
+        if not is_image_content_type(content_type):
             raise ValueError(f"Unsupported image content type: {content_type}")
-        content_type = cast(ImageContentTypes, content_type)
         return ContentImageInline(image_content_type=content_type, data=base64_data)
     else:
         return ContentImageRemote(url=url, detail=detail)
@@ -142,7 +145,7 @@ def content_image_file(
         else:
             raise ValueError(f"Unsupported image file extension: {ext}")
 
-    if resize != "none" and content_type in ("image/heic", "image/heif"):
+    if resize != "none" and content_type in HEIC_HEIF_IMAGE_TYPES:
         try:
             # pillow-heif is an optional, HEIC/HEIF-only dependency -- it's
             # not declared anywhere, so pyright can't resolve its stubs.

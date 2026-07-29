@@ -488,6 +488,19 @@ def test_anthropic_rejects_heic_images():
         AnthropicProvider._as_content_block(c)
 
 
+@pytest.mark.parametrize(
+    "content_type", ["image/png", "image/jpeg", "image/webp", "image/gif"]
+)
+def test_anthropic_image_preserves_media_type(content_type):
+    c = ContentImageInline(image_content_type=content_type, data="abcd")
+    block = AnthropicProvider._as_content_block(c)
+    assert block["source"] == {
+        "type": "base64",
+        "media_type": content_type,
+        "data": "abcd",
+    }
+
+
 @pytest.mark.vcr
 def test_anthropic_empty_response():
     chat = chat_func()

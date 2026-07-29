@@ -883,18 +883,14 @@ class AnthropicProvider(
                 },
             }
         elif isinstance(content, ContentImageInline):
-            check_image_content_type_supported("Anthropic", content.image_content_type)
+            media_type = check_image_content_type_supported(
+                "Anthropic", content.image_content_type
+            )
             return {
                 "type": "image",
                 "source": {
                     "type": "base64",
-                    # check_image_content_type_supported() above already rejected
-                    # image/heic and image/heif, the two ImageContentTypes members
-                    # Anthropic's Base64ImageSourceParam.media_type doesn't accept.
-                    "media_type": cast(
-                        'Literal["image/jpeg", "image/png", "image/gif", "image/webp"]',
-                        content.image_content_type,
-                    ),
+                    "media_type": media_type,
                     "data": content.data or "",
                 },
             }
