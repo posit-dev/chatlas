@@ -876,6 +876,10 @@ class AnthropicProvider(
                 ) from e
             return {
                 "type": "document",
+                # Coercing to `text/plain` loses the real MIME type, so `title`
+                # is the only thing left telling the model what it's looking at
+                # (and how to refer to it in a multi-document prompt).
+                "title": content.filename,
                 "source": {
                     "type": "text",
                     "media_type": "text/plain",

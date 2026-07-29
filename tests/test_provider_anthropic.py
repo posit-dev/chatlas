@@ -43,10 +43,12 @@ from pydantic import BaseModel, Field
 
 from .conftest import (
     assert_data_extraction,
+    assert_document_local,
     assert_images_inline,
     assert_images_remote,
     assert_list_models,
     assert_pdf_local,
+    assert_pdf_remote,
     assert_tool_web_fetch,
     assert_tool_web_search,
     assert_tools_async,
@@ -376,6 +378,16 @@ def test_anthropic_pdfs():
     assert_pdf_local(chat_func)
 
 
+@pytest.mark.vcr
+def test_anthropic_pdf_url():
+    assert_pdf_remote(chat_func)
+
+
+@pytest.mark.vcr
+def test_anthropic_document():
+    assert_document_local(chat_func)
+
+
 def test_anthropic_uploaded_document_block():
     c = ContentUploaded(id="file_1", mime_type="application/pdf", provider="anthropic")
     block = AnthropicProvider._as_content_block(c)
@@ -460,6 +472,8 @@ def test_anthropic_document_coerces_text_mime_type_to_plain_text():
         "media_type": "text/plain",
         "data": "a,b\n1,2\n",
     }
+    # The only surviving hint of what the document actually is.
+    assert block["title"] == "data.csv"
 
 
 def test_anthropic_document_rejects_binary_office_types():
