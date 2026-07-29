@@ -1,11 +1,15 @@
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 from uuid import uuid4
 
+from rich._loop import loop_last
 from rich.live import Live
 from rich.logging import RichHandler
+
+if TYPE_CHECKING:
+    from rich.console import Console, ConsoleOptions
 
 from ._content import (
     TOOL_CSS,
@@ -32,7 +36,7 @@ class MarkdownDisplay(ABC):
 
     def __init__(self, echo_options: "EchoDisplayOptions"):
         self._echo_options = echo_options
-        self._segments: list["Segment"] = []
+        self._segments: list["DisplaySegment"] = []
 
     def echo(self, content: Union[str, Content]):
         """
@@ -153,19 +157,15 @@ class LiveMarkdownDisplay(MarkdownDisplay):
         self.live.update(Group(*spaced), refresh=True)
 
     def _renderables(self) -> list[Any]:
-        from rich.panel import Panel
-
         out: list[Any] = []
         for segment in self._segments:
             if isinstance(segment, TextSegment):
                 out.append(self._markdown(segment.text))
             elif isinstance(segment, ThinkingSegment):
                 out.append(
-                    Panel(
+                    ThinkingPanel(
                         self._markdown(segment.thinking),
-                        title="Thinking",
-                        title_align="left",
-                        border_style="dim",
+                        max_lines=self._echo_options["thinking_max_lines"],
                     )
                 )
             else:
@@ -285,12 +285,16 @@ class EchoDisplayOptions(TypedDict):
     rich_markdown: dict[str, Any]
     rich_console: dict[str, Any]
     css_styles: dict[str, str]
-    tool_result_max_lines: int
-    tool_result_max_height: str
+    tool_result_max_lines: Optional[int]
+    tool_result_max_height: Optional[str]
+    thinking_max_lines: Optional[int]
 
 
 DEFAULT_TOOL_RESULT_MAX_LINES = 20
 DEFAULT_TOOL_RESULT_MAX_HEIGHT = "400px"
+# Lower than the tool-result cap on purpose: reasoning is an aside, so it should
+# take up less room than the answer it precedes.
+DEFAULT_THINKING_MAX_LINES = 10
 
 
 def thinking_html(thinking: str, is_open: bool) -> str:
@@ -306,6 +310,61 @@ def thinking_html(thinking: str, is_open: bool) -> str:
         f"\n\n<details{open_attr}><summary>Thinking</summary>"
         f"\n\n{thinking}\n\n</details>\n\n"
     )
+
+
+class ThinkingPanel:
+    """
+    A panel of reasoning, capped at `max_lines` by dropping the *oldest* lines.
+
+    Two things make this different from truncating a tool result:
+
+    - It counts *wrapped* lines, not source lines. Reasoning is prose, so it
+      wraps well past its own newline count (a real Anthropic sample: 35
+      newlines, 44 rendered lines at width 70) and some providers send no
+      newlines at all. So the cap has to render first and crop the result,
+      which also can't break the markdown the way slicing the source could
+      (e.g. halving a code fence).
+    - It keeps the tail rather than the head. The newest reasoning is what's
+      streaming in; cropping the other way would pin the panel to text the
+      reader has already finished, and look like a hang.
+    """
+
+    def __init__(self, body: Any, max_lines: Optional[int]):
+        self.body = body
+        self.max_lines = max_lines
+
+    def __rich_console__(self, console: "Console", options: "ConsoleOptions"):
+        from rich.panel import Panel
+        from rich.segment import Segment, Segments
+
+        title = "Thinking"
+        body = self.body
+
+        if self.max_lines is not None:
+            # Clamped to >=1 because `lines[-0:]` is the whole list, so a cap of 0
+            # would keep everything while the title claimed it all got dropped.
+            keep = max(1, self.max_lines)
+            # Panel spends two columns on borders and two on padding.
+            inner = options.update_width(max(options.max_width - 4, 1))
+            lines = console.render_lines(self.body, inner, pad=False)
+            dropped = len(lines) - keep
+            if dropped > 0:
+                kept = lines[-keep:]
+                # The crop often lands on a paragraph break, which would spend
+                # the first row of a hard-won budget on nothing.
+                while kept and not any(seg.text.strip() for seg in kept[0]):
+                    kept.pop(0)
+                    dropped += 1
+                segments: list[Segment] = []
+                for last, line in loop_last(kept):
+                    segments.extend(line)
+                    if not last:
+                        segments.append(Segment.line())
+                body = Segments(segments)
+                plural = "" if dropped == 1 else "s"
+                title = f"Thinking (… {dropped} earlier line{plural})"
+
+        yield Panel(body, title=title, title_align="left", border_style="dim")
 
 
 @dataclass
@@ -324,4 +383,4 @@ class ContentSegment:
     content: Content
 
 
-Segment = Union[TextSegment, ThinkingSegment, ContentSegment]
+DisplaySegment = Union[TextSegment, ThinkingSegment, ContentSegment]

@@ -47,6 +47,7 @@ from ._content import (
     ToolInfo,
 )
 from ._display import (
+    DEFAULT_THINKING_MAX_LINES,
     DEFAULT_TOOL_RESULT_MAX_HEIGHT,
     DEFAULT_TOOL_RESULT_MAX_LINES,
     EchoDisplayOptions,
@@ -3309,8 +3310,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         rich_markdown: Optional[dict[str, Any]] = None,
         rich_console: Optional[dict[str, Any]] = None,
         css_styles: Optional[dict[str, str]] = None,
-        tool_result_max_lines: Optional[int] = None,
-        tool_result_max_height: Optional[str] = None,
+        tool_result_max_lines: int | None | MISSING_TYPE = MISSING,
+        tool_result_max_height: str | None | MISSING_TYPE = MISSING,
+        thinking_max_lines: int | None | MISSING_TYPE = MISSING,
     ):
         """
         Set echo styling options for the chat.
@@ -3328,24 +3330,31 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             This is only relevant when outputing to the browser.
         tool_result_max_lines
             Truncate an echoed tool result to this many lines, noting how many
-            were dropped. The full value remains available on the turn. This is
-            only relevant when outputting to the console.
+            were dropped. The full value remains available on the turn. Pass
+            `None` to echo it in full. This is only relevant when outputting to
+            the console.
         tool_result_max_height
             A CSS length (e.g. `"400px"`) bounding the height of an echoed tool
-            result, which scrolls internally beyond it. This is only relevant
-            when outputting to the browser.
+            result, which scrolls internally beyond it. Pass `None` to let it
+            grow. This is only relevant when outputting to the browser.
+        thinking_max_lines
+            Cap echoed reasoning at this many lines, keeping the most recent and
+            noting how many earlier ones were dropped. Pass `None` to echo it in
+            full. This is only relevant when outputting to the console; in the
+            browser, reasoning collapses on its own once it's complete.
         """
         self._echo_options: EchoDisplayOptions = {
             "rich_markdown": rich_markdown or {},
             "rich_console": rich_console or {},
             "css_styles": css_styles or {},
-            "tool_result_max_lines": (
-                tool_result_max_lines
-                if tool_result_max_lines is not None
-                else DEFAULT_TOOL_RESULT_MAX_LINES
+            "tool_result_max_lines": default_if_missing(
+                tool_result_max_lines, DEFAULT_TOOL_RESULT_MAX_LINES
             ),
-            "tool_result_max_height": (
-                tool_result_max_height or DEFAULT_TOOL_RESULT_MAX_HEIGHT
+            "tool_result_max_height": default_if_missing(
+                tool_result_max_height, DEFAULT_TOOL_RESULT_MAX_HEIGHT
+            ),
+            "thinking_max_lines": default_if_missing(
+                thinking_max_lines, DEFAULT_THINKING_MAX_LINES
             ),
         }
 
@@ -3526,6 +3535,18 @@ def emit_user_contents(
     emit(f"## 👤 User turn:\n\n{x.text}\n\n")
     emit_other_contents(x, emit)
     emit("\n\n## 🤖 Assistant turn:\n\n")
+
+
+def default_if_missing(value: "T | None | MISSING_TYPE", default: T) -> Optional[T]:
+    """
+    Resolve an echo size option, keeping `None` distinct from "not passed".
+
+    `None` is meaningful for these -- it turns the bound off -- so it can't
+    double as the "use the default" signal.
+    """
+    if isinstance(value, MISSING_TYPE):
+        return default
+    return value
 
 
 def emit_thinking_contents(

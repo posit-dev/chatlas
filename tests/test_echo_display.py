@@ -9,6 +9,7 @@ assertions deterministic and free of ANSI escapes.
 """
 
 import logging
+import re
 from collections.abc import Sequence
 from io import StringIO
 from typing import Any, Callable, Literal, Optional, overload
@@ -29,6 +30,7 @@ from chatlas._live_render import LiveRender
 from chatlas._logging import _rich_handler
 from chatlas._provider import AnyTypeDict, Provider
 from chatlas._turn import AssistantTurn
+from chatlas._utils import MISSING, MISSING_TYPE
 from rich.console import Console
 from rich.text import Text
 
@@ -234,6 +236,159 @@ def test_echo_thinking_then_tool_request():
     assert "I need the temperature." in res
     # The request renders after the panel closes.
     assert "🔧 tool request" in res.rsplit("╰", 1)[-1]
+
+
+def test_echo_caps_long_reasoning_keeping_the_NEWEST_lines():
+    """
+    Reasoning is cropped from the top, unlike a tool result. The newest text is
+    what's still streaming, so cropping the other way would pin the panel to
+    lines the reader already finished and look like a hang.
+    """
+    chat = make_chat([long_reasoning_chunks()])
+    output = capture_echo(chat, width=70, thinking_max_lines=6)
+    chat.chat("q", echo="output")
+    res = output()
+
+    assert "step 39" in res  # newest reasoning kept
+    assert "step 00" not in res  # oldest dropped
+    assert "earlier line" in res
+    assert "The answer is 4." in res
+
+
+def test_reasoning_cap_counts_WRAPPED_lines():
+    """
+    Reasoning arrives as one long paragraph with no newlines, so a
+    `splitlines()`-style cap (what tool results use) would do nothing at all
+    here. The panel body must be bounded by *rendered* line count.
+    """
+    chunks = long_reasoning_chunks()
+    assert "\n" not in "".join(
+        c.thinking for c in chunks if isinstance(c, ContentThinkingDelta)
+    ), "fixture must be newline-free for this test to mean anything"
+
+    chat = make_chat([chunks])
+    output = capture_echo(chat, width=70, thinking_max_lines=6)
+    chat.chat("q", echo="output")
+    res = output()
+
+    # 6 body lines + 2 border lines is the whole panel.
+    panel = [ln for ln in res.splitlines() if ln.startswith(("╭", "│", "╰"))]
+    assert len(panel) == 8, panel
+
+
+def test_reasoning_cap_reports_how_many_lines_were_dropped():
+    chat = make_chat([long_reasoning_chunks()])
+    output = capture_echo(chat, width=70, thinking_max_lines=6)
+    chat.chat("q", echo="output")
+
+    match = re.search(r"… (\d+) earlier lines?", output())
+    assert match is not None
+    dropped = int(match.group(1))
+
+    # Re-render uncapped to learn the true height, then check the count adds up.
+    uncapped_chat = make_chat([long_reasoning_chunks()])
+    uncapped = capture_echo(uncapped_chat, width=70, thinking_max_lines=None)
+    uncapped_chat.chat("q", echo="output")
+    total_body = len([ln for ln in uncapped().splitlines() if ln.startswith("│")])
+    assert dropped == total_body - 6
+
+
+def test_reasoning_cap_can_be_disabled_with_None():
+    chat = make_chat([long_reasoning_chunks()])
+    output = capture_echo(chat, width=70, thinking_max_lines=None)
+    chat.chat("q", echo="output")
+    res = output()
+    assert "step 00" in res
+    assert "step 39" in res
+    assert "earlier line" not in res
+
+
+def test_short_reasoning_is_left_alone():
+    chat = make_chat([thinking_chunks()])
+    output = capture_echo(chat, width=70, thinking_max_lines=6)
+    chat.chat("what is 2+2?", echo="output")
+    res = output()
+    assert "2+2 is 4." in res
+    assert "earlier line" not in res
+
+
+def test_reasoning_cap_defaults_to_ten_lines():
+    chat = make_chat([long_reasoning_chunks()])
+    output = capture_echo(chat, width=70)
+    chat.chat("q", echo="output")
+    body = [ln for ln in output().splitlines() if ln.startswith("│")]
+    assert len(body) == 10, body
+
+
+def test_reasoning_cap_does_not_open_with_a_blank_row():
+    """
+    Real reasoning has paragraph breaks, so the crop often lands on one. Spending
+    the first row of the budget on a blank line is a waste, and it reads as a
+    rendering wart.
+    """
+    paragraphs = "\n\n".join(
+        f"Paragraph {i}: reasoning about possibility {i} at some length here."
+        for i in range(20)
+    )
+    chunks: list[Content] = [
+        ContentThinkingDelta(thinking=paragraphs[i : i + 60])
+        for i in range(0, len(paragraphs), 60)
+    ]
+    chunks.append(text("Done."))
+
+    chat = make_chat([chunks])
+    output = capture_echo(chat, width=70, thinking_max_lines=8)
+    chat.chat("q", echo="output")
+
+    body = [ln for ln in output().splitlines() if ln.startswith("│")]
+    assert body, "expected a panel"
+    assert body[0].strip("│ ") != "", f"panel opens with a blank row: {body[0]!r}"
+    assert len(body) <= 8
+
+
+def test_reasoning_cap_counts_stripped_blanks_as_dropped():
+    """Whatever the panel drops -- cropped or blank -- the title has to own it."""
+    paragraphs = "\n\n".join(f"Paragraph {i} of reasoning." for i in range(20))
+    chunks: list[Content] = [
+        ContentThinkingDelta(thinking=paragraphs[i : i + 60])
+        for i in range(0, len(paragraphs), 60)
+    ]
+    chunks.append(text("Done."))
+
+    def body_lines(cap: "int | None") -> tuple[int, str]:
+        chat = make_chat([list(chunks)])
+        out = capture_echo(chat, width=70, thinking_max_lines=cap)
+        chat.chat("q", echo="output")
+        res = out()
+        return len([ln for ln in res.splitlines() if ln.startswith("│")]), res
+
+    kept, capped = body_lines(8)
+    total, _ = body_lines(None)
+
+    match = re.search(r"… (\d+) earlier lines?", capped)
+    assert match is not None
+    assert int(match.group(1)) == total - kept
+
+
+def test_reasoning_cap_of_zero_does_not_silently_keep_everything():
+    """`lines[-0:]` is the whole list, so a cap of 0 has to be clamped."""
+    chat = make_chat([long_reasoning_chunks()])
+    output = capture_echo(chat, width=70, thinking_max_lines=0)
+    chat.chat("q", echo="output")
+    res = output()
+    assert "step 00" not in res
+    body = [ln for ln in res.splitlines() if ln.startswith("│")]
+    assert len(body) == 1, body
+
+
+def test_tool_result_truncation_can_be_disabled_with_None():
+    chat = make_chat([[tool_request(name="big_tool", arguments={})], [text("Done.")]])
+    chat.register_tool(big_tool)
+    output = capture_echo(chat, width=80, tool_result_max_lines=None)
+    chat.chat("go", echo="output")
+    res = output()
+    assert "'row-29'" in res
+    assert "more line" not in res
 
 
 def test_echo_truncates_a_long_tool_result():
@@ -614,7 +769,10 @@ def capture_echo(
     force_terminal: bool = False,
     normalize: bool = True,
     rich_markdown: Optional[dict[str, object]] = None,
-    tool_result_max_lines: Optional[int] = None,
+    # MISSING, not None: `None` means "don't bound this", so it can't double as
+    # "the test didn't ask for anything".
+    tool_result_max_lines: "int | None | MISSING_TYPE" = MISSING,
+    thinking_max_lines: "int | None | MISSING_TYPE" = MISSING,
     height: Optional[int] = None,
 ) -> Callable[[], str]:
     """
@@ -638,6 +796,7 @@ def capture_echo(
         rich_console=console,
         rich_markdown=rich_markdown,
         tool_result_max_lines=tool_result_max_lines,
+        thinking_max_lines=thinking_max_lines,
     )
 
     def get() -> str:
@@ -685,6 +844,24 @@ def capture_ipy_html(monkeypatch: pytest.MonkeyPatch) -> list[str]:
     monkeypatch.setattr(IPython.display, "display", fake_display)
     monkeypatch.setattr(IPython.display, "update_display", lambda md, display_id: None)
     return html
+
+
+def long_reasoning_chunks() -> list[Content]:
+    """
+    Reasoning long enough to need capping, streamed in provider-sized chunks.
+
+    Deliberately newline-free: that's how reasoning actually arrives, and it's
+    what makes source-line counting useless.
+    """
+    reasoning = "".join(
+        f"step {i:02d}: considering possibility {i} in some detail. " for i in range(40)
+    )
+    chunks: list[Content] = [
+        ContentThinkingDelta(thinking=reasoning[i : i + 80])
+        for i in range(0, len(reasoning), 80)
+    ]
+    chunks.append(text("The answer is **4**."))
+    return chunks
 
 
 def thinking_chunks() -> list[Content]:
