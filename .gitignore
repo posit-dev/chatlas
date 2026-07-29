@@ -9,6 +9,10 @@ uv.lock
 sandbox/
 logs/
 
+# Local scratch / AI-generated planning docs
+docs/plans/
+docs/superpowers/
+
 /.luarc.json
 
 # worktrees

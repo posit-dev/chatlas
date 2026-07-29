@@ -6,12 +6,13 @@ from chatlas._content import (
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentUploaded,
 )
 from chatlas._provider_openai_completions import OpenAICompletionsProvider
 from chatlas._provider_openai_completions import (
     normalize_finish_reason as completions_normalize_finish_reason,
 )
-from chatlas._turn import AssistantTurn
+from chatlas._turn import AssistantTurn, UserTurn
 
 from .conftest import (
     assert_data_extraction,
@@ -295,6 +296,35 @@ def test_turns_as_inputs_drops_empty_content_text():
     )
     result = provider._turns_as_inputs([turn])
     assert result[0]["content"] == [{"type": "text", "text": "Hello"}]
+
+
+def test_completions_uploaded_document_serializes():
+    provider = OpenAICompletionsProvider(model="gpt-4o")
+    turn = UserTurn(
+        [ContentUploaded(id="file_1", mime_type="application/pdf", provider="openai")]
+    )
+    msgs = provider._turns_as_inputs([turn])
+    part = msgs[-1]["content"][0]
+    assert part["type"] == "file"
+    assert part["file"]["file_id"] == "file_1"
+
+
+def test_completions_uploaded_image_raises():
+    provider = OpenAICompletionsProvider(model="gpt-4o")
+    turn = UserTurn(
+        [ContentUploaded(id="img_1", mime_type="image/png", provider="openai")]
+    )
+    with pytest.raises(ValueError, match="Chat Completions API"):
+        provider._turns_as_inputs([turn])
+
+
+def test_completions_uploaded_wrong_provider_raises():
+    provider = OpenAICompletionsProvider(model="gpt-4o")
+    turn = UserTurn(
+        [ContentUploaded(id="x", mime_type="application/pdf", provider="anthropic")]
+    )
+    with pytest.raises(ValueError, match="uploaded to provider 'anthropic'"):
+        provider._turns_as_inputs([turn])
 
 
 def test_turns_as_inputs_empty_text_with_tool_request():

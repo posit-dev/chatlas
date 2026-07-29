@@ -27,6 +27,7 @@ website:
       section: Chat model providers
     - contents:
       - reference/Chat.qmd
+      - reference/FileManager.qmd
       section: The chat object
     - contents:
       - reference/content_image_file.qmd
@@ -87,8 +88,10 @@ website:
       - reference/types.ContentToolResponseSearch.qmd
       - reference/types.ContentToolRequestFetch.qmd
       - reference/types.ContentToolResponseFetch.qmd
+      - reference/types.ContentUploaded.qmd
       - reference/types.ChatResponse.qmd
       - reference/types.ChatResponseAsync.qmd
+      - reference/types.FileMetadata.qmd
       - reference/types.ImageContentTypes.qmd
       - reference/types.MISSING_TYPE.qmd
       - reference/types.MISSING.qmd

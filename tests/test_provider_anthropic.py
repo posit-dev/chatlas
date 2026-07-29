@@ -22,6 +22,7 @@ from chatlas import (
     tool_web_fetch,
     tool_web_search,
 )
+from chatlas._content import ContentUploaded
 from chatlas._provider_anthropic import _ANTHROPIC_FINISH_REASON_MAP, AnthropicProvider
 from chatlas._provider_anthropic import (
     normalize_finish_reason as anthropic_normalize_finish_reason,
@@ -370,6 +371,63 @@ def test_anthropic_pdfs():
     assert_pdf_local(chat_func)
 
 
+def test_anthropic_uploaded_document_block():
+    c = ContentUploaded(id="file_1", mime_type="application/pdf", provider="anthropic")
+    block = AnthropicProvider._as_content_block(c)
+    assert block["type"] == "document"
+    assert block["source"] == {"type": "file", "file_id": "file_1"}
+
+
+def test_anthropic_uploaded_image_block():
+    c = ContentUploaded(id="img_1", mime_type="image/png", provider="anthropic")
+    block = AnthropicProvider._as_content_block(c)
+    assert block["type"] == "image"
+    assert block["source"] == {"type": "file", "file_id": "img_1"}
+
+
+def test_anthropic_uploaded_cross_provider_raises():
+    c = ContentUploaded(id="file_1", mime_type="application/pdf", provider="openai")
+    with pytest.raises(ValueError, match="uploaded to provider 'openai'"):
+        AnthropicProvider._as_content_block(c)
+
+
+def test_anthropic_uploaded_triggers_beta_header():
+    provider = AnthropicProvider(model="claude-sonnet-4-6")
+    turn = UserTurn(
+        [
+            ContentUploaded(
+                id="file_1", mime_type="application/pdf", provider="anthropic"
+            )
+        ]
+    )
+    args = provider._chat_perform_args(
+        stream=False, turns=[turn], tools={}, data_model=None
+    )
+    assert args["extra_headers"]["anthropic-beta"] == "files-api-2025-04-14"
+
+
+def test_anthropic_no_uploaded_omits_beta_header():
+    provider = AnthropicProvider(model="claude-sonnet-4-6")
+    turn = UserTurn(["hello"])
+    args = provider._chat_perform_args(
+        stream=False, turns=[turn], tools={}, data_model=None
+    )
+    assert "anthropic-beta" not in (args.get("extra_headers") or {})
+
+
+def test_anthropic_token_count_args_keeps_beta_header():
+    provider = AnthropicProvider(model="claude-sonnet-4-6")
+    turn = UserTurn(
+        [ContentUploaded(id="file_1", mime_type="application/pdf", provider="anthropic")]
+    )
+    args = provider._token_count_args(
+        [turn],
+        tools={},
+        data_model=None,
+    )
+    assert args["extra_headers"]["anthropic-beta"] == "files-api-2025-04-14"
+
+
 @pytest.mark.vcr
 def test_anthropic_empty_response():
     chat = chat_func()
@@ -512,3 +570,19 @@ def test_anthropic_adaptive_effort_merges_with_structured_output():
     output_config = args["output_config"]
     assert output_config["effort"] == "high"
     assert output_config["format"]["type"] == "json_schema"
+
+
+@pytest.mark.vcr
+def test_anthropic_token_count_complete_exceeds_new():
+    chat = ChatAnthropic(system_prompt="You are a terse assistant.")
+    chat.set_turns(
+        [
+            UserTurn("an earlier question with some length to it"),
+            AssistantTurn("an earlier answer", tokens=(10, 5, 0)),
+        ]
+    )
+    new_only = chat.token_count("and one more question", include="new")
+    complete = chat.token_count("and one more question", include="complete")
+
+    assert new_only > 0
+    assert complete > new_only

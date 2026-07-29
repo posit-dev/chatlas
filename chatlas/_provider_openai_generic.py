@@ -13,7 +13,7 @@ from openai import AsyncOpenAI, OpenAI
 from openai.types.batch import Batch
 from pydantic import BaseModel
 
-from ._content import Content, ContentImage, ContentImageRemote
+from ._content import ContentImage, ContentImageRemote
 from ._provider import (
     BatchStatus,
     ChatCompletionChunkT,
@@ -25,7 +25,7 @@ from ._provider import (
 )
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
-from ._turn import AssistantTurn, Turn, UserTurn, user_turn
+from ._turn import AssistantTurn, Turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -121,7 +121,8 @@ class OpenAIAbstractProvider(
 
     def token_count(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
@@ -135,29 +136,31 @@ class OpenAIAbstractProvider(
 
         encoding = tiktoken.encoding_for_model(self._model)
 
-        turn = user_turn(*args)
+        image_tokens = 0
+        stripped: list[Turn] = []
+        for turn in turns:
+            image_tokens += sum(
+                self._image_token_count(x)
+                for x in turn.contents
+                if isinstance(x, ContentImage)
+            )
+            non_images = [x for x in turn.contents if not isinstance(x, ContentImage)]
+            if non_images:
+                stripped.append(turn.model_copy(update={"contents": non_images}))
 
-        # Count the tokens in image contents
-        image_tokens = sum(
-            self._image_token_count(x)
-            for x in turn.contents
-            if isinstance(x, ContentImage)
-        )
-
-        # For other contents, get the token count from the actual message param
-        other_contents = [x for x in turn.contents if not isinstance(x, ContentImage)]
-        other_full = self._turns_as_inputs([UserTurn(other_contents)])
+        other_full = self._turns_as_inputs(stripped)
         other_tokens = len(encoding.encode(str(other_full)))
 
         return other_tokens + image_tokens
 
     async def token_count_async(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
-        return self.token_count(*args, tools=tools, data_model=data_model)
+        return self.token_count(turns, tools=tools, data_model=data_model)
 
     @staticmethod
     def _image_token_count(image: ContentImage) -> int:

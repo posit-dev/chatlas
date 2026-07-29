@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import asyncio
 import base64
 import re
+import time
 import warnings
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
 
@@ -26,8 +28,10 @@ from ._content import (
     ContentToolResponseFetch,
     ContentToolResponseSearch,
     ContentToolResult,
+    ContentUploaded,
     WebSource,
 )
+from ._files import FileMetadata, maybe_write
 from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import (
@@ -40,10 +44,15 @@ from ._provider import (
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn, user_turn
+from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn
 
 if TYPE_CHECKING:
+    import io
+    import os
+    from typing import IO
+
     from google.genai.types import Content as GoogleContent
+    from google.genai.types import File as GoogleFile
     from google.genai.types import (
         GenerateContentConfigDict,
         GenerateContentResponse,
@@ -52,6 +61,7 @@ if TYPE_CHECKING:
         Part,
         PartDict,
         ThinkingConfigDict,
+        UploadFileConfigDict,
         UrlContextMetadataDict,
     )
 
@@ -525,50 +535,39 @@ class GoogleProvider(
 
     def token_count(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
-    ):
-        kwargs = self._token_count_args(
-            *args,
-            tools=tools,
-            data_model=data_model,
-        )
-
+    ) -> int:
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
         res = self._client.models.count_tokens(**kwargs)
         return res.total_tokens or 0
 
     async def token_count_async(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
-    ):
-        kwargs = self._token_count_args(
-            *args,
-            tools=tools,
-            data_model=data_model,
-        )
-
+    ) -> int:
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
         res = await self._client.aio.models.count_tokens(**kwargs)
         return res.total_tokens or 0
 
     def _token_count_args(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> dict[str, Any]:
-        turn = user_turn(*args)
-
         kwargs = self._chat_perform_args(
-            turns=[turn],
+            turns=turns,
             tools=tools,
             data_model=data_model,
         )
-
-        args_to_keep = ["model", "contents", "tools"]
-
+        args_to_keep = ["model", "contents"]
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
     def _google_contents(self, turns: list[Turn]) -> list["GoogleContent"]:
@@ -648,6 +647,14 @@ class GoogleProvider(
                     response=resp,
                 )
             )
+        elif isinstance(content, ContentUploaded):
+            if content.provider != "google":
+                raise ValueError(
+                    f"This file was uploaded to provider '{content.provider}', "
+                    "but is being used with Google. Re-upload it with a "
+                    "ChatGoogle() chat."
+                )
+            return Part.from_uri(file_uri=content.id, mime_type=content.mime_type)
         raise ValueError(f"Unknown content type: {type(content)}")
 
     def _as_turn(
@@ -899,6 +906,99 @@ class GoogleProvider(
         completion = cast("GenerateContentResponseDict", result.response.model_dump())
         return self._as_turn(completion, has_data_model)
 
+    def file_upload(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        self._require_files_api()
+        cfg: Optional["UploadFileConfigDict"] = (
+            {"mime_type": mime_type} if mime_type else None
+        )
+        # google-genai types file-likes as io.IOBase; typing.IO[bytes] (our
+        # public upload() contract, shared with the other providers) covers
+        # the same runtime file-like objects.
+        obj = self._client.files.upload(
+            file=cast("str | os.PathLike[str] | io.IOBase", file), config=cfg
+        )
+        name = obj.name
+        while name is not None and google_file_processing(obj):
+            time.sleep(GOOGLE_FILE_POLL_SECONDS)
+            obj = self._client.files.get(name=name)
+        return google_uploaded(obj)
+
+    async def file_upload_async(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        self._require_files_api()
+        cfg: Optional["UploadFileConfigDict"] = (
+            {"mime_type": mime_type} if mime_type else None
+        )
+        obj = await self._client.aio.files.upload(
+            file=cast("str | os.PathLike[str] | io.IOBase", file), config=cfg
+        )
+        name = obj.name
+        while name is not None and google_file_processing(obj):
+            await asyncio.sleep(GOOGLE_FILE_POLL_SECONDS)
+            obj = await self._client.aio.files.get(name=name)
+        return google_uploaded(obj)
+
+    def file_list(self) -> list[FileMetadata]:
+        self._require_files_api()
+        return [google_meta(o) for o in self._client.files.list()]
+
+    async def file_list_async(self) -> list[FileMetadata]:
+        self._require_files_api()
+        return [google_meta(o) async for o in await self._client.aio.files.list()]
+
+    def file_get(self, id: str) -> FileMetadata:  # noqa: A002
+        self._require_files_api()
+        return google_meta(self._client.files.get(name=id))
+
+    async def file_get_async(self, id: str) -> FileMetadata:  # noqa: A002
+        self._require_files_api()
+        return google_meta(await self._client.aio.files.get(name=id))
+
+    def file_download(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        # Gemini's Files API only serves bytes back for model-GENERATED files
+        # (e.g. Veo video output); files uploaded via file_upload() raise a
+        # ClientError ("Only GENERATED files can be downloaded").
+        self._require_files_api()
+        return maybe_write(self._client.files.download(file=id), path)
+
+    async def file_download_async(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        self._require_files_api()
+        data = await self._client.aio.files.download(file=id)
+        return maybe_write(data, path)
+
+    def file_delete(self, id: str) -> None:  # noqa: A002
+        self._require_files_api()
+        self._client.files.delete(name=id)
+
+    async def file_delete_async(self, id: str) -> None:  # noqa: A002
+        self._require_files_api()
+        await self._client.aio.files.delete(name=id)
+
+    def _require_files_api(self) -> None:
+        if getattr(self._client, "vertexai", False):
+            raise NotImplementedError(
+                "The Gemini Files API is not available on Vertex AI. Upload the "
+                "file to a Cloud Storage bucket and reference it with "
+                "ContentUploaded(id='gs://bucket/obj', mime_type=..., provider='google')."
+            )
+
 
 def google_search_contents(
     grounding_metadata: "GroundingMetadataDict | None",
@@ -1113,6 +1213,58 @@ def ChatVertex(
             kwargs=kwargs,
         ),
         system_prompt=system_prompt,
+    )
+
+
+GOOGLE_FILE_POLL_SECONDS = 0.5
+
+
+def google_file_processing(obj: "GoogleFile") -> bool:
+    return obj.state is not None and obj.state.value == "PROCESSING"
+
+
+def google_uploaded(obj: "GoogleFile") -> ContentUploaded:
+    if obj.state is not None and obj.state.value == "FAILED":
+        detail = obj.error.message if obj.error else "no error detail given"
+        raise ValueError(f"File {obj.name!r} failed to process: {detail}")
+
+    if obj.uri is None:
+        raise ValueError(
+            f"File {obj.name!r} has no URI (state={obj.state}). Gemini returns a "
+            "URI for every uploaded file -- including while it is still "
+            "processing -- so this most likely means the upload didn't complete."
+        )
+
+    return ContentUploaded(
+        id=obj.uri,
+        mime_type=obj.mime_type or "application/octet-stream",
+        provider="google",
+        extra={
+            "name": obj.name,
+            "size_bytes": obj.size_bytes,
+            "state": obj.state.value if obj.state else None,
+        },
+    )
+
+
+def google_meta(obj: "GoogleFile") -> FileMetadata:
+    # Prefer the full URI, since it's the only form `.chat()` accepts as a
+    # reference. Fall back to the resource name so that listing still works for
+    # files that never got one (e.g. a FAILED upload): `name` is a valid id for
+    # the management calls, which is all such a file is good for anyway.
+    id = obj.uri or obj.name  # noqa: A001
+    if id is None:
+        raise ValueError(f"Gemini returned a file with neither a URI nor a name: {obj}")
+
+    return FileMetadata(
+        id=id,
+        filename=obj.display_name,
+        mime_type=obj.mime_type,
+        size_bytes=obj.size_bytes,
+        created_at=obj.create_time,
+        expires_at=obj.expiration_time,
+        provider="google",
+        extra=obj,
     )
 
 

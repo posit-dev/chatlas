@@ -6,6 +6,7 @@ from openai import AsyncAzureOpenAI, AzureOpenAI
 from openai.types.chat import ChatCompletion
 
 from ._chat import Chat
+from ._provider import no_file_management
 from ._provider_openai import OpenAIProvider
 from ._provider_openai_completions import OpenAICompletionsProvider
 from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
@@ -93,6 +94,12 @@ def ChatAzureOpenAI(
     -------
     Chat
         A Chat object.
+
+    Note
+    ----
+    `token_count()` uses the same OpenAI `responses/input_tokens` endpoint as
+    `ChatOpenAI()`, so it requires an Azure OpenAI deployment and api-version
+    that support that endpoint; otherwise `token_count()` will raise.
     """
 
     kwargs_chat: "ResponsesSubmitInputArgs" = {}
@@ -118,6 +125,8 @@ def ChatAzureOpenAI(
     )
 
 
+# Azure OpenAI has no Files API.
+@no_file_management
 class OpenAIAzureProvider(OpenAIProvider):
     def __init__(
         self,

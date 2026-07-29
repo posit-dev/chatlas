@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* `Chat` gains a `.files` accessor for uploading files to a provider once and referencing them across turns without re-sending bytes, plus listing, fetching metadata, downloading, and deleting them. Supported for OpenAI, Anthropic, and Google Gemini. A new `ContentUploaded` type represents the reference and can be constructed directly to point at a file uploaded out-of-band (e.g. a Vertex `gs://` URI). For Google, `upload()` waits for Gemini to finish processing large media (video, audio) before returning, since the API rejects references to files that aren't yet `ACTIVE`.
 * `batch_chat()` now supports `ChatGoogle()` (Gemini Developer API batch jobs). Batch is also now documented as supported for `ChatGroq()`, which already worked via its OpenAI-compatible provider. (Vertex AI is not supported, since its batch API requires GCS bucket URIs instead of inline requests.)
 * `ChatOllama()` gains a `reasoning_effort` parameter to enable extended "thinking" for models that support it (e.g. qwen3, gpt-oss).
 * Web search and fetch results now surface their citations across all three providers (OpenAI, Anthropic, Google), both progressively during streaming and on the final turn. `ContentCitation` nests a typed `source` (a `Source` subclass — `WebSource` today, carrying `url`/`title`) instead of flat `url`/`title` fields, and carries `grounded_text` (the answer-side span it grounds) plus `cited_text` (the source-side quote, populated for `ChatAnthropic()` web search). `source` is optional — a citation can ground answer text with no resolvable link. `ContentCitation`, `Source`, and `WebSource` are exported from `chatlas.types`. A future file/document/RAG source becomes another `Source` subclass without breaking `ContentCitation.source`; note that `ContentToolResponseSearch.sources` is typed narrowly as `list[WebSource]` and would need widening at that point.
@@ -19,14 +20,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * On the final turn, `ContentCitation` items appear in the turn's `contents` list after the `ContentText` they ground, in the order the provider reported them. Since a turn's text arrives as one accumulated `ContentText`, position no longer narrows a citation to a span within it — use `grounded_text` for that.
 * Built-in web search and fetch content (`ContentToolRequestSearch`/`ContentToolResponseSearch` and `ContentToolRequestFetch`/`ContentToolResponseFetch`) is now also emitted while streaming with `content="all"`, for `ChatOpenAI()`, `ChatAnthropic()`, and `ChatGoogle()`. Previously it appeared only on the completed turn, so a UI had no way to show search activity until the whole response had arrived.
 * `ContentToolResponseFetch` gained a normalized `status` field (`"success"`, `"error"`, or `None` when the provider doesn't report an outcome). Providers' finer-grained reasons (Anthropic's `url_not_allowed`, Google's `PAYWALL`, …) aren't aligned across providers, so they stay available in `extra`.
+* `Chat.token_count()` gained an `include=` argument: `"new"` (default) counts
+  just the given input, while `"complete"` estimates the total tokens for the
+  next request, including history and system prompt where the provider
+  supports it.
 
 ### Improvements
 
 * `ChatGoogle()` and `ChatVertex()` now default to `gemini-3.5-flash` instead of the older `gemini-2.5-flash`.
 * `ChatGroq()` now defaults to `openai/gpt-oss-20b` instead of `llama-3.1-8b-instant`.
+* `ChatOpenAI().token_count()` now uses OpenAI's token-counting endpoint for
+  accurate, tool-aware counts instead of a local `tiktoken` estimate.
 
 ### Changes
 
+* `Provider.token_count()`/`token_count_async()` now take a `turns: list[Turn]`
+  argument instead of `*args: Content | str` (affects custom `Provider`
+  subclasses only).
 * MCP support now requires `mcp>=2.0.0`. The 2.0 release of the `mcp` SDK renamed its model fields (and removed `mcp.server.fastmcp.FastMCP`), so older `mcp` versions are no longer compatible. This only affects users of the optional `mcp` extra (i.e., `register_mcp_tools_*()`).
 * `Turn.finish_reason` is now normalized to a consistent set of values (`"success"`, `"tool_use"`, `"max_tokens"`, `"content_filter"`, `"context_window"`, `"stop_sequence"`) across most providers, so you no longer need provider-specific logic to check why a turn ended. Previously each provider surfaced its own raw string (e.g. Anthropic's `"end_turn"`/`"tool_use"` vs. OpenAI Completions' `"stop"`/`"tool_calls"` vs. Google's `"STOP"`/`"SAFETY"`), so the same outcome could require different checks depending on which `Chat*()` you used. Reasons chatlas doesn't yet recognize still pass through unchanged.
 

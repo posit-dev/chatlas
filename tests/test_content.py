@@ -5,6 +5,7 @@ from chatlas._content import (
     ContentText,
     ContentToolResponseFetch,
     ContentToolResponseSearch,
+    ContentUploaded,
     WebSource,
     create_content,
     create_source,
@@ -108,3 +109,15 @@ def test_content_citation_exported_from_types():
 def test_contenttext_add_concatenates():
     merged = ContentText(text="foo") + ContentText(text="bar")
     assert merged.text == "foobar"
+
+
+def test_content_uploaded_roundtrip():
+    c = ContentUploaded(id="file_123", mime_type="application/pdf", provider="openai")
+    assert c.content_type == "uploaded"
+    assert str(c) == "<uploaded file id=file_123 mime_type=application/pdf>"
+
+    dumped = c.model_dump()
+    restored = create_content(dumped)
+    assert isinstance(restored, ContentUploaded)
+    assert restored.id == "file_123"
+    assert restored.provider == "openai"

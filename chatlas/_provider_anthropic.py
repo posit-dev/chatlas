@@ -35,9 +35,11 @@ from ._content import (
     ContentToolResponseFetch,
     ContentToolResponseSearch,
     ContentToolResult,
+    ContentUploaded,
     ProviderAnnotation,
     WebSource,
 )
+from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
 from ._provider import (
     BatchStatus,
@@ -45,14 +47,18 @@ from ._provider import (
     Provider,
     StandardModelParamNames,
     StandardModelParams,
+    no_file_management,
 )
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn, user_turn
+from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
+    import os
+    from typing import IO
+
     from anthropic.types import (
         Message,
         MessageParam,
@@ -65,6 +71,9 @@ if TYPE_CHECKING:
         ToolUseBlock,
         WebFetchToolResultBlock,
         WebSearchToolResultBlock,
+    )
+    from anthropic.types.beta.file_metadata import (
+        FileMetadata as AnthropicFileMetadata,
     )
     from anthropic.types.cache_control_ephemeral_param import CacheControlEphemeralParam
     from anthropic.types.document_block_param import DocumentBlockParam
@@ -517,6 +526,11 @@ class AnthropicProvider(
                     sys_param["cache_control"] = self._cache_control()
                 kwargs_full["system"] = [sys_param]
 
+        if has_uploaded(turns):
+            headers = dict(kwargs_full.get("extra_headers") or {})
+            headers.setdefault("anthropic-beta", "files-api-2025-04-14")
+            kwargs_full["extra_headers"] = headers
+
         return kwargs_full
 
     @staticmethod
@@ -651,43 +665,36 @@ class AnthropicProvider(
 
     def token_count(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
-        kwargs = self._token_count_args(
-            *args,
-            tools=tools,
-            data_model=data_model,
-        )
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
         res = self._client.messages.count_tokens(**kwargs)
         return res.input_tokens
 
     async def token_count_async(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
-        kwargs = self._token_count_args(
-            *args,
-            tools=tools,
-            data_model=data_model,
-        )
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
         res = await self._async_client.messages.count_tokens(**kwargs)
         return res.input_tokens
 
     def _token_count_args(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> dict[str, Any]:
-        turn = user_turn(*args)
-
         kwargs = self._chat_perform_args(
             stream=False,
-            turns=[turn],
+            turns=turns,
             tools=tools,
             data_model=data_model,
         )
@@ -698,6 +705,7 @@ class AnthropicProvider(
             "system",
             "tools",
             "tool_choice",
+            "extra_headers",
         ]
 
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
@@ -729,6 +737,61 @@ class AnthropicProvider(
             "max_tokens",
             "stop_sequences",
         }
+
+    def file_upload(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        with open_binary(file) as f:
+            obj = self._client.beta.files.upload(file=f)
+        return anthropic_uploaded(obj, mime_type)
+
+    async def file_upload_async(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        with open_binary(file) as f:
+            obj = await self._async_client.beta.files.upload(file=f)
+        return anthropic_uploaded(obj, mime_type)
+
+    def file_list(self) -> list[FileMetadata]:
+        return [anthropic_meta(o) for o in self._client.beta.files.list()]
+
+    async def file_list_async(self) -> list[FileMetadata]:
+        page = await self._async_client.beta.files.list()
+        return [anthropic_meta(o) async for o in page]
+
+    def file_get(self, id: str) -> FileMetadata:  # noqa: A002
+        return anthropic_meta(self._client.beta.files.retrieve_metadata(id))
+
+    async def file_get_async(self, id: str) -> FileMetadata:  # noqa: A002
+        return anthropic_meta(await self._async_client.beta.files.retrieve_metadata(id))
+
+    def file_download(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        data = self._client.beta.files.download(id).read()
+        return maybe_write(data, path)
+
+    async def file_download_async(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        resp = await self._async_client.beta.files.download(id)
+        return maybe_write(await resp.read(), path)
+
+    def file_delete(self, id: str) -> None:  # noqa: A002
+        self._client.beta.files.delete(id)
+
+    async def file_delete_async(self, id: str) -> None:  # noqa: A002
+        await self._async_client.beta.files.delete(id)
 
     def _as_message_params(self, turns: Sequence[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
@@ -830,6 +893,22 @@ class AnthropicProvider(
         ):
             # extra contains the full original content block param
             return cast("ContentBlockParam", content.extra)
+        elif isinstance(content, ContentUploaded):
+            if content.provider != "anthropic":
+                raise ValueError(
+                    f"This file was uploaded to provider '{content.provider}', "
+                    "but is being used with Anthropic. Re-upload it with a "
+                    "ChatAnthropic() chat."
+                )
+            # The stable ImageBlockParam/DocumentBlockParam types don't yet
+            # model a file-reference source (only the beta types do), but the
+            # standard /v1/messages endpoint accepts this shape when the
+            # `anthropic-beta: files-api-2025-04-14` header is set (verified
+            # against the live API).
+            source = {"type": "file", "file_id": content.id}
+            if content.mime_type.startswith("image/"):
+                return cast("ContentBlockParam", {"type": "image", "source": source})
+            return cast("ContentBlockParam", {"type": "document", "source": source})
 
         raise ValueError(f"Unknown content type: {type(content)}")
 
@@ -939,6 +1018,7 @@ class AnthropicProvider(
         from anthropic import NotGiven
 
         requests: list["BatchRequest"] = []
+        extra_headers: dict[str, str] = {}
 
         for i, turns in enumerate(conversations):
             kwargs = self._chat_perform_args(
@@ -966,7 +1046,21 @@ class AnthropicProvider(
 
             requests.append({"custom_id": f"request-{i}", "params": params})
 
-        batch = self._client.messages.batches.create(requests=requests)
+            # The beta header applies to the batch-create HTTP request as a
+            # whole (not to individual requests within the batch), so union
+            # it across conversations rather than keeping only the last one.
+            headers = kwargs.get("extra_headers")
+            if headers:
+                for k, v in headers.items():
+                    if isinstance(v, str):
+                        extra_headers[k] = v
+
+        if extra_headers:
+            batch = self._client.messages.batches.create(
+                requests=requests, extra_headers=extra_headers
+            )
+        else:
+            batch = self._client.messages.batches.create(requests=requests)
         return batch.model_dump()
 
     def batch_poll(self, batch):
@@ -1032,6 +1126,34 @@ class AnthropicProvider(
             "type": "ephemeral",
             "ttl": self._cache,
         }
+
+
+def has_uploaded(turns: list[Turn]) -> bool:
+    return any(isinstance(c, ContentUploaded) for t in turns for c in t.contents)
+
+
+def anthropic_uploaded(
+    obj: "AnthropicFileMetadata", mime_type: Optional[str]
+) -> ContentUploaded:
+    return ContentUploaded(
+        id=obj.id,
+        mime_type=mime_type or obj.mime_type,
+        provider="anthropic",
+        extra={"filename": obj.filename, "size_bytes": obj.size_bytes},
+    )
+
+
+def anthropic_meta(obj: "AnthropicFileMetadata") -> FileMetadata:
+    return FileMetadata(
+        id=obj.id,
+        filename=obj.filename,
+        mime_type=obj.mime_type,
+        size_bytes=obj.size_bytes,
+        created_at=obj.created_at,
+        expires_at=None,
+        provider="anthropic",
+        extra=obj,
+    )
 
 
 def ChatBedrockAnthropic(
@@ -1242,6 +1364,8 @@ def ChatBedrockAnthropic(
     )
 
 
+# Bedrock's Anthropic client has no `.beta.files`.
+@no_file_management
 class AnthropicBedrockProvider(AnthropicProvider):
     def __init__(
         self,

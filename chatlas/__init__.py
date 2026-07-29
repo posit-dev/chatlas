@@ -13,6 +13,7 @@ from ._content import (
 )
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._content_pdf import content_pdf_file, content_pdf_url
+from ._files import FileManager
 from ._interpolate import interpolate, interpolate_file
 from ._parallel import parallel_chat, parallel_chat_structured, parallel_chat_text
 from ._provider import Provider
@@ -85,6 +86,7 @@ __all__ = (
     "content_pdf_url",
     "ContentToolRequest",
     "ContentToolResult",
+    "FileManager",
     "interpolate",
     "interpolate_file",
     "Provider",
