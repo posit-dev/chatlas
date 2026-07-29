@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>types.missing – chatlas</title>
+<title>types.contentuploaded – chatlas</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -33,8 +68,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/types.SubmitInputArgsT.html" rel="next">
-<link href="../reference/types.MISSING_TYPE.html" rel="prev">
+<link href="../reference/types.ChatResponse.html" rel="next">
+<link href="../reference/types.ContentToolResponseFetch.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -132,7 +167,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.MISSING.html">types.MISSING</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.ContentUploaded.html">types.ContentUploaded</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -654,7 +689,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/types.ContentUploaded.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/types.ContentUploaded.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">types.ContentUploaded</span></a>
   </div>
 </li>
@@ -690,7 +725,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/types.MISSING.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/types.MISSING.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.MISSING</span></a>
   </div>
 </li>
@@ -730,21 +765,71 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.types.MISSING" id="toc-chatlas.types.MISSING" class="nav-link active" data-scroll-target="#chatlas.types.MISSING">types.MISSING</a></li>
+  <li><a href="#chatlas.types.ContentUploaded" id="toc-chatlas.types.ContentUploaded" class="nav-link active" data-scroll-target="#chatlas.types.ContentUploaded">types.ContentUploaded</a>
+  <ul class="collapse">
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.MISSING.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ContentUploaded.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.MISSING.html">types.MISSING</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.ContentUploaded.html">types.ContentUploaded</a></li></ol></nav></header>
 
 
 
 
-<section id="chatlas.types.MISSING" class="level1">
-<h1>types.MISSING</h1>
-<p><code>types.MISSING</code></p>
+<section id="chatlas.types.ContentUploaded" class="level1">
+<h1>types.ContentUploaded</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>types.ContentUploaded()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A reference to a file already uploaded to a provider.</p>
+<p>Returned by <code>chat.files.upload(...)</code> and usable directly in <code>.chat()</code> so the file bytes are not re-sent each turn. Can also be constructed directly to reference a file uploaded out-of-band (e.g.&nbsp;a Google Vertex <code>gs://</code> URI).</p>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 3%">
+<col style="width: 87%">
+<col style="width: 4%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>id</td>
+<td></td>
+<td>The provider’s file identifier (OpenAI/Anthropic <code>file_id</code>, or a Google/Vertex URI such as <code>https://.../files/abc</code> or <code>gs://bucket/obj</code>).</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>mime_type</td>
+<td></td>
+<td>The file’s MIME type. Determines image-vs-document serialization and is required by Google’s file references.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>provider</td>
+<td></td>
+<td>The provider the file was uploaded to (<code>"openai"</code>, <code>"anthropic"</code>, or <code>"google"</code>). Used to detect cross-provider misuse.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>extra</td>
+<td></td>
+<td>A plain dict of provider-native metadata (filename, size, …) when available. Unlike <code>FileMetadata.extra</code>, this can’t hold the provider’s own file object, since this type is serialized as part of a chat’s turns.</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -1150,13 +1235,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/types.MISSING_TYPE.html" class="pagination-link" aria-label="types.MISSING_TYPE">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">types.MISSING_TYPE</span>
+      <a href="../reference/types.ContentToolResponseFetch.html" class="pagination-link" aria-label="types.ContentToolResponseFetch">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">types.ContentToolResponseFetch</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/types.SubmitInputArgsT.html" class="pagination-link" aria-label="types.SubmitInputArgsT">
-        <span class="nav-page-text">types.SubmitInputArgsT</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/types.ChatResponse.html" class="pagination-link" aria-label="types.ChatResponse">
+        <span class="nav-page-text">types.ChatResponse</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1168,7 +1253,7 @@ ul.task-list li input[type="checkbox"] {
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.MISSING.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ContentUploaded.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

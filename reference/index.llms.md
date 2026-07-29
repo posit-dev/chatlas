@@ -35,6 +35,7 @@ Methods and attributes available on a chat instance
 |  |  |
 |----|----|
 | [Chat](../reference/Chat.llms.md#chatlas.Chat) | A chat object that can be used to interact with a language model. |
+| [FileManager](../reference/FileManager.llms.md#chatlas.FileManager) | Manage files hosted by a chat’s provider. Accessed via `chat.files`. |
 
 ## Image input
 
@@ -138,8 +139,10 @@ A provider-agnostic representation of content generated during an assistant/user
 | [types.ContentToolResponseSearch](../reference/types.ContentToolResponseSearch.llms.md#chatlas.types.ContentToolResponseSearch) | Web search results from the model. |
 | [types.ContentToolRequestFetch](../reference/types.ContentToolRequestFetch.llms.md#chatlas.types.ContentToolRequestFetch) | A web fetch request from the model. |
 | [types.ContentToolResponseFetch](../reference/types.ContentToolResponseFetch.llms.md#chatlas.types.ContentToolResponseFetch) | Web fetch results from the model. |
+| [types.ContentUploaded](../reference/types.ContentUploaded.llms.md#chatlas.types.ContentUploaded) | A reference to a file already uploaded to a provider. |
 | [types.ChatResponse](../reference/types.ChatResponse.llms.md#chatlas.types.ChatResponse) | Chat response object. |
 | [types.ChatResponseAsync](../reference/types.ChatResponseAsync.llms.md#chatlas.types.ChatResponseAsync) | Chat response (async) object. |
+| [types.FileMetadata](../reference/types.FileMetadata.llms.md#chatlas.types.FileMetadata) | Normalized metadata for a provider-hosted file. |
 | [types.ImageContentTypes](../reference/types.ImageContentTypes.llms.md#chatlas.types.ImageContentTypes) | Allowable content types for images. |
 | [types.MISSING_TYPE](../reference/types.MISSING_TYPE.llms.md#chatlas.types.MISSING_TYPE) | A singleton representing a missing value. |
 | [types.MISSING](../reference/types.MISSING.llms.md#chatlas.types.MISSING) |  |

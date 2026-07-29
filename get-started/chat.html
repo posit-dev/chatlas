@@ -513,14 +513,19 @@ representing the Python programming language. The design symbolizes...</code></p
 <p>Not every model supports every content type. Please refer to the documentation for the specific model you’re using to see which content types are supported.</p>
 </div>
 </div>
+<p>For a large file, or one you want to reference across many turns, upload it once with <a href="../reference/FileManager.html#upload"><code>chat.files.upload()</code></a> instead of re-sending its bytes every time:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>uploaded <span class="op">=</span> chat.files.upload(<span class="st">"quarterly-report.pdf"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>chat.chat(uploaded, <span class="st">"Summarize the key findings."</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>chat.chat(uploaded, <span class="st">"Now list the risks mentioned."</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>See <a href="../reference/FileManager.html"><code>chat.files</code></a> for the full set of upload/list/download/delete operations and provider support notes, and <a href="../reference/types.ContentUploaded.html"><code>ContentUploaded</code></a> for the reference type it returns.</p>
 </section>
 <section id="chat-history" class="level2">
 <h2 class="anchored" data-anchor-id="chat-history">Chat history</h2>
 <p>Note that <code>chat</code> is a stateful object, and accumulates conversation history by default. This is the behavior you typically want to multi-turn conversations since it allows the model to remember previous interactions.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chatlas <span class="im">as</span> ctl</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ctl.ChatOpenAI()</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"My name is Chatlas."</span>)</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What's my name?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chatlas <span class="im">as</span> ctl</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ctl.ChatOpenAI()</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"My name is Chatlas."</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What's my name?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>Your name is Chatlas.</code></pre>
 <p>This means that the model is provided the entire conversation history on each new submission. This again is typically the desirable behavior, but sometimes you may want to fork, reset, condense, or otherwise <a href="#manage-history">manage history</a>.</p>
 </section>
@@ -562,7 +567,7 @@ representing the Python programming language. The design symbolizes...</code></p
 <section id="save-history" class="level2">
 <h2 class="anchored" data-anchor-id="save-history">Save history</h2>
 <p>Printing <code>chat</code> at the console shows the conversation history, but you can also <code>.export()</code> it to a more readable markdown or HTML file. When exporting to HTML, you’ll get a display similar to the <a href="#dedicated-chat">dedicated chat app</a>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>chat.export(<span class="st">"chat.html"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>chat.export(<span class="st">"chat.html"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="callout callout-style-simple callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -576,9 +581,9 @@ representing the Python programming language. The design symbolizes...</code></p
 <div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Since <a href="../reference/Turn.html"><code>Turn</code></a>s inherit from pydantic’s <a href="https://docs.pydantic.dev/latest/usage/models/#model"><code>BaseModel</code></a>, you can also serialize/unserialize them to JSON, which is useful for saving/loading the history to/from a database or file.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>turns <span class="op">=</span> chat.get_turns()</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>turns_json <span class="op">=</span> [x.model_dump_json() <span class="cf">for</span> x <span class="kw">in</span> turns]</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>turns_restored <span class="op">=</span> [Turn.model_validate_json(x) <span class="cf">for</span> x <span class="kw">in</span> turns_json]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>turns <span class="op">=</span> chat.get_turns()</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>turns_json <span class="op">=</span> [x.model_dump_json() <span class="cf">for</span> x <span class="kw">in</span> turns]</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>turns_restored <span class="op">=</span> [Turn.model_validate_json(x) <span class="cf">for</span> x <span class="kw">in</span> turns_json]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -589,28 +594,28 @@ representing the Python programming language. The design symbolizes...</code></p
 <section id="reset" class="level3">
 <h3 class="anchored" data-anchor-id="reset">Reset</h3>
 <p>Here’s an example of how to reset the history:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>chat.set_turns([])</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What's my name?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>chat.set_turns([])</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What's my name?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>I don’t know your name unless you choose to share it with me. </code></pre>
 </section>
 <section id="fork" class="level3">
 <h3 class="anchored" data-anchor-id="fork">Fork</h3>
 <p>You can also fork the history by copying the <code>chat</code> object. This is useful if you want to create a new conversation with a different context, but still want to keep the original conversation history intact.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> copy</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>chat_fork <span class="op">=</span> copy.deepcopy(chat)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>chat_fork.chat(<span class="st">"My name is Chatlas."</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>chat_fork.chat(<span class="st">"What's my name?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> copy</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>chat_fork <span class="op">=</span> copy.deepcopy(chat)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>chat_fork.chat(<span class="st">"My name is Chatlas."</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>chat_fork.chat(<span class="st">"What's my name?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>Your name is Chatlas.</code></pre>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What's my name?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What's my name?"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code>I don’t know your name unless you choose to share it with me.</code></pre>
 </section>
 <section id="condense" class="level3">
 <h3 class="anchored" data-anchor-id="condense">Condense</h3>
 <p>You can also condense the history asking the LLM to summarize it. This is useful if you want to keep the context of the conversation, but don’t want to provide the entire history to the model on each new submission.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"My name is Chatlas."</span>)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Can you summarize our conversation so far?"</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>chat.set_turns([chat.get_last_turn()])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"My name is Chatlas."</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"Can you summarize our conversation so far?"</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>chat.set_turns([chat.get_last_turn()])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <!-- 
 TODO: implement .get_cost() and provide example of condensing once the cost reaches a certain threshold
 -->

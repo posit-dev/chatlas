@@ -4,6 +4,7 @@
 
 ### New features
 
+- `Chat` gains a `.files` accessor for uploading files to a provider once and referencing them across turns without re-sending bytes, plus listing, fetching metadata, downloading, and deleting them. Supported for OpenAI, Anthropic, and Google Gemini. A new `ContentUploaded` type represents the reference and can be constructed directly to point at a file uploaded out-of-band (e.g. a Vertex `gs://` URI). For Google, `upload()` waits for Gemini to finish processing large media (video, audio) before returning, since the API rejects references to files that aren’t yet `ACTIVE`.
 - `batch_chat()` now supports `ChatGoogle()` (Gemini Developer API batch jobs). Batch is also now documented as supported for `ChatGroq()`, which already worked via its OpenAI-compatible provider. (Vertex AI is not supported, since its batch API requires GCS bucket URIs instead of inline requests.)
 - `ChatOllama()` gains a `reasoning_effort` parameter to enable extended “thinking” for models that support it (e.g. qwen3, gpt-oss).
 
@@ -22,6 +23,8 @@
 - `ChatGoogle()` no longer errors when mixing custom tools and built-in tools (e.g. `tool_web_search()`) on Gemini 3+ models.
 - Turns containing web search/fetch content can now be passed to a different provider (e.g. `ChatAnthropic().set_turns(openai_chat.get_turns())`). Previously this raised `ValueError: Unsupported content type` on `ChatOpenAI()`, and `ChatAnthropic()` forwarded the other provider’s raw payload as if it were its own, producing an invalid request. Each provider now replays only the built-in tool content it produced and drops the rest.
 - `ChatOpenAI()` web search `open_page` actions now surface as `ContentToolRequestFetch` (with the URL) rather than a `ContentToolRequestSearch` whose “query” was the URL, so renderers no longer show “searched for: https://…”. Relatedly, a `search` action that reports only the plural `queries` field no longer falls through to the literal string `"web search"`.
+- `ChatGoogle()` now records its built-in web search and URL-context work in the assistant turn, as `ContentToolRequestSearch`/`ContentToolResponseSearch` for grounded searches and `ContentToolRequestFetch`/`ContentToolResponseFetch` for fetched URLs. Previously `tool_web_search()` and `tool_web_fetch()` worked but reported nothing about what was searched or fetched, unlike `ChatAnthropic()` and `ChatOpenAI()`. Google’s raw `grounding_metadata`/`url_metadata` is kept on each item’s `extra`.
+- Streaming two adjacent pieces of same-typed content that define no merge behavior (e.g. two tool requests) no longer raises `TypeError`. They are now appended as separate content instead.
 
 ### Breaking changes
 

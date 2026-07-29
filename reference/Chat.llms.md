@@ -15,6 +15,7 @@ You should generally not create this object yourself, but instead call [`ChatOpe
 | Name | Description |
 |----|----|
 | [current_display](#chatlas.Chat.current_display) | Get the currently active markdown display, if any. |
+| [files](#chatlas.Chat.files) | Manage files hosted by this chat’s provider. |
 | [model](#chatlas.Chat.model) | A property to get (or set) the model used by the chat. |
 | [system_prompt](#chatlas.Chat.system_prompt) | A property to get (or set) the system prompt for the chat. |
 

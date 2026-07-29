@@ -63,6 +63,16 @@ chat.chat(
 >
 > Not every model supports every content type. Please refer to the documentation for the specific model you’re using to see which content types are supported.
 
+For a large file, or one you want to reference across many turns, upload it once with [`chat.files.upload()`](../reference/FileManager.llms.md#upload) instead of re-sending its bytes every time:
+
+``` python
+uploaded = chat.files.upload("quarterly-report.pdf")
+chat.chat(uploaded, "Summarize the key findings.")
+chat.chat(uploaded, "Now list the risks mentioned.")
+```
+
+See [`chat.files`](../reference/FileManager.llms.md) for the full set of upload/list/download/delete operations and provider support notes, and [`ContentUploaded`](../reference/types.ContentUploaded.llms.md) for the reference type it returns.
+
 ## Chat history
 
 Note that `chat` is a stateful object, and accumulates conversation history by default. This is the behavior you typically want to multi-turn conversations since it allows the model to remember previous interactions.
