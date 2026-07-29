@@ -5,7 +5,7 @@ import base64
 import re
 import time
 import warnings
-from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
+from typing import TYPE_CHECKING, Any, Literal, Optional, cast, get_args, overload
 
 import orjson
 from pydantic import BaseModel
@@ -28,6 +28,7 @@ from ._content import (
     ContentToolResponseSearch,
     ContentToolResult,
     ContentUploaded,
+    ImageContentTypes,
 )
 from ._files import FileMetadata, maybe_write
 from ._logging import log_model_default
@@ -722,13 +723,16 @@ class GoogleProvider(
             if inline_data:
                 mime_type = inline_data.get("mime_type")
                 data = inline_data.get("data")
-                if mime_type and data:
+                if mime_type and data and mime_type in get_args(ImageContentTypes):
                     contents.append(
                         ContentImageInline(
                             data=data.decode("utf-8"),
-                            image_content_type=mime_type,  # type: ignore
+                            image_content_type=cast(ImageContentTypes, mime_type),
                         )
                     )
+                # Any other inline_data mime type (e.g. TTS/native-audio output
+                # like "audio/pcm;rate=24000", or video) isn't modeled yet --
+                # skip it rather than mislabeling it as an image.
 
         if isinstance(finish_reason, FinishReason):
             finish_reason = finish_reason.name

@@ -368,6 +368,50 @@ def test_google_thought_signature_roundtrip():
     assert part.thought_signature == fake_signature
 
 
+def test_google_inline_audio_is_not_mislabeled_as_image():
+    """
+    A TTS/native-audio response returns inline_data with an audio/* mime type
+    (e.g. "audio/pcm;rate=24000"). Before this was fixed, that mime type was
+    cast straight into ContentImageInline.image_content_type (which is typed
+    as only image mime types), mislabeling audio data as an image.
+    """
+    import base64
+
+    from chatlas._content import ContentImageInline
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash",
+        api_key="dummy",
+        kwargs=None,
+    )
+
+    message = {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [
+                        {
+                            "inline_data": {
+                                "mime_type": "audio/pcm;rate=24000",
+                                "data": base64.b64encode(b"\x00\x01\x02\x03"),
+                            }
+                        }
+                    ]
+                },
+                "finish_reason": "STOP",
+            }
+        ],
+        "usage_metadata": {
+            "prompt_token_count": 10,
+            "candidates_token_count": 5,
+        },
+    }
+
+    turn = provider._as_turn(message, has_data_model=False)
+    assert not any(isinstance(c, ContentImageInline) for c in turn.contents)
+
+
 def test_google_batch_supported_for_gemini_not_vertex():
     """Batch is only supported on the Gemini Developer API, not Vertex."""
     from chatlas._provider_google import GoogleProvider
