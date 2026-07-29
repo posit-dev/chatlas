@@ -47,6 +47,8 @@ from ._content import (
     ToolInfo,
 )
 from ._display import (
+    DEFAULT_TOOL_RESULT_MAX_HEIGHT,
+    DEFAULT_TOOL_RESULT_MAX_LINES,
     EchoDisplayOptions,
     IPyMarkdownDisplay,
     LiveMarkdownDisplay,
@@ -186,11 +188,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self._on_tool_request_callbacks = CallbackManager()
         self._on_tool_result_callbacks = CallbackManager()
         self._current_display: Optional[MarkdownDisplay] = None
-        self._echo_options: EchoDisplayOptions = {
-            "rich_markdown": {},
-            "rich_console": {},
-            "css_styles": {},
-        }
+        self.set_echo_options()
         self._mcp_manager = MCPSessionManager()
 
         # Chat input parameters from `set_model_params()`
@@ -2322,7 +2320,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         This is primarily useful if you want to add custom content to the
         display while the chat is running, but currently blocked by something
-        like a tool call.
+        like a tool call. Its `.echo()` method takes a markdown string, or a
+        [](`~chatlas.types.Content`) object to have it rendered the way the chat
+        itself would render it.
 
         Example
         -------
@@ -2362,7 +2362,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
         return self._current_display
 
-    def _echo_content(self, x: str):
+    def _echo_content(self, x: str | Content):
         if self._current_display:
             self._current_display.echo(x)
 
@@ -2693,13 +2693,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         if tool is not None:
                             x.tool = ToolInfo.from_tool(tool)
                         if echo == "output":
-                            self._echo_content(f"\n\n{x}\n\n")
+                            self._echo_content(x)
                         if content == "all":
                             yield x
                         results = self._invoke_tool(x, _otel_parent=agent_span)
                         for res in results:
                             if echo == "output":
-                                self._echo_content(f"\n\n{res}\n\n")
+                                self._echo_content(res)
                             if content == "all":
                                 yield res
                             all_results.append(res)
@@ -2784,13 +2784,13 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         if tool is not None:
                             x.tool = ToolInfo.from_tool(tool)
                         if echo == "output":
-                            self._echo_content(f"\n\n{x}\n\n")
+                            self._echo_content(x)
                         if content == "all":
                             yield x
                         results = self._invoke_tool_async(x, _otel_parent=agent_span)
                         async for res in results:
                             if echo == "output":
-                                self._echo_content(f"\n\n{res}\n\n")
+                                self._echo_content(res)
                             if content == "all":
                                 yield res
                             else:
@@ -2853,8 +2853,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
         try:
 
-            def emit(text: str | Content):
-                self._echo_content(str(text))
+            def emit(x: str | Content):
+                # `echo="text"` means just the assistant's answer, so reasoning is
+                # held back the same way tool content is.
+                if echo == "text" and isinstance(
+                    x, (ContentThinking, ContentThinkingDelta)
+                ):
+                    return
+                self._echo_content(x)
 
             emit("<br>\n\n")
 
@@ -2928,6 +2934,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = self.provider.value_turn(
                     response, has_data_model=data_model is not None
                 )
+                emit_thinking_contents(turn, emit)
+
                 if turn.text:
                     emit(turn.text)
                     yield turn.text
@@ -2989,8 +2997,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         )
         try:
 
-            def emit(text: str | Content):
-                self._echo_content(str(text))
+            def emit(x: str | Content):
+                # `echo="text"` means just the assistant's answer, so reasoning is
+                # held back the same way tool content is.
+                if echo == "text" and isinstance(
+                    x, (ContentThinking, ContentThinkingDelta)
+                ):
+                    return
+                self._echo_content(x)
 
             emit("<br>\n\n")
 
@@ -3066,6 +3080,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = self.provider.value_turn(
                     response, has_data_model=data_model is not None
                 )
+                emit_thinking_contents(turn, emit)
+
                 if turn.text:
                     emit(turn.text)
                     yield turn.text
@@ -3271,7 +3287,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         screen sizes.
         """
         if echo == "none":
-            return ChatMarkdownDisplay(MockMarkdownDisplay(), self)
+            return ChatMarkdownDisplay(MockMarkdownDisplay(self._echo_options), self)
 
         # rich does a lot to detect a notebook environment, but it doesn't
         # detect Quarto, or a Positron notebook
@@ -3293,6 +3309,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         rich_markdown: Optional[dict[str, Any]] = None,
         rich_console: Optional[dict[str, Any]] = None,
         css_styles: Optional[dict[str, str]] = None,
+        tool_result_max_lines: Optional[int] = None,
+        tool_result_max_height: Optional[str] = None,
     ):
         """
         Set echo styling options for the chat.
@@ -3308,11 +3326,27 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         css_styles
             A dictionary of CSS styles to apply to `IPython.display.Markdown()`.
             This is only relevant when outputing to the browser.
+        tool_result_max_lines
+            Truncate an echoed tool result to this many lines, noting how many
+            were dropped. The full value remains available on the turn. This is
+            only relevant when outputting to the console.
+        tool_result_max_height
+            A CSS length (e.g. `"400px"`) bounding the height of an echoed tool
+            result, which scrolls internally beyond it. This is only relevant
+            when outputting to the browser.
         """
         self._echo_options: EchoDisplayOptions = {
             "rich_markdown": rich_markdown or {},
             "rich_console": rich_console or {},
             "css_styles": css_styles or {},
+            "tool_result_max_lines": (
+                tool_result_max_lines
+                if tool_result_max_lines is not None
+                else DEFAULT_TOOL_RESULT_MAX_LINES
+            ),
+            "tool_result_max_height": (
+                tool_result_max_height or DEFAULT_TOOL_RESULT_MAX_HEIGHT
+            ),
         }
 
     def __str__(self):
@@ -3487,17 +3521,41 @@ def emit_user_contents(
 ):
     if x.role != "user":
         raise ValueError("Expected a user turn")
-    emit(f"## 👤 User turn:\n\n{str(x)}\n\n")
+    # Only the text: `emit_other_contents()` handles the rest, and routing those
+    # as objects rather than through `str(x)` is what lets the display bound them.
+    emit(f"## 👤 User turn:\n\n{x.text}\n\n")
     emit_other_contents(x, emit)
     emit("\n\n## 🤖 Assistant turn:\n\n")
+
+
+def emit_thinking_contents(
+    x: Turn,
+    emit: Callable[[Content | str], None],
+):
+    """
+    Emit a non-streamed turn's reasoning, ahead of its text.
+
+    The streaming path displays reasoning as it arrives; this is the non-streaming
+    equivalent. `emit()` decides whether the current echo mode wants it.
+    """
+    for content in x.contents:
+        if isinstance(content, ContentThinking):
+            emit(content)
 
 
 def emit_other_contents(
     x: Turn,
     emit: Callable[[Content | str], None],
 ):
+    """
+    Emit everything in the turn other than its text.
+
+    Reasoning is excluded: it's displayed as it arrives (streaming) or explicitly
+    before the text (non-streaming), so emitting it from the turn's contents too
+    would show it twice.
+    """
     # Gather other content to emit in _reverse_ order
-    to_emit: list[str] = []
+    to_emit: list[Content | str] = []
 
     if isinstance(x, AssistantTurn) and x.finish_reason:
         to_emit.append(f"\n\n<< 🤖 finish reason: {x.finish_reason} \\>\\>\n\n")
@@ -3507,9 +3565,11 @@ def emit_other_contents(
     for content in reversed(x.contents):
         if isinstance(content, ContentText):
             has_text = True
+        elif isinstance(content, (ContentThinking, ContentThinkingDelta)):
+            continue
         else:
             has_other = True
-            to_emit.append(str(content))
+            to_emit.append(content)
 
     if has_text and has_other:
         if isinstance(x, UserTurn):
@@ -3519,7 +3579,10 @@ def emit_other_contents(
 
     to_emit.reverse()
 
-    emit("\n\n".join(to_emit))
+    for i, content in enumerate(to_emit):
+        if i > 0:
+            emit("\n\n")
+        emit(content)
 
 
 # Helper/wrapper class to let Chat know about the currently active display

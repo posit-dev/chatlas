@@ -165,6 +165,21 @@ HTML_ATTRS_ESCAPE_TABLE = {
 }
 
 
+def truncate_lines(text: str, max_lines: int) -> str:
+    """
+    Cap `text` at `max_lines`, noting how many lines were dropped.
+
+    A terminal can't scroll inside a region the way a browser can, so the count is
+    what stands in for a scrollbar: it tells you the output was cut and by how much.
+    """
+    lines = text.splitlines()
+    if len(lines) <= max_lines:
+        return text
+    n_dropped = len(lines) - max_lines
+    plural = "" if n_dropped == 1 else "s"
+    return "\n".join([*lines[:max_lines], f"# … {n_dropped} more line{plural}"])
+
+
 def html_escape(text: str, attr: bool = True) -> str:
     table = HTML_ATTRS_ESCAPE_TABLE if attr else HTML_ESCAPE_TABLE
     if not re.search("|".join(table), text):

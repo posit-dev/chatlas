@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 
+## [UNRELEASED]
+
+### Improvements
+
+* Reasoning is now visible when echoing. Previously, thinking content was wrapped in literal `<thinking>` tags that a markdown renderer treated as an HTML block and dropped, so reasoning never appeared at all — even with `echo="all"`. It now renders in a "Thinking" panel in the console, and in a `<details>` block in notebooks that stays expanded while reasoning streams in and collapses once it's done. `echo="text"` continues to show only the assistant's answer. (#361)
+* Long tool results no longer dominate the display. In notebooks they render collapsed, with the same look shinychat uses, and scroll internally beyond a bounded height once expanded. In the console they're truncated with a count of the dropped lines. Either way a big tool result now costs a fixed amount of vertical space, and the full value remains on the turn. `Chat.set_echo_options()` gained `tool_result_max_lines` (console, default 20) and `tool_result_max_height` (notebook, default `"400px"`) to tune this. (#361)
+
+### Bug fixes
+
+* `echo="all"` no longer displays tool results twice — once in full as part of the user turn they're attached to, and again on their own.
+
 ## [0.20.0] - 2026-07-29
 
 ### New features
