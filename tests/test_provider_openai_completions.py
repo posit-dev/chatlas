@@ -14,6 +14,7 @@ from chatlas._provider_openai_completions import (
     normalize_finish_reason as completions_normalize_finish_reason,
 )
 from chatlas._turn import AssistantTurn, UserTurn
+from openai.types.chat import ChatCompletion
 
 from .conftest import (
     assert_data_extraction,
@@ -354,3 +355,39 @@ def test_turns_as_inputs_empty_text_with_tool_request():
     assert result[0]["role"] == "assistant"
     assert "content" not in result[0]
     assert len(result[0]["tool_calls"]) == 1
+
+
+def truncated_structured_completion() -> "ChatCompletion":
+    """A structured-output response cut short by the token limit (gh-315)."""
+    return ChatCompletion.construct(
+        id="c1",
+        object="chat.completion",
+        created=0,
+        model="gpt-4.1-nano",
+        choices=[
+            {
+                "index": 0,
+                "finish_reason": "length",
+                "message": {
+                    "role": "assistant",
+                    "content": '{"comments": [{"body": "trunc',
+                },
+            }
+        ],
+    )
+
+
+def test_openai_completions_truncated_structured_output_errors_helpfully():
+    with pytest.raises(ValueError, match="max_tokens"):
+        OpenAICompletionsProvider._response_as_turn(
+            truncated_structured_completion(), has_data_model=True
+        )
+
+
+def test_openai_completions_truncated_plain_text_still_returns_a_turn():
+    turn = OpenAICompletionsProvider._response_as_turn(
+        truncated_structured_completion(), has_data_model=False
+    )
+
+    assert turn.text == '{"comments": [{"body": "trunc'
+    assert turn.finish_reason == "max_tokens"

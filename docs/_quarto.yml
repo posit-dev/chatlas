@@ -225,6 +225,7 @@ quartodoc:
     - title: User-facing types
       contents:
         - types.Content
+        - types.ContentCitation
         - types.ContentImage
         - types.ContentImageInline
         - types.ContentImageRemote
@@ -250,10 +251,12 @@ quartodoc:
         - types.VideoContentTypes
         - types.MISSING_TYPE
         - types.MISSING
+        - types.Source
         - types.SubmitInputArgsT
         - types.TokenUsage
         - types.ToolAnnotations
         - types.ToolInfo
+        - types.WebSource
 
 
 
