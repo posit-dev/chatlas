@@ -302,3 +302,21 @@ def test_bare_image_part_is_unrolled_regardless_of_model_format():
 
     assert types.count("tool_result") == 1
     assert types.count("image") == 1
+
+
+def test_image_nested_in_a_list_part_is_unrolled():
+    """An image nested inside one part's own list value must still unroll,
+    not be stringified when combined with a sibling part."""
+
+    def progress_and_chart():
+        """Yields a plain string, then a list containing text and an image."""
+        yield "progress"
+        yield ["chart", IMAGE]
+
+    blocks = anthropic_blocks(tool_turns(progress_and_chart, "progress_and_chart"))
+    types = [b["type"] for b in blocks]
+
+    assert types.count("tool_result") == 1
+    assert types.count("image") == 1
+    assert "progress" in repr(blocks)
+    assert "chart" in repr(blocks)

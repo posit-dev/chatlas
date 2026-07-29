@@ -74,30 +74,32 @@ def combine_tool_results(results: list[ContentToolResult]) -> ContentToolResult:
     """
     request = results[0].request
 
+    # A generator stops at its first exception (Chat._invoke_tool/
+    # _invoke_tool_async), so at most one part can carry an error.
     error = next((r.error for r in results if r.error is not None), None)
     if error is not None:
         return ContentToolResult(value=None, error=error, request=request)
 
-    # An image/PDF value bypasses model_format rendering here: expand_tool_result
-    # unrolls it by its raw value regardless of model_format, exactly as it does
-    # for a single (non-combined) result, so rendering it here would only
-    # destroy the Content object before that unrolling ever sees it.
-    values = [
-        r.value if is_image_or_pdf_content(r.value) else r.get_model_value()
-        for r in results
-    ]
+    # An image/PDF value -- bare, or nested in a list like ["chart", image] --
+    # bypasses model_format rendering: expand_tool_result unrolls it by its raw
+    # value regardless of model_format, exactly as it does for a single
+    # (non-combined) result, so rendering it here would only destroy the
+    # Content object before that unrolling ever sees it. Flattening (rather
+    # than nesting) each image-bearing part's value keeps the combined result
+    # a single flat list, which is what expand_tool_values can unroll.
+    parts: list[Content | str] = []
+    for r in results:
+        flattened = flatten_result_value(r.value)
+        if any(is_image_or_pdf_content(v) for v in flattened):
+            parts.extend(flattened)
+        else:
+            rendered = r.get_model_value()
+            parts.append(rendered if isinstance(rendered, (Content, str)) else str(rendered))
 
-    # expand_tool_result only unrolls a list when it holds image/PDF content
-    # (that's the only case providers can't take inline), so the guard here
-    # must match exactly -- any other Content (e.g. ContentJson) would
-    # otherwise take the list route and reach the provider as a raw list.
-    if any(is_image_or_pdf_content(v) for v in values):
-        parts: list[Content | str] = [
-            v if isinstance(v, (Content, str)) else str(v) for v in values
-        ]
+    if any(is_image_or_pdf_content(p) for p in parts):
         return ContentToolResult(value=parts, model_format="as_is", request=request)
 
-    return ContentToolResult(value="\n".join(str(v) for v in values), request=request)
+    return ContentToolResult(value="\n".join(str(p) for p in parts), request=request)
 
 
 def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
@@ -163,6 +165,23 @@ def expand_tool_values(
     expanded.append(ContentText(text="</tool-contents>"))
 
     return expanded
+
+
+def flatten_result_value(value: object) -> list[Content | str]:
+    """Flatten a raw tool result value into flat Content/str parts.
+
+    Recurses into lists/tuples so an image nested at any depth (e.g. from a
+    yielded `["chart", image]`) is preserved as itself, rather than being
+    swallowed by a `str()` on its containing list.
+    """
+    if isinstance(value, (list, tuple)):
+        flattened: list[Content | str] = []
+        for item in value:
+            flattened.extend(flatten_result_value(item))
+        return flattened
+    if isinstance(value, (Content, str)):
+        return [value]
+    return [str(value)]
 
 
 def is_image_or_pdf_content(
