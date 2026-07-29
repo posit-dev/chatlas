@@ -14,6 +14,7 @@ from google.genai.errors import APIError
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from .conftest import (
+    assert_audio_local,
     assert_data_extraction,
     assert_images_inline,
     assert_images_remote_error,
@@ -317,6 +318,12 @@ def test_google_pdfs():
 
 
 @pytest.mark.vcr
+@retry_gemini_call
+def test_google_audio_inline():
+    assert_audio_local(chat_func)
+
+
+@pytest.mark.vcr
 def test_google_list_models():
     assert_list_models(ChatGoogle)
 
@@ -410,6 +417,72 @@ def test_google_inline_audio_is_not_mislabeled_as_image():
 
     turn = provider._as_turn(message, has_data_model=False)
     assert not any(isinstance(c, ContentImageInline) for c in turn.contents)
+
+
+def test_google_inline_audio_is_represented_as_content_audio():
+    """
+    Once mislabeling is fixed, audio/* inline_data should still be
+    representable -- not just dropped -- since Gemini's response already
+    carries a real (if provider-specific) mime type per part.
+    """
+    import base64
+
+    from chatlas._content import ContentAudio
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash",
+        api_key="dummy",
+        kwargs=None,
+    )
+
+    raw = b"\x00\x01\x02\x03"
+    message = {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [
+                        {
+                            "inline_data": {
+                                "mime_type": "audio/pcm;rate=24000",
+                                "data": base64.b64encode(raw),
+                            }
+                        }
+                    ]
+                },
+                "finish_reason": "STOP",
+            }
+        ],
+        "usage_metadata": {
+            "prompt_token_count": 10,
+            "candidates_token_count": 5,
+        },
+    }
+
+    turn = provider._as_turn(message, has_data_model=False)
+    assert len(turn.contents) == 1
+    audio = turn.contents[0]
+    assert isinstance(audio, ContentAudio)
+    assert audio.mime_type == "audio/pcm;rate=24000"
+    assert audio.data == raw
+
+
+def test_google_content_audio_round_trips_to_part():
+    """
+    ContentAudio produced from a Gemini response (e.g. TTS output, mime_type
+    "audio/pcm;rate=24000") must convert back into a Part without error, since
+    assistant turns get resent on every subsequent .chat() call.
+    """
+    from chatlas._content import ContentAudio
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(model="gemini-2.5-flash", api_key="dummy", kwargs=None)
+
+    audio = ContentAudio(data=b"\x00\x01\x02\x03", mime_type="audio/pcm;rate=24000")
+    part = provider._as_part_type(audio)
+    assert part.inline_data is not None
+    assert part.inline_data.mime_type == "audio/pcm;rate=24000"
+    assert part.inline_data.data == b"\x00\x01\x02\x03"
 
 
 def test_google_batch_supported_for_gemini_not_vertex():
@@ -604,6 +677,8 @@ def test_google_batch_retrieve_handles_thought_signature_bytes():
     turn = provider.batch_result_turn(results[0], has_data_model=False)
     assert turn is not None
     assert turn.text == "42"
+
+
 @pytest.mark.vcr
 @retry_gemini_call
 def test_google_mixed_tools_end_to_end():

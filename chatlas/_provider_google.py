@@ -14,6 +14,7 @@ from ._chat import Chat
 from ._content import (
     PROVIDER_ANNOTATION_TYPES,
     Content,
+    ContentAudio,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -603,6 +604,15 @@ class GoogleProvider(
                 data=base64.b64decode(content.data),
                 mime_type=content.image_content_type,
             )
+        elif isinstance(content, ContentAudio):
+            from google.genai.types import Blob
+
+            return Part(
+                inline_data=Blob(
+                    data=content.data,
+                    mime_type=content.mime_type,
+                )
+            )
         elif isinstance(content, ContentImageRemote):
             raise NotImplementedError(
                 "Remote images aren't supported by Google (Gemini). "
@@ -730,9 +740,16 @@ class GoogleProvider(
                             image_content_type=cast(ImageContentTypes, mime_type),
                         )
                     )
-                # Any other inline_data mime type (e.g. TTS/native-audio output
-                # like "audio/pcm;rate=24000", or video) isn't modeled yet --
-                # skip it rather than mislabeling it as an image.
+                elif mime_type and data and mime_type.startswith("audio/"):
+                    # TTS/native-audio output (e.g. "audio/pcm;rate=24000") --
+                    # not one of the six formats content_audio_file() validates
+                    # for input, but ContentAudio.mime_type is a plain str for
+                    # exactly this reason.
+                    contents.append(
+                        ContentAudio(data=base64.b64decode(data), mime_type=mime_type)
+                    )
+                # Any other inline_data mime type (e.g. video) isn't modeled
+                # yet -- skip it rather than mislabeling it as an image.
 
         if isinstance(finish_reason, FinishReason):
             finish_reason = finish_reason.name
