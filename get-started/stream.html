@@ -238,6 +238,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../get-started/reasoning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reasoning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../get-started/async.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Async</span></a>
   </div>
@@ -437,7 +443,7 @@ help?</code></pre>
 </div>
 <section id="content-types" class="level2">
 <h2 class="anchored" data-anchor-id="content-types">Content types</h2>
-<p><code>.stream()</code> also provides access to rich content types beyond just text. To gain access to these, set the <code>content</code> parameter to <code>"all"</code>. If the response includes things like tool calls, the stream will yield the relevant content types as they are generated. As we’ll learn later, this can be useful for <a href="../tool-calling/displays.html">displaying tool calls</a> in something like a <a href="../get-started/chatbots.html">chatbot</a> app.</p>
+<p><code>.stream()</code> also provides access to rich content types beyond just text. To gain access to these, set the <code>content</code> parameter to <code>"all"</code>. If the response includes things like tool calls, the stream will yield the relevant content types as they are generated. As we’ll learn later, this can be useful for <a href="../tool-calling/displays.html">displaying tool calls</a> in something like a <a href="../get-started/chatbots.html">chatbot</a> app. The same goes for <a href="../get-started/reasoning.html">reasoning</a>: when thinking is enabled, the stream yields <code>ContentThinkingDelta</code> chunks as the model thinks.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_current_weather(lat: <span class="bu">float</span>, lng: <span class="bu">float</span>):</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Get the current weather for a given location."</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">"sunny"</span></span>

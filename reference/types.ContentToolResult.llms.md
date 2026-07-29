@@ -31,6 +31,8 @@ When `model_format` is `"json"` (or `"auto"`), and the value has a `.to_json()`/
 | [get_model_value](#chatlas.types.ContentToolResult.get_model_value) | Get the actual value sent to the model. |
 | [serialize_error](#chatlas.types.ContentToolResult.serialize_error) | Serialize Exception to string for JSON compatibility. |
 | [tagify](#chatlas.types.ContentToolResult.tagify) | A method for rendering this object via htmltools/shiny. |
+| [to_display_markdown](#chatlas.types.ContentToolResult.to_display_markdown) | Render as a fenced code block, optionally capping the value’s height. |
+| [to_html](#chatlas.types.ContentToolResult.to_html) | Render as an HTML string. |
 | [validate_error](#chatlas.types.ContentToolResult.validate_error) | Accept string or Exception for error field. |
 
 ### get_model_value
@@ -56,6 +58,30 @@ types.ContentToolResult.tagify()
 ```
 
 A method for rendering this object via htmltools/shiny.
+
+### to_display_markdown
+
+``` python
+types.ContentToolResult.to_display_markdown(max_lines=None)
+```
+
+Render as a fenced code block, optionally capping the value’s height.
+
+#### Parameters
+
+| Name | Type | Description | Default |
+|----|----|----|----|
+| max_lines | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[int](https://docs.python.org/3/library/functions.html#int)\] | Truncate the value to this many lines, replacing the remainder with a count of what was dropped. `None` (the default) emits the full value. | `None` |
+
+### to_html
+
+``` python
+types.ContentToolResult.to_html()
+```
+
+Render as an HTML string.
+
+Shared by `.tagify()` (shinychat) and the notebook echo display, so the two can’t drift. Requires `TOOL_CSS` to be present on the page. The result is collapsed; `TOOL_CSS` bounds its height once expanded.
 
 ### validate_error
 

@@ -68,7 +68,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/ChatOpenRouter.html" rel="next">
+<link href="../reference/ChatOpenAICompletions.html" rel="next">
 <link href="../reference/ChatOllama.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
@@ -282,6 +282,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../reference/ChatOpenAI.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">ChatOpenAI</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/ChatOpenAICompletions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">ChatOpenAICompletions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -865,7 +871,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>base_url</td>
 <td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
-<td>The base URL to the endpoint; the default uses OpenAI. Since <code>ChatOpenAI()</code> uses the Responses API, most third-party backends won’t work here. For OpenAI-compatible backends (e.g., vLLM, Ollama, LiteLLM), use <code>ChatOpenAICompletions</code> instead.</td>
+<td>The base URL to the endpoint; the default uses OpenAI. Since <code>ChatOpenAI()</code> uses the Responses API, most third-party backends won’t work here. For OpenAI-compatible backends (e.g., vLLM, Ollama, LiteLLM), use <a href="../reference/ChatOpenAICompletions.html#chatlas.ChatOpenAICompletions"><code>ChatOpenAICompletions</code></a> instead.</td>
 <td><code>'https://api.openai.com/v1'</code></td>
 </tr>
 <tr class="even">
@@ -932,7 +938,7 @@ OPENAI_API_KEY=...</code></pre>
 </section>
 <section id="note-1" class="level2 doc-section doc-section-note">
 <h2 class="doc-section doc-section-note anchored" data-anchor-id="note-1">Note</h2>
-<p>The responses API does not support the <code>seed</code> parameter. If you need reproducible output, use <code>ChatOpenAICompletions</code> instead.</p>
+<p>The responses API does not support the <code>seed</code> parameter. If you need reproducible output, use <a href="../reference/ChatOpenAICompletions.html#chatlas.ChatOpenAICompletions"><code>ChatOpenAICompletions</code></a> instead.</p>
 
 
 </section>
@@ -1346,8 +1352,8 @@ OPENAI_API_KEY=...</code></pre>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/ChatOpenRouter.html" class="pagination-link" aria-label="ChatOpenRouter">
-        <span class="nav-page-text">ChatOpenRouter</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/ChatOpenAICompletions.html" class="pagination-link" aria-label="ChatOpenAICompletions">
+        <span class="nav-page-text">ChatOpenAICompletions</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

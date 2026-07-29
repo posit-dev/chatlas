@@ -212,6 +212,12 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../get-started/reasoning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reasoning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../get-started/async.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Async</span></a>
   </div>
@@ -380,7 +386,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>There are a few different classes of custom parameters that you can set when using chatlas.</p>
-<p>The first, and most important, are <a href="#model-parameters">model parameters</a> that are commonly used across providers. This includes parameters like <code>temperature</code>, <code>top_p</code>, and <code>max_tokens</code>. The second is <a href="#chat-parameters">chat parameters</a>, which are specific to the model provider you’re using. This might include non-standard parameters like <code>thinking</code> or provider-specific built-in <code>tools</code>. Finally, there are <a href="#http-parameters">HTTP parameters</a>, which are used to customize the behavior of the HTTP client make requests for the duration of the chat session.</p>
+<p>The first, and most important, are <a href="#model-parameters">model parameters</a> that are commonly used across providers. This includes parameters like <code>temperature</code>, <code>top_p</code>, and <code>max_tokens</code>. The second is <a href="#chat-parameters">chat parameters</a>, which are specific to the model provider you’re using. This might include non-standard parameters like <code>service_tier</code> or provider-specific built-in <code>tools</code>. (Note that some provider-specific features, like <a href="../get-started/reasoning.html">reasoning</a>, are common enough to earn a dedicated parameter.) Finally, there are <a href="#http-parameters">HTTP parameters</a>, which are used to customize the behavior of the HTTP client make requests for the duration of the chat session.</p>
 <p>In any case, chatlas leverages typing and IDE autocomplete to help you discover and set these parameters in a type safe way.</p>
 <section id="model-parameters" class="level2">
 <h2 class="anchored" data-anchor-id="model-parameters">Model parameters</h2>

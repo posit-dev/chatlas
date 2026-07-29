@@ -33,7 +33,7 @@ Below is a table of model providers that come pre-packaged with chatlas.
 >
 > To use chatlas with a provider not listed in the table above, you have two options:
 >
-> 1.  If the model provider is “OpenAI compatible” (i.e., it supports the `/v1/chat/completions` endpoint), use [`ChatOpenAICompletions()`](../reference/ChatOpenAICompletions.qmd) with the appropriate `base_url` and `api_key`. This is the right choice for backends like vLLM, LiteLLM, and any other OpenAI-compatible inference engine. Note that `ChatOpenAI()` uses OpenAI’s proprietary [Responses API](https://platform.openai.com/docs/api-reference/responses), which is not supported by most third-party backends.
+> 1.  If the model provider is “OpenAI compatible” (i.e., it supports the `/v1/chat/completions` endpoint), use [`ChatOpenAICompletions()`](../reference/ChatOpenAICompletions.llms.md) with the appropriate `base_url` and `api_key`. This is the right choice for backends like vLLM, LiteLLM, and any other OpenAI-compatible inference engine. Note that `ChatOpenAI()` uses OpenAI’s proprietary [Responses API](https://platform.openai.com/docs/api-reference/responses), which is not supported by most third-party backends.
 > 2.  If you’re motivated, implement a new provider by subclassing [`Provider`](https://github.com/posit-dev/chatlas/blob/main/chatlas/_provider.py) and implementing the required methods.
 
 > **WARNING:**
@@ -46,7 +46,7 @@ In addition to choosing a model provider, you also need to choose a specific mod
 
 If you’re using `chatlas` inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g. `ChatAzureOpenAI()` and `ChatBedrockAnthropic()`). If you’re using `chatlas` for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:
 
-- `ChatOpenAI()` or `ChatAnthropic()` are both good places to start. `ChatOpenAI()` defaults to **GPT-5.4**, but you can use `model = "gpt-5.4-mini"` for a cheaper lower-quality model, or `model = "o3"` for more complex reasoning. `ChatAnthropic()` is similarly good; it defaults to **Claude Sonnet 4.6** which we have found to be particularly good at writing code.
+- `ChatOpenAI()` or `ChatAnthropic()` are both good places to start. `ChatOpenAI()` defaults to **GPT-5.4**, but you can use `model = "gpt-5.4-mini"` for a cheaper lower-quality model, or `model = "o3"` for more complex [reasoning](../get-started/reasoning.llms.md). `ChatAnthropic()` is similarly good; it defaults to **Claude Sonnet 4.6** which we have found to be particularly good at writing code.
 
 - `ChatGoogle()` is a strong model with generous free tier (with the downside that [your data is used](https://ai.google.dev/gemini-api/terms#unpaid-services) to improve the model), making it a great place to start if you don’t want to spend any money.
 

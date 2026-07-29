@@ -36,7 +36,7 @@ len(chat.get_turns())
 
 ## Content types
 
-`.stream()` also provides access to rich content types beyond just text. To gain access to these, set the `content` parameter to `"all"`. If the response includes things like tool calls, the stream will yield the relevant content types as they are generated. As we’ll learn later, this can be useful for [displaying tool calls](../tool-calling/displays.llms.md) in something like a [chatbot](../get-started/chatbots.llms.md) app.
+`.stream()` also provides access to rich content types beyond just text. To gain access to these, set the `content` parameter to `"all"`. If the response includes things like tool calls, the stream will yield the relevant content types as they are generated. As we’ll learn later, this can be useful for [displaying tool calls](../tool-calling/displays.llms.md) in something like a [chatbot](../get-started/chatbots.llms.md) app. The same goes for [reasoning](../get-started/reasoning.llms.md): when thinking is enabled, the stream yields `ContentThinkingDelta` chunks as the model thinks.
 
 ``` python
 def get_current_weather(lat: float, lng: float):

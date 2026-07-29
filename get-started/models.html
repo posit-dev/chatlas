@@ -247,6 +247,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../get-started/reasoning.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reasoning</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../get-started/async.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Async</span></a>
   </div>
@@ -552,7 +558,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="callout-body-container callout-body">
 <p>To use chatlas with a provider not listed in the table above, you have two options:</p>
 <ol type="1">
-<li>If the model provider is “OpenAI compatible” (i.e., it supports the <code>/v1/chat/completions</code> endpoint), use <a href="../reference/ChatOpenAICompletions.qmd"><code>ChatOpenAICompletions()</code></a> with the appropriate <code>base_url</code> and <code>api_key</code>. This is the right choice for backends like vLLM, LiteLLM, and any other OpenAI-compatible inference engine. Note that <code>ChatOpenAI()</code> uses OpenAI’s proprietary <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>, which is not supported by most third-party backends.</li>
+<li>If the model provider is “OpenAI compatible” (i.e., it supports the <code>/v1/chat/completions</code> endpoint), use <a href="../reference/ChatOpenAICompletions.html"><code>ChatOpenAICompletions()</code></a> with the appropriate <code>base_url</code> and <code>api_key</code>. This is the right choice for backends like vLLM, LiteLLM, and any other OpenAI-compatible inference engine. Note that <code>ChatOpenAI()</code> uses OpenAI’s proprietary <a href="https://platform.openai.com/docs/api-reference/responses">Responses API</a>, which is not supported by most third-party backends.</li>
 <li>If you’re motivated, implement a new provider by subclassing <a href="https://github.com/posit-dev/chatlas/blob/main/chatlas/_provider.py"><code>Provider</code></a> and implementing the required methods.</li>
 </ol>
 </div>
@@ -575,7 +581,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>In addition to choosing a model provider, you also need to choose a specific model from that provider. This is important because different models have different capabilities and performance characteristics. For example, some models are faster and cheaper, while others are more accurate and capable of handling more complex tasks.</p>
 <p>If you’re using <code>chatlas</code> inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g.&nbsp;<code>ChatAzureOpenAI()</code> and <code>ChatBedrockAnthropic()</code>). If you’re using <code>chatlas</code> for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:</p>
 <ul>
-<li><p><code>ChatOpenAI()</code> or <code>ChatAnthropic()</code> are both good places to start. <code>ChatOpenAI()</code> defaults to <strong>GPT-5.4</strong>, but you can use <code>model = "gpt-5.4-mini"</code> for a cheaper lower-quality model, or <code>model = "o3"</code> for more complex reasoning. <code>ChatAnthropic()</code> is similarly good; it defaults to <strong>Claude Sonnet 4.6</strong> which we have found to be particularly good at writing code.</p></li>
+<li><p><code>ChatOpenAI()</code> or <code>ChatAnthropic()</code> are both good places to start. <code>ChatOpenAI()</code> defaults to <strong>GPT-5.4</strong>, but you can use <code>model = "gpt-5.4-mini"</code> for a cheaper lower-quality model, or <code>model = "o3"</code> for more complex <a href="../get-started/reasoning.html">reasoning</a>. <code>ChatAnthropic()</code> is similarly good; it defaults to <strong>Claude Sonnet 4.6</strong> which we have found to be particularly good at writing code.</p></li>
 <li><p><code>ChatGoogle()</code> is a strong model with generous free tier (with the downside that <a href="https://ai.google.dev/gemini-api/terms#unpaid-services">your data is used</a> to improve the model), making it a great place to start if you don’t want to spend any money.</p></li>
 <li><p><code>ChatOllama()</code>, which uses <a href="https://ollama.com">Ollama</a>, allows you to run models on your own computer. The biggest models you can run locally aren’t as good as the state of the art hosted models, but they also don’t share your data and and are effectively free.</p></li>
 </ul>

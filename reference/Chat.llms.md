@@ -809,10 +809,19 @@ ValueError If a tool with the same name already exists and `force` is `False`.
 ### set_echo_options
 
 ``` python
-Chat.set_echo_options(rich_markdown=None, rich_console=None, css_styles=None)
+Chat.set_echo_options(
+    rich_markdown=None,
+    rich_console=None,
+    css_styles=None,
+    tool_result_max_lines=MISSING,
+    tool_result_max_height=MISSING,
+    thinking_max_lines=MISSING,
+)
 ```
 
 Set echo styling options for the chat.
+
+Note that each call replaces *all* of the options: anything not passed reverts to its default rather than keeping a previously set value.
 
 #### Parameters
 
@@ -821,6 +830,9 @@ Set echo styling options for the chat.
 | rich_markdown | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | A dictionary of options to pass to `rich.markdown.Markdown()`. This is only relevant when outputting to the console. | `None` |
 | rich_console | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] | A dictionary of options to pass to `rich.console.Console()`. This is only relevant when outputting to the console. | `None` |
 | css_styles | [Optional](https://docs.python.org/3/library/typing.html#typing.Optional)\[[dict](https://docs.python.org/3/library/stdtypes.html#dict)\[[str](https://docs.python.org/3/library/stdtypes.html#str), [str](https://docs.python.org/3/library/stdtypes.html#str)\]\] | A dictionary of CSS styles to apply to `IPython.display.Markdown()`. This is only relevant when outputing to the browser. | `None` |
+| tool_result_max_lines | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Truncate an echoed tool result to this many lines, noting how many were dropped. The full value remains available on the turn. Pass `None` to echo it in full. This is only relevant when outputting to the console. | `MISSING` |
+| tool_result_max_height | [str](https://docs.python.org/3/library/stdtypes.html#str) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | A CSS length (e.g. `"400px"`) bounding the height of an echoed tool result, which scrolls internally beyond it. Pass `None` to let it grow. This is only relevant when outputting to the browser. | `MISSING` |
+| thinking_max_lines | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Cap echoed reasoning at this many lines, keeping the most recent and noting how many earlier ones were dropped. Pass `None` to echo it in full. This is only relevant when outputting to the console; in the browser, reasoning collapses on its own once it’s complete. | `MISSING` |
 
 ### set_model_params
 

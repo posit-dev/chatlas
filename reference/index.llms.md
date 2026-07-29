@@ -21,6 +21,7 @@ Start a chat with a particular large language model (llm) provider.
 | [ChatMistral](../reference/ChatMistral.llms.md#chatlas.ChatMistral) | Chat with a model hosted on Mistral’s La Plateforme. |
 | [ChatOllama](../reference/ChatOllama.llms.md#chatlas.ChatOllama) | Chat with a local Ollama model. |
 | [ChatOpenAI](../reference/ChatOpenAI.llms.md#chatlas.ChatOpenAI) | Chat with an OpenAI model using the responses API. |
+| [ChatOpenAICompletions](../reference/ChatOpenAICompletions.llms.md#chatlas.ChatOpenAICompletions) | Chat with an OpenAI-compatible model (via the Chat Completions API). |
 | [ChatOpenRouter](../reference/ChatOpenRouter.llms.md#chatlas.ChatOpenRouter) | Chat with one of the many models hosted on OpenRouter. |
 | [ChatPerplexity](../reference/ChatPerplexity.llms.md#chatlas.ChatPerplexity) | Chat with a model hosted on perplexity.ai. |
 | [ChatPortkey](../reference/ChatPortkey.llms.md#chatlas.ChatPortkey) | Chat with a model hosted on PortkeyAI |
