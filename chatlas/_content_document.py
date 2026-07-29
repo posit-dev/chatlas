@@ -114,12 +114,9 @@ def content_document_url(
     Prepare a remote text/data file for input to a chat.
 
     Use this for plain text, Markdown, CSV, code, and other non-PDF documents
-    hosted at a URL (use [](`~chatlas.content_pdf_url`) for PDFs).
-
-    Like [](`~chatlas.content_pdf_url`), this doesn't download the document up
-    front. `ChatOpenAI()` (the Responses API) can reference the URL directly,
-    so the bytes are only downloaded if the target provider actually needs
-    them (`ChatAnthropic()`, `ChatGoogle()`, `ChatOpenAICompletions()`).
+    hosted at a URL (use [](`~chatlas.content_pdf_url`) for PDFs). Not all
+    providers accept every document type, so check the documentation for the
+    provider you are using.
 
     Parameters
     ----------

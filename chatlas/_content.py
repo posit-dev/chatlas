@@ -756,16 +756,11 @@ class ContentPDF(Content):
     Parameters
     ----------
     data
-        The PDF's bytes. Optional when `url` is set: some providers (e.g.
-        Anthropic, `ChatOpenAI()`'s Responses API) can fetch the URL directly,
-        so the bytes are only downloaded (and cached back onto this field) if
-        the target provider actually needs them.
+        The PDF's bytes. Optional when `url` is set.
     filename
         The name of the PDF file
     url
-        An optional URL where the PDF can be accessed. When set and the
-        target provider supports it, the URL is sent as-is instead of
-        downloading and re-uploading the PDF's bytes.
+        An optional URL where the PDF can be accessed.
     """
 
     data: Optional[bytes] = None
@@ -823,9 +818,7 @@ class ContentDocument(Content):
         Not every provider accepts every MIME type -- providers that can't
         accept a given type raise a clear error.
     url
-        An optional URL where the document can be accessed. When set and the
-        target provider supports it, the URL is sent as-is instead of
-        downloading the document's bytes.
+        An optional URL where the document can be accessed.
     """
 
     data: Optional[bytes] = None

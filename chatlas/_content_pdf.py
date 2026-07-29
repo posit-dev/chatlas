@@ -51,12 +51,6 @@ def content_pdf_url(url: str) -> ContentPDF:
     Not all providers support PDF input, so check the documentation for the
     provider you are using.
 
-    Unlike [](`~chatlas.content_pdf_file`), this doesn't download the PDF's
-    bytes up front. Anthropic and `ChatOpenAI()` (the Responses API) can
-    reference the URL directly, so the bytes are only downloaded lazily, if
-    the target provider actually needs them (e.g. `ChatGoogle()` or
-    `ChatOpenAICompletions()`).
-
     Parameters
     ----------
     url
