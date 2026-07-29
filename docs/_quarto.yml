@@ -94,6 +94,7 @@ website:
             - get-started/tools.qmd
             - get-started/stream.qmd
             - get-started/structured-data.qmd
+            - get-started/reasoning.qmd
             - get-started/async.qmd
             - get-started/chatbots.qmd
             - get-started/parameters.qmd
