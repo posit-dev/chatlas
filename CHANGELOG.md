@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 
 * `echo="all"` no longer displays tool results twice — once in full as part of the user turn they're attached to, and again on their own.
+* Tool names and argument names are now HTML-escaped in the notebook/shiny rendering of tool requests and results, closing an HTML-injection hole (both are model-controlled).
 
 ## [0.20.0] - 2026-07-29
 

@@ -360,7 +360,7 @@ class ContentToolRequest(Content):
                 "but htmltools is not installed. ",
             )
 
-        html = f"<p></p><span class='chatlas-tool-request'>🔧 Running tool: <code>{self.name}</code></span>"
+        html = f"<p></p><span class='chatlas-tool-request'>🔧 Running tool: <code>{html_escape(self.name, attr=False)}</code></span>"
 
         return TagList(
             HTML(html),
@@ -596,8 +596,13 @@ class ContentToolResult(Content):
         """
 
         # Helper function to format code blocks (optionally with labels for arguments).
+        # Labels are argument names, which come from the model's tool call, so they
+        # need escaping just like the values do.
         def pre_code(code: str, label: str | None = None) -> str:
-            lbl = f"<span class='input-parameter-label'>{label}</span>" if label else ""
+            if label:
+                lbl = f"<span class='input-parameter-label'>{html_escape(label, attr=False)}</span>"
+            else:
+                lbl = ""
             return f"<pre>{lbl}<code>{html_escape(code, attr=False)}</code></pre>"
 
         # Helper function to wrap content in a <details> block.
@@ -629,11 +634,13 @@ class ContentToolResult(Content):
         # Put both the result and parameters into a container
         result_div = f'<div class="chatlas-tool-result-content">{result}{params}</div>'
 
-        # Header for the top-level result details block.
+        # Header for the top-level result details block. The tool name is
+        # model-controlled, so it gets escaped too.
+        name = html_escape(self.name, attr=False)
         if not self.error:
-            header = f"Result from tool call: <code>{self.name}</code>"
+            header = f"Result from tool call: <code>{name}</code>"
         else:
-            header = f"❌ Failed to call tool <code>{self.name}</code>"
+            header = f"❌ Failed to call tool <code>{name}</code>"
 
         res = details_block(header, result_div, open_=False)
 
