@@ -4,7 +4,7 @@ import base64
 import mimetypes
 import warnings
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Literal, Optional, cast
+from typing import TYPE_CHECKING, Any, Literal, Optional, cast
 from urllib.parse import urlparse
 
 import orjson
@@ -334,6 +334,46 @@ class OpenAIProvider(
             kwargs_full["include"] = include
 
         return kwargs_full
+
+    def token_count(
+        self,
+        turns: list[Turn],
+        *,
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]],
+    ) -> int:
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
+        res = self._client.responses.input_tokens.count(**kwargs)
+        return res.input_tokens
+
+    async def token_count_async(
+        self,
+        turns: list[Turn],
+        *,
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]],
+    ) -> int:
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
+        res = await self._async_client.responses.input_tokens.count(**kwargs)
+        return res.input_tokens
+
+    def _token_count_args(
+        self,
+        turns: list[Turn],
+        *,
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]],
+    ) -> dict[str, Any]:
+        kwargs = self._chat_perform_args(
+            stream=False,
+            turns=turns,
+            tools=tools,
+            data_model=data_model,
+        )
+        # `input_tokens` accepts a subset of `responses.create` params; drop the
+        # rest (e.g. stream/store/include) which the endpoint rejects.
+        args_to_keep = ["input", "model", "tools", "text", "tool_choice", "reasoning"]
+        return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
     def stream_content(self, chunk, completion) -> list[Content]:
         if chunk.type == "response.output_text.delta":

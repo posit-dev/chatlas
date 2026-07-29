@@ -42,7 +42,7 @@ from ._provider import (
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn, user_turn
+from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn
 
 if TYPE_CHECKING:
     import io
@@ -519,50 +519,39 @@ class GoogleProvider(
 
     def token_count(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
-    ):
-        kwargs = self._token_count_args(
-            *args,
-            tools=tools,
-            data_model=data_model,
-        )
-
+    ) -> int:
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
         res = self._client.models.count_tokens(**kwargs)
         return res.total_tokens or 0
 
     async def token_count_async(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
-    ):
-        kwargs = self._token_count_args(
-            *args,
-            tools=tools,
-            data_model=data_model,
-        )
-
+    ) -> int:
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
         res = await self._client.aio.models.count_tokens(**kwargs)
         return res.total_tokens or 0
 
     def _token_count_args(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> dict[str, Any]:
-        turn = user_turn(*args)
-
         kwargs = self._chat_perform_args(
-            turns=[turn],
+            turns=turns,
             tools=tools,
             data_model=data_model,
         )
-
-        args_to_keep = ["model", "contents", "tools"]
-
+        args_to_keep = ["model", "contents"]
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
     def _google_contents(self, turns: list[Turn]) -> list["GoogleContent"]:

@@ -661,6 +661,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def token_count(
         self,
         *args: Content | str,
+        include: Literal["new", "complete"] = "new",
         data_model: Optional[type[BaseModel]] = None,
     ) -> int:
         """
@@ -674,6 +675,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         args
             The input to get a token count for.
+        include
+            What to include in the count. `"new"` (default) counts only the
+            content in `args` plus any registered tools. `"complete"` estimates
+            the total input tokens for the next request, adding the system
+            prompt and conversation history (`.get_turns()`). Exactly what
+            each mode counts is provider-dependent; see the Note below.
         data_model
             If the input is meant for data extraction (i.e., `.chat_structured()`), then
             this should be the Pydantic model that describes the structure of the data to
@@ -686,9 +693,19 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Note
         ----
-        Remember that the token count is an estimate. Also, models based on
-        `ChatOpenAI()` currently does not take tools into account when
-        estimating token counts.
+        The token count is an estimate, and what it accounts for depends on the
+        provider:
+
+        - `ChatOpenAI()` (Responses API) and `ChatAnthropic()` use the provider's
+          token-counting endpoint and account for registered tools (and, with
+          `include="complete"`, the system prompt and conversation history).
+        - `ChatGoogle()` uses Google's token-counting endpoint but counts only the
+          message contents: it does not account for registered tools or the system
+          prompt (a limitation of the `google-genai` SDK's `count_tokens` on the
+          Gemini Developer API). With `include="complete"` the count reflects
+          conversation history but not the system prompt.
+        - `ChatOpenAICompletions()` and other OpenAI-compatible providers fall back
+          to a local `tiktoken` estimate that does not account for tools.
 
         Examples
         --------
@@ -707,7 +724,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         """
 
         return self.provider.token_count(
-            *args,
+            self._token_count_turns(include, *args),
             tools=self._tools,
             data_model=data_model,
         )
@@ -715,6 +732,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     async def token_count_async(
         self,
         *args: Content | str,
+        include: Literal["new", "complete"] = "new",
         data_model: Optional[type[BaseModel]] = None,
     ) -> int:
         """
@@ -728,6 +746,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         ----------
         args
             The input to get a token count for.
+        include
+            What to include in the count. `"new"` (default) counts only the
+            content in `args` plus any registered tools. `"complete"` estimates
+            the total input tokens for the next request, adding the system
+            prompt and conversation history (`.get_turns()`). Exactly what
+            each mode counts is provider-dependent; see the Note below.
         data_model
             If this input is meant for data extraction (i.e., `.chat_structured_async()`),
             then this should be the Pydantic model that describes the structure of the data
@@ -737,13 +761,41 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         -------
         int
             The token count for the input.
+
+        Note
+        ----
+        The token count is an estimate, and what it accounts for depends on the
+        provider:
+
+        - `ChatOpenAI()` (Responses API) and `ChatAnthropic()` use the provider's
+          token-counting endpoint and account for registered tools (and, with
+          `include="complete"`, the system prompt and conversation history).
+        - `ChatGoogle()` uses Google's token-counting endpoint but counts only the
+          message contents: it does not account for registered tools or the system
+          prompt (a limitation of the `google-genai` SDK's `count_tokens` on the
+          Gemini Developer API). With `include="complete"` the count reflects
+          conversation history but not the system prompt.
+        - `ChatOpenAICompletions()` and other OpenAI-compatible providers fall back
+          to a local `tiktoken` estimate that does not account for tools.
         """
 
         return await self.provider.token_count_async(
-            *args,
+            self._token_count_turns(include, *args),
             tools=self._tools,
             data_model=data_model,
         )
+
+    def _token_count_turns(
+        self, include: Literal["new", "complete"], *args: Content | str
+    ) -> list[Turn]:
+        if include not in ("new", "complete"):
+            raise ValueError(
+                f"Expected `include` to be one of 'new' or 'complete', not '{include}'"
+            )
+        new_turn = user_turn(*args)
+        if include == "complete":
+            return self.get_turns(include_system_prompt=True) + [new_turn]
+        return [new_turn]
 
     def app(
         self,

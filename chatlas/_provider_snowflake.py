@@ -465,7 +465,8 @@ class SnowflakeProvider(
 
     def token_count(
         self,
-        *args: "Content | str",
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
@@ -475,7 +476,8 @@ class SnowflakeProvider(
 
     async def token_count_async(
         self,
-        *args: "Content | str",
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
