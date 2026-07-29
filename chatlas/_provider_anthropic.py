@@ -50,7 +50,14 @@ from ._provider import (
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn
+from ._turn import (
+    AssistantTurn,
+    FinishReason,
+    SystemTurn,
+    Turn,
+    UserTurn,
+    check_finish_reason,
+)
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -917,6 +924,11 @@ class AnthropicProvider(
         return res
 
     def _as_turn(self, completion: Message, has_data_model=False) -> AssistantTurn:
+        finish_reason = normalize_finish_reason(completion.stop_reason)
+        if has_data_model:
+            # Must precede the JSON parse below; see check_finish_reason().
+            check_finish_reason(finish_reason, "error")
+
         contents = []
 
         # Detect which structured output approach was used:
@@ -974,7 +986,7 @@ class AnthropicProvider(
 
         return AssistantTurn(
             contents,
-            finish_reason=normalize_finish_reason(completion.stop_reason),
+            finish_reason=finish_reason,
             completion=completion,
         )
 
