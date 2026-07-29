@@ -51,3 +51,7 @@ chat.chat("What is the capital of France?")
 | Name | Type | Description |
 |----|----|----|
 |  | [Chat](https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat) | A Chat object. |
+
+## Note
+
+`token_count()` uses the same OpenAI `responses/input_tokens` endpoint as `ChatOpenAI()`, so it requires an Azure OpenAI deployment and api-version that support that endpoint; otherwise `token_count()` will raise.

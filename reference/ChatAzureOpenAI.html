@@ -605,6 +605,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.ContentCitation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ContentCitation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.ContentImage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.ContentImage</span></a>
   </div>
@@ -731,6 +737,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.Source.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.Source</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.SubmitInputArgsT.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.SubmitInputArgsT</span></a>
   </div>
@@ -753,6 +765,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">types.ToolInfo</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.WebSource.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.WebSource</span></a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -770,6 +788,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
   <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#note" id="toc-note" class="nav-link" data-scroll-target="#note">Note</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatAzureOpenAI.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
@@ -889,6 +908,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
+</section>
+<section id="note" class="level2 doc-section doc-section-note">
+<h2 class="doc-section doc-section-note anchored" data-anchor-id="note">Note</h2>
+<p><code>token_count()</code> uses the same OpenAI <code>responses/input_tokens</code> endpoint as <code>ChatOpenAI()</code>, so it requires an Azure OpenAI deployment and api-version that support that endpoint; otherwise <code>token_count()</code> will raise.</p>
 
 
 </section>

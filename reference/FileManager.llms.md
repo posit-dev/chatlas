@@ -95,7 +95,7 @@ Only supported for ChatOpenAI, ChatAnthropic, and ChatGoogle; other providers ra
 
 | Name | Type | Description |
 |----|----|----|
-|  | [FileMetadata](../reference/types.FileMetadata.llms.md#chatlas.types.FileMetadata) | Metadata for the file. |
+|  | [FileMetadata](https://posit-dev.github.io/chatlas/reference/types.FileMetadata.html#chatlas.types.FileMetadata) | Metadata for the file. |
 
 ### get_async
 
@@ -119,7 +119,7 @@ Only supported for ChatOpenAI, ChatAnthropic, and ChatGoogle; other providers ra
 
 | Name | Type | Description |
 |----|----|----|
-|  | [list](../reference/FileManager.llms.md#chatlas.FileManager.list)\[[FileMetadata](../reference/types.FileMetadata.llms.md#chatlas.types.FileMetadata)\] | Metadata for each file hosted by the provider. |
+|  | [list](https://posit-dev.github.io/chatlas/reference/FileManager.html#chatlas.FileManager.list)\[[FileMetadata](https://posit-dev.github.io/chatlas/reference/types.FileMetadata.html#chatlas.types.FileMetadata)\] | Metadata for each file hosted by the provider. |
 
 ### list_async
 
@@ -152,7 +152,7 @@ On `ChatGoogle()`, this blocks until Gemini finishes processing the file: large 
 
 | Name | Type | Description |
 |----|----|----|
-|  | [ContentUploaded](../reference/types.ContentUploaded.llms.md#chatlas.types.ContentUploaded) | A reference to the uploaded file that can be passed to `.chat()` (and other chat methods) in place of the file’s raw bytes. |
+|  | [ContentUploaded](https://posit-dev.github.io/chatlas/reference/types.ContentUploaded.html#chatlas.types.ContentUploaded) | A reference to the uploaded file that can be passed to `.chat()` (and other chat methods) in place of the file’s raw bytes. |
 
 ### upload_async
 

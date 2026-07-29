@@ -10,7 +10,7 @@ This content type represents the results of a web search. It’s automatically g
 
 ## Parameters
 
-| Name  | Type | Description                              | Default    |
-|-------|------|------------------------------------------|------------|
-| urls  |      | The URLs returned by the search.         | *required* |
-| extra |      | The raw provider-specific response data. | *required* |
+| Name    | Type | Description                              | Default    |
+|---------|------|------------------------------------------|------------|
+| sources |      | The pages surfaced by the search.        | *required* |
+| extra   |      | The raw provider-specific response data. | *required* |

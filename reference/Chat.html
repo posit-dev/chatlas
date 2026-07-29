@@ -605,6 +605,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.ContentCitation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.ContentCitation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.ContentImage.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.ContentImage</span></a>
   </div>
@@ -731,6 +737,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
+  <a href="../reference/types.Source.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.Source</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
   <a href="../reference/types.SubmitInputArgsT.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.SubmitInputArgsT</span></a>
   </div>
@@ -751,6 +763,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="sidebar-item-container"> 
   <a href="../reference/types.ToolInfo.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.ToolInfo</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../reference/types.WebSource.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">types.WebSource</span></a>
   </div>
 </li>
       </ul>
@@ -2843,7 +2861,7 @@ Note
 </section>
 <section id="chatlas.Chat.token_count" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.token_count">token_count</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>Chat.token_count(<span class="op">*</span>args, data_model<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>Chat.token_count(<span class="op">*</span>args, include<span class="op">=</span><span class="st">'new'</span>, data_model<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Get an estimated token count for the given input.</p>
 <p>Estimate the token size of input content. This can help determine whether input(s) and/or conversation history (i.e., <code>.get_turns()</code>) should be reduced in size before sending it to the model.</p>
 <section id="parameters-25" class="level4 doc-section doc-section-parameters">
@@ -2865,6 +2883,12 @@ Note
 <td><code>()</code></td>
 </tr>
 <tr class="even">
+<td>include</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['new', 'complete']</td>
+<td>What to include in the count. <code>"new"</code> (default) counts only the content in <code>args</code> plus any registered tools. <code>"complete"</code> estimates the total input tokens for the next request, adding the system prompt and conversation history (<code>.get_turns()</code>). Exactly what each mode counts is provider-dependent; see the Note below.</td>
+<td><code>'new'</code></td>
+</tr>
+<tr class="odd">
 <td>data_model</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
 <td>If the input is meant for data extraction (i.e., <code>.chat_structured()</code>), then this should be the Pydantic model that describes the structure of the data to extract.</td>
@@ -2894,7 +2918,12 @@ Note
 </section>
 <section id="note-6" class="level4 doc-section doc-section-note">
 <h4 class="doc-section doc-section-note anchored" data-anchor-id="note-6">Note</h4>
-<p>Remember that the token count is an estimate. Also, models based on <code>ChatOpenAI()</code> currently does not take tools into account when estimating token counts.</p>
+<p>The token count is an estimate, and what it accounts for depends on the provider:</p>
+<ul>
+<li><code>ChatOpenAI()</code> (Responses API) and <code>ChatAnthropic()</code> use the provider’s token-counting endpoint and account for registered tools (and, with <code>include="complete"</code>, the system prompt and conversation history).</li>
+<li><code>ChatGoogle()</code> uses Google’s token-counting endpoint but counts only the message contents: it does not account for registered tools or the system prompt (a limitation of the <code>google-genai</code> SDK’s <code>count_tokens</code> on the Gemini Developer API). With <code>include="complete"</code> the count reflects conversation history but not the system prompt.</li>
+<li><code>ChatOpenAICompletions()</code> and other OpenAI-compatible providers fall back to a local <code>tiktoken</code> estimate that does not account for tools.</li>
+</ul>
 </section>
 <section id="examples-8" class="level4 doc-section doc-section-examples">
 <h4 class="doc-section doc-section-examples anchored" data-anchor-id="examples-8">Examples</h4>
@@ -2912,7 +2941,7 @@ Note
 </section>
 <section id="chatlas.Chat.token_count_async" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.token_count_async">token_count_async</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>Chat.token_count_async(<span class="op">*</span>args, data_model<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>Chat.token_count_async(<span class="op">*</span>args, include<span class="op">=</span><span class="st">'new'</span>, data_model<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Get an estimated token count for the given input asynchronously.</p>
 <p>Estimate the token size of input content. This can help determine whether input(s) and/or conversation history (i.e., <code>.get_turns()</code>) should be reduced in size before sending it to the model.</p>
 <section id="parameters-26" class="level4 doc-section doc-section-parameters">
@@ -2934,6 +2963,12 @@ Note
 <td><code>()</code></td>
 </tr>
 <tr class="even">
+<td>include</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['new', 'complete']</td>
+<td>What to include in the count. <code>"new"</code> (default) counts only the content in <code>args</code> plus any registered tools. <code>"complete"</code> estimates the total input tokens for the next request, adding the system prompt and conversation history (<code>.get_turns()</code>). Exactly what each mode counts is provider-dependent; see the Note below.</td>
+<td><code>'new'</code></td>
+</tr>
+<tr class="odd">
 <td>data_model</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/functions.html#type">type</a>[<a href="https://docs.pydantic.dev/latest/api/pydantic/base_model/#pydantic.BaseModel">BaseModel</a>]]</td>
 <td>If this input is meant for data extraction (i.e., <code>.chat_structured_async()</code>), then this should be the Pydantic model that describes the structure of the data to extract.</td>
@@ -2960,6 +2995,15 @@ Note
 </tr>
 </tbody>
 </table>
+</section>
+<section id="note-7" class="level4 doc-section doc-section-note">
+<h4 class="doc-section doc-section-note anchored" data-anchor-id="note-7">Note</h4>
+<p>The token count is an estimate, and what it accounts for depends on the provider:</p>
+<ul>
+<li><code>ChatOpenAI()</code> (Responses API) and <code>ChatAnthropic()</code> use the provider’s token-counting endpoint and account for registered tools (and, with <code>include="complete"</code>, the system prompt and conversation history).</li>
+<li><code>ChatGoogle()</code> uses Google’s token-counting endpoint but counts only the message contents: it does not account for registered tools or the system prompt (a limitation of the <code>google-genai</code> SDK’s <code>count_tokens</code> on the Gemini Developer API). With <code>include="complete"</code> the count reflects conversation history but not the system prompt.</li>
+<li><code>ChatOpenAICompletions()</code> and other OpenAI-compatible providers fall back to a local <code>tiktoken</code> estimate that does not account for tools.</li>
+</ul>
 
 
 </section>

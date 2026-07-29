@@ -125,6 +125,7 @@ A provider-agnostic representation of content generated during an assistant/user
 |  |  |
 |----|----|
 | [types.Content](../reference/types.Content.llms.md#chatlas.types.Content) | Base class for all content types that can be appear in a [`Turn`](https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn) |
+| [types.ContentCitation](../reference/types.ContentCitation.llms.md#chatlas.types.ContentCitation) | A source that grounds part of the assistant’s answer. |
 | [types.ContentImage](../reference/types.ContentImage.llms.md#chatlas.types.ContentImage) | Base class for image content. |
 | [types.ContentImageInline](../reference/types.ContentImageInline.llms.md#chatlas.types.ContentImageInline) | Inline image content. |
 | [types.ContentImageRemote](../reference/types.ContentImageRemote.llms.md#chatlas.types.ContentImageRemote) | Image content from a URL. |
@@ -146,7 +147,9 @@ A provider-agnostic representation of content generated during an assistant/user
 | [types.ImageContentTypes](../reference/types.ImageContentTypes.llms.md#chatlas.types.ImageContentTypes) | Allowable content types for images. |
 | [types.MISSING_TYPE](../reference/types.MISSING_TYPE.llms.md#chatlas.types.MISSING_TYPE) | A singleton representing a missing value. |
 | [types.MISSING](../reference/types.MISSING.llms.md#chatlas.types.MISSING) |  |
+| [types.Source](../reference/types.Source.llms.md#chatlas.types.Source) | Identity of a piece of evidence a citation or search result points to. |
 | [types.SubmitInputArgsT](../reference/types.SubmitInputArgsT.llms.md#chatlas.types.SubmitInputArgsT) | A TypedDict representing the provider specific arguments that can specified when |
 | [types.TokenUsage](../reference/types.TokenUsage.llms.md#chatlas.types.TokenUsage) | Token usage for a given provider (name). |
 | [types.ToolAnnotations](../reference/types.ToolAnnotations.llms.md#chatlas.types.ToolAnnotations) | Additional properties describing a Tool to clients. |
 | [types.ToolInfo](../reference/types.ToolInfo.llms.md#chatlas.types.ToolInfo) | Serializable tool information |
+| [types.WebSource](../reference/types.WebSource.llms.md#chatlas.types.WebSource) | A web page surfaced by a search (not necessarily cited in the answer). |
