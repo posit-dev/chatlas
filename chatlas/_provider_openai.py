@@ -32,6 +32,7 @@ from ._content import (
     ContentToolRequestSearch,
     ContentToolResult,
     ContentUploaded,
+    ContentVideo,
     ProviderAnnotation,
 )
 from ._files import FileMetadata, maybe_write, open_binary
@@ -711,6 +712,11 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
                 "file_data": f"data:application/pdf;base64,{base64.b64encode(content.data).decode('utf-8')}",
             },
             role,
+        )
+    elif isinstance(content, ContentVideo):
+        raise NotImplementedError(
+            "Video input isn't supported by OpenAI. Only ChatGoogle() (Gemini) "
+            "supports video."
         )
     elif isinstance(content, ContentThinking):
         # Filter out 'status' which is output-only and not accepted as input

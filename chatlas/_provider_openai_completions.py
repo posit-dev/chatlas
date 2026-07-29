@@ -29,6 +29,7 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
     ContentUploaded,
+    ContentVideo,
 )
 from ._logging import log_model_default
 from ._merge import merge_dicts
@@ -405,6 +406,11 @@ class OpenAICompletionsProvider(
                                 "API), or pass the image inline via content_image_file()."
                             )
                         contents.append({"type": "file", "file": {"file_id": x.id}})
+                    elif isinstance(x, ContentVideo):
+                        raise NotImplementedError(
+                            f"Video input isn't supported by {self.name}. Only "
+                            "ChatGoogle() (Gemini) supports video."
+                        )
                     elif isinstance(x, ContentToolResult):
                         tool_results.append(
                             ChatCompletionToolMessageParam(

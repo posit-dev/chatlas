@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   just the given input, while `"complete"` estimates the total tokens for the
   next request, including history and system prompt where the provider
   supports it.
+* Added video input for `ChatGoogle()`/`ChatVertex()` (Gemini is the only provider that accepts video): `content_video_file()` for small inline clips (mp4, mpeg, mov, avi, x-flv, mpg, webm, wmv, 3gpp), and `content_video_youtube()` to reference a public YouTube URL directly, with no upload and no MIME type. Passing either to a provider other than Gemini raises a clear `NotImplementedError`. For larger local video files, use `chat.files.upload()` instead.
 
 ### Improvements
 

@@ -108,6 +108,24 @@ chat.chat(uploaded, "Now list the risks mentioned.")
 
 See [`chat.files`](../reference/FileManager.qmd) for the full set of upload/list/download/delete operations and provider support notes, and [`ContentUploaded`](../reference/types.ContentUploaded.qmd) for the reference type it returns.
 
+::: callout-note
+### Video input (Gemini only)
+
+Of the major providers, only `ChatGoogle()`/`ChatVertex()` (Gemini) accepts video. For a small local clip, use [`content_video_file()`](../reference/content_video_file.qmd); for anything larger, prefer `chat.files.upload()` above. A public YouTube video can be referenced directly, with no upload at all:
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatGoogle()
+chat.chat(
+  ctl.content_video_youtube("https://www.youtube.com/watch?v=9hE5-98ZeCg"),
+  "Summarize this video in 3 sentences.",
+)
+```
+
+This is a free preview feature limited to public videos, up to 10 per request on Gemini 2.5+ models. Passing video content to any other provider raises a clear error.
+:::
+
 ## Chat history
 
 Note that `chat` is a stateful object, and accumulates conversation history by default.

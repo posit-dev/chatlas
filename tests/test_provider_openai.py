@@ -3,7 +3,7 @@ import warnings
 import httpx
 import pytest
 from chatlas import ChatOpenAI, tool_web_search
-from chatlas._content import ContentUploaded
+from chatlas._content import ContentUploaded, ContentVideoUrl
 from chatlas._provider_openai import as_input_param
 from chatlas._provider_openai import (
     normalize_finish_reason as openai_normalize_finish_reason,
@@ -84,6 +84,14 @@ def test_openai_uploaded_image_serializes_to_input_image():
 def test_openai_uploaded_wrong_provider_raises():
     c = ContentUploaded(id="x", mime_type="application/pdf", provider="anthropic")
     with pytest.raises(ValueError, match="uploaded to provider 'anthropic'"):
+        as_input_param(c, role="user")
+
+
+def test_openai_video_raises_clear_error():
+    c = ContentVideoUrl(url="https://www.youtube.com/watch?v=9hE5-98ZeCg")
+    with pytest.raises(
+        NotImplementedError, match="Video input isn't supported by OpenAI"
+    ):
         as_input_param(c, role="user")
 
 
