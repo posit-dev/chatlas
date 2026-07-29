@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Callable, Literal, Sequence
 
 from ._content import (
+    PROVIDER_ANNOTATION_TYPES,
     Content,
     ContentThinkingDelta,
 )
@@ -73,6 +74,9 @@ class TurnAccumulator:
                 items.append(content)
         elif text:
             items.append(text)
+
+        if content_mode == "all" and isinstance(content, PROVIDER_ANNOTATION_TYPES):
+            items.append(content)
 
         return items
 

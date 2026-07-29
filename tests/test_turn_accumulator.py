@@ -1,9 +1,12 @@
 import pytest
 from chatlas._content import (
+    ContentCitation,
     ContentJson,
     ContentText,
     ContentToolRequest,
     ContentToolRequestSearch,
+    ContentToolResponseSearch,
+    WebSource,
 )
 from chatlas._stream_controller import StreamController
 from chatlas._turn import AssistantTurn, UserTurn
@@ -114,3 +117,31 @@ def test_finalize_turn_noops_after_complete():
     acc.finalize_turn()
     assert turns[1] is full_turn
     assert not turns[1].is_partial
+
+
+def _acc() -> TurnAccumulator:
+    turns: list = []
+    acc = TurnAccumulator(turns, StreamController())
+    acc.begin_turn(UserTurn("hi"))
+    return acc
+
+
+def test_process_content_yields_citation_in_all_mode():
+    acc = _acc()
+    cit = ContentCitation(source=WebSource(url="https://a.com"))
+    out = list(acc.process_content(cit, None, "all", lambda x: None))
+    assert out == [cit]
+
+
+def test_process_content_yields_search_results_in_all_mode():
+    acc = _acc()
+    res = ContentToolResponseSearch(sources=[WebSource(url="https://a.com")])
+    out = list(acc.process_content(res, None, "all", lambda x: None))
+    assert out == [res]
+
+
+def test_process_content_text_mode_does_not_yield_citation():
+    acc = _acc()
+    cit = ContentCitation(source=WebSource(url="https://a.com"))
+    out = list(acc.process_content(cit, None, "text", lambda x: None))
+    assert out == []

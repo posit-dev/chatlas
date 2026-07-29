@@ -33,11 +33,16 @@ from pydantic import BaseModel
 from ._callbacks import CallbackManager
 from ._content import (
     Content,
+    ContentCitation,
     ContentJson,
     ContentText,
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentToolRequestFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
     ContentToolResult,
     ToolInfo,
 )
@@ -112,6 +117,11 @@ StreamedContent = Union[
     ContentThinkingDelta,
     ContentToolRequest,
     ContentToolResult,
+    ContentToolRequestSearch,
+    ContentToolResponseSearch,
+    ContentToolRequestFetch,
+    ContentToolResponseFetch,
+    ContentCitation,
 ]
 
 T = TypeVar("T")
