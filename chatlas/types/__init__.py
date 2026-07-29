@@ -5,6 +5,7 @@ from .._chat import (  # noqa: A005
 )
 from .._content import (
     Content,
+    ContentCitation,
     ContentDocument,
     ContentImage,
     ContentImageInline,
@@ -22,8 +23,10 @@ from .._content import (
     ContentToolResult,
     ContentUploaded,
     ImageContentTypes,
+    Source,
     ToolAnnotations,
     ToolInfo,
+    WebSource,
 )
 from .._files import FileMetadata
 from .._parallel import StructuredChatResult
@@ -34,6 +37,7 @@ from .._utils import MISSING, MISSING_TYPE
 
 __all__ = (
     "Content",
+    "ContentCitation",
     "ContentDocument",
     "ContentImage",
     "ContentImageInline",
@@ -56,6 +60,8 @@ __all__ = (
     "ChatResponse",
     "ChatResponseAsync",
     "ImageContentTypes",
+    "Source",
+    "WebSource",
     "SubmitInputArgsT",
     "TokenUsage",
     "ToolAnnotations",

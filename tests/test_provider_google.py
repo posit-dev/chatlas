@@ -1,16 +1,26 @@
+from typing import cast
+
 import pytest
 import requests
 from chatlas import ChatGoogle, ChatVertex, tool_web_fetch, tool_web_search
-from chatlas._provider_google import GoogleProvider
+from chatlas._provider_google import (
+    GoogleProvider,
+    google_grounding_citations,
+)
 from chatlas._provider_google import (
     normalize_finish_reason as google_normalize_finish_reason,
 )
 from chatlas.types import (
+    Content,
+    ContentCitation,
+    ContentText,
     ContentToolRequestSearch,
     ContentToolResponseFetch,
     ContentToolResponseSearch,
+    WebSource,
 )
 from google.genai.errors import APIError
+from google.genai.types import GroundingMetadataDict
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from .conftest import (
@@ -213,7 +223,8 @@ def test_google_web_fetch():
     chat = assert_tool_web_fetch(chat_func, tool_web_fetch())
     fetched = _contents_of_type(chat, ContentToolResponseFetch)
     assert fetched and fetched[0].url
-    # The provider-native retrieval status is preserved for callers who want it
+    assert fetched[0].status == "success"
+    # The normalized status doesn't drop the provider-native value
     assert fetched[0].extra is not None
     assert "URL_RETRIEVAL_STATUS" in str(fetched[0].extra["url_metadata"])
 
@@ -230,17 +241,95 @@ def test_google_web_search():
     assert "ggplot2 1.0.0 CRAN release date" in queries
     assert "ggplot2 release history" in queries
     results = _contents_of_type(chat, ContentToolResponseSearch)
-    assert results and results[0].urls
+    assert results and results[0].sources
+    cites = _contents_of_type(chat, ContentCitation)
+    assert cites, "expected ContentCitation items in turn contents"
+    assert all(c.source and c.source.url for c in cites)
+
+    # grounded_span: citations carry the answer-side span they ground, and
+    # that span is drawn from the turn's own text.
+    grounded_citations_found = False
+    for turn in chat.get_turns():
+        contents = turn.contents
+        turn_cites = [c for c in contents if isinstance(c, ContentCitation)]
+        if not turn_cites:
+            continue
+        answer = "".join(c.text for c in contents if isinstance(c, ContentText))
+        for c in turn_cites:
+            assert c.grounded_span is not None
+            assert c.grounded_span in answer
+            grounded_citations_found = True
+        # Ordering fix: citations follow the grounded text they annotate.
+        first_text = next(
+            i for i, c in enumerate(contents) if isinstance(c, ContentText)
+        )
+        for i, c in enumerate(contents):
+            if isinstance(c, ContentCitation):
+                assert i > first_text
+    assert grounded_citations_found
 
 
-def _grounding_chunk(url: str, query: str, index: int | None = 0):
-    """A chunk carrying text plus the grounding metadata for that text."""
+@pytest.mark.vcr
+def test_google_web_search_streaming():
+    chat = chat_func(model="gemini-2.5-flash")
+    chat.register_tool(tool_web_search())
+    items = list(
+        chat.stream(
+            "When was ggplot2 1.0.0 released to CRAN? Answer in YYYY-MM-DD format.",
+            content="all",
+        )
+    )
+    assert any(isinstance(x, ContentToolRequestSearch) for x in items)
+    results = [x for x in items if isinstance(x, ContentToolResponseSearch)]
+    assert results and results[0].sources
+    citations = [x for x in items if isinstance(x, ContentCitation)]
+    assert citations
+    assert all(c.source and c.source.url for c in citations)
+
+
+def _grounding_chunk(
+    text: str, url: str, title: str, query: str, index: int | None = 0
+):
+    """One streamed chunk carrying text plus grounding metadata for that text."""
     from google.genai.types import (
         Candidate,
         GenerateContentResponse,
         GroundingChunk,
         GroundingChunkWeb,
         GroundingMetadata,
+        GroundingSupport,
+        Part,
+        Segment,
+    )
+    from google.genai.types import (
+        Content as GoogleContent,
+    )
+
+    return GenerateContentResponse(
+        candidates=[
+            Candidate(
+                content=GoogleContent(parts=[Part(text=text)], role="model"),
+                index=index,
+                grounding_metadata=GroundingMetadata(
+                    web_search_queries=[query],
+                    grounding_chunks=[
+                        GroundingChunk(web=GroundingChunkWeb(uri=url, title=title))
+                    ],
+                    grounding_supports=[
+                        GroundingSupport(
+                            segment=Segment(text=text), grounding_chunk_indices=[0]
+                        )
+                    ],
+                ),
+            )
+        ]
+    )
+
+
+def _plain_chunk(text: str, index: int | None = 0):
+    from google.genai.types import (
+        Candidate,
+        GenerateContentResponse,
         Part,
     )
     from google.genai.types import (
@@ -250,17 +339,50 @@ def _grounding_chunk(url: str, query: str, index: int | None = 0):
     return GenerateContentResponse(
         candidates=[
             Candidate(
-                content=GoogleContent(parts=[Part(text="text")], role="model"),
+                content=GoogleContent(parts=[Part(text=text)], role="model"),
                 index=index,
-                grounding_metadata=GroundingMetadata(
-                    web_search_queries=[query],
-                    grounding_chunks=[
-                        GroundingChunk(web=GroundingChunkWeb(uri=url, title="t"))
-                    ],
-                ),
             )
         ]
     )
+
+
+def test_google_grounding_metadata_matches_streamed_content():
+    """Streaming and final-turn citations agree for Gemini's real response shape.
+
+    Verified live against gemini-2.5-flash and gemini-3-flash-preview: grounding
+    metadata arrives in exactly one chunk (the last), every candidate carries
+    `index=0` so the chunks merge into a single candidate, and segment offsets
+    are absolute into the whole answer.
+    """
+    provider = GoogleProvider(
+        model="gemini-2.5-flash", api_key="dummy", name="Google/Gemini", kwargs=None
+    )
+    chunks = [
+        _plain_chunk("ggplot2 1.0.0 "),
+        _grounding_chunk("was released on 2014-05-21.", "https://a.com", "A", "q1"),
+    ]
+
+    streamed: list[Content] = []
+    completion = None
+    for chunk in chunks:
+        completion = provider.stream_merge_chunks(completion, chunk)
+        streamed.extend(provider.stream_content(chunk, completion))
+
+    assert completion is not None
+    turn = provider.stream_turn(completion, has_data_model=False)
+
+    streamed_cites = [c for c in streamed if isinstance(c, ContentCitation)]
+    turn_cites = [c for c in turn.contents if isinstance(c, ContentCitation)]
+    assert len(streamed_cites) == 1
+    assert [
+        (c.source.url, c.grounded_span)
+        for c in streamed_cites
+        if isinstance(c.source, WebSource)
+    ] == [
+        (c.source.url, c.grounded_span)
+        for c in turn_cites
+        if isinstance(c.source, WebSource)
+    ]
 
 
 def test_google_late_grounding_metadata_not_dropped():
@@ -268,14 +390,14 @@ def test_google_late_grounding_metadata_not_dropped():
 
     Gemini has only ever been observed sending one metadata-bearing chunk, but
     when candidates arrive without an `index` they don't merge, and collapsing
-    them first-wins would silently discard everything after the first.
+    them first-wins silently discarded everything after the first.
     """
     provider = GoogleProvider(
         model="gemini-2.5-flash", api_key="dummy", name="Google/Gemini", kwargs=None
     )
     chunks = [
-        _grounding_chunk("https://a.com", "q1", index=None),
-        _grounding_chunk("https://b.com", "q2", index=None),
+        _grounding_chunk("alpha", "https://a.com", "A", "q1", index=None),
+        _grounding_chunk("beta", "https://b.com", "B", "q2", index=None),
     ]
 
     completion = None
@@ -284,18 +406,53 @@ def test_google_late_grounding_metadata_not_dropped():
 
     assert completion is not None
     turn = provider.stream_turn(completion, has_data_model=False)
+    cited_urls = [
+        c.source.url
+        for c in turn.contents
+        if isinstance(c, ContentCitation) and isinstance(c.source, WebSource)
+    ]
+    assert cited_urls == ["https://a.com", "https://b.com"]
 
     queries = [
         c.query for c in turn.contents if isinstance(c, ContentToolRequestSearch)
     ]
     assert queries == ["q1", "q2"]
-    urls = [
-        u
-        for c in turn.contents
-        if isinstance(c, ContentToolResponseSearch)
-        for u in c.urls
+
+
+def test_google_grounding_citations_without_a_web_source():
+    """A chunk with no URL still grounds text; a bogus index grounds nothing."""
+    grounding_metadata: GroundingMetadataDict = {
+        "grounding_chunks": [
+            {"retrieved_context": {"title": "internal doc"}},
+            {"web": {"uri": "https://a.com", "title": "A"}},
+        ],
+        "grounding_supports": [
+            {"segment": {"text": "sourceless span"}, "grounding_chunk_indices": [0]},
+            {"segment": {"text": "linked span"}, "grounding_chunk_indices": [1]},
+            {"segment": {"text": "out of range"}, "grounding_chunk_indices": [7]},
+        ],
+    }
+
+    citations = google_grounding_citations(grounding_metadata)
+
+    assert [(c.grounded_span, c.source) for c in citations] == [
+        ("sourceless span", None),
+        ("linked span", WebSource(url="https://a.com", title="A")),
     ]
-    assert urls == ["https://a.com", "https://b.com"]
+
+
+@pytest.mark.vcr
+def test_google_web_fetch_streaming():
+    chat = chat_func(model="gemini-2.5-flash")
+    chat.register_tool(tool_web_fetch())
+    items = list(
+        chat.stream(
+            "What's the first movie listed on https://rvest.tidyverse.org/articles/starwars.html?",
+            content="all",
+        )
+    )
+    fetched = [x for x in items if isinstance(x, ContentToolResponseFetch)]
+    assert fetched and fetched[0].url and fetched[0].status == "success"
 
 
 @pytest.mark.vcr
@@ -366,6 +523,30 @@ def test_google_thought_signature_roundtrip():
     # Verify it round-trips back into the Part
     part = provider._as_part_type(req)
     assert part.thought_signature == fake_signature
+
+
+def test_normalize_retrieval_status():
+    from chatlas._provider_google import normalize_retrieval_status
+
+    assert normalize_retrieval_status("URL_RETRIEVAL_STATUS_SUCCESS") == "success"
+    assert normalize_retrieval_status("URL_RETRIEVAL_STATUS_UNSPECIFIED") is None
+    # Every other reported status collapses to "error" (native value kept in extra)
+    assert normalize_retrieval_status("URL_RETRIEVAL_STATUS_ERROR") == "error"
+    assert normalize_retrieval_status("URL_RETRIEVAL_STATUS_PAYWALL") == "error"
+    assert normalize_retrieval_status("URL_RETRIEVAL_STATUS_UNSAFE") == "error"
+    assert normalize_retrieval_status(None) is None
+
+    # Accepts the SDK enum (str-enum) as well as the raw string
+    from google.genai.types import UrlRetrievalStatus
+
+    assert (
+        normalize_retrieval_status(UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS)
+        == "success"
+    )
+    assert (
+        normalize_retrieval_status(UrlRetrievalStatus.URL_RETRIEVAL_STATUS_PAYWALL)
+        == "error"
+    )
 
 
 def test_google_batch_supported_for_gemini_not_vertex():
@@ -766,3 +947,35 @@ def test_google_accepts_heif_images():
     )
     part = provider._as_part_type(c)
     assert part.inline_data.mime_type == "image/heif"
+
+
+def truncated_structured_completion() -> dict:
+    """A structured-output response cut short by the token limit (gh-315)."""
+    return {
+        "candidates": [
+            {
+                "index": 0,
+                "finish_reason": "MAX_TOKENS",
+                "content": {
+                    "role": "model",
+                    "parts": [{"text": '{"comments": [{"body": "trunc'}],
+                },
+            }
+        ]
+    }
+
+
+def test_google_truncated_structured_output_errors_helpfully():
+    provider = cast(GoogleProvider, chat_func().provider)
+
+    with pytest.raises(ValueError, match="max_tokens"):
+        provider._as_turn(truncated_structured_completion(), has_data_model=True)
+
+
+def test_google_truncated_plain_text_still_returns_a_turn():
+    provider = cast(GoogleProvider, chat_func().provider)
+
+    turn = provider._as_turn(truncated_structured_completion(), has_data_model=False)
+
+    assert turn.text == '{"comments": [{"body": "trunc'
+    assert turn.finish_reason == "max_tokens"

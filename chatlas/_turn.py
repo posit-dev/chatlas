@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import inspect
 import json
+import os
+import warnings
 from typing import Any, Generic, Literal, Optional, Sequence, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -429,6 +432,72 @@ def complete_dangling_tool_requests(turns: Sequence[Turn]) -> list[ContentToolRe
         )
         for req in tool_requests
     ]
+
+
+def check_finish_reason(
+    finish_reason: FinishReason | str | None,
+    signal: Literal["error", "warn"],
+) -> None:
+    """
+    Signal that a response finished for a reason that leaves it incomplete.
+
+    Use `signal="error"` where nothing useful can be done with a partial response
+    and `signal="warn"` where it's still worth handing back. Structured data
+    extraction is the former: truncated JSON fails to parse, and the resulting
+    decode error says nothing about the cause. So providers call this with
+    `"error"` *before* parsing a data model out of the response (gh-315), leaving
+    `Chat` to `"warn"` about whatever partial responses do get through.
+    """
+    msg = INCOMPLETE_FINISH_REASONS.get(finish_reason) if finish_reason else None
+    if msg is None:
+        return
+
+    if signal == "error":
+        raise ValueError(msg)
+    warnings.warn(msg, UserWarning, stacklevel=caller_stacklevel())
+
+
+def caller_stacklevel() -> int:
+    """
+    The `warnings.warn()` stacklevel of the nearest frame outside chatlas.
+
+    A fixed stacklevel can't work here: the distance from a warning to the user's
+    own code depends on how they got there (`.chat()` sits two frames deeper than
+    `.stream()`, and both move again under `parallel_chat()`), so a constant
+    tuned for one entry point misattributes every other one. Python 3.12's
+    `warnings.warn(skip_file_prefixes=)` does exactly this, but chatlas supports
+    3.10+.
+    """
+    package_dir = os.path.dirname(os.path.abspath(__file__)) + os.sep
+
+    frame = inspect.currentframe()
+    frame = frame.f_back if frame else None  # start at our caller
+    level = 1
+    while frame is not None:
+        if not os.path.abspath(frame.f_code.co_filename).startswith(package_dir):
+            return level
+        frame = frame.f_back
+        level += 1
+
+    # Nothing outside chatlas on the stack (e.g. a worker thread); blame the
+    # warn() site rather than overshooting the top of the stack.
+    return 1
+
+
+# Finish reasons that mean the response isn't the one the model set out to give.
+# Keyed by the normalized reason (see `FinishReason`).
+INCOMPLETE_FINISH_REASONS: dict[str, str] = {
+    "max_tokens": (
+        "Response was truncated because it hit the `max_tokens` limit. "
+        "Increase `max_tokens` to allow the model to generate the full response."
+    ),
+    "context_window": (
+        "Response was truncated because it exceeded the model's context window."
+    ),
+    "content_filter": (
+        "Response was filtered by the provider's content moderation policy."
+    ),
+}
 
 
 class ToolNotInvokedError(Exception):
