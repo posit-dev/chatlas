@@ -93,6 +93,14 @@ def test_download_bytes_joins_streamed_chunks():
     response.__exit__.assert_called_once()
 
 
+def test_download_bytes_sets_a_timeout():
+    """Without one, a stalled connection hangs the chat indefinitely."""
+    response = make_streaming_response([b"abc"])
+    with patch("chatlas._content_file.requests.get", return_value=response) as mock_get:
+        download_bytes("https://example.com/apples.pdf")
+    assert mock_get.call_args.kwargs["timeout"]
+
+
 def test_download_bytes_closes_response_when_status_check_fails():
     """`raise_for_status()` never reads the body, so the connection leaks unclosed."""
     response = make_streaming_response([], status_error=requests.HTTPError("404"))

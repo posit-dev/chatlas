@@ -9,13 +9,19 @@ if TYPE_CHECKING:
 
 FileContent = Union["ContentPDF", "ContentDocument"]
 
+# `requests` applies this per socket read rather than to the transfer as a whole,
+# so a large file still downloads however long it takes, as long as bytes keep
+# arriving. It only bounds a connection that has gone silent -- which otherwise
+# hangs the chat indefinitely, since this runs inline while building a request.
+DOWNLOAD_TIMEOUT_SECONDS = 30
+
 
 def download_bytes(url: str) -> bytes:
     """Download `url`'s bytes in full."""
     # Streaming keeps the connection out of the pool until the body is consumed,
     # so the response needs closing on the error paths too -- `raise_for_status()`
     # never reads the body.
-    with requests.get(url, stream=True) as response:
+    with requests.get(url, stream=True, timeout=DOWNLOAD_TIMEOUT_SECONDS) as response:
         response.raise_for_status()
         return b"".join(response.iter_content(chunk_size=8192))
 
