@@ -10,7 +10,12 @@ from chatlas import (
     tool_web_fetch,
     tool_web_search,
 )
-from chatlas._content import ContentUploaded
+from chatlas._content import (
+    ContentDocument,
+    ContentImageInline,
+    ContentPDF,
+    ContentUploaded,
+)
 from chatlas._provider_anthropic import _ANTHROPIC_FINISH_REASON_MAP, AnthropicProvider
 from chatlas._provider_anthropic import (
     normalize_finish_reason as anthropic_normalize_finish_reason,
@@ -285,6 +290,57 @@ def test_anthropic_token_count_args_keeps_beta_header():
         data_model=None,
     )
     assert args["extra_headers"]["anthropic-beta"] == "files-api-2025-04-14"
+
+
+def test_anthropic_pdf_with_url_uses_url_source_without_downloading():
+    c = ContentPDF(filename="a.pdf", url="https://example.com/a.pdf")
+    block = AnthropicProvider._as_content_block(c)
+    assert block["type"] == "document"
+    assert block["source"] == {"type": "url", "url": "https://example.com/a.pdf"}
+
+
+def test_anthropic_pdf_with_data_uses_base64_source():
+    c = ContentPDF(data=b"%PDF-1.4", filename="a.pdf")
+    block = AnthropicProvider._as_content_block(c)
+    assert block["source"]["type"] == "base64"
+    assert block["source"]["media_type"] == "application/pdf"
+
+
+def test_anthropic_document_coerces_text_mime_type_to_plain_text():
+    c = ContentDocument(data=b"a,b\n1,2\n", filename="data.csv", mime_type="text/csv")
+    block = AnthropicProvider._as_content_block(c)
+    assert block["type"] == "document"
+    assert block["source"] == {
+        "type": "text",
+        "media_type": "text/plain",
+        "data": "a,b\n1,2\n",
+    }
+
+
+def test_anthropic_document_rejects_binary_office_types():
+    c = ContentDocument(
+        data=b"PK\x03\x04",
+        filename="report.docx",
+        mime_type=(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ),
+    )
+    with pytest.raises(ValueError, match="doesn't support"):
+        AnthropicProvider._as_content_block(c)
+
+
+def test_anthropic_document_rejects_undecodable_bytes_with_clear_error():
+    c = ContentDocument(
+        data=b"\xff\xfe\x00", filename="weird.txt", mime_type="text/plain"
+    )
+    with pytest.raises(ValueError, match="UTF-8"):
+        AnthropicProvider._as_content_block(c)
+
+
+def test_anthropic_rejects_heic_images():
+    c = ContentImageInline(image_content_type="image/heic", data="abcd")
+    with pytest.raises(ValueError, match="image/heic"):
+        AnthropicProvider._as_content_block(c)
 
 
 @pytest.mark.vcr

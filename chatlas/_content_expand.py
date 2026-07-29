@@ -19,6 +19,7 @@ from __future__ import annotations
 
 from ._content import (
     Content,
+    ContentDocument,
     ContentImageInline,
     ContentImageRemote,
     ContentPDF,
@@ -31,17 +32,17 @@ from ._typing_extensions import TypeGuard
 
 
 def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
-    """Expand a tool result that contains images/PDFs into separate content items."""
+    """Expand a tool result that contains images/files into separate content items."""
     request = content.request
     if request is None:
         return [content]
 
     value = content.value
-    if is_image_or_pdf_content(value):
+    if is_expandable_file_content(value):
         return expand_tool_value(request, value)
 
     if isinstance(value, (list, tuple)) and any(
-        is_image_or_pdf_content(x) for x in value
+        is_expandable_file_content(x) for x in value
     ):
         if all(isinstance(x, (Content, str)) for x in value):
             return expand_tool_values(request, list(value))
@@ -51,7 +52,7 @@ def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
 
 def expand_tool_value(
     request: ContentToolRequest,
-    value: ContentImageInline | ContentImageRemote | ContentPDF,
+    value: ContentImageInline | ContentImageRemote | ContentPDF | ContentDocument,
 ) -> list[ContentUnion]:
     open_tag = f'<tool-content call-id="{request.id}">'
 
@@ -95,11 +96,11 @@ def expand_tool_values(
     return expanded
 
 
-def is_image_or_pdf_content(
+def is_expandable_file_content(
     content: Content,
-) -> TypeGuard[ContentImageInline | ContentImageRemote | ContentPDF]:
-    """Check if content is an image or PDF type."""
+) -> TypeGuard[ContentImageInline | ContentImageRemote | ContentPDF | ContentDocument]:
+    """Check if content is an image, PDF, or document type."""
     return isinstance(
         content,
-        (ContentImageInline, ContentImageRemote, ContentPDF),
+        (ContentImageInline, ContentImageRemote, ContentPDF, ContentDocument),
     )

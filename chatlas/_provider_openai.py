@@ -20,6 +20,7 @@ from ._chat import Chat
 from ._content import (
     PROVIDER_ANNOTATION_TYPES,
     Content,
+    ContentDocument,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -33,7 +34,9 @@ from ._content import (
     ContentToolResult,
     ContentUploaded,
     ProviderAnnotation,
+    check_image_content_type_supported,
 )
+from ._content_file import ensure_bytes
 from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
 from ._provider import StandardModelParamNames, StandardModelParams
@@ -50,6 +53,7 @@ if TYPE_CHECKING:
     from openai.types.file_object import FileObject
     from openai.types.responses import (
         ResponseInputContentParam,
+        ResponseInputFileParam,
         ResponseInputItemParam,
         ResponseReasoningItemParam,
     )
@@ -695,6 +699,7 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
             role,
         )
     elif isinstance(content, ContentImageInline):
+        check_image_content_type_supported("OpenAI", content.image_content_type)
         return as_message(
             {
                 "type": "input_image",
@@ -704,14 +709,9 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
             role,
         )
     elif isinstance(content, ContentPDF):
-        return as_message(
-            {
-                "type": "input_file",
-                "filename": content.filename,
-                "file_data": f"data:application/pdf;base64,{base64.b64encode(content.data).decode('utf-8')}",
-            },
-            role,
-        )
+        return as_message(as_input_file_param(content, "application/pdf"), role)
+    elif isinstance(content, ContentDocument):
+        return as_message(as_input_file_param(content, content.mime_type), role)
     elif isinstance(content, ContentThinking):
         # Filter out 'status' which is output-only and not accepted as input
         extra = content.extra or {}
@@ -753,6 +753,28 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
 
 def as_message(x: "ResponseInputContentParam", role: Role) -> "EasyInputMessageParam":
     return {"role": role, "content": [x]}
+
+
+def as_input_file_param(
+    content: "ContentPDF | ContentDocument", mime_type: str
+) -> "ResponseInputFileParam":
+    """Build an `input_file` param, preferring a URL over re-sending bytes.
+
+    The Responses API accepts `file_url` for any file type (not just PDFs),
+    so a `ContentPDF`/`ContentDocument` with a URL never needs to download it.
+    """
+    if content.url is not None:
+        return {
+            "type": "input_file",
+            "filename": content.filename,
+            "file_url": content.url,
+        }
+    data = ensure_bytes(content, "file")
+    return {
+        "type": "input_file",
+        "filename": content.filename,
+        "file_data": f"data:{mime_type};base64,{base64.b64encode(data).decode('utf-8')}",
+    }
 
 
 def check_base_url(base_url: str) -> None:

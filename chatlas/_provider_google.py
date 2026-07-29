@@ -12,8 +12,10 @@ from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
+    OFFICE_MIME_TYPES,
     PROVIDER_ANNOTATION_TYPES,
     Content,
+    ContentDocument,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -29,6 +31,7 @@ from ._content import (
     ContentToolResult,
     ContentUploaded,
 )
+from ._content_file import ensure_bytes
 from ._files import FileMetadata, maybe_write
 from ._logging import log_model_default
 from ._merge import merge_dicts
@@ -589,14 +592,26 @@ class GoogleProvider(
         elif isinstance(content, ContentPDF):
             from google.genai.types import Blob
 
+            data = ensure_bytes(content, "PDF")
             return Part(
                 inline_data=Blob(
-                    data=content.data,
+                    data=data,
                     mime_type="application/pdf",
                     # Not supported?
                     # display_name=content.filename,
                 )
             )
+        elif isinstance(content, ContentDocument):
+            from google.genai.types import Blob
+
+            if content.mime_type in OFFICE_MIME_TYPES:
+                raise ValueError(
+                    f"Google (Gemini) doesn't support document content type "
+                    f"'{content.mime_type}'. Convert the file to plain text "
+                    "or PDF first (see content_pdf_file())."
+                )
+            data = ensure_bytes(content, "document")
+            return Part(inline_data=Blob(data=data, mime_type=content.mime_type))
         elif isinstance(content, ContentImageInline) and content.data:
             return Part.from_bytes(
                 data=base64.b64decode(content.data),

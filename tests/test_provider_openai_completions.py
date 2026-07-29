@@ -1,7 +1,12 @@
+import base64
+
 import httpx
 import pytest
 from chatlas import ChatOpenAICompletions
 from chatlas._content import (
+    ContentDocument,
+    ContentImageInline,
+    ContentPDF,
     ContentText,
     ContentThinking,
     ContentThinkingDelta,
@@ -324,6 +329,40 @@ def test_completions_uploaded_wrong_provider_raises():
         [ContentUploaded(id="x", mime_type="application/pdf", provider="anthropic")]
     )
     with pytest.raises(ValueError, match="uploaded to provider 'anthropic'"):
+        provider._turns_as_inputs([turn])
+
+
+def test_completions_pdf_downloads_bytes_when_only_url_set(monkeypatch):
+    raw = b"%PDF-1.4"
+    monkeypatch.setattr("chatlas._content_file.download_bytes", lambda url: raw)
+
+    provider = OpenAICompletionsProvider(model="gpt-4o")
+    turn = UserTurn([ContentPDF(filename="a.pdf", url="https://example.com/a.pdf")])
+    msgs = provider._turns_as_inputs([turn])
+    part = msgs[-1]["content"][0]
+    assert part["file"]["file_data"] == (
+        f"data:application/pdf;base64,{base64.b64encode(raw).decode('utf-8')}"
+    )
+
+
+def test_completions_document_serializes_inline():
+    provider = OpenAICompletionsProvider(model="gpt-4o")
+    turn = UserTurn(
+        [ContentDocument(data=b"hello", filename="a.txt", mime_type="text/plain")]
+    )
+    msgs = provider._turns_as_inputs([turn])
+    part = msgs[-1]["content"][0]
+    assert part["type"] == "file"
+    assert part["file"]["filename"] == "a.txt"
+    assert part["file"]["file_data"] == (
+        f"data:text/plain;base64,{base64.b64encode(b'hello').decode('utf-8')}"
+    )
+
+
+def test_completions_rejects_heic_images():
+    provider = OpenAICompletionsProvider(model="gpt-4o")
+    turn = UserTurn([ContentImageInline(image_content_type="image/heic", data="abcd")])
+    with pytest.raises(ValueError, match="image/heic"):
         provider._turns_as_inputs([turn])
 
 
