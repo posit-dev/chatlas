@@ -151,6 +151,11 @@ def completions_file_part(
     Unlike the Responses API, Chat Completions has no `file_url` -- only
     `file_data`/`file_id` -- so a URL-only `ContentPDF`/`ContentDocument` is
     downloaded here (and cached back onto `content`) rather than sent as-is.
+
+    `mime_type` is passed through rather than validated: OpenAI's own endpoint
+    only accepts `application/pdf` here, but this provider is also the base for
+    a dozen OpenAI-compatible backends (Ollama, LMStudio, OpenRouter, ...) whose
+    file support differs and changes independently. Let the backend refuse it.
     """
     data = ensure_bytes(content, "file")
     return {

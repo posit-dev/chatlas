@@ -26,6 +26,7 @@ from .conftest import (
     assert_images_remote,
     assert_list_models,
     assert_pdf_local,
+    assert_pdf_remote,
     assert_tools_async,
     assert_tools_parallel,
     assert_tools_sequential,
@@ -134,6 +135,15 @@ async def test_openai_logprobs():
 @pytest.mark.vcr
 def test_openai_pdf():
     assert_pdf_local(ChatOpenAICompletions)
+
+
+# No document counterpart here: OpenAI's own endpoint 400s on any non-PDF
+# `file_data`, and the compatible backends that may accept one aren't
+# recordable. `test_completions_document_passes_mime_type_through` covers the
+# serialization instead.
+@pytest.mark.vcr
+def test_openai_completions_pdf_url():
+    assert_pdf_remote(ChatOpenAICompletions)
 
 
 def test_openai_custom_http_client():
@@ -346,17 +356,29 @@ def test_completions_pdf_downloads_bytes_when_only_url_set(monkeypatch):
     )
 
 
-def test_completions_document_serializes_inline():
+@pytest.mark.parametrize(
+    "mime_type",
+    [
+        "text/plain",
+        "text/csv",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ],
+)
+def test_completions_document_passes_mime_type_through(mime_type):
+    """The document's own MIME type goes out untouched.
+
+    OpenAI's endpoint only accepts `application/pdf` here and 400s on the rest,
+    but this provider backs a dozen OpenAI-compatible services with differing
+    file support, so the decision belongs to whichever backend is configured.
+    """
     provider = OpenAICompletionsProvider(model="gpt-4o")
-    turn = UserTurn(
-        [ContentDocument(data=b"hello", filename="a.txt", mime_type="text/plain")]
-    )
+    turn = UserTurn([ContentDocument(data=b"x", filename="a.dat", mime_type=mime_type)])
     msgs = provider._turns_as_inputs([turn])
     part = msgs[-1]["content"][0]
     assert part["type"] == "file"
-    assert part["file"]["filename"] == "a.txt"
+    assert part["file"]["filename"] == "a.dat"
     assert part["file"]["file_data"] == (
-        f"data:text/plain;base64,{base64.b64encode(b'hello').decode('utf-8')}"
+        f"data:{mime_type};base64,{base64.b64encode(b'x').decode('utf-8')}"
     )
 
 
