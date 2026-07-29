@@ -19,7 +19,9 @@ from pydantic import BaseModel
 
 from ._chat import Chat
 from ._content import (
+    PROVIDER_ANNOTATION_TYPES,
     Content,
+    ContentCitation,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -33,7 +35,11 @@ from ._content import (
     ContentToolResponseFetch,
     ContentToolResponseSearch,
     ContentToolResult,
+    ContentUploaded,
+    ProviderAnnotation,
+    WebSource,
 )
+from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
 from ._provider import (
     BatchStatus,
@@ -41,23 +47,40 @@ from ._provider import (
     Provider,
     StandardModelParamNames,
     StandardModelParams,
+    no_file_management,
 )
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
 from ._tools_builtin import ToolWebFetch, ToolWebSearch
-from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn, user_turn
+from ._turn import (
+    AssistantTurn,
+    FinishReason,
+    SystemTurn,
+    Turn,
+    UserTurn,
+    check_finish_reason,
+)
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
+    import os
+    from typing import IO
+
     from anthropic.types import (
         Message,
         MessageParam,
         RawMessageStreamEvent,
+        ServerToolUseBlock,
         TextBlock,
         ThinkingBlock,
         ThinkingBlockParam,
         ToolUnionParam,
         ToolUseBlock,
+        WebFetchToolResultBlock,
+        WebSearchToolResultBlock,
+    )
+    from anthropic.types.beta.file_metadata import (
+        FileMetadata as AnthropicFileMetadata,
     )
     from anthropic.types.cache_control_ephemeral_param import CacheControlEphemeralParam
     from anthropic.types.document_block_param import DocumentBlockParam
@@ -97,13 +120,15 @@ def supports_structured_outputs(model: str) -> bool:
 
 StructuredOutputMode = Literal["auto", "native", "tool"]
 
+ReasoningEffort = Literal["low", "medium", "high", "xhigh", "max"]
+
 
 def ChatAnthropic(
     *,
     system_prompt: Optional[str] = None,
     model: "Optional[ModelParam]" = None,
     max_tokens: int = 4096,
-    reasoning: Optional["int | ThinkingConfigEnabledParam"] = None,
+    reasoning: Optional["int | ReasoningEffort | ThinkingConfigEnabledParam"] = None,
     cache: Literal["5m", "1h", "none"] = "5m",
     structured_output_mode: StructuredOutputMode = "auto",
     api_key: Optional[str] = None,
@@ -156,10 +181,12 @@ def ChatAnthropic(
     max_tokens
         Maximum number of tokens to generate before stopping.
     reasoning
-        Determines how many tokens Claude can be allocated to reasoning. Must be
-        ≥1024 and less than `max_tokens`. Larger budgets can enable more
-        thorough analysis for complex problems, improving response quality.  See
-        [extended
+        Controls Claude's extended thinking. Pass an integer to set a fixed
+        thinking budget (the number of tokens allocated to reasoning; must be
+        ≥1024 and less than `max_tokens`). Alternatively, pass a string effort
+        level (`"low"`, `"medium"`, `"high"`, `"xhigh"`, or `"max"`) to enable
+        adaptive thinking, where Claude decides how much to think based on the
+        requested effort. See [extended
         thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking)
         for details.
     cache
@@ -267,9 +294,15 @@ def ChatAnthropic(
         model = log_model_default("claude-sonnet-4-6")
 
     kwargs_chat: "SubmitInputArgs" = {}
-    if reasoning is not None:
-        if isinstance(reasoning, int):
-            reasoning = {"type": "enabled", "budget_tokens": reasoning}
+    if isinstance(reasoning, str):
+        output_config: "OutputConfigParam" = {"effort": reasoning}
+        kwargs_chat = {
+            "thinking": {"type": "adaptive"},
+            "output_config": output_config,
+        }
+    elif isinstance(reasoning, int):
+        kwargs_chat = {"thinking": {"type": "enabled", "budget_tokens": reasoning}}
+    elif reasoning is not None:
         kwargs_chat = {"thinking": reasoning}
 
     return Chat(
@@ -284,6 +317,23 @@ def ChatAnthropic(
         system_prompt=system_prompt,
         kwargs_chat=kwargs_chat,
     )
+
+
+# https://docs.anthropic.com/en/api/handling-stop-reasons
+_ANTHROPIC_FINISH_REASON_MAP: dict[str, FinishReason] = {
+    "end_turn": "success",
+    "tool_use": "tool_use",
+    "max_tokens": "max_tokens",
+    "model_context_window_exceeded": "context_window",
+    "stop_sequence": "stop_sequence",
+    "refusal": "content_filter",
+}
+
+
+def normalize_finish_reason(reason: str | None) -> str | None:
+    if reason is None:
+        return None
+    return _ANTHROPIC_FINISH_REASON_MAP.get(reason, reason)
 
 
 class AnthropicProvider(
@@ -439,6 +489,13 @@ class AnthropicProvider(
                     "schema": transform_schema(data_model),
                 },
             }
+            # Preserve adaptive-thinking effort set via the `reasoning` param,
+            # since this output_config otherwise overwrites the one in kwargs.
+            kwargs_output_config = (kwargs or {}).get("output_config")
+            if isinstance(kwargs_output_config, dict):
+                effort = kwargs_output_config.get("effort")
+                if effort is not None:
+                    output_config["effort"] = effort
         elif data_model is not None:
             data_model_tool = self.create_data_model_tool(data_model)
             tool_schemas.append(self._anthropic_tool_schema(data_model_tool))
@@ -476,6 +533,11 @@ class AnthropicProvider(
                     sys_param["cache_control"] = self._cache_control()
                 kwargs_full["system"] = [sys_param]
 
+        if has_uploaded(turns):
+            headers = dict(kwargs_full.get("extra_headers") or {})
+            headers.setdefault("anthropic-beta", "files-api-2025-04-14")
+            kwargs_full["extra_headers"] = headers
+
         return kwargs_full
 
     @staticmethod
@@ -505,13 +567,35 @@ class AnthropicProvider(
 
         return data_model_tool
 
-    def stream_content(self, chunk) -> Optional[Content]:
+    def stream_content(self, chunk, completion) -> list[Content]:
         if chunk.type == "content_block_delta":
             if chunk.delta.type == "text_delta":
-                return ContentText.model_construct(text=chunk.delta.text)
+                return [ContentText.model_construct(text=chunk.delta.text)]
             if chunk.delta.type == "thinking_delta":
-                return ContentThinkingDelta(thinking=chunk.delta.thinking)
-        return None
+                return [ContentThinkingDelta(thinking=chunk.delta.thinking)]
+            return []
+        if chunk.type == "content_block_start":
+            block = chunk.content_block
+            if block.type == "web_search_tool_result":
+                return [anthropic_search_result(block)]
+            if block.type == "web_fetch_tool_result":
+                return [anthropic_fetch_result(block)]
+            return []
+        if chunk.type == "content_block_stop":
+            # By now `stream_merge_chunks` has accumulated this block's text,
+            # citations, and (for server tool use) input JSON onto `completion`,
+            # so the same helpers as the final-turn path can read it off there.
+            if completion is None or chunk.index >= len(completion.content):
+                return []
+            block = completion.content[chunk.index]
+            if block.type == "text":
+                # list() widens list[ContentCitation] to the list[Content] return
+                return list(anthropic_citations(block))
+            if block.type == "server_tool_use":
+                request = anthropic_server_tool_request(block)
+                return [request] if request is not None else []
+            return []
+        return []
 
     def stream_merge_chunks(self, completion, chunk):
         if chunk.type == "message_start":
@@ -543,9 +627,13 @@ class AnthropicProvider(
                 this_content.signature += chunk.delta.signature
             elif chunk.delta.type == "citations_delta":
                 # https://docs.claude.com/en/docs/build-with-claude/citations#streaming-support
-                # Accumulate citations on the content block
-                if hasattr(this_content, "citations"):
-                    this_content.citations.append(chunk.delta.citation)  # type: ignore
+                # Accumulate citations on the content block. Anthropic sends
+                # `citations: []` on blocks that will carry citations, but the
+                # field is omitted (hence None) on plain text blocks.
+                if this_content.type == "text":
+                    if this_content.citations is None:
+                        this_content.citations = []
+                    this_content.citations.append(chunk.delta.citation)
         elif chunk.type == "content_block_stop":
             this_content = completion.content[chunk.index]
             if this_content.type == "tool_use" and isinstance(this_content.input, str):
@@ -584,43 +672,36 @@ class AnthropicProvider(
 
     def token_count(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
-        kwargs = self._token_count_args(
-            *args,
-            tools=tools,
-            data_model=data_model,
-        )
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
         res = self._client.messages.count_tokens(**kwargs)
         return res.input_tokens
 
     async def token_count_async(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int:
-        kwargs = self._token_count_args(
-            *args,
-            tools=tools,
-            data_model=data_model,
-        )
+        kwargs = self._token_count_args(turns, tools=tools, data_model=data_model)
         res = await self._async_client.messages.count_tokens(**kwargs)
         return res.input_tokens
 
     def _token_count_args(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> dict[str, Any]:
-        turn = user_turn(*args)
-
         kwargs = self._chat_perform_args(
             stream=False,
-            turns=[turn],
+            turns=turns,
             tools=tools,
             data_model=data_model,
         )
@@ -631,6 +712,7 @@ class AnthropicProvider(
             "system",
             "tools",
             "tool_choice",
+            "extra_headers",
         ]
 
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
@@ -663,6 +745,61 @@ class AnthropicProvider(
             "stop_sequences",
         }
 
+    def file_upload(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        with open_binary(file) as f:
+            obj = self._client.beta.files.upload(file=f)
+        return anthropic_uploaded(obj, mime_type)
+
+    async def file_upload_async(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> ContentUploaded:
+        with open_binary(file) as f:
+            obj = await self._async_client.beta.files.upload(file=f)
+        return anthropic_uploaded(obj, mime_type)
+
+    def file_list(self) -> list[FileMetadata]:
+        return [anthropic_meta(o) for o in self._client.beta.files.list()]
+
+    async def file_list_async(self) -> list[FileMetadata]:
+        page = await self._async_client.beta.files.list()
+        return [anthropic_meta(o) async for o in page]
+
+    def file_get(self, id: str) -> FileMetadata:  # noqa: A002
+        return anthropic_meta(self._client.beta.files.retrieve_metadata(id))
+
+    async def file_get_async(self, id: str) -> FileMetadata:  # noqa: A002
+        return anthropic_meta(await self._async_client.beta.files.retrieve_metadata(id))
+
+    def file_download(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        data = self._client.beta.files.download(id).read()
+        return maybe_write(data, path)
+
+    async def file_download_async(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        resp = await self._async_client.beta.files.download(id)
+        return maybe_write(await resp.read(), path)
+
+    def file_delete(self, id: str) -> None:  # noqa: A002
+        self._client.beta.files.delete(id)
+
+    async def file_delete_async(self, id: str) -> None:  # noqa: A002
+        await self._async_client.beta.files.delete(id)
+
     def _as_message_params(self, turns: Sequence[Turn]) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
         for i, turn in enumerate(turns):
@@ -671,7 +808,12 @@ class AnthropicProvider(
             if not isinstance(turn, (UserTurn, AssistantTurn)):
                 raise ValueError(f"Unknown role {turn.role}")
 
-            content = [self._as_content_block(c) for c in turn.contents]
+            content = [
+                self._as_content_block(c)
+                for c in turn.contents
+                if not isinstance(c, PROVIDER_ANNOTATION_TYPES)
+                or anthropic_replayable(c)
+            ]
 
             # Drop empty assistant turns to avoid an API error
             # (all messages must have non-empty content)
@@ -758,6 +900,22 @@ class AnthropicProvider(
         ):
             # extra contains the full original content block param
             return cast("ContentBlockParam", content.extra)
+        elif isinstance(content, ContentUploaded):
+            if content.provider != "anthropic":
+                raise ValueError(
+                    f"This file was uploaded to provider '{content.provider}', "
+                    "but is being used with Anthropic. Re-upload it with a "
+                    "ChatAnthropic() chat."
+                )
+            # The stable ImageBlockParam/DocumentBlockParam types don't yet
+            # model a file-reference source (only the beta types do), but the
+            # standard /v1/messages endpoint accepts this shape when the
+            # `anthropic-beta: files-api-2025-04-14` header is set (verified
+            # against the live API).
+            source = {"type": "file", "file_id": content.id}
+            if content.mime_type.startswith("image/"):
+                return cast("ContentBlockParam", {"type": "image", "source": source})
+            return cast("ContentBlockParam", {"type": "document", "source": source})
 
         raise ValueError(f"Unknown content type: {type(content)}")
 
@@ -794,6 +952,11 @@ class AnthropicProvider(
         return res
 
     def _as_turn(self, completion: Message, has_data_model=False) -> AssistantTurn:
+        finish_reason = normalize_finish_reason(completion.stop_reason)
+        if has_data_model:
+            # Must precede the JSON parse below; see check_finish_reason().
+            check_finish_reason(finish_reason, "error")
+
         contents = []
 
         # Detect which structured output approach was used:
@@ -811,6 +974,7 @@ class AnthropicProvider(
                     contents.append(ContentJson(value=orjson.loads(content.text)))
                 else:
                     contents.append(ContentText(text=content.text))
+                    contents.extend(anthropic_citations(content))
             elif content.type == "tool_use":
                 if uses_old_tool_approach and content.name == "_structured_tool_call":
                     if not isinstance(content.input, dict):
@@ -840,90 +1004,18 @@ class AnthropicProvider(
                     )
                 )
             elif content.type == "server_tool_use":
-                # Unfortunately, content.model_dump() includes fields like "url"
-                # that aren't acceptable as API input, so we manually construct
-                # the extra dict
-                if isinstance(content.input, str):
-                    input_data = orjson.loads(content.input)
-                else:
-                    input_data = content.input
-
-                extra = {
-                    "type": content.type,
-                    "id": content.id,
-                    "name": content.name,
-                    "input": input_data,
-                }
-                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
-                if content.name == "web_search":
-                    contents.append(
-                        ContentToolRequestSearch(
-                            query=str(input_data.get("query", "")),
-                            extra=extra,
-                        )
-                    )
-                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
-                elif content.name == "web_fetch":
-                    # N.B. type checker thinks this is unreachable due to
-                    # ToolUnionParam not including BetaWebFetchTool20250910Param
-                    # yet
-                    contents.append(
-                        ContentToolRequestFetch(
-                            url=str(input_data.get("url", "")),
-                            extra=extra,
-                        )
-                    )
-                else:
+                request = anthropic_server_tool_request(content)
+                if request is None:
                     raise ValueError(f"Unknown server tool: {content.name}")
+                contents.append(request)
             elif content.type == "web_search_tool_result":
-                # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
-                urls: list[str] = []
-                if isinstance(content.content, list):
-                    urls = [x.url for x in content.content]
-                # Manually construct the extra dict to avoid SDK-internal
-                # fields (e.g., "caller") that the API doesn't accept
-                extra = {
-                    "type": content.type,
-                    "tool_use_id": content.tool_use_id,
-                    "content": [x.model_dump() for x in content.content]
-                    if isinstance(content.content, list)
-                    else content.content.model_dump(),
-                }
-                contents.append(
-                    ContentToolResponseSearch(
-                        urls=urls,
-                        extra=extra,
-                    )
-                )
+                contents.append(anthropic_search_result(content))
             elif content.type == "web_fetch_tool_result":
-                # N.B. type checker thinks this is unreachable due to
-                # ToolUnionParam not including BetaWebFetchTool20250910Param
-                # yet.
-                content_fetch = getattr(content, "content", None)
-                if content_fetch is None:
-                    raise ValueError(
-                        "web_fetch_tool_result content is empty. Please report this issue."
-                    )
-                # content_fetch is a BetaWebFetchBlock (has .url) or
-                # BetaWebFetchToolResultErrorBlock (error case)
-                url = getattr(content_fetch, "url", "failed")
-                # Manually construct the extra dict to avoid SDK-internal
-                # fields (e.g., "caller") that the API doesn't accept
-                extra = {
-                    "type": content.type,
-                    "tool_use_id": content.tool_use_id,  # type: ignore
-                    "content": content_fetch.model_dump(exclude_none=True),
-                }
-                contents.append(
-                    ContentToolResponseFetch(
-                        url=url,
-                        extra=extra,
-                    )
-                )
+                contents.append(anthropic_fetch_result(content))
 
         return AssistantTurn(
             contents,
-            finish_reason=completion.stop_reason,
+            finish_reason=finish_reason,
             completion=completion,
         )
 
@@ -938,6 +1030,7 @@ class AnthropicProvider(
         from anthropic import NotGiven
 
         requests: list["BatchRequest"] = []
+        extra_headers: dict[str, str] = {}
 
         for i, turns in enumerate(conversations):
             kwargs = self._chat_perform_args(
@@ -965,7 +1058,21 @@ class AnthropicProvider(
 
             requests.append({"custom_id": f"request-{i}", "params": params})
 
-        batch = self._client.messages.batches.create(requests=requests)
+            # The beta header applies to the batch-create HTTP request as a
+            # whole (not to individual requests within the batch), so union
+            # it across conversations rather than keeping only the last one.
+            headers = kwargs.get("extra_headers")
+            if headers:
+                for k, v in headers.items():
+                    if isinstance(v, str):
+                        extra_headers[k] = v
+
+        if extra_headers:
+            batch = self._client.messages.batches.create(
+                requests=requests, extra_headers=extra_headers
+            )
+        else:
+            batch = self._client.messages.batches.create(requests=requests)
         return batch.model_dump()
 
     def batch_poll(self, batch):
@@ -1033,6 +1140,34 @@ class AnthropicProvider(
         }
 
 
+def has_uploaded(turns: list[Turn]) -> bool:
+    return any(isinstance(c, ContentUploaded) for t in turns for c in t.contents)
+
+
+def anthropic_uploaded(
+    obj: "AnthropicFileMetadata", mime_type: Optional[str]
+) -> ContentUploaded:
+    return ContentUploaded(
+        id=obj.id,
+        mime_type=mime_type or obj.mime_type,
+        provider="anthropic",
+        extra={"filename": obj.filename, "size_bytes": obj.size_bytes},
+    )
+
+
+def anthropic_meta(obj: "AnthropicFileMetadata") -> FileMetadata:
+    return FileMetadata(
+        id=obj.id,
+        filename=obj.filename,
+        mime_type=obj.mime_type,
+        size_bytes=obj.size_bytes,
+        created_at=obj.created_at,
+        expires_at=None,
+        provider="anthropic",
+        extra=obj,
+    )
+
+
 def ChatBedrockAnthropic(
     *,
     model: Optional[str] = None,
@@ -1064,6 +1199,30 @@ def ChatBedrockAnthropic(
 
     Consider using the approach outlined in this guide to manage your AWS credentials:
     <https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html>
+
+    Rather than passing credentials directly (via `aws_access_key`,
+    `aws_secret_key`, etc.), a common and more secure approach is to configure a
+    named profile in `~/.aws/config` and reference it via the `aws_profile`
+    argument (or the `AWS_PROFILE` environment variable). This works with both
+    static credentials and AWS IAM Identity Center (SSO).
+
+    For SSO-based profiles, log in from your terminal before starting a chat so
+    that a valid session token is available:
+
+    ```bash
+    aws sso login --profile my-profile
+    ```
+
+    Then reference that profile:
+
+    ```python
+    from chatlas import ChatBedrockAnthropic
+
+    chat = ChatBedrockAnthropic(aws_profile="my-profile")
+    ```
+
+    If the SSO session expires, you'll see an authentication error; just run
+    `aws sso login` again to refresh it.
     :::
 
     ::: {.callout-note}
@@ -1118,7 +1277,12 @@ def ChatBedrockAnthropic(
         The AWS region to use. Defaults to the AWS_REGION environment variable.
         If that is not set, defaults to `'us-east-1'`.
     aws_profile
-        The AWS profile to use.
+        The name of an AWS profile (as configured in `~/.aws/config` or
+        `~/.aws/credentials`) to use for authentication. Defaults to the
+        `AWS_PROFILE` environment variable. This is often the most convenient
+        way to authenticate, especially for AWS IAM Identity Center (SSO)
+        profiles: run `aws sso login --profile <name>` in your terminal first,
+        then pass the profile name here.
     aws_session_token
         The AWS session token to use.
     base_url
@@ -1212,6 +1376,8 @@ def ChatBedrockAnthropic(
     )
 
 
+# Bedrock's Anthropic client has no `.beta.files`.
+@no_file_management
 class AnthropicBedrockProvider(AnthropicProvider):
     def __init__(
         self,
@@ -1280,3 +1446,124 @@ class AnthropicBedrockProvider(AnthropicProvider):
             res.append(info)
 
         return res
+
+
+def anthropic_citations(block: "TextBlock") -> list[ContentCitation]:
+    """ContentCitations for one fully-accumulated text block."""
+    out: list[ContentCitation] = []
+    for c in block.citations or []:
+        # `url`/`title` only exist on the web-search/search-result members of the
+        # TextCitation union (document citations carry `document_title` instead).
+        url = getattr(c, "url", None)
+        out.append(
+            ContentCitation(
+                source=WebSource(url=url, title=getattr(c, "title", None))
+                if url
+                else None,
+                # Anthropic scopes a citation to the text block it arrived on.
+                grounded_span=block.text,
+                cited_quote=c.cited_text,
+                extra=c.model_dump(exclude_none=True),
+            )
+        )
+    return out
+
+
+def anthropic_server_tool_request(
+    block: "ServerToolUseBlock",
+) -> Optional[ContentToolRequestSearch | ContentToolRequestFetch]:
+    """Search/fetch request from a server_tool_use block, or None if unknown.
+
+    Mid-stream `input` is the accumulated JSON string rather than a dict.
+    """
+    if isinstance(block.input, str):
+        try:
+            input_data = cast(dict[str, Any], orjson.loads(block.input or "{}"))
+        except orjson.JSONDecodeError:
+            return None
+    else:
+        input_data = block.input
+    if not input_data:
+        return None
+
+    # block.model_dump() includes fields like "url" that aren't acceptable as API
+    # input, so build `extra` by hand.
+    extra = {
+        "type": block.type,
+        "id": block.id,
+        "name": block.name,
+        "input": input_data,
+    }
+    # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-search-tool#response
+    if block.name == "web_search":
+        return ContentToolRequestSearch(
+            query=str(input_data.get("query", "")), extra=extra
+        )
+    # https://docs.claude.com/en/docs/agents-and-tools/tool-use/web-fetch-tool#response
+    if block.name == "web_fetch":
+        return ContentToolRequestFetch(url=str(input_data.get("url", "")), extra=extra)
+    return None
+
+
+def anthropic_search_result(
+    block: "WebSearchToolResultBlock",
+) -> ContentToolResponseSearch:
+    """Search results from a web_search_tool_result block."""
+    content = block.content
+    if isinstance(content, list):
+        sources = [WebSource(url=x.url, title=x.title) for x in content]
+        raw: object = [x.model_dump() for x in content]
+    else:
+        sources = []
+        raw = content.model_dump()
+    # Build `extra` by hand to avoid SDK-internal fields (e.g. "caller") that the
+    # API doesn't accept.
+    return ContentToolResponseSearch(
+        sources=sources,
+        extra={
+            "type": block.type,
+            "tool_use_id": block.tool_use_id,
+            "content": raw,
+        },
+    )
+
+
+def anthropic_fetch_result(
+    block: "WebFetchToolResultBlock",
+) -> ContentToolResponseFetch:
+    """Fetch result from a web_fetch_tool_result block."""
+    from anthropic.types import WebFetchBlock
+
+    content = block.content
+    extra = {
+        "type": block.type,
+        "tool_use_id": block.tool_use_id,
+        "content": content.model_dump(exclude_none=True),
+    }
+    # Either a WebFetchBlock (has .url) or a WebFetchToolResultErrorBlock.
+    # `status` is normalized to success/error; the native reason (e.g.
+    # `url_not_allowed`) stays in `extra`.
+    if isinstance(content, WebFetchBlock):
+        return ContentToolResponseFetch(url=content.url, status="success", extra=extra)
+    return ContentToolResponseFetch(url="failed", status="error", extra=extra)
+
+
+ANTHROPIC_SERVER_TOOL_BLOCK_TYPES = frozenset(
+    {"server_tool_use", "web_search_tool_result", "web_fetch_tool_result"}
+)
+
+
+def anthropic_replayable(content: ProviderAnnotation) -> bool:
+    """Whether `content.extra` holds an Anthropic block param we can resend.
+
+    Anthropic wants its server-side tool blocks back in the conversation history
+    (citations reference the search results they came from), so we replay the raw
+    block stashed in `extra`. Content produced by another provider carries that
+    provider's payload instead, which we can't translate -- drop it rather than
+    send something the API will reject.
+    """
+    extra = content.extra
+    return (
+        isinstance(extra, dict)
+        and extra.get("type") in ANTHROPIC_SERVER_TOOL_BLOCK_TYPES
+    )

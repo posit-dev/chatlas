@@ -98,7 +98,7 @@ class HTTPSessionInfo(SessionInfo):
         mcp = try_import_mcp()
         from mcp.client.streamable_http import streamable_http_client
 
-        read, write, _ = await self.exit_stack.enter_async_context(
+        read, write = await self.exit_stack.enter_async_context(
             streamable_http_client(
                 self.url,
                 **self.transport_kwargs,
@@ -110,7 +110,7 @@ class HTTPSessionInfo(SessionInfo):
         server = await session.initialize()
         self.session = session
         if not self.name:
-            self.name = server.serverInfo.name or "mcp"
+            self.name = server.server_info.name or "mcp"
 
 
 @dataclass
@@ -138,7 +138,7 @@ class STDIOSessionInfo(SessionInfo):
         server = await session.initialize()
         self.session = session
         if not self.name:
-            self.name = server.serverInfo.name or "mcp"
+            self.name = server.server_info.name or "mcp"
 
 
 class MCPSessionManager:

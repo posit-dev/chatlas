@@ -31,7 +31,7 @@ def test_lmstudio_simple_request():
     assert turn.tokens is not None
     assert turn.tokens[0] > 0
     assert turn.tokens[1] > 0
-    assert turn.finish_reason == "stop"
+    assert turn.finish_reason == "success"
 
 
 def test_lmstudio_simple_streaming_request():

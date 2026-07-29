@@ -1,21 +1,25 @@
 from __future__ import annotations
 
+import os
 from abc import ABC, abstractmethod
 from datetime import date
 from typing import (
+    IO,
     Any,
     AsyncIterable,
     Generic,
     Iterable,
     Literal,
     Optional,
+    Sequence,
     TypeVar,
     overload,
 )
 
 from pydantic import BaseModel
 
-from ._content import Content, ContentText, ContentThinking
+from ._content import Content, ContentUploaded
+from ._files import FileMetadata
 from ._tools import Tool, ToolBuiltIn
 from ._turn import AssistantTurn, Turn
 from ._typing_extensions import NotRequired, TypedDict
@@ -148,6 +152,10 @@ class Provider(
         """
         return self._model
 
+    @model.setter
+    def model(self, value: str):
+        self._model = value
+
     @abstractmethod
     def list_models(self) -> list[ModelInfo]:
         """
@@ -226,17 +234,22 @@ class Provider(
     ) -> AsyncIterable[ChatCompletionChunkT] | ChatCompletionT: ...
 
     @abstractmethod
-    def stream_content(self, chunk: ChatCompletionChunkT) -> Optional["Content"]: ...
+    def stream_content(
+        self,
+        chunk: ChatCompletionChunkT,
+        completion: Optional[ChatCompletionDictT],
+    ) -> "Sequence[Content]":
+        """
+        Content to yield for `chunk`.
 
-    def stream_text(self, chunk: ChatCompletionChunkT) -> Optional[str]:
-        content = self.stream_content(chunk)
-        if content is None:
-            return None
-        if isinstance(content, ContentThinking):
-            return content.thinking
-        if isinstance(content, ContentText):
-            return content.text
-        return str(content)
+        `completion` is the result of merging every chunk up to and including
+        `chunk` (i.e. `stream_merge_chunks` runs first). Providers needing
+        cross-chunk state read it from there rather than storing it on `self`: a
+        single provider instance is shared across forked chats
+        (`Chat.__deepcopy__` keeps `provider` by reference), so several streams
+        can be in flight at once.
+        """
+        ...
 
     @abstractmethod
     def stream_merge_chunks(
@@ -298,7 +311,8 @@ class Provider(
     @abstractmethod
     def token_count(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int: ...
@@ -306,7 +320,8 @@ class Provider(
     @abstractmethod
     async def token_count_async(
         self,
-        *args: Content | str,
+        turns: list[Turn],
+        *,
         tools: dict[str, Tool | ToolBuiltIn],
         data_model: Optional[type[BaseModel]],
     ) -> int: ...
@@ -395,3 +410,79 @@ class Provider(
             Turn object or None if the result was an error
         """
         raise NotImplementedError("This provider does not support batch processing")
+
+    def file_upload(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> "ContentUploaded":
+        raise self._no_file_support()
+
+    async def file_upload_async(
+        self,
+        file: "str | os.PathLike[str] | IO[bytes]",
+        *,
+        mime_type: Optional[str] = None,
+    ) -> "ContentUploaded":
+        raise self._no_file_support()
+
+    def file_list(self) -> "list[FileMetadata]":
+        raise self._no_file_support()
+
+    async def file_list_async(self) -> "list[FileMetadata]":
+        raise self._no_file_support()
+
+    def file_get(self, id: str) -> "FileMetadata":  # noqa: A002
+        raise self._no_file_support()
+
+    async def file_get_async(self, id: str) -> "FileMetadata":  # noqa: A002
+        raise self._no_file_support()
+
+    def file_download(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        raise self._no_file_support()
+
+    async def file_download_async(
+        self,
+        id: str,  # noqa: A002
+        path: "str | os.PathLike[str] | None" = None,
+    ) -> bytes:
+        raise self._no_file_support()
+
+    def file_delete(self, id: str) -> None:  # noqa: A002
+        raise self._no_file_support()
+
+    async def file_delete_async(self, id: str) -> None:  # noqa: A002
+        raise self._no_file_support()
+
+    def _no_file_support(self) -> NotImplementedError:
+        return NotImplementedError(
+            f"Provider '{self.name}' does not support file management. "
+            "Supported providers: ChatOpenAI, ChatAnthropic, ChatGoogle."
+        )
+
+
+ProviderClassT = TypeVar("ProviderClassT", bound=type[Provider[Any, Any, Any, Any]])
+
+
+def no_file_management(cls: ProviderClassT) -> ProviderClassT:
+    """
+    Opt a provider class out of the file management it inherits.
+
+    Some providers subclass a parent for its chat behavior while the underlying
+    service has no Files API (e.g. `OpenAIAzureProvider` subclasses
+    `OpenAIProvider`). Decorating such a subclass restores the `Provider` base
+    methods, which raise `NotImplementedError`.
+
+    Every `file_*` method is opted out, so adding one to `Provider` later can't
+    leave these subclasses silently inheriting an implementation their client
+    can't serve.
+    """
+    for name, member in vars(Provider).items():
+        if name.startswith("file_"):
+            setattr(cls, name, member)
+    return cls

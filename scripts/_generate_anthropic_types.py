@@ -2,6 +2,7 @@ from pathlib import Path
 
 import httpx
 from anthropic import AsyncAnthropic, AsyncAnthropicBedrock
+from anthropic._response import APIResponse, AsyncAPIResponse
 from anthropic.resources import AsyncMessages
 
 from _utils import generate_typeddict_code, write_code_to_file
@@ -27,11 +28,17 @@ write_code_to_file(
     provider_dir / "_submit.py",
 )
 
+_anthropic_localns = {
+    "URL": httpx.URL,
+    "APIResponse": APIResponse,
+    "AsyncAPIResponse": AsyncAPIResponse,
+}
+
 init_args = generate_typeddict_code(
     AsyncAnthropic.__init__,
     "ChatClientArgs",
     excluded_fields={"self"},
-    localns={"URL": httpx.URL},
+    localns=_anthropic_localns,
 )
 
 write_code_to_file(
@@ -44,7 +51,7 @@ init_args = generate_typeddict_code(
     AsyncAnthropicBedrock.__init__,
     "ChatBedrockClientArgs",
     excluded_fields={"self"},
-    localns={"URL": httpx.URL},
+    localns=_anthropic_localns,
 )
 
 write_code_to_file(

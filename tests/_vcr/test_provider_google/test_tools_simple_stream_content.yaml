@@ -7,31 +7,36 @@ interactions:
       {"properties": {}, "required": [], "type": "OBJECT"}}]}], "generationConfig":
       {"temperature": 0}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate, zstd
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '411'
-      Content-Type:
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.64.0 gl-python/3.12.11
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
-        {\"name\": \"get_date\",\"args\": {}},\"thoughtSignature\": \"CiQBvj72+09q6FXkm32yuMdnLY3gss8ZTRGFG4AmVBS5PC+NB5IKcAG+Pvb7Iuxj1GAsULBuNlAuH7R5g8D06qAhMPsiTVVfCh73R96mjtXTfi64GyoUQCNCyHfHXfwG01bZMTIbOK5tyavsYwpXmJaPnjq+ydy0lwPmDA1fmGavUskpYvnFP2MTKcNy2h62dZbV1rjWGz8KlQEBvj72+//VlnVKZhLvbC033P0j6SBzF5LEXgcr+tFEJVgmaptMYH4mmI0XAVIbxfHCl9seCJoZOr1Atha/E0mN6MhLNSMrSCoaIS9HMvVx3goHczKErMXYVnWTRYt3c/+KHRwHHs2yYF/jSn/DTYMXgtvbTRwzxOi8bVyAE7xztOlbi0qE0flKsbhyCCgE6qxzQ+SFrg==\"}],\"role\":
-        \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"finishMessage\": \"Model
-        generated function call(s).\"}],\"usageMetadata\": {\"promptTokenCount\":
-        51,\"candidatesTokenCount\": 10,\"totalTokenCount\": 104,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 51}],\"thoughtsTokenCount\": 43},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"sK3NaejWEe_VjMcP9K_jiA0\"}\r\n\r\n"
+        {\"name\": \"get_date\",\"args\": {},\"id\": \"q6jp54w8\"},\"thoughtSignature\":
+        \"EqkDCqYDARFNMg/dHfnRQrYi6QhVFieLeDiJRisTSD6I84yNtj3M//61Tpz6lTLvM/Cb/hn8tI2E2tlMlWcVsUlS9wrI8NZiALqKIVa35SBMPu9JBypTWjPLt/T9LWigCHrc5A1gdec1ZnDTOfB/Zl2P3DiaSjViBYuyLzsupPDdy6bp7wx99GArtezxkY5++U3MPoJvGZtr0SkMTZ5MtNASE5WXkYoeD4PfRAHPOUp6k6HKYxr3hOaJLcZlRlDGRwh7HmyPlY7F/j6BXaDHFtu0H49/Wgput4C6+aslvVqLSNr069A3mB51pAOO1VIxpU8oTQ/xbhImFFmF2GTnp+bUWjlo9oM7ZQC5pXDlalMEfqx1c4XZlmMBkC8tarbM0gJ8TS86UfexlrgcQbr30EdOBcEaaAheOCo+PwW4wu7Om0abweSUS+RJtEoLVmE3IFwaiKMvbFAJrKF9XrehwNKLToI1VIZqVkEZO/al0rMIpOVUu2TRoeIDVnZESHIHrgKROO9iQPap7dKa1VTDunE4J37fkmiQDSiq/YLIsYub8CTPbFocDQTqW0A=\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 51,\"candidatesTokenCount\":
+        10,\"totalTokenCount\": 156,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        51}],\"thoughtsTokenCount\": 95,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"MoFfapbBLoak1MkPp8qRsAw\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\"}],\"role\": \"model\"},\"finishReason\":
+        \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 51,\"candidatesTokenCount\":
+        10,\"totalTokenCount\": 156,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        51}],\"thoughtsTokenCount\": 95,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"MoFfapbBLoak1MkPp8qRsAw\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -40,11 +45,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 01 Apr 2026 23:43:44 GMT
+      - Tue, 21 Jul 2026 14:24:51 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=648
+      - gfet4t7; dur=1195
       Transfer-Encoding:
       - chunked
       Vary:
@@ -62,42 +67,44 @@ interactions:
       message: OK
 - request:
     body: '{"contents": [{"parts": [{"text": "What''s the current date in YYYY-MM-DD
-      format?"}], "role": "user"}, {"parts": [{"functionCall": {"args": {}, "name":
-      "get_date"}, "thoughtSignature": "CiQBvj72-09q6FXkm32yuMdnLY3gss8ZTRGFG4AmVBS5PC-NB5IKcAG-Pvb7Iuxj1GAsULBuNlAuH7R5g8D06qAhMPsiTVVfCh73R96mjtXTfi64GyoUQCNCyHfHXfwG01bZMTIbOK5tyavsYwpXmJaPnjq-ydy0lwPmDA1fmGavUskpYvnFP2MTKcNy2h62dZbV1rjWGz8KlQEBvj72-__VlnVKZhLvbC033P0j6SBzF5LEXgcr-tFEJVgmaptMYH4mmI0XAVIbxfHCl9seCJoZOr1Atha_E0mN6MhLNSMrSCoaIS9HMvVx3goHczKErMXYVnWTRYt3c_-KHRwHHs2yYF_jSn_DTYMXgtvbTRwzxOi8bVyAE7xztOlbi0qE0flKsbhyCCgE6qxzQ-SFrg=="}],
-      "role": "model"}, {"parts": [{"functionResponse": {"name": "get_date", "response":
-      {"result": "2024-01-01"}}}], "role": "user"}], "systemInstruction": {"parts":
-      [{"text": "Be very terse, not even punctuation."}], "role": "user"}, "tools":
-      [{"functionDeclarations": [{"description": "Gets the current date", "name":
-      "get_date", "parameters": {"properties": {}, "required": [], "type": "OBJECT"}}]}],
-      "generationConfig": {"temperature": 0}}'
+      format?"}], "role": "user"}, {"parts": [{"functionCall": {"id": "q6jp54w8",
+      "args": {}, "name": "get_date"}, "thoughtSignature": "EqkDCqYDARFNMg_dHfnRQrYi6QhVFieLeDiJRisTSD6I84yNtj3M__61Tpz6lTLvM_Cb_hn8tI2E2tlMlWcVsUlS9wrI8NZiALqKIVa35SBMPu9JBypTWjPLt_T9LWigCHrc5A1gdec1ZnDTOfB_Zl2P3DiaSjViBYuyLzsupPDdy6bp7wx99GArtezxkY5--U3MPoJvGZtr0SkMTZ5MtNASE5WXkYoeD4PfRAHPOUp6k6HKYxr3hOaJLcZlRlDGRwh7HmyPlY7F_j6BXaDHFtu0H49_Wgput4C6-aslvVqLSNr069A3mB51pAOO1VIxpU8oTQ_xbhImFFmF2GTnp-bUWjlo9oM7ZQC5pXDlalMEfqx1c4XZlmMBkC8tarbM0gJ8TS86UfexlrgcQbr30EdOBcEaaAheOCo-PwW4wu7Om0abweSUS-RJtEoLVmE3IFwaiKMvbFAJrKF9XrehwNKLToI1VIZqVkEZO_al0rMIpOVUu2TRoeIDVnZESHIHrgKROO9iQPap7dKa1VTDunE4J37fkmiQDSiq_YLIsYub8CTPbFocDQTqW0A="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "q6jp54w8", "name":
+      "get_date", "response": {"result": "2024-01-01"}}}], "role": "user"}], "systemInstruction":
+      {"parts": [{"text": "Be very terse, not even punctuation."}], "role": "user"},
+      "tools": [{"functionDeclarations": [{"description": "Gets the current date",
+      "name": "get_date", "parameters": {"properties": {}, "required": [], "type":
+      "OBJECT"}}]}], "generationConfig": {"temperature": 0}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate, zstd
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
-      - '1036'
-      Content-Type:
+      content-length:
+      - '1236'
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.64.0 gl-python/3.12.11
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
   response:
     body:
-      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"2024\"}],\"role\":
-        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 128,\"candidatesTokenCount\":
-        4,\"totalTokenCount\": 132,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
-        128}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\": \"sa3NaYSRCcP1jMcP4OHtgAo\"}\r\n\r\ndata:
-        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"-01-01\"}],\"role\":
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"2024-01-01\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 84,\"candidatesTokenCount\":
+        10,\"totalTokenCount\": 345,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        84}],\"thoughtsTokenCount\": 251,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"M4Ffar2zOP2o1MkPl92DmA4\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
+        \"EqQICqEIARFNMg9tdBEJ+6SPyfU82ra8oqbvZ1HbYiSP2YsE1yQYwAIodhYlsftP/dgdNnJAO7dAyJ91B/VoI/cVOyt/nkBni6cXwvmwzV77KcEIYVWq8Wb4GJGTqOtY15D8W3DAw8u8Bytp/+xuhnCXB8NpdTe4l1yglKm1WvglGTog+CC+AAEp/gVcd6M1A2UC6CPwWoOP7J6z9Xqz+hR/+0YmZBebpnqYpxLd1qyob+slysWh8lnnKzwSyyCSOF9YOkQGe7eyK41XZGlpyw5sZCpxbkC10920ECZ2Ie87QKjK1I+cvOakdUH4PqAHSEFtpuClnxgtLa8TmtsmrBkDw0vhaxAFm/WzgVSDbA0pIjugFKJYMiqFNrFH9lNvyt2u2KPo8ZSbQ7UgL1mCtsAPO09t7NGRRK88LzB8r4LIzgr8UlY6BfZLVaYGOCD7tOhBihcvSpCGs+COdFq3dp14QSLF9uzxmWhDPdBIb3i+fGcbm+1ISAJjox/r0Oo1yRr4GMPmvpulAVNReehbfOiRW4fsADfk6DOYQBZyoHPXP7nJdb0c4iVo1coOHKhCmYRV0n3muMfTk3R0ZqYCw4ccMUWfh1FA2Bg7wr1tgolPyy71uSDz0x+4g42zrhRMKcB+Tbc+8nMiNH9wJpiDFPQjjg4QuRG4mOeo0i7kgAHr08j8kWz2Gch6Z51OzrBIlH/zLxl2KqamVNhTl2wzBys1kelLwSu2BTfIbQB3vCUdm6iOfwjXUkLt5PL4fSSU3ggc4KFzAbqHHSg2sC0Fd5ywGlXkJkAZhCsidoX/VOEmEPtc2FER595WTlHQ7a3wu1bkrzIjGMVVr/c4hDql3hQF4olP/Jr5JXfwyAKOVvMGxiyEH80YFGrs/z5f7DAPXZHNDpaxooKhToWz11EgXCJa+L0drRUphDwsf8oWV2nmKGRrBSEpGq9aR839OHeeemsYYDRKjWBiQWKy/Me2RD7qTG6/3HItFYzF2cVXZN8T6E24gTSCo4Bl7jCeS+Lr009gRrJ9LBikKKdZ1fjR0lynVIyEAOSkLEt4RStSUq3AgEgEsK7UAy46/MP2/Rj+ad8Ijf4qOY7LKZfS88L2tBfTZc4ZbeASadCvj2YU5enfyi5rNnAXL1KaB64MEjsUE1XWXhLtY+JuXGreNhDH2UCa3HsbkyPsqq20wWP5kkcxgXNd0lwmfEFOUQKoIVqJUZyL602osRiVYtYaAOmDO2CK5jSqJONv6Br1I5IhHXsSt+23ZlSEXtU2fdhpxpiVyD7bYN+yc8SWOakMDIhqLaclG8yPytClgXQBLeFXbhhNBI9iqr56BTpILRXH4P1GJcuQ0AH0JS9c5KvLn+b9SW1GT7i79K2D0fKaRdBF5fSbw8/+NJbWSj00A5qBLURcaXwCMpk2VQ==\"}],\"role\":
         \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
-        128,\"candidatesTokenCount\": 10,\"totalTokenCount\": 138,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 128}]},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"sa3NaYSRCcP1jMcP4OHtgAo\"}\r\n\r\n"
+        179,\"candidatesTokenCount\": 10,\"totalTokenCount\": 440,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 179}],\"thoughtsTokenCount\": 251,\"serviceTier\":
+        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"M4Ffar2zOP2o1MkPl92DmA4\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -106,11 +113,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 01 Apr 2026 23:43:45 GMT
+      - Tue, 21 Jul 2026 14:24:53 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=399
+      - gfet4t7; dur=1864
       Transfer-Encoding:
       - chunked
       Vary:

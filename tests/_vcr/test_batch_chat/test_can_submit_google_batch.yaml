@@ -1,0 +1,61 @@
+interactions:
+- request:
+    body: '{"batch": {"inputConfig": {"requests": {"requests": [{"request": {"contents":
+      [{"parts": [{"text": "What''s the capital of France?"}], "role": "user"}], "generationConfig":
+      {}}}, {"request": {"contents": [{"parts": [{"text": "What''s the capital of
+      Germany?"}], "role": "user"}], "generationConfig": {}}}]}}}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '307'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.11.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:batchGenerateContent
+  response:
+    body:
+      string: "{\n  \"name\": \"batches/gpv3pjje0g931jdhnalwqk9sv4pbqgjlqhi9\",\n
+        \ \"metadata\": {\n    \"@type\": \"type.googleapis.com/google.ai.generativelanguage.v1main.GenerateContentBatch\",\n
+        \   \"model\": \"models/gemini-3.5-flash\",\n    \"createTime\": \"2026-07-21T16:05:49.689379878Z\",\n
+        \   \"updateTime\": \"2026-07-21T16:05:49.689379878Z\",\n    \"batchStats\":
+        {\n      \"requestCount\": \"2\",\n      \"pendingRequestCount\": \"2\"\n
+        \   },\n    \"state\": \"BATCH_STATE_PENDING\",\n    \"name\": \"batches/gpv3pjje0g931jdhnalwqk9sv4pbqgjlqhi9\"\n
+        \ }\n}\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-length:
+      - '501'
+      content-type:
+      - application/json; charset=UTF-8
+      date:
+      - Tue, 21 Jul 2026 16:05:53 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=4024
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

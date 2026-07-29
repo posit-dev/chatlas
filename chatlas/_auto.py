@@ -24,6 +24,7 @@ from ._provider_openai_completions import ChatOpenAICompletions
 from ._provider_openrouter import ChatOpenRouter
 from ._provider_perplexity import ChatPerplexity
 from ._provider_portkey import ChatPortkey
+from ._provider_posit import ChatPosit
 from ._provider_snowflake import ChatSnowflake
 from ._utils import MISSING_TYPE as DEPRECATED_TYPE
 
@@ -48,6 +49,7 @@ AutoProviders = Literal[
     "open-router",
     "perplexity",
     "portkey",
+    "posit",
     "snowflake",
     "vertex",
 ]
@@ -73,6 +75,7 @@ _provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
     "open-router": ChatOpenRouter,
     "perplexity": ChatPerplexity,
     "portkey": ChatPortkey,
+    "posit": ChatPosit,
     "snowflake": ChatSnowflake,
     "vertex": ChatVertex,
 }

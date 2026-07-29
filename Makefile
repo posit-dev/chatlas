@@ -49,14 +49,14 @@ docs-preview: quartodoc
 	quarto preview docs
 
 .PHONY: quartodoc
-quartodoc: 
+quartodoc: setup
 	@echo "📖 Generating python docs with quartodoc"
 	@$(eval export IN_QUARTODOC=true)
 	cd docs && uv run quartodoc build
 	cd docs && uv run quartodoc interlinks
 
 .PHONY: quartodoc-watch
-quartodoc-watch:
+quartodoc-watch: setup
 	@echo "📖 Generating python docs with quartodoc"
 	@$(eval export IN_QUARTODOC=true)
 	uv run quartodoc build --config docs/_quarto.yml --watch
@@ -80,6 +80,12 @@ check-vcr-secrets:  ## [py] Scan VCR cassettes for leaked secrets using Claude
 update-types:
 	@echo "📝 Updating chat provider types"
 	uv run python scripts/main.py
+
+.PHONY: update-pricing
+update-pricing:
+	@echo "💰 Updating pricing data from Ellmer"
+	curl -sSLf -o chatlas/data/prices.json https://raw.githubusercontent.com/tidyverse/ellmer/main/data-raw/prices.json
+	@python3 -c "import json; json.load(open('chatlas/data/prices.json'))"
 
 .PHONY: help
 help:  ## Show help messages for make targets

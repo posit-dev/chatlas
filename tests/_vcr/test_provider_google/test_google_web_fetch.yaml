@@ -4,51 +4,49 @@ interactions:
       "role": "user"}], "tools": [{"urlContext": {}}], "generationConfig": {"temperature":
       0}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '212'
-      Content-Type:
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.12.11
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
   response:
     body:
       string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"The
-        first movie listed\"}],\"role\": \"model\"},\"index\": 0,\"groundingMetadata\":
-        {},\"urlContextMetadata\": {\"urlMetadata\": [{\"retrievedUrl\": \"https://rvest.tidyverse.org/articles/starwars.html\",\"urlRetrievalStatus\":
-        \"URL_RETRIEVAL_STATUS_SUCCESS\"}]}}],\"usageMetadata\": {\"promptTokenCount\":
-        25,\"candidatesTokenCount\": 26,\"totalTokenCount\": 1219,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 25}],\"toolUsePromptTokenCount\":
-        1130,\"toolUsePromptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
-        1130}],\"thoughtsTokenCount\": 38},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"VDVYaY2XOYqM_uMPi8-j8AY\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
-        {\"parts\": [{\"text\": \" on https://rvest.tidyverse.org/articles/starwars.html
-        is \\\"\"}],\"role\": \"model\"},\"index\": 0,\"groundingMetadata\": {}}],\"usageMetadata\":
-        {\"promptTokenCount\": 25,\"candidatesTokenCount\": 44,\"totalTokenCount\":
-        1237,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 25}],\"toolUsePromptTokenCount\":
-        1130,\"toolUsePromptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
-        1130}],\"thoughtsTokenCount\": 38},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"VDVYaY2XOYqM_uMPi8-j8AY\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
-        {\"parts\": [{\"text\": \"The Phantom Menace\\\".\"}],\"role\": \"model\"},\"finishReason\":
-        \"STOP\",\"index\": 0,\"groundingMetadata\": {\"groundingChunks\": [{\"web\":
-        {\"uri\": \"https://rvest.tidyverse.org/articles/starwars.html\",\"title\":
+        first movie listed on that\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 25,\"candidatesTokenCount\": 6,\"totalTokenCount\":
+        94,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 25}],\"thoughtsTokenCount\":
+        63,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        \"aYFfavXOBYDQjrEP1JudsA4\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        {\"parts\": [{\"text\": \" page is ***The Phantom Menace***.\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 25,\"candidatesTokenCount\":
+        6,\"totalTokenCount\": 94,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        25}],\"thoughtsTokenCount\": 63,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"aYFfavXOBYDQjrEP1JudsA4\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
+        \"ErcCCrQCARFNMg+1ZorWCI0r1CNh7X04kqq/pWLdmIR42TkMHS+XAIM4O6t0DjdUEq2m23dML1ik7hkLC/vYPJgJKbSWPuQIWc8S0qVaFVa1yufdRiaqAavsKmK6aJVOkRWnSZzeuNr9E3sZOkRkUiQUTsF7TMMl8FwBs+JCWRgyGliMt4kMEyDeVoWA4dAtd+TMGSCH7Ls9G2tNcZ/nch58QpSJ48idVxy/r5Zqgdkn6RYnWiXjsQ9lQ0mReQZtmPhjK0LjWYi9yKqqhTXkFbfplMQowV1DBvxQoqfPpblrbQUiIgjMFo2CgFckIOnmF9uQfeU6proDbXAuf+d/YDpDKtLKNe8R6Msv6dXMWN5RmeoD0+E0yv7zdDO9nLim7Bkn4y195BkRXWr8gm+hQ04lLLp7vnmG1Q4=\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"groundingMetadata\":
+        {\"groundingChunks\": [{\"web\": {\"uri\": \"https://rvest.tidyverse.org/articles/starwars.html\",\"title\":
         \"Star Wars films (static HTML) \u2022 rvest\"}}],\"groundingSupports\": [{\"segment\":
-        {\"endIndex\": 100,\"text\": \"The first movie listed on https://rvest.tidyverse.org/articles/starwars.html
-        is \\\"The Phantom Menace\\\"\"},\"groundingChunkIndices\": [0]}]}}],\"usageMetadata\":
-        {\"promptTokenCount\": 25,\"candidatesTokenCount\": 49,\"totalTokenCount\":
-        1242,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 25}],\"toolUsePromptTokenCount\":
-        1130,\"toolUsePromptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
-        1130}],\"thoughtsTokenCount\": 38},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"VDVYaY2XOYqM_uMPi8-j8AY\"}\r\n\r\n"
+        {\"endIndex\": 63,\"text\": \"The first movie listed on that page is ***The
+        Phantom Menace***\"},\"groundingChunkIndices\": [0]}]},\"urlContextMetadata\":
+        {\"urlMetadata\": [{\"retrievedUrl\": \"https://rvest.tidyverse.org/articles/starwars.html\",\"urlRetrievalStatus\":
+        \"URL_RETRIEVAL_STATUS_SUCCESS\"}]}}],\"usageMetadata\": {\"promptTokenCount\":
+        132,\"candidatesTokenCount\": 45,\"totalTokenCount\": 1702,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 132}],\"toolUsePromptTokenCount\":
+        1355,\"toolUsePromptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        1355}],\"thoughtsTokenCount\": 170,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"aYFfavXOBYDQjrEP1JudsA4\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -57,11 +55,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Fri, 02 Jan 2026 21:15:00 GMT
+      - Tue, 21 Jul 2026 14:25:46 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=1102
+      - gfet4t7; dur=1940
       Transfer-Encoding:
       - chunked
       Vary:
@@ -79,44 +77,54 @@ interactions:
       message: OK
 - request:
     body: '{"contents": [{"parts": [{"text": "What''s the first movie listed on https://rvest.tidyverse.org/articles/starwars.html?"}],
-      "role": "user"}, {"parts": [{"text": "The first movie listed"}, {"text": " on
-      https://rvest.tidyverse.org/articles/starwars.html is \""}, {"text": "The Phantom
-      Menace\"."}], "role": "model"}, {"parts": [{"text": "Who directed it?"}], "role":
-      "user"}], "tools": [{"urlContext": {}}], "generationConfig": {"temperature":
-      0}}'
+      "role": "user"}, {"parts": [{"text": "The first movie listed on that"}, {"text":
+      " page is ***The Phantom Menace***."}], "role": "model"}, {"parts": [{"text":
+      "Who directed it?"}], "role": "user"}], "tools": [{"urlContext": {}}], "generationConfig":
+      {"temperature": 0}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
       - keep-alive
-      Content-Length:
-      - '446'
-      Content-Type:
+      content-length:
+      - '393'
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.12.11
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
   response:
     body:
-      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"George
-        Lucas directed \\\"The Phantom Menace\\\".\"}],\"role\": \"model\"},\"finishReason\":
-        \"STOP\",\"index\": 0,\"groundingMetadata\": {\"groundingChunks\": [{\"web\":
-        {\"uri\": \"https://rvest.tidyverse.org/articles/starwars.html\",\"title\":
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"According
+        to the page, it was directed by **George Lucas**\"}],\"role\": \"model\"},\"index\":
+        0}],\"usageMetadata\": {\"promptTokenCount\": 46,\"candidatesTokenCount\":
+        13,\"totalTokenCount\": 97,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        46}],\"thoughtsTokenCount\": 38,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"a4FfaoS0DsW8sOIPxon_iAc\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \".\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 46,\"candidatesTokenCount\":
+        13,\"totalTokenCount\": 97,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        46}],\"thoughtsTokenCount\": 38,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"a4FfaoS0DsW8sOIPxon_iAc\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
+        \"EskBCsYBARFNMg9CqXxES6t/5HXqbXNoKVWIh/Xx7q09oIcU6VBkFCmaKzi3CL9PqXGEXwnxQYbibNUhh4WeTFdNnlJW/qGLU9Z2u6F6H8V/t4Hs19O4wz2U6Eyh16niKYzV9PbMlsBdl4O71Tv5LAU9flgRCp8W9elPbim3VGoaPhnFCB1qVfyT5I8iGyhOsQ39JkA/ZyJWzgzOHaNQSVhljA6CELF5scPNlFCMYFAR4Krk0Y9rqw51EdeWusVSHRrBXf6jONP08u5G\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0,\"groundingMetadata\":
+        {\"groundingChunks\": [{\"web\": {\"uri\": \"https://rvest.tidyverse.org/articles/starwars.html\",\"title\":
         \"Star Wars films (static HTML) \u2022 rvest\"}}],\"groundingSupports\": [{\"segment\":
-        {\"startIndex\": 1,\"endIndex\": 43,\"text\": \"George Lucas directed \\\"The
-        Phantom Menace\\\"\"},\"groundingChunkIndices\": [0]}]},\"urlContextMetadata\":
-        {\"urlMetadata\": [{\"retrievedUrl\": \"https://rvest.tidyverse.org/articles/starwars.html\",\"urlRetrievalStatus\":
+        {\"endIndex\": 58,\"text\": \"According to the page, it was directed by **George
+        Lucas**\"},\"groundingChunkIndices\": [0]}]},\"urlContextMetadata\": {\"urlMetadata\":
+        [{\"retrievedUrl\": \"https://rvest.tidyverse.org/articles/starwars.html\",\"urlRetrievalStatus\":
         \"URL_RETRIEVAL_STATUS_SUCCESS\"}]}}],\"usageMetadata\": {\"promptTokenCount\":
-        58,\"candidatesTokenCount\": 31,\"totalTokenCount\": 1282,\"promptTokensDetails\":
-        [{\"modality\": \"TEXT\",\"tokenCount\": 58}],\"toolUsePromptTokenCount\":
-        1159,\"toolUsePromptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
-        1159}],\"thoughtsTokenCount\": 34},\"modelVersion\": \"gemini-2.5-flash\",\"responseId\":
-        \"VjVYaYPpEbTQ_uMP_vPbaQ\"}\r\n\r\n"
+        258,\"candidatesTokenCount\": 44,\"totalTokenCount\": 2031,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 258}],\"toolUsePromptTokenCount\":
+        1479,\"toolUsePromptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        1479}],\"thoughtsTokenCount\": 250,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"a4FfaoS0DsW8sOIPxon_iAc\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -125,11 +133,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Fri, 02 Jan 2026 21:15:02 GMT
+      - Tue, 21 Jul 2026 14:25:49 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=1074
+      - gfet4t7; dur=2817
       Transfer-Encoding:
       - chunked
       Vary:

@@ -78,7 +78,7 @@ def test_tokens_method():
 @pytest.mark.vcr
 def test_token_count_method():
     chat = ChatOpenAI(model="gpt-4o-mini")
-    assert chat.token_count("What is 1 + 1?") == 32
+    assert chat.token_count("What is 1 + 1?") == 15
 
     chat = ChatAnthropic(model="claude-haiku-4-5-20251001")
     assert chat.token_count("What is 1 + 1?") == 16

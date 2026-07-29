@@ -1,25 +1,82 @@
 interactions:
 - request:
+    body: '{"input": [{"role": "user", "content": [{"type": "input_text", "text":
+      "What is 1 + 1?"}]}], "model": "gpt-4o-mini"}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '107'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      x-stainless-async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses/input_tokens
+  response:
+    body:
+      string: "{\n  \"object\": \"response.input_tokens\",\n  \"input_tokens\": 15\n}"
+    headers:
+      access-control-expose-headers:
+      - X-Request-ID
+      - CF-Ray
+      - CF-Ray
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      connection:
+      - keep-alive
+      content-length:
+      - '61'
+      content-type:
+      - application/json
+      date:
+      - Mon, 27 Jul 2026 18:36:40 GMT
+      openai-processing-ms:
+      - '303'
+      openai-version:
+      - '2020-10-01'
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-content-type-options:
+      - nosniff
+    status:
+      code: 200
+      message: OK
+- request:
     body: '{"messages": [{"role": "user", "content": [{"text": "What is 1 + 1?", "type":
       "text", "cache_control": {"type": "ephemeral", "ttl": "5m"}}]}], "model": "claude-haiku-4-5-20251001",
       "tools": []}'
     headers:
-      Accept:
+      accept:
       - application/json
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate, zstd
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '177'
-      Content-Type:
-      - application/json
-      Host:
-      - api.anthropic.com
-      X-Stainless-Async:
-      - 'false'
       anthropic-version:
       - '2023-06-01'
+      connection:
+      - keep-alive
+      content-length:
+      - '177'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      x-stainless-async:
+      - 'false'
       x-stainless-read-timeout:
       - '600'
       x-stainless-timeout:
@@ -30,50 +87,48 @@ interactions:
     body:
       string: '{"input_tokens":16}'
     headers:
-      CF-RAY:
-      - 9f79c766ff714c97-MSP
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '19'
-      Content-Security-Policy:
-      - default-src 'none'; frame-ancestors 'none'
-      Content-Type:
-      - application/json
-      Date:
-      - Wed, 06 May 2026 17:41:59 GMT
-      Server:
-      - cloudflare
-      X-Robots-Tag:
-      - none
       cf-cache-status:
       - DYNAMIC
+      connection:
+      - keep-alive
+      content-length:
+      - '19'
+      content-security-policy:
+      - default-src 'none'; frame-ancestors 'none'
+      content-type:
+      - application/json
+      date:
+      - Mon, 27 Jul 2026 18:36:40 GMT
+      server:
+      - cloudflare
       server-timing:
-      - x-originResponse;dur=183
-      strict-transport-security:
-      - max-age=31536000; includeSubDomains; preload
-      x-envoy-upstream-service-time:
-      - '181'
+      - x-originResponse;dur=40
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-robots-tag:
+      - none
     status:
       code: 200
       message: OK
 - request:
     body: '{"contents": [{"parts": [{"text": "What is 1 + 1?"}], "role": "user"}]}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
+      accept-encoding:
       - gzip, deflate, zstd
-      Connection:
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '71'
-      Content-Type:
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.74.0 gl-python/3.12.11
+      - google-genai-sdk/2.11.0 gl-python/3.12.13
     method: POST
     uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:countTokens
   response:
@@ -81,30 +136,30 @@ interactions:
       string: "{\n  \"totalTokens\": 9,\n  \"promptTokensDetails\": [\n    {\n      \"modality\":
         \"TEXT\",\n      \"tokenCount\": 9\n    }\n  ]\n}\n"
     headers:
-      Alt-Svc:
+      alt-svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
-      Content-Type:
+      content-length:
+      - '115'
+      content-type:
       - application/json; charset=UTF-8
-      Date:
-      - Wed, 06 May 2026 17:41:59 GMT
-      Server:
+      date:
+      - Mon, 27 Jul 2026 18:36:41 GMT
+      server:
       - scaffolding on HTTPServer2
-      Server-Timing:
-      - gfet4t7; dur=51
-      Transfer-Encoding:
+      server-timing:
+      - gfet4t7; dur=70
+      transfer-encoding:
       - chunked
-      Vary:
+      vary:
       - Origin
       - X-Origin
       - Referer
-      X-Content-Type-Options:
+      x-content-type-options:
       - nosniff
-      X-Frame-Options:
+      x-frame-options:
       - SAMEORIGIN
-      X-XSS-Protection:
+      x-xss-protection:
       - '0'
-      content-length:
-      - '115'
     status:
       code: 200
       message: OK

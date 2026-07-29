@@ -7,7 +7,6 @@ import pytest
 from chatlas._content import ContentImageInline, ContentPDF
 from chatlas._tools import Tool
 from chatlas.types import ContentToolResult
-from pydantic.networks import AnyUrl
 
 try:
     import mcp  # noqa: F401
@@ -25,7 +24,7 @@ class TestToolFromMCP:
         tool = MagicMock()
         tool.name = name
         tool.description = description
-        tool.inputSchema = input_schema
+        tool.input_schema = input_schema
         tool.annotations = annotations
         return tool
 
@@ -133,7 +132,7 @@ class TestToolFromMCP:
         # Mock the session call_tool response
         session = self.create_mock_session()
         mock_result = MagicMock()
-        mock_result.isError = False
+        mock_result.is_error = False
 
         mock_content = MagicMock()
         mock_content.type = "text"
@@ -168,12 +167,12 @@ class TestToolFromMCP:
 
         session = self.create_mock_session()
         mock_result = MagicMock()
-        mock_result.isError = False
+        mock_result.is_error = False
 
         mock_content = MagicMock()
         mock_content.type = "image"
         mock_content.data = "base64imagedata"
-        mock_content.mimeType = "image/png"
+        mock_content.mime_type = "image/png"
         mock_result.content = [mock_content]
 
         session.call_tool.return_value = mock_result
@@ -205,7 +204,7 @@ class TestToolFromMCP:
 
         session = self.create_mock_session()
         mock_result = MagicMock()
-        mock_result.isError = False
+        mock_result.is_error = False
 
         mock_content = MagicMock()
         mock_content.type = "resource"
@@ -213,9 +212,9 @@ class TestToolFromMCP:
         # Mock text resource
         mock_resource = TextResourceContents(
             text="File contents here",
-            uri=AnyUrl("file://path/to/file.txt"),
+            uri="file://path/to/file.txt",
+            mime_type="application/pdf",
         )
-        mock_resource.mimeType = "application/pdf"
         mock_content.resource = mock_resource
         mock_result.content = [mock_content]
 
@@ -246,7 +245,7 @@ class TestToolFromMCP:
 
         session = self.create_mock_session()
         mock_result = MagicMock()
-        mock_result.isError = False
+        mock_result.is_error = False
 
         # Multiple content items
         mock_content1 = MagicMock()
@@ -283,7 +282,7 @@ class TestToolFromMCP:
 
         session = self.create_mock_session()
         mock_result = MagicMock()
-        mock_result.isError = True
+        mock_result.is_error = True
 
         mock_content = MagicMock()
         mock_content.text = "Error executing tool error_tool: Something went wrong"
@@ -310,7 +309,7 @@ class TestToolFromMCP:
 
         session = self.create_mock_session()
         mock_result = MagicMock()
-        mock_result.isError = True
+        mock_result.is_error = True
 
         mock_content = MagicMock()
         # No text attribute
@@ -336,12 +335,12 @@ class TestToolFromMCP:
 
         session = self.create_mock_session()
         mock_result = MagicMock()
-        mock_result.isError = False
+        mock_result.is_error = False
 
         mock_content = MagicMock()
         mock_content.type = "image"
         mock_content.data = "imagedata"
-        mock_content.mimeType = "image/unsupported"
+        mock_content.mime_type = "image/unsupported"
         mock_result.content = [mock_content]
 
         session.call_tool.return_value = mock_result
@@ -365,7 +364,7 @@ class TestToolFromMCP:
 
         session = self.create_mock_session()
         mock_result = MagicMock()
-        mock_result.isError = False
+        mock_result.is_error = False
 
         mock_content = MagicMock()
         mock_content.type = "unknown_type"

@@ -9,44 +9,45 @@ interactions:
       ["title", "author"], "required": ["title", "author"], "title": "ArticleSummary",
       "type": "OBJECT"}}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '589'
-      Content-Type:
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent
   response:
     body:
       string: "{\n  \"candidates\": [\n    {\n      \"content\": {\n        \"parts\":
         [\n          {\n            \"text\": \"{\\\"title\\\": \\\"Apples are tasty\\\",
-        \\\"author\\\": \\\"Hadley Wickham\\\"}\"\n          }\n        ],\n        \"role\":
-        \"model\"\n      },\n      \"finishReason\": \"STOP\",\n      \"index\": 0\n
-        \   }\n  ],\n  \"usageMetadata\": {\n    \"promptTokenCount\": 40,\n    \"candidatesTokenCount\":
-        18,\n    \"totalTokenCount\": 190,\n    \"promptTokensDetails\": [\n      {\n
-        \       \"modality\": \"TEXT\",\n        \"tokenCount\": 40\n      }\n    ],\n
-        \   \"thoughtsTokenCount\": 132\n  },\n  \"modelVersion\": \"gemini-2.5-flash\",\n
-        \ \"responseId\": \"drBVafPsGrq9_uMPkfWTyQg\"\n}\n"
+        \\\"author\\\": \\\"Hadley Wickham\\\"}\",\n            \"thoughtSignature\":
+        \"EucHCuQHARFNMg/nX/gKdi82+fwGg6ChbSuBjIuGYJ5L71o2Dacg4g93reLWDqt2HfZnUzp2OIMCa73vvATfI+DSI6/1b7N+RI1d1PL7WtacnGTz0X2XkdW1hGbkV+MfUg+jjj7HyXMbuKhI+Ra28Yg65Nh/+F8vgxIJs3TdKEGYexrHBONDU6PbTgd/fbStH81Kt6iml0dDH2yN6iQVM3JEpYK2VXxYg9h2N07Sfx/eUxabW304HZeJh9/u9bsAkFbwUnt8cbw+i68NWvpsF3NchpF7fcFElMFAkm0jiw0ZT1x4Y+wTlUouvRG3kJCwZTzPDkb9Wi0mg32GVykqqLD9d2d94dgDy3WsJsWWktaxVcA2vtDd5Tke31GPmc7De78HUY62xUHum0donUU2WmuoC7EvsrD8bpuJ3BpJNtyQYXxFPP8BcTYiPQR/L8wBsJm6qgHbTSABJbAEi4omjBy/iMEDb+LQSZ/0P9LdtYMyf1iKAkwNy6ngjNVsXcOt//Exh2RTA+xG0ZuNaKtCe5rn8jzhf7a9BnIR6bbsIsrh3A4ZCu09yKKyZCNkMvP/7vV+tpydAq5TSbghkN7MFQ6yoiJnskDF+5mstok0qV4002zG90qLceqrBUjTJSeGCnPPKVwoJjMroQuiSX2FbLN+gvghjakf5VEH8LREjzKnfbeRCHiEfpjXQFleC+ZZvoQ1mQypmOSKoPRA2HNhCRXhimCejPVaAKWWAJ8fN0eowaeFQWpmQGmQH4KhfmAWcsQ2JM439WKRO+StNLZzsmS2lIY31TAr70pC6IMAaCQAiCCOc1QWjt1cEkad96N0i27ikUqOojWPXSsElEo2HLPwQv/Q8r56Rfc71MkGtWU4BQyLjJP/DRjK+P7uFV3PQvArfAlTNLVhG9hVaDe8h66VQ1wDLoGyhuSS5XVgbvZ4BpoTZgT6b2Mna14lqb7Fg9UFUdUL9Y8fwXAFQesrg8stEKdOc3eAQ0pSIr+e2TXEZrScoLz6jkjzK1IIs+mKV2mIav4zMU5BJxRHZguFUpUqPmUMWk+w0jozKDKA/Qv3BtN5udaIk6ns+3v21jkO/NRCPzPbXhAbKzUkjTvtVNHgrkiyaTyCkwVPK40Z/zrKzYQ0OIJi7KnE3RI1sIwlf4/9AnWsVsBQDMxh77QtrU13dYZpVrH2ACrV2iw1yD0LFCGxtv3QOpgKMMg+4g5Z5DRF1xVFvqVRIkuMwS13DpNQ+gsevj77NTifoeItkSOisHoZt/OAEzf39yAQp2YcObQyqz+66a8/EOAYWvp9AcBYtFxpI0rV6s1M/wf7nXQ+tIcHiNmTTU51\"\n
+        \         }\n        ],\n        \"role\": \"model\"\n      },\n      \"finishReason\":
+        \"STOP\",\n      \"index\": 0\n    }\n  ],\n  \"usageMetadata\": {\n    \"promptTokenCount\":
+        40,\n    \"candidatesTokenCount\": 18,\n    \"totalTokenCount\": 314,\n    \"promptTokensDetails\":
+        [\n      {\n        \"modality\": \"TEXT\",\n        \"tokenCount\": 40\n
+        \     }\n    ],\n    \"thoughtsTokenCount\": 256,\n    \"serviceTier\": \"standard\"\n
+        \ },\n  \"modelVersion\": \"gemini-3.5-flash\",\n  \"responseId\": \"PoFfaruLA626jrEPj5Sr8Q4\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Content-Type:
       - application/json; charset=UTF-8
       Date:
-      - Wed, 31 Dec 2025 23:23:34 GMT
+      - Tue, 21 Jul 2026 14:25:03 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=1031
+      - gfet4t7; dur=1824
       Transfer-Encoding:
       - chunked
       Vary:
@@ -57,10 +58,12 @@ interactions:
       - nosniff
       X-Frame-Options:
       - SAMEORIGIN
+      X-Gemini-Service-Tier:
+      - standard
       X-XSS-Protection:
       - '0'
       content-length:
-      - '609'
+      - '2012'
     status:
       code: 200
       message: OK
@@ -77,43 +80,44 @@ interactions:
       "Author", "type": "STRING"}}, "property_ordering": ["title", "author"], "required":
       ["title", "author"], "title": "ArticleSummary", "type": "OBJECT"}}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '897'
-      Content-Type:
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent
   response:
     body:
       string: "{\n  \"candidates\": [\n    {\n      \"content\": {\n        \"parts\":
         [\n          {\n            \"text\": \"{\\\"title\\\":\\\"Apples are tasty\\\",\\\"author\\\":\\\"Hadley
-        Wickham\\\"}\"\n          }\n        ],\n        \"role\": \"model\"\n      },\n
-        \     \"finishReason\": \"STOP\",\n      \"index\": 0\n    }\n  ],\n  \"usageMetadata\":
-        {\n    \"promptTokenCount\": 96,\n    \"candidatesTokenCount\": 15,\n    \"totalTokenCount\":
-        175,\n    \"promptTokensDetails\": [\n      {\n        \"modality\": \"TEXT\",\n
-        \       \"tokenCount\": 96\n      }\n    ],\n    \"thoughtsTokenCount\": 64\n
-        \ },\n  \"modelVersion\": \"gemini-2.5-flash\",\n  \"responseId\": \"d7BVaeudGu6p_uMPycCNyAg\"\n}\n"
+        Wickham\\\"}\",\n            \"thoughtSignature\": \"EvIGCu8GARFNMg+ZMHTCCx445wZMjWWVbbLLdOdB7zcjgJKxnGf+xcNISKnr+jSkCgJDlHRZmKi8ImxbjtFRd6vuIgG8ShD21LCGwuPXt1pr0oKoAwjdDGDzrWLEmqZKnC6Qr0wXeZvojmPwbXqcD47Om3Dl6RaYppYMpaZfw8uCHppX8J1vLbtGJ2fDUXczV6jgjclW0yCHS4YXyGjhbJPY2Ls44qasEHMmX2/J4KD4+CZ7P1ihN7463mksHv6pR4YSkf9E61FYN69aAs7IDyOJuPcRTvRe8g9TvUL8zlG84JIcDO55d+nvxHlGq+w6aarVVQnqIsuT4RJJY1U+ZMyKg/lEO2+s+4zSmcPkjkjkaylM1CmgCR9R0Cpqj+c4r31gNbXaojiC84xKEkfMHb/QT/2Zav+4spkmH0s38m5BevUENu01kuNBoCrrij8347v/usbeCAUvzBzxHDEvLuWFZ+otkeAouM0+spdvdNLaR4vjr1sNQZ/j2LFCd4aWM00IWB+ZJ1trnGjCDELQ0zQpBmgUs6+6NnXhfKqJlR97x0qC9CxswhdzEY4uHvmfgd6Tcx3EviEWjg3xKPM1C9RI+3aM1lVkNvGwQaIcmXIge9Ssjm08Jk0kBLOQwkTMfOaR1fSK2pdjNW0X53qTDxC22d4ziNn1zlY2x2qydxYdj1sg+bAzt/sd8UR34wegocsdD/ZENAMd13/ykKOyr+FLAVi3qN+luOYeEJ6BuSwGSWzNjD1CtpzMMCpJDXx4FZD/JSthAXmqZZ/VpaBD8ZnyCRzRK9N0tRXjxKJ/5oPe+smuVd2D7H4IU3fDqZIHOwqFEWeMApGrq38s+wKlVZGVSGFsbgCl4iTM8X6gup13vI2uIsRqTk5yVCtfJz33eN56mnlM1K/V5elst3GgNoqkPa1PW/jq3LMgUQTK8/EtHZGWeu7EEE5poOFZBIRHClzLJdy3fkam+QBkQW4U+hCmXoqwP+AIjX6olLJ+RDxkLY/WBKYX08Buchkddeaxx4dGDK4vSTyborvl2XBkibrrs/YhE8DhXEwyGBZUVpQsCF+ogqAXOgwmUfbMctUE/HpmdIBwy/3rcwNM8nzMdd8ICq5TklOHUtq6+e+/uhf/WlGuU4/PSMS9dEM4tCtomfPXQCPB00DcIEWBmZrwnYQLM0Aq\"\n
+        \         }\n        ],\n        \"role\": \"model\"\n      },\n      \"finishReason\":
+        \"STOP\",\n      \"index\": 0\n    }\n  ],\n  \"usageMetadata\": {\n    \"promptTokenCount\":
+        96,\n    \"candidatesTokenCount\": 15,\n    \"totalTokenCount\": 340,\n    \"promptTokensDetails\":
+        [\n      {\n        \"modality\": \"TEXT\",\n        \"tokenCount\": 96\n
+        \     }\n    ],\n    \"thoughtsTokenCount\": 229,\n    \"serviceTier\": \"standard\"\n
+        \ },\n  \"modelVersion\": \"gemini-3.5-flash\",\n  \"responseId\": \"P4Ffau-rOYersOIPqaaF8Ag\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Content-Type:
       - application/json; charset=UTF-8
       Date:
-      - Wed, 31 Dec 2025 23:23:35 GMT
+      - Tue, 21 Jul 2026 14:25:08 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=754
+      - gfet4t7; dur=5140
       Transfer-Encoding:
       - chunked
       Vary:
@@ -124,10 +128,12 @@ interactions:
       - nosniff
       X-Frame-Options:
       - SAMEORIGIN
+      X-Gemini-Service-Tier:
+      - standard
       X-XSS-Protection:
       - '0'
       content-length:
-      - '605'
+      - '1853'
     status:
       code: 200
       message: OK
@@ -146,43 +152,44 @@ interactions:
       "INTEGER"}}, "property_ordering": ["name", "age"], "required": ["name", "age"],
       "title": "Person", "type": "OBJECT"}}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '1027'
-      Content-Type:
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent
   response:
     body:
       string: "{\n  \"candidates\": [\n    {\n      \"content\": {\n        \"parts\":
-        [\n          {\n            \"text\": \"{\\\"name\\\":\\\"Alice Smith\\\",\\\"age\\\":30}\"\n
+        [\n          {\n            \"text\": \"{\\\"name\\\":\\\"Alice Smith\\\",\\\"age\\\":28}\",\n
+        \           \"thoughtSignature\": \"ErsKCrgKARFNMg8b+TpRKCHxmT/kAZNbL8NN0mivOjHtGukH9TxK0id1gf5298IjmicpmgLtSu+AzCqkVtZAJVi/jDiqWMLg7p5qj4K2KyswrviFsWWav09SEL9wBlkUUTXo+rCSPxVhn/ur4EQW85E1ydWHtrVEKUt/YgJ2tGB25VGBU2g1a2dM/7vpl7BRe1YveRUKWRGmPVRHuAO7JpW0uv08xjdsWVTKa4ggFE6NKqJl+3LvRApmLGsQMtjmmCERLdXsdQHJUrWbJ8yll2nZ6/P9tHbLYxG/7JFqP+CyitqG8ehopEZBugUqSAXCViMg+nfHlSJbbR9imGJXCHMjOeuBxzxndcAc9V7lVMGYZVpGTVd/Q9qU7SNPI23JIG18cFkbjUoylIAFuH5q+6e/pbuvSAWtXmWbpvQ2F3mNO2ZbUTzehEz/7mgbxWtIy5r1OcdfwkV21vSNwdOeVtlihm8seIklu8qrHZ/6T/i3Bs0jxGl44Gpojbbay+9QIUpUyCf4W5vcq4A4Kouy39rD80wBJzFTTZeSxWpVuyo+uqj2gDAJbSz9qnWw2V7e9cb0jp1MnUZ1ch+3aTniXM0Qv7D0pjIcdy3zWzp+qEV+mrpLeWbmvt7sPu6LxAtGjZ9nvVobb+367ZZb87/t5XK7QP6kWDhAu8ub9yJlCr7//ld2fEPB2F94SBc2vhwDBV6stpgGcO/50YHr+E0fcqcAmirUcvFUefBMjvRIJsTSQMvIksqWQrU8QvP4JYBrLcEUtywaI65haMHWQueActAPq7KDRnQBSw3qIJluYCB3afhqx1c0WMje5O7W807N3miJMQ1ldeOeVMUP0OA54HxJ7lwHDtHesJLYQyyFDrQKaiUW6LB6Hx6A28RjK29CzYaREjykE97agGSM9m2n66e+Qg+64Ah5jo9R6TWeCcWpzZSs8n8JMVm1WG7w++QuO28CmuWJ+26aH3dje4KYtQYek1AElFNSoYcDgusUhqZ11uSQVI7lSRGG7U2KzCRmF7hz8oJpfSrQSJEq5ZGBHwl++EllLsDLhmP8HMxmMbnaNLzpFDnITsXJLrBV6mtM0kNY0ElwujD2lMTpVbJDlDhrcsO+jdGql61HYG7avwcsd390+x+rEd4oeJqEZhKYYOWCo8mZ4Vdny5Np5nMVkxXwad0el9b7kACKN/e66Ivqv4Da3VtKiA2kO0KcXl7gBc8p0R44t2fi9Fl7P9YH/23jT10BxSMuip2Kkvf2PZSjpFPJU/NRJtihGuVFolB5Z9QP4x9+Kq69a2lZZR2ixfJ2cLkeTSebUzNfiUfgPnAXnn6EowezSmOBv6JB4YAfq32Kp7NjFMdsEaUDw02YAOPyuI60D6y6ci4IAI+9vB6pBTkAeHjTJHIQNxly/bO/5t4ZqDGL2D2G5uocMW+MifLN0blT8rEVaNDs1BMCFSVUuFoINRJwsH8tuQYIAhAIpTyOOZJPbrxm805SCT8XuurWAsnbe2F7hZwvjskkNAzL60gP/aU3hJxNHcrBNdkTibkTT95Ijs+RmT1as9WlaRnH3UTejWkgw3a3XlfRHsZ9+r8OATSSzXUPJG71bvsofbcCLqIn23ob/yUnP4cmWxEFu2646FSOtebwZTJCYk+E8OOcHA9qGbgGCT7F5YkohoMVCCbIDbUmNMPKGXlWU5wiwl8FXy3mczORkn9huO0cWUm7g7XnSqOQ+MhChM2+21vMTqRqNVJKv+KmmZ0Z3W1mhW20N459aS2T43j7/3hjv2TejJUEUPjUS5GVNw==\"\n
         \         }\n        ],\n        \"role\": \"model\"\n      },\n      \"finishReason\":
         \"STOP\",\n      \"index\": 0\n    }\n  ],\n  \"usageMetadata\": {\n    \"promptTokenCount\":
-        123,\n    \"candidatesTokenCount\": 11,\n    \"totalTokenCount\": 172,\n    \"promptTokensDetails\":
+        123,\n    \"candidatesTokenCount\": 11,\n    \"totalTokenCount\": 509,\n    \"promptTokensDetails\":
         [\n      {\n        \"modality\": \"TEXT\",\n        \"tokenCount\": 123\n
-        \     }\n    ],\n    \"thoughtsTokenCount\": 38\n  },\n  \"modelVersion\":
-        \"gemini-2.5-flash\",\n  \"responseId\": \"eLBVaerkFa6n_uMP8-yp-Ao\"\n}\n"
+        \     }\n    ],\n    \"thoughtsTokenCount\": 375,\n    \"serviceTier\": \"standard\"\n
+        \ },\n  \"modelVersion\": \"gemini-3.5-flash\",\n  \"responseId\": \"RYFfaqXWCODwjrEP-tONkAs\"\n}\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
       Content-Type:
       - application/json; charset=UTF-8
       Date:
-      - Wed, 31 Dec 2025 23:23:36 GMT
+      - Tue, 21 Jul 2026 14:25:42 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=679
+      - gfet4t7; dur=33494
       Transfer-Encoding:
       - chunked
       Vary:
@@ -193,10 +200,12 @@ interactions:
       - nosniff
       X-Frame-Options:
       - SAMEORIGIN
+      X-Gemini-Service-Tier:
+      - standard
       X-XSS-Protection:
       - '0'
       content-length:
-      - '582'
+      - '2442'
     status:
       code: 200
       message: OK
@@ -210,32 +219,38 @@ interactions:
       "role": "user"}, {"parts": [{"text": "{\"title\":\"Apples are tasty\",\"author\":\"Hadley
       Wickham\"}"}], "role": "model"}, {"parts": [{"text": "Generate the name and
       age of a random person."}], "role": "user"}, {"parts": [{"text": "{\"name\":\"Alice
-      Smith\",\"age\":30}"}], "role": "model"}, {"parts": [{"text": "What is the name
+      Smith\",\"age\":28}"}], "role": "model"}, {"parts": [{"text": "What is the name
       of the person?"}], "role": "user"}], "generationConfig": {"temperature": 0}}'
     headers:
-      Accept:
+      accept:
       - '*/*'
-      Accept-Encoding:
-      - gzip, deflate
-      Connection:
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
       - keep-alive
-      Content-Length:
+      content-length:
       - '913'
-      Content-Type:
+      content-type:
       - application/json
-      Host:
+      host:
       - generativelanguage.googleapis.com
       x-goog-api-client:
-      - google-genai-sdk/1.56.0 gl-python/3.11.13
+      - google-genai-sdk/2.10.0 gl-python/3.12.13
     method: POST
-    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
   response:
     body:
-      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Alice
-        Smith\"}],\"role\": \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\":
-        {\"promptTokenCount\": 144,\"candidatesTokenCount\": 2,\"totalTokenCount\":
-        146,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 144}]},\"modelVersion\":
-        \"gemini-2.5-flash\",\"responseId\": \"ebBVabjnAtKT_uMP792-mAc\"}\r\n\r\n"
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"{\\\"name\\\":\\\"Alice
+        Smith\\\"}\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        144,\"candidatesTokenCount\": 6,\"totalTokenCount\": 516,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 144}],\"thoughtsTokenCount\": 366,\"serviceTier\":
+        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"ZoFfaq6LLaCjjrEP37Ov6A8\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
+        \"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\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        144,\"candidatesTokenCount\": 6,\"totalTokenCount\": 516,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 144}],\"thoughtsTokenCount\": 366,\"serviceTier\":
+        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"ZoFfaq6LLaCjjrEP37Ov6A8\"}\r\n\r\n"
     headers:
       Alt-Svc:
       - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
@@ -244,11 +259,11 @@ interactions:
       Content-Type:
       - text/event-stream
       Date:
-      - Wed, 31 Dec 2025 23:23:37 GMT
+      - Tue, 21 Jul 2026 14:25:44 GMT
       Server:
       - scaffolding on HTTPServer2
       Server-Timing:
-      - gfet4t7; dur=343
+      - gfet4t7; dur=2161
       Transfer-Encoding:
       - chunked
       Vary:
