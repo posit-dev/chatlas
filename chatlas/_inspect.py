@@ -14,8 +14,7 @@ from ._content import (
     ContentToolResult,
     ContentUnion,
 )
-from ._content_file import ensure_bytes
-from ._content_pdf import parse_data_url
+from ._content_file import ensure_bytes, parse_data_url
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 
 if TYPE_CHECKING:

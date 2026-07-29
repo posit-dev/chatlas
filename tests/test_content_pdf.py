@@ -36,6 +36,21 @@ def test_content_pdf_url_does_not_download_eagerly():
     assert obj.url == "https://example.com/apples.pdf"
 
 
+def test_content_pdf_url_takes_its_filename_from_the_url():
+    """More meaningful to the model than a counter, and stable across calls."""
+    assert content_pdf_url("https://example.com/a/apples.pdf").filename == "apples.pdf"
+    assert content_pdf_url("https://example.com/a/apples.pdf").filename == "apples.pdf"
+
+
+def test_content_pdf_url_falls_back_to_a_counter_without_a_usable_name():
+    names = [
+        content_pdf_url("https://example.com/download?id=7").filename,
+        content_pdf_url("https://example.com/").filename,
+    ]
+    assert all(n.endswith(".pdf") for n in names)
+    assert len(set(names)) == len(names)
+
+
 def test_content_pdf_data_url_still_decodes_inline():
     raw = b"%PDF-1.4 fake"
     b64 = base64.b64encode(raw).decode("ascii")

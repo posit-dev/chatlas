@@ -14,7 +14,7 @@ from ._content import (
     ImageContentTypes,
     is_image_content_type,
 )
-from ._content_pdf import parse_data_url
+from ._content_file import parse_data_url
 from ._utils import MISSING, MISSING_TYPE
 
 __all__ = (

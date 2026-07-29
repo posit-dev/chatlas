@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING, Union
+from urllib.parse import urlparse
 
 import requests
 
@@ -49,3 +51,15 @@ def ensure_bytes(content: FileContent, kind: str) -> bytes:
 
     content.data = data
     return data
+
+
+def parse_data_url(url: str) -> tuple[str, str]:
+    parts = url[5:].split(";", 1)
+    if len(parts) != 2 or not parts[1].startswith("base64,"):
+        raise ValueError("url is not a valid data URL.")
+    return (parts[0], parts[1][7:])
+
+
+def filename_from_url(url: str) -> str:
+    """The last path segment of `url`, which may legitimately be empty."""
+    return Path(urlparse(url).path).name

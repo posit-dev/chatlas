@@ -4,6 +4,7 @@ import base64
 from pathlib import Path
 
 from ._content import ContentPDF
+from ._content_file import filename_from_url, parse_data_url
 
 __all__ = (
     "content_pdf_url",
@@ -76,14 +77,14 @@ def content_pdf_url(url: str) -> ContentPDF:
             data=base64.b64decode(base64_data),
             filename=unique_pdf_name(),
         )
-    return ContentPDF(filename=unique_pdf_name(), url=url)
 
-
-def parse_data_url(url: str) -> tuple[str, str]:
-    parts = url[5:].split(";", 1)
-    if len(parts) != 2 or not parts[1].startswith("base64,"):
-        raise ValueError("url is not a valid data URL.")
-    return (parts[0], parts[1][7:])
+    # Prefer the name the URL already carries: it's more meaningful to the model
+    # than a counter, and it keeps the request body stable across calls.
+    name = filename_from_url(url)
+    return ContentPDF(
+        filename=name if name.lower().endswith(".pdf") else unique_pdf_name(),
+        url=url,
+    )
 
 
 def make_pdf_namer():

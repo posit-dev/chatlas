@@ -4,10 +4,9 @@ import base64
 import mimetypes
 from pathlib import Path
 from typing import Literal
-from urllib.parse import urlparse
 
 from ._content import DOCX_MIME_TYPE, XLSX_MIME_TYPE, ContentDocument
-from ._content_pdf import parse_data_url
+from ._content_file import filename_from_url, parse_data_url
 
 __all__ = ("content_document_file", "content_document_url")
 
@@ -40,7 +39,7 @@ DOCUMENT_MIME_TYPES = {
 
 PDF_REDIRECT_MESSAGE = (
     "{fn}() doesn't support PDF files. Use {pdf_fn}() instead, which unlocks "
-    "PDF-specific handling (page-image understanding, citations, and URL "
+    "PDF-specific handling (page-image understanding on Anthropic, and URL "
     "passthrough)."
 )
 
@@ -170,11 +169,6 @@ def content_document_url(
 
 def guess_mime_type(name: str) -> str:
     return DOCUMENT_MIME_TYPES.get(Path(name).suffix.lower(), "text/plain")
-
-
-def filename_from_url(url: str) -> str:
-    """The last path segment of `url`, which may legitimately be empty."""
-    return Path(urlparse(url).path).name
 
 
 def make_document_namer():
