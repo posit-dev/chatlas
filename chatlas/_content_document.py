@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import mimetypes
 from pathlib import Path
 from typing import Literal
 from urllib.parse import urlparse
@@ -98,7 +99,9 @@ def content_document_file(
             )
         )
 
-    resolved_mime_type = mime_type if mime_type != "auto" else guess_mime_type(path.name)
+    resolved_mime_type = (
+        mime_type if mime_type != "auto" else guess_mime_type(path.name)
+    )
 
     with open(path, "rb") as f:
         data = f.read()
@@ -143,7 +146,7 @@ def content_document_url(
         content_type, base64_data = parse_data_url(url)
         return ContentDocument(
             data=base64.b64decode(base64_data),
-            filename=filename_from_url(url) or "document",
+            filename=unique_document_name(content_type),
             mime_type=content_type,
         )
 
@@ -156,10 +159,12 @@ def content_document_url(
             )
         )
 
+    resolved_mime_type = mime_type if mime_type != "auto" else guess_mime_type(name)
+
     return ContentDocument(
         url=url,
-        filename=name or "document",
-        mime_type=mime_type if mime_type != "auto" else guess_mime_type(name),
+        filename=name or unique_document_name(resolved_mime_type),
+        mime_type=resolved_mime_type,
     )
 
 
@@ -170,3 +175,24 @@ def guess_mime_type(name: str) -> str:
 def filename_from_url(url: str) -> str:
     """The last path segment of `url`, which may legitimately be empty."""
     return Path(urlparse(url).path).name
+
+
+def make_document_namer():
+    cur_document_id = 0
+
+    def unique_document_name(mime_type: str) -> str:
+        """A filename for a document whose URL doesn't supply one.
+
+        `data:` URLs have no path at all, and plenty of ordinary URLs end in a
+        bare directory. The counter keeps each one distinguishable, since the
+        filename is how a model refers to a document in a multi-file prompt.
+        """
+        nonlocal cur_document_id
+        cur_document_id += 1
+        ext = mimetypes.guess_extension(mime_type) or ".txt"
+        return f"document_{cur_document_id:03d}{ext}"
+
+    return unique_document_name
+
+
+unique_document_name = make_document_namer()

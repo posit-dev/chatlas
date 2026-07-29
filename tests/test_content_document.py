@@ -49,6 +49,26 @@ def test_content_document_url_inlines_data_urls():
     assert obj.url is None
 
 
+def test_data_url_filename_comes_from_the_mime_type_not_the_payload():
+    """A `data:` URL has no path, so the base64 payload must not leak into the name."""
+    obj = content_document_url("data:text/csv;base64,YSxiCjEsMgo=")
+    assert "base64" not in obj.filename
+    assert "YSxiCjEsMgo" not in obj.filename
+    assert obj.filename.endswith(".csv")
+
+
+def test_generated_filenames_stay_distinct():
+    """Filenames are what a model uses to tell multi-document prompts apart."""
+    data_url = "data:text/csv;base64,YSxiCjEsMgo="
+    names = [
+        content_document_url(data_url).filename,
+        content_document_url(data_url).filename,
+        content_document_url("https://example.com/").filename,
+        content_document_url("https://example.com/").filename,
+    ]
+    assert len(set(names)) == len(names)
+
+
 def test_content_document_url_rejects_pdfs():
     with pytest.raises(ValueError, match="content_pdf_url"):
         content_document_url("https://example.com/report.pdf")
