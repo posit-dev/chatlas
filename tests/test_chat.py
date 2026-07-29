@@ -773,3 +773,15 @@ def test_token_count_complete_includes_history_and_system():
 
     assert new_only > 0
     assert complete > new_only
+
+
+def test_token_count_invalid_include_raises():
+    chat = ChatOpenAICompletions(model="gpt-4o")
+
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Expected `include` to be one of 'new' or 'complete', not 'bad_option'"
+        ),
+    ):
+        chat.token_count("hello", include="bad_option")  # type: ignore

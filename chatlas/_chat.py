@@ -788,6 +788,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     def _token_count_turns(
         self, include: Literal["new", "complete"], *args: Content | str
     ) -> list[Turn]:
+        if include not in ("new", "complete"):
+            raise ValueError(
+                f"Expected `include` to be one of 'new' or 'complete', not '{include}'"
+            )
         new_turn = user_turn(*args)
         if include == "complete":
             return self.get_turns(include_system_prompt=True) + [new_turn]

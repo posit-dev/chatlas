@@ -276,8 +276,11 @@ def test_anthropic_no_uploaded_omits_beta_header():
 
 def test_anthropic_token_count_args_keeps_beta_header():
     provider = AnthropicProvider(model="claude-sonnet-4-6")
+    turn = UserTurn(
+        [ContentUploaded(id="file_1", mime_type="application/pdf", provider="anthropic")]
+    )
     args = provider._token_count_args(
-        ContentUploaded(id="file_1", mime_type="application/pdf", provider="anthropic"),
+        [turn],
         tools={},
         data_model=None,
     )
