@@ -17,6 +17,7 @@ from pydantic import (
 )
 
 from ._typing_extensions import TypedDict
+from ._utils import html_escape, truncate_lines
 
 if TYPE_CHECKING:
     from htmltools import Tagified
@@ -359,7 +360,7 @@ class ContentToolRequest(Content):
                 "but htmltools is not installed. ",
             )
 
-        html = f"<p></p><span class='chatlas-tool-request'>🔧 Running tool: <code>{self.name}</code></span>"
+        html = f"<p></p><span class='chatlas-tool-request'>🔧 Running tool: <code>{html_escape(self.name, attr=False)}</code></span>"
 
         return TagList(
             HTML(html),
@@ -463,9 +464,23 @@ class ContentToolResult(Content):
         return self.request.arguments
 
     def __str__(self):
+        return self.to_display_markdown()
+
+    def to_display_markdown(self, max_lines: Optional[int] = None) -> str:
+        """
+        Render as a fenced code block, optionally capping the value's height.
+
+        Parameters
+        ----------
+        max_lines
+            Truncate the value to this many lines, replacing the remainder with a
+            count of what was dropped. `None` (the default) emits the full value.
+        """
         prefix = "✅ tool result" if not self.error else "❌ tool error"
         comment = f"# {prefix} ({self.id})"
         value = self._get_display_value()
+        if max_lines is not None:
+            value = truncate_lines(value, max_lines)
         return f"""```python\n{comment}\n{value}\n```"""
 
     # Format the value for display purposes
@@ -554,22 +569,41 @@ class ContentToolResult(Content):
         return orjson.dumps(value).decode("utf-8")
 
     def _repr_html_(self):
-        return str(self.tagify())
+        return self.to_html()
 
     def tagify(self) -> Tagified:
         "A method for rendering this object via htmltools/shiny."
         try:
-            from htmltools import HTML, html_escape
+            from htmltools import HTML, TagList, head_content, tags
         except ImportError:
             raise ImportError(
                 ".tagify() is only intended to be called by htmltools/shiny, ",
                 "but htmltools is not installed. ",
             )
 
+        return TagList(
+            HTML(self.to_html()),
+            head_content(tags.style(TOOL_CSS)),
+        ).tagify()
+
+    def to_html(self) -> str:
+        """
+        Render as an HTML string.
+
+        Shared by `.tagify()` (shinychat) and the notebook echo display, so the two
+        can't drift. Requires `TOOL_CSS` to be present on the page. The result is
+        collapsed; `TOOL_CSS` bounds its height once expanded.
+        """
+
         # Helper function to format code blocks (optionally with labels for arguments).
+        # Labels are argument names, which come from the model's tool call, so they
+        # need escaping just like the values do.
         def pre_code(code: str, label: str | None = None) -> str:
-            lbl = f"<span class='input-parameter-label'>{label}</span>" if label else ""
-            return f"<pre>{lbl}<code>{html_escape(code)}</code></pre>"
+            if label:
+                lbl = f"<span class='input-parameter-label'>{html_escape(label, attr=False)}</span>"
+            else:
+                lbl = ""
+            return f"<pre>{lbl}<code>{html_escape(code, attr=False)}</code></pre>"
 
         # Helper function to wrap content in a <details> block.
         def details_block(summary: str, content: str, open_: bool = True) -> str:
@@ -600,15 +634,17 @@ class ContentToolResult(Content):
         # Put both the result and parameters into a container
         result_div = f'<div class="chatlas-tool-result-content">{result}{params}</div>'
 
-        # Header for the top-level result details block.
+        # Header for the top-level result details block. The tool name is
+        # model-controlled, so it gets escaped too.
+        name = html_escape(self.name, attr=False)
         if not self.error:
-            header = f"Result from tool call: <code>{self.name}</code>"
+            header = f"Result from tool call: <code>{name}</code>"
         else:
-            header = f"❌ Failed to call tool <code>{self.name}</code>"
+            header = f"❌ Failed to call tool <code>{name}</code>"
 
         res = details_block(header, result_div, open_=False)
 
-        return HTML(f'<div class="chatlas-tool-result">{res}</div>')
+        return f'<div class="chatlas-tool-result">{res}</div>'
 
     def _arguments_str(self) -> str:
         if isinstance(self.arguments, dict):
@@ -1117,6 +1153,14 @@ TOOL_CSS = """
 
 .chatlas-tool-result-content pre, .chatlas-tool-result-content code {
   background-color: var(--bs-body-bg, white) !important;
+}
+
+/* Bound a large result so it costs a fixed amount of vertical space.
+   Consumers override the height by setting the custom property on an ancestor
+   (chatlas' notebook display does this from set_echo_options()). */
+.chatlas-tool-result-content pre {
+  max-height: var(--chatlas-tool-result-max-height, 400px);
+  overflow-y: auto;
 }
 
 .chatlas-tool-result-content .input-parameter-label {

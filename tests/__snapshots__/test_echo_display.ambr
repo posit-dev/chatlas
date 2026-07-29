@@ -1,0 +1,29 @@
+# serializer version: 1
+# name: test_echo_renders_markdown
+  '''
+                            Heading
+  
+  Some bold and code, then a list:
+  
+   • one
+   • two
+  
+  
+   x = 1
+  '''
+# ---
+# name: test_echo_renders_thinking
+  '''
+  👤 User turn:
+  
+  what is 2+2?
+  
+  🤖 Assistant turn:
+  
+  ╭─ Thinking ───────────────────────────────────────────────╮
+  │ Let me think. 2+2 is 4.                                  │
+  ╰──────────────────────────────────────────────────────────╯
+  
+  The answer is 4.
+  '''
+# ---
