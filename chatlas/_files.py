@@ -36,7 +36,35 @@ class FileMetadata(BaseModel):
 
 
 class FileManager:
-    """Manage files hosted by a chat's provider. Accessed via `chat.files`."""
+    """Manage files hosted by a chat's provider. Accessed via `chat.files`.
+
+    Upload a file once with `.upload()`, then pass the returned
+    `ContentUploaded` to `.chat()` (and other chat methods) like any other
+    content, instead of re-sending the file's bytes on every turn.
+
+    Supported for `ChatOpenAI()` (the Responses API), `ChatAnthropic()`, and
+    `ChatGoogle()` (the Gemini Developer API). Every other provider --
+    including `ChatOpenAICompletions()`, OpenAI-compatible third parties
+    (`ChatGroq()`, `ChatMistral()`, `ChatOllama()`, etc.), `ChatAzureOpenAI()`,
+    `ChatBedrockAnthropic()`, `ChatPosit()`, and Vertex-backed chats
+    (`ChatVertex()`, or `ChatGoogle()` configured for Vertex) -- raises
+    `NotImplementedError` from every method here.
+
+    Notes
+    -----
+    * Anthropic's Files API is still in beta. chatlas automatically adds the
+      required `anthropic-beta: files-api-2025-04-14` header whenever a turn
+      references an uploaded file.
+    * Gemini Developer API files expire automatically after 48 hours, and the
+      Files API isn't available on Vertex AI at all. To reference a file
+      already in Cloud Storage on a Vertex-backed chat, construct
+      `ContentUploaded` directly with a `gs://` URI instead of calling
+      `.upload()`.
+    * `ChatOpenAICompletions()` can reference an uploaded PDF or text
+      document, but not an uploaded image -- the Chat Completions API doesn't
+      support it. Use `ChatOpenAI()` (Responses API) for uploaded images, or
+      pass the image inline with `content_image_file()`.
+    """
 
     def __init__(self, provider: "Provider"):
         self._provider = provider
@@ -51,6 +79,13 @@ class FileManager:
 
         Only supported for ChatOpenAI, ChatAnthropic, and ChatGoogle; other
         providers raise `NotImplementedError`.
+
+        On `ChatGoogle()`, this blocks until Gemini finishes processing the
+        file: large media (video, audio, multi-GB uploads) is processed
+        asynchronously, and the API refuses to reference a file that isn't
+        yet `ACTIVE`. That means this call can take a while for a large
+        video, and raises if the file fails to process -- but the reference
+        you get back is always ready to use.
 
         Parameters
         ----------

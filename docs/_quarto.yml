@@ -90,7 +90,6 @@ website:
           contents:
             - get-started/models.qmd
             - get-started/chat.qmd
-            - get-started/files.qmd
             - get-started/system-prompt.qmd
             - get-started/tools.qmd
             - get-started/stream.qmd
@@ -168,6 +167,7 @@ quartodoc:
       desc: Methods and attributes available on a chat instance
       contents:
         - Chat
+        - FileManager
     - title: Image input
       desc: Submit image input to the chat
       contents:
