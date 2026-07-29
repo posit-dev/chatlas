@@ -101,8 +101,6 @@ chat.chat(
 )
 ```
 
-The `content_pdf_url()` and [`content_document_url()`](../reference/content_document_url.qmd) variants don't download bytes up front -- `ChatOpenAI()` (the Responses API) can reference a URL directly, as can `ChatAnthropic()` for PDFs, so the bytes are only fetched if the target provider actually needs them (e.g. `ChatGoogle()` or `ChatOpenAICompletions()`).
-
 ::: callout-warning
 ### Supported content types
 
