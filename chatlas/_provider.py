@@ -7,6 +7,7 @@ from typing import (
     IO,
     Any,
     AsyncIterable,
+    ClassVar,
     Generic,
     Iterable,
     Literal,
@@ -134,9 +135,49 @@ class Provider(
     directly.
     """
 
+    supported_builtin_tools: ClassVar[tuple[type[ToolBuiltIn], ...]] = ()
+    """
+    The provider-agnostic built-in tool classes (e.g. `ToolWebSearch`) that this
+    provider knows how to translate into its API's server-side tool format.
+
+    Those classes construct with an empty `definition` and rely on the provider
+    to fill it in, so any that aren't listed here would otherwise reach the API
+    as an empty tool spec. `check_builtin_tool_support()` rejects them instead.
+    """
+
+    unsupported_builtin_tool_hint: ClassVar[str] = ""
+    """
+    Provider-specific context added to the error raised by
+    `check_builtin_tool_support()`, e.g. explaining why the API can't run
+    server-side tools, or naming a `Chat` constructor that can.
+    """
+
     def __init__(self, *, name: str, model: str):
         self._name = name
         self._model = model
+
+    def check_builtin_tool_support(self, tool: ToolBuiltIn) -> None:
+        """
+        Raise if this provider can't translate `tool` into its API's format.
+
+        Called when a built-in tool is registered with a
+        [](`~chatlas.Chat`), so that unsupported tools fail immediately rather
+        than being silently dropped (or rejected by a cryptic API error) on the
+        first request.
+        """
+        # A bare ToolBuiltIn holds raw provider-specific JSON supplied by the
+        # caller, so there's nothing for chatlas to translate -- or to vouch for.
+        if type(tool) is ToolBuiltIn or isinstance(tool, self.supported_builtin_tools):
+            return
+
+        hint = self.unsupported_builtin_tool_hint
+        raise ValueError(
+            f"The `{tool.name}` built-in tool is not supported by {self.name}."
+            + (f" {hint}" if hint else "")
+            + " Consider registering a custom tool, or an MCP server (see"
+            " `Chat.register_mcp_tools_stdio_async()`), with equivalent"
+            " functionality instead."
+        )
 
     @property
     def name(self):

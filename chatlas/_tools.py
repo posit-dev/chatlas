@@ -252,6 +252,11 @@ class ToolBuiltIn:
     generation). Unlike regular Tool objects, ToolBuiltIn instances pass raw
     provider-specific JSON directly through to the API.
 
+    Subclasses are treated differently: they represent a provider-agnostic
+    capability that each provider must translate itself (see `ToolWebSearch`),
+    so a provider only accepts the subclasses listed in its
+    `supported_builtin_tools` and rejects the rest at `register_tool()` time.
+
     Parameters
     ----------
     name

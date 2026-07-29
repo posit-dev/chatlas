@@ -2209,7 +2209,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Raises
         ------
         ValueError
-            If a tool with the same name already exists and `force` is `False`.
+            If a tool with the same name already exists and `force` is `False`,
+            or if `func` is a built-in tool (e.g. `tool_web_search()`) that this
+            chat's provider can't run.
         """
         if isinstance(func, Tool):
             name = name or func.name
@@ -2222,6 +2224,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             tool = Tool.from_func(func, name=name, model=model, annotations=annotations)
         else:
             if isinstance(func, ToolBuiltIn):
+                self.provider.check_builtin_tool_support(func)
                 tool = func
             else:
                 tool = Tool.from_func(
@@ -2247,7 +2250,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         return list(self._tools.values())
 
     def set_tools(
-        self, tools: list[Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool]
+        self,
+        tools: list[
+            Callable[..., Any] | Callable[..., Awaitable[Any]] | Tool | ToolBuiltIn
+        ],
     ):
         """
         Set the tools for the chat.

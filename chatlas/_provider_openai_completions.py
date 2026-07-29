@@ -148,6 +148,12 @@ class OpenAICompletionsProvider(
         "SubmitInputArgs",
     ]
 ):
+    # The Chat Completions API has no server-side tools, so `supported_builtin_tools`
+    # stays empty here and for the OpenAI-compatible providers that subclass this.
+    unsupported_builtin_tool_hint = (
+        "The Chat Completions API has no concept of provider-run tools."
+    )
+
     def __init__(
         self,
         *,
@@ -204,6 +210,7 @@ class OpenAICompletionsProvider(
         tool_schemas = []
         for tool in tools.values():
             if isinstance(tool, ToolBuiltIn):
+                self.check_builtin_tool_support(tool)
                 tool_schemas.append(tool.definition)
             else:
                 tool_schemas.append(tool.schema)

@@ -464,7 +464,10 @@ def tool_web_search(
     registered with any supported chat provider. The tool allows the model
     to search the web for up-to-date information.
 
-    Supported providers: OpenAI, Claude (Anthropic), Google (Gemini)
+    Supported providers: OpenAI (`ChatOpenAI()`), Claude (Anthropic), Google
+    (Gemini and Vertex). Registering it with any other provider -- including
+    `ChatOpenAICompletions()` and `ChatBedrockAnthropic()`, neither of which can
+    run server-side tools -- raises a `ValueError`.
 
     Prerequisites
     -------------
@@ -558,7 +561,10 @@ def tool_web_fetch(
     registered with supported chat providers. The tool allows the model to
     fetch and analyze content from web URLs.
 
-    Supported providers: Claude (Anthropic), Google (Gemini)
+    Supported providers: Claude (Anthropic), Google (Gemini and Vertex).
+    Registering it with any other provider -- including `ChatOpenAI()`, which
+    has no built-in fetch tool, and `ChatBedrockAnthropic()`, which can't run
+    server-side tools -- raises a `ValueError`.
 
     Prerequisites
     -------------

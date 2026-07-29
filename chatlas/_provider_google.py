@@ -250,6 +250,8 @@ class GoogleProvider(
         "SubmitInputArgs",
     ]
 ):
+    supported_builtin_tools = (ToolWebSearch, ToolWebFetch)
+
     def __init__(
         self,
         *,
@@ -414,6 +416,7 @@ class GoogleProvider(
             has_custom_tool = False
             for tool in tools.values():
                 if isinstance(tool, ToolBuiltIn):
+                    self.check_builtin_tool_support(tool)
                     has_builtin_tool = True
                 else:
                     has_custom_tool = True
