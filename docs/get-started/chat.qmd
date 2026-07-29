@@ -92,7 +92,7 @@ The Python logo features two intertwined snakes in yellow and blue,
 representing the Python programming language. The design symbolizes...
 ```
 
-Use [`content_document_file()`](../reference/content_document_file.qmd) for plain text, Markdown, CSV, code, and other non-PDF documents -- it keeps the filename and (on Anthropic) makes the content eligible for citations, instead of reading the file yourself and pasting its contents into a prompt string:
+Use [`content_document_file()`](../reference/content_document_file.qmd) for plain text, Markdown, CSV, code, and other non-PDF documents, instead of reading the file yourself and pasting its contents into a prompt string. The model sees it as an attached document rather than as prose, and `ChatOpenAI()` can additionally parse office formats like `.docx`/`.xlsx`:
 
 ```python
 chat.chat(

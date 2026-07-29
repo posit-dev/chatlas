@@ -804,7 +804,7 @@ class ContentDocument(Content):
     span many formats; PDFs should always go through
     [](`~chatlas.content_pdf_file`)/[](`~chatlas.content_pdf_url`) instead,
     which unlock PDF-specific handling (page-image understanding on
-    Anthropic, citations, and URL passthrough).
+    Anthropic, and URL passthrough).
 
     Parameters
     ----------
@@ -838,8 +838,8 @@ class ContentDocument(Content):
             raise ValueError(
                 "ContentDocument doesn't support PDF files. Use "
                 "content_pdf_file() or content_pdf_url() instead, which "
-                "unlock PDF-specific handling (page-image understanding, "
-                "citations, and URL passthrough)."
+                "unlock PDF-specific handling (page-image understanding on "
+                "Anthropic, and URL passthrough)."
             )
         return self
 
