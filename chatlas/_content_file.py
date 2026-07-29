@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import tempfile
 from typing import TYPE_CHECKING, Union
 
 import requests
@@ -13,17 +12,12 @@ FileContent = Union["ContentPDF", "ContentDocument"]
 
 def download_bytes(url: str) -> bytes:
     """Download `url`'s bytes in full."""
-    with tempfile.NamedTemporaryFile(delete=True) as temp_file:
-        response = requests.get(url, stream=True)
+    # Streaming keeps the connection out of the pool until the body is consumed,
+    # so the response needs closing on the error paths too -- `raise_for_status()`
+    # never reads the body.
+    with requests.get(url, stream=True) as response:
         response.raise_for_status()
-
-        for chunk in response.iter_content(chunk_size=8192):
-            temp_file.write(chunk)
-
-        temp_file.flush()
-        temp_file.seek(0)
-
-        return temp_file.read()
+        return b"".join(response.iter_content(chunk_size=8192))
 
 
 def ensure_bytes(content: FileContent, kind: str) -> bytes:

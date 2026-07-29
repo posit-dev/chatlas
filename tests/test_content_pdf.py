@@ -1,11 +1,12 @@
 import base64
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
+import requests
 from chatlas import content_pdf_file, content_pdf_url
 from chatlas._content import ContentPDF, ContentThinking, ContentToolRequest
-from chatlas._content_file import ensure_bytes
+from chatlas._content_file import download_bytes, ensure_bytes
 from chatlas._turn import AssistantTurn, Turn, UserTurn
 
 
@@ -73,6 +74,32 @@ def test_content_pdf_url_lazily_downloads_and_caches_bytes():
     with patch("chatlas._content_file.download_bytes") as mock_download2:
         assert ensure_bytes(obj, "PDF") == raw
     mock_download2.assert_not_called()
+
+
+def make_streaming_response(chunks, status_error=None):
+    response = MagicMock()
+    response.__enter__.return_value = response
+    response.__exit__.return_value = False
+    response.iter_content.return_value = iter(chunks)
+    if status_error is not None:
+        response.raise_for_status.side_effect = status_error
+    return response
+
+
+def test_download_bytes_joins_streamed_chunks():
+    response = make_streaming_response([b"abc", b"def"])
+    with patch("chatlas._content_file.requests.get", return_value=response):
+        assert download_bytes("https://example.com/apples.pdf") == b"abcdef"
+    response.__exit__.assert_called_once()
+
+
+def test_download_bytes_closes_response_when_status_check_fails():
+    """`raise_for_status()` never reads the body, so the connection leaks unclosed."""
+    response = make_streaming_response([], status_error=requests.HTTPError("404"))
+    with patch("chatlas._content_file.requests.get", return_value=response):
+        with pytest.raises(requests.HTTPError):
+            download_bytes("https://example.com/missing.pdf")
+    response.__exit__.assert_called_once()
 
 
 def test_ensure_bytes_wraps_download_failures():
