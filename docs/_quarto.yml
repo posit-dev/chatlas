@@ -99,6 +99,7 @@ website:
             - get-started/chatbots.qmd
             - get-started/parameters.qmd
             - get-started/debug.qmd
+            - get-started/scale.qmd
             - get-started/monitor.qmd
 
         - section: "Tool calling"
@@ -114,8 +115,6 @@ website:
             - structured-data/sentiment-analysis.qmd
             - structured-data/classification.qmd
             - structured-data/multi-modal.qmd
-
-        - scale.qmd
 
         - section: "Miscellaneous"
           contents:
