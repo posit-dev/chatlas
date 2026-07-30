@@ -13,18 +13,18 @@ import openai.auth._workload
 
 class ChatClientArgs(TypedDict, total=False):
     api_key: Union[str, Callable[[], Awaitable[str]], None]
-    admin_api_key: Optional[str]
-    workload_identity: Optional[openai.auth._workload.WorkloadIdentity]
-    organization: Optional[str]
-    project: Optional[str]
-    webhook_secret: Optional[str]
-    provider: Optional[openai._provider._Provider]
-    base_url: Union[str, httpx.URL, None]
-    websocket_base_url: Union[str, httpx.URL, None]
+    admin_api_key: str | None
+    workload_identity: openai.auth._workload.WorkloadIdentity | None
+    organization: str | None
+    project: str | None
+    webhook_secret: str | None
+    provider: openai._provider._Provider | None
+    base_url: str | httpx.URL | None
+    websocket_base_url: str | httpx.URL | None
     timeout: float | openai.Timeout | None | openai.NotGiven
     max_retries: int
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
-    http_client: Optional[httpx.AsyncClient]
+    http_client: httpx.AsyncClient | None
     _strict_response_validation: bool
     _enforce_credentials: bool

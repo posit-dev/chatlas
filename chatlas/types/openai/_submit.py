@@ -155,7 +155,7 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.Omit,
     ]
     presence_penalty: Union[float, None, openai.Omit]
-    prompt_cache_key: str | openai.Omit
+    prompt_cache_key: Union[str, None, openai.Omit]
     prompt_cache_options: (
         openai.types.chat.completion_create_params.PromptCacheOptions | openai.Omit
     )
@@ -171,10 +171,12 @@ class SubmitInputArgs(TypedDict, total=False):
         openai.types.shared_params.response_format_json_object.ResponseFormatJSONObject,
         openai.Omit,
     ]
-    safety_identifier: str | openai.Omit
+    safety_identifier: Union[str, None, openai.Omit]
     seed: Union[int, None, openai.Omit]
     service_tier: Union[
-        Literal["auto", "default", "flex", "scale", "priority"], None, openai.Omit
+        Literal["auto", "default", "flex", "scale", "priority", "fast"],
+        None,
+        openai.Omit,
     ]
     stop: Union[str, None, Sequence[str], openai.Omit]
     store: Union[bool, None, openai.Omit]

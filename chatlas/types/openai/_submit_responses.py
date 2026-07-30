@@ -231,15 +231,17 @@ class SubmitInputArgs(TypedDict, total=False):
         None,
         openai.Omit,
     ]
-    prompt_cache_key: str | openai.Omit
+    prompt_cache_key: Union[str, None, openai.Omit]
     prompt_cache_options: (
         openai.types.responses.response_create_params.PromptCacheOptions | openai.Omit
     )
     prompt_cache_retention: Union[Literal["in_memory", "24h"], None, openai.Omit]
     reasoning: Union[openai.types.shared_params.reasoning.Reasoning, None, openai.Omit]
-    safety_identifier: str | openai.Omit
+    safety_identifier: Union[str, None, openai.Omit]
     service_tier: Union[
-        Literal["auto", "default", "flex", "scale", "priority"], None, openai.Omit
+        Literal["auto", "default", "flex", "scale", "priority", "fast"],
+        None,
+        openai.Omit,
     ]
     store: Union[bool, None, openai.Omit]
     stream: Union[Literal[False], None, Literal[True], openai.Omit]
@@ -292,5 +294,5 @@ class SubmitInputArgs(TypedDict, total=False):
     user: str | openai.Omit
     extra_headers: Optional[Mapping[str, Union[str, openai.Omit]]]
     extra_query: Optional[Mapping[str, object]]
-    extra_body: Optional[object]
+    extra_body: object | None
     timeout: float | openai.Timeout | None | openai.NotGiven

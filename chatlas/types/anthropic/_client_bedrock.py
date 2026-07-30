@@ -19,18 +19,18 @@ import httpx
 
 
 class ChatBedrockClientArgs(TypedDict, total=False):
-    aws_secret_key: Optional[str]
-    aws_access_key: Optional[str]
-    aws_region: Optional[str]
-    aws_profile: Optional[str]
-    aws_session_token: Optional[str]
-    api_key: Optional[str]
-    base_url: Union[str, httpx.URL, None]
+    aws_secret_key: str | None
+    aws_access_key: str | None
+    aws_region: str | None
+    aws_profile: str | None
+    aws_session_token: str | None
+    api_key: str | None
+    base_url: str | httpx.URL | None
     timeout: float | anthropic.Timeout | None | anthropic.NotGiven
     max_retries: int
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
-    http_client: Optional[httpx.AsyncClient]
+    http_client: httpx.AsyncClient | None
     middleware: Optional[
         Sequence[
             Union[
