@@ -46,7 +46,7 @@ chat.chat("What is the capital of France?")
 
 ## Note
 
-This function is a lightweight wrapper around [`ChatOpenAICompletions`](../reference/ChatOpenAICompletions.llms.md#chatlas.ChatOpenAICompletions), with the defaults tweaked for Hugging Face.
+This function is a lightweight wrapper around [`ChatOpenAICompletions`](https://posit-dev.github.io/chatlas/reference/ChatOpenAICompletions.html#chatlas.ChatOpenAICompletions), with the defaults tweaked for Hugging Face.
 
 ## Note
 

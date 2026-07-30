@@ -152,6 +152,10 @@ chatlas.content_pdf_file py:function 1 reference/content_pdf_file.html#chatlas.c
 chatlas._content_pdf.content_pdf_file py:function 1 reference/content_pdf_file.html#chatlas.content_pdf_file chatlas.content_pdf_file
 chatlas.content_pdf_url py:function 1 reference/content_pdf_url.html#chatlas.content_pdf_url -
 chatlas._content_pdf.content_pdf_url py:function 1 reference/content_pdf_url.html#chatlas.content_pdf_url chatlas.content_pdf_url
+chatlas.content_document_file py:function 1 reference/content_document_file.html#chatlas.content_document_file -
+chatlas._content_document.content_document_file py:function 1 reference/content_document_file.html#chatlas.content_document_file chatlas.content_document_file
+chatlas.content_document_url py:function 1 reference/content_document_url.html#chatlas.content_document_url -
+chatlas._content_document.content_document_url py:function 1 reference/content_document_url.html#chatlas.content_document_url chatlas.content_document_url
 chatlas.Tool.from_func py:function 1 reference/Tool.html#chatlas.Tool.from_func -
 chatlas._tools.Tool.from_func py:function 1 reference/Tool.html#chatlas.Tool.from_func chatlas.Tool.from_func
 chatlas.Tool.from_mcp py:function 1 reference/Tool.html#chatlas.Tool.from_mcp -
@@ -236,6 +240,8 @@ chatlas.types.ContentJson py:class 1 reference/types.ContentJson.html#chatlas.ty
 chatlas._content.ContentJson py:class 1 reference/types.ContentJson.html#chatlas.types.ContentJson chatlas.types.ContentJson
 chatlas.types.ContentPDF py:class 1 reference/types.ContentPDF.html#chatlas.types.ContentPDF -
 chatlas._content.ContentPDF py:class 1 reference/types.ContentPDF.html#chatlas.types.ContentPDF chatlas.types.ContentPDF
+chatlas.types.ContentDocument py:class 1 reference/types.ContentDocument.html#chatlas.types.ContentDocument -
+chatlas._content.ContentDocument py:class 1 reference/types.ContentDocument.html#chatlas.types.ContentDocument chatlas.types.ContentDocument
 chatlas.types.ContentText py:class 1 reference/types.ContentText.html#chatlas.types.ContentText -
 chatlas._content.ContentText py:class 1 reference/types.ContentText.html#chatlas.types.ContentText chatlas.types.ContentText
 chatlas.types.ContentThinking py:class 1 reference/types.ContentThinking.html#chatlas.types.ContentThinking -

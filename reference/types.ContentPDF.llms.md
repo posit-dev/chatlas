@@ -10,8 +10,8 @@ This content type primarily exists to signal PDF data extraction (i.e., data ext
 
 ## Parameters
 
-| Name     | Type | Description                                   | Default    |
-|----------|------|-----------------------------------------------|------------|
-| data     |      | The PDF data extracted                        | *required* |
-| filename |      | The name of the PDF file                      | *required* |
-| url      |      | An optional URL where the PDF can be accessed | *required* |
+| Name     | Type | Description                                    | Default    |
+|----------|------|------------------------------------------------|------------|
+| data     |      | The PDF’s bytes. Optional when `url` is set.   | *required* |
+| filename |      | The name of the PDF file                       | *required* |
+| url      |      | An optional URL where the PDF can be accessed. | *required* |

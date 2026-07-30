@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>types.contenttoolrequestfetch – chatlas</title>
+<title>content_document_url – chatlas</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -68,8 +68,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/types.ContentToolResponseFetch.html" rel="next">
-<link href="../reference/types.ContentToolResponseSearch.html" rel="prev">
+<link href="../reference/Tool.html" rel="next">
+<link href="../reference/content_document_file.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -167,7 +167,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.ContentToolRequestFetch.html">types.ContentToolRequestFetch</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/content_document_file.html">Document input</a></li><li class="breadcrumb-item"><a href="../reference/content_document_url.html">content_document_url</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -420,7 +420,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/content_document_url.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/content_document_url.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">content_document_url</span></a>
   </div>
 </li>
@@ -718,7 +718,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/types.ContentToolRequestFetch.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/types.ContentToolRequestFetch.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.ContentToolRequestFetch</span></a>
   </div>
 </li>
@@ -818,33 +818,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.types.ContentToolRequestFetch" id="toc-chatlas.types.ContentToolRequestFetch" class="nav-link active" data-scroll-target="#chatlas.types.ContentToolRequestFetch">types.ContentToolRequestFetch</a>
+  <li><a href="#chatlas.content_document_url" id="toc-chatlas.content_document_url" class="nav-link active" data-scroll-target="#chatlas.content_document_url">content_document_url</a>
   <ul class="collapse">
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#raises" id="toc-raises" class="nav-link" data-scroll-target="#raises">Raises</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ContentToolRequestFetch.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/content_document_url.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.ContentToolRequestFetch.html">types.ContentToolRequestFetch</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/content_document_file.html">Document input</a></li><li class="breadcrumb-item"><a href="../reference/content_document_url.html">content_document_url</a></li></ol></nav></header>
 
 
 
 
-<section id="chatlas.types.ContentToolRequestFetch" class="level1">
-<h1>types.ContentToolRequestFetch</h1>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>types.ContentToolRequestFetch()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A web fetch request from the model.</p>
-<p>This content type represents the model’s request to fetch a URL. It’s automatically generated when a built-in web fetch tool is used.</p>
+<section id="chatlas.content_document_url" class="level1">
+<h1>content_document_url</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>content_document_url(url, mime_type<span class="op">=</span><span class="st">'auto'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Prepare a remote text/data file for input to a chat.</p>
+<p>Use this for plain text, Markdown, CSV, code, and other non-PDF documents hosted at a URL (use <a href="https://posit-dev.github.io/chatlas/reference/content_pdf_url.html#chatlas.content_pdf_url"><code>content_pdf_url</code></a> for PDFs). Not all providers accept every document type, so check the documentation for the provider you are using.</p>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="caption-top table">
-<colgroup>
-<col style="width: 11%">
-<col style="width: 11%">
-<col style="width: 60%">
-<col style="width: 17%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>Name</th>
@@ -856,15 +852,53 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tbody>
 <tr class="odd">
 <td>url</td>
-<td></td>
-<td>The URL to fetch.</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
+<td>A URL to a remote file, or a <code>data:</code> URL carrying the document inline.</td>
 <td><em>required</em></td>
 </tr>
 <tr class="even">
-<td>extra</td>
+<td>mime_type</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['auto'] | <a href="https://docs.python.org/3/library/stdtypes.html#str">str</a></td>
+<td>The document’s MIME type. If <code>"auto"</code>, it’s guessed from the URL’s file extension, falling back to <code>"text/plain"</code>. <code>data:</code> URLs always use the type declared in the URL itself.</td>
+<td><code>'auto'</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
 <td></td>
-<td>The raw provider-specific response data.</td>
-<td><em>required</em></td>
+<td>[](<code>~chatlas.types.Content</code>)</td>
+<td>Content suitable for a <a href="https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn"><code>Turn</code></a> object.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="raises" class="level2 doc-section doc-section-raises">
+<h2 class="doc-section doc-section-raises anchored" data-anchor-id="raises">Raises</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td><a href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></td>
+<td>If the URL points to a PDF (use <code>content_pdf_url()</code> instead), or is a malformed <code>data:</code> URL.</td>
 </tr>
 </tbody>
 </table>
@@ -1276,13 +1310,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/types.ContentToolResponseSearch.html" class="pagination-link" aria-label="types.ContentToolResponseSearch">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">types.ContentToolResponseSearch</span>
+      <a href="../reference/content_document_file.html" class="pagination-link" aria-label="content_document_file">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">content_document_file</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/types.ContentToolResponseFetch.html" class="pagination-link" aria-label="types.ContentToolResponseFetch">
-        <span class="nav-page-text">types.ContentToolResponseFetch</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/Tool.html" class="pagination-link" aria-label="Tool">
+        <span class="nav-page-text">Tool</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1294,7 +1328,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.ContentToolRequestFetch.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/content_document_url.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

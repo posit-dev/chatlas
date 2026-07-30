@@ -57,6 +57,15 @@ Submit pdf input to the chat
 | [content_pdf_file](../reference/content_pdf_file.llms.md#chatlas.content_pdf_file) | Prepare a local PDF for input to a chat. |
 | [content_pdf_url](../reference/content_pdf_url.llms.md#chatlas.content_pdf_url) | Use a remote PDF for input to a chat. |
 
+## Document input
+
+Submit plain text, Markdown, CSV, code, and other non-PDF document input to the chat
+
+|  |  |
+|----|----|
+| [content_document_file](../reference/content_document_file.llms.md#chatlas.content_document_file) | Prepare a local text/data file for input to a chat. |
+| [content_document_url](../reference/content_document_url.llms.md#chatlas.content_document_url) | Prepare a remote text/data file for input to a chat. |
+
 ## Tool calling
 
 Add context to python function before registering it as a tool.
@@ -132,6 +141,7 @@ A provider-agnostic representation of content generated during an assistant/user
 | [types.ContentImageRemote](../reference/types.ContentImageRemote.llms.md#chatlas.types.ContentImageRemote) | Image content from a URL. |
 | [types.ContentJson](../reference/types.ContentJson.llms.md#chatlas.types.ContentJson) | JSON content |
 | [types.ContentPDF](../reference/types.ContentPDF.llms.md#chatlas.types.ContentPDF) | PDF content |
+| [types.ContentDocument](../reference/types.ContentDocument.llms.md#chatlas.types.ContentDocument) | Generic document content (plain text, Markdown, CSV, code, and – on |
 | [types.ContentText](../reference/types.ContentText.llms.md#chatlas.types.ContentText) | Text content for a [`Turn`](https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn) |
 | [types.ContentThinking](../reference/types.ContentThinking.llms.md#chatlas.types.ContentThinking) | Thinking/reasoning content |
 | [types.ContentThinkingDelta](../reference/types.ContentThinkingDelta.llms.md#chatlas.types.ContentThinkingDelta) | A streaming fragment of thinking/reasoning content. |

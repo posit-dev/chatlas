@@ -19,3 +19,9 @@ Not all providers support PDF input, so check the documentation for the provider
 | Name | Type | Description |
 |----|----|----|
 |  | \[\](`~chatlas.types.Content`) | Content suitable for a [`Turn`](https://posit-dev.github.io/chatlas/reference/Turn.html#chatlas.Turn) object. |
+
+## Raises
+
+| Name | Type | Description |
+|----|----|----|
+|  | [ValueError](https://docs.python.org/3/library/exceptions.html#ValueError) | If the URL is not valid, or if it’s a `data:` URL with an unsupported content type. |

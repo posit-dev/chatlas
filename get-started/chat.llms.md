@@ -45,7 +45,7 @@ Video of streaming chat in a *console*
 
 ## Multi-modal input
 
-The `.chat()` method also accepts input other than text, such as images, pdfs, and more. These content objects can be created using a function such as [`content_image_url()`](../reference/content_image_url.llms.md), [`content_pdf_file()`](../reference/content_pdf_file.llms.md), etc.
+The `.chat()` method also accepts input other than text, such as images, PDFs, plain-text/data files, and more. These content objects can be created using a function such as [`content_image_url()`](../reference/content_image_url.llms.md), [`content_pdf_file()`](../reference/content_pdf_file.llms.md), [`content_document_file()`](../reference/content_document_file.llms.md), etc.
 
 ``` python
 import chatlas as ctl
@@ -59,6 +59,17 @@ chat.chat(
     The Python logo features two intertwined snakes in yellow and blue,
     representing the Python programming language. The design symbolizes...
 
+Use [`content_document_file()`](../reference/content_document_file.llms.md) for plain text, Markdown, CSV, code, and other non-PDF documents, instead of reading the file yourself and pasting its contents into a prompt string. The model sees it as an attached document rather than as prose, and `ChatOpenAI()` can additionally parse office formats like `.docx`/`.xlsx`:
+
+``` python
+# WARNING: don't actually ask an LLM to perform data analysis for you,
+# unless it is equipped with a code execution tool.
+chat.chat(
+  ctl.content_document_file("quarterly-report.csv"),
+  "Summarize the trends in this data.",
+)
+```
+
 > **WARNING:**
 >
 > Not every model supports every content type. Please refer to the documentation for the specific model you’re using to see which content types are supported.
@@ -70,6 +81,8 @@ uploaded = chat.files.upload("quarterly-report.pdf")
 chat.chat(uploaded, "Summarize the key findings.")
 chat.chat(uploaded, "Now list the risks mentioned.")
 ```
+
+Uploading has two catches. It only works with `ChatOpenAI()`, `ChatAnthropic()`, and `ChatGoogle()`, and what you get back is an id rather than the file itself, so a chat containing one won’t replay against a different provider. Gemini also deletes uploaded files after 48 hours. When in doubt, stick with `content_*_file()`.
 
 See [`chat.files`](../reference/FileManager.llms.md) for the full set of upload/list/download/delete operations and provider support notes, and [`ContentUploaded`](../reference/types.ContentUploaded.llms.md) for the reference type it returns.
 
