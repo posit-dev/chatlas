@@ -342,6 +342,8 @@ def normalize_finish_reason(reason: str | None) -> str | None:
 class AnthropicProvider(
     Provider[Message, RawMessageStreamEvent, Message, "SubmitInputArgs"]
 ):
+    supported_builtin_tools = (ToolWebSearch, ToolWebFetch)
+
     def __init__(
         self,
         *,
@@ -960,8 +962,10 @@ class AnthropicProvider(
 
         raise ValueError(f"Unknown content type: {type(content)}")
 
-    @staticmethod
-    def _anthropic_tool_schema(tool: "Tool | ToolBuiltIn") -> "ToolUnionParam":
+    def _anthropic_tool_schema(self, tool: "Tool | ToolBuiltIn") -> "ToolUnionParam":
+        if isinstance(tool, ToolBuiltIn):
+            self.check_builtin_tool_support(tool)
+
         if isinstance(tool, ToolWebSearch):
             return tool.get_definition("anthropic")
         if isinstance(tool, ToolWebFetch):
@@ -1420,6 +1424,15 @@ def ChatBedrockAnthropic(
 # Bedrock's Anthropic client has no `.beta.files`.
 @no_file_management
 class AnthropicBedrockProvider(AnthropicProvider):
+    # Bedrock hosts Claude but not Anthropic's server-side tools:
+    # https://platform.claude.com/docs/en/agents-and-tools/tool-use/web-search-tool
+    supported_builtin_tools = ()
+
+    unsupported_builtin_tool_hint = (
+        "Amazon Bedrock does not run Anthropic's server-side tools; "
+        "`ChatAnthropic()` does."
+    )
+
     def __init__(
         self,
         *,

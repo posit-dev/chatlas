@@ -46,7 +46,7 @@ from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
-from ._tools_builtin import ToolWebFetch, ToolWebSearch
+from ._tools_builtin import ToolWebSearch
 from ._turn import AssistantTurn, FinishReason, Turn, check_finish_reason
 
 if TYPE_CHECKING:
@@ -245,6 +245,8 @@ class OpenAIProvider(
         "SubmitInputArgs",
     ]
 ):
+    supported_builtin_tools = (ToolWebSearch,)
+
     def chat_perform(
         self,
         *,
@@ -287,14 +289,11 @@ class OpenAIProvider(
 
         tool_params: list["ToolParam"] = []
         for tool in tools.values():
+            if isinstance(tool, ToolBuiltIn):
+                self.check_builtin_tool_support(tool)
+
             if isinstance(tool, ToolWebSearch):
                 tool_params.append(tool.get_definition("openai"))
-            elif isinstance(tool, ToolWebFetch):
-                raise ValueError(
-                    "Web fetch is currently not natively supported by OpenAI. "
-                    "Consider using the MCP Fetch server instead via chat.register_mcp_tools_stdio_async(). "
-                    "See help(tool_web_fetch) for details."
-                )
             elif isinstance(tool, ToolBuiltIn):
                 tool_params.append(cast("ToolParam", tool.definition))
             else:

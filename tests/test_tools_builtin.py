@@ -1,15 +1,24 @@
 """Tests for built-in web search and fetch tools."""
 
+from typing import cast
+
 import pytest
 
 from chatlas import (
     ChatAnthropic,
+    ChatBedrockAnthropic,
     ChatGoogle,
+    ChatOllama,
     ChatOpenAI,
+    ChatOpenAICompletions,
     tool_web_fetch,
     tool_web_search,
 )
 from chatlas._content import ToolAnnotations
+from chatlas._provider_anthropic import AnthropicBedrockProvider, AnthropicProvider
+from chatlas._provider_google import GoogleProvider
+from chatlas._provider_openai import OpenAIProvider
+from chatlas._provider_openai_completions import OpenAICompletionsProvider
 from chatlas._tools import ToolBuiltIn
 from chatlas._tools_builtin import ToolWebFetch, ToolWebSearch
 
@@ -84,9 +93,7 @@ class TestToolWebSearchConfiguration:
         with pytest.raises(
             ValueError, match="Cannot specify both allowed_domains and blocked_domains"
         ):
-            tool_web_search(
-                allowed_domains=["good.com"], blocked_domains=["bad.com"]
-            )
+            tool_web_search(allowed_domains=["good.com"], blocked_domains=["bad.com"])
 
     def test_with_user_location(self):
         """Test web search tool with user location."""
@@ -127,9 +134,7 @@ class TestToolWebFetchConfiguration:
         with pytest.raises(
             ValueError, match="Cannot specify both allowed_domains and blocked_domains"
         ):
-            tool_web_fetch(
-                allowed_domains=["good.com"], blocked_domains=["bad.com"]
-            )
+            tool_web_fetch(allowed_domains=["good.com"], blocked_domains=["bad.com"])
 
 
 class TestToolWebSearchProviderDefinitions:
@@ -205,7 +210,9 @@ class TestToolWebSearchProviderDefinitions:
     def test_openai_warns_on_unsupported_params(self):
         """Test that OpenAI warns about unsupported parameters."""
         tool = tool_web_search(blocked_domains=["spam.com"], max_uses=5)
-        with pytest.warns(UserWarning, match="blocked_domains is not supported by OpenAI"):
+        with pytest.warns(
+            UserWarning, match="blocked_domains is not supported by OpenAI"
+        ):
             tool.get_definition("openai")
 
     def test_google_warns_on_unsupported_params(self):
@@ -287,7 +294,9 @@ class TestToolWebFetchProviderDefinitions:
         assert any("allowed_domains" in m for m in messages)
         assert any("max_uses" in m for m in messages)
 
-        with pytest.warns(UserWarning, match="blocked_domains is not supported by Google"):
+        with pytest.warns(
+            UserWarning, match="blocked_domains is not supported by Google"
+        ):
             tool2.get_definition("google")
 
     def test_anthropic_with_extra_params(self):
@@ -372,3 +381,156 @@ class TestChatRegistration:
         assert len(tools) == 2
         tool_names = {t.name for t in tools}
         assert tool_names == {"web_search", "add"}
+
+
+def bedrock_chat():
+    return ChatBedrockAnthropic(
+        aws_secret_key="fake",
+        aws_access_key="fake",
+        aws_region="us-east-1",
+    )
+
+
+class TestUnsupportedProviders:
+    """Built-in tools error at registration on providers that can't send them."""
+
+    def test_openai_completions_rejects_web_search(self):
+        chat = ChatOpenAICompletions()
+        with pytest.raises(ValueError, match="`web_search`.*not supported by OpenAI"):
+            chat.register_tool(tool_web_search())
+
+    def test_openai_completions_rejects_web_fetch(self):
+        chat = ChatOpenAICompletions()
+        with pytest.raises(ValueError, match="`web_fetch`.*not supported by OpenAI"):
+            chat.register_tool(tool_web_fetch())
+
+    def test_openai_completions_error_mentions_completions_api(self):
+        chat = ChatOpenAICompletions()
+        with pytest.raises(ValueError, match="Chat Completions API"):
+            chat.register_tool(tool_web_search())
+
+    def test_openai_compatible_provider_rejects_web_search(self, monkeypatch):
+        """Providers inheriting the completions provider inherit the rejection."""
+        monkeypatch.setattr(
+            "chatlas._provider_ollama.has_ollama", lambda base_url: True
+        )
+        chat = ChatOllama(model="llama3.2")
+        with pytest.raises(ValueError, match="`web_search`.*not supported by Ollama"):
+            chat.register_tool(tool_web_search())
+
+    def test_openai_responses_rejects_web_fetch(self):
+        """OpenAI supports web search but has no built-in fetch tool."""
+        chat = ChatOpenAI()
+        with pytest.raises(ValueError, match="`web_fetch`.*not supported by OpenAI"):
+            chat.register_tool(tool_web_fetch())
+
+    def test_bedrock_rejects_web_search(self):
+        """Amazon Bedrock hosts Claude but not Anthropic's server-side tools."""
+        chat = bedrock_chat()
+        with pytest.raises(
+            ValueError, match="`web_search`.*not supported by AWS/Bedrock"
+        ):
+            chat.register_tool(tool_web_search())
+
+    def test_bedrock_rejects_web_fetch(self):
+        chat = bedrock_chat()
+        with pytest.raises(
+            ValueError, match="`web_fetch`.*not supported by AWS/Bedrock"
+        ):
+            chat.register_tool(tool_web_fetch())
+
+    def test_bedrock_error_mentions_chat_anthropic(self):
+        chat = bedrock_chat()
+        with pytest.raises(ValueError, match="ChatAnthropic"):
+            chat.register_tool(tool_web_search())
+
+    def test_error_suggests_an_alternative(self):
+        chat = ChatOpenAICompletions()
+        with pytest.raises(ValueError, match="MCP"):
+            chat.register_tool(tool_web_search())
+
+    def test_unsupported_tool_is_not_registered(self):
+        chat = ChatOpenAICompletions()
+        with pytest.raises(ValueError):
+            chat.register_tool(tool_web_search())
+        assert chat.get_tools() == []
+
+    def test_raw_builtin_tool_is_still_allowed(self):
+        """A caller-supplied provider-specific definition passes through."""
+        chat = ChatOpenAICompletions()
+        tool = ToolBuiltIn(name="raw", definition={"type": "some_native_tool"})
+        chat.register_tool(tool)
+        assert chat.get_tools() == [tool]
+
+    def test_set_tools_also_checks_support(self):
+        chat = ChatOpenAICompletions()
+        with pytest.raises(ValueError, match="`web_search`.*not supported"):
+            chat.set_tools([tool_web_search()])
+
+
+class TestUnsupportedProvidersAtRequestTime:
+    """The request builders refuse to send a tool the provider can't translate.
+
+    `register_tool()` is the main line of defense, so these tests bypass it to
+    confirm an unsupported built-in tool can never reach the API as an empty
+    (or wrong-dialect) tool definition.
+    """
+
+    def test_openai_completions_request_raises(self):
+        provider = cast(OpenAICompletionsProvider, ChatOpenAICompletions().provider)
+        with pytest.raises(ValueError, match="`web_search`.*not supported"):
+            provider._chat_perform_args(
+                stream=False, turns=[], tools={"web_search": tool_web_search()}
+            )
+
+    def test_openai_responses_request_raises_for_fetch(self):
+        provider = cast(OpenAIProvider, ChatOpenAI().provider)
+        with pytest.raises(ValueError, match="`web_fetch`.*not supported"):
+            provider._chat_perform_args(
+                stream=False, turns=[], tools={"web_fetch": tool_web_fetch()}
+            )
+
+    def test_bedrock_request_raises(self):
+        provider = cast(AnthropicBedrockProvider, bedrock_chat().provider)
+        with pytest.raises(ValueError, match="`web_search`.*not supported"):
+            provider._chat_perform_args(
+                stream=False, turns=[], tools={"web_search": tool_web_search()}
+            )
+
+    def test_google_request_allows_web_search(self):
+        provider = cast(GoogleProvider, ChatGoogle().provider)
+        kwargs = provider._chat_perform_args(
+            turns=[], tools={"web_search": tool_web_search()}
+        )
+        config = kwargs["config"]
+        assert not isinstance(config, dict) and config is not None
+        assert config.tools is not None
+
+    def test_openai_responses_request_allows_web_search(self):
+        provider = cast(OpenAIProvider, ChatOpenAI().provider)
+        kwargs = provider._chat_perform_args(
+            stream=False, turns=[], tools={"web_search": tool_web_search()}
+        )
+        assert kwargs["tools"] == [{"type": "web_search"}]
+
+    def test_completions_request_passes_raw_definition_through(self):
+        provider = cast(OpenAICompletionsProvider, ChatOpenAICompletions().provider)
+        definition = {"type": "some_native_tool"}
+        kwargs = provider._chat_perform_args(
+            stream=False,
+            turns=[],
+            tools={"raw": ToolBuiltIn(name="raw", definition=definition)},
+        )
+        assert kwargs["tools"] == [definition]
+
+    def test_anthropic_request_allows_both_builtin_tools(self):
+        provider = cast(AnthropicProvider, ChatAnthropic().provider)
+        kwargs = provider._chat_perform_args(
+            stream=False,
+            turns=[],
+            tools={"web_search": tool_web_search(), "web_fetch": tool_web_fetch()},
+        )
+        assert kwargs["tools"] == [
+            {"name": "web_search", "type": "web_search_20250305"},
+            {"name": "web_fetch", "type": "web_fetch_20250910"},
+        ]
