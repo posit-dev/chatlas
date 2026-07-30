@@ -6,7 +6,7 @@ callout-appearance: simple
 There are a few different classes of custom parameters that you can set when using chatlas.
 
 The first, and most important, are [model parameters](#model-parameters) that are commonly used across providers. This includes parameters like `temperature`, `top_p`, and `max_tokens`.
-The second is [chat parameters](#chat-parameters), which are specific to the model provider you're using. This might include non-standard parameters like `thinking` or provider-specific built-in `tools`.
+The second is [chat parameters](#chat-parameters), which are specific to the model provider you're using. This might include non-standard parameters like `service_tier` or provider-specific built-in `tools`. (Note that some provider-specific features, like [reasoning](reasoning.qmd), are common enough to earn a dedicated parameter.)
 Finally, there are [HTTP parameters](#http-parameters), which are used to customize the behavior of the HTTP client make requests for the duration of the chat session.
 
 In any case, chatlas leverages typing and IDE autocomplete to help you discover and set these parameters in a type safe way.

@@ -14,7 +14,7 @@ from ._content import (
     ContentToolResult,
     ContentUnion,
 )
-from ._content_pdf import parse_data_url
+from ._content_file import ensure_bytes, parse_data_url
 from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 
 if TYPE_CHECKING:
@@ -178,7 +178,10 @@ def chatlas_content_as_inspect(content: ContentUnion) -> InspectContent:
     elif isinstance(content, ContentPDF):
         doc = content.url
         if doc is None:
-            doc = f"data:application/pdf;base64,{base64.b64encode(content.data).decode('ascii')}"
+            data = ensure_bytes(content, "PDF")
+            doc = (
+                f"data:application/pdf;base64,{base64.b64encode(data).decode('ascii')}"
+            )
         return itool.ContentDocument(
             document=doc,
             mime_type="application/pdf",
@@ -220,13 +223,10 @@ def inspect_content_as_chatlas(content: str | InspectContent) -> Content:
     if isinstance(content, itool.ContentDocument):
         doc = content.document
         if content.mime_type == "application/pdf":
-            url = None
             if doc.startswith("http://") or doc.startswith("https://"):
-                url = doc
-                data = b""
-            else:
-                data = base64.b64decode(doc.split(",", 1)[1])
-            return ContentPDF(data=data, url=url, filename=content.filename)
+                return ContentPDF(url=doc, filename=content.filename)
+            data = base64.b64decode(doc.split(",", 1)[1])
+            return ContentPDF(data=data, filename=content.filename)
         else:
             return ContentText(text=doc)
     if isinstance(content, itool.ContentData):

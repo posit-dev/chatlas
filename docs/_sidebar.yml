@@ -18,6 +18,7 @@ website:
       - reference/ChatMistral.qmd
       - reference/ChatOllama.qmd
       - reference/ChatOpenAI.qmd
+      - reference/ChatOpenAICompletions.qmd
       - reference/ChatOpenRouter.qmd
       - reference/ChatPerplexity.qmd
       - reference/ChatPortkey.qmd
@@ -38,6 +39,10 @@ website:
       - reference/content_pdf_file.qmd
       - reference/content_pdf_url.qmd
       section: PDF input
+    - contents:
+      - reference/content_document_file.qmd
+      - reference/content_document_url.qmd
+      section: Document input
     - contents:
       - reference/Tool.qmd
       - reference/ToolRejectError.qmd
@@ -79,6 +84,7 @@ website:
       - reference/types.ContentImageRemote.qmd
       - reference/types.ContentJson.qmd
       - reference/types.ContentPDF.qmd
+      - reference/types.ContentDocument.qmd
       - reference/types.ContentText.qmd
       - reference/types.ContentThinking.qmd
       - reference/types.ContentThinkingDelta.qmd

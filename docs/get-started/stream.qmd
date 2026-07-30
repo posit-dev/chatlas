@@ -52,6 +52,7 @@ len(chat.get_turns())
 To gain access to these, set the `content` parameter to `"all"`.
 If the response includes things like tool calls, the stream will yield the relevant content types as they are generated.
 As we'll learn later, this can be useful for [displaying tool calls](../tool-calling/displays.qmd) in something like a [chatbot](chatbots.qmd) app.
+The same goes for [reasoning](reasoning.qmd): when thinking is enabled, the stream yields `ContentThinkingDelta` chunks as the model thinks.
 
 ```python
 def get_current_weather(lat: float, lng: float):

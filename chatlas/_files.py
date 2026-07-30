@@ -80,6 +80,12 @@ class FileManager:
         Only supported for ChatOpenAI, ChatAnthropic, and ChatGoogle; other
         providers raise `NotImplementedError`.
 
+        Prefer this over the inline `content_*_file()` functions when the file
+        is large or referenced across many turns, since those re-send its
+        bytes on every request. Prefer them when you want portability: the
+        returned reference is an id belonging to this provider, so a chat
+        containing one can't be replayed elsewhere.
+
         On `ChatGoogle()`, this blocks until Gemini finishes processing the
         file: large media (video, audio, multi-GB uploads) is processed
         asynchronously, and the API refuses to reference a file that isn't

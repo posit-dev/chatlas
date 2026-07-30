@@ -2,6 +2,7 @@ import pytest
 from chatlas import ChatOpenAI
 from chatlas._content import (
     ContentCitation,
+    ContentDocument,
     ContentText,
     ContentToolResponseFetch,
     ContentToolResponseSearch,
@@ -121,3 +122,15 @@ def test_content_uploaded_roundtrip():
     assert isinstance(restored, ContentUploaded)
     assert restored.id == "file_123"
     assert restored.provider == "openai"
+
+
+def test_content_document_roundtrip():
+    c = ContentDocument(data=b"hello", filename="a.txt", mime_type="text/plain")
+    assert c.content_type == "document"
+
+    dumped = c.model_dump(mode="json")
+    restored = create_content(dumped)
+    assert isinstance(restored, ContentDocument)
+    assert restored.data == b"hello"
+    assert restored.filename == "a.txt"
+    assert restored.mime_type == "text/plain"
