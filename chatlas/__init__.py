@@ -11,6 +11,7 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
+from ._content_document import content_document_file, content_document_url
 from ._content_image import content_image_file, content_image_plot, content_image_url
 from ._content_pdf import content_pdf_file, content_pdf_url
 from ._files import FileManager
@@ -79,6 +80,8 @@ __all__ = (
     "ChatSnowflake",
     "ChatVertex",
     "Chat",
+    "content_document_file",
+    "content_document_url",
     "content_image_file",
     "content_image_plot",
     "content_image_url",

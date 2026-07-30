@@ -21,6 +21,7 @@ from typing import Sequence
 
 from ._content import (
     Content,
+    ContentDocument,
     ContentImageInline,
     ContentImageRemote,
     ContentPDF,
@@ -95,39 +96,39 @@ def combine_tool_results(results: list[ContentToolResult]) -> ContentToolResult:
     if error is not None:
         return ContentToolResult(value=None, error=error, request=request)
 
-    # An image/PDF value -- bare, or nested in a list like ["chart", image] --
-    # bypasses model_format rendering: expand_tool_result unrolls it by its raw
-    # value regardless of model_format, exactly as it does for a single
-    # (non-combined) result, so rendering it here would only destroy the
+    # An expandable file value -- bare, or nested in a list like ["chart",
+    # image] -- bypasses model_format rendering: expand_tool_result unrolls it
+    # by its raw value regardless of model_format, exactly as it does for a
+    # single (non-combined) result, so rendering it here would only destroy the
     # Content object before that unrolling ever sees it. Flattening (rather
-    # than nesting) each image-bearing part's value keeps the combined result
+    # than nesting) each file-bearing part's value keeps the combined result
     # a single flat list, which is what expand_tool_values can unroll.
     parts: list[Content | str] = []
     for r in results:
         flattened = flatten_result_value(r.value)
-        if any(is_image_or_pdf_content(v) for v in flattened):
+        if any(is_expandable_file_content(v) for v in flattened):
             parts.extend(flattened)
         else:
             parts.append(content_or_str(r.get_model_value()))
 
-    if any(is_image_or_pdf_content(p) for p in parts):
+    if any(is_expandable_file_content(p) for p in parts):
         return ContentToolResult(value=parts, model_format="as_is", request=request)
 
     return ContentToolResult(value="\n".join(str(p) for p in parts), request=request)
 
 
 def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
-    """Expand a tool result that contains images/PDFs into separate content items."""
+    """Expand a tool result that contains images/files into separate content items."""
     request = content.request
     if request is None:
         return [content]
 
     value = content.value
-    if is_image_or_pdf_content(value):
+    if is_expandable_file_content(value):
         return expand_tool_value(request, value)
 
     if isinstance(value, (list, tuple)) and any(
-        is_image_or_pdf_content(x) for x in value
+        is_expandable_file_content(x) for x in value
     ):
         if all(isinstance(x, (Content, str)) for x in value):
             return expand_tool_values(request, list(value))
@@ -137,7 +138,7 @@ def expand_tool_result(content: ContentToolResult) -> list[ContentUnion]:
 
 def expand_tool_value(
     request: ContentToolRequest,
-    value: ContentImageInline | ContentImageRemote | ContentPDF,
+    value: ContentImageInline | ContentImageRemote | ContentPDF | ContentDocument,
 ) -> list[ContentUnion]:
     open_tag = f'<tool-content call-id="{request.id}">'
 
@@ -184,7 +185,7 @@ def expand_tool_values(
 def flatten_result_value(value: object) -> list[Content | str]:
     """Flatten a raw tool result value into flat Content/str parts.
 
-    Recurses into lists/tuples so an image nested at any depth (e.g. from a
+    Recurses into lists/tuples so a file nested at any depth (e.g. from a
     yielded `["chart", image]`) is preserved as itself, rather than being
     swallowed by a `str()` on its containing list.
     """
@@ -200,11 +201,13 @@ def content_or_str(value: object) -> Content | str:
     return value if isinstance(value, (Content, str)) else str(value)
 
 
-def is_image_or_pdf_content(
+# Takes `object` rather than `Content` because combine_tool_results tests raw
+# tool result values, which are arbitrary.
+def is_expandable_file_content(
     content: object,
-) -> TypeGuard[ContentImageInline | ContentImageRemote | ContentPDF]:
-    """Check if content is an image or PDF type."""
+) -> TypeGuard[ContentImageInline | ContentImageRemote | ContentPDF | ContentDocument]:
+    """Check if content is an image, PDF, or document type."""
     return isinstance(
         content,
-        (ContentImageInline, ContentImageRemote, ContentPDF),
+        (ContentImageInline, ContentImageRemote, ContentPDF, ContentDocument),
     )

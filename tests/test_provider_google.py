@@ -25,10 +25,12 @@ from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponen
 
 from .conftest import (
     assert_data_extraction,
+    assert_document_local,
     assert_images_inline,
     assert_images_remote_error,
     assert_list_models,
     assert_pdf_local,
+    assert_pdf_remote,
     assert_tool_web_fetch,
     assert_tool_web_search,
     assert_tools_parallel,
@@ -474,6 +476,18 @@ def test_google_pdfs():
 
 
 @pytest.mark.vcr
+@retry_gemini_call
+def test_google_pdf_url():
+    assert_pdf_remote(chat_func)
+
+
+@pytest.mark.vcr
+@retry_gemini_call
+def test_google_document():
+    assert_document_local(chat_func)
+
+
+@pytest.mark.vcr
 def test_google_list_models():
     assert_list_models(ChatGoogle)
 
@@ -874,6 +888,97 @@ def test_google_tool_config_not_set_when_tools_not_mixed():
     only_builtin = {"web_search": tool_web_search()}
     kwargs = provider._chat_perform_args(turns=[user_turn("hi")], tools=only_builtin)
     assert kwargs["config"].tool_config is None
+
+
+def test_google_pdf_with_data_serializes_inline():
+    from chatlas._content import ContentPDF
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    c = ContentPDF(data=b"%PDF-1.4", filename="a.pdf")
+    part = provider._as_part_type(c)
+    assert part.inline_data.data == b"%PDF-1.4"
+    assert part.inline_data.mime_type == "application/pdf"
+
+
+def test_google_pdf_with_only_url_downloads_bytes(monkeypatch):
+    from chatlas._content import ContentPDF
+
+    raw = b"%PDF-1.4-downloaded"
+    monkeypatch.setattr("chatlas._content_file.download_bytes", lambda url: raw)
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    c = ContentPDF(filename="a.pdf", url="https://example.com/a.pdf")
+    part = provider._as_part_type(c)
+    assert part.inline_data.data == raw
+    assert part.inline_data.mime_type == "application/pdf"
+    assert c.data == raw  # cached after the lazy download
+
+
+def test_google_document_serializes_inline_with_real_mime_type():
+    from chatlas._content import ContentDocument
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    c = ContentDocument(data=b"hello", filename="a.txt", mime_type="text/plain")
+    part = provider._as_part_type(c)
+    assert part.inline_data.data == b"hello"
+    assert part.inline_data.mime_type == "text/plain"
+
+
+def test_google_document_rejects_office_types():
+    from chatlas._content import ContentDocument
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    c = ContentDocument(
+        data=b"PK\x03\x04",
+        filename="a.docx",
+        mime_type=(
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ),
+    )
+    with pytest.raises(ValueError, match="doesn't support"):
+        provider._as_part_type(c)
+
+
+@pytest.mark.parametrize(
+    "mime_type",
+    [
+        "application/rtf",
+        "application/msword",
+        "application/vnd.oasis.opendocument.text",
+        "application/vnd.ms-excel",
+    ],
+)
+def test_google_document_rejects_other_binary_types(mime_type):
+    from chatlas._content import ContentDocument
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    c = ContentDocument(data=b"\xd0\xcf\x11\xe0", filename="a.doc", mime_type=mime_type)
+    with pytest.raises(ValueError, match="doesn't support"):
+        provider._as_part_type(c)
+
+
+def test_google_accepts_heic_images():
+    from chatlas._content import ContentImageInline
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    c = ContentImageInline(
+        image_content_type="image/heic",
+        data="ZmFrZQ==",  # base64("fake")
+    )
+    part = provider._as_part_type(c)
+    assert part.inline_data.mime_type == "image/heic"
+
+
+def test_google_accepts_heif_images():
+    from chatlas._content import ContentImageInline
+
+    provider = GoogleProvider(model="gemini-3.5-flash", api_key="dummy", kwargs=None)
+    c = ContentImageInline(
+        image_content_type="image/heif",
+        data="ZmFrZQ==",  # base64("fake")
+    )
+    part = provider._as_part_type(c)
+    assert part.inline_data.mime_type == "image/heif"
 
 
 def truncated_structured_completion() -> dict:
