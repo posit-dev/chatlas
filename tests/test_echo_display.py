@@ -1161,7 +1161,7 @@ def test_web_segment_citation_marks_an_existing_source():
     assert seg.sources[0].cited is True
     assert seg.sources[0].quote == "the quoted passage"
     seg.is_open = False
-    assert seg.detail() == "1 result · 1 cited"
+    assert seg.detail() == "1 result · * 1 cited"
 
 
 def test_web_segment_citation_becomes_a_row_when_it_matches_nothing():
@@ -1316,8 +1316,11 @@ def test_console_marks_the_cited_source():
     chat = make_chat([search_chunks(n_sources=2)])
     output = capture_echo(chat, width=78)
     chat.chat("when?", echo="output")
+    out = output()
 
-    assert "❝" in output()
+    # The marker on the row, and the title legend that explains it.
+    assert "* Source 1" in out
+    assert "· * 1 cited" in out
 
 
 def test_citation_after_text_joins_the_same_panel():

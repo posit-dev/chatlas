@@ -487,7 +487,7 @@ WEB_CSS = """
 ol.chatlas-web-srcs{margin:.3rem 0 .1rem 1.3rem;padding:0}
 li.chatlas-web-src{margin:.15rem 0}
 li.chatlas-web-src.cited > a{font-weight:600}
-li.chatlas-web-src.cited::marker{content:"❝ "}
+li.chatlas-web-src.cited::marker{content:"* "}
 .chatlas-web-dom{opacity:.5;font-size:.85em;margin-left:.4rem}
 .chatlas-web-activity blockquote{margin:.2rem 0;padding-left:.5rem;
   border-left:2px solid rgba(128,128,128,.4);font-size:.9em;opacity:.75}
@@ -605,7 +605,7 @@ class WebActivityPanel:
                 # safe URL gets one -- an unsafe scheme (e.g. `javascript:`) renders
                 # as plain text instead, same as the notebook.
                 table.add_row(
-                    Text("❝" if row.cited else " ", style="yellow" if row.cited else ""),
+                    Text("*" if row.cited else " ", style="yellow" if row.cited else ""),
                     Text(label, style=f"link {safe_url}" if safe_url else ""),
                     Text(web_domain(safe_url), style="dim"),
                 )
@@ -728,7 +728,9 @@ class WebActivitySegment:
             bits.append(f"{n} result{'' if n == 1 else 's'}")
         n_cited = sum(1 for row in self.sources if row.cited)
         if n_cited:
-            bits.append(f"{n_cited} cited")
+            # The `*` matches the marker on each cited row, so the header doubles
+            # as the legend that explains it.
+            bits.append(f"* {n_cited} cited")
         return " · ".join(bits)
 
 

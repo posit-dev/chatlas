@@ -85,7 +85,7 @@ def test_anthropic_search_panel():
     assert "cran.r-project.org" in out
     # 10 recorded sources, capped at 4
     assert "… 6 more" in out
-    assert "❝" in out, "the recorded turn has a citation"
+    assert "· * 1 cited" in out, "the recorded turn has a citation"
 
 
 @pytest.mark.vcr
