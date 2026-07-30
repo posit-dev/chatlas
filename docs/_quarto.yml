@@ -115,6 +115,8 @@ website:
             - structured-data/classification.qmd
             - structured-data/multi-modal.qmd
 
+        - scale.qmd
+
         - section: "Miscellaneous"
           contents:
             - misc/RAG.qmd

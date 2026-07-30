@@ -3,11 +3,208 @@ title: Scale
 callout-appearance: simple
 ---
 
-Once your workflow can handle sequential requests successfully, you may want to scale up to numerous requests at once. With chatlas, you have the option to submit multiple requests in parallel (for time efficiency) or in batch (for cost efficiency).
+Once your workflow can handle sequential requests successfully, you may want to scale up to numerous requests at once.
+This is especially useful if you're scaling up a [structured data extraction](get-started/structured-data.qmd) to process many documents at once.
+With chatlas, you have two options for submitting many requests at once, each with its own tradeoff:
+
+- **[Parallel requests](#parallel-requests)**: submit many requests concurrently (for time efficiency). Works with any provider.
+- **[Batch requests](#batch-requests)**: submit requests through a provider's batch API (for cost efficiency). Results can take up to 24 hours, but cost 50% less. Currently works with OpenAI, Anthropic, Google (Gemini), and Groq.
+
+In both cases, you start with a `Chat` instance and a list of prompts, and chatlas takes care of submitting the requests and collecting the results.
 
 ## Parallel requests
 
+[`parallel_chat()`](reference/parallel_chat.qmd) takes a `Chat` instance and a list of prompts, and submits the prompts concurrently.
+This is typically much faster than submitting them one at a time:
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+
+countries = ["Canada", "New Zealand", "Jamaica", "United States"]
+prompts = [f"What's the capital of {country}?" for country in countries]
+
+chats = await ctl.parallel_chat(chat, prompts)
+```
+
+::: callout-note
+### Await me
+
+`parallel_chat()` (and friends) are [asynchronous](get-started/async.qmd), so you must `await` them.
+Notebooks (e.g., Jupyter, Positron, VS Code) support top-level `await`, so the code above works as-is.
+In a plain Python script, you'll need to wrap it in an `async` function and run it with `asyncio.run()`:
+
+```python
+import asyncio
+
+async def main():
+    return await ctl.parallel_chat(chat, prompts)
+
+chats = asyncio.run(main())
+```
+:::
+
+The result is a list of `Chat` objects, one per prompt, each containing its own conversation history.
+If you only care about the text of each response, use [`parallel_chat_text()`](reference/parallel_chat_text.qmd) instead:
+
+```python
+responses = await ctl.parallel_chat_text(chat, prompts)
+for country, response in zip(countries, responses):
+    print(f"{country}: {response}")
+```
+
+::: chatlas-response-container
+
+```python
+Canada: The capital of Canada is Ottawa.
+New Zealand: The capital of New Zealand is Wellington.
+Jamaica: The capital of Jamaica is Kingston.
+United States: The capital of the United States is Washington, D.C.
+```
+
+:::
+
+When prompts share a common structure, [`interpolate()`](reference/interpolate.qmd) provides a convenient way to generate them from a template:
+
+```python
+template = "What's the capital of {{ country }}?"
+prompts = [ctl.interpolate(template, variables={"country": c}) for c in countries]
+```
+
+### Structured data
+
+To scale up a [structured data extraction](get-started/structured-data.qmd), pass a pydantic model to [`parallel_chat_structured()`](reference/parallel_chat_structured.qmd):
+
+```python
+from pydantic import BaseModel
+
+class Person(BaseModel):
+    name: str
+    age: int
+
+prompts = [
+    "I go by Alex. 42 years on this planet and counting.",
+    "Pleased to meet you! I'm Jamal, age 27.",
+    "They call me Li Wei. Nineteen years young.",
+    "Fatima here. Just celebrated my 35th birthday last week.",
+]
+
+results = await ctl.parallel_chat_structured(chat, prompts, Person)
+for res in results:
+    print(res.data)
+```
+
+::: chatlas-response-container
+
+```python
+name='Alex' age=42
+name='Jamal' age=27
+name='Li Wei' age=19
+name='Fatima' age=35
+```
+
+:::
+
+Each result holds both the extracted data (`.data`) and the full `Chat` object (`.chat`), in case you also want to inspect the conversation that produced it.
+
+### Tool calling
+
+If the `Chat` instance has [tools](get-started/tools.qmd) registered, they just work: any tool calls requested by the model are executed and their results submitted back, repeating until every conversation completes.
+
+### Limiting concurrency
+
+By default, at most 10 requests are active at once (`max_active=10`), and no more than 500 requests are made per minute (`rpm=500`).
+Tune these to stay within your provider's rate limits:
+
+```python
+chats = await ctl.parallel_chat(chat, prompts, max_active=5, rpm=100)
+```
+
+::: callout-warning
+### Anthropic rate limits
+
+For Anthropic, the number of active connections is limited primarily by the output tokens per minute (OTPM) limit, which is estimated from the `max_tokens` parameter (default: 4096).
+For example, if your usage tier limits you to 16,000 OTPM, you should either set `max_active=4` (16,000 / 4096) or reduce `max_tokens` via `.set_model_params()`.
+:::
+
+### Error handling
+
+The `on_error` parameter controls what happens when a request fails:
+
+- `"return"` (the default): stop submitting new requests, wait for in-flight requests to finish, then return.
+- `"continue"`: keep going, performing every request.
+- `"stop"`: stop processing and raise an error.
+
+With `"return"` and `"continue"`, the returned list has one element per prompt: a successful result, an `Exception` (if the request failed), or `None` (if the request was never submitted).
+
 ## Batch requests
 
-In either case, it may be helpful to generate multiple responses at once, both in terms of cost and time efficiency.
-This may be especially useful if you're scaling up a [structured data extraction](structured-data.qmd) to process many documents,
+If you can wait up to 24 hours for results, batch requests cost 50% less than regular requests.
+[`batch_chat()`](reference/batch_chat.qmd) submits prompts through a provider's batch API (currently supported for OpenAI, Anthropic, Google (Gemini), and Groq):
+
+```python
+import chatlas as ctl
+
+chat = ctl.ChatOpenAI()
+
+countries = ["Canada", "New Zealand", "Jamaica", "United States"]
+prompts = [f"What's the capital of {country}?" for country in countries]
+
+chats = ctl.batch_chat(chat, prompts, path="capitals.json")
+```
+
+Since batches can take a long time to complete, `batch_chat()` requires a `path` to a JSON file where it stores the state of the job, so you never lose any work.
+You can interrupt the waiting process (or set `wait=False`) and, later on, re-run `batch_chat()` with the same arguments to pick up where you left off:
+
+```python
+# Submit the batch and return immediately (`None` if not finished)
+chats = ctl.batch_chat(chat, prompts, path="capitals.json", wait=False)
+
+# Sometime later... check whether the results are ready
+if ctl.batch_chat_completed(chat, prompts, path="capitals.json"):
+    chats = ctl.batch_chat(chat, prompts, path="capitals.json")
+```
+
+Once the job completes, the responses are stored in the state file, so you can keep it around to cache the results, or delete it to free up disk space.
+
+::: callout-note
+### One file per batch
+
+The state file records a hash of the provider, the prompts, and the existing chat turns.
+If you attempt to reuse the same file with any of these being different, you'll get an error: use a different `path` for each distinct batch job.
+:::
+
+Like their parallel counterparts, [`batch_chat_text()`](reference/batch_chat_text.qmd) returns just the text of each response, and [`batch_chat_structured()`](reference/batch_chat_structured.qmd) extracts structured data:
+
+```python
+from pydantic import BaseModel
+
+class Person(BaseModel):
+    name: str
+    age: int
+
+prompts = [
+    "I go by Alex. 42 years on this planet and counting.",
+    "Pleased to meet you! I'm Jamal, age 27.",
+    "They call me Li Wei. Nineteen years young.",
+    "Fatima here. Just celebrated my 35th birthday last week.",
+]
+
+people = ctl.batch_chat_structured(chat, prompts, path="people.json", data_model=Person)
+for person in people:
+    print(person)
+```
+
+::: chatlas-response-container
+
+```python
+name='Alex' age=42
+name='Jamal' age=27
+name='Li Wei' age=19
+name='Fatima' age=35
+```
+
+:::
+
+Note that a request within a batch can fail even when the batch as a whole succeeds; in that case, the corresponding element of the result is `None`.
