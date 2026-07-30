@@ -198,7 +198,7 @@ class Tool:
             else:
                 value = parts
 
-            return ContentToolResult(value=value, model_format="as_is")
+            return ContentToolResult(value=value)
 
         params = mcp_tool_input_schema_to_param_schema(mcp_tool.input_schema)
 
