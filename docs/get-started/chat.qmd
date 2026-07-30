@@ -95,6 +95,8 @@ representing the Python programming language. The design symbolizes...
 Use [`content_document_file()`](../reference/content_document_file.qmd) for plain text, Markdown, CSV, code, and other non-PDF documents, instead of reading the file yourself and pasting its contents into a prompt string. The model sees it as an attached document rather than as prose, and `ChatOpenAI()` can additionally parse office formats like `.docx`/`.xlsx`:
 
 ```python
+# WARNING: don't actually ask an LLM to perform data analysis for you,
+# unless it is equipped with a code execution tool.
 chat.chat(
   ctl.content_document_file("quarterly-report.csv"),
   "Summarize the trends in this data.",
