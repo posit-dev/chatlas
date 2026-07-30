@@ -108,8 +108,7 @@ def combine_tool_results(results: list[ContentToolResult]) -> ContentToolResult:
         if any(is_image_or_pdf_content(v) for v in flattened):
             parts.extend(flattened)
         else:
-            rendered = r.get_model_value()
-            parts.append(rendered if isinstance(rendered, (Content, str)) else str(rendered))
+            parts.append(content_or_str(r.get_model_value()))
 
     if any(is_image_or_pdf_content(p) for p in parts):
         return ContentToolResult(value=parts, model_format="as_is", request=request)
@@ -194,9 +193,11 @@ def flatten_result_value(value: object) -> list[Content | str]:
         for item in value:
             flattened.extend(flatten_result_value(item))
         return flattened
-    if isinstance(value, (Content, str)):
-        return [value]
-    return [str(value)]
+    return [content_or_str(value)]
+
+
+def content_or_str(value: object) -> Content | str:
+    return value if isinstance(value, (Content, str)) else str(value)
 
 
 def is_image_or_pdf_content(

@@ -1,6 +1,7 @@
 """Tests for turn content expansion with images and PDFs in tool results."""
 
 import base64
+from typing import Any, cast
 
 from chatlas import UserTurn
 from chatlas._content import (
@@ -12,6 +13,8 @@ from chatlas._content import (
     ContentToolResult,
     ToolInfo,
 )
+from chatlas._provider_anthropic import AnthropicProvider
+from chatlas._turn import AssistantTurn
 
 
 def test_expand_turn_no_tool_results():
@@ -474,3 +477,58 @@ def test_anthropic_puts_every_tool_result_block_first():
 
     assert types[:2] == ["tool_result", "tool_result"]
     assert "tool_result" not in types[2:]
+
+
+def test_merge_expand_and_reorder_together():
+    """One turn exercising all three passes: a call whose parts get combined
+    and expanded, a plain call, and interstitial user-authored content."""
+    request_a = tool_request(id="call_a", name="plot")
+    request_b = tool_request(id="call_b", name="lookup")
+
+    image = ContentImageInline(
+        data=base64.b64encode(b"img").decode("utf-8"),
+        image_content_type="image/png",
+    )
+
+    turns = [
+        UserTurn("go"),
+        AssistantTurn([request_a, request_b]),
+        UserTurn(
+            [
+                ContentText(text="Before"),
+                ContentToolResult(value="here is the plot", request=request_a),
+                ContentToolResult(value=image, request=request_a),
+                ContentText(text="Between"),
+                ContentToolResult(value="text b", request=request_b),
+                ContentText(text="After"),
+            ]
+        ),
+    ]
+
+    messages = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )._as_message_params(turns)
+
+    blocks = [
+        cast(dict[str, Any], b)
+        for b in messages[-1]["content"]
+        if isinstance(b, dict)
+    ]
+    types = [b["type"] for b in blocks]
+
+    # Both tool_result blocks come first, before any other block.
+    assert types[:2] == ["tool_result", "tool_result"]
+    assert "tool_result" not in types[2:]
+    assert {b["tool_use_id"] for b in blocks if b["type"] == "tool_result"} == {
+        "call_a",
+        "call_b",
+    }
+
+    # The image from the merged+expanded call survives as a real block.
+    assert types.count("image") == 1
+
+    # The merged call's text and the interstitial content are all present,
+    # and the non-result content keeps its own relative order.
+    texts = [b["text"] for b in blocks if b["type"] == "text"]
+    assert "here is the plot" in texts
+    assert texts.index("Before") < texts.index("Between") < texts.index("After")
