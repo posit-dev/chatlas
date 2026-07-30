@@ -226,10 +226,13 @@ class Tool:
         # Convert MCP ToolAnnotations to our TypedDict format. mcp 2.0 renamed
         # its fields to snake_case, so dump by alias to keep the camelCase names
         # that match the MCP wire spec (and chatlas's ToolAnnotations).
+        # Servers routinely leave individual hints null; ToolAnnotations values
+        # are non-nullable, so omit those keys instead of passing None through.
         annotations = None
         if mcp_tool.annotations:
             annotations = cast(
-                ToolAnnotations, mcp_tool.annotations.model_dump(by_alias=True)
+                ToolAnnotations,
+                mcp_tool.annotations.model_dump(by_alias=True, exclude_none=True),
             )
 
         return cls(

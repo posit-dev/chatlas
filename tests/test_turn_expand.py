@@ -173,7 +173,6 @@ def test_expand_turn_tool_result_with_list_of_images():
     assert turn.contents[8].text == "</tool-contents>"
 
 
-
 def test_expand_turn_multiple_tool_results():
     """Test turn with multiple tool results, some needing expansion."""
     request1 = ContentToolRequest(
@@ -256,3 +255,130 @@ def test_expand_turn_empty_contents():
     turn = UserTurn([])
 
     assert len(turn.contents) == 0
+
+
+def tool_request(id: str = "call_1", name: str = "repl") -> ContentToolRequest:
+    return ContentToolRequest(
+        id=id,
+        name=name,
+        arguments={},
+        tool=ToolInfo(name=name, description="", parameters={}),
+    )
+
+
+def test_merge_joins_multiple_text_results():
+    """Several text parts for one call arrive as one newline-joined result."""
+    request = tool_request()
+    turn = UserTurn(
+        [
+            ContentToolResult(value="first", request=request),
+            ContentToolResult(value="second", request=request),
+        ]
+    )
+
+    assert len(turn.contents) == 1
+    assert isinstance(turn.contents[0], ContentToolResult)
+    assert turn.contents[0].value == "first\nsecond"
+
+
+def test_merge_leaves_single_result_untouched():
+    request = tool_request()
+    result = ContentToolResult(value="only", request=request)
+
+    turn = UserTurn([result])
+
+    assert len(turn.contents) == 1
+    assert turn.contents[0] is result
+
+
+def test_merge_keeps_distinct_requests_separate():
+    req_a = tool_request(id="call_a")
+    req_b = tool_request(id="call_b")
+    turn = UserTurn(
+        [
+            ContentToolResult(value="a1", request=req_a),
+            ContentToolResult(value="b1", request=req_b),
+            ContentToolResult(value="a2", request=req_a),
+        ]
+    )
+
+    results = [c for c in turn.contents if isinstance(c, ContentToolResult)]
+    assert len(results) == 2
+    # The merged result keeps the position of the group's first result.
+    assert results[0].id == "call_a"
+    assert results[0].value == "a1\na2"
+    assert results[1].id == "call_b"
+    assert results[1].value == "b1"
+
+
+def test_merge_propagates_error_from_any_part():
+    """A failure anywhere in the group must not be masked by sibling output."""
+    request = tool_request()
+    turn = UserTurn(
+        [
+            ContentToolResult(value="partial output", request=request),
+            ContentToolResult(value=None, error=RuntimeError("boom"), request=request),
+        ]
+    )
+
+    assert len(turn.contents) == 1
+    result = turn.contents[0]
+    assert isinstance(result, ContentToolResult)
+    assert result.error is not None
+    assert "boom" in str(result.error)
+
+
+def test_merge_mixed_text_and_image_is_expanded():
+    """Text parts plus an image unroll into pointer + separate contents."""
+    request = tool_request()
+    image = ContentImageInline(
+        data=base64.b64encode(b"png").decode("utf-8"),
+        image_content_type="image/png",
+    )
+    turn = UserTurn(
+        [
+            ContentToolResult(value="stdout", request=request),
+            ContentToolResult(value=image, request=request),
+        ]
+    )
+
+    results = [c for c in turn.contents if isinstance(c, ContentToolResult)]
+    assert len(results) == 1
+    assert 'See <tool-contents call-id="call_1"> below.' == results[0].value
+
+    # Neither the text nor the image is dropped.
+    assert any(isinstance(c, ContentText) and c.text == "stdout" for c in turn.contents)
+    assert any(isinstance(c, ContentImageInline) for c in turn.contents)
+
+
+def test_merge_preserves_surrounding_content_order():
+    request = tool_request()
+    turn = UserTurn(
+        [
+            ContentText(text="Before"),
+            ContentToolResult(value="one", request=request),
+            ContentToolResult(value="two", request=request),
+            ContentText(text="After"),
+        ]
+    )
+
+    assert len(turn.contents) == 3
+    assert isinstance(turn.contents[0], ContentText)
+    assert turn.contents[0].text == "Before"
+    assert isinstance(turn.contents[1], ContentToolResult)
+    assert turn.contents[1].value == "one\ntwo"
+    assert isinstance(turn.contents[2], ContentText)
+    assert turn.contents[2].text == "After"
+
+
+def test_merge_ignores_results_without_a_request():
+    """A result with no request has no id to group on, so it passes through."""
+    turn = UserTurn(
+        [
+            ContentToolResult(value="orphan a"),
+            ContentToolResult(value="orphan b"),
+        ]
+    )
+
+    results = [c for c in turn.contents if isinstance(c, ContentToolResult)]
+    assert len(results) == 2

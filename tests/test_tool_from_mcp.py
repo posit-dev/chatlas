@@ -441,6 +441,41 @@ class TestToolFromMCP:
         assert tool.annotations["title"] == "Dangerous Tool"
         assert tool.annotations["destructiveHint"] is True
 
+    def test_from_mcp_annotations_omit_unset_fields(self):
+        """Unset MCP annotations are dropped, not passed through as None."""
+        try:
+            from mcp.types import ToolAnnotations as MCPToolAnnotations
+        except ImportError:
+            pytest.skip("mcp is not installed")
+            return
+
+        # Servers commonly send only some hints, leaving the rest null. Keeping
+        # those nulls violates ToolAnnotations, whose values are non-nullable.
+        mcp_tool = self.create_mock_mcp_tool(
+            name="repl",
+            description="Run code",
+            input_schema={
+                "type": "object",
+                "properties": {"input": {"type": "string"}},
+                "required": ["input"],
+            },
+            annotations=MCPToolAnnotations(
+                readOnlyHint=False,
+                destructiveHint=False,
+                openWorldHint=False,
+            ),
+        )
+        session = self.create_mock_session()
+
+        tool = Tool.from_mcp(session, mcp_tool)
+
+        assert tool.annotations is not None
+        assert "title" not in tool.annotations
+        assert "idempotentHint" not in tool.annotations
+        assert tool.annotations["readOnlyHint"] is False
+        assert tool.annotations["destructiveHint"] is False
+        assert tool.annotations["openWorldHint"] is False
+
     def test_from_mcp_without_annotations(self):
         """Test creating a Tool from MCP tool without annotations."""
 
@@ -459,3 +494,57 @@ class TestToolFromMCP:
 
         assert tool.name == "safe_tool"
         assert tool.annotations is None
+
+
+@pytest.mark.asyncio
+async def test_multi_part_mcp_result_becomes_one_tool_result():
+    """The end-to-end path behind "each tool_use must have a single result".
+
+    An MCP server may answer one call with several content parts; `from_mcp`
+    yields one result per part and `Chat` stamps them all with the same
+    request. They must collapse to a single result before reaching a provider.
+    """
+    from chatlas import UserTurn
+    from chatlas._content import ContentToolRequest, ToolInfo
+
+    tool_obj = TestToolFromMCP()
+    mcp_tool = tool_obj.create_mock_mcp_tool(
+        name="repl",
+        description="Run code",
+        input_schema={"type": "object", "properties": {}},
+    )
+
+    session = tool_obj.create_mock_session()
+    mock_result = MagicMock()
+    mock_result.is_error = False
+
+    text1, text2 = MagicMock(), MagicMock()
+    text1.type, text1.text = "text", "stdout: rendering"
+    text2.type, text2.text = "text", "Done."
+    image = MagicMock()
+    image.type, image.data, image.mime_type = "image", "aGVsbG8=", "image/png"
+    mock_result.content = [text1, text2, image]
+    session.call_tool.return_value = mock_result
+
+    tool = Tool.from_mcp(session, mcp_tool)
+
+    request = ContentToolRequest(
+        id="call_multi",
+        name="repl",
+        arguments={},
+        tool=ToolInfo(name="repl", description="", parameters={}),
+    )
+    results = []
+    async for result in await tool.func():
+        result.request = request  # mirrors Chat._invoke_tool
+        results.append(result)
+
+    assert len(results) == 3
+
+    turn = UserTurn(results)
+    merged = [c for c in turn.contents if isinstance(c, ContentToolResult)]
+    assert len(merged) == 1
+    assert merged[0].id == "call_multi"
+
+    # The image survives as its own content item rather than being dropped.
+    assert any(isinstance(c, ContentImageInline) for c in turn.contents)

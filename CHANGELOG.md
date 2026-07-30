@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `echo="all"` no longer displays tool results twice — once in full as part of the user turn they're attached to, and again on their own.
 * `Chat.set_echo_options(css_styles=)` now actually applies in notebooks: the styles were previously attached to a CSS sibling selector that could never match the wrapper they were meant to style.
 * Tool names and argument names are now HTML-escaped in the notebook/shiny rendering of tool requests and results, closing an HTML-injection hole (both are model-controlled).
+* MCP tools that answer a single call with multiple content parts (several text chunks, or text plus an image) no longer produce an invalid request. Each part became its own tool result carrying the same tool call id, which providers reject -- Anthropic, for example, with `each tool_use must have a single result`. Results answering the same request are now combined before being sent: text parts are joined, and a mix of text and images is unrolled into the request-scoped content that providers already understand. This also covers custom tools that yield more than one `ContentToolResult` for one call.
+* `register_mcp_tools_stdio_async()` and `register_mcp_tools_http_stream_async()` no longer fail on servers that leave some tool annotations unset. The unset hints were forwarded as `None`, which doesn't match `ToolAnnotations` (whose values are non-nullable) and could raise a validation error in consumers such as `shinychat`. Unset hints are now omitted.
 
 ## [0.20.0] - 2026-07-29
 

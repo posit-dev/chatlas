@@ -16,7 +16,7 @@ from ._content import (
     ContentUnion,
     create_content,
 )
-from ._content_expand import expand_tool_result
+from ._content_expand import expand_tool_result, merge_tool_results
 
 __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
 
@@ -269,7 +269,7 @@ class UserTurn(Turn):
     @model_validator(mode="after")
     def expand_tool_contents(self):
         contents: list[ContentUnion] = []
-        for x in self.contents:
+        for x in merge_tool_results(self.contents):
             if isinstance(x, ContentToolResult):
                 contents.extend(expand_tool_result(x))
             else:
