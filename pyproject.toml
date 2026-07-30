@@ -63,6 +63,9 @@ dev = [
     "python-dotenv",
     "matplotlib",
     "Pillow",
+    # Optional for users, but required here so the HEIC/HEIF resize path is
+    # actually exercised rather than only its missing-dependency error.
+    "pillow-heif",
     "shiny",
     "htmltools>=0.7.0;python_version>='3.10'",
     "shinychat>=0.6.0",

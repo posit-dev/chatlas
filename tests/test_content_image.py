@@ -1,3 +1,7 @@
+import base64
+import io
+import sys
+
 import matplotlib.pyplot as plt
 import pytest
 from chatlas import content_image_file, content_image_plot, content_image_url
@@ -105,8 +109,31 @@ def test_heif_extension_maps_to_heif_mime_type(tmp_path):
     assert obj.image_content_type == "image/heif"
 
 
-def test_heic_resize_without_pillow_heif_raises_clear_error(tmp_path):
+def test_heic_resize_without_pillow_heif_raises_clear_error(tmp_path, monkeypatch):
+    # pillow-heif is a dev dependency, so simulate its absence rather than
+    # relying on it being uninstalled -- otherwise this passes for the wrong
+    # reason locally and stops testing anything once it's installed.
+    monkeypatch.setitem(sys.modules, "pillow_heif", None)
     path = tmp_path / "photo.heic"
     path.write_bytes(b"fake-heic-bytes")
     with pytest.raises(ImportError, match="pillow-heif"):
         content_image_file(str(path), resize="low")
+
+
+@pytest.mark.parametrize("suffix", [".heic", ".heif"])
+def test_heic_heif_resize_roundtrips_through_pillow_heif(tmp_path, suffix):
+    pillow_heif = pytest.importorskip("pillow_heif")
+    pillow_heif.register_heif_opener()
+
+    path = tmp_path / f"photo{suffix}"
+    Image.new("RGB", (1200, 900), (200, 50, 50)).save(str(path), format="HEIF")
+
+    obj = content_image_file(str(path), resize="low")
+
+    assert obj.image_content_type == f"image/{suffix.lstrip('.')}"
+    resized = Image.open(io.BytesIO(base64.b64decode(obj.data)))
+    # `resize="low"` thumbnails into a 512x512 box, preserving aspect ratio.
+    assert resized.size == (512, 384)
+    # The resized bytes must still be HEIF; `img.save(format=img.format)` only
+    # works because register_heif_opener() also registers the encoder.
+    assert resized.format == "HEIF"
