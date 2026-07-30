@@ -1012,7 +1012,7 @@ class ContentToolRequestSearch(Content):
     content_type: ContentTypeEnum = "web_search_request"
 
     def __str__(self):
-        return f"[web search request]: {self.query!r}"
+        return f"**web search request**: {self.query!r}"
 
 
 class ContentToolResponseSearch(Content):
@@ -1037,7 +1037,7 @@ class ContentToolResponseSearch(Content):
 
     def __str__(self):
         lines = "\n".join(f"* {s}" for s in self.sources)
-        return f"[web search results]:\n{lines}"
+        return f"**web search results**:\n{lines}"
 
 
 class ContentToolRequestFetch(Content):
@@ -1061,7 +1061,7 @@ class ContentToolRequestFetch(Content):
     content_type: ContentTypeEnum = "web_fetch_request"
 
     def __str__(self):
-        return f"[web fetch request]: {self.url}"
+        return f"**web fetch request**: {self.url}"
 
 
 class ContentToolResponseFetch(Content):
@@ -1092,7 +1092,7 @@ class ContentToolResponseFetch(Content):
     content_type: ContentTypeEnum = "web_fetch_results"
 
     def __str__(self):
-        return f"[web fetch result]: {self.url}"
+        return f"**web fetch result**: {self.url}"
 
 
 class ContentCitation(Content):
@@ -1118,11 +1118,14 @@ class ContentCitation(Content):
     def _rebuild_source(cls, v: Any) -> Any:
         return create_source(v) if isinstance(v, dict) else v
 
+    # The label is bold rather than bracketed on purpose: `[citation]: <url>` is a
+    # CommonMark link reference definition, so both the console and notebook
+    # renderers would consume the line and display nothing.
     def __str__(self) -> str:
         label = (
             str(self.source) if self.source is not None else (self.grounded_span or "")
         )
-        return f"[citation]: {label}"
+        return f"**citation**: {label}"
 
 
 ContentUnion = Union[
