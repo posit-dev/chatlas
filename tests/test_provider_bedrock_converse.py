@@ -1,6 +1,7 @@
 import binascii
 import json
 import struct
+from typing import cast
 
 import httpx
 import pytest
@@ -164,3 +165,94 @@ class TestBedrockSigV4Auth:
         signed = await auth.async_auth_flow(make_request()).__anext__()
 
         assert "AWS4-HMAC-SHA256" in signed.headers["authorization"]
+
+
+class TestContentSerialization:
+    def test_text_becomes_a_text_block(self):
+        from chatlas._content import ContentText
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        assert as_converse_content(ContentText(text="hi")) == {"text": "hi"}
+
+    def test_inline_image_becomes_an_image_block_with_raw_bytes(self):
+        import base64
+
+        from chatlas._content import ContentImageInline
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        raw = b"\x89PNG\r\n\x1a\n"
+        content = ContentImageInline(
+            image_content_type="image/png",
+            data=base64.b64encode(raw).decode(),
+        )
+        # Converse takes raw bytes, not base64 -- unlike Anthropic's API.
+        assert as_converse_content(content) == {
+            "image": {"format": "png", "source": {"bytes": raw}}
+        }
+
+    def test_tool_request_becomes_a_tool_use_block(self):
+        from chatlas._content import ContentToolRequest
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        req = ContentToolRequest(
+            id="t1", name="get_weather", arguments={"city": "Paris"}
+        )
+        assert as_converse_content(req) == {
+            "toolUse": {
+                "toolUseId": "t1",
+                "name": "get_weather",
+                "input": {"city": "Paris"},
+            }
+        }
+
+    def test_tool_result_becomes_a_tool_result_block(self):
+        from chatlas._content import ContentToolRequest, ContentToolResult
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        req = ContentToolRequest(id="t1", name="get_weather", arguments={})
+        result = ContentToolResult(value="sunny", request=req)
+        # boto3-stubs models each Converse content block as one flat,
+        # all-NotRequired TypedDict (a union-by-optional-fields, not a
+        # discriminated union), so pyright can't narrow "toolResult" as
+        # present from the runtime dispatch alone.
+        block = cast(dict, as_converse_content(result))
+        assert block["toolResult"]["toolUseId"] == "t1"
+        assert block["toolResult"]["status"] == "success"
+        assert block["toolResult"]["content"] == [{"text": "sunny"}]
+
+    def test_failed_tool_result_is_marked_as_error(self):
+        from chatlas._content import ContentToolRequest, ContentToolResult
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        req = ContentToolRequest(id="t1", name="boom", arguments={})
+        result = ContentToolResult(value=None, error=RuntimeError("nope"), request=req)
+        block = cast(dict, as_converse_content(result))
+        assert block["toolResult"]["status"] == "error"
+
+    def test_system_prompt_is_split_out_of_messages(self):
+        from chatlas._provider_bedrock_converse import (
+            as_converse_messages,
+            as_converse_system,
+        )
+        from chatlas._turn import SystemTurn, UserTurn
+
+        turns = [SystemTurn("be terse"), UserTurn("hi")]
+        assert as_converse_system(turns) == [{"text": "be terse"}]
+        messages = as_converse_messages(turns)
+        assert [m["role"] for m in messages] == ["user"]
+
+    def test_tools_become_a_tool_config(self):
+        from chatlas._provider_bedrock_converse import as_converse_tools
+        from chatlas._tools import Tool
+
+        def get_weather(city: str) -> str:
+            "Get weather for a city"
+            return "sunny"
+
+        tool = Tool.from_func(get_weather)
+        config = as_converse_tools({tool.name: tool})
+        spec = cast(dict, config["tools"][0])["toolSpec"]
+        assert spec["name"] == "get_weather"
+        assert spec["description"] == "Get weather for a city"
+        assert spec["inputSchema"]["json"]["type"] == "object"
+        assert "city" in spec["inputSchema"]["json"]["properties"]

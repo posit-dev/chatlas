@@ -1,10 +1,31 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 from functools import cache
-from typing import TYPE_CHECKING, AsyncGenerator, AsyncIterator, Generator, Iterator
+from typing import (
+    TYPE_CHECKING,
+    AsyncGenerator,
+    AsyncIterator,
+    Generator,
+    Iterator,
+    cast,
+)
 
 import httpx
+
+from ._content import (
+    Content,
+    ContentImageInline,
+    ContentImageRemote,
+    ContentPDF,
+    ContentText,
+    ContentThinking,
+    ContentToolRequest,
+    ContentToolResult,
+)
+from ._tools import Tool, ToolBuiltIn
+from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
 
 try:
     from botocore.auth import SigV4Auth
@@ -22,6 +43,14 @@ except ImportError:
 if TYPE_CHECKING:
     from botocore.credentials import Credentials
     from botocore.model import Shape
+    from mypy_boto3_bedrock_runtime.literals import ImageFormatType
+    from mypy_boto3_bedrock_runtime.type_defs import (
+        ContentBlockUnionTypeDef,
+        MessageUnionTypeDef,
+        SystemContentBlockTypeDef,
+        ToolConfigurationTypeDef,
+        ToolTypeDef,
+    )
 
 
 def decode_eventstream(chunks: Iterator[bytes]) -> Iterator[dict]:
@@ -120,3 +149,118 @@ class BedrockSigV4Auth(httpx.Auth):
         # thread; botocore may refresh SSO/STS credentials with a synchronous
         # network call there, stalling every other task on the loop.
         yield await asyncio.to_thread(self.sign, request)
+
+
+def as_converse_content(
+    content: Content, *, document_index: int = 0
+) -> ContentBlockUnionTypeDef:
+    if isinstance(content, ContentText):
+        return {"text": content.text}
+    elif isinstance(content, ContentImageInline):
+        if content.image_content_type not in CONVERSE_IMAGE_FORMATS:
+            raise ValueError(
+                f"Unsupported image content type for Bedrock Converse: "
+                f"{content.image_content_type}"
+            )
+        return {
+            "image": {
+                "format": CONVERSE_IMAGE_FORMATS[content.image_content_type],
+                "source": {"bytes": base64.b64decode(content.data)},
+            }
+        }
+    elif isinstance(content, ContentImageRemote):
+        raise ValueError(
+            "Remote images aren't supported by Bedrock's Converse API, which "
+            "only accepts inline bytes or an S3 location. Consider downloading "
+            "the image and using content_image_file() instead."
+        )
+    elif isinstance(content, ContentPDF):
+        return {
+            "document": {
+                "format": "pdf",
+                # DocumentBlock.name rejects many characters (e.g. those in
+                # user filenames) and must be unique per request, so it's
+                # derived from position rather than from `content.filename`.
+                "name": f"document-{document_index}",
+                "source": {"bytes": content.data},
+            }
+        }
+    elif isinstance(content, ContentToolRequest):
+        return {
+            "toolUse": {
+                "toolUseId": content.id,
+                "name": content.name,
+                "input": cast(dict, content.arguments),
+            }
+        }
+    elif isinstance(content, ContentToolResult):
+        value = content.get_model_value()
+        text = value if isinstance(value, str) else str(value)
+        return {
+            "toolResult": {
+                "toolUseId": content.id,
+                "content": [{"text": text}],
+                "status": "error" if content.error else "success",
+            }
+        }
+    elif isinstance(content, ContentThinking):
+        extra = content.extra or {}
+        return {
+            "reasoningContent": {
+                "reasoningText": {
+                    "text": content.thinking,
+                    "signature": extra.get("signature", ""),
+                }
+            }
+        }
+    raise ValueError(f"Unknown content type: {type(content)}")
+
+
+def as_converse_messages(turns: list[Turn]) -> list[MessageUnionTypeDef]:
+    messages: list[MessageUnionTypeDef] = []
+    index = 0
+    for turn in turns:
+        if isinstance(turn, SystemTurn):
+            continue  # system prompt passed as separate arg
+        if not isinstance(turn, (UserTurn, AssistantTurn)):
+            raise ValueError(f"Unknown role {turn.role}")
+
+        role = "user" if isinstance(turn, UserTurn) else "assistant"
+        content: list[ContentBlockUnionTypeDef] = []
+        for c in turn.contents:
+            content.append(as_converse_content(c, document_index=index))
+            index += 1
+        messages.append({"role": role, "content": content})
+    return messages
+
+
+def as_converse_system(turns: list[Turn]) -> list[SystemContentBlockTypeDef]:
+    return [{"text": turn.text} for turn in turns if isinstance(turn, SystemTurn)]
+
+
+def as_converse_tools(tools: dict[str, Tool | ToolBuiltIn]) -> ToolConfigurationTypeDef:
+    return {"tools": [converse_tool_spec(tool) for tool in tools.values()]}
+
+
+CONVERSE_IMAGE_FORMATS: dict[str, ImageFormatType] = {
+    "image/png": "png",
+    "image/jpeg": "jpeg",
+    "image/gif": "gif",
+    "image/webp": "webp",
+}
+
+
+def converse_tool_spec(tool: Tool | ToolBuiltIn) -> ToolTypeDef:
+    if isinstance(tool, ToolBuiltIn):
+        raise ValueError(
+            f"Built-in tool '{tool.name}' is not supported by "
+            '`ChatBedrock(api="converse")`.'
+        )
+    fn = tool.schema["function"]
+    return {
+        "toolSpec": {
+            "name": fn["name"],
+            "description": fn.get("description") or "",
+            "inputSchema": {"json": fn.get("parameters") or {"type": "object"}},
+        }
+    }
