@@ -188,28 +188,63 @@ def test_google_emits_single_function_response():
     assert responses[0].function_response.name == "text_and_image"
 
 
+def _anthropic_result_ids(turns: list[Turn]) -> list[str]:
+    messages = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )._as_message_params(turns)
+    return [
+        cast(dict[str, Any], b)["tool_use_id"]
+        for m in messages
+        for b in m["content"]
+        if isinstance(b, dict) and b.get("type") == "tool_result"
+    ]
+
+
+def _openai_result_ids(turns: list[Turn]) -> list[str]:
+    inputs = OpenAIProvider(model="gpt-4o", api_key="dummy", kwargs=None)._turns_as_inputs(
+        turns
+    )
+    return [
+        cast(dict[str, Any], i)["call_id"]
+        for i in inputs
+        if isinstance(i, dict) and i.get("type") == "function_call_output"
+    ]
+
+
+def _openai_completions_result_ids(turns: list[Turn]) -> list[str]:
+    messages = OpenAICompletionsProvider(
+        model="gpt-4o", api_key="dummy", kwargs=None
+    )._turns_as_inputs(turns)
+    return [
+        cast(dict[str, Any], m)["tool_call_id"]
+        for m in messages
+        if isinstance(m, dict) and m.get("role") == "tool"
+    ]
+
+
+def _google_result_ids(turns: list[Turn]) -> list[str]:
+    contents = GoogleProvider(
+        model="gemini-2.5-flash", api_key="dummy", name="Google/Gemini", kwargs=None
+    )._google_contents(turns)
+    return [
+        p.function_response.id
+        for c in contents
+        for p in (c.parts or [])
+        if p.function_response is not None and p.function_response.id is not None
+    ]
+
+
 @pytest.mark.parametrize(
-    "provider_call",
+    "result_ids",
     [
-        lambda t: AnthropicProvider(
-            model="claude-sonnet-4-5", api_key="dummy", kwargs=None
-        )._as_message_params(t),
-        lambda t: OpenAIProvider(
-            model="gpt-4o", api_key="dummy", kwargs=None
-        )._turns_as_inputs(t),
-        lambda t: OpenAICompletionsProvider(
-            model="gpt-4o", api_key="dummy", kwargs=None
-        )._turns_as_inputs(t),
-        lambda t: GoogleProvider(
-            model="gemini-2.5-flash",
-            api_key="dummy",
-            name="Google/Gemini",
-            kwargs=None,
-        )._google_contents(t),
+        _anthropic_result_ids,
+        _openai_result_ids,
+        _openai_completions_result_ids,
+        _google_result_ids,
     ],
     ids=["anthropic", "openai", "openai_completions", "google"],
 )
-def test_distinct_requests_are_not_merged(provider_call):
+def test_distinct_requests_are_not_merged(result_ids):
     """Combining must key on the request id, not lump all results together."""
     req_a = ContentToolRequest(id="call_a", name="repl", arguments={})
     req_b = ContentToolRequest(id="call_b", name="repl", arguments={})
@@ -225,10 +260,7 @@ def test_distinct_requests_are_not_merged(provider_call):
         ),
     ]
 
-    serialized = repr(provider_call(turns))
-
-    assert "call_a" in serialized or "a1" in serialized
-    assert "call_b" in serialized or "b1" in serialized
+    assert sorted(result_ids(turns)) == ["call_a", "call_b"]
 
 
 def test_non_text_parts_are_rendered_before_joining():

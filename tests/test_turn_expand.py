@@ -441,11 +441,6 @@ def test_ordering_is_untouched_when_there_are_no_tool_results():
 
 
 def test_anthropic_puts_every_tool_result_block_first():
-    from typing import Any, cast
-
-    from chatlas._provider_anthropic import AnthropicProvider
-    from chatlas._turn import AssistantTurn
-
     request_a = tool_request(id="call_a", name="plot")
     request_b = tool_request(id="call_b", name="lookup")
 
