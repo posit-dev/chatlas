@@ -102,20 +102,6 @@ chat.chat("What are the top news stories today?")
 ```
 
 These tools translate to each provider's native format automatically.
-Not every provider can run them, though: hosted platforms like Amazon Bedrock don't offer Anthropic's server-side tools, and OpenAI-compatible Chat Completions APIs have no notion of them at all.
-Registering a built-in tool with a provider that can't run it raises an error right away, naming the tool and the provider, rather than letting the request fail later with a cryptic API error:
-
-```python
-from chatlas import ChatOpenAICompletions, tool_web_search
-
-chat = ChatOpenAICompletions()
-chat.register_tool(tool_web_search())
-#> ValueError: The `web_search` built-in tool is not supported by OpenAI. The Chat
-#> Completions API has no concept of provider-run tools. Consider registering a
-#> custom tool, or an MCP server (see `Chat.register_mcp_tools_stdio_async()`),
-#> with equivalent functionality instead.
-```
-
 See the function reference for supported providers and configuration options.
 
 ::: callout-note
