@@ -5,14 +5,24 @@ import base64
 from functools import cache
 from typing import (
     TYPE_CHECKING,
+    Any,
     AsyncGenerator,
+    AsyncIterable,
     AsyncIterator,
     Generator,
+    Iterable,
     Iterator,
+    Literal,
+    Optional,
+    Protocol,
+    Sequence,
     cast,
+    overload,
 )
+from urllib.parse import quote
 
 import httpx
+from pydantic import BaseModel
 
 from ._content import (
     Content,
@@ -24,8 +34,17 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
+from ._provider import (
+    ModelInfo,
+    Provider,
+    StandardModelParamNames,
+    StandardModelParams,
+)
+from ._provider_bedrock import bedrock_base_url, bedrock_credentials
+from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
-from ._turn import AssistantTurn, SystemTurn, Turn, UserTurn
+from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn
+from ._typing_extensions import NotRequired, TypedDict
 
 try:
     from botocore.auth import SigV4Auth
@@ -41,13 +60,18 @@ except ImportError:
     )
 
 if TYPE_CHECKING:
-    from botocore.credentials import Credentials
+    from botocore.credentials import Credentials, ReadOnlyCredentials
     from botocore.model import Shape
     from mypy_boto3_bedrock_runtime.literals import ImageFormatType
     from mypy_boto3_bedrock_runtime.type_defs import (
+        ContentBlockOutputTypeDef,
         ContentBlockUnionTypeDef,
+        ConverseRequestTypeDef,
+        ConverseResponseTypeDef,
+        InferenceConfigurationTypeDef,
         MessageUnionTypeDef,
         SystemContentBlockTypeDef,
+        TokenUsageTypeDef,
         ToolConfigurationTypeDef,
         ToolTypeDef,
     )
@@ -96,6 +120,19 @@ def events_from_buffer(
         yield parser.parse(event.to_response_dict(), shape)
 
 
+class CredentialsLike(Protocol):
+    """Anything that can hand back frozen SigV4 credentials on demand.
+
+    A structural (not nominal) type: `botocore.credentials.Credentials`
+    satisfies this without any change, and so does `LazyCredentials` below,
+    which `BedrockConverseProvider` passes instead -- deferring the botocore
+    credential chain to the first signed request rather than resolving it
+    when the auth hook is constructed.
+    """
+
+    def get_frozen_credentials(self) -> "ReadOnlyCredentials": ...
+
+
 class BedrockSigV4Auth(httpx.Auth):
     """
     Signs bedrock-runtime requests with AWS SigV4.
@@ -112,7 +149,7 @@ class BedrockSigV4Auth(httpx.Auth):
     # yields a signature mismatch at AWS.
     signed_headers = frozenset({"host", "content-type"})
 
-    def __init__(self, credentials: Credentials, region: str):
+    def __init__(self, credentials: CredentialsLike, region: str):
         self._credentials = credentials
         self._region = region
 
@@ -267,3 +304,513 @@ def converse_tool_spec(tool: Tool | ToolBuiltIn) -> ToolTypeDef:
             "inputSchema": {"json": fn.get("parameters") or {"type": "object"}},
         }
     }
+
+
+class BedrockConverseProvider(
+    Provider[
+        "ConverseResponseTypeDef",
+        dict,
+        "ConverseAccumulator",
+        "ConverseSubmitArgs",
+    ]
+):
+    """
+    Talks to bedrock-runtime's Converse API directly over httpx.
+
+    Unlike every other chatlas provider, there is no vendor chat SDK to
+    subclass here: `BedrockSigV4Auth` (this module's own httpx auth hook, from
+    Task 1) signs requests instead.
+    """
+
+    def __init__(
+        self,
+        *,
+        model: str,
+        aws_profile: Optional[str],
+        aws_region: str,
+        base_url: Optional[str],
+        max_tokens: int = 4096,
+        cache: Literal["auto", "5m", "1h", "none"] = "auto",
+        name: str = "AWS/Bedrock",
+        kwargs: Optional[dict[str, Any]] = None,
+    ):
+        super().__init__(name=name, model=model)
+        self._aws_profile = aws_profile
+        self._aws_region = aws_region
+        self._max_tokens = max_tokens
+        self._cache = cache
+
+        resolved_base_url = base_url or bedrock_base_url("converse", aws_region)
+        # `LazyCredentials` defers the botocore credential chain to the first
+        # signed request. Resolving it here instead (e.g. via
+        # `bedrock_credentials(aws_profile)`, which eagerly freezes credentials
+        # to fail fast on a broken chain) would break offline construction --
+        # this provider is built well before, or without ever, sending a
+        # request.
+        auth = BedrockSigV4Auth(LazyCredentials(aws_profile), aws_region)
+        client_kwargs = kwargs or {}
+        self._client = httpx.Client(
+            auth=auth, base_url=resolved_base_url, **client_kwargs
+        )
+        self._async_client = httpx.AsyncClient(
+            auth=auth, base_url=resolved_base_url, **client_kwargs
+        )
+
+    def list_models(self) -> list[ModelInfo]:
+        # boto3 should come via the `bedrock` extra's `anthropic[bedrock]`,
+        # same precondition as AnthropicBedrockProvider.list_models().
+        import boto3
+
+        bedrock = boto3.Session(
+            profile_name=self._aws_profile, region_name=self._aws_region
+        ).client("bedrock")
+        resp = bedrock.list_foundation_models()
+
+        res: list[ModelInfo] = []
+        for m in resp["modelSummaries"]:
+            pricing = get_price_info(self.name, m["modelId"]) or {}
+            info: ModelInfo = {
+                "id": m["modelId"],
+                "name": m["modelName"],
+                "provider": m["providerName"],
+                "input": pricing.get("input"),
+                "output": pricing.get("output"),
+                "cached_input": pricing.get("cached_input"),
+            }
+            res.append(info)
+
+        return res
+
+    @overload
+    def chat_perform(
+        self,
+        *,
+        stream: Literal[False],
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional[ConverseSubmitArgs] = None,
+    ) -> ConverseResponseTypeDef: ...
+
+    @overload
+    def chat_perform(
+        self,
+        *,
+        stream: Literal[True],
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional[ConverseSubmitArgs] = None,
+    ) -> Iterable[dict]: ...
+
+    def chat_perform(
+        self,
+        *,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional[ConverseSubmitArgs] = None,
+    ) -> Iterable[dict] | ConverseResponseTypeDef:
+        args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        if stream:
+            return self._converse_stream(args)
+        return self._converse(args)
+
+    @overload
+    async def chat_perform_async(
+        self,
+        *,
+        stream: Literal[False],
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional[ConverseSubmitArgs] = None,
+    ) -> ConverseResponseTypeDef: ...
+
+    @overload
+    async def chat_perform_async(
+        self,
+        *,
+        stream: Literal[True],
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional[ConverseSubmitArgs] = None,
+    ) -> AsyncIterable[dict]: ...
+
+    async def chat_perform_async(
+        self,
+        *,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional[ConverseSubmitArgs] = None,
+    ) -> AsyncIterable[dict] | ConverseResponseTypeDef:
+        args = self._chat_perform_args(stream, turns, tools, data_model, kwargs)
+        if stream:
+            return self._converse_stream_async(args)
+        return await self._converse_async(args)
+
+    def stream_content(
+        self,
+        chunk: dict,
+        completion: Optional[ConverseAccumulator],
+    ) -> Sequence[Content]:
+        delta_event = chunk.get("contentBlockDelta")
+        if delta_event is None:
+            return []
+        text = delta_event.get("delta", {}).get("text")
+        if text is None:
+            return []
+        return [ContentText.model_construct(text=text)]
+
+    def stream_merge_chunks(
+        self,
+        completion: Optional[ConverseAccumulator],
+        chunk: dict,
+    ) -> Optional[ConverseAccumulator]:
+        # Minimal accumulator: plain text only, keyed by `contentBlockIndex` so
+        # interleaved blocks stay separate. Task 4 extends this to reassemble
+        # streamed tool-use input and reasoning content.
+        merged: ConverseAccumulator = completion or {}
+        if "messageStart" in chunk:
+            merged["role"] = chunk["messageStart"]["role"]
+        elif "contentBlockDelta" in chunk:
+            delta_event = chunk["contentBlockDelta"]
+            text = delta_event.get("delta", {}).get("text")
+            if text is not None:
+                blocks = merged.setdefault("text", {})
+                index = delta_event["contentBlockIndex"]
+                blocks[index] = blocks.get(index, "") + text
+        elif "messageStop" in chunk:
+            merged["stopReason"] = chunk["messageStop"]["stopReason"]
+        elif "metadata" in chunk:
+            usage = chunk["metadata"].get("usage")
+            if usage is not None:
+                merged["usage"] = usage
+        return merged
+
+    def stream_turn(
+        self,
+        completion: ConverseAccumulator,
+        has_data_model: bool,
+    ) -> AssistantTurn[ConverseResponseTypeDef]:
+        # Reassemble into a ConverseResponseTypeDef shape so this can share
+        # `_as_turn` with `value_turn` -- matching the pattern
+        # SnowflakeProvider.stream_turn() uses for the same completion/chunk
+        # type mismatch.
+        content_blocks = [
+            cast("ContentBlockOutputTypeDef", {"text": text})
+            for _, text in sorted(completion.get("text", {}).items())
+        ]
+        usage = completion.get("usage") or {
+            "inputTokens": 0,
+            "outputTokens": 0,
+            "totalTokens": 0,
+        }
+        response = cast(
+            "ConverseResponseTypeDef",
+            {
+                "output": {
+                    "message": {
+                        "role": completion.get("role", "assistant"),
+                        "content": content_blocks,
+                    }
+                },
+                "stopReason": completion.get("stopReason", "end_turn"),
+                "usage": usage,
+            },
+        )
+        return self._as_turn(response, has_data_model)
+
+    def value_turn(
+        self,
+        completion: ConverseResponseTypeDef,
+        has_data_model: bool,
+    ) -> AssistantTurn[ConverseResponseTypeDef]:
+        return self._as_turn(completion, has_data_model)
+
+    def value_tokens(
+        self,
+        completion: ConverseResponseTypeDef,
+    ) -> tuple[int, int, int] | None:
+        return converse_tokens(completion["usage"])
+
+    def token_count(
+        self,
+        turns: list[Turn],
+        *,
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]],
+    ) -> int:
+        raise self._no_token_count_support()
+
+    async def token_count_async(
+        self,
+        turns: list[Turn],
+        *,
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]],
+    ) -> int:
+        raise self._no_token_count_support()
+
+    @staticmethod
+    def _no_token_count_support() -> NotImplementedError:
+        return NotImplementedError(
+            "Bedrock's Converse API has no standalone token-counting endpoint. "
+            "Call .chat() and read the usage from the returned turn instead "
+            "(e.g. chat.get_last_turn().tokens)."
+        )
+
+    def translate_model_params(self, params: StandardModelParams) -> ConverseSubmitArgs:
+        inference_config: InferenceConfigurationTypeDef = {}
+        if "max_tokens" in params:
+            inference_config["maxTokens"] = params["max_tokens"]
+        if "temperature" in params:
+            inference_config["temperature"] = params["temperature"]
+        if "top_p" in params:
+            inference_config["topP"] = params["top_p"]
+        if "stop_sequences" in params:
+            inference_config["stopSequences"] = params["stop_sequences"]
+
+        if not inference_config:
+            return {}
+        return {"inferenceConfig": inference_config}
+
+    def supported_model_params(self) -> set[StandardModelParamNames]:
+        return {"max_tokens", "temperature", "top_p", "stop_sequences"}
+
+    def _chat_perform_args(
+        self,
+        stream: bool,
+        turns: list[Turn],
+        tools: dict[str, Tool | ToolBuiltIn],
+        data_model: Optional[type[BaseModel]] = None,
+        kwargs: Optional[ConverseSubmitArgs] = None,
+    ) -> ConverseRequestTypeDef:
+        inference_config: InferenceConfigurationTypeDef = {
+            "maxTokens": self._max_tokens
+        }
+        args: ConverseRequestTypeDef = {
+            "modelId": self.model,
+            "messages": as_converse_messages(turns),
+            "inferenceConfig": inference_config,
+        }
+
+        system = as_converse_system(turns)
+        if system:
+            args["system"] = system
+        if tools:
+            args["toolConfig"] = as_converse_tools(tools)
+
+        extra = cast(dict, kwargs or {})
+        # Merge inferenceConfig rather than replacing it outright, so a
+        # per-request override (e.g. from `set_model_params(temperature=...)`)
+        # doesn't silently drop `maxTokens`.
+        extra_inference_config = extra.pop("inferenceConfig", None)
+        if extra_inference_config:
+            inference_config.update(extra_inference_config)
+        args.update(extra)
+
+        return args
+
+    def _request_target(
+        self,
+        args: ConverseRequestTypeDef,
+        endpoint: Literal["converse", "converse-stream"],
+    ) -> tuple[str, dict]:
+        # `modelId` is a URL parameter at the wire level, not a body field --
+        # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html
+        model_id = args["modelId"]
+        body = {k: v for k, v in args.items() if k != "modelId"}
+        return f"/model/{quote(model_id, safe=':')}/{endpoint}", body
+
+    def _converse(self, args: ConverseRequestTypeDef) -> ConverseResponseTypeDef:
+        url, body = self._request_target(args, "converse")
+        response = self._client.post(url, json=body)
+        raise_for_converse_status(response)
+        return cast("ConverseResponseTypeDef", response.json())
+
+    async def _converse_async(
+        self, args: ConverseRequestTypeDef
+    ) -> ConverseResponseTypeDef:
+        url, body = self._request_target(args, "converse")
+        response = await self._async_client.post(url, json=body)
+        raise_for_converse_status(response)
+        return cast("ConverseResponseTypeDef", response.json())
+
+    def _converse_stream(self, args: ConverseRequestTypeDef) -> Iterator[dict]:
+        url, body = self._request_target(args, "converse-stream")
+        with self._client.stream("POST", url, json=body) as response:
+            if not response.is_success:
+                response.read()
+                raise_for_converse_status(response)
+            yield from decode_eventstream(response.iter_bytes())
+
+    async def _converse_stream_async(
+        self, args: ConverseRequestTypeDef
+    ) -> AsyncIterator[dict]:
+        url, body = self._request_target(args, "converse-stream")
+        async with self._async_client.stream("POST", url, json=body) as response:
+            if not response.is_success:
+                await response.aread()
+                raise_for_converse_status(response)
+            async for event in decode_eventstream_async(response.aiter_bytes()):
+                yield event
+
+    def _as_turn(
+        self,
+        completion: ConverseResponseTypeDef,
+        has_data_model: bool,
+    ) -> AssistantTurn[ConverseResponseTypeDef]:
+        finish_reason = converse_stop_reason(completion["stopReason"])
+        tokens = self.value_tokens(completion)
+
+        # `message` is NotRequired -- absent e.g. when a guardrail intervened
+        # before the model produced any content.
+        message = completion["output"].get("message")
+        contents = (
+            [
+                content
+                for block in message["content"]
+                if (content := content_from_converse_block(block)) is not None
+            ]
+            if message is not None
+            else []
+        )
+        return AssistantTurn(
+            contents,
+            finish_reason=finish_reason,
+            tokens=tokens,
+            completion=completion,
+        )
+
+
+# https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html#API_runtime_Converse_RequestSyntax
+CONVERSE_FINISH_REASONS: dict[str, FinishReason] = {
+    "end_turn": "success",
+    "tool_use": "tool_use",
+    "max_tokens": "max_tokens",
+    "stop_sequence": "stop_sequence",
+    "content_filtered": "content_filter",
+    "guardrail_intervened": "content_filter",
+    "model_context_window_exceeded": "context_window",
+}
+
+
+def converse_stop_reason(reason: str) -> str:
+    # `Turn.finish_reason` accepts `FinishReason | str`, so an unrecognized
+    # Converse stop reason passes through raw rather than raising.
+    return CONVERSE_FINISH_REASONS.get(reason, reason)
+
+
+def converse_tokens(usage: TokenUsageTypeDef) -> tuple[int, int, int]:
+    return (
+        usage["inputTokens"],
+        usage["outputTokens"],
+        usage.get("cacheReadInputTokens", 0),
+    )
+
+
+def content_from_converse_block(
+    block: ContentBlockOutputTypeDef,
+) -> Optional[Content]:
+    # Flat, all-NotRequired TypedDict (a union-by-optional-fields, not a
+    # discriminated union), so dispatch on which key is present -- the same
+    # shape Task 2's `as_converse_content` hits on the outbound side.
+    fields = cast(dict, block)
+    if "text" in fields:
+        return ContentText(text=fields["text"])
+    if "toolUse" in fields:
+        tool_use = fields["toolUse"]
+        return ContentToolRequest(
+            id=tool_use["toolUseId"],
+            name=tool_use["name"],
+            arguments=tool_use["input"],
+        )
+    if "reasoningContent" in fields:
+        reasoning_text = fields["reasoningContent"].get("reasoningText") or {}
+        return ContentThinking(
+            thinking=reasoning_text.get("text", ""),
+            extra={"signature": reasoning_text.get("signature", "")},
+        )
+    # Other block types (images, documents, citations, guardrail content,
+    # search results) aren't part of a model's own turn; skip rather than
+    # raise, so a new Converse block type doesn't break existing responses.
+    return None
+
+
+def converse_error_message(response: httpx.Response) -> str:
+    try:
+        body = response.json()
+    except ValueError:
+        return response.text
+    if isinstance(body, dict):
+        message = body.get("message") or body.get("Message")
+        if message:
+            return str(message)
+    return response.text
+
+
+def raise_for_converse_status(response: httpx.Response) -> None:
+    if response.is_success:
+        return
+    raise ValueError(
+        f"Bedrock Converse request failed with status {response.status_code}: "
+        f"{converse_error_message(response)}"
+    )
+
+
+class LazyCredentials:
+    """Resolves AWS credentials from `profile` on first use, not at construction.
+
+    `bedrock_credentials()` eagerly freezes credentials so a broken chain
+    (expired SSO, no config) fails fast -- exactly the wrong behavior at
+    `BedrockConverseProvider.__init__` time, since a provider is commonly
+    constructed well before (or without ever) sending a request. Wrapping the
+    profile here instead defers that resolution to the first `sign()` call,
+    then memoizes it -- `.get_frozen_credentials()` is still called on every
+    request after that, so SSO/STS refresh keeps working.
+    """
+
+    def __init__(self, profile: Optional[str]):
+        self._profile = profile
+        self._credentials: Optional[Credentials] = None
+
+    def get_frozen_credentials(self) -> ReadOnlyCredentials:
+        if self._credentials is None:
+            self._credentials = bedrock_credentials(self._profile)
+        return self._credentials.get_frozen_credentials()
+
+
+class ConverseAccumulator(TypedDict):
+    """Streaming state merged across `converse-stream` events into one dict.
+
+    This only accumulates plain text, keyed by `contentBlockIndex` (so
+    interleaved blocks stay separate); Task 4 extends it to reassemble
+    streamed tool-use input and reasoning content.
+    """
+
+    role: NotRequired[str]
+    text: NotRequired[dict[int, str]]
+    stopReason: NotRequired[str]
+    usage: NotRequired[TokenUsageTypeDef]
+
+
+class ConverseSubmitArgs(TypedDict, total=False):
+    """Provider-specific args for `ChatBedrock(api="converse")`.
+
+    A hand-written, all-optional subset of `ConverseRequestTypeDef`'s fields.
+    `ConverseRequestTypeDef` itself marks `modelId` as its only required key
+    (it's a URL parameter at the wire level, not a body field chatlas exposes
+    here), which makes it unusable as-is for a "some or none of these" kwargs
+    bag -- unlike every other provider's `SubmitInputArgs`, a literal or
+    partial dict assigned to it fails a TypedDict completeness check.
+    """
+
+    messages: Sequence[MessageUnionTypeDef]
+    system: Sequence[SystemContentBlockTypeDef]
+    inferenceConfig: InferenceConfigurationTypeDef
+    toolConfig: ToolConfigurationTypeDef

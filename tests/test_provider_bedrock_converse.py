@@ -1,11 +1,14 @@
 import binascii
 import json
 import struct
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import httpx
 import pytest
 from botocore.credentials import Credentials
+
+if TYPE_CHECKING:
+    from mypy_boto3_bedrock_runtime.type_defs import ConverseResponseTypeDef
 
 
 def eventstream_frame(payload: bytes, event_type: str) -> bytes:
@@ -363,3 +366,99 @@ class TestContentSerialization:
         turn = Turn.model_construct(role="tool", contents=[])
         with pytest.raises(ValueError, match="Unknown role"):
             as_converse_messages([turn])
+
+
+# `ConverseResponseTypeDef` marks every field required (`modelId` is the only
+# NotRequired-free exception on the request side, but the response side has
+# none at all), so a literal missing fields like `metrics`/`trace` needs a
+# cast rather than a plain annotation -- the same `cast(dict, ...)` pattern
+# already used above for the all-NotRequired *Output block TypedDicts.
+CONVERSE_RESPONSE = cast(
+    "ConverseResponseTypeDef",
+    {
+        "output": {
+            "message": {
+                "role": "assistant",
+                "content": [{"text": "2"}],
+            }
+        },
+        "stopReason": "end_turn",
+        "usage": {
+            "inputTokens": 19,
+            "outputTokens": 5,
+            "totalTokens": 24,
+            "cacheReadInputTokens": 0,
+            "cacheWriteInputTokens": 0,
+        },
+    },
+)
+
+
+class TestResponseParsing:
+    def provider(self):
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        return BedrockConverseProvider(
+            model="us.anthropic.claude-sonnet-4-6",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+        )
+
+    def test_text_response_becomes_an_assistant_turn(self):
+        turn = self.provider().value_turn(CONVERSE_RESPONSE, has_data_model=False)
+        assert turn.text == "2"
+        assert turn.finish_reason == "success"
+
+    def test_usage_includes_cache_tokens(self):
+        turn = self.provider().value_turn(CONVERSE_RESPONSE, has_data_model=False)
+        assert turn.tokens is not None
+        assert turn.tokens[0] == 19
+        assert turn.tokens[1] == 5
+
+    def test_tool_use_response_becomes_a_tool_request(self):
+        from chatlas._content import ContentToolRequest
+
+        response = cast(
+            "ConverseResponseTypeDef",
+            {
+                "output": {
+                    "message": {
+                        "role": "assistant",
+                        "content": [
+                            {
+                                "toolUse": {
+                                    "toolUseId": "t1",
+                                    "name": "get_weather",
+                                    "input": {"city": "Paris"},
+                                }
+                            }
+                        ],
+                    }
+                },
+                "stopReason": "tool_use",
+                "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2},
+            },
+        )
+        turn = self.provider().value_turn(response, has_data_model=False)
+        requests = [c for c in turn.contents if isinstance(c, ContentToolRequest)]
+        assert len(requests) == 1
+        assert requests[0].name == "get_weather"
+        assert requests[0].arguments == {"city": "Paris"}
+
+    @pytest.mark.parametrize(
+        "reason,expected",
+        [
+            ("end_turn", "success"),
+            ("tool_use", "tool_use"),
+            ("max_tokens", "max_tokens"),
+            ("stop_sequence", "stop_sequence"),
+            ("content_filtered", "content_filter"),
+            ("guardrail_intervened", "content_filter"),
+            ("model_context_window_exceeded", "context_window"),
+        ],
+    )
+    def test_stop_reasons_map_to_finish_reasons(self, reason, expected):
+        from chatlas._provider_bedrock_converse import converse_stop_reason
+
+        assert converse_stop_reason(reason) == expected
