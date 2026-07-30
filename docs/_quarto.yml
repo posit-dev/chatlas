@@ -99,6 +99,7 @@ website:
             - get-started/chatbots.qmd
             - get-started/parameters.qmd
             - get-started/debug.qmd
+            - get-started/scale.qmd
             - get-started/monitor.qmd
 
         - section: "Tool calling"
