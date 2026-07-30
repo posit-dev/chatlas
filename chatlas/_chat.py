@@ -2190,7 +2190,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         Parameters
         ----------
         func
-            The function to be invoked when the tool is called.
+            The function to be invoked when the tool is called. A generator
+            function may yield more than once to report progress: each result
+            is surfaced for display as it arrives, and they are combined into
+            the single result the model receives.
         force
             If `True`, overwrite any existing tool with the same name. If `False`
             (the default), raise an error if a tool with the same name already exists.

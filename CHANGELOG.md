@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `echo="all"` no longer displays tool results twice — once in full as part of the user turn they're attached to, and again on their own.
 * `Chat.set_echo_options(css_styles=)` now actually applies in notebooks: the styles were previously attached to a CSS sibling selector that could never match the wrapper they were meant to style.
 * Tool names and argument names are now HTML-escaped in the notebook/shiny rendering of tool requests and results, closing an HTML-injection hole (both are model-controlled).
+* A tool that reports progress by yielding more than once, or an MCP server that answers a call with several content parts (text plus an image, say), no longer breaks the request. Those results are now combined into the single result providers expect, images and PDFs included, and placed correctly even alongside other tool calls in the same turn.
+* `register_mcp_tools_stdio_async()` and `register_mcp_tools_http_stream_async()` no longer fail when an MCP server leaves some tool annotations unset.
 
 ## [0.20.0] - 2026-07-29
 

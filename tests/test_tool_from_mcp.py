@@ -144,12 +144,8 @@ class TestToolFromMCP:
         tool = Tool.from_mcp(session, mcp_tool)
 
         # Call the tool function
-        results = []
-        async for result in await tool.func(message="Hello"):
-            results.append(result)
+        result = await tool.func(message="Hello")
 
-        assert len(results) == 1
-        result = results[0]
         assert isinstance(result, ContentToolResult)
         assert result.value == "Hello World"
 
@@ -179,12 +175,8 @@ class TestToolFromMCP:
 
         tool = Tool.from_mcp(session, mcp_tool)
 
-        results = []
-        async for result in await tool.func():
-            results.append(result)
+        result = await tool.func()
 
-        assert len(results) == 1
-        result = results[0]
         assert isinstance(result, ContentToolResult)
         val = result.value
         assert isinstance(val, ContentImageInline)
@@ -222,12 +214,8 @@ class TestToolFromMCP:
 
         tool = Tool.from_mcp(session, mcp_tool)
 
-        results = []
-        async for result in await tool.func():
-            results.append(result)
+        result = await tool.func()
 
-        assert len(results) == 1
-        result = results[0]
         assert isinstance(result, ContentToolResult)
         val = result.value
         assert isinstance(val, ContentPDF)
@@ -235,8 +223,8 @@ class TestToolFromMCP:
         assert val.content_type == "pdf"
 
     @pytest.mark.asyncio
-    async def test_mcp_tool_call_multiple_results(self):
-        """Test calling an MCP tool that returns multiple content items."""
+    async def test_mcp_tool_call_multiple_text_parts(self):
+        """Several text parts become one result."""
         mcp_tool = self.create_mock_mcp_tool(
             name="multi_result",
             description="Return multiple results",
@@ -262,14 +250,10 @@ class TestToolFromMCP:
 
         tool = Tool.from_mcp(session, mcp_tool)
 
-        results = []
-        async for result in await tool.func():
-            results.append(result)
+        result = await tool.func()
 
-        assert len(results) == 2
-        assert all(isinstance(r, ContentToolResult) for r in results)
-        assert results[0].value == "First result"
-        assert results[1].value == "Second result"
+        assert isinstance(result, ContentToolResult)
+        assert result.value == "First result\nSecond result"
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_error(self):
@@ -295,8 +279,7 @@ class TestToolFromMCP:
         with pytest.raises(
             RuntimeError, match="Error executing tool error_tool: Something went wrong"
         ):
-            async for result in await tool.func():
-                pass
+            await tool.func()
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_error_no_text_attribute(self):
@@ -321,8 +304,7 @@ class TestToolFromMCP:
         tool = Tool.from_mcp(session, mcp_tool)
 
         with pytest.raises(RuntimeError, match="Error executing tool error_tool"):
-            async for result in await tool.func():
-                pass
+            await tool.func()
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_unsupported_image_type(self):
@@ -350,8 +332,7 @@ class TestToolFromMCP:
         with pytest.raises(
             ValueError, match="Unsupported image MIME type: image/unsupported"
         ):
-            async for result in await tool.func():
-                pass
+            await tool.func()
 
     @pytest.mark.asyncio
     async def test_mcp_tool_call_unexpected_content_type(self):
@@ -375,8 +356,7 @@ class TestToolFromMCP:
         tool = Tool.from_mcp(session, mcp_tool)
 
         with pytest.raises(RuntimeError, match="Unexpected content type: unknown_type"):
-            async for result in await tool.func():
-                pass
+            await tool.func()
 
     def test_mcp_tool_input_schema_conversion(self):
         """Test that MCP tool input schema is properly converted."""
@@ -441,6 +421,41 @@ class TestToolFromMCP:
         assert tool.annotations["title"] == "Dangerous Tool"
         assert tool.annotations["destructiveHint"] is True
 
+    def test_from_mcp_annotations_omit_unset_fields(self):
+        """Unset MCP annotations are dropped, not passed through as None."""
+        try:
+            from mcp.types import ToolAnnotations as MCPToolAnnotations
+        except ImportError:
+            pytest.skip("mcp is not installed")
+            return
+
+        # Servers commonly send only some hints, leaving the rest null. Keeping
+        # those nulls violates ToolAnnotations, whose values are non-nullable.
+        mcp_tool = self.create_mock_mcp_tool(
+            name="repl",
+            description="Run code",
+            input_schema={
+                "type": "object",
+                "properties": {"input": {"type": "string"}},
+                "required": ["input"],
+            },
+            annotations=MCPToolAnnotations(
+                readOnlyHint=False,
+                destructiveHint=False,
+                openWorldHint=False,
+            ),
+        )
+        session = self.create_mock_session()
+
+        tool = Tool.from_mcp(session, mcp_tool)
+
+        assert tool.annotations is not None
+        assert "title" not in tool.annotations
+        assert "idempotentHint" not in tool.annotations
+        assert tool.annotations["readOnlyHint"] is False
+        assert tool.annotations["destructiveHint"] is False
+        assert tool.annotations["openWorldHint"] is False
+
     def test_from_mcp_without_annotations(self):
         """Test creating a Tool from MCP tool without annotations."""
 
@@ -459,3 +474,35 @@ class TestToolFromMCP:
 
         assert tool.name == "safe_tool"
         assert tool.annotations is None
+
+
+@pytest.mark.asyncio
+async def test_multi_part_mcp_result_is_one_list_valued_result():
+    """Mixed text and image parts become one list-valued result."""
+    tool_obj = TestToolFromMCP()
+    mcp_tool = tool_obj.create_mock_mcp_tool(
+        name="repl",
+        description="Run code",
+        input_schema={"type": "object", "properties": {}},
+    )
+
+    session = tool_obj.create_mock_session()
+    mock_result = MagicMock()
+    mock_result.is_error = False
+
+    text1, text2 = MagicMock(), MagicMock()
+    text1.type, text1.text = "text", "stdout: rendering"
+    text2.type, text2.text = "text", "Done."
+    image = MagicMock()
+    image.type, image.data, image.mime_type = "image", "aGVsbG8=", "image/png"
+    mock_result.content = [text1, text2, image]
+    session.call_tool.return_value = mock_result
+
+    tool = Tool.from_mcp(session, mcp_tool)
+
+    expected_image = ContentImageInline(data="aGVsbG8=", image_content_type="image/png")
+
+    result = await tool.func()
+
+    assert isinstance(result, ContentToolResult)
+    assert result.value == ["stdout: rendering", "Done.", expected_image]

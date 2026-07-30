@@ -1,6 +1,7 @@
 """Tests for turn content expansion with images and PDFs in tool results."""
 
 import base64
+from typing import Any, cast
 
 from chatlas import UserTurn
 from chatlas._content import (
@@ -12,6 +13,8 @@ from chatlas._content import (
     ContentToolResult,
     ToolInfo,
 )
+from chatlas._provider_anthropic import AnthropicProvider
+from chatlas._turn import AssistantTurn
 
 
 def test_expand_turn_no_tool_results():
@@ -173,7 +176,6 @@ def test_expand_turn_tool_result_with_list_of_images():
     assert turn.contents[8].text == "</tool-contents>"
 
 
-
 def test_expand_turn_multiple_tool_results():
     """Test turn with multiple tool results, some needing expansion."""
     request1 = ContentToolRequest(
@@ -238,10 +240,10 @@ def test_expand_turn_preserves_other_content():
     # Total: 6 items
     assert len(turn.contents) == 6
 
-    assert isinstance(turn.contents[0], ContentText)
-    assert turn.contents[0].text == "Before"
-    assert isinstance(turn.contents[1], ContentToolResult)
-    assert 'See <tool-content call-id="call_x"> below.' == turn.contents[1].value
+    assert isinstance(turn.contents[0], ContentToolResult)
+    assert 'See <tool-content call-id="call_x"> below.' == turn.contents[0].value
+    assert isinstance(turn.contents[1], ContentText)
+    assert turn.contents[1].text == "Before"
     assert isinstance(turn.contents[2], ContentText)
     assert turn.contents[2].text == '<tool-content call-id="call_x">'
     assert isinstance(turn.contents[3], ContentImageInline)
@@ -256,3 +258,272 @@ def test_expand_turn_empty_contents():
     turn = UserTurn([])
 
     assert len(turn.contents) == 0
+
+
+def tool_request(id: str = "call_1", name: str = "repl") -> ContentToolRequest:
+    return ContentToolRequest(
+        id=id,
+        name=name,
+        arguments={},
+        tool=ToolInfo(name=name, description="", parameters={}),
+    )
+
+
+def test_merge_joins_multiple_text_results():
+    """Several text parts for one call arrive as one newline-joined result."""
+    request = tool_request()
+    turn = UserTurn(
+        [
+            ContentToolResult(value="first", request=request),
+            ContentToolResult(value="second", request=request),
+        ]
+    )
+
+    assert len(turn.contents) == 1
+    assert isinstance(turn.contents[0], ContentToolResult)
+    assert turn.contents[0].value == "first\nsecond"
+
+
+def test_merge_leaves_single_result_untouched():
+    request = tool_request()
+    result = ContentToolResult(value="only", request=request)
+
+    turn = UserTurn([result])
+
+    assert len(turn.contents) == 1
+    assert turn.contents[0] is result
+
+
+def test_merge_keeps_distinct_requests_separate():
+    req_a = tool_request(id="call_a")
+    req_b = tool_request(id="call_b")
+    turn = UserTurn(
+        [
+            ContentToolResult(value="a1", request=req_a),
+            ContentToolResult(value="b1", request=req_b),
+            ContentToolResult(value="a2", request=req_a),
+        ]
+    )
+
+    results = [c for c in turn.contents if isinstance(c, ContentToolResult)]
+    assert len(results) == 2
+    # The merged result keeps the position of the group's first result.
+    assert results[0].id == "call_a"
+    assert results[0].value == "a1\na2"
+    assert results[1].id == "call_b"
+    assert results[1].value == "b1"
+
+
+def test_merge_propagates_error_from_any_part():
+    """A failure anywhere in the group must not be masked by sibling output."""
+    request = tool_request()
+    turn = UserTurn(
+        [
+            ContentToolResult(value="partial output", request=request),
+            ContentToolResult(value=None, error=RuntimeError("boom"), request=request),
+        ]
+    )
+
+    assert len(turn.contents) == 1
+    result = turn.contents[0]
+    assert isinstance(result, ContentToolResult)
+    assert result.error is not None
+    assert "boom" in str(result.error)
+
+
+def test_merge_mixed_text_and_image_is_expanded():
+    """Text parts plus an image unroll into pointer + separate contents."""
+    request = tool_request()
+    image = ContentImageInline(
+        data=base64.b64encode(b"png").decode("utf-8"),
+        image_content_type="image/png",
+    )
+    turn = UserTurn(
+        [
+            ContentToolResult(value="stdout", request=request),
+            ContentToolResult(value=image, request=request),
+        ]
+    )
+
+    results = [c for c in turn.contents if isinstance(c, ContentToolResult)]
+    assert len(results) == 1
+    assert 'See <tool-contents call-id="call_1"> below.' == results[0].value
+
+    # Neither the text nor the image is dropped.
+    assert any(isinstance(c, ContentText) and c.text == "stdout" for c in turn.contents)
+    assert any(isinstance(c, ContentImageInline) for c in turn.contents)
+
+
+def test_merge_keeps_non_result_content_in_relative_order():
+    request = tool_request()
+    turn = UserTurn(
+        [
+            ContentText(text="Before"),
+            ContentToolResult(value="one", request=request),
+            ContentToolResult(value="two", request=request),
+            ContentText(text="After"),
+        ]
+    )
+
+    assert len(turn.contents) == 3
+    assert isinstance(turn.contents[0], ContentToolResult)
+    assert turn.contents[0].value == "one\ntwo"
+    assert isinstance(turn.contents[1], ContentText)
+    assert turn.contents[1].text == "Before"
+    assert isinstance(turn.contents[2], ContentText)
+    assert turn.contents[2].text == "After"
+
+
+def test_merge_ignores_results_without_a_request():
+    """A result with no request has no id to group on, so it passes through."""
+    turn = UserTurn(
+        [
+            ContentToolResult(value="orphan a"),
+            ContentToolResult(value="orphan b"),
+        ]
+    )
+
+    results = [c for c in turn.contents if isinstance(c, ContentToolResult)]
+    assert len(results) == 2
+
+
+def test_expanded_content_does_not_push_a_later_result_out_of_position():
+    """Anthropic requires every tool_result at the start of the user message."""
+    request_a = tool_request(id="call_a", name="plot")
+    request_b = tool_request(id="call_b", name="lookup")
+
+    image = ContentImageInline(
+        data=base64.b64encode(b"img").decode("utf-8"),
+        image_content_type="image/png",
+    )
+
+    turn = UserTurn(
+        [
+            ContentToolResult(value=image, request=request_a),
+            ContentToolResult(value="text b", request=request_b),
+        ]
+    )
+
+    results = [c for c in turn.contents if isinstance(c, ContentToolResult)]
+    assert len(results) == 2
+    assert turn.contents[:2] == results
+
+
+def test_tool_results_precede_user_authored_content():
+    request = tool_request(id="call_x", name="plot")
+
+    image = ContentImageInline(
+        data=base64.b64encode(b"img").decode("utf-8"),
+        image_content_type="image/png",
+    )
+
+    turn = UserTurn(
+        [
+            ContentText(text="Before"),
+            ContentToolResult(value=image, request=request),
+            ContentText(text="After"),
+        ]
+    )
+
+    assert isinstance(turn.contents[0], ContentToolResult)
+    # Non-result content keeps its own relative order behind the results.
+    texts = [c.text for c in turn.contents if isinstance(c, ContentText)]
+    assert texts.index("Before") < texts.index("After")
+
+
+def test_ordering_is_untouched_when_there_are_no_tool_results():
+    turn = UserTurn([ContentText(text="one"), ContentText(text="two")])
+
+    assert [c.text for c in turn.contents if isinstance(c, ContentText)] == [
+        "one",
+        "two",
+    ]
+
+
+def test_anthropic_puts_every_tool_result_block_first():
+    request_a = tool_request(id="call_a", name="plot")
+    request_b = tool_request(id="call_b", name="lookup")
+
+    image = ContentImageInline(
+        data=base64.b64encode(b"img").decode("utf-8"),
+        image_content_type="image/png",
+    )
+
+    turns = [
+        UserTurn("go"),
+        AssistantTurn([request_a, request_b]),
+        UserTurn(
+            [
+                ContentToolResult(value=image, request=request_a),
+                ContentToolResult(value="text b", request=request_b),
+            ]
+        ),
+    ]
+
+    messages = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )._as_message_params(turns)
+
+    types = [
+        cast(dict[str, Any], b).get("type")
+        for b in messages[-1]["content"]
+        if isinstance(b, dict)
+    ]
+
+    assert types[:2] == ["tool_result", "tool_result"]
+    assert "tool_result" not in types[2:]
+
+
+def test_merge_expand_and_reorder_together():
+    """One turn exercising all three passes: a call whose parts get combined
+    and expanded, a plain call, and interstitial user-authored content."""
+    request_a = tool_request(id="call_a", name="plot")
+    request_b = tool_request(id="call_b", name="lookup")
+
+    image = ContentImageInline(
+        data=base64.b64encode(b"img").decode("utf-8"),
+        image_content_type="image/png",
+    )
+
+    turns = [
+        UserTurn("go"),
+        AssistantTurn([request_a, request_b]),
+        UserTurn(
+            [
+                ContentText(text="Before"),
+                ContentToolResult(value="here is the plot", request=request_a),
+                ContentToolResult(value=image, request=request_a),
+                ContentText(text="Between"),
+                ContentToolResult(value="text b", request=request_b),
+                ContentText(text="After"),
+            ]
+        ),
+    ]
+
+    messages = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )._as_message_params(turns)
+
+    blocks = [
+        cast(dict[str, Any], b)
+        for b in messages[-1]["content"]
+        if isinstance(b, dict)
+    ]
+    types = [b["type"] for b in blocks]
+
+    # Both tool_result blocks come first, before any other block.
+    assert types[:2] == ["tool_result", "tool_result"]
+    assert "tool_result" not in types[2:]
+    assert {b["tool_use_id"] for b in blocks if b["type"] == "tool_result"} == {
+        "call_a",
+        "call_b",
+    }
+
+    # The image from the merged+expanded call survives as a real block.
+    assert types.count("image") == 1
+
+    # The merged call's text and the interstitial content are all present,
+    # and the non-result content keeps its own relative order.
+    texts = [b["text"] for b in blocks if b["type"] == "text"]
+    assert "here is the plot" in texts
+    assert texts.index("Before") < texts.index("Between") < texts.index("After")
