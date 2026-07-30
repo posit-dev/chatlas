@@ -82,6 +82,23 @@ These tools translate to each provider’s native format automatically. See the 
 >
 > For providers without native fetch support (like OpenAI), you can use the [MCP Fetch server](https://github.com/modelcontextprotocol/servers/tree/main/src/fetch) via `register_mcp_tools_stdio_async()`. See the [MCP tools guide](../misc/mcp-tools.llms.md) for more information.
 
+When a built-in tool runs, chatlas shows what it did, grouped into one block per episode rather than a line per query, fetch, and result. At the console you get a panel:
+
+    ╭─ Searched the web  (10 results · * 1 cited) ─────────────────────────────╮
+    │ 🔍 ggplot2 1.0.0 CRAN release date                                       │
+    │   CRAN: Package ggplot2                               cran.r-project.org │
+    │   Changelog • ggplot2                              ggplot2.tidyverse.org │
+    │   ggplot2 - Wikipedia                                   en.wikipedia.org │
+    │ * ggplot2 R Package Stats, Author, Search and Tut…              rpkg.net │
+    │   … 6 more                                                               │
+    ╰──────────────────────────────────────────────────────────────────────────╯
+
+The `*` marks a source the answer actually cites, and the `* 1 cited` in the title is its legend. The source list is capped at four rows – a hard limit, and cited sources always win a slot ahead of uncited ones, so a cited source is never crowded out by search noise – that’s why `rpkg.net`, the sixth result, appears above while the fourth and fifth don’t. Tune the cap with [`.set_echo_options()`](../reference/Chat.llms.md#set_echo_options) – pass `web_activity_max_sources=None` to list every source instead.
+
+In a notebook the same activity renders as a collapsed `<details>` block instead – `Searched the web (10 results · * 1 cited)` – which you expand to see every source as a link, with the cited passage quoted underneath the source it came from. Nothing is capped there, since the block scrolls internally.
+
+How much of this you see is controlled by the `echo` parameter, same as for [reasoning](../get-started/reasoning.llms.md#seeing-reasoning): the default (`echo="output"`) includes it; `echo="text"` shows just the model’s answer.
+
 ### Tool errors
 
 When a tool function is called, it may fail for various reasons, such as network issues, invalid input, or unexpected exceptions. When this happens, chatlas captures the exception and sends it back to the chat model as part of the conversation. This allows the model to gracefully handle the error, possibly fix it, and continue the conversation. It also [logs](../get-started/debug.llms.md) and displays the stacktrace in the Python console to help you debug the issue.

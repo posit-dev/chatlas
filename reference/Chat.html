@@ -2421,7 +2421,8 @@ Note
 <span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>    tool_result_max_lines<span class="op">=</span>MISSING,</span>
 <span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>    tool_result_max_height<span class="op">=</span>MISSING,</span>
 <span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>    thinking_max_lines<span class="op">=</span>MISSING,</span>
-<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>    web_activity_max_sources<span class="op">=</span>MISSING,</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Set echo styling options for the chat.</p>
 <p>Note that each call replaces <em>all</em> of the options: anything not passed reverts to its default rather than keeping a previously set value.</p>
 <section id="parameters-18" class="level4 doc-section doc-section-parameters">
@@ -2470,6 +2471,12 @@ Note
 <td>thinking_max_lines</td>
 <td><a href="https://docs.python.org/3/library/functions.html#int">int</a> | None | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a></td>
 <td>Cap echoed reasoning at this many lines, keeping the most recent and noting how many earlier ones were dropped. Pass <code>None</code> to echo it in full. This is only relevant when outputting to the console; in the browser, reasoning collapses on its own once it’s complete.</td>
+<td><code>MISSING</code></td>
+</tr>
+<tr class="odd">
+<td>web_activity_max_sources</td>
+<td><a href="https://docs.python.org/3/library/functions.html#int">int</a> | None | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a></td>
+<td>Cap the source list of an echoed web-activity panel at this many entries, noting how many were dropped. Pass <code>None</code> to echo them all. This is only relevant when outputting to the console; in the browser the panel is collapsed and scrolls internally, so every source is listed.</td>
 <td><code>MISSING</code></td>
 </tr>
 </tbody>

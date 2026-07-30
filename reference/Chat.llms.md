@@ -816,6 +816,7 @@ Chat.set_echo_options(
     tool_result_max_lines=MISSING,
     tool_result_max_height=MISSING,
     thinking_max_lines=MISSING,
+    web_activity_max_sources=MISSING,
 )
 ```
 
@@ -833,6 +834,7 @@ Note that each call replaces *all* of the options: anything not passed reverts t
 | tool_result_max_lines | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Truncate an echoed tool result to this many lines, noting how many were dropped. The full value remains available on the turn. Pass `None` to echo it in full. This is only relevant when outputting to the console. | `MISSING` |
 | tool_result_max_height | [str](https://docs.python.org/3/library/stdtypes.html#str) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | A CSS length (e.g. `"400px"`) bounding the height of an echoed tool result, which scrolls internally beyond it. Pass `None` to let it grow. This is only relevant when outputting to the browser. | `MISSING` |
 | thinking_max_lines | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Cap echoed reasoning at this many lines, keeping the most recent and noting how many earlier ones were dropped. Pass `None` to echo it in full. This is only relevant when outputting to the console; in the browser, reasoning collapses on its own once it’s complete. | `MISSING` |
+| web_activity_max_sources | [int](https://docs.python.org/3/library/functions.html#int) \| None \| [MISSING_TYPE](https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE) | Cap the source list of an echoed web-activity panel at this many entries, noting how many were dropped. Pass `None` to echo them all. This is only relevant when outputting to the console; in the browser the panel is collapsed and scrolls internally, so every source is listed. | `MISSING` |
 
 ### set_model_params
 
