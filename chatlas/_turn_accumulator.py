@@ -75,8 +75,12 @@ class TurnAccumulator:
             emit(text)
             items.append(text)
 
-        if content_mode == "all" and isinstance(content, PROVIDER_ANNOTATION_TYPES):
-            items.append(content)
+        # These are display content in their own right (the web-activity panel),
+        # not text, so they go to the display as the content object itself.
+        if isinstance(content, PROVIDER_ANNOTATION_TYPES):
+            emit(content)
+            if content_mode == "all":
+                items.append(content)
 
         return items
 

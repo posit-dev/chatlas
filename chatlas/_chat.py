@@ -32,6 +32,7 @@ from pydantic import BaseModel
 
 from ._callbacks import CallbackManager
 from ._content import (
+    PROVIDER_ANNOTATION_TYPES,
     Content,
     ContentCitation,
     ContentJson,
@@ -50,6 +51,7 @@ from ._display import (
     DEFAULT_THINKING_MAX_LINES,
     DEFAULT_TOOL_RESULT_MAX_HEIGHT,
     DEFAULT_TOOL_RESULT_MAX_LINES,
+    DEFAULT_WEB_ACTIVITY_MAX_SOURCES,
     EchoDisplayOptions,
     IPyMarkdownDisplay,
     LiveMarkdownDisplay,
@@ -2870,10 +2872,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         try:
 
             def emit(x: str | Content):
-                # `echo="text"` means just the assistant's answer, so reasoning is
-                # held back the same way tool content is.
+                # `echo="text"` means just the assistant's answer, so reasoning
+                # and web activity are held back the same way tool content is.
                 if echo == "text" and isinstance(
-                    x, (ContentThinking, ContentThinkingDelta)
+                    x,
+                    (
+                        ContentThinking,
+                        ContentThinkingDelta,
+                        *PROVIDER_ANNOTATION_TYPES,
+                    ),
                 ):
                     return
                 self._echo_content(x)
@@ -2951,6 +2958,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     response, has_data_model=data_model is not None
                 )
                 emit_thinking_contents(turn, emit)
+                emit_web_contents(turn, emit)
 
                 if turn.text:
                     emit(turn.text)
@@ -3014,10 +3022,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         try:
 
             def emit(x: str | Content):
-                # `echo="text"` means just the assistant's answer, so reasoning is
-                # held back the same way tool content is.
+                # `echo="text"` means just the assistant's answer, so reasoning
+                # and web activity are held back the same way tool content is.
                 if echo == "text" and isinstance(
-                    x, (ContentThinking, ContentThinkingDelta)
+                    x,
+                    (
+                        ContentThinking,
+                        ContentThinkingDelta,
+                        *PROVIDER_ANNOTATION_TYPES,
+                    ),
                 ):
                     return
                 self._echo_content(x)
@@ -3097,6 +3110,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     response, has_data_model=data_model is not None
                 )
                 emit_thinking_contents(turn, emit)
+                emit_web_contents(turn, emit)
 
                 if turn.text:
                     emit(turn.text)
@@ -3328,6 +3342,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tool_result_max_lines: int | None | MISSING_TYPE = MISSING,
         tool_result_max_height: str | None | MISSING_TYPE = MISSING,
         thinking_max_lines: int | None | MISSING_TYPE = MISSING,
+        web_activity_max_sources: int | None | MISSING_TYPE = MISSING,
     ):
         """
         Set echo styling options for the chat.
@@ -3360,6 +3375,12 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             noting how many earlier ones were dropped. Pass `None` to echo it in
             full. This is only relevant when outputting to the console; in the
             browser, reasoning collapses on its own once it's complete.
+        web_activity_max_sources
+            Cap the source list of an echoed web-activity panel at this many
+            entries, noting how many were dropped. Pass `None` to echo them all.
+            This is only relevant when outputting to the console; in the browser
+            the panel is collapsed and scrolls internally, so every source is
+            listed.
         """
         self._echo_options: EchoDisplayOptions = {
             "rich_markdown": rich_markdown or {},
@@ -3373,6 +3394,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             ),
             "thinking_max_lines": default_if_missing(
                 thinking_max_lines, DEFAULT_THINKING_MAX_LINES
+            ),
+            "web_activity_max_sources": default_if_missing(
+                web_activity_max_sources, DEFAULT_WEB_ACTIVITY_MAX_SOURCES
             ),
         }
 
@@ -3570,6 +3594,23 @@ def emit_thinking_contents(
             emit(content)
 
 
+def emit_web_contents(
+    x: Turn,
+    emit: Callable[[Content | str], None],
+):
+    """
+    Emit a non-streamed turn's web activity, ahead of its text.
+
+    The streaming path builds the panel as the activity arrives; this is the
+    non-streaming equivalent. It goes before the text because the search precedes
+    the answer -- including the citations, which the display folds into the same
+    panel regardless of the order they're emitted in.
+    """
+    for content in x.contents:
+        if isinstance(content, PROVIDER_ANNOTATION_TYPES):
+            emit(content)
+
+
 def emit_other_contents(
     x: Turn,
     emit: Callable[[Content | str], None],
@@ -3577,9 +3618,9 @@ def emit_other_contents(
     """
     Emit everything in the turn other than its text.
 
-    Reasoning is excluded: it's displayed as it arrives (streaming) or explicitly
-    before the text (non-streaming), so emitting it from the turn's contents too
-    would show it twice.
+    Reasoning and web activity are excluded: both are displayed as they arrive
+    (streaming) or explicitly before the text (non-streaming), so emitting them
+    from the turn's contents too would show them twice.
     """
     # Gather other content to emit in _reverse_ order
     to_emit: list[Content | str] = []
@@ -3593,6 +3634,10 @@ def emit_other_contents(
         if isinstance(content, ContentText):
             has_text = True
         elif isinstance(content, (ContentThinking, ContentThinkingDelta)):
+            continue
+        elif isinstance(content, PROVIDER_ANNOTATION_TYPES):
+            # Displayed as a web-activity panel while streaming, or by
+            # `emit_web_contents` when not; emitting it here would show it twice.
             continue
         else:
             has_other = True
