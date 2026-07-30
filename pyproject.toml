@@ -13,7 +13,10 @@ dependencies = [
   "orjson",
   "rich",
   "openai",
-  "opentelemetry-api>=1.0"
+  "opentelemetry-api>=1.0",
+  # `_typing_extensions.py` backfills from here on older interpreters; 3.13+ has
+  # everything in `typing`. The floor is the release that added `TypeIs`.
+  "typing-extensions>=4.10; python_version < '3.13'",
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -60,6 +63,9 @@ dev = [
     "python-dotenv",
     "matplotlib",
     "Pillow",
+    # Optional for users, but required here so the HEIC/HEIF resize path is
+    # actually exercised rather than only its missing-dependency error.
+    "pillow-heif",
     "shiny",
     "htmltools>=0.7.0;python_version>='3.10'",
     "shinychat>=0.6.0",

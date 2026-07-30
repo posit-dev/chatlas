@@ -9,9 +9,11 @@ from chatlas import (
     ContentToolRequest,
     ContentToolResult,
     UserTurn,
+    content_document_file,
     content_image_file,
     content_image_url,
     content_pdf_file,
+    content_pdf_url,
 )
 from chatlas._content import ContentCitation, ContentText
 from pydantic import BaseModel
@@ -369,6 +371,52 @@ def assert_pdf_local(chat_fun: ChatFun):
         "Two word answer only.",
     )
     assert "red delicious" in str(response).lower()
+
+
+# The questions below can only be answered by reading the attachment, so a
+# provider that silently drops the document (or receives bytes it can't parse)
+# fails rather than bluffing from the prompt text.
+
+
+def assert_document_local(chat_fun: ChatFun):
+    """A text document (CSV) sent inline as `ContentDocument` bytes."""
+    chat = chat_fun()
+    sales = Path(__file__).parent / "quarterly_sales.csv"
+    response = chat.chat(
+        "Which region in the attached CSV had the highest q3 value?",
+        "Reply with the region name only.",
+        content_document_file(sales),
+    )
+    assert "midwest" in str(response).lower()
+
+
+def assert_document_local_docx(chat_fun: ChatFun):
+    """A binary .docx, which only the OpenAI providers claim to accept."""
+    chat = chat_fun()
+    memo = Path(__file__).parent / "offsite_memo.docx"
+    response = chat.chat(
+        "In which city will the offsite described in this document be held?",
+        "Reply with the city name only.",
+        content_document_file(memo),
+    )
+    assert "reykjavik" in str(response).lower()
+
+
+def assert_pdf_remote(chat_fun: ChatFun):
+    """A URL-only `ContentPDF`, whose bytes this process may never touch.
+
+    Anthropic and the Responses API are handed the URL and fetch it themselves;
+    the others download it while building the request. Either way the model has
+    to end up with the document.
+    """
+    chat = chat_fun()
+    response = chat.chat(
+        "What's the title of this document?",
+        content_pdf_url(
+            "https://raw.githubusercontent.com/posit-dev/chatlas/main/tests/apples.pdf"
+        ),
+    )
+    assert "apples are tasty" in str(response).lower()
 
 
 def assert_list_models(chat_fun: ChatFun):

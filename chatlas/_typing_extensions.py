@@ -10,6 +10,13 @@ if sys.version_info >= (3, 10):
 else:
     from typing_extensions import ParamSpec, TypeGuard, is_typeddict
 
+# Unlike TypeGuard, TypeIs narrows the negative branch too, which is what lets
+# an `if is_x(y): raise` guard leave `y` narrowed to the remainder afterwards.
+if sys.version_info >= (3, 13):
+    from typing import TypeIs
+else:
+    from typing_extensions import TypeIs
+
 # Even though TypedDict is available in Python 3.8, because it's used with NotRequired,
 # they should both come from the same typing module.
 # https://peps.python.org/pep-0655/#usage-in-python-3-11
@@ -23,4 +30,4 @@ else:
 # conditional imports into the .pyi file when generating type stubs. Without this line,
 # pyright will not include the above imports in the generated .pyi file, and it will
 # result in a lot of red squiggles in user code.
-_: "ParamSpec | TypeGuard | is_typeddict | NotRequired | Required | TypedDict"  # type: ignore
+_: "ParamSpec | TypeGuard | TypeIs | is_typeddict | NotRequired | Required | TypedDict"  # type: ignore

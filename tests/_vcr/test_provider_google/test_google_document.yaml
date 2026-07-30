@@ -1,0 +1,66 @@
+interactions:
+- request:
+    body: '{"contents": [{"parts": [{"text": "Which region in the attached CSV had
+      the highest q3 value?"}, {"text": "Reply with the region name only."}, {"inlineData":
+      {"data": "cmVnaW9uLHExLHEyLHEzCk5vcnRoZWFzdCwxMjAsMTM1LDE1MApTb3V0aHdlc3QsOTgsMTAyLDg4Ck1pZHdlc3QsMjEwLDIwNSwyNjQKUGFjaWZpYywxNzUsMTgwLDE5Mwo=",
+      "mimeType": "text/csv"}}], "role": "user"}], "generationConfig": {"temperature":
+      0}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '387'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.14.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Midwest\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 89,\"candidatesTokenCount\":
+        2,\"totalTokenCount\": 391,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        89}],\"thoughtsTokenCount\": 300,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"aIhqaoOrBpa6jrEPxYRG\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
+        \"EpwICpkIARFNMg9TRhaTdLtakweTY02szmM26gH2zm5wWeaT6/jO8ccT3a+wzNO8Z4Vm1TfegXvj4WHxAjFnm8KYDHbaDcTiwpBHve5XzTmd9Rd0LhbctlNpFquydmNSjbqreTfI2NovIrVk6msN2xOSRybV96TBBuuJJJsWaGRPIFk32rhBcP5YlFF7mXMTDHFoHQCzbZ1iaTZCgjxW60bybrHZ0B0ZjyfB3pt3I6+foDlICSwVSTeNekkWSVPXS3MegaBB5R2hShU1nSyq6bJX1G4q3fHsS8vsO8L446reuwrtupekXRNeiRTg8x9NK3+hD1W8M0rTO2ci/hJTvk7xmZCDyQI31zTTfEFCkBcE6iNckyib5XjG1zo/OsNyq5Zba6bZFRU3bWkJkg/Flemzsmk4jPZoakiHOFxKteR1A5Dwvmdxi2xv+8vHvpcTLkPY3aFYJtRrTaKD6bNb9344eAnohRTl6DtQIx+3tuLbJaHUiwtKCwnY8lVA3oXrlL5y6DqGG5q8Gd1TkMfnosX50iCcYyoYDgSiHisla9Mbfw4KGaPAQ7qpfhtdUWxZS3hXN8CqSbNCFomJmUyBsTdHlQG1yVaenak5Qn1b85ka2UuXop1uHgPrqtrrimIMI2jOvFS1I+4GGfKSIKD7CfDE4Iky75Q1K2iomd7iURDNdjFYQqZ+Jze4xQVt23VrmX7ZxsEWmTnlpGvSxeScp0KWPU8JqTiAvBJAy57+6t30fytBu+eZ+aQgj+QUs1L+bVG7lbYEbckAPbMlQmZc0kSAo79/cn0PTEofm3NDy653vaoK7lF4HUkfLLFIkZPc4hbUziHWqpkmdR3XhQIcobb6gtwDTHwJ4L8tbRqV2yfhHhH5Ad45ryb0R8hvlVEbst4drB/XZbHd0Skm0WmWbb39BnlkWJ4i6Wel6M7VIXwhv7hIhBeY0G5CBcQpx1GVLewz+9hxwaeb4rnt1gXOEPT7yvU9DCeIhu1DWNycPYUzF0Pj9if5PUVuOlx2NMA4z5mWKQLJdoxMM79repgJGJto9oPj3ihCDnUrJOuUqCrjK76dMd7k5zKA5Y69RpNrniPILBiiE2uQzoK1FJ40SIErqN5I8CrVe7emhCowiDVCoD2YWeNaEc/eHkokq9OL7BblIaU8K+o9q/GP2RHGn1CESHsAWcmwMH/WSJKLxs/ily+AwGKfT5NkH8eNlmkk6pFZhLPCj57k/6wQHD+akIugdIhh8rU2RSXDXkejNFZTIGgyEIn7ZgXGDh5Or7/pYvSZEA4muOiEVDg3MLPcR4C6ML3gPb6elso2gCA6Qis4nvnQT8yJhb8aQPYMjBMG8Vi9nPpMQaNw0WwM9fyTy5yFyD/2dHY31tQUWE8dISip8eHemxQKxJUo5q8fFSk=\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        89,\"candidatesTokenCount\": 2,\"totalTokenCount\": 391,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 89}],\"thoughtsTokenCount\": 300,\"serviceTier\":
+        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"aIhqaoOrBpa6jrEPxYRG\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Wed, 29 Jul 2026 23:10:33 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=1543
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1
