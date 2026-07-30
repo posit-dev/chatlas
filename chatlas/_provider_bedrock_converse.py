@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from functools import lru_cache
+from functools import cache
 from typing import TYPE_CHECKING, AsyncGenerator, AsyncIterator, Generator, Iterator
 
 import httpx
@@ -37,8 +37,7 @@ def decode_eventstream(chunks: Iterator[bytes]) -> Iterator[dict]:
     shape = converse_stream_shape()
     for chunk in chunks:
         buffer.add_data(chunk)
-        for event in buffer:
-            yield parser.parse(event.to_response_dict(), shape)
+        yield from events_from_buffer(buffer, parser, shape)
 
 
 async def decode_eventstream_async(chunks: AsyncIterator[bytes]) -> AsyncIterator[dict]:
@@ -47,16 +46,25 @@ async def decode_eventstream_async(chunks: AsyncIterator[bytes]) -> AsyncIterato
     shape = converse_stream_shape()
     async for chunk in chunks:
         buffer.add_data(chunk)
-        for event in buffer:
-            yield parser.parse(event.to_response_dict(), shape)
+        for event in events_from_buffer(buffer, parser, shape):
+            yield event
 
 
-@lru_cache(maxsize=None)
+@cache
 def converse_stream_shape() -> Shape:
     # Loading the service model is slow enough to be worth caching, and the
     # shape never changes within a process.
     model = ServiceModel(Loader().load_service_model("bedrock-runtime", "service-2"))
     return model.shape_for("ConverseStreamOutput")
+
+
+def events_from_buffer(
+    buffer: EventStreamBuffer, parser: EventStreamJSONParser, shape: Shape
+) -> Iterator[dict]:
+    # Parsing a buffered frame is synchronous either way, so both decoders
+    # share this loop and only differ in how they feed the buffer.
+    for event in buffer:
+        yield parser.parse(event.to_response_dict(), shape)
 
 
 class BedrockSigV4Auth(httpx.Auth):
