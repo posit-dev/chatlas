@@ -5,7 +5,7 @@ import base64
 import re
 import time
 import warnings
-from typing import TYPE_CHECKING, Any, Literal, Optional, cast, overload
+from typing import TYPE_CHECKING, Any, Literal, Optional, cast, get_args, overload
 
 import orjson
 from pydantic import BaseModel
@@ -15,6 +15,7 @@ from ._content import (
     BINARY_DOCUMENT_MIME_TYPES,
     PROVIDER_ANNOTATION_TYPES,
     Content,
+    ContentAudio,
     ContentCitation,
     ContentDocument,
     ContentImageInline,
@@ -31,6 +32,7 @@ from ._content import (
     ContentToolResponseSearch,
     ContentToolResult,
     ContentUploaded,
+    ImageContentTypes,
     WebSource,
 )
 from ._content_file import ensure_bytes
@@ -640,6 +642,15 @@ class GoogleProvider(
                 data=base64.b64decode(content.data),
                 mime_type=content.image_content_type,
             )
+        elif isinstance(content, ContentAudio):
+            from google.genai.types import Blob
+
+            return Part(
+                inline_data=Blob(
+                    data=content.data,
+                    mime_type=content.mime_type,
+                )
+            )
         elif isinstance(content, ContentImageRemote):
             raise NotImplementedError(
                 "Remote images aren't supported by Google (Gemini). "
@@ -768,13 +779,23 @@ class GoogleProvider(
             if inline_data:
                 mime_type = inline_data.get("mime_type")
                 data = inline_data.get("data")
-                if mime_type and data:
+                if mime_type and data and mime_type in get_args(ImageContentTypes):
                     contents.append(
                         ContentImageInline(
                             data=data.decode("utf-8"),
-                            image_content_type=mime_type,  # type: ignore
+                            image_content_type=cast(ImageContentTypes, mime_type),
                         )
                     )
+                elif mime_type and data and mime_type.startswith("audio/"):
+                    # TTS/native-audio output (e.g. "audio/pcm;rate=24000") --
+                    # not one of the six formats content_audio_file() validates
+                    # for input, but ContentAudio.mime_type is a plain str for
+                    # exactly this reason.
+                    contents.append(
+                        ContentAudio(data=base64.b64decode(data), mime_type=mime_type)
+                    )
+                # Any other inline_data mime type (e.g. video) isn't modeled
+                # yet -- skip it rather than mislabeling it as an image.
 
         search_contents = [
             c for gm in grounding_metadatas for c in google_search_contents(gm)

@@ -159,6 +159,25 @@ def is_image_content_type(content_type: str) -> TypeIs[ImageContentTypes]:
     return content_type in IMAGE_CONTENT_TYPES
 
 
+AudioContentTypes = Literal[
+    "audio/wav",
+    "audio/mp3",
+    "audio/aiff",
+    "audio/aac",
+    "audio/ogg",
+    "audio/flac",
+]
+"""
+Allowable content types for user-supplied audio files (i.e., what
+[](`~chatlas.content_audio_file`) will produce).
+
+Provider-generated audio (e.g. Gemini text-to-speech output) may use other
+MIME types outside this set (e.g. raw PCM like `"audio/pcm;rate=24000"`), so
+[](`~chatlas.types.ContentAudio`).mime_type is intentionally not restricted to
+this literal.
+"""
+
+
 class ToolInfo(BaseModel):
     """
     Serializable tool information
@@ -213,6 +232,7 @@ ContentTypeEnum = Literal[
     "tool_result_resource",
     "json",
     "pdf",
+    "audio",
     "document",
     "uploaded",
     "thinking",
@@ -861,6 +881,47 @@ class ContentDocument(Content):
         return f"<document file={self.filename} mime_type={self.mime_type}>"
 
 
+class ContentAudio(Content):
+    """
+    Audio content for a [](`~chatlas.Turn`)
+
+    This is the return type for [](`~chatlas.content_audio_file`). It's not
+    meant to be used directly. It's also used to represent audio a model
+    produced (e.g. Gemini text-to-speech/native-audio output).
+
+    Parameters
+    ----------
+    data
+        The raw audio bytes.
+    mime_type
+        The audio's MIME type (e.g. `"audio/wav"`). Provider-generated audio
+        can use MIME types beyond the six [](`~chatlas.types.AudioContentTypes`)
+        chatlas validates for user-supplied files (e.g. Gemini TTS output uses
+        raw PCM types like `"audio/pcm;rate=24000"`), so this is intentionally
+        a plain `str` rather than a fixed set of literals.
+    """
+
+    data: bytes
+    mime_type: str
+
+    content_type: ContentTypeEnum = "audio"
+
+    @field_serializer("data")
+    @classmethod
+    def serialize_data(cls, v: bytes) -> str:
+        return base64.b64encode(v).decode("ascii")
+
+    @field_validator("data", mode="before")
+    @classmethod
+    def validate_data(cls, v: bytes | str) -> bytes:
+        if isinstance(v, str):
+            return base64.b64decode(v, validate=True)
+        return v
+
+    def __str__(self):
+        return f"<audio mime_type={self.mime_type} size={len(self.data)} bytes>"
+
+
 class ContentUploaded(Content):
     """
     A reference to a file already uploaded to a provider.
@@ -1133,6 +1194,7 @@ ContentUnion = Union[
     ContentToolResult,
     ContentJson,
     ContentPDF,
+    ContentAudio,
     ContentDocument,
     ContentUploaded,
     ContentThinking,
@@ -1234,6 +1296,8 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentJson.model_validate(data)
     elif ct == "pdf":
         return ContentPDF.model_validate(data)
+    elif ct == "audio":
+        return ContentAudio.model_validate(data)
     elif ct == "document":
         return ContentDocument.model_validate(data)
     elif ct == "uploaded":

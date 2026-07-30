@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import warnings
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Literal, Optional, cast
 
 import orjson
 from openai.types.chat import (
@@ -19,6 +19,7 @@ from pydantic import BaseModel
 from ._chat import Chat
 from ._content import (
     Content,
+    ContentAudio,
     ContentDocument,
     ContentImageInline,
     ContentImageRemote,
@@ -141,6 +142,25 @@ def normalize_finish_reason(reason: str | None) -> str | None:
     if reason is None:
         return None
     return _OPENAI_COMPLETIONS_FINISH_REASON_MAP.get(reason, reason)
+
+
+# https://platform.openai.com/docs/guides/audio -- Chat Completions' input_audio
+# part only accepts these two formats (unlike Gemini's six).
+_OPENAI_COMPLETIONS_AUDIO_FORMATS: dict[str, Literal["wav", "mp3"]] = {
+    "audio/wav": "wav",
+    "audio/mp3": "mp3",
+}
+
+
+def openai_completions_audio_format(mime_type: str) -> Literal["wav", "mp3"]:
+    fmt = _OPENAI_COMPLETIONS_AUDIO_FORMATS.get(mime_type)
+    if fmt is None:
+        raise ValueError(
+            "The OpenAI Chat Completions API only accepts wav or mp3 audio "
+            f"input, but got mime_type={mime_type!r}. Use content_audio_file() "
+            "with a .wav or .mp3 file."
+        )
+    return fmt
 
 
 def completions_file_part(
@@ -419,6 +439,18 @@ class OpenAICompletionsProvider(
                                 },
                             }
                         )
+                    elif isinstance(x, ContentAudio):
+                        contents.append(
+                            {
+                                "type": "input_audio",
+                                "input_audio": {
+                                    "data": base64.b64encode(x.data).decode("utf-8"),
+                                    "format": openai_completions_audio_format(
+                                        x.mime_type
+                                    ),
+                                },
+                            }
+                        )
                     elif isinstance(x, ContentUploaded):
                         if x.provider != "openai":
                             raise ValueError(
@@ -486,6 +518,16 @@ class OpenAICompletionsProvider(
                 contents.append(ContentJson(value=data))
             else:
                 contents.append(ContentText(text=message.content))
+
+        # `modalities=["text", "audio"]` (gpt-audio) returns spoken output in
+        # message.audio.data, but ChatCompletionAudio carries no format/mime
+        # type -- only the request-side `audio` param specifies that, and
+        # chatlas doesn't yet expose it (see CHANGELOG). Representing the
+        # audio bytes needs that request-side plumbing, but the transcript is
+        # plain text with no such ambiguity, so surface at least that rather
+        # than returning a silently empty turn.
+        if message.audio is not None and message.audio.transcript:
+            contents.append(ContentText(text=message.audio.transcript))
 
         tool_calls = message.tool_calls
 

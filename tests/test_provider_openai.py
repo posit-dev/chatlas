@@ -5,6 +5,7 @@ import httpx
 import pytest
 from chatlas import ChatOpenAI, tool_web_search
 from chatlas._content import (
+    ContentAudio,
     ContentDocument,
     ContentImageInline,
     ContentPDF,
@@ -155,6 +156,12 @@ def test_openai_rejects_heic_images():
 def test_openai_rejects_heif_images():
     c = ContentImageInline(image_content_type="image/heif", data="abcd")
     with pytest.raises(ValueError, match="image/heif"):
+        as_input_param(c, role="user")
+
+
+def test_openai_audio_input_not_supported():
+    c = ContentAudio(data=b"\x00\x01", mime_type="audio/wav")
+    with pytest.raises(NotImplementedError, match="Audio input isn't supported"):
         as_input_param(c, role="user")
 
 

@@ -40,6 +40,9 @@ website:
       - reference/content_pdf_url.qmd
       section: PDF input
     - contents:
+      - reference/content_audio_file.qmd
+      section: Audio input
+    - contents:
       - reference/content_document_file.qmd
       - reference/content_document_url.qmd
       section: Document input
@@ -78,6 +81,7 @@ website:
       section: Implement a model provider
     - contents:
       - reference/types.Content.qmd
+      - reference/types.ContentAudio.qmd
       - reference/types.ContentCitation.qmd
       - reference/types.ContentImage.qmd
       - reference/types.ContentImageInline.qmd
@@ -98,6 +102,7 @@ website:
       - reference/types.ChatResponse.qmd
       - reference/types.ChatResponseAsync.qmd
       - reference/types.FileMetadata.qmd
+      - reference/types.AudioContentTypes.qmd
       - reference/types.ImageContentTypes.qmd
       - reference/types.MISSING_TYPE.qmd
       - reference/types.MISSING.qmd

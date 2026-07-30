@@ -181,6 +181,10 @@ quartodoc:
       contents:
         - content_pdf_file
         - content_pdf_url
+    - title: Audio input
+      desc: Submit audio input to the chat
+      contents:
+        - content_audio_file
     - title: Document input
       desc: Submit plain text, Markdown, CSV, code, and other non-PDF document input to the chat
       contents:
@@ -227,6 +231,7 @@ quartodoc:
     - title: User-facing types
       contents:
         - types.Content
+        - types.ContentAudio
         - types.ContentCitation
         - types.ContentImage
         - types.ContentImageInline
@@ -247,6 +252,7 @@ quartodoc:
         - types.ChatResponse
         - types.ChatResponseAsync
         - types.FileMetadata
+        - types.AudioContentTypes
         - types.ImageContentTypes
         - types.MISSING_TYPE
         - types.MISSING

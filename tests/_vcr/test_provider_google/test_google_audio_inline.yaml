@@ -1,0 +1,66 @@
+interactions:
+- request:
+    body: '{"contents": [{"parts": [{"text": "In one word, is this a musical tone/beep,
+      or human speech?"}, {"inlineData": {"data": "UklGRqQMAABXQVZFZm10IBAAAAABAAEAQB8AAIA-AAACABAAZGF0YYAMAAAAAPgDeAcWCoILkwtECr8HUAReAGH80vgc9pH0YPSP9fv3WftE_0QD4waxCVkLqguaCkkI_QQaARb9avmF9sD0TvQ_9Xb3r_qJ_o4CRwZCCSULtgvlCsoIpQXVAc79Cfr59vr0SPT69Pn2CfrO_dUBpQXKCOUKtgslC0IJRwaOAon-r_p29z_1TvTA9IX2avkW_RoB_QRJCJoKqgtZC7EJ4wZEA0T_Wfv794_1YPSR9Bz20vhh_F4AUAS_B0QKkwuCCxYKeAf4AwAACPyI-Or1fvRt9Lz1Qfiw-6L_nwMuB-QJbwugC3EKBQinBLwAvPwd-U_2p_RW9Gb1t_cD--b-6gKWBnsJQAuyC8EKighRBXcBcv25-b722_RK9Bv1Nvdb-iv-MgL3BQcJBgu4CwYLBwn3BTICK_5b-jb3G_VK9Nv0vva5-XL9dwFRBYoIwQqyC0ALewmWBuoC5v4D-7f3ZvVW9Kf0T_Yd-bz8vACnBAUIcQqgC28L5AkuB58Dov-w-0H4vPVt9H706vWI-Aj8AAD4A3gHFgqCC5MLRAq_B1AEXgBh_NL4HPaR9GD0j_X791n7RP9EA-MGsQlZC6oLmgpJCP0EGgEW_Wr5hfbA9E70P_V296_6if6OAkcGQgklC7YL5QrKCKUF1QHO_Qn6-fb69Ej0-vT59gn6zv3VAaUFygjlCrYLJQtCCUcGjgKJ_q_6dvc_9U70wPSF9mr5Fv0aAf0ESQiaCqoLWQuxCeMGRANE_1n7-_eP9WD0kfQc9tL4YfxeAFAEvwdECpMLggsWCngH-AMAAAj8iPjq9X70bfS89UH4sPui_58DLgfkCW8LoAtxCgUIpwS8ALz8HflP9qf0VvRm9bf3A_vm_uoClgZ7CUALsgvBCooIUQV3AXL9ufm-9tv0SvQb9Tb3W_or_jIC9wUHCQYLuAsGCwcJ9wUyAiv-W_o29xv1SvTb9L72ufly_XcBUQWKCMEKsgtAC3sJlgbqAub-A_u392b1VvSn9E_2Hfm8_LwApwQFCHEKoAtvC-QJLgefA6L_sPtB-Lz1bfR-9Or1iPgI_AAA-AN4BxYKgguTC0QKvwdQBF4AYfzS-Bz2kfRg9I_1-_dZ-0T_RAPjBrEJWQuqC5oKSQj9BBoBFv1q-YX2wPRO9D_1dvev-on-jgJHBkIJJQu2C-UKygilBdUBzv0J-vn2-vRI9Pr0-fYJ-s791QGlBcoI5Qq2CyULQglHBo4Cif6v-nb3P_VO9MD0hfZq-Rb9GgH9BEkImgqqC1kLsQnjBkQDRP9Z-_v3j_Vg9JH0HPbS-GH8XgBQBL8HRAqTC4ILFgp4B_gDAAAI_Ij46vV-9G30vPVB-LD7ov-fAy4H5AlvC6ALcQoFCKcEvAC8_B35T_an9Fb0ZvW39wP75v7qApYGewlAC7ILwQqKCFEFdwFy_bn5vvbb9Er0G_U291v6K_4yAvcFBwkGC7gLBgsHCfcFMgIr_lv6Nvcb9Ur02_S-9rn5cv13AVEFigjBCrILQAt7CZYG6gLm_gP7t_dm9Vb0p_RP9h35vPy8AKcEBQhxCqALbwvkCS4HnwOi_7D7Qfi89W30fvTq9Yj4CPwAAPgDeAcWCoILkwtECr8HUAReAGH80vgc9pH0YPSP9fv3WftE_0QD4waxCVkLqguaCkkI_QQaARb9avmF9sD0TvQ_9Xb3r_qJ_o4CRwZCCSULtgvlCsoIpQXVAc79Cfr59vr0SPT69Pn2CfrO_dUBpQXKCOUKtgslC0IJRwaOAon-r_p29z_1TvTA9IX2avkW_RoB_QRJCJoKqgtZC7EJ4wZEA0T_Wfv794_1YPSR9Bz20vhh_F4AUAS_B0QKkwuCCxYKeAf4AwAACPyI-Or1fvRt9Lz1Qfiw-6L_nwMuB-QJbwugC3EKBQinBLwAvPwd-U_2p_RW9Gb1t_cD--b-6gKWBnsJQAuyC8EKighRBXcBcv25-b722_RK9Bv1Nvdb-iv-MgL3BQcJBgu4CwYLBwn3BTICK_5b-jb3G_VK9Nv0vva5-XL9dwFRBYoIwQqyC0ALewmWBuoC5v4D-7f3ZvVW9Kf0T_Yd-bz8vACnBAUIcQqgC28L5AkuB58Dov-w-0H4vPVt9H706vWI-Aj8AAD4A3gHFgqCC5MLRAq_B1AEXgBh_NL4HPaR9GD0j_X791n7RP9EA-MGsQlZC6oLmgpJCP0EGgEW_Wr5hfbA9E70P_V296_6if6OAkcGQgklC7YL5QrKCKUF1QHO_Qn6-fb69Ej0-vT59gn6zv3VAaUFygjlCrYLJQtCCUcGjgKJ_q_6dvc_9U70wPSF9mr5Fv0aAf0ESQiaCqoLWQuxCeMGRANE_1n7-_eP9WD0kfQc9tL4YfxeAFAEvwdECpMLggsWCngH-AMAAAj8iPjq9X70bfS89UH4sPui_58DLgfkCW8LoAtxCgUIpwS8ALz8HflP9qf0VvRm9bf3A_vm_uoClgZ7CUALsgvBCooIUQV3AXL9ufm-9tv0SvQb9Tb3W_or_jIC9wUHCQYLuAsGCwcJ9wUyAiv-W_o29xv1SvTb9L72ufly_XcBUQWKCMEKsgtAC3sJlgbqAub-A_u392b1VvSn9E_2Hfm8_LwApwQFCHEKoAtvC-QJLgefA6L_sPtB-Lz1bfR-9Or1iPgI_AAA-AN4BxYKgguTC0QKvwdQBF4AYfzS-Bz2kfRg9I_1-_dZ-0T_RAPjBrEJWQuqC5oKSQj9BBoBFv1q-YX2wPRO9D_1dvev-on-jgJHBkIJJQu2C-UKygilBdUBzv0J-vn2-vRI9Pr0-fYJ-s791QGlBcoI5Qq2CyULQglHBo4Cif6v-nb3P_VO9MD0hfZq-Rb9GgH9BEkImgqqC1kLsQnjBkQDRP9Z-_v3j_Vg9JH0HPbS-GH8XgBQBL8HRAqTC4ILFgp4B_gDAAAI_Ij46vV-9G30vPVB-LD7ov-fAy4H5AlvC6ALcQoFCKcEvAC8_B35T_an9Fb0ZvW39wP75v7qApYGewlAC7ILwQqKCFEFdwFy_bn5vvbb9Er0G_U291v6K_4yAvcFBwkGC7gLBgsHCfcFMgIr_lv6Nvcb9Ur02_S-9rn5cv13AVEFigjBCrILQAt7CZYG6gLm_gP7t_dm9Vb0p_RP9h35vPy8AKcEBQhxCqALbwvkCS4HnwOi_7D7Qfi89W30fvTq9Yj4CPwAAPgDeAcWCoILkwtECr8HUAReAGH80vgc9pH0YPSP9fv3WftE_0QD4waxCVkLqguaCkkI_QQaARb9avmF9sD0TvQ_9Xb3r_qJ_o4CRwZCCSULtgvlCsoIpQXVAc79Cfr59vr0SPT69Pn2CfrO_dUBpQXKCOUKtgslC0IJRwaOAon-r_p29z_1TvTA9IX2avkW_RoB_QRJCJoKqgtZC7EJ4wZEA0T_Wfv794_1YPSR9Bz20vhh_F4AUAS_B0QKkwuCCxYKeAf4AwAACPyI-Or1fvRt9Lz1Qfiw-6L_nwMuB-QJbwugC3EKBQinBLwAvPwd-U_2p_RW9Gb1t_cD--b-6gKWBnsJQAuyC8EKighRBXcBcv25-b722_RK9Bv1Nvdb-iv-MgL3BQcJBgu4CwYLBwn3BTICK_5b-jb3G_VK9Nv0vva5-XL9dwFRBYoIwQqyC0ALewmWBuoC5v4D-7f3ZvVW9Kf0T_Yd-bz8vACnBAUIcQqgC28L5AkuB58Dov-w-0H4vPVt9H706vWI-Aj8AAD4A3gHFgqCC5MLRAq_B1AEXgBh_NL4HPaR9GD0j_X791n7RP9EA-MGsQlZC6oLmgpJCP0EGgEW_Wr5hfbA9E70P_V296_6if6OAkcGQgklC7YL5QrKCKUF1QHO_Qn6-fb69Ej0-vT59gn6zv3VAaUFygjlCrYLJQtCCUcGjgKJ_q_6dvc_9U70wPSF9mr5Fv0aAf0ESQiaCqoLWQuxCeMGRANE_1n7-_eP9WD0kfQc9tL4YfxeAFAEvwdECpMLggsWCngH-AMAAAj8iPjq9X70bfS89UH4sPui_58DLgfkCW8LoAtxCgUIpwS8ALz8HflP9qf0VvRm9bf3A_vm_uoClgZ7CUALsgvBCooIUQV3AXL9ufm-9tv0SvQb9Tb3W_or_jIC9wUHCQYLuAsGCwcJ9wUyAiv-W_o29xv1SvTb9L72ufly_XcBUQWKCMEKsgtAC3sJlgbqAub-A_u392b1VvSn9E_2Hfm8_LwApwQFCHEKoAtvC-QJLgefA6L_sPtB-Lz1bfR-9Or1iPgI_A==",
+      "mimeType": "audio/wav"}}], "role": "user"}], "generationConfig": {"temperature":
+      0}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '4538'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.14.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"Beep\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 17,\"candidatesTokenCount\":
+        2,\"totalTokenCount\": 246,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        17}],\"thoughtsTokenCount\": 227,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"ORNqapW9BZSrsOIP-6GymAo\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
+        \"ErgHCrUHARFNMg/GQUZVyt6t5ITYUZu757H3it/ydOg2DIRHNNsNr8KRhrZVTIo/WTOzEK9NxRbyauV36IQ6/6MIMqe6tZUkW8otxWv72j5dbVolq+33F+p2v+i4UN2Eviq23yTSKbL4q8OArV6NQLOYKH3hbPMMMm2Qd/lmewr9uwMyKxS9MOPcOMPUZU26qpcYd1JDNYgThOq3+vVktmMF1tPyWKhNDhT6ULwah/2HcBp0Cmv1j3k124JVFqupS5dShvI1lOmT2scQVOdCzcZYdZhCnh5R7keOvra22l5PO9UTsRMzrM3yXiqG/xD4oUdpCLhReSGbNOFDlLpQyaHQAlhT9VSNqCPAQktCjHgYyPjgmSY9D60amTpMu7sfmUpb4McCHq8deQepTTf5l5T0UfKXgQe0lCwtuIX8qRnRbB0ZpBHgwlrsdfhfSzmfKhuouBi+UaxEeTxPQPzUvXDCU+jjvp8cP7Rp1at2VysVtnuzpa1GxF+YOZoidrN2vczCbnRb7Lw1t1ey9dfg7SChEhY4mcg11pz3iWS2f2gwaLOplj1V5HZUSBnkle5RFpmIWm+TmYkyRI/Ir0ItblpT0MtWH4Ro28359rsV/WvkrjYhVSOnHxDLjLtnOT2xFTuMK1jsypqE0CvouHFJfoZBLKd7rlT13N1poy0dQ7hhsLPRao87RNAUohIqBV4JvEVroT4Pt2y2e9gzfYgGp1iZJZEupdwXZsG9IMuilguyxpk1FXVACuxcV0Xaxb8zhtE8E/v1y47efoCyzdNXVhhetritDHiiE+ITax+Ouc6BMBZ27L/Z96rzKzZUvj3/ZD+ziQp/K2iK5MD0eAJX4mrJovBxwyPXuCpsK0pQQuUfucA9zbVfUlpAJdzPrdbBYOzR+2Dvks5cMLixRya8EC03iEtGK6+EXOePz6VvTa/2wS7YA/8wvzk0EWt+DbhihaAvchk3nc/kkv0z6/H70NLxgEWrH09LpDLbihRPQWcveOVNC/rx9726WvyO7cSOOCcsoonZ/fTU+Xa3nT48E7Z/43GsatYK6ddBy9XIFPXkWut2F26tj0PC4LnBy1psWlQLDinOl6zNc5pHSMuZefWXvau7IxfnUB46WPWw4g+gO5lpqIxD3xVYQyHVzTahXVdcI5e7gyEMj/QNn0y2qDoiC4diCAqJ9srNxwBL2Ci4HwY6rigPuBt04JcaarmSySKaM8/xPa1ub1ZSiMhcRuJStX+gtpsf+I0ZzDx8o0yR3FrUK1D4nYdt9w==\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        22,\"candidatesTokenCount\": 2,\"totalTokenCount\": 251,\"promptTokensDetails\":
+        [{\"modality\": \"AUDIO\",\"tokenCount\": 5},{\"modality\": \"TEXT\",\"tokenCount\":
+        17}],\"thoughtsTokenCount\": 227,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"ORNqapW9BZSrsOIP-6GymAo\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Wed, 29 Jul 2026 14:50:35 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=2741
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

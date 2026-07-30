@@ -9,6 +9,7 @@ from chatlas import (
     ContentToolRequest,
     ContentToolResult,
     UserTurn,
+    content_audio_file,
     content_document_file,
     content_image_file,
     content_image_url,
@@ -417,6 +418,17 @@ def assert_pdf_remote(chat_fun: ChatFun):
         ),
     )
     assert "apples are tasty" in str(response).lower()
+
+
+def assert_audio_local(chat_fun: ChatFun):
+    chat = chat_fun()
+    tone = Path(__file__).parent / "audio" / "tone.wav"
+    response = chat.chat(
+        "In one word, is this a musical tone/beep, or human speech?",
+        content_audio_file(tone),
+    )
+    text = str(response).lower()
+    assert any(word in text for word in ("tone", "beep", "music"))
 
 
 def assert_list_models(chat_fun: ChatFun):

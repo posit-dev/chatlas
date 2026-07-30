@@ -103,10 +103,20 @@ chat.chat(
 )
 ```
 
+Audio input works the same way, via [`content_audio_file()`](../reference/content_audio_file.qmd):
+
+```python
+chat = ctl.ChatGoogle()
+chat.chat(
+  "What's being said in this recording?",
+  ctl.content_audio_file("meeting.wav"),
+)
+```
+
 ::: callout-warning
 ### Supported content types
 
-Not every model supports every content type. Please refer to the documentation for the specific model you're using to see which content types are supported.
+Not every model supports every content type. Please refer to the documentation for the specific model you're using to see which content types are supported. Notably, audio input only works with [`ChatGoogle()`](../reference/ChatGoogle.qmd)/[`ChatVertex()`](../reference/ChatVertex.qmd) (wav, mp3, aiff, aac, ogg, flac) and [`ChatOpenAICompletions()`](../reference/ChatOpenAICompletions.qmd) (wav, mp3 only) -- Anthropic and the OpenAI Responses API (`ChatOpenAI()`) don't accept audio input at all.
 :::
 
 For a large file, or one you want to reference across many turns, upload it once with [`chat.files.upload()`](../reference/FileManager.qmd#upload) instead of re-sending its bytes every time:

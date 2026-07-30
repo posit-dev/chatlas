@@ -24,6 +24,7 @@ from google.genai.types import GroundingMetadataDict
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from .conftest import (
+    assert_audio_local,
     assert_data_extraction,
     assert_document_local,
     assert_images_inline,
@@ -488,6 +489,12 @@ def test_google_document():
 
 
 @pytest.mark.vcr
+@retry_gemini_call
+def test_google_audio_inline():
+    assert_audio_local(chat_func)
+
+
+@pytest.mark.vcr
 def test_google_list_models():
     assert_list_models(ChatGoogle)
 
@@ -537,6 +544,116 @@ def test_google_thought_signature_roundtrip():
     # Verify it round-trips back into the Part
     part = provider._as_part_type(req)
     assert part.thought_signature == fake_signature
+
+
+def test_google_inline_audio_is_not_mislabeled_as_image():
+    """
+    A TTS/native-audio response returns inline_data with an audio/* mime type
+    (e.g. "audio/pcm;rate=24000"). Before this was fixed, that mime type was
+    cast straight into ContentImageInline.image_content_type (which is typed
+    as only image mime types), mislabeling audio data as an image.
+    """
+    import base64
+
+    from chatlas._content import ContentImageInline
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash",
+        api_key="dummy",
+        kwargs=None,
+    )
+
+    message = {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [
+                        {
+                            "inline_data": {
+                                "mime_type": "audio/pcm;rate=24000",
+                                "data": base64.b64encode(b"\x00\x01\x02\x03"),
+                            }
+                        }
+                    ]
+                },
+                "finish_reason": "STOP",
+            }
+        ],
+        "usage_metadata": {
+            "prompt_token_count": 10,
+            "candidates_token_count": 5,
+        },
+    }
+
+    turn = provider._as_turn(message, has_data_model=False)
+    assert not any(isinstance(c, ContentImageInline) for c in turn.contents)
+
+
+def test_google_inline_audio_is_represented_as_content_audio():
+    """
+    Once mislabeling is fixed, audio/* inline_data should still be
+    representable -- not just dropped -- since Gemini's response already
+    carries a real (if provider-specific) mime type per part.
+    """
+    import base64
+
+    from chatlas._content import ContentAudio
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash",
+        api_key="dummy",
+        kwargs=None,
+    )
+
+    raw = b"\x00\x01\x02\x03"
+    message = {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [
+                        {
+                            "inline_data": {
+                                "mime_type": "audio/pcm;rate=24000",
+                                "data": base64.b64encode(raw),
+                            }
+                        }
+                    ]
+                },
+                "finish_reason": "STOP",
+            }
+        ],
+        "usage_metadata": {
+            "prompt_token_count": 10,
+            "candidates_token_count": 5,
+        },
+    }
+
+    turn = provider._as_turn(message, has_data_model=False)
+    assert len(turn.contents) == 1
+    audio = turn.contents[0]
+    assert isinstance(audio, ContentAudio)
+    assert audio.mime_type == "audio/pcm;rate=24000"
+    assert audio.data == raw
+
+
+def test_google_content_audio_round_trips_to_part():
+    """
+    ContentAudio produced from a Gemini response (e.g. TTS output, mime_type
+    "audio/pcm;rate=24000") must convert back into a Part without error, since
+    assistant turns get resent on every subsequent .chat() call.
+    """
+    from chatlas._content import ContentAudio
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(model="gemini-2.5-flash", api_key="dummy", kwargs=None)
+
+    audio = ContentAudio(data=b"\x00\x01\x02\x03", mime_type="audio/pcm;rate=24000")
+    part = provider._as_part_type(audio)
+    assert part.inline_data is not None
+    assert part.inline_data.mime_type == "audio/pcm;rate=24000"
+    assert part.inline_data.data == b"\x00\x01\x02\x03"
 
 
 def test_normalize_retrieval_status():

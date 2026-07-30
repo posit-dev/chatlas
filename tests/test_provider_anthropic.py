@@ -23,6 +23,7 @@ from chatlas import (
     tool_web_search,
 )
 from chatlas._content import (
+    ContentAudio,
     ContentDocument,
     ContentImageInline,
     ContentPDF,
@@ -386,6 +387,12 @@ def test_anthropic_pdf_url():
 @pytest.mark.vcr
 def test_anthropic_document():
     assert_document_local(chat_func)
+
+
+def test_anthropic_audio_input_not_supported():
+    c = ContentAudio(data=b"\x00\x01", mime_type="audio/wav")
+    with pytest.raises(NotImplementedError, match="Audio input isn't supported"):
+        AnthropicProvider._as_content_block(c)
 
 
 def test_anthropic_uploaded_document_block():
