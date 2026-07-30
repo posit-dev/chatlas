@@ -239,7 +239,9 @@ class SubmitInputArgs(TypedDict, total=False):
     reasoning: Union[openai.types.shared_params.reasoning.Reasoning, None, openai.Omit]
     safety_identifier: Union[str, None, openai.Omit]
     service_tier: Union[
-        Literal["auto", "default", "flex", "scale", "priority"], None, openai.Omit
+        Literal["auto", "default", "flex", "scale", "priority", "fast"],
+        None,
+        openai.Omit,
     ]
     store: Union[bool, None, openai.Omit]
     stream: Union[Literal[False], None, Literal[True], openai.Omit]
