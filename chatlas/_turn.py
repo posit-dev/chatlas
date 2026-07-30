@@ -16,7 +16,7 @@ from ._content import (
     ContentUnion,
     create_content,
 )
-from ._content_expand import expand_tool_result, merge_tool_results
+from ._content_expand import expand_tool_result, merge_tool_results, tool_results_first
 
 __all__ = ("Turn", "UserTurn", "SystemTurn", "AssistantTurn")
 
@@ -275,7 +275,7 @@ class UserTurn(Turn):
             else:
                 contents.append(x)
 
-        self.contents = contents
+        self.contents = tool_results_first(contents)
         return self
 
 

@@ -64,6 +64,21 @@ def merge_tool_results(contents: Sequence[ContentUnion]) -> list[ContentUnion]:
     return merged
 
 
+def tool_results_first(contents: list[ContentUnion]) -> list[ContentUnion]:
+    """Order every tool result ahead of the rest of a turn's content.
+
+    Anthropic requires the tool results of a user message to come first, and
+    expansion injects content into the turn that would otherwise sit between
+    two results. The unrolled content still finds its result: the forward
+    pointer is by call id, not position.
+    """
+    results = [x for x in contents if isinstance(x, ContentToolResult)]
+    if not results:
+        return contents
+
+    return results + [x for x in contents if not isinstance(x, ContentToolResult)]
+
+
 def combine_tool_results(results: list[ContentToolResult]) -> ContentToolResult:
     """Fold a group of same-request results into one.
 

@@ -237,10 +237,10 @@ def test_expand_turn_preserves_other_content():
     # Total: 6 items
     assert len(turn.contents) == 6
 
-    assert isinstance(turn.contents[0], ContentText)
-    assert turn.contents[0].text == "Before"
-    assert isinstance(turn.contents[1], ContentToolResult)
-    assert 'See <tool-content call-id="call_x"> below.' == turn.contents[1].value
+    assert isinstance(turn.contents[0], ContentToolResult)
+    assert 'See <tool-content call-id="call_x"> below.' == turn.contents[0].value
+    assert isinstance(turn.contents[1], ContentText)
+    assert turn.contents[1].text == "Before"
     assert isinstance(turn.contents[2], ContentText)
     assert turn.contents[2].text == '<tool-content call-id="call_x">'
     assert isinstance(turn.contents[3], ContentImageInline)
@@ -351,7 +351,7 @@ def test_merge_mixed_text_and_image_is_expanded():
     assert any(isinstance(c, ContentImageInline) for c in turn.contents)
 
 
-def test_merge_preserves_surrounding_content_order():
+def test_merge_keeps_non_result_content_in_relative_order():
     request = tool_request()
     turn = UserTurn(
         [
@@ -363,10 +363,10 @@ def test_merge_preserves_surrounding_content_order():
     )
 
     assert len(turn.contents) == 3
-    assert isinstance(turn.contents[0], ContentText)
-    assert turn.contents[0].text == "Before"
-    assert isinstance(turn.contents[1], ContentToolResult)
-    assert turn.contents[1].value == "one\ntwo"
+    assert isinstance(turn.contents[0], ContentToolResult)
+    assert turn.contents[0].value == "one\ntwo"
+    assert isinstance(turn.contents[1], ContentText)
+    assert turn.contents[1].text == "Before"
     assert isinstance(turn.contents[2], ContentText)
     assert turn.contents[2].text == "After"
 
@@ -382,3 +382,95 @@ def test_merge_ignores_results_without_a_request():
 
     results = [c for c in turn.contents if isinstance(c, ContentToolResult)]
     assert len(results) == 2
+
+
+def test_expanded_content_does_not_push_a_later_result_out_of_position():
+    """Anthropic requires every tool_result at the start of the user message."""
+    request_a = tool_request(id="call_a", name="plot")
+    request_b = tool_request(id="call_b", name="lookup")
+
+    image = ContentImageInline(
+        data=base64.b64encode(b"img").decode("utf-8"),
+        image_content_type="image/png",
+    )
+
+    turn = UserTurn(
+        [
+            ContentToolResult(value=image, request=request_a),
+            ContentToolResult(value="text b", request=request_b),
+        ]
+    )
+
+    results = [c for c in turn.contents if isinstance(c, ContentToolResult)]
+    assert len(results) == 2
+    assert turn.contents[:2] == results
+
+
+def test_tool_results_precede_user_authored_content():
+    request = tool_request(id="call_x", name="plot")
+
+    image = ContentImageInline(
+        data=base64.b64encode(b"img").decode("utf-8"),
+        image_content_type="image/png",
+    )
+
+    turn = UserTurn(
+        [
+            ContentText(text="Before"),
+            ContentToolResult(value=image, request=request),
+            ContentText(text="After"),
+        ]
+    )
+
+    assert isinstance(turn.contents[0], ContentToolResult)
+    # Non-result content keeps its own relative order behind the results.
+    texts = [c.text for c in turn.contents if isinstance(c, ContentText)]
+    assert texts.index("Before") < texts.index("After")
+
+
+def test_ordering_is_untouched_when_there_are_no_tool_results():
+    turn = UserTurn([ContentText(text="one"), ContentText(text="two")])
+
+    assert [c.text for c in turn.contents if isinstance(c, ContentText)] == [
+        "one",
+        "two",
+    ]
+
+
+def test_anthropic_puts_every_tool_result_block_first():
+    from typing import Any, cast
+
+    from chatlas._provider_anthropic import AnthropicProvider
+    from chatlas._turn import AssistantTurn
+
+    request_a = tool_request(id="call_a", name="plot")
+    request_b = tool_request(id="call_b", name="lookup")
+
+    image = ContentImageInline(
+        data=base64.b64encode(b"img").decode("utf-8"),
+        image_content_type="image/png",
+    )
+
+    turns = [
+        UserTurn("go"),
+        AssistantTurn([request_a, request_b]),
+        UserTurn(
+            [
+                ContentToolResult(value=image, request=request_a),
+                ContentToolResult(value="text b", request=request_b),
+            ]
+        ),
+    ]
+
+    messages = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )._as_message_params(turns)
+
+    types = [
+        cast(dict[str, Any], b).get("type")
+        for b in messages[-1]["content"]
+        if isinstance(b, dict)
+    ]
+
+    assert types[:2] == ["tool_result", "tool_result"]
+    assert "tool_result" not in types[2:]
