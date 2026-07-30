@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Long reasoning is likewise bounded in the console, capped at `thinking_max_lines` (default 10). Unlike a tool result it's cropped from the *top*, keeping the newest reasoning — cropping the other way would pin the panel to text you've already read while new text streamed in unseen. The title reports how many earlier lines were dropped. The cap counts rendered (wrapped) lines rather than newlines, since reasoning is prose that wraps well past its own line count, so the dropped count stays correct at any console width.
 * All three echo size options (`tool_result_max_lines`, `tool_result_max_height`, `thinking_max_lines`) accept `None` to turn the bound off entirely.
 * Registering a built-in tool (`tool_web_search()`, `tool_web_fetch()`) with a provider that can't run it now raises immediately, naming the tool and the provider, instead of failing on the next request. Previously `ChatOpenAICompletions()` (and the other OpenAI-compatible providers, none of which have server-side tools) sent an *empty* tool definition, and `ChatBedrockAnthropic()` sent Anthropic server-tool JSON that Amazon Bedrock doesn't accept — so the tool was either quietly ignored or the request died with a cryptic provider error far from the line that caused it. Passing a `ToolBuiltIn` with your own provider-specific definition still works everywhere, since that's raw JSON chatlas doesn't need to translate. (#367)
+* Web search, web fetch, and citations are now visible when echoing. Previously they only appeared with `echo="all"`, and citations and web-fetch content didn't render at all (see the bug fix below). They now group into one "Searched the web" / "Read the web" block per episode, rendered as a bounded panel in the console and a collapsed `<details>` block in notebooks, with sources the answer actually cites marked with `❝` (#256).
+* `Chat.set_echo_options()` gains `web_activity_max_sources` (default `4`) to cap the console's source list, noting how many were dropped; pass `None` to list them all. Notebooks always list every source, since the block scrolls internally.
 
 ### Bug fixes
 
@@ -25,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Tool names and argument names are now HTML-escaped in the notebook/shiny rendering of tool requests and results, closing an HTML-injection hole (both are model-controlled).
 * A tool that reports progress by yielding more than once, or an MCP server that answers a call with several content parts (text plus an image, say), no longer breaks the request. Those results are now combined into the single result providers expect, images and PDFs included, and placed correctly even alongside other tool calls in the same turn.
 * `register_mcp_tools_stdio_async()` and `register_mcp_tools_http_stream_async()` no longer fail when an MCP server leaves some tool annotations unset.
+* `ContentCitation`, `ContentToolRequestFetch`, and `ContentToolResponseFetch` rendered as nothing at all. They stringified to `[label]: <url>`, which markdown parses as a link reference definition, so the console, notebooks, and `Chat.export(content="all")` all silently dropped the line.
 
 ## [0.20.0] - 2026-07-29
 

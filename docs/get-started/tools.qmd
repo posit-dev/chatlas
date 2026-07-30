@@ -109,6 +109,25 @@ For providers without native fetch support (like OpenAI), you can use the [MCP F
 See the [MCP tools guide](../misc/mcp-tools.qmd) for more information.
 :::
 
+When a built-in tool runs, chatlas shows what it did, grouped into one block per episode rather than a line per query, fetch, and result. At the console you get a panel:
+
+```
+╭─ Searched the web  (10 results · 1 cited) ───────────────────────────────╮
+│ 🔍 ggplot2 1.0.0 CRAN release date                                       │
+│ ❝ CRAN: Package ggplot2                               cran.r-project.org │
+│   Changelog • ggplot2                              ggplot2.tidyverse.org │
+│   ggplot2 - Wikipedia                                   en.wikipedia.org │
+│   Releases · tidyverse/ggplot2                                github.com │
+│   … 6 more                                                               │
+╰──────────────────────────────────────────────────────────────────────────╯
+```
+
+The `❝` marks a source the answer actually cites. The source list is capped at four rows -- a hard limit, and cited sources always win a slot ahead of uncited ones, so a cited source is never crowded out by search noise. Tune the cap with [`.set_echo_options()`](../reference/Chat.qmd#set_echo_options) -- pass `web_activity_max_sources=None` to list every source instead.
+
+In a notebook the same activity renders as a collapsed `<details>` block instead -- `Searched the web (10 results · 1 cited)` -- which you expand to see every source as a link, with the cited passage quoted underneath the source it came from. Nothing is capped there, since the block scrolls internally.
+
+How much of this you see is controlled by the `echo` parameter, same as for [reasoning](reasoning.qmd#seeing-reasoning): the default (`echo="output"`) includes it; `echo="text"` shows just the model's answer.
+
 
 ### Tool errors
 
