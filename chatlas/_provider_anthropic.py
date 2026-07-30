@@ -37,6 +37,7 @@ from ._content import (
     ContentToolResponseSearch,
     ContentToolResult,
     ContentUploaded,
+    ContentVideo,
     ProviderAnnotation,
     WebSource,
     check_image_content_type_supported,
@@ -908,6 +909,11 @@ class AnthropicProvider(
                     "url": content.url,
                 },
             }
+        elif isinstance(content, ContentVideo):
+            raise NotImplementedError(
+                "Video input isn't supported by Anthropic. Only ChatGoogle() "
+                "(Gemini) supports video."
+            )
         elif isinstance(content, ContentToolRequest):
             return {
                 "type": "tool_use",

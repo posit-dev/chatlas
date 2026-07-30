@@ -1,8 +1,10 @@
+import base64
 from typing import cast
 
 import pytest
 import requests
 from chatlas import ChatGoogle, ChatVertex, tool_web_fetch, tool_web_search
+from chatlas._content import ContentVideoInline, ContentVideoUrl
 from chatlas._provider_google import (
     GoogleProvider,
     google_grounding_citations,
@@ -473,6 +475,28 @@ def test_images_remote_error():
 @retry_gemini_call
 def test_google_pdfs():
     assert_pdf_local(chat_func)
+
+
+def test_google_video_inline_part():
+    provider = GoogleProvider(model="gemini-2.5-flash", api_key="dummy", kwargs=None)
+    video = ContentVideoInline(
+        video_content_type="video/mp4",
+        data=base64.b64encode(b"fake video bytes").decode("ascii"),
+    )
+    part = provider._as_part_type(video)
+    assert part.inline_data.mime_type == "video/mp4"
+    assert part.inline_data.data == b"fake video bytes"
+
+
+def test_google_video_youtube_part_has_no_mime_type():
+    # Part.from_uri() would raise here (mimetypes.guess_type() can't infer a
+    # type from a youtube.com/watch?v=... URL), so this also guards against
+    # accidentally routing ContentVideoUrl through that helper.
+    provider = GoogleProvider(model="gemini-2.5-flash", api_key="dummy", kwargs=None)
+    video = ContentVideoUrl(url="https://www.youtube.com/watch?v=9hE5-98ZeCg")
+    part = provider._as_part_type(video)
+    assert part.file_data.file_uri == "https://www.youtube.com/watch?v=9hE5-98ZeCg"
+    assert part.file_data.mime_type is None
 
 
 @pytest.mark.vcr

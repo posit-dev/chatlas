@@ -30,6 +30,7 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
     ContentUploaded,
+    ContentVideo,
     check_image_content_type_supported,
 )
 from ._content_file import ensure_bytes
@@ -440,6 +441,11 @@ class OpenAICompletionsProvider(
                                 "API), or pass the image inline via content_image_file()."
                             )
                         contents.append({"type": "file", "file": {"file_id": x.id}})
+                    elif isinstance(x, ContentVideo):
+                        raise NotImplementedError(
+                            f"Video input isn't supported by {self.name}. Only "
+                            "ChatGoogle() (Gemini) supports video."
+                        )
                     elif isinstance(x, ContentToolResult):
                         tool_results.append(
                             ChatCompletionToolMessageParam(

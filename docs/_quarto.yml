@@ -186,6 +186,11 @@ quartodoc:
       contents:
         - content_document_file
         - content_document_url
+    - title: Video input
+      desc: Submit video input to the chat (Gemini only)
+      contents:
+        - content_video_file
+        - content_video_youtube
     - title: Tool calling
       desc: Add context to python function before registering it as a tool.
       contents:
@@ -244,10 +249,14 @@ quartodoc:
         - types.ContentToolRequestFetch
         - types.ContentToolResponseFetch
         - types.ContentUploaded
+        - types.ContentVideo
+        - types.ContentVideoInline
+        - types.ContentVideoUrl
         - types.ChatResponse
         - types.ChatResponseAsync
         - types.FileMetadata
         - types.ImageContentTypes
+        - types.VideoContentTypes
         - types.MISSING_TYPE
         - types.MISSING
         - types.Source

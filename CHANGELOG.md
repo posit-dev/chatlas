@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### New features
+
+* Added video input for `ChatGoogle()`/`ChatVertex()` (Gemini is the only provider that accepts video): `content_video_file()` for small inline clips (mp4, mpeg, mov, avi, x-flv, mpg, webm, wmv, 3gpp), and `content_video_youtube()` to reference a public YouTube URL directly, with no upload and no MIME type. Passing either to a provider other than Gemini raises a clear `NotImplementedError`. For larger local video files, use `chat.files.upload()` instead.
+
 ### Improvements
 
 * Reasoning is now visible when echoing. Previously, thinking content was wrapped in literal `<thinking>` tags that a markdown renderer treated as an HTML block and dropped, so reasoning never appeared at all — even with `echo="all"`. It now renders in a "Thinking" panel in the console, and in a `<details>` block in notebooks that stays expanded while reasoning streams in and collapses once it's done. `echo="text"` continues to show only the assistant's answer. (#361)

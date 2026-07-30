@@ -12,6 +12,7 @@ from chatlas._content import (
     ContentThinkingDelta,
     ContentToolRequest,
     ContentUploaded,
+    ContentVideoUrl,
 )
 from chatlas._provider_openai_completions import OpenAICompletionsProvider
 from chatlas._provider_openai_completions import (
@@ -148,6 +149,17 @@ def test_openai_completions_pdf_url():
 
 def test_openai_custom_http_client():
     ChatOpenAICompletions(kwargs={"http_client": httpx.AsyncClient()})
+
+
+def test_openai_completions_video_raises_clear_error():
+    provider = OpenAICompletionsProvider(model="test")
+    turn = UserTurn(
+        [ContentVideoUrl(url="https://www.youtube.com/watch?v=9hE5-98ZeCg")]
+    )
+    with pytest.raises(
+        NotImplementedError, match="Video input isn't supported by OpenAI"
+    ):
+        provider._turns_as_inputs([turn])
 
 
 @pytest.mark.vcr

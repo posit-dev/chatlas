@@ -27,6 +27,7 @@ from chatlas._content import (
     ContentImageInline,
     ContentPDF,
     ContentUploaded,
+    ContentVideoUrl,
 )
 from chatlas._provider_anthropic import _ANTHROPIC_FINISH_REASON_MAP, AnthropicProvider
 from chatlas._provider_anthropic import (
@@ -405,6 +406,14 @@ def test_anthropic_uploaded_image_block():
 def test_anthropic_uploaded_cross_provider_raises():
     c = ContentUploaded(id="file_1", mime_type="application/pdf", provider="openai")
     with pytest.raises(ValueError, match="uploaded to provider 'openai'"):
+        AnthropicProvider._as_content_block(c)
+
+
+def test_anthropic_video_raises_clear_error():
+    c = ContentVideoUrl(url="https://www.youtube.com/watch?v=9hE5-98ZeCg")
+    with pytest.raises(
+        NotImplementedError, match="Video input isn't supported by Anthropic"
+    ):
         AnthropicProvider._as_content_block(c)
 
 

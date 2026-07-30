@@ -9,6 +9,7 @@ from chatlas._content import (
     ContentImageInline,
     ContentPDF,
     ContentUploaded,
+    ContentVideoUrl,
 )
 from chatlas._provider_openai import OpenAIProvider, as_input_param
 from chatlas._provider_openai import (
@@ -155,6 +156,14 @@ def test_openai_rejects_heic_images():
 def test_openai_rejects_heif_images():
     c = ContentImageInline(image_content_type="image/heif", data="abcd")
     with pytest.raises(ValueError, match="image/heif"):
+        as_input_param(c, role="user")
+
+
+def test_openai_video_raises_clear_error():
+    c = ContentVideoUrl(url="https://www.youtube.com/watch?v=9hE5-98ZeCg")
+    with pytest.raises(
+        NotImplementedError, match="Video input isn't supported by OpenAI"
+    ):
         as_input_param(c, role="user")
 
 

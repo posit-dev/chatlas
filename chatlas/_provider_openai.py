@@ -35,6 +35,7 @@ from ._content import (
     ContentToolRequestSearch,
     ContentToolResult,
     ContentUploaded,
+    ContentVideo,
     ProviderAnnotation,
     WebSource,
     check_image_content_type_supported,
@@ -749,6 +750,11 @@ def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
         return as_message(as_input_file_param(content, "application/pdf"), role)
     elif isinstance(content, ContentDocument):
         return as_message(as_input_file_param(content, content.mime_type), role)
+    elif isinstance(content, ContentVideo):
+        raise NotImplementedError(
+            "Video input isn't supported by OpenAI. Only ChatGoogle() (Gemini) "
+            "supports video."
+        )
     elif isinstance(content, ContentThinking):
         # Filter out 'status' which is output-only and not accepted as input
         extra = content.extra or {}

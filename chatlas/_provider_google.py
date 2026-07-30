@@ -31,6 +31,8 @@ from ._content import (
     ContentToolResponseSearch,
     ContentToolResult,
     ContentUploaded,
+    ContentVideoInline,
+    ContentVideoUrl,
     WebSource,
 )
 from ._content_file import ensure_bytes
@@ -648,6 +650,24 @@ class GoogleProvider(
                 "Remote images aren't supported by Google (Gemini). "
                 "Consider downloading the image and using content_image_file() instead."
             )
+        elif isinstance(content, ContentVideoInline):
+            from google.genai.types import Blob
+
+            return Part(
+                inline_data=Blob(
+                    data=base64.b64decode(content.data),
+                    mime_type=content.video_content_type,
+                )
+            )
+        elif isinstance(content, ContentVideoUrl):
+            from google.genai.types import FileData
+
+            # Not Part.from_uri(): it falls back to mimetypes.guess_type() when
+            # mime_type is omitted, which raises for a YouTube watch URL (no
+            # file extension to guess from). Gemini wants no mime_type at all
+            # here -- it determines the video format itself -- so build the
+            # Part directly instead.
+            return Part(file_data=FileData(file_uri=content.url))
         elif isinstance(content, ContentToolRequest):
             return Part(
                 function_call=FunctionCall(
