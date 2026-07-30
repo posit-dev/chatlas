@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Entity recognition – chatlas</title>
+<title>Scale – chatlas</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -61,15 +61,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
 <script src="../site_libs/quarto-nav/headroom.min.js"></script>
 <script src="../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../structured-data/sentiment-analysis.html" rel="next">
-<link href="../structured-data/article-summary.html" rel="prev">
+<link href="../get-started/monitor.html" rel="next">
+<link href="../get-started/debug.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -113,19 +113,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
   plausible.init()
 </script>
-<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
-
-<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
 <script src="https://cdn.jsdelivr.net/gh/posit-dev/supported-by-posit/js/badge.min.js" data-light-bg="#404041" data-light-fg="#ffffff" data-dark-bg="#ffffff" data-dark-fg="#404041"></script>
 
 
-<meta property="og:title" content="Entity recognition – chatlas">
+<meta property="og:title" content="Scale – chatlas">
 <meta property="og:description" content="Your friendly guide to building LLM chat apps in Python with less effort and more clarity.">
-<meta property="og:image" content="https://posit-dev.github.io/chatlas/structured-data/images/logo.png">
+<meta property="og:image" content="https://posit-dev.github.io/chatlas/get-started/images/logo.png">
 <meta property="og:site_name" content="chatlas">
-<meta name="twitter:title" content="Entity recognition – chatlas">
+<meta name="twitter:title" content="Scale – chatlas">
 <meta name="twitter:description" content="Your friendly guide to building LLM chat apps in Python with less effort and more clarity.">
-<meta name="twitter:image" content="https://posit-dev.github.io/chatlas/structured-data/images/logo.png">
+<meta name="twitter:image" content="https://posit-dev.github.io/chatlas/get-started/images/logo.png">
 <meta name="twitter:card" content="summary_large_image">
 </head>
 
@@ -170,7 +167,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../structured-data/article-summary.html">Structured data</a></li><li class="breadcrumb-item"><a href="../structured-data/entity-recognition.html">Entity recognition</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../get-started/models.html">Get started</a></li><li class="breadcrumb-item"><a href="../get-started/scale.html">Scale</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -271,7 +268,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../get-started/scale.html" class="sidebar-item-text sidebar-link">
+  <a href="../get-started/scale.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Scale</span></a>
   </div>
 </li>
@@ -329,7 +326,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../structured-data/entity-recognition.html" class="sidebar-item-text sidebar-link active">
+  <a href="../structured-data/entity-recognition.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Entity recognition</span></a>
   </div>
 </li>
@@ -387,15 +384,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#parallel-requests" id="toc-parallel-requests" class="nav-link active" data-scroll-target="#parallel-requests">Parallel requests</a>
+  <ul class="collapse">
+  <li><a href="#structured-data" id="toc-structured-data" class="nav-link" data-scroll-target="#structured-data">Structured data</a></li>
+  <li><a href="#tool-calling" id="toc-tool-calling" class="nav-link" data-scroll-target="#tool-calling">Tool calling</a></li>
+  <li><a href="#limiting-concurrency" id="toc-limiting-concurrency" class="nav-link" data-scroll-target="#limiting-concurrency">Limiting concurrency</a></li>
+  <li><a href="#error-handling" id="toc-error-handling" class="nav-link" data-scroll-target="#error-handling">Error handling</a></li>
+  </ul></li>
+  <li><a href="#batch-requests" id="toc-batch-requests" class="nav-link" data-scroll-target="#batch-requests">Batch requests</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/get-started/scale.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../structured-data/article-summary.html">Structured data</a></li><li class="breadcrumb-item"><a href="../structured-data/entity-recognition.html">Entity recognition</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../get-started/models.html">Get started</a></li><li class="breadcrumb-item"><a href="../get-started/scale.html">Scale</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Entity recognition</h1>
+<h1 class="title">Scale</h1>
 </div>
 
 
@@ -412,93 +422,174 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>The following example, which <a href="https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb">closely inspired by the Claude documentation</a>, shows how <code>.chat_structured()</code> can be used to perform entity recognition.</p>
-<div id="8a46015f" class="cell" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatOpenAI</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel, Field</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<p>Once your workflow can handle sequential requests successfully, you may want to scale up to numerous requests at once. This is especially useful if you’re scaling up a <a href="get-started/structured-data.qmd">structured data extraction</a> to process many documents at once. With chatlas, you have two options for submitting many requests at once, each with its own tradeoff:</p>
+<ul>
+<li><strong><a href="#parallel-requests">Parallel requests</a></strong>: submit many requests concurrently (for time efficiency). Works with any provider.</li>
+<li><strong><a href="#batch-requests">Batch requests</a></strong>: submit requests through a provider’s batch API (for cost efficiency). Results can take up to 24 hours, but cost 50% less. Currently works with OpenAI, Anthropic, Google (Gemini), and Groq.</li>
+</ul>
+<p>In both cases, you start with a <code>Chat</code> instance and a list of prompts, and chatlas takes care of submitting the requests and collecting the results.</p>
+<section id="parallel-requests" class="level2">
+<h2 class="anchored" data-anchor-id="parallel-requests">Parallel requests</h2>
+<p><a href="reference/parallel_chat.qmd"><code>parallel_chat()</code></a> takes a <code>Chat</code> instance and a list of prompts, and submits the prompts concurrently. This is typically much faster than submitting them one at a time:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chatlas <span class="im">as</span> ctl</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ctl.ChatOpenAI()</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># | warning: false</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>text <span class="op">=</span> <span class="st">"John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco."</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>countries <span class="op">=</span> [<span class="st">"Canada"</span>, <span class="st">"New Zealand"</span>, <span class="st">"Jamaica"</span>, <span class="st">"United States"</span>]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>prompts <span class="op">=</span> [<span class="ss">f"What's the capital of </span><span class="sc">{</span>country<span class="sc">}</span><span class="ss">?"</span> <span class="cf">for</span> country <span class="kw">in</span> countries]</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NamedEntity(BaseModel):</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Named entity in the text."""</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span> <span class="op">=</span> Field(description<span class="op">=</span><span class="st">"The extracted entity name"</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    type_: <span class="bu">str</span> <span class="op">=</span> Field(description<span class="op">=</span><span class="st">"The entity type, e.g. 'person', 'location', 'organization'"</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    context: <span class="bu">str</span> <span class="op">=</span> Field(description<span class="op">=</span><span class="st">"The context in which the entity appears in the text."</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> NamedEntities(BaseModel):</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Named entities in the text."""</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    entities: <span class="bu">list</span>[NamedEntity] <span class="op">=</span> Field(description<span class="op">=</span><span class="st">"Array of named entities"</span>)</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatOpenAI()</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> chat.chat_structured(text, data_model<span class="op">=</span>NamedEntities)</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>pd.DataFrame([e.model_dump() <span class="cf">for</span> e <span class="kw">in</span> data.entities])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-display" data-execution_count="1">
-<div>
-
-
-<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
-<thead>
-<tr class="header">
-<th data-quarto-table-cell-role="th"></th>
-<th data-quarto-table-cell-role="th">name</th>
-<th data-quarto-table-cell-role="th">type_</th>
-<th data-quarto-table-cell-role="th">context</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">0</th>
-<td>John</td>
-<td>person</td>
-<td>John works at Google in New York.</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">1</th>
-<td>Google</td>
-<td>organization</td>
-<td>John works at Google in New York.</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">2</th>
-<td>New York</td>
-<td>location</td>
-<td>John works at Google in New York.</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">3</th>
-<td>Sarah</td>
-<td>person</td>
-<td>He met with Sarah, the CEO of Acme Inc., last ...</td>
-</tr>
-<tr class="odd">
-<th data-quarto-table-cell-role="th">4</th>
-<td>Acme Inc.</td>
-<td>organization</td>
-<td>He met with Sarah, the CEO of Acme Inc., last ...</td>
-</tr>
-<tr class="even">
-<th data-quarto-table-cell-role="th">5</th>
-<td>San Francisco</td>
-<td>location</td>
-<td>He met with Sarah, the CEO of Acme Inc., last ...</td>
-</tr>
-</tbody>
-</table>
-
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>chats <span class="op">=</span> <span class="cf">await</span> ctl.parallel_chat(chat, prompts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Await me
 </div>
 </div>
+<div class="callout-body-container callout-body">
+<p><code>parallel_chat()</code> (and friends) are <a href="get-started/async.qmd">asynchronous</a>, so you must <code>await</code> them. Notebooks (e.g., Jupyter, Positron, VS Code) support top-level <code>await</code>, so the code above works as-is. In a plain Python script, you’ll need to wrap it in an <code>async</code> function and run it with <code>asyncio.run()</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> asyncio</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">async</span> <span class="kw">def</span> main():</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="cf">await</span> ctl.parallel_chat(chat, prompts)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>chats <span class="op">=</span> asyncio.run(main())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</div>
+<p>The result is a list of <code>Chat</code> objects, one per prompt, each containing its own conversation history. If you only care about the text of each response, use <a href="reference/parallel_chat_text.qmd"><code>parallel_chat_text()</code></a> instead:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>responses <span class="op">=</span> <span class="cf">await</span> ctl.parallel_chat_text(chat, prompts)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> country, response <span class="kw">in</span> <span class="bu">zip</span>(countries, responses):</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>country<span class="sc">}</span><span class="ss">: </span><span class="sc">{</span>response<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="chatlas-response-container">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Canada: The capital of Canada <span class="kw">is</span> Ottawa.</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>New Zealand: The capital of New Zealand <span class="kw">is</span> Wellington.</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>Jamaica: The capital of Jamaica <span class="kw">is</span> Kingston.</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>United States: The capital of the United States <span class="kw">is</span> Washington, D.C.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>When prompts share a common structure, <a href="reference/interpolate.qmd"><code>interpolate()</code></a> provides a convenient way to generate them from a template:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>template <span class="op">=</span> <span class="st">"What's the capital of </span><span class="sc">{{</span><span class="st"> country </span><span class="sc">}}</span><span class="st">?"</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>prompts <span class="op">=</span> [ctl.interpolate(template, variables<span class="op">=</span>{<span class="st">"country"</span>: c}) <span class="cf">for</span> c <span class="kw">in</span> countries]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="structured-data" class="level3">
+<h3 class="anchored" data-anchor-id="structured-data">Structured data</h3>
+<p>To scale up a <a href="get-started/structured-data.qmd">structured data extraction</a>, pass a pydantic model to <a href="reference/parallel_chat_structured.qmd"><code>parallel_chat_structured()</code></a>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person(BaseModel):</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    age: <span class="bu">int</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>prompts <span class="op">=</span> [</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"I go by Alex. 42 years on this planet and counting."</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Pleased to meet you! I'm Jamal, age 27."</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"They call me Li Wei. Nineteen years young."</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Fatima here. Just celebrated my 35th birthday last week."</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> <span class="cf">await</span> ctl.parallel_chat_structured(chat, prompts, Person)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> res <span class="kw">in</span> results:</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(res.data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="chatlas-response-container">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>name<span class="op">=</span><span class="st">'Alex'</span> age<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>name<span class="op">=</span><span class="st">'Jamal'</span> age<span class="op">=</span><span class="dv">27</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>name<span class="op">=</span><span class="st">'Li Wei'</span> age<span class="op">=</span><span class="dv">19</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>name<span class="op">=</span><span class="st">'Fatima'</span> age<span class="op">=</span><span class="dv">35</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Each result holds both the extracted data (<code>.data</code>) and the full <code>Chat</code> object (<code>.chat</code>), in case you also want to inspect the conversation that produced it.</p>
+</section>
+<section id="tool-calling" class="level3">
+<h3 class="anchored" data-anchor-id="tool-calling">Tool calling</h3>
+<p>If the <code>Chat</code> instance has <a href="get-started/tools.qmd">tools</a> registered, they just work: any tool calls requested by the model are executed and their results submitted back, repeating until every conversation completes.</p>
+</section>
+<section id="limiting-concurrency" class="level3">
+<h3 class="anchored" data-anchor-id="limiting-concurrency">Limiting concurrency</h3>
+<p>By default, at most 10 requests are active at once (<code>max_active=10</code>), and no more than 500 requests are made per minute (<code>rpm=500</code>). Tune these to stay within your provider’s rate limits:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>chats <span class="op">=</span> <span class="cf">await</span> ctl.parallel_chat(chat, prompts, max_active<span class="op">=</span><span class="dv">5</span>, rpm<span class="op">=</span><span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-simple callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Warning</span>Anthropic rate limits
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For Anthropic, the number of active connections is limited primarily by the output tokens per minute (OTPM) limit, which is estimated from the <code>max_tokens</code> parameter (default: 4096). For example, if your usage tier limits you to 16,000 OTPM, you should either set <code>max_active=4</code> (16,000 / 4096) or reduce <code>max_tokens</code> via <code>.set_model_params()</code>.</p>
+</div>
+</div>
+</section>
+<section id="error-handling" class="level3">
+<h3 class="anchored" data-anchor-id="error-handling">Error handling</h3>
+<p>The <code>on_error</code> parameter controls what happens when a request fails:</p>
+<ul>
+<li><code>"return"</code> (the default): stop submitting new requests, wait for in-flight requests to finish, then return.</li>
+<li><code>"continue"</code>: keep going, performing every request.</li>
+<li><code>"stop"</code>: stop processing and raise an error.</li>
+</ul>
+<p>With <code>"return"</code> and <code>"continue"</code>, the returned list has one element per prompt: a successful result, an <code>Exception</code> (if the request failed), or <code>None</code> (if the request was never submitted).</p>
+</section>
+</section>
+<section id="batch-requests" class="level2">
+<h2 class="anchored" data-anchor-id="batch-requests">Batch requests</h2>
+<p>If you can wait up to 24 hours for results, batch requests cost 50% less than regular requests. <a href="reference/batch_chat.qmd"><code>batch_chat()</code></a> submits prompts through a provider’s batch API (currently supported for OpenAI, Anthropic, Google (Gemini), and Groq):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chatlas <span class="im">as</span> ctl</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ctl.ChatOpenAI()</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>countries <span class="op">=</span> [<span class="st">"Canada"</span>, <span class="st">"New Zealand"</span>, <span class="st">"Jamaica"</span>, <span class="st">"United States"</span>]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>prompts <span class="op">=</span> [<span class="ss">f"What's the capital of </span><span class="sc">{</span>country<span class="sc">}</span><span class="ss">?"</span> <span class="cf">for</span> country <span class="kw">in</span> countries]</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>chats <span class="op">=</span> ctl.batch_chat(chat, prompts, path<span class="op">=</span><span class="st">"capitals.json"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Since batches can take a long time to complete, <code>batch_chat()</code> requires a <code>path</code> to a JSON file where it stores the state of the job, so you never lose any work. You can interrupt the waiting process (or set <code>wait=False</code>) and, later on, re-run <code>batch_chat()</code> with the same arguments to pick up where you left off:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Submit the batch and return immediately (`None` if not finished)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>chats <span class="op">=</span> ctl.batch_chat(chat, prompts, path<span class="op">=</span><span class="st">"capitals.json"</span>, wait<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Sometime later... check whether the results are ready</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> ctl.batch_chat_completed(chat, prompts, path<span class="op">=</span><span class="st">"capitals.json"</span>):</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    chats <span class="op">=</span> ctl.batch_chat(chat, prompts, path<span class="op">=</span><span class="st">"capitals.json"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Once the job completes, the responses are stored in the state file, so you can keep it around to cache the results, or delete it to free up disk space.</p>
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>One file per batch
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The state file records a hash of the provider, the prompts, and the existing chat turns. If you attempt to reuse the same file with any of these being different, you’ll get an error: use a different <code>path</code> for each distinct batch job.</p>
+</div>
+</div>
+<p>Like their parallel counterparts, <a href="reference/batch_chat_text.qmd"><code>batch_chat_text()</code></a> returns just the text of each response, and <a href="reference/batch_chat_structured.qmd"><code>batch_chat_structured()</code></a> extracts structured data:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pydantic <span class="im">import</span> BaseModel</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Person(BaseModel):</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    name: <span class="bu">str</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    age: <span class="bu">int</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>prompts <span class="op">=</span> [</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"I go by Alex. 42 years on this planet and counting."</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Pleased to meet you! I'm Jamal, age 27."</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"They call me Li Wei. Nineteen years young."</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Fatima here. Just celebrated my 35th birthday last week."</span>,</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>people <span class="op">=</span> ctl.batch_chat_structured(chat, prompts, path<span class="op">=</span><span class="st">"people.json"</span>, data_model<span class="op">=</span>Person)</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> person <span class="kw">in</span> people:</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(person)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="chatlas-response-container">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>name<span class="op">=</span><span class="st">'Alex'</span> age<span class="op">=</span><span class="dv">42</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>name<span class="op">=</span><span class="st">'Jamal'</span> age<span class="op">=</span><span class="dv">27</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>name<span class="op">=</span><span class="st">'Li Wei'</span> age<span class="op">=</span><span class="dv">19</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>name<span class="op">=</span><span class="st">'Fatima'</span> age<span class="op">=</span><span class="dv">35</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Note that a request within a batch can fail even when the batch as a whole succeeds; in that case, the corresponding element of the result is <code>None</code>.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -903,13 +994,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../structured-data/article-summary.html" class="pagination-link" aria-label="Article summary">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Article summary</span>
+      <a href="../get-started/debug.html" class="pagination-link" aria-label="Debug">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Debug</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../structured-data/sentiment-analysis.html" class="pagination-link" aria-label="Sentiment analysis">
-        <span class="nav-page-text">Sentiment analysis</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../get-started/monitor.html" class="pagination-link" aria-label="Monitor">
+        <span class="nav-page-text">Monitor</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -921,7 +1012,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/structured-data/entity-recognition.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/get-started/scale.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>
