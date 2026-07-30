@@ -828,6 +828,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#chatlas.Provider.batch_retrieve" id="toc-chatlas.Provider.batch_retrieve" class="nav-link" data-scroll-target="#chatlas.Provider.batch_retrieve">batch_retrieve</a></li>
   <li><a href="#chatlas.Provider.batch_status" id="toc-chatlas.Provider.batch_status" class="nav-link" data-scroll-target="#chatlas.Provider.batch_status">batch_status</a></li>
   <li><a href="#chatlas.Provider.batch_submit" id="toc-chatlas.Provider.batch_submit" class="nav-link" data-scroll-target="#chatlas.Provider.batch_submit">batch_submit</a></li>
+  <li><a href="#chatlas.Provider.check_builtin_tool_support" id="toc-chatlas.Provider.check_builtin_tool_support" class="nav-link" data-scroll-target="#chatlas.Provider.check_builtin_tool_support">check_builtin_tool_support</a></li>
   <li><a href="#chatlas.Provider.has_batch_support" id="toc-chatlas.Provider.has_batch_support" class="nav-link" data-scroll-target="#chatlas.Provider.has_batch_support">has_batch_support</a></li>
   <li><a href="#chatlas.Provider.list_models" id="toc-chatlas.Provider.list_models" class="nav-link" data-scroll-target="#chatlas.Provider.list_models">list_models</a></li>
   <li><a href="#chatlas.Provider.stream_content" id="toc-chatlas.Provider.stream_content" class="nav-link" data-scroll-target="#chatlas.Provider.stream_content">stream_content</a></li>
@@ -867,6 +868,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td><a href="#chatlas.Provider.name">name</a></td>
 <td>Get the name of the provider</td>
 </tr>
+<tr class="odd">
+<td><a href="#chatlas.Provider.supported_builtin_tools">supported_builtin_tools</a></td>
+<td>The provider-agnostic built-in tool classes (e.g.&nbsp;<code>ToolWebSearch</code>) that this</td>
+</tr>
+<tr class="even">
+<td><a href="#chatlas.Provider.unsupported_builtin_tool_hint">unsupported_builtin_tool_hint</a></td>
+<td>Provider-specific context added to the error raised by</td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -901,18 +910,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td>Submit a batch of conversations for processing.</td>
 </tr>
 <tr class="even">
+<td><a href="#chatlas.Provider.check_builtin_tool_support">check_builtin_tool_support</a></td>
+<td>Raise if this provider can’t translate <code>tool</code> into its API’s format.</td>
+</tr>
+<tr class="odd">
 <td><a href="#chatlas.Provider.has_batch_support">has_batch_support</a></td>
 <td>Returns whether this provider supports batch processing.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="#chatlas.Provider.list_models">list_models</a></td>
 <td>List all available models for the provider.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="#chatlas.Provider.stream_content">stream_content</a></td>
 <td>Content to yield for <code>chunk</code>.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="#chatlas.Provider.value_cost">value_cost</a></td>
 <td>Compute the cost for a completion.</td>
 </tr>
@@ -953,25 +966,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Args: conversations: List of conversation histories (each is a list of Turns) data_model: Optional structured data model for responses</p>
 <p>Returns: BatchInfo containing batch job information</p>
 </section>
+<section id="chatlas.Provider.check_builtin_tool_support" class="level3">
+<h3 class="anchored" data-anchor-id="chatlas.Provider.check_builtin_tool_support">check_builtin_tool_support</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Provider.check_builtin_tool_support(tool)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Raise if this provider can’t translate <code>tool</code> into its API’s format.</p>
+<p>Called when a built-in tool is registered with a <a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat"><code>Chat</code></a>, so that unsupported tools fail immediately rather than being silently dropped (or rejected by a cryptic API error) on the first request.</p>
+</section>
 <section id="chatlas.Provider.has_batch_support" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Provider.has_batch_support">has_batch_support</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Provider.has_batch_support()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Provider.has_batch_support()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Returns whether this provider supports batch processing. Override this method to return True for providers that implement batch methods.</p>
 </section>
 <section id="chatlas.Provider.list_models" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Provider.list_models">list_models</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Provider.list_models()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Provider.list_models()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>List all available models for the provider.</p>
 </section>
 <section id="chatlas.Provider.stream_content" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Provider.stream_content">stream_content</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Provider.stream_content(chunk, completion)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Provider.stream_content(chunk, completion)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Content to yield for <code>chunk</code>.</p>
 <p><code>completion</code> is the result of merging every chunk up to and including <code>chunk</code> (i.e.&nbsp;<code>stream_merge_chunks</code> runs first). Providers needing cross-chunk state read it from there rather than storing it on <code>self</code>: a single provider instance is shared across forked chats (<code>Chat.__deepcopy__</code> keeps <code>provider</code> by reference), so several streams can be in flight at once.</p>
 </section>
 <section id="chatlas.Provider.value_cost" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Provider.value_cost">value_cost</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Provider.value_cost(completion, tokens<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>Provider.value_cost(completion, tokens<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Compute the cost for a completion.</p>
 <section id="parameters" class="level4 doc-section doc-section-parameters">
 <h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h4>

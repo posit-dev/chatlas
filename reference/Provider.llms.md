@@ -12,10 +12,12 @@ Note that this class is exposed for developers who wish to implement their own p
 
 ## Attributes
 
-| Name                             | Description                        |
-|----------------------------------|------------------------------------|
+| Name | Description |
+|----|----|
 | [model](#chatlas.Provider.model) | Get the model used by the provider |
-| [name](#chatlas.Provider.name)   | Get the name of the provider       |
+| [name](#chatlas.Provider.name) | Get the name of the provider |
+| [supported_builtin_tools](#chatlas.Provider.supported_builtin_tools) | The provider-agnostic built-in tool classes (e.g. `ToolWebSearch`) that this |
+| [unsupported_builtin_tool_hint](#chatlas.Provider.unsupported_builtin_tool_hint) | Provider-specific context added to the error raised by |
 
 ## Methods
 
@@ -26,6 +28,7 @@ Note that this class is exposed for developers who wish to implement their own p
 | [batch_retrieve](#chatlas.Provider.batch_retrieve) | Retrieve results from a completed batch. |
 | [batch_status](#chatlas.Provider.batch_status) | Get the status of a batch. |
 | [batch_submit](#chatlas.Provider.batch_submit) | Submit a batch of conversations for processing. |
+| [check_builtin_tool_support](#chatlas.Provider.check_builtin_tool_support) | Raise if this provider can’t translate `tool` into its API’s format. |
 | [has_batch_support](#chatlas.Provider.has_batch_support) | Returns whether this provider supports batch processing. |
 | [list_models](#chatlas.Provider.list_models) | List all available models for the provider. |
 | [stream_content](#chatlas.Provider.stream_content) | Content to yield for `chunk`. |
@@ -90,6 +93,16 @@ Submit a batch of conversations for processing.
 Args: conversations: List of conversation histories (each is a list of Turns) data_model: Optional structured data model for responses
 
 Returns: BatchInfo containing batch job information
+
+### check_builtin_tool_support
+
+``` python
+Provider.check_builtin_tool_support(tool)
+```
+
+Raise if this provider can’t translate `tool` into its API’s format.
+
+Called when a built-in tool is registered with a [`Chat`](https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat), so that unsupported tools fail immediately rather than being silently dropped (or rejected by a cryptic API error) on the first request.
 
 ### has_batch_support
 

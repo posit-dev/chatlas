@@ -8,12 +8,15 @@
 - Long tool results no longer dominate the display. In notebooks they render collapsed, with the same look shinychat uses, and scroll internally beyond a bounded height once expanded. In the console they’re truncated with a count of the dropped lines. Either way a big tool result now costs a fixed amount of vertical space, and the full value remains on the turn. `Chat.set_echo_options()` gained `tool_result_max_lines` (console, default 20) and `tool_result_max_height` (notebook, default `"400px"`) to tune this. (#361)
 - Long reasoning is likewise bounded in the console, capped at `thinking_max_lines` (default 10). Unlike a tool result it’s cropped from the *top*, keeping the newest reasoning — cropping the other way would pin the panel to text you’ve already read while new text streamed in unseen. The title reports how many earlier lines were dropped. The cap counts rendered (wrapped) lines rather than newlines, since reasoning is prose that wraps well past its own line count, so the dropped count stays correct at any console width.
 - All three echo size options (`tool_result_max_lines`, `tool_result_max_height`, `thinking_max_lines`) accept `None` to turn the bound off entirely.
+- Registering a built-in tool (`tool_web_search()`, `tool_web_fetch()`) with a provider that can’t run it now raises immediately, naming the tool and the provider, instead of failing on the next request. Previously `ChatOpenAICompletions()` (and the other OpenAI-compatible providers, none of which have server-side tools) sent an *empty* tool definition, and `ChatBedrockAnthropic()` sent Anthropic server-tool JSON that Amazon Bedrock doesn’t accept — so the tool was either quietly ignored or the request died with a cryptic provider error far from the line that caused it. Passing a `ToolBuiltIn` with your own provider-specific definition still works everywhere, since that’s raw JSON chatlas doesn’t need to translate. (#367)
 
 ### Bug fixes
 
 - `echo="all"` no longer displays tool results twice — once in full as part of the user turn they’re attached to, and again on their own.
 - `Chat.set_echo_options(css_styles=)` now actually applies in notebooks: the styles were previously attached to a CSS sibling selector that could never match the wrapper they were meant to style.
 - Tool names and argument names are now HTML-escaped in the notebook/shiny rendering of tool requests and results, closing an HTML-injection hole (both are model-controlled).
+- A tool that reports progress by yielding more than once, or an MCP server that answers a call with several content parts (text plus an image, say), no longer breaks the request. Those results are now combined into the single result providers expect, images and PDFs included, and placed correctly even alongside other tool calls in the same turn.
+- `register_mcp_tools_stdio_async()` and `register_mcp_tools_http_stream_async()` no longer fail when an MCP server leaves some tool annotations unset.
 
 ## \[0.20.0\] - 2026-07-29
 

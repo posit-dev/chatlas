@@ -103,6 +103,21 @@ def get_current_weather(lat: float, lng: float):
 
 Screenshot of a tool result as an interactive map
 
+### Progressive results
+
+A tool can report progress as it works by making it a generator and yielding more than once. Each yielded value is echoed, passed to [`.on_tool_result()`](../reference/Chat.llms.md#on_tool_result) callbacks, and included in `content="all"` streams as soon as it arrives, so a chatbot can show output before the tool has finished.
+
+``` python
+def summarize_files(paths: list[str]):
+    """Summarize each file, reporting progress along the way."""
+    for path in paths:
+        yield f"Read {path}"
+```
+
+Models expect exactly one result per tool call, so the yielded results are combined into a single result before the conversation is sent: text is joined with newlines, and images or PDFs are attached alongside the result. Yielding parts one at a time is equivalent, on the wire, to returning them together as a list.
+
+The `extra` field is for your own display code and isn’t sent to the model, so it isn’t carried into the combined result – read it from the results your callbacks receive. If any part fails, the whole call is reported to the model as an error.
+
 ### Custom model results
 
 By default, tool results are formatted as a JSON string, which is suitable for most use cases. However, that might not be ideal for all scenarios, especially if your tool does something sophisticated like return an image for the model to consume. In such cases, you can use the [`ContentToolResult`](../reference/types.ContentToolResult.llms.md) class to return the result in a different format. For example, if you want to pass the return value of the tool function directly to the model without any formatting, set the `model_format` parameter to `"as_is"`:

@@ -13,7 +13,7 @@ Create a web search tool for use with chat models.
 
 This function creates a provider-agnostic web search tool that can be registered with any supported chat provider. The tool allows the model to search the web for up-to-date information.
 
-Supported providers: OpenAI, Claude (Anthropic), Google (Gemini)
+Supported providers: OpenAI (`ChatOpenAI()`), Claude (Anthropic), Google (Gemini and Vertex). Registering it with any other provider – including `ChatOpenAICompletions()` and `ChatBedrockAnthropic()`, neither of which can run server-side tools – raises a `ValueError`.
 
 ## Prerequisites
 

@@ -212,6 +212,8 @@ chatlas.Provider.batch_status py:function 1 reference/Provider.html#chatlas.Prov
 chatlas._provider.Provider.batch_status py:function 1 reference/Provider.html#chatlas.Provider.batch_status chatlas.Provider.batch_status
 chatlas.Provider.batch_submit py:function 1 reference/Provider.html#chatlas.Provider.batch_submit -
 chatlas._provider.Provider.batch_submit py:function 1 reference/Provider.html#chatlas.Provider.batch_submit chatlas.Provider.batch_submit
+chatlas.Provider.check_builtin_tool_support py:function 1 reference/Provider.html#chatlas.Provider.check_builtin_tool_support -
+chatlas._provider.Provider.check_builtin_tool_support py:function 1 reference/Provider.html#chatlas.Provider.check_builtin_tool_support chatlas.Provider.check_builtin_tool_support
 chatlas.Provider.has_batch_support py:function 1 reference/Provider.html#chatlas.Provider.has_batch_support -
 chatlas._provider.Provider.has_batch_support py:function 1 reference/Provider.html#chatlas.Provider.has_batch_support chatlas.Provider.has_batch_support
 chatlas.Provider.list_models py:function 1 reference/Provider.html#chatlas.Provider.list_models -
@@ -222,6 +224,10 @@ chatlas.Provider.name py:attribute 1 reference/Provider.html#chatlas.Provider.na
 chatlas._provider.Provider.name py:attribute 1 reference/Provider.html#chatlas.Provider.name chatlas.Provider.name
 chatlas.Provider.stream_content py:function 1 reference/Provider.html#chatlas.Provider.stream_content -
 chatlas._provider.Provider.stream_content py:function 1 reference/Provider.html#chatlas.Provider.stream_content chatlas.Provider.stream_content
+chatlas.Provider.supported_builtin_tools py:attribute 1 reference/Provider.html#chatlas.Provider.supported_builtin_tools -
+chatlas._provider.Provider.supported_builtin_tools py:attribute 1 reference/Provider.html#chatlas.Provider.supported_builtin_tools chatlas.Provider.supported_builtin_tools
+chatlas.Provider.unsupported_builtin_tool_hint py:attribute 1 reference/Provider.html#chatlas.Provider.unsupported_builtin_tool_hint -
+chatlas._provider.Provider.unsupported_builtin_tool_hint py:attribute 1 reference/Provider.html#chatlas.Provider.unsupported_builtin_tool_hint chatlas.Provider.unsupported_builtin_tool_hint
 chatlas.Provider.value_cost py:function 1 reference/Provider.html#chatlas.Provider.value_cost -
 chatlas._provider.Provider.value_cost py:function 1 reference/Provider.html#chatlas.Provider.value_cost chatlas.Provider.value_cost
 chatlas.Provider py:class 1 reference/Provider.html#chatlas.Provider -

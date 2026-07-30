@@ -8,7 +8,7 @@ Create a URL fetch tool for use with chat models.
 
 This function creates a provider-agnostic URL fetch tool that can be registered with supported chat providers. The tool allows the model to fetch and analyze content from web URLs.
 
-Supported providers: Claude (Anthropic), Google (Gemini)
+Supported providers: Claude (Anthropic), Google (Gemini and Vertex). Registering it with any other provider – including `ChatOpenAI()`, which has no built-in fetch tool, and `ChatBedrockAnthropic()`, which can’t run server-side tools – raises a `ValueError`.
 
 ## Prerequisites
 

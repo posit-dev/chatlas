@@ -2407,11 +2407,11 @@ Note
 </section>
 <section id="parameters-17" class="level2">
 <h2 class="anchored" data-anchor-id="parameters-17">Parameters</h2>
-<p>func The function to be invoked when the tool is called. force If <code>True</code>, overwrite any existing tool with the same name. If <code>False</code> (the default), raise an error if a tool with the same name already exists. name The name of the tool. If not provided, the name will be inferred from the <code>func</code>’s name (or the <code>model</code>’s name, if provided). model A Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function. annotations Additional properties that describe the tool and its behavior.</p>
+<p>func The function to be invoked when the tool is called. A generator function may yield more than once to report progress: each result is surfaced for display as it arrives, and they are combined into the single result the model receives. force If <code>True</code>, overwrite any existing tool with the same name. If <code>False</code> (the default), raise an error if a tool with the same name already exists. name The name of the tool. If not provided, the name will be inferred from the <code>func</code>’s name (or the <code>model</code>’s name, if provided). model A Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function. annotations Additional properties that describe the tool and its behavior.</p>
 </section>
 <section id="raises-1" class="level2">
 <h2 class="anchored" data-anchor-id="raises-1">Raises</h2>
-<p>ValueError If a tool with the same name already exists and <code>force</code> is <code>False</code>.</p>
+<p>ValueError If a tool with the same name already exists and <code>force</code> is <code>False</code>, or if <code>func</code> is a built-in tool (e.g.&nbsp;<code>tool_web_search()</code>) that this chat’s provider can’t run.</p>
 <section id="chatlas.Chat.set_echo_options" class="level3">
 <h3 class="anchored" data-anchor-id="chatlas.Chat.set_echo_options">set_echo_options</h3>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>Chat.set_echo_options(</span>
@@ -2581,7 +2581,7 @@ Note
 <tbody>
 <tr class="odd">
 <td>tools</td>
-<td><a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[…, <a href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>] | <a href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[…, <a href="https://docs.python.org/3/library/typing.html#typing.Awaitable">Awaitable</a>[<a href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]] | <a href="https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool">Tool</a>]</td>
+<td><a href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[…, <a href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>] | <a href="https://docs.python.org/3/library/typing.html#typing.Callable">Callable</a>[…, <a href="https://docs.python.org/3/library/typing.html#typing.Awaitable">Awaitable</a>[<a href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]] | <a href="https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool">Tool</a> | <code>ToolBuiltIn</code>]</td>
 <td>A list of <code>Tool</code> instances to set as the chat’s tools.</td>
 <td><em>required</em></td>
 </tr>

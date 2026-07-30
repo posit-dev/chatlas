@@ -800,11 +800,11 @@ chat.chat("What is 2 + 2?")
 
 ## Parameters
 
-func The function to be invoked when the tool is called. force If `True`, overwrite any existing tool with the same name. If `False` (the default), raise an error if a tool with the same name already exists. name The name of the tool. If not provided, the name will be inferred from the `func`’s name (or the `model`’s name, if provided). model A Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function. annotations Additional properties that describe the tool and its behavior.
+func The function to be invoked when the tool is called. A generator function may yield more than once to report progress: each result is surfaced for display as it arrives, and they are combined into the single result the model receives. force If `True`, overwrite any existing tool with the same name. If `False` (the default), raise an error if a tool with the same name already exists. name The name of the tool. If not provided, the name will be inferred from the `func`’s name (or the `model`’s name, if provided). model A Pydantic model that describes the input parameters for the function. If not provided, the model will be inferred from the function’s type hints. The primary reason why you might want to provide a model in Note that the name and docstring of the model takes precedence over the name and docstring of the function. annotations Additional properties that describe the tool and its behavior.
 
 ## Raises
 
-ValueError If a tool with the same name already exists and `force` is `False`.
+ValueError If a tool with the same name already exists and `force` is `False`, or if `func` is a built-in tool (e.g. `tool_web_search()`) that this chat’s provider can’t run.
 
 ### set_echo_options
 
@@ -884,7 +884,7 @@ This replaces any previously registered tools with the provided list of tools. T
 
 | Name | Type | Description | Default |
 |----|----|----|----|
-| tools | [list](https://docs.python.org/3/library/stdtypes.html#list)\[[Callable](https://docs.python.org/3/library/typing.html#typing.Callable)\[…, [Any](https://docs.python.org/3/library/typing.html#typing.Any)\] \| [Callable](https://docs.python.org/3/library/typing.html#typing.Callable)\[…, [Awaitable](https://docs.python.org/3/library/typing.html#typing.Awaitable)\[[Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] \| [Tool](https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool)\] | A list of `Tool` instances to set as the chat’s tools. | *required* |
+| tools | [list](https://docs.python.org/3/library/stdtypes.html#list)\[[Callable](https://docs.python.org/3/library/typing.html#typing.Callable)\[…, [Any](https://docs.python.org/3/library/typing.html#typing.Any)\] \| [Callable](https://docs.python.org/3/library/typing.html#typing.Callable)\[…, [Awaitable](https://docs.python.org/3/library/typing.html#typing.Awaitable)\[[Any](https://docs.python.org/3/library/typing.html#typing.Any)\]\] \| [Tool](https://posit-dev.github.io/chatlas/reference/Tool.html#chatlas.Tool) \| `ToolBuiltIn`\] | A list of `Tool` instances to set as the chat’s tools. | *required* |
 
 ### set_turns
 

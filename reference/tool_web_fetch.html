@@ -841,7 +841,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>tool_web_fetch(allowed_domains<span class="op">=</span><span class="va">None</span>, blocked_domains<span class="op">=</span><span class="va">None</span>, max_uses<span class="op">=</span><span class="va">None</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Create a URL fetch tool for use with chat models.</p>
 <p>This function creates a provider-agnostic URL fetch tool that can be registered with supported chat providers. The tool allows the model to fetch and analyze content from web URLs.</p>
-<p>Supported providers: Claude (Anthropic), Google (Gemini)</p>
+<p>Supported providers: Claude (Anthropic), Google (Gemini and Vertex). Registering it with any other provider – including <code>ChatOpenAI()</code>, which has no built-in fetch tool, and <code>ChatBedrockAnthropic()</code>, which can’t run server-side tools – raises a <code>ValueError</code>.</p>
 <section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
 <h2 class="doc-section doc-section-prerequisites anchored" data-anchor-id="prerequisites">Prerequisites</h2>
 <ul>

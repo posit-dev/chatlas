@@ -394,6 +394,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#content-objects" id="toc-content-objects" class="nav-link active" data-scroll-target="#content-objects">Content objects</a></li>
   <li><a href="#custom-displays" id="toc-custom-displays" class="nav-link" data-scroll-target="#custom-displays">Custom displays</a></li>
+  <li><a href="#progressive-results" id="toc-progressive-results" class="nav-link" data-scroll-target="#progressive-results">Progressive results</a></li>
   <li><a href="#custom-model-results" id="toc-custom-model-results" class="nav-link" data-scroll-target="#custom-model-results">Custom model results</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/tool-calling/displays.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
@@ -525,38 +526,48 @@ Show code
 </figure>
 </div>
 </section>
+<section id="progressive-results" class="level3">
+<h3 class="anchored" data-anchor-id="progressive-results">Progressive results</h3>
+<p>A tool can report progress as it works by making it a generator and yielding more than once. Each yielded value is echoed, passed to <a href="../reference/Chat.html#on_tool_result"><code>.on_tool_result()</code></a> callbacks, and included in <code>content="all"</code> streams as soon as it arrives, so a chatbot can show output before the tool has finished.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> summarize_files(paths: <span class="bu">list</span>[<span class="bu">str</span>]):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Summarize each file, reporting progress along the way."""</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> path <span class="kw">in</span> paths:</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> <span class="ss">f"Read </span><span class="sc">{</span>path<span class="sc">}</span><span class="ss">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Models expect exactly one result per tool call, so the yielded results are combined into a single result before the conversation is sent: text is joined with newlines, and images or PDFs are attached alongside the result. Yielding parts one at a time is equivalent, on the wire, to returning them together as a list.</p>
+<p>The <code>extra</code> field is for your own display code and isn’t sent to the model, so it isn’t carried into the combined result – read it from the results your callbacks receive. If any part fails, the whole call is reported to the model as an error.</p>
+</section>
 <section id="custom-model-results" class="level3">
 <h3 class="anchored" data-anchor-id="custom-model-results">Custom model results</h3>
 <p>By default, tool results are formatted as a JSON string, which is suitable for most use cases. However, that might not be ideal for all scenarios, especially if your tool does something sophisticated like return an image for the model to consume. In such cases, you can use the <a href="../reference/types.ContentToolResult.html"><code>ContentToolResult</code></a> class to return the result in a different format. For example, if you want to pass the return value of the tool function directly to the model without any formatting, set the <code>model_format</code> parameter to <code>"as_is"</code>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> base64</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chatlas <span class="im">as</span> ctl</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_picture():</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Returns an image"</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    url <span class="op">=</span> <span class="st">"https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png"</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    bytez <span class="op">=</span> requests.get(url).content</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> [</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        {</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>            <span class="st">"type"</span>: <span class="st">"image"</span>,</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>            <span class="st">"source"</span>: {</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                <span class="st">"type"</span>: <span class="st">"base64"</span>,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>                <span class="st">"media_type"</span>: <span class="st">"image/png"</span>,</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                <span class="st">"data"</span>: base64.b64encode(bytez).decode(<span class="st">"utf-8"</span>),</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>            },</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    ]</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ctl.ContentToolResult(value<span class="op">=</span>res, model_format<span class="op">=</span><span class="st">"as_is"</span>)</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ctl.ChatAnthropic()</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>chat.register_tool(get_picture)</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> chat.chat(</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"You have a tool called 'get_picture' available to you. "</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"When called, it returns an image. Tell me what you see in the image."</span>,</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    echo<span class="op">=</span><span class="st">"text"</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> base64</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> requests</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> chatlas <span class="im">as</span> ctl</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_picture():</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">"Returns an image"</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    url <span class="op">=</span> <span class="st">"https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png"</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    bytez <span class="op">=</span> requests.get(url).content</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    res <span class="op">=</span> [</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        {</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>            <span class="st">"type"</span>: <span class="st">"image"</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>            <span class="st">"source"</span>: {</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>                <span class="st">"type"</span>: <span class="st">"base64"</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                <span class="st">"media_type"</span>: <span class="st">"image/png"</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>                <span class="st">"data"</span>: base64.b64encode(bytez).decode(<span class="st">"utf-8"</span>),</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>            },</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ctl.ContentToolResult(value<span class="op">=</span>res, model_format<span class="op">=</span><span class="st">"as_is"</span>)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ctl.ChatAnthropic()</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>chat.register_tool(get_picture)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> chat.chat(</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="st">"You have a tool called 'get_picture' available to you. "</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"When called, it returns an image. Tell me what you see in the image."</span>,</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    echo<span class="op">=</span><span class="st">"text"</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="chatlas-response-container">
 <p>The image shows four translucent colored dice arranged together. There’s a red die in the foreground, a blue die in the upper<br>
 left, a green die in the upper right, and a yellow die at the bottom. All dice appear to be standard six-sided dice with white dots (pips) representing the numbers 1 through 6. The dice have a glossy, semi-transparent appearance that gives them a<br>

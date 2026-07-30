@@ -6,7 +6,7 @@ types.ContentDocument()
 
 Generic document content (plain text, Markdown, CSV, code, and – on providers that support it – docx/xlsx).
 
-This is the type returned by [`content_document_file`](../reference/content_document_file.llms.md#chatlas.content_document_file). Unlike `ContentPDF`, documents carry a real `mime_type` since they span many formats; PDFs should always go through [`content_pdf_file`](https://posit-dev.github.io/chatlas/reference/content_pdf_file.html#chatlas.content_pdf_file)/[`content_pdf_url`](https://posit-dev.github.io/chatlas/reference/content_pdf_url.html#chatlas.content_pdf_url) instead, which unlock PDF-specific handling (page-image understanding on Anthropic, and URL passthrough).
+This is the type returned by [`content_document_file`](https://posit-dev.github.io/chatlas/reference/content_document_file.html#chatlas.content_document_file). Unlike `ContentPDF`, documents carry a real `mime_type` since they span many formats; PDFs should always go through [`content_pdf_file`](https://posit-dev.github.io/chatlas/reference/content_pdf_file.html#chatlas.content_pdf_file)/[`content_pdf_url`](https://posit-dev.github.io/chatlas/reference/content_pdf_url.html#chatlas.content_pdf_url) instead, which unlock PDF-specific handling (page-image understanding on Anthropic, and URL passthrough).
 
 ## Parameters
 

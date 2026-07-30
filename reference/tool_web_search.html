@@ -845,7 +845,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Create a web search tool for use with chat models.</p>
 <p>This function creates a provider-agnostic web search tool that can be registered with any supported chat provider. The tool allows the model to search the web for up-to-date information.</p>
-<p>Supported providers: OpenAI, Claude (Anthropic), Google (Gemini)</p>
+<p>Supported providers: OpenAI (<code>ChatOpenAI()</code>), Claude (Anthropic), Google (Gemini and Vertex). Registering it with any other provider – including <code>ChatOpenAICompletions()</code> and <code>ChatBedrockAnthropic()</code>, neither of which can run server-side tools – raises a <code>ValueError</code>.</p>
 <section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
 <h2 class="doc-section doc-section-prerequisites anchored" data-anchor-id="prerequisites">Prerequisites</h2>
 <ul>
