@@ -18,14 +18,27 @@ import pytest
 from chatlas import Chat
 from chatlas._content import (
     Content,
+    ContentCitation,
     ContentImageRemote,
     ContentText,
     ContentThinking,
     ContentThinkingDelta,
     ContentToolRequest,
+    ContentToolRequestFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
     ContentToolResult,
+    WebSource,
 )
-from chatlas._display import IPyMarkdownDisplay, LiveMarkdownDisplay
+from chatlas._display import (
+    IPyMarkdownDisplay,
+    LiveMarkdownDisplay,
+    WebActivityRow,
+    WebActivitySegment,
+    capped_sources,
+    web_domain,
+)
 from chatlas._live_render import LiveRender
 from chatlas._logging import _rich_handler
 from chatlas._provider import AnyTypeDict, Provider
@@ -802,6 +815,7 @@ def capture_echo(
     # "the test didn't ask for anything".
     tool_result_max_lines: "int | None | MISSING_TYPE" = MISSING,
     thinking_max_lines: "int | None | MISSING_TYPE" = MISSING,
+    web_activity_max_sources: "int | None | MISSING_TYPE" = MISSING,
     height: Optional[int] = None,
 ) -> Callable[[], str]:
     """
@@ -826,6 +840,7 @@ def capture_echo(
         rich_markdown=rich_markdown,
         tool_result_max_lines=tool_result_max_lines,
         thinking_max_lines=thinking_max_lines,
+        web_activity_max_sources=web_activity_max_sources,
     )
 
     def get() -> str:
@@ -1091,3 +1106,545 @@ def make_chat(
 
 def make_raising_chat(responses: Sequence[Sequence[Content]]) -> Chat:
     return Chat(provider=RaisingProvider(responses))
+
+
+# ---------------------------------------------------------------------------
+# WebActivitySegment (the grouping model)
+# ---------------------------------------------------------------------------
+
+
+def test_web_segment_groups_queries_and_sources():
+    seg = WebActivitySegment()
+    seg.add_query("ggplot2 release date")
+    seg.add_sources(
+        [
+            WebSource(url="https://a.com/x", title="Alpha"),
+            WebSource(url="https://b.com/y", title="Beta"),
+        ]
+    )
+
+    assert seg.queries == ["ggplot2 release date"]
+    assert [r.title for r in seg.sources] == ["Alpha", "Beta"]
+    assert seg.header() == "Searching the web…"
+
+    seg.is_open = False
+    assert seg.header() == "Searched the web"
+    assert seg.detail() == "2 results"
+
+
+def test_web_segment_dedupes_the_fetch_request_and_result():
+    """A fetch emits a request and a result for the same URL; that's one row."""
+    seg = WebActivitySegment()
+    seg.add_fetch("https://example.com/p", None)
+    seg.add_fetch("https://example.com/p", "success")
+
+    assert seg.fetches == [("https://example.com/p", "success")]
+    assert seg.is_fetch_only is True
+    assert seg.header() == "Reading the web…"
+
+    seg.is_open = False
+    assert seg.header() == "Read the web"
+
+
+def test_web_segment_citation_marks_an_existing_source():
+    """Google cites a URL that is already a result -- mark it, don't duplicate it."""
+    seg = WebActivitySegment()
+    seg.add_sources([WebSource(url="https://a.com/x", title="Alpha")])
+    seg.add_citation(
+        ContentCitation(
+            source=WebSource(url="https://a.com/x", title="Alpha"),
+            cited_quote="the quoted passage",
+        )
+    )
+
+    assert len(seg.sources) == 1
+    assert seg.sources[0].cited is True
+    assert seg.sources[0].quote == "the quoted passage"
+    seg.is_open = False
+    assert seg.detail() == "1 result · 1 cited"
+
+
+def test_web_segment_citation_becomes_a_row_when_it_matches_nothing():
+    """OpenAI returns citations and zero results, so the citation IS the row."""
+    seg = WebActivitySegment()
+    seg.add_query("ggplot2 CRAN archive")
+    seg.add_citation(
+        ContentCitation(source=WebSource(url="https://c.com/z", title="Gamma"))
+    )
+
+    assert [(r.title, r.cited) for r in seg.sources] == [("Gamma", True)]
+
+
+def test_web_segment_sourceless_citations_do_not_pile_up():
+    """Google can ground a span with no resolvable URL; don't add a blank row twice."""
+    seg = WebActivitySegment()
+    seg.add_citation(ContentCitation(grounded_span="released on 2014-05-21"))
+    seg.add_citation(ContentCitation(grounded_span="released on 2014-05-21"))
+
+    assert len(seg.sources) == 1
+    assert seg.sources[0].title == "released on 2014-05-21"
+
+
+def test_web_segment_add_sources_dedupes_by_url():
+    seg = WebActivitySegment()
+    seg.add_sources([WebSource(url="https://a.com/x", title="Alpha")])
+    seg.add_sources([WebSource(url="https://a.com/x", title="Alpha again")])
+
+    assert len(seg.sources) == 1
+
+
+def test_web_domain_extracts_hostname_and_handles_falsy_input():
+    assert web_domain("https://a.com/x") == "a.com"
+    # Gemini's grounding-redirect URLs are opaque, but their hostname is still
+    # legible -- that's what makes the domain badge worth showing at all.
+    assert web_domain("https://vertexaisearch.cloud.google.com/x/y") == (
+        "vertexaisearch.cloud.google.com"
+    )
+    assert web_domain(None) == ""
+
+
+def test_capped_sources_returns_everything_when_uncapped():
+    rows = [WebActivityRow(url=f"https://s{i}.com") for i in range(6)]
+    shown, dropped = capped_sources(rows, max_sources=None)
+    assert shown == rows
+    assert dropped == 0
+
+
+def test_capped_sources_returns_everything_under_the_cap():
+    rows = [WebActivityRow(url=f"https://s{i}.com") for i in range(3)]
+    shown, dropped = capped_sources(rows, max_sources=4)
+    assert shown == rows
+    assert dropped == 0
+
+
+def test_capped_sources_prioritizes_a_cited_row_outside_the_naive_top_n():
+    """A citation on row 5 of 10 must still show, not get sliced off by a naive top-4."""
+    rows = [WebActivityRow(url=f"https://s{i}.com") for i in range(10)]
+    rows[5].cited = True
+
+    shown, dropped = capped_sources(rows, max_sources=4)
+
+    assert shown == [rows[0], rows[1], rows[2], rows[5]]
+    assert dropped == 6
+
+
+def test_capped_sources_enforces_a_hard_bound_when_cited_rows_exceed_the_cap():
+    """
+    Six cited rows against a cap of 4 must not blow past the bound -- a bounded
+    panel is the entire reason the console treatment exists, so the cap can't
+    grow just because citations are plentiful.
+    """
+    rows = [WebActivityRow(url=f"https://s{i}.com", cited=(i < 6)) for i in range(10)]
+
+    shown, dropped = capped_sources(rows, max_sources=4)
+
+    assert shown == rows[:4]
+    assert all(row.cited for row in shown)
+    assert dropped == 6
+
+
+# ---------------------------------------------------------------------------
+# Web activity rendering
+# ---------------------------------------------------------------------------
+
+
+def search_chunks(n_sources: int = 6) -> list[Content]:
+    """A search episode in provider order: request, results, text, citation, text."""
+    sources = [
+        WebSource(url=f"https://s{i}.com/page", title=f"Source {i}")
+        for i in range(1, n_sources + 1)
+    ]
+    return [
+        ContentToolRequestSearch(query="ggplot2 release date"),
+        ContentToolResponseSearch(sources=sources),
+        text("ggplot2 1.0.0 was released on 2014-05-21."),
+        ContentCitation(
+            source=sources[0], grounded_span="released on 2014-05-21",
+            cited_quote="ggplot2 1.0.0 (2014-05-21)",
+        ),
+        text(" That's the CRAN date."),
+    ]
+
+
+def test_console_renders_a_web_activity_panel():
+    chat = make_chat([search_chunks()])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="output")
+    out = output()
+
+    assert "Searched the web" in out
+    assert "6 results" in out
+    assert "1 cited" in out
+    assert "ggplot2 release date" in out
+    # Panel border
+    assert "╭" in out
+
+
+def test_console_caps_sources_and_reports_the_remainder():
+    chat = make_chat([search_chunks(n_sources=10)])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="output")
+    out = output()
+
+    assert "Source 1" in out
+    assert "Source 4" in out
+    assert "Source 5" not in out
+    assert "… 6 more" in out
+
+
+def test_console_source_cap_is_tunable_and_disablable():
+    chat = make_chat([search_chunks(n_sources=10)])
+    output = capture_echo(chat, width=78, web_activity_max_sources=None)
+    chat.chat("when?", echo="output")
+    out = output()
+
+    assert "Source 10" in out
+    assert "more" not in out
+
+
+def test_console_shows_title_and_domain():
+    chat = make_chat([search_chunks(n_sources=1)])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="output")
+    out = output()
+
+    assert "Source 1" in out
+    assert "s1.com" in out
+
+
+def test_console_marks_the_cited_source():
+    chat = make_chat([search_chunks(n_sources=2)])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="output")
+
+    assert "❝" in output()
+
+
+def test_citation_after_text_joins_the_same_panel():
+    """
+    Providers send citations *after* the text they ground. Closing the episode on
+    text and opening a new one for the citation would render two panels.
+    """
+    chat = make_chat([search_chunks()])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="output")
+    out = output()
+
+    assert out.count("Searched the web") == 1
+
+
+def test_fetch_renders_one_row_with_its_status():
+    chat = make_chat(
+        [
+            [
+                ContentToolRequestFetch(url="https://example.com/page"),
+                ContentToolResponseFetch(
+                    url="https://example.com/page", status="success"
+                ),
+                text("The page says hello."),
+            ]
+        ]
+    )
+    output = capture_echo(chat, width=78)
+    chat.chat("what?", echo="output")
+    out = output()
+
+    assert "Read the web" in out
+    assert out.count("example.com/page") == 1
+    assert "✓" in out
+
+
+def test_console_refuses_a_non_http_scheme_source_with_no_title():
+    """
+    Mirrors `test_notebook_refuses_a_non_http_scheme_with_no_title`: the console
+    had no analog of the notebook's URL-scheme guard. An unsafe scheme must not
+    become a live OSC-8 hyperlink, and -- since there's no title to fall back to
+    -- it must not leak into the visible label text either.
+    """
+    chat = make_chat(
+        [
+            [
+                ContentToolResponseSearch(
+                    sources=[WebSource(url="javascript:alert(1)", title=None)]
+                ),
+                text("done"),
+            ]
+        ]
+    )
+    output = capture_echo(chat, width=78, force_terminal=True, normalize=False)
+    chat.chat("go", echo="output")
+    out = output()
+
+    # Covers both failure modes at once: this substring shows up either as the
+    # OSC-8 link target (`\x1b]8;id=...;javascript:alert(1)\x1b\\`) or as the
+    # plain-text label, so its absence rules out both.
+    assert "javascript:alert(1)" not in out
+    assert "(source)" in out
+
+
+def test_console_refuses_a_non_http_scheme_fetch():
+    """Same guard, for a fetched URL rather than a search source."""
+    chat = make_chat(
+        [
+            [
+                ContentToolRequestFetch(url="javascript:alert(1)"),
+                ContentToolResponseFetch(url="javascript:alert(1)", status="success"),
+                text("done"),
+            ]
+        ]
+    )
+    output = capture_echo(chat, width=78, force_terminal=True, normalize=False)
+    chat.chat("go", echo="output")
+    out = output()
+
+    assert "javascript:alert(1)" not in out
+    assert "(url)" in out
+
+
+def test_notebook_renders_a_collapsed_details_block(monkeypatch):
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat([search_chunks()])
+    chat.chat("when?", echo="output")
+    final = updates[-1]
+
+    assert "chatlas-web-activity" in final
+    assert "<details>" in final
+    # Collapsed in every state, unlike thinking -- provenance is consulted, not watched.
+    assert "<details open>" not in final
+    assert "Searched the web" in final
+
+
+def test_notebook_keeps_every_source(monkeypatch):
+    """The cap is console-only: a notebook can scroll."""
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat([search_chunks(n_sources=10)])
+    chat.chat("when?", echo="output")
+    final = updates[-1]
+
+    assert "Source 10" in final
+    assert 'href="https://s10.com/page"' in final
+    assert "… 6 more" not in final
+
+
+def test_notebook_shows_the_cited_quote(monkeypatch):
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat([search_chunks()])
+    chat.chat("when?", echo="output")
+
+    assert "ggplot2 1.0.0 (2014-05-21)" in updates[-1]
+
+
+def test_notebook_injects_web_css(monkeypatch):
+    html = capture_ipy_html(monkeypatch)
+    chat = make_chat([search_chunks()])
+    chat.chat("when?", echo="output")
+
+    assert any("chatlas-web-activity" in h for h in html)
+
+
+def test_notebook_escapes_model_supplied_text(monkeypatch):
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat(
+        [
+            [
+                ContentToolRequestSearch(query="<script>alert(1)</script>"),
+                text("done"),
+            ]
+        ]
+    )
+    chat.chat("go", echo="output")
+
+    assert "<script>alert(1)</script>" not in updates[-1]
+    assert "&lt;script&gt;" in updates[-1]
+
+
+def test_notebook_refuses_a_non_http_scheme(monkeypatch):
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat(
+        [
+            [
+                ContentToolResponseSearch(
+                    sources=[WebSource(url="javascript:alert(1)", title="Bad")]
+                ),
+                text("done"),
+            ]
+        ]
+    )
+    chat.chat("go", echo="output")
+
+    assert "javascript:alert(1)" not in updates[-1]
+    assert "Bad" in updates[-1]
+
+
+def test_notebook_refuses_a_non_http_scheme_with_no_title(monkeypatch):
+    """
+    Without a title, the label falls back toward the domain (or a placeholder)
+    -- it must not let that fallback leak an unsafe-scheme URL the same way an
+    absent `href` already refuses one.
+    """
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat(
+        [
+            [
+                ContentToolResponseSearch(
+                    sources=[WebSource(url="javascript:alert(1)", title=None)]
+                ),
+                text("done"),
+            ]
+        ]
+    )
+    chat.chat("go", echo="output")
+
+    assert "javascript:alert(1)" not in updates[-1]
+    assert "(source)" in updates[-1]
+
+
+def test_notebook_fetch_marker_reflects_pending_success_and_error(monkeypatch):
+    """
+    A fetch emits a request (status is `None`) before its result arrives. Mid-
+    stream that must render the pending marker, not the success checkmark --
+    otherwise a turn that ends before the result arrives leaves a wrong ✓
+    baked into the final cell.
+    """
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat(
+        [
+            [
+                ContentToolRequestFetch(url="https://example.com/pending"),
+                ContentToolRequestFetch(url="https://example.com/ok"),
+                ContentToolResponseFetch(url="https://example.com/ok", status="success"),
+                ContentToolRequestFetch(url="https://example.com/bad"),
+                ContentToolResponseFetch(url="https://example.com/bad", status="error"),
+                text("done"),
+            ]
+        ]
+    )
+    chat.chat("go", echo="output")
+    final = updates[-1]
+
+    assert "<span class='chatlas-web-st pending'>…</span>" in final
+    assert "<span class='chatlas-web-st ok'>✓</span>" in final
+    assert "<span class='chatlas-web-st err'>✗</span>" in final
+
+
+def test_web_activity_is_visible_in_the_default_echo_mode():
+    """
+    The whole point of #256: with a built-in tool registered, `echo="output"`
+    used to give no sign the model searched at all.
+    """
+    chat = make_chat([search_chunks()])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="output")
+
+    assert "Searched the web" in output()
+
+
+def test_web_activity_precedes_the_answer_text():
+    """It's emitted as it streams, so it lands above the answer, not after it."""
+    chat = make_chat([search_chunks()])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="output")
+    out = output()
+
+    assert out.index("Searched the web") < out.index("ggplot2 1.0.0 was released")
+
+
+def test_echo_text_suppresses_web_activity():
+    """`echo="text"` means just the answer, the same way it holds back reasoning."""
+    chat = make_chat([search_chunks()])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="text")
+    out = output()
+
+    assert "Searched the web" not in out
+    assert "ggplot2 release date" not in out
+    assert "ggplot2 1.0.0 was released" in out
+
+
+def test_echo_none_writes_no_web_activity():
+    chat = make_chat([search_chunks()])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="none")
+
+    assert output() == ""
+
+
+def test_echo_all_shows_web_activity_exactly_once():
+    """
+    Regression against the duplication #362 had to solve for thinking: the panel
+    is built while streaming, so `emit_other_contents` must not repeat it.
+    """
+    chat = make_chat([search_chunks()])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="all")
+    out = output()
+
+    assert out.count("Searched the web") == 1
+    assert out.count("ggplot2 release date") == 1
+    # With web activity handled as a panel, it's no longer "other content".
+    assert "other content" not in out
+
+
+def test_two_searches_separated_by_text_render_two_panels():
+    chat = make_chat(
+        [
+            [
+                ContentToolRequestSearch(query="first query"),
+                text("Some interim thinking out loud."),
+                ContentToolRequestSearch(query="second query"),
+                text("Final answer."),
+            ]
+        ]
+    )
+    output = capture_echo(chat, width=78)
+    chat.chat("go", echo="output")
+
+    assert output().count("Searched the web") == 2
+
+
+def test_web_activity_streams_to_the_notebook_too(monkeypatch):
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat([search_chunks()])
+    chat.chat("when?", echo="output")
+
+    assert any("Searching the web" in u for u in updates), (
+        "the live header should appear while the episode is still open"
+    )
+    assert "Searched the web" in updates[-1]
+
+
+def test_web_activity_renders_without_streaming():
+    chat = make_chat([search_chunks()])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="output", stream=False)
+    out = output()
+
+    assert "Searched the web" in out
+    assert "ggplot2 release date" in out
+    assert "6 results" in out
+
+
+def test_non_streamed_web_activity_precedes_the_text():
+    chat = make_chat([search_chunks()])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="output", stream=False)
+    out = output()
+
+    assert out.index("Searched the web") < out.index("ggplot2 1.0.0 was released")
+
+
+def test_non_streamed_web_activity_is_not_duplicated_by_echo_all():
+    chat = make_chat([search_chunks()])
+    output = capture_echo(chat, width=78)
+    chat.chat("when?", echo="all", stream=False)
+
+    assert output().count("Searched the web") == 1
+
+
+@pytest.mark.asyncio
+async def test_web_activity_renders_without_streaming_async():
+    chat = make_chat([search_chunks()])
+    output = capture_echo(chat, width=78)
+    await chat.chat_async("when?", echo="output", stream=False)
+
+    assert "Searched the web" in output()

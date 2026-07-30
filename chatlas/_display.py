@@ -1,7 +1,11 @@
 import logging
+import re
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from collections.abc import Sequence
+from dataclasses import dataclass, field
+from html import escape
 from typing import TYPE_CHECKING, Any, Optional, Union
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from rich.live import Live
@@ -11,12 +15,19 @@ if TYPE_CHECKING:
     from rich.console import Console, ConsoleOptions
 
 from ._content import (
+    PROVIDER_ANNOTATION_TYPES,
     TOOL_CSS,
     Content,
+    ContentCitation,
     ContentText,
     ContentThinking,
     ContentThinkingDelta,
+    ContentToolRequestFetch,
+    ContentToolRequestSearch,
+    ContentToolResponseFetch,
+    ContentToolResponseSearch,
     ContentToolResult,
+    WebSource,
 )
 from ._live_render import LiveRender
 from ._logging import logger
@@ -36,6 +47,7 @@ class MarkdownDisplay(ABC):
     def __init__(self, echo_options: "EchoDisplayOptions"):
         self._echo_options = echo_options
         self._segments: list["DisplaySegment"] = []
+        self._last_web: Optional["WebActivitySegment"] = None
 
     def echo(self, content: Union[str, Content]):
         """
@@ -64,6 +76,12 @@ class MarkdownDisplay(ABC):
         # Anything else means reasoning is over, even if the provider never sent
         # a closing delta.
         self._close_thinking()
+
+        if isinstance(content, PROVIDER_ANNOTATION_TYPES):
+            self._append_web_activity(content)
+            return
+
+        self._close_web_activity()
 
         if isinstance(content, ContentText):
             content = content.text
@@ -97,11 +115,52 @@ class MarkdownDisplay(ABC):
         if isinstance(last, ThinkingSegment):
             last.is_open = False
 
+    def _append_web_activity(self, content: Content) -> None:
+        if isinstance(content, ContentCitation):
+            # Citations arrive *after* the text they ground, so they attach to the
+            # most recent episode -- open or closed -- without reopening it.
+            # Opening a fresh segment here would split one search into two panels.
+            segment = self._last_web
+            if segment is None:
+                segment = self._open_web_activity()
+            segment.add_citation(content)
+            return
+
+        last = self._last_web
+        segment = last if last is not None and last.is_open else self._open_web_activity()
+
+        if isinstance(content, ContentToolRequestSearch):
+            segment.add_query(content.query)
+        elif isinstance(content, ContentToolResponseSearch):
+            segment.add_sources(content.sources)
+        elif isinstance(content, ContentToolRequestFetch):
+            segment.add_fetch(content.url, None)
+        elif isinstance(content, ContentToolResponseFetch):
+            segment.add_fetch(content.url, content.status)
+
+    def _open_web_activity(self) -> "WebActivitySegment":
+        segment = WebActivitySegment()
+        self._segments.append(segment)
+        self._last_web = segment
+        return segment
+
+    def _close_web_activity(self) -> None:
+        if self._last_web is not None:
+            self._last_web.is_open = False
+
     def __enter__(self) -> "MarkdownDisplay":
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        # A provider that appends grounding metadata (queries, sources,
+        # citations) after the full answer text -- Google does this -- leaves
+        # nothing to trigger `_close_web_activity` via `_append`. Close and
+        # repaint here so the last frame isn't stuck showing "Searching…".
+        if exc_type is None and self._last_web is not None and self._last_web.is_open:
+            self._close_web_activity()
+            self._render()
         self._segments = []
+        self._last_web = None
 
 
 class MockMarkdownDisplay(MarkdownDisplay):
@@ -167,6 +226,13 @@ class LiveMarkdownDisplay(MarkdownDisplay):
                         max_lines=self._echo_options["thinking_max_lines"],
                     )
                 )
+            elif isinstance(segment, WebActivitySegment):
+                out.append(
+                    WebActivityPanel(
+                        segment,
+                        max_sources=self._echo_options["web_activity_max_sources"],
+                    )
+                )
             else:
                 out.append(self._markdown(self._content_markdown(segment.content)))
         return out
@@ -221,6 +287,8 @@ class IPyMarkdownDisplay(MarkdownDisplay):
                 parts.append(segment.text)
             elif isinstance(segment, ThinkingSegment):
                 parts.append(thinking_html(segment.thinking, is_open=segment.is_open))
+            elif isinstance(segment, WebActivitySegment):
+                parts.append(web_activity_html(segment))
             else:
                 parts.append(self._content_markdown(segment.content))
         return "".join(parts)
@@ -251,7 +319,10 @@ class IPyMarkdownDisplay(MarkdownDisplay):
             # A compound selector (no combinator): id and class are on the same
             # element, the wrapper div displayed just below.
             display(
-                HTML(f"<style>{TOOL_CSS}\n#{id_}.chatlas-markdown {{ {css} }}</style>")
+                HTML(
+                    f"<style>{TOOL_CSS}\n{WEB_CSS}\n"
+                    f"#{id_}.chatlas-markdown {{ {css} }}</style>"
+                )
             )
             display(
                 HTML(
@@ -259,7 +330,7 @@ class IPyMarkdownDisplay(MarkdownDisplay):
                 )
             )
         else:
-            display(HTML(f"<style>{TOOL_CSS}</style>"))
+            display(HTML(f"<style>{TOOL_CSS}\n{WEB_CSS}</style>"))
             # Unfortunately, there doesn't seem to be a proper way to wrap
             # Markdown() in a div?
             display(HTML(f"<div class='chatlas-markdown' style='{wrapper_style}'>"))
@@ -289,6 +360,7 @@ class EchoDisplayOptions(TypedDict):
     tool_result_max_lines: Optional[int]
     tool_result_max_height: Optional[str]
     thinking_max_lines: Optional[int]
+    web_activity_max_sources: Optional[int]
 
 
 DEFAULT_TOOL_RESULT_MAX_LINES = 20
@@ -296,6 +368,9 @@ DEFAULT_TOOL_RESULT_MAX_HEIGHT = "400px"
 # Lower than the tool-result cap on purpose: reasoning is an aside, so it should
 # take up less room than the answer it precedes.
 DEFAULT_THINKING_MAX_LINES = 10
+# A source list is a pointer, not the content -- four is enough to see where the
+# answer came from. A notebook shows all of them.
+DEFAULT_WEB_ACTIVITY_MAX_SOURCES = 4
 
 
 def thinking_html(thinking: str, is_open: bool) -> str:
@@ -311,6 +386,112 @@ def thinking_html(thinking: str, is_open: bool) -> str:
         f"\n\n<details{open_attr}><summary>Thinking</summary>"
         f"\n\n{thinking}\n\n</details>\n\n"
     )
+
+
+def web_activity_safe_url(url: Optional[str]) -> Optional[str]:
+    """
+    Only `http(s)` URLs become an `href`.
+
+    Source URLs are model-influenced and land in HTML, so anything else (e.g.
+    `javascript:`) renders as plain text instead.
+    """
+    if not url:
+        return None
+    return url if urlparse(url).scheme in ("http", "https") else None
+
+
+def web_activity_html(segment: "WebActivitySegment") -> str:
+    """
+    Wrap web activity in a collapsed `<details>` block.
+
+    Collapsed in *every* state, unlike `thinking_html`: reasoning is something you
+    watch happen, while provenance is something you consult afterwards. This also
+    matches shinychat's `WebActivity`, which is collapsed by default.
+
+    The blank lines matter for the same reason they do in `thinking_html`: they end
+    the opening HTML block so the body stays markdown-renderable.
+    """
+
+    def link(label: str, url: Optional[str]) -> str:
+        safe = web_activity_safe_url(url)
+        if safe is None:
+            return escape(label)
+        return (
+            f'<a href="{escape(safe, quote=True)}" target="_blank" '
+            f'rel="noopener noreferrer">{escape(label)}</a>'
+        )
+
+    parts: list[str] = []
+
+    for query in segment.queries:
+        parts.append(
+            f"<div class='chatlas-web-q'><span class='chatlas-web-ico'>🔍</span>"
+            f"<em>{escape(query)}</em></div>"
+        )
+
+    for url, status in segment.fetches:
+        mark = "✗" if status == "error" else "✓" if status == "success" else "…"
+        cls = "err" if status == "error" else "ok" if status == "success" else "pending"
+        fetch_label = web_safe_fetch_label(url)
+        parts.append(
+            f"<div class='chatlas-web-q'><span class='chatlas-web-ico'>🌐</span>"
+            f"<span class='chatlas-web-lbl'>Read</span> "
+            f"{link(fetch_label, url)}"
+            f" <span class='chatlas-web-st {cls}'>{mark}</span></div>"
+        )
+
+    if segment.sources:
+        items: list[str] = []
+        for row in segment.sources:
+            cited = " cited" if row.cited else ""
+            quote = ""
+            if row.cited and row.quote:
+                quote = f"<blockquote>{escape(row.quote)}</blockquote>"
+            domain = web_domain(web_activity_safe_url(row.url))
+            label = web_safe_source_label(row)
+            items.append(
+                f"<li class='chatlas-web-src{cited}'>"
+                f"{link(label, row.url)}"
+                f"<span class='chatlas-web-dom'>{escape(domain)}</span>"
+                f"{quote}</li>"
+            )
+        parts.append(f"<ol class='chatlas-web-srcs'>{''.join(items)}</ol>")
+
+    detail = segment.detail()
+    summary = escape(segment.header())
+    if detail:
+        summary += f" <span class='chatlas-web-detail'>({escape(detail)})</span>"
+
+    return (
+        f"\n\n<div class='chatlas-web-activity'><details>"
+        f"<summary>{summary}</summary>"
+        f"<div class='chatlas-web-body'>{''.join(parts)}</div>"
+        f"</details></div>\n\n"
+    )
+
+
+WEB_CSS = """
+.chatlas-web-activity details{border:1px solid rgba(128,128,128,.35);border-radius:6px;
+  padding:.25rem .6rem;margin:.5rem 0;font-size:.92em}
+.chatlas-web-activity summary{cursor:pointer;font-weight:600;opacity:.85}
+.chatlas-web-detail{font-weight:400;opacity:.6}
+.chatlas-web-body{max-height:var(--chatlas-tool-result-max-height,400px);
+  overflow-y:auto;margin:.35rem 0 .3rem}
+.chatlas-web-q{margin:.15rem 0}
+.chatlas-web-ico{opacity:.55;margin-right:.35rem}
+.chatlas-web-lbl{font-size:.85em;text-transform:uppercase;letter-spacing:.05em;
+  opacity:.55}
+.chatlas-web-st.ok{color:#1a7f37}
+.chatlas-web-st.err{color:#b42318}
+.chatlas-web-st.pending{opacity:.55}
+ol.chatlas-web-srcs{margin:.3rem 0 .1rem 1.3rem;padding:0}
+li.chatlas-web-src{margin:.15rem 0}
+li.chatlas-web-src.cited > a{font-weight:600}
+li.chatlas-web-src.cited::marker{content:"❝ "}
+.chatlas-web-dom{opacity:.5;font-size:.85em;margin-left:.4rem}
+.chatlas-web-activity blockquote{margin:.2rem 0;padding-left:.5rem;
+  border-left:2px solid rgba(128,128,128,.4);font-size:.9em;opacity:.75}
+"""
 
 
 class ThinkingPanel:
@@ -368,6 +549,82 @@ class ThinkingPanel:
         yield Panel(body, title=title, title_align="left", border_style="dim")
 
 
+class WebActivityPanel:
+    """
+    A panel of web activity, hard-capped at `max_sources` sources.
+
+    Opposite direction from `ThinkingPanel`: reasoning streams toward a conclusion
+    so its tail is what matters, but a source list is a reference whose leading
+    entries are the ones the model leaned on -- except a cited row, which is
+    evidence the model actually used and so claims a slot ahead of uncited rows
+    regardless of its position. See `capped_sources` for the exact selection
+    policy. Query and fetch rows don't count against the cap -- they're few, and
+    the cap exists to bound the part that runs long.
+    """
+
+    def __init__(self, segment: "WebActivitySegment", max_sources: Optional[int]):
+        self.segment = segment
+        self.max_sources = max_sources
+
+    def __rich_console__(self, console: "Console", options: "ConsoleOptions"):
+        from rich.console import Group
+        from rich.panel import Panel
+        from rich.table import Table
+        from rich.text import Text
+
+        segment = self.segment
+        rows: list[Any] = []
+
+        for query in segment.queries:
+            line = Text("🔍 ", style="dim")
+            line.append(query, style="italic")
+            rows.append(line)
+
+        for url, status in segment.fetches:
+            mark = "✗" if status == "error" else "✓" if status == "success" else "…"
+            safe_url = web_activity_safe_url(url)
+            line = Text("🌐 Read ", style="dim")
+            line.append(web_safe_fetch_label(url), style=f"link {safe_url}" if safe_url else "")
+            line.append(f" {mark}", style="dim")
+            rows.append(line)
+
+        shown, dropped = capped_sources(segment.sources, self.max_sources)
+
+        if shown:
+            # Title left, domain right. The domain is what makes Gemini's opaque
+            # grounding-redirect URLs legible.
+            table = Table.grid(padding=(0, 1), expand=True)
+            table.add_column(width=1, no_wrap=True)
+            table.add_column(ratio=1, overflow="ellipsis", no_wrap=True)
+            table.add_column(justify="right", no_wrap=True)
+            for row in shown:
+                safe_url = web_activity_safe_url(row.url)
+                label = web_safe_source_label(row)
+                # A styled `link` becomes an OSC-8 hyperlink on a real terminal, so
+                # the URL stays one click away without spending width on it. Only a
+                # safe URL gets one -- an unsafe scheme (e.g. `javascript:`) renders
+                # as plain text instead, same as the notebook.
+                table.add_row(
+                    Text("❝" if row.cited else " ", style="yellow" if row.cited else ""),
+                    Text(label, style=f"link {safe_url}" if safe_url else ""),
+                    Text(web_domain(safe_url), style="dim"),
+                )
+            rows.append(table)
+
+        if dropped:
+            rows.append(Text(f"  … {dropped} more", style="dim italic"))
+
+        detail = segment.detail()
+        title = segment.header() + (f"  ({detail})" if detail else "")
+
+        yield Panel(
+            Group(*rows) if rows else Text(""),
+            title=title,
+            title_align="left",
+            border_style="dim",
+        )
+
+
 @dataclass
 class TextSegment:
     text: str = ""
@@ -384,4 +641,153 @@ class ContentSegment:
     content: Content
 
 
-DisplaySegment = Union[TextSegment, ThinkingSegment, ContentSegment]
+@dataclass
+class WebActivityRow:
+    """
+    One source row.
+
+    Display-local rather than a `WebSource` because `cited` and `quote` are
+    presentational state that must not end up serialized onto a turn.
+    """
+
+    url: Optional[str] = None
+    title: Optional[str] = None
+    cited: bool = False
+    quote: Optional[str] = None
+
+
+@dataclass
+class WebActivitySegment:
+    """
+    One web-activity episode: every query, fetch, result, and citation from one
+    stretch of provider-executed web work.
+
+    Grouped rather than one segment per content object, so a citation can mark the
+    source row it points at instead of becoming a row of its own.
+    """
+
+    queries: list[str] = field(default_factory=list)
+    fetches: list[tuple[str, Optional[str]]] = field(default_factory=list)
+    sources: list[WebActivityRow] = field(default_factory=list)
+    is_open: bool = True
+
+    def add_query(self, query: str) -> None:
+        self.queries.append(query)
+
+    def add_fetch(self, url: str, status: Optional[str]) -> None:
+        # A fetch emits a request and then a result for the same URL. That's one
+        # row; prefer whichever carries the status.
+        for i, (existing, existing_status) in enumerate(self.fetches):
+            if existing == url:
+                if status and not existing_status:
+                    self.fetches[i] = (url, status)
+                return
+        self.fetches.append((url, status))
+
+    def add_sources(self, sources: Sequence[WebSource]) -> None:
+        for source in sources:
+            if not any(row.url == source.url for row in self.sources):
+                self.sources.append(WebActivityRow(url=source.url, title=source.title))
+
+    def add_citation(self, citation: ContentCitation) -> None:
+        """Mark the source this citation points at, rather than adding a row."""
+        source = citation.source
+        url = source.url if isinstance(source, WebSource) else None
+        title = (source.title if isinstance(source, WebSource) else None) or (
+            citation.grounded_span
+        )
+
+        for row in self.sources:
+            # Match on URL when there is one. A source-less citation (Google can
+            # ground a span with no resolvable URL) matches on its label instead,
+            # so repeats don't accumulate blank rows.
+            if (url and row.url == url) or (
+                not url and not row.url and row.title == title
+            ):
+                row.cited = True
+                row.quote = row.quote or citation.cited_quote
+                return
+
+        self.sources.append(
+            WebActivityRow(url=url, title=title, cited=True, quote=citation.cited_quote)
+        )
+
+    @property
+    def is_fetch_only(self) -> bool:
+        return bool(self.fetches) and not self.queries
+
+    def header(self) -> str:
+        if self.is_open:
+            return "Reading the web…" if self.is_fetch_only else "Searching the web…"
+        return "Read the web" if self.is_fetch_only else "Searched the web"
+
+    def detail(self) -> str:
+        bits: list[str] = []
+        if self.sources:
+            n = len(self.sources)
+            bits.append(f"{n} result{'' if n == 1 else 's'}")
+        n_cited = sum(1 for row in self.sources if row.cited)
+        if n_cited:
+            bits.append(f"{n_cited} cited")
+        return " · ".join(bits)
+
+
+def web_domain(url: Optional[str]) -> str:
+    "Best-effort hostname, matching shinychat's `domain_from_url`."
+    if not url:
+        return ""
+    return urlparse(url).hostname or url
+
+
+def web_safe_source_label(row: WebActivityRow) -> str:
+    """
+    What to show for a source. Gemini's URLs are opaque, so the title comes first.
+
+    Falls back to the domain, then a neutral placeholder -- never all the way
+    to the raw URL. An unsafe scheme (e.g. `javascript:`) has no `href`, so its
+    raw text must not surface as the visible label either, which is why the
+    domain here comes from the *safe* URL rather than the raw one.
+    """
+    return row.title or web_domain(web_activity_safe_url(row.url)) or "(source)"
+
+
+def web_safe_fetch_label(url: str) -> str:
+    "Display text for a fetched URL; an unsafe scheme falls back to a placeholder."
+    return web_display_url(url) if web_activity_safe_url(url) else "(url)"
+
+
+def capped_sources(
+    sources: list[WebActivityRow], max_sources: Optional[int]
+) -> tuple[list[WebActivityRow], int]:
+    """
+    The rows to show under a source cap, and how many were dropped.
+
+    A hard bound: `shown` never has more than `max_sources` rows. Within that
+    bound, a cited row -- evidence the model actually used -- wins a slot ahead
+    of an uncited row regardless of position, earliest-first among cited rows;
+    uncited rows then fill whatever budget remains, earliest-first. If cited
+    rows alone exceed `max_sources`, only the earliest `max_sources` of them are
+    shown and every uncited row is dropped. The result keeps the original
+    relative order among whatever it keeps.
+    """
+    if max_sources is None or len(sources) <= max_sources:
+        return sources, 0
+
+    cited = [row for row in sources if row.cited]
+    non_cited = [row for row in sources if not row.cited]
+
+    cited_shown = cited[:max_sources]
+    budget = max(max_sources - len(cited_shown), 0)
+    non_cited_shown = non_cited[:budget]
+
+    keep = {id(row) for row in cited_shown} | {id(row) for row in non_cited_shown}
+    shown = [row for row in sources if id(row) in keep]
+    return shown, len(sources) - len(shown)
+
+
+def web_display_url(url: str) -> str:
+    "A fetched URL without its scheme, which is noise in a narrow panel."
+    return re.sub(r"^https?://(www\.)?", "", url or "")
+
+
+DisplaySegment = Union[TextSegment, ThinkingSegment, WebActivitySegment, ContentSegment]
