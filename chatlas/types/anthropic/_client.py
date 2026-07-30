@@ -22,18 +22,18 @@ import httpx
 
 
 class ChatClientArgs(TypedDict, total=False):
-    api_key: str | None
-    auth_token: str | None
-    credentials: anthropic.lib.credentials._types.AccessTokenProvider | None
+    api_key: Optional[str]
+    auth_token: Optional[str]
+    credentials: Optional[anthropic.lib.credentials._types.AccessTokenProvider]
     config: Optional[Mapping[str, Any]]
-    profile: str | None
-    webhook_key: str | None
-    base_url: str | httpx.URL | None
+    profile: Optional[str]
+    webhook_key: Optional[str]
+    base_url: Union[str, httpx.URL, None]
     timeout: float | anthropic.Timeout | None | anthropic.NotGiven
     max_retries: int
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
-    http_client: httpx.AsyncClient | None
+    http_client: Optional[httpx.AsyncClient]
     middleware: Optional[
         Sequence[
             Union[
