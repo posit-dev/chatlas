@@ -190,6 +190,9 @@ def as_converse_content(
             "toolUse": {
                 "toolUseId": content.id,
                 "name": content.name,
+                # `arguments` is deliberately typed `object` upstream (it's
+                # whatever a tool call decoded), so a cast is needed to hand
+                # it to Converse's `Mapping[str, Any]` input.
                 "input": cast(dict, content.arguments),
             }
         }

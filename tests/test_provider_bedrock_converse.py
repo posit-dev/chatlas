@@ -256,3 +256,110 @@ class TestContentSerialization:
         assert spec["description"] == "Get weather for a city"
         assert spec["inputSchema"]["json"]["type"] == "object"
         assert "city" in spec["inputSchema"]["json"]["properties"]
+
+    def test_unsupported_image_content_type_raises(self):
+        from chatlas._content import ContentImageInline
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        # Bypass the Literal-typed field validation to simulate a MIME type
+        # Converse can't map, e.g. one that slipped in via `model_construct`
+        # or a future ImageContentTypes addition this dispatch doesn't know.
+        content = ContentImageInline.model_construct(
+            image_content_type="image/tiff", data=""
+        )
+        with pytest.raises(ValueError, match="image/tiff"):
+            as_converse_content(content)
+
+    def test_remote_image_raises(self):
+        from chatlas._content import ContentImageRemote
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        content = ContentImageRemote(url="https://example.com/cat.png")
+        with pytest.raises(ValueError, match="Remote images aren't supported"):
+            as_converse_content(content)
+
+    def test_out_of_scope_content_type_raises(self):
+        from chatlas._content import ContentJson
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        content = ContentJson(value={"a": 1})
+        with pytest.raises(ValueError, match="ContentJson"):
+            as_converse_content(content)
+
+    def test_pdf_becomes_a_document_block(self):
+        from chatlas._content import ContentPDF
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        content = ContentPDF(data=b"%PDF-1.4 ...", filename="report.pdf")
+        assert as_converse_content(content, document_index=3) == {
+            "document": {
+                "format": "pdf",
+                "name": "document-3",
+                "source": {"bytes": b"%PDF-1.4 ..."},
+            }
+        }
+
+    def test_multiple_pdfs_get_request_unique_names(self):
+        from chatlas._content import ContentPDF
+        from chatlas._provider_bedrock_converse import as_converse_messages
+        from chatlas._turn import AssistantTurn, UserTurn
+
+        turns = [
+            UserTurn([ContentPDF(data=b"doc-one", filename="one.pdf")]),
+            AssistantTurn(["ok"]),
+            UserTurn([ContentPDF(data=b"doc-two", filename="two.pdf")]),
+        ]
+        # Turn 2's non-PDF content also consumes a counter slot, so the two
+        # documents land on "document-0" and "document-2" -- if this were
+        # a per-turn counter instead, turn 3's PDF would collide on
+        # "document-0" too.
+        messages = as_converse_messages(turns)
+        names = [
+            cast(dict, block)["document"]["name"]
+            for message in messages
+            for block in cast(list, message["content"])
+            if "document" in block
+        ]
+        # Names are unique across the whole request, not reset per turn --
+        # a regression to per-turn numbering would produce "document-0" twice.
+        assert names == ["document-0", "document-2"]
+
+    def test_thinking_becomes_a_reasoning_content_block(self):
+        from chatlas._content import ContentThinking
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        content = ContentThinking(
+            thinking="let me think", extra={"signature": "sig-123"}
+        )
+        assert as_converse_content(content) == {
+            "reasoningContent": {
+                "reasoningText": {"text": "let me think", "signature": "sig-123"}
+            }
+        }
+
+    def test_non_string_tool_result_value_is_stringified(self):
+        from chatlas._content import ContentToolRequest, ContentToolResult
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        req = ContentToolRequest(id="t1", name="get_weather", arguments={})
+        result = ContentToolResult(
+            value={"temp": 72}, model_format="as_is", request=req
+        )
+        block = cast(dict, as_converse_content(result))
+        assert block["toolResult"]["content"] == [{"text": "{'temp': 72}"}]
+
+    def test_builtin_tool_raises(self):
+        from chatlas._provider_bedrock_converse import as_converse_tools
+        from chatlas._tools import ToolBuiltIn
+
+        tool = ToolBuiltIn(name="web_search", definition={"type": "web_search"})
+        with pytest.raises(ValueError, match="web_search"):
+            as_converse_tools({tool.name: tool})
+
+    def test_unknown_turn_role_raises(self):
+        from chatlas._provider_bedrock_converse import as_converse_messages
+        from chatlas._turn import Turn
+
+        turn = Turn.model_construct(role="tool", contents=[])
+        with pytest.raises(ValueError, match="Unknown role"):
+            as_converse_messages([turn])
