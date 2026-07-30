@@ -4,7 +4,7 @@ import base64
 import inspect
 import warnings
 from pprint import pformat
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, Optional, Union, cast, get_args
 
 import orjson
 from pydantic import (
@@ -14,9 +14,11 @@ from pydantic import (
     SerializeAsAny,
     field_serializer,
     field_validator,
+    model_validator,
 )
 
-from ._typing_extensions import TypedDict
+from ._typing_extensions import TypedDict, TypeIs
+from ._utils import html_escape, truncate_lines
 
 if TYPE_CHECKING:
     from htmltools import Tagified
@@ -81,10 +83,80 @@ ImageContentTypes = Literal[
     "image/jpeg",
     "image/webp",
     "image/gif",
+    "image/heic",
+    "image/heif",
 ]
 """
 Allowable content types for images.
+
+Note that not every provider accepts every type here: `image/heic` and
+`image/heif` are only supported by `ChatGoogle()` today. Providers that can't
+accept a given type raise a clear error rather than silently sending it.
 """
+
+HeicHeifImageTypes = Literal["image/heic", "image/heif"]
+NonHeicImageContentTypes = Literal[
+    "image/png",
+    "image/jpeg",
+    "image/webp",
+    "image/gif",
+]
+"""
+The subset of [](`~chatlas.types.ImageContentTypes`) every provider accepts.
+
+Returned by `check_image_content_type_supported()` so providers whose SDKs type
+`media_type` this narrowly can use the result without casting.
+"""
+
+IMAGE_CONTENT_TYPES: tuple[ImageContentTypes, ...] = get_args(ImageContentTypes)
+HEIC_HEIF_IMAGE_TYPES: tuple[HeicHeifImageTypes, ...] = get_args(HeicHeifImageTypes)
+
+DOCX_MIME_TYPE = (
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+)
+XLSX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+BINARY_DOCUMENT_MIME_TYPES = frozenset(
+    {
+        DOCX_MIME_TYPE,
+        XLSX_MIME_TYPE,
+        "application/rtf",
+        "application/msword",
+        "application/vnd.oasis.opendocument.text",
+        "application/vnd.ms-excel",
+    }
+)
+"""
+`ContentDocument` MIME types that only `ChatOpenAI()`/`ChatOpenAICompletions()`
+accept -- Anthropic and Google can't extract text from these binary formats and
+require converting to plain text or PDF first.
+"""
+
+
+def check_image_content_type_supported(
+    provider_name: str, content_type: ImageContentTypes
+) -> NonHeicImageContentTypes:
+    """Return `content_type`, or raise if `provider_name` can't accept it.
+
+    Only `ChatGoogle()` supports HEIC/HEIF today; every other provider rejects
+    them outright rather than sending bytes the API will reject anyway. The
+    return value is narrowed to what's left, so callers passing it to an SDK
+    that only types the universal four don't need a cast.
+    """
+    if is_heic_heif(content_type):
+        raise ValueError(
+            f"{provider_name} doesn't support {content_type} images. Convert "
+            "to image/png, image/jpeg, image/webp, or image/gif first, or "
+            "use ChatGoogle(), which supports HEIC/HEIF natively."
+        )
+    return content_type
+
+
+def is_heic_heif(content_type: ImageContentTypes) -> TypeIs[HeicHeifImageTypes]:
+    return content_type in HEIC_HEIF_IMAGE_TYPES
+
+
+def is_image_content_type(content_type: str) -> TypeIs[ImageContentTypes]:
+    return content_type in IMAGE_CONTENT_TYPES
 
 
 AudioContentTypes = Literal[
@@ -161,6 +233,7 @@ ContentTypeEnum = Literal[
     "json",
     "pdf",
     "audio",
+    "document",
     "uploaded",
     "thinking",
     "thinking_delta",
@@ -379,7 +452,7 @@ class ContentToolRequest(Content):
                 "but htmltools is not installed. ",
             )
 
-        html = f"<p></p><span class='chatlas-tool-request'>🔧 Running tool: <code>{self.name}</code></span>"
+        html = f"<p></p><span class='chatlas-tool-request'>🔧 Running tool: <code>{html_escape(self.name, attr=False)}</code></span>"
 
         return TagList(
             HTML(html),
@@ -483,9 +556,23 @@ class ContentToolResult(Content):
         return self.request.arguments
 
     def __str__(self):
+        return self.to_display_markdown()
+
+    def to_display_markdown(self, max_lines: Optional[int] = None) -> str:
+        """
+        Render as a fenced code block, optionally capping the value's height.
+
+        Parameters
+        ----------
+        max_lines
+            Truncate the value to this many lines, replacing the remainder with a
+            count of what was dropped. `None` (the default) emits the full value.
+        """
         prefix = "✅ tool result" if not self.error else "❌ tool error"
         comment = f"# {prefix} ({self.id})"
         value = self._get_display_value()
+        if max_lines is not None:
+            value = truncate_lines(value, max_lines)
         return f"""```python\n{comment}\n{value}\n```"""
 
     # Format the value for display purposes
@@ -574,22 +661,41 @@ class ContentToolResult(Content):
         return orjson.dumps(value).decode("utf-8")
 
     def _repr_html_(self):
-        return str(self.tagify())
+        return self.to_html()
 
     def tagify(self) -> Tagified:
         "A method for rendering this object via htmltools/shiny."
         try:
-            from htmltools import HTML, html_escape
+            from htmltools import HTML, TagList, head_content, tags
         except ImportError:
             raise ImportError(
                 ".tagify() is only intended to be called by htmltools/shiny, ",
                 "but htmltools is not installed. ",
             )
 
+        return TagList(
+            HTML(self.to_html()),
+            head_content(tags.style(TOOL_CSS)),
+        ).tagify()
+
+    def to_html(self) -> str:
+        """
+        Render as an HTML string.
+
+        Shared by `.tagify()` (shinychat) and the notebook echo display, so the two
+        can't drift. Requires `TOOL_CSS` to be present on the page. The result is
+        collapsed; `TOOL_CSS` bounds its height once expanded.
+        """
+
         # Helper function to format code blocks (optionally with labels for arguments).
+        # Labels are argument names, which come from the model's tool call, so they
+        # need escaping just like the values do.
         def pre_code(code: str, label: str | None = None) -> str:
-            lbl = f"<span class='input-parameter-label'>{label}</span>" if label else ""
-            return f"<pre>{lbl}<code>{html_escape(code)}</code></pre>"
+            if label:
+                lbl = f"<span class='input-parameter-label'>{html_escape(label, attr=False)}</span>"
+            else:
+                lbl = ""
+            return f"<pre>{lbl}<code>{html_escape(code, attr=False)}</code></pre>"
 
         # Helper function to wrap content in a <details> block.
         def details_block(summary: str, content: str, open_: bool = True) -> str:
@@ -620,15 +726,17 @@ class ContentToolResult(Content):
         # Put both the result and parameters into a container
         result_div = f'<div class="chatlas-tool-result-content">{result}{params}</div>'
 
-        # Header for the top-level result details block.
+        # Header for the top-level result details block. The tool name is
+        # model-controlled, so it gets escaped too.
+        name = html_escape(self.name, attr=False)
         if not self.error:
-            header = f"Result from tool call: <code>{self.name}</code>"
+            header = f"Result from tool call: <code>{name}</code>"
         else:
-            header = f"❌ Failed to call tool <code>{self.name}</code>"
+            header = f"❌ Failed to call tool <code>{name}</code>"
 
         res = details_block(header, result_div, open_=False)
 
-        return HTML(f'<div class="chatlas-tool-result">{res}</div>')
+        return f'<div class="chatlas-tool-result">{res}</div>'
 
     def _arguments_str(self) -> str:
         if isinstance(self.arguments, dict):
@@ -668,33 +776,109 @@ class ContentPDF(Content):
     Parameters
     ----------
     data
-        The PDF data extracted
+        The PDF's bytes. Optional when `url` is set.
     filename
         The name of the PDF file
     url
-        An optional URL where the PDF can be accessed
+        An optional URL where the PDF can be accessed.
     """
 
-    data: bytes
+    data: Optional[bytes] = None
     filename: str
     url: Optional[str] = None
 
     content_type: ContentTypeEnum = "pdf"
 
+    @model_validator(mode="after")
+    def _check_data_or_url(self) -> "ContentPDF":
+        if self.data is None and self.url is None:
+            raise ValueError("ContentPDF requires either `data` or `url` to be set.")
+        return self
+
     @field_serializer("data")
     @classmethod
-    def serialize_data(cls, v: bytes) -> str:
+    def serialize_data(cls, v: Optional[bytes]) -> Optional[str]:
+        if v is None:
+            return None
         return base64.b64encode(v).decode("ascii")
 
     @field_validator("data", mode="before")
     @classmethod
-    def validate_data(cls, v: bytes | str) -> bytes:
+    def validate_data(cls, v: Optional[bytes | str]) -> Optional[bytes]:
         if isinstance(v, str):
             return base64.b64decode(v, validate=True)
         return v
 
     def __str__(self):
-        return f"<PDF document file={self.filename} size={len(self.data)} bytes>"
+        size = f"{len(self.data)} bytes" if self.data is not None else f"url={self.url}"
+        return f"<PDF document file={self.filename} {size}>"
+
+
+class ContentDocument(Content):
+    """
+    Generic document content (plain text, Markdown, CSV, code, and -- on
+    providers that support it -- docx/xlsx).
+
+    This is the type returned by [](`~chatlas.content_document_file`). Unlike
+    [](`~chatlas.ContentPDF`), documents carry a real `mime_type` since they
+    span many formats; PDFs should always go through
+    [](`~chatlas.content_pdf_file`)/[](`~chatlas.content_pdf_url`) instead,
+    which unlock PDF-specific handling (page-image understanding on
+    Anthropic, and URL passthrough).
+
+    Parameters
+    ----------
+    data
+        The document's bytes. Optional when `url` is set.
+    filename
+        The name of the document file.
+    mime_type
+        The document's MIME type (e.g. `"text/plain"`, `"text/csv"`,
+        `"application/vnd.openxmlformats-officedocument.wordprocessingml.document"`).
+        Not every provider accepts every MIME type -- providers that can't
+        accept a given type raise a clear error.
+    url
+        An optional URL where the document can be accessed.
+    """
+
+    data: Optional[bytes] = None
+    filename: str
+    mime_type: str
+    url: Optional[str] = None
+
+    content_type: ContentTypeEnum = "document"
+
+    @model_validator(mode="after")
+    def _check_data_or_url(self) -> "ContentDocument":
+        if self.data is None and self.url is None:
+            raise ValueError(
+                "ContentDocument requires either `data` or `url` to be set."
+            )
+        if self.mime_type == "application/pdf":
+            raise ValueError(
+                "ContentDocument doesn't support PDF files. Use "
+                "content_pdf_file() or content_pdf_url() instead, which "
+                "unlock PDF-specific handling (page-image understanding on "
+                "Anthropic, and URL passthrough)."
+            )
+        return self
+
+    @field_serializer("data")
+    @classmethod
+    def serialize_data(cls, v: Optional[bytes]) -> Optional[str]:
+        if v is None:
+            return None
+        return base64.b64encode(v).decode("ascii")
+
+    @field_validator("data", mode="before")
+    @classmethod
+    def validate_data(cls, v: Optional[bytes | str]) -> Optional[bytes]:
+        if isinstance(v, str):
+            return base64.b64decode(v, validate=True)
+        return v
+
+    def __str__(self):
+        return f"<document file={self.filename} mime_type={self.mime_type}>"
 
 
 class ContentAudio(Content):
@@ -1011,6 +1195,7 @@ ContentUnion = Union[
     ContentJson,
     ContentPDF,
     ContentAudio,
+    ContentDocument,
     ContentUploaded,
     ContentThinking,
     ContentToolRequestSearch,
@@ -1113,6 +1298,8 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentPDF.model_validate(data)
     elif ct == "audio":
         return ContentAudio.model_validate(data)
+    elif ct == "document":
+        return ContentDocument.model_validate(data)
     elif ct == "uploaded":
         return ContentUploaded.model_validate(data)
     elif ct == "thinking":
@@ -1181,6 +1368,14 @@ TOOL_CSS = """
 
 .chatlas-tool-result-content pre, .chatlas-tool-result-content code {
   background-color: var(--bs-body-bg, white) !important;
+}
+
+/* Bound a large result so it costs a fixed amount of vertical space.
+   Consumers override the height by setting the custom property on an ancestor
+   (chatlas' notebook display does this from set_echo_options()). */
+.chatlas-tool-result-content pre {
+  max-height: var(--chatlas-tool-result-max-height, 400px);
+  overflow-y: auto;
 }
 
 .chatlas-tool-result-content .input-parameter-label {

@@ -1,9 +1,16 @@
+import base64
 import warnings
 
 import httpx
 import pytest
 from chatlas import ChatOpenAI, tool_web_search
-from chatlas._content import ContentAudio, ContentUploaded
+from chatlas._content import (
+    ContentAudio,
+    ContentDocument,
+    ContentImageInline,
+    ContentPDF,
+    ContentUploaded,
+)
 from chatlas._provider_openai import OpenAIProvider, as_input_param
 from chatlas._provider_openai import (
     normalize_finish_reason as openai_normalize_finish_reason,
@@ -17,10 +24,13 @@ from openai.types.responses import (
 
 from .conftest import (
     assert_data_extraction,
+    assert_document_local,
+    assert_document_local_docx,
     assert_images_inline,
     assert_images_remote,
     assert_list_models,
     assert_pdf_local,
+    assert_pdf_remote,
     assert_tool_web_search,
     assert_tools_async,
     assert_tools_parallel,
@@ -89,6 +99,63 @@ def test_openai_uploaded_image_serializes_to_input_image():
 def test_openai_uploaded_wrong_provider_raises():
     c = ContentUploaded(id="x", mime_type="application/pdf", provider="anthropic")
     with pytest.raises(ValueError, match="uploaded to provider 'anthropic'"):
+        as_input_param(c, role="user")
+
+
+def test_openai_pdf_with_url_uses_file_url_without_downloading():
+    c = ContentPDF(filename="a.pdf", url="https://example.com/a.pdf")
+    param = as_input_param(c, role="user")
+    part = param["content"][0]
+    assert part["type"] == "input_file"
+    assert part["file_url"] == "https://example.com/a.pdf"
+    assert "file_data" not in part
+    # The API rejects `filename` and `file_url` together.
+    assert "filename" not in part
+
+
+def test_openai_pdf_with_data_uses_file_data():
+    c = ContentPDF(data=b"%PDF-1.4", filename="a.pdf")
+    param = as_input_param(c, role="user")
+    part = param["content"][0]
+    assert part["type"] == "input_file"
+    assert part["file_data"] == (
+        f"data:application/pdf;base64,{base64.b64encode(b'%PDF-1.4').decode('utf-8')}"
+    )
+
+
+def test_openai_document_with_url_uses_file_url_without_downloading():
+    c = ContentDocument(
+        filename="notes.txt",
+        mime_type="text/plain",
+        url="https://example.com/notes.txt",
+    )
+    param = as_input_param(c, role="user")
+    part = param["content"][0]
+    assert part["type"] == "input_file"
+    assert part["file_url"] == "https://example.com/notes.txt"
+    assert "file_data" not in part
+    assert "filename" not in part
+
+
+def test_openai_document_with_data_uses_file_data():
+    c = ContentDocument(data=b"hello", filename="notes.txt", mime_type="text/plain")
+    param = as_input_param(c, role="user")
+    part = param["content"][0]
+    assert part["type"] == "input_file"
+    assert part["file_data"] == (
+        f"data:text/plain;base64,{base64.b64encode(b'hello').decode('utf-8')}"
+    )
+
+
+def test_openai_rejects_heic_images():
+    c = ContentImageInline(image_content_type="image/heic", data="abcd")
+    with pytest.raises(ValueError, match="image/heic"):
+        as_input_param(c, role="user")
+
+
+def test_openai_rejects_heif_images():
+    c = ContentImageInline(image_content_type="image/heif", data="abcd")
+    with pytest.raises(ValueError, match="image/heif"):
         as_input_param(c, role="user")
 
 
@@ -238,6 +305,21 @@ async def test_openai_logprobs():
 @pytest.mark.vcr
 def test_openai_pdf():
     assert_pdf_local(ChatOpenAI)
+
+
+@pytest.mark.vcr
+def test_openai_pdf_url():
+    assert_pdf_remote(ChatOpenAI)
+
+
+@pytest.mark.vcr
+def test_openai_document():
+    assert_document_local(ChatOpenAI)
+
+
+@pytest.mark.vcr
+def test_openai_document_docx():
+    assert_document_local_docx(ChatOpenAI)
 
 
 @pytest.mark.vcr

@@ -20,6 +20,7 @@ from ._chat import Chat
 from ._content import (
     Content,
     ContentAudio,
+    ContentDocument,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -30,7 +31,9 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
     ContentUploaded,
+    check_image_content_type_supported,
 )
+from ._content_file import ensure_bytes
 from ._logging import log_model_default
 from ._merge import merge_dicts
 from ._provider import StandardModelParamNames, StandardModelParams
@@ -158,6 +161,30 @@ def openai_completions_audio_format(mime_type: str) -> Literal["wav", "mp3"]:
             "with a .wav or .mp3 file."
         )
     return fmt
+
+
+def completions_file_part(
+    content: "ContentPDF | ContentDocument", mime_type: str
+) -> "ChatCompletionContentPartParam":
+    """Build a `file` content part.
+
+    Unlike the Responses API, Chat Completions has no `file_url` -- only
+    `file_data`/`file_id` -- so a URL-only `ContentPDF`/`ContentDocument` is
+    downloaded here (and cached back onto `content`) rather than sent as-is.
+
+    `mime_type` is passed through rather than validated: OpenAI's own endpoint
+    only accepts `application/pdf` here, but this provider is also the base for
+    a dozen OpenAI-compatible backends (Ollama, LMStudio, OpenRouter, ...) whose
+    file support differs and changes independently. Let the backend refuse it.
+    """
+    data = ensure_bytes(content, "file")
+    return {
+        "type": "file",
+        "file": {
+            "filename": content.filename,
+            "file_data": f"data:{mime_type};base64,{base64.b64encode(data).decode('utf-8')}",
+        },
+    }
 
 
 class OpenAICompletionsProvider(
@@ -387,18 +414,9 @@ class OpenAICompletionsProvider(
                         text = orjson.dumps(x.value).decode("utf-8")
                         contents.append({"type": "text", "text": text})
                     elif isinstance(x, ContentPDF):
-                        contents.append(
-                            {
-                                "type": "file",
-                                "file": {
-                                    "filename": x.filename,
-                                    "file_data": (
-                                        "data:application/pdf;base64,"
-                                        f"{base64.b64encode(x.data).decode('utf-8')}"
-                                    ),
-                                },
-                            }
-                        )
+                        contents.append(completions_file_part(x, "application/pdf"))
+                    elif isinstance(x, ContentDocument):
+                        contents.append(completions_file_part(x, x.mime_type))
                     elif isinstance(x, ContentImageRemote):
                         contents.append(
                             {
@@ -410,6 +428,9 @@ class OpenAICompletionsProvider(
                             }
                         )
                     elif isinstance(x, ContentImageInline):
+                        check_image_content_type_supported(
+                            "The Chat Completions API", x.image_content_type
+                        )
                         contents.append(
                             {
                                 "type": "image_url",

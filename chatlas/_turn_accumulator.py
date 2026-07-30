@@ -20,7 +20,7 @@ class TurnAccumulator:
     1. ``begin_turn(user_turn)`` — insert user + partial assistant into turns
     2. ``process_content(content, ...)`` — append content, handle thinking
        phase boundaries, emit display text, and return items to yield
-    3. ``flush_thinking(...)`` — emit closing thinking tags after the loop
+    3. ``flush_thinking(...)`` — close an unterminated thinking block after the loop
     4. ``complete_turn(turn)`` — replace partial with the full turn (skipped if cancelled)
     5. ``finalize_turn()`` — called from ``finally``; stamps the cancellation
        reason if the turn is still partial
@@ -55,24 +55,24 @@ class TurnAccumulator:
         items: list[str | Content] = []
 
         if isinstance(content, ContentThinkingDelta) and not self._inside_thinking:
-            content = ContentThinkingDelta(
-                thinking=content.thinking, phase="start"
-            )
-            emit("<thinking>\n")
+            content = ContentThinkingDelta(thinking=content.thinking, phase="start")
             self._inside_thinking = True
         elif not isinstance(content, ContentThinkingDelta) and self._inside_thinking:
-            emit("\n</thinking>\n\n")
+            end = ContentThinkingDelta(thinking="", phase="end")
+            emit(end)
             if content_mode == "all":
-                items.append(ContentThinkingDelta(thinking="", phase="end"))
+                items.append(end)
             self._inside_thinking = False
 
-        if text:
-            emit(text)
-
+        # Reasoning goes to the display as the content object itself: the display
+        # needs the `phase` to know where the block starts and ends, and each
+        # backend renders reasoning differently from ordinary text.
         if isinstance(content, ContentThinkingDelta):
+            emit(content)
             if content_mode == "all":
                 items.append(content)
         elif text:
+            emit(text)
             items.append(text)
 
         if content_mode == "all" and isinstance(content, PROVIDER_ANNOTATION_TYPES):
@@ -85,13 +85,14 @@ class TurnAccumulator:
         content_mode: Literal["text", "all"],
         emit: Callable[[str | Content], None],
     ) -> Sequence[str | Content]:
-        """Emit closing thinking tags if the stream ended mid-thinking."""
+        """Close the thinking block if the stream ended mid-thinking."""
         if not self._inside_thinking:
             return []
         self._inside_thinking = False
-        emit("\n</thinking>\n\n")
+        end = ContentThinkingDelta(thinking="", phase="end")
+        emit(end)
         if content_mode == "all":
-            return [ContentThinkingDelta(thinking="", phase="end")]
+            return [end]
         return []
 
     def complete_turn(self, turn: AssistantTurn) -> None:

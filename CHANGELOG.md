@@ -8,11 +8,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 
-## [0.20.0] - 2026-07-29
+## [UNRELEASED]
 
 ### New features
 
 * New `content_audio_file()` creates audio input (a `ContentAudio`) from a local `.wav`, `.mp3`, `.aiff`, `.aac`, `.ogg`, or `.flac` file. Supported by `ChatGoogle()`/`ChatVertex()` (all six formats) and `ChatOpenAICompletions()` (wav/mp3 only, via the Chat Completions API's `input_audio` part). `ChatAnthropic()` and `ChatOpenAI()` (the Responses API) raise a clear `NotImplementedError` for audio input, since neither provider/API supports it. `ChatGoogle()`/`ChatVertex()` also now represent audio a model produces (e.g. Gemini text-to-speech/native-audio output) as `ContentAudio` instead of dropping it; `ChatOpenAICompletions()` surfaces the transcript of `gpt-audio`-style spoken responses as plain text, though the audio bytes themselves aren't represented yet (OpenAI's response doesn't echo back the format needed to interpret them, and requesting audio output at all would need new submit params -- left for a future release).
+
+### Improvements
+
+* Reasoning is now visible when echoing. Previously, thinking content was wrapped in literal `<thinking>` tags that a markdown renderer treated as an HTML block and dropped, so reasoning never appeared at all — even with `echo="all"`. It now renders in a "Thinking" panel in the console, and in a `<details>` block in notebooks that stays expanded while reasoning streams in and collapses once it's done. `echo="text"` continues to show only the assistant's answer. (#361)
+* Long tool results no longer dominate the display. In notebooks they render collapsed, with the same look shinychat uses, and scroll internally beyond a bounded height once expanded. In the console they're truncated with a count of the dropped lines. Either way a big tool result now costs a fixed amount of vertical space, and the full value remains on the turn. `Chat.set_echo_options()` gained `tool_result_max_lines` (console, default 20) and `tool_result_max_height` (notebook, default `"400px"`) to tune this. (#361)
+* Long reasoning is likewise bounded in the console, capped at `thinking_max_lines` (default 10). Unlike a tool result it's cropped from the *top*, keeping the newest reasoning — cropping the other way would pin the panel to text you've already read while new text streamed in unseen. The title reports how many earlier lines were dropped. The cap counts rendered (wrapped) lines rather than newlines, since reasoning is prose that wraps well past its own line count, so the dropped count stays correct at any console width.
+* All three echo size options (`tool_result_max_lines`, `tool_result_max_height`, `thinking_max_lines`) accept `None` to turn the bound off entirely.
+
+### Bug fixes
+
+* `echo="all"` no longer displays tool results twice — once in full as part of the user turn they're attached to, and again on their own.
+* `Chat.set_echo_options(css_styles=)` now actually applies in notebooks: the styles were previously attached to a CSS sibling selector that could never match the wrapper they were meant to style.
+* Tool names and argument names are now HTML-escaped in the notebook/shiny rendering of tool requests and results, closing an HTML-injection hole (both are model-controlled).
+* `ChatGoogle()` no longer mislabels non-image inline response data (e.g. `audio/pcm` from Gemini text-to-speech/native-audio output) as a `ContentImageInline`. Previously this raised a `pydantic.ValidationError` (since `ContentImageInline.image_content_type` only accepts image MIME types); non-image inline data is now either represented correctly (audio, as `ContentAudio`) or left unmodeled rather than misrepresented.
+
+## [0.20.0] - 2026-07-29
+
+### New features
+
+* New `content_document_file()` and `content_document_url()` prepare plain text, Markdown, CSV, code, and (on `ChatOpenAI()`) binary office files like `.docx`/`.xlsx`/`.doc`/`.xls`/`.rtf`/`.odt` for chat input, returning a new `ContentDocument` type. Previously the only way to attach a non-PDF file was to read and string-interpolate it yourself, which lost the filename and OpenAI's spreadsheet parsing. Provider support varies:
+  * `ChatOpenAI()` (Responses API) accepts every type above.
+  * `ChatGoogle()` accepts text-ish types; the binary office formats raise.
+  * `ChatAnthropic()` accepts documents it can treat as plain text; binary formats raise.
+  * `ChatOpenAICompletions()` sends the document as-is; OpenAI's own Chat Completions endpoint only accepts `application/pdf` and rejects the rest, though other OpenAI-compatible backends may accept more. Use `ChatOpenAI()` against OpenAI proper.
+
+  Like `content_pdf_url()`, `content_document_url()` doesn't download up front: `ChatOpenAI()` references the URL directly, and other providers fetch lazily.
+* `ImageContentTypes` (and so `content_image_file()`/`content_image_url()`) now accepts `image/heic` and `image/heif`, which `ChatGoogle()` supports natively. Other providers raise a clear error rather than sending a format they'll reject. Resizing HEIC/HEIF images requires the optional `pillow-heif` package; without it, pass `resize="none"`.
+* `content_pdf_url()` no longer downloads the PDF's bytes up front. Anthropic and `ChatOpenAI()` (the Responses API) can reference the URL directly, so the bytes are only downloaded -- and cached -- if the target provider actually needs them (`ChatGoogle()`, `ChatOpenAICompletions()`). This reduces bandwidth and request payload size, which matters given Anthropic's 32 MB and OpenAI's 50 MB request limits. Accordingly, `ContentPDF.data` is now `Optional[bytes]` (it's `None` when only a `url` is set); a validator requires at least one of `data`/`url`. `content_pdf_url()` also now takes the `filename` from the URL's last path segment when it ends in `.pdf` (e.g. `apples.pdf`), rather than always generating `file_001.pdf`; URLs without a usable name still fall back to the generated one.
 * `Chat` gains a `.files` accessor for uploading files to a provider once and referencing them across turns without re-sending bytes, plus listing, fetching metadata, downloading, and deleting them. Supported for OpenAI, Anthropic, and Google Gemini. A new `ContentUploaded` type represents the reference and can be constructed directly to point at a file uploaded out-of-band (e.g. a Vertex `gs://` URI). For Google, `upload()` waits for Gemini to finish processing large media (video, audio) before returning, since the API rejects references to files that aren't yet `ACTIVE`.
 * Web search and fetch results now surface their citations across all three providers (OpenAI, Anthropic, Google), both progressively during streaming and on the final turn. `ContentCitation` nests a typed `source` (a `Source` subclass — `WebSource` today, carrying `url`/`title`) instead of flat `url`/`title` fields, and carries `grounded_span` (the answer-side span it grounds) plus `cited_quote` (the source-side quote, populated for `ChatAnthropic()` web search). `source` is optional — a citation can ground answer text with no resolvable link. `ContentCitation`, `Source`, and `WebSource` are exported from `chatlas.types`. A future file/document/RAG source becomes another `Source` subclass without breaking `ContentCitation.source`; note that `ContentToolResponseSearch.sources` is typed narrowly as `list[WebSource]` and would need widening at that point.
   * When streaming with `content="all"`, `ContentCitation` objects are emitted as citations arrive — interleaved with text for OpenAI and Anthropic, at stream-end for Google. Its position in the stream (relative to surrounding text) is the placement signal for rendering footnote markers.
@@ -36,7 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
-* `ChatGoogle()` no longer mislabels non-image inline response data (e.g. `audio/pcm` from Gemini text-to-speech/native-audio output) as a `ContentImageInline`. Previously this raised a `pydantic.ValidationError` (since `ContentImageInline.image_content_type` only accepts image MIME types); non-image inline data is now either represented correctly (audio, as `ContentAudio`) or left unmodeled rather than misrepresented.
 * `ChatGoogle()` no longer errors when mixing custom tools and built-in tools (e.g. `tool_web_search()`) on Gemini 3+ models.
 * Turns containing web search/fetch content can now be passed to a different provider (e.g. `ChatAnthropic().set_turns(openai_chat.get_turns())`). Previously this raised `ValueError: Unsupported content type` on `ChatOpenAI()`, and `ChatAnthropic()` forwarded the other provider's raw payload as if it were its own, producing an invalid request. Each provider now replays only the built-in tool content it produced and drops the rest.
 * `ChatOpenAI()` web search `open_page` actions now surface as `ContentToolRequestFetch` (with the URL) rather than a `ContentToolRequestSearch` whose "query" was the URL, so renderers no longer show "searched for: https://…". Relatedly, a `search` action that reports only the plural `queries` field no longer falls through to the literal string `"web search"`.

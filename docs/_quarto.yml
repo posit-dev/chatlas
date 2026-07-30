@@ -94,6 +94,7 @@ website:
             - get-started/tools.qmd
             - get-started/stream.qmd
             - get-started/structured-data.qmd
+            - get-started/reasoning.qmd
             - get-started/async.qmd
             - get-started/chatbots.qmd
             - get-started/parameters.qmd
@@ -157,6 +158,7 @@ quartodoc:
         - ChatMistral
         - ChatOllama
         - ChatOpenAI
+        - ChatOpenAICompletions
         - ChatOpenRouter
         - ChatPerplexity
         - ChatPortkey
@@ -183,6 +185,11 @@ quartodoc:
       desc: Submit audio input to the chat
       contents:
         - content_audio_file
+    - title: Document input
+      desc: Submit plain text, Markdown, CSV, code, and other non-PDF document input to the chat
+      contents:
+        - content_document_file
+        - content_document_url
     - title: Tool calling
       desc: Add context to python function before registering it as a tool.
       contents:
@@ -231,6 +238,7 @@ quartodoc:
         - types.ContentImageRemote
         - types.ContentJson
         - types.ContentPDF
+        - types.ContentDocument
         - types.ContentText
         - types.ContentThinking
         - types.ContentThinkingDelta

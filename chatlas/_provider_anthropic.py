@@ -23,6 +23,7 @@ from ._content import (
     Content,
     ContentAudio,
     ContentCitation,
+    ContentDocument,
     ContentImageInline,
     ContentImageRemote,
     ContentJson,
@@ -39,7 +40,9 @@ from ._content import (
     ContentUploaded,
     ProviderAnnotation,
     WebSource,
+    check_image_content_type_supported,
 )
+from ._content_file import ensure_bytes
 from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
 from ._provider import (
@@ -841,20 +844,58 @@ class AnthropicProvider(
             text = orjson.dumps(content.value).decode("utf-8")
             return {"text": text, "type": "text"}
         elif isinstance(content, ContentPDF):
+            if content.url is not None:
+                return {
+                    "type": "document",
+                    "source": {"type": "url", "url": content.url},
+                }
+            data = ensure_bytes(content, "PDF")
             return {
                 "type": "document",
                 "source": {
                     "type": "base64",
                     "media_type": "application/pdf",
-                    "data": base64.b64encode(content.data).decode("utf-8"),
+                    "data": base64.b64encode(data).decode("utf-8"),
+                },
+            }
+        elif isinstance(content, ContentDocument):
+            if not is_anthropic_text_document(content.mime_type):
+                raise ValueError(
+                    f"Anthropic doesn't support document content type "
+                    f"'{content.mime_type}'. Convert the file to plain text "
+                    "or PDF first (see content_pdf_file())."
+                )
+            data = ensure_bytes(content, "document")
+            try:
+                text = data.decode("utf-8")
+            except UnicodeDecodeError as e:
+                raise ValueError(
+                    "Anthropic requires document content to be UTF-8 text, "
+                    f"but '{content.filename}' ({content.mime_type}) could "
+                    f"not be decoded: {e}. Convert the file to plain text or "
+                    "PDF first (see content_pdf_file())."
+                ) from e
+            return {
+                "type": "document",
+                # Coercing to `text/plain` loses the real MIME type, so `title`
+                # is the only thing left telling the model what it's looking at
+                # (and how to refer to it in a multi-document prompt).
+                "title": content.filename,
+                "source": {
+                    "type": "text",
+                    "media_type": "text/plain",
+                    "data": text,
                 },
             }
         elif isinstance(content, ContentImageInline):
+            media_type = check_image_content_type_supported(
+                "Anthropic", content.image_content_type
+            )
             return {
                 "type": "image",
                 "source": {
                     "type": "base64",
-                    "media_type": content.image_content_type,
+                    "media_type": media_type,
                     "data": content.data or "",
                 },
             }
@@ -1572,4 +1613,19 @@ def anthropic_replayable(content: ProviderAnnotation) -> bool:
     return (
         isinstance(extra, dict)
         and extra.get("type") in ANTHROPIC_SERVER_TOOL_BLOCK_TYPES
+    )
+
+
+def is_anthropic_text_document(mime_type: str) -> bool:
+    """Whether Anthropic's `text/plain` document source can hold this MIME type.
+
+    Anthropic's document block only has one text-ish source variant --
+    `PlainTextSourceParam`, whose `media_type` is literally `"text/plain"` --
+    so any MIME type that's really just decodable text (Markdown, CSV, code,
+    JSON, XML, ...) is coerced to that on the way out. Binary formats like
+    docx/xlsx have no equivalent and must be converted first.
+    """
+    return mime_type.startswith("text/") or mime_type in (
+        "application/json",
+        "application/xml",
     )
