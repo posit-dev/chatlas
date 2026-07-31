@@ -235,15 +235,17 @@ class LiveMarkdownDisplay(MarkdownDisplay):
                     )
                 )
             else:
-                out.append(self._markdown(self._content_markdown(segment.content)))
+                content = segment.content
+                if isinstance(content, ContentToolResult):
+                    out.append(
+                        ToolResultBlock(
+                            self._markdown(content.to_display_markdown()),
+                            max_lines=self._echo_options["tool_result_max_lines"],
+                        )
+                    )
+                else:
+                    out.append(self._markdown(str(content)))
         return out
-
-    def _content_markdown(self, content: Content) -> str:
-        if isinstance(content, ContentToolResult):
-            return content.to_display_markdown(
-                max_lines=self._echo_options["tool_result_max_lines"]
-            )
-        return str(content)
 
     def _markdown(self, text: str) -> Any:
         from rich.markdown import Markdown
@@ -548,6 +550,43 @@ class ThinkingPanel:
                 title = f"Thinking (… {dropped} earlier line{plural})"
 
         yield Panel(body, title=title, title_align="left", border_style="dim")
+
+
+class ToolResultBlock:
+    """A tool result capped by rendered terminal lines."""
+
+    def __init__(self, body: Any, max_lines: Optional[int]):
+        self.body = body
+        self.max_lines = max_lines
+
+    def __rich_console__(self, console: "Console", options: "ConsoleOptions"):
+        from rich.segment import Segment, Segments
+        from rich.text import Text
+
+        if self.max_lines is None:
+            yield self.body
+            return
+
+        lines = console.render_lines(self.body, options, pad=False)
+        keep = max(1, self.max_lines)
+        dropped = len(lines) - keep
+        if dropped <= 0:
+            yield self.body
+            return
+
+        segments: list[Segment] = []
+        for index, line in enumerate(lines[:keep]):
+            if index:
+                segments.append(Segment.line())
+            segments.extend(line)
+
+        plural = "" if dropped == 1 else "s"
+        segments.append(Segment.line())
+        yield Segments(segments)
+        yield Text(
+            f"… {dropped} more line{plural}",
+            style="dim italic",
+        )
 
 
 class WebActivityPanel:

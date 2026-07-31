@@ -35,6 +35,7 @@ from chatlas._content import (
 from chatlas._display import (
     IPyMarkdownDisplay,
     LiveMarkdownDisplay,
+    ToolResultBlock,
     WebActivityRow,
     WebActivitySegment,
     base64_nbytes,
@@ -415,10 +416,8 @@ def test_echo_truncates_a_long_tool_result():
     res = output()
 
     assert "'row-0'" in res
-    assert "'row-4'" in res
-    # 30 rows over 5 kept lines, and pformat puts one row per line.
     assert "'row-29'" not in res
-    assert "… 25 more lines" in res
+    assert re.search(r"… \d+ more lines", res)
 
     # The full value is untouched on the turn -- only the display is bounded.
     turn = chat.get_last_turn(role="user")
@@ -443,7 +442,7 @@ def test_echo_all_truncates_a_long_tool_result_exactly_once():
     res = output()
 
     assert res.count("✅ tool result") == 1
-    assert res.count("… 25 more lines") == 1
+    assert res.count("more lines") == 1
     assert "'row-29'" not in res
 
 
@@ -472,16 +471,83 @@ def test_tool_result_max_lines_defaults_to_twenty():
     chat.register_tool(big_tool)
     output = capture_echo(chat, width=80)
     chat.chat("go", echo="output")
-    assert "… 10 more lines" in output()
+    assert re.search(r"… \d+ more lines", output())
 
 
-def test_truncated_tool_result_reports_a_single_dropped_line():
-    result = ContentToolResult(
-        value="\n".join(f"line {i}" for i in range(6)),
-        request=tool_request(),
+def test_tool_result_block_caps_wrapped_terminal_lines():
+    rendered = render_tool_result_block(Text("word " * 20), max_lines=2, width=20)
+
+    assert len(rendered.splitlines()) == 3
+    assert rendered.splitlines()[-1] == "… 3 more lines"
+
+
+def test_tool_result_block_keeps_the_head():
+    rendered = render_tool_result_block(
+        Text("first\nsecond\nthird"), max_lines=2, width=20
     )
-    assert "… 1 more line" in result.to_display_markdown(max_lines=5)
-    assert "more lines" not in result.to_display_markdown(max_lines=5)
+
+    assert "first" in rendered
+    assert "second" in rendered
+    assert "third" not in rendered
+
+
+@pytest.mark.parametrize(
+    ("body", "expected_footer"),
+    [
+        ("first\nsecond", "… 1 more line"),
+        ("first\nsecond\nthird", "… 2 more lines"),
+    ],
+)
+def test_tool_result_block_footer_counts_dropped_lines(
+    body: str, expected_footer: str
+):
+    rendered = render_tool_result_block(Text(body), max_lines=1, width=20)
+
+    assert rendered.splitlines()[-1] == expected_footer
+
+
+def test_tool_result_block_wraps_a_narrow_footer():
+    rendered = render_tool_result_block(Text("first\nsecond"), max_lines=1, width=10)
+
+    assert rendered.endswith("… 1 more\nline")
+
+
+def test_tool_result_block_without_a_cap_renders_every_line():
+    rendered = render_tool_result_block(Text("first\nsecond\nthird"), max_lines=None)
+
+    assert rendered == "first\nsecond\nthird"
+
+
+def test_tool_result_block_leaves_short_content_alone():
+    rendered = render_tool_result_block(Text("first\nsecond"), max_lines=5)
+
+    assert rendered == "first\nsecond"
+
+
+@pytest.mark.parametrize("max_lines", [0, -1])
+def test_tool_result_block_nonpositive_cap_keeps_one_line(max_lines: int):
+    rendered = render_tool_result_block(
+        Text("first\nsecond\nthird"), max_lines=max_lines, width=20
+    )
+
+    assert rendered == "first\n… 2 more lines"
+
+
+def test_echo_caps_a_single_line_tool_result_by_terminal_lines():
+    def large_tool_result() -> str:
+        return "x" * 4000
+
+    chat = make_chat(
+        [[tool_request(name="large_tool_result", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(large_tool_result)
+    output = capture_echo(chat, width=80, tool_result_max_lines=5)
+    chat.chat("go", echo="output")
+    rendered = output()
+
+    assert "x" * 50 in rendered
+    assert "x" * 4000 not in rendered
+    assert re.search(r"… \d+ more lines", rendered)
 
 
 def test_tool_result_str_is_never_truncated():
@@ -853,6 +919,17 @@ def capture_echo(
         return "\n".join(line.rstrip() for line in res.splitlines()).strip("\n")
 
     return get
+
+
+def render_tool_result_block(
+    body: Text, max_lines: Optional[int], width: int = 60
+) -> str:
+    buffer = StringIO()
+    console = Console(file=buffer, width=width)
+    console.print(ToolResultBlock(body, max_lines=max_lines))
+    return "\n".join(line.rstrip() for line in buffer.getvalue().splitlines()).strip(
+        "\n"
+    )
 
 
 def capture_ipy(monkeypatch: pytest.MonkeyPatch) -> list[str]:
