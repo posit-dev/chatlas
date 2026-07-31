@@ -483,9 +483,13 @@ class TestRequestTransport:
         content = body["messages"][0]["content"]
         assert content[0]["image"]["source"]["bytes"] == "aW1hZ2UtYnl0ZXM="
         assert content[1]["document"]["source"]["bytes"] == "cGRmLWJ5dGVz"
-        assert args["messages"][0]["content"][0]["image"]["source"]["bytes"] == (
-            b"image-bytes"
-        )
+        messages = args.get("messages")
+        assert messages is not None
+        image_block = messages[0]["content"][0]
+        assert "image" in image_block
+        image_source = image_block["image"]["source"]
+        assert "bytes" in image_source
+        assert image_source["bytes"] == b"image-bytes"
 
     @pytest.mark.asyncio
     async def test_async_request_base64_encodes_binary_content(self):
@@ -512,9 +516,13 @@ class TestRequestTransport:
         content = body["messages"][0]["content"]
         assert content[0]["image"]["source"]["bytes"] == "aW1hZ2UtYnl0ZXM="
         assert content[1]["document"]["source"]["bytes"] == "cGRmLWJ5dGVz"
-        assert args["messages"][0]["content"][1]["document"]["source"]["bytes"] == (
-            b"pdf-bytes"
-        )
+        messages = args.get("messages")
+        assert messages is not None
+        document_block = messages[0]["content"][1]
+        assert "document" in document_block
+        document_source = document_block["document"]["source"]
+        assert "bytes" in document_source
+        assert document_source["bytes"] == b"pdf-bytes"
 
     def test_non_streaming_http_error_includes_status_and_message(self):
         def handler(request: httpx.Request) -> httpx.Response:
@@ -594,7 +602,9 @@ class TestRequestTransport:
             content for content in turn.contents if isinstance(content, ContentThinking)
         )
 
-        assert completion["output"]["message"]["content"][0] == {
+        message = completion["output"].get("message")
+        assert message is not None
+        assert message["content"][0] == {
             "text": "Thinking was redacted."
         }
         assert thinking.extra == {"redactedContent": b"encrypted-reasoning"}
@@ -627,11 +637,15 @@ class TestRequestArguments:
         )
 
         assert kwargs == {"inferenceConfig": {"temperature": 0.25}}
-        assert first["inferenceConfig"] == {
+        first_inference_config = first.get("inferenceConfig")
+        second_inference_config = second.get("inferenceConfig")
+        assert first_inference_config is not None
+        assert second_inference_config is not None
+        assert first_inference_config == {
             "maxTokens": 4096,
             "temperature": 0.25,
         }
-        assert second["inferenceConfig"] == {
+        assert second_inference_config == {
             "maxTokens": 4096,
             "temperature": 0.25,
         }
