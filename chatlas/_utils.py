@@ -207,7 +207,11 @@ def format_bytes(n: int) -> str:
         if size < 1024 or unit == "TB":
             if size < 10:
                 rounded = round(size, 1)
-                return f"{rounded:.0f} {unit}" if rounded >= 10 else f"{rounded:.1f} {unit}"
+                return (
+                    f"{rounded:.0f} {unit}"
+                    if rounded >= 10
+                    else f"{rounded:.1f} {unit}"
+                )
             rounded = round(size)
             if rounded < 1024 or unit == "TB":
                 return f"{rounded:.0f} {unit}"

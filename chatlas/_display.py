@@ -154,7 +154,9 @@ class MarkdownDisplay(ABC):
             return
 
         last = self._last_web
-        segment = last if last is not None and last.is_open else self._open_web_activity()
+        segment = (
+            last if last is not None and last.is_open else self._open_web_activity()
+        )
 
         if isinstance(content, ContentToolRequestSearch):
             segment.add_query(content.query)
@@ -750,7 +752,9 @@ class WebActivityPanel:
             mark = "✗" if status == "error" else "✓" if status == "success" else "…"
             safe_url = web_activity_safe_url(url)
             line = Text("🌐 Read ", style="dim")
-            line.append(web_safe_fetch_label(url), style=f"link {safe_url}" if safe_url else "")
+            line.append(
+                web_safe_fetch_label(url), style=f"link {safe_url}" if safe_url else ""
+            )
             line.append(f" {mark}", style="dim")
             rows.append(line)
 
@@ -771,7 +775,9 @@ class WebActivityPanel:
                 # safe URL gets one -- an unsafe scheme (e.g. `javascript:`) renders
                 # as plain text instead, same as the notebook.
                 table.add_row(
-                    Text("*" if row.cited else " ", style="yellow" if row.cited else ""),
+                    Text(
+                        "*" if row.cited else " ", style="yellow" if row.cited else ""
+                    ),
                     Text(label, style=f"link {safe_url}" if safe_url else ""),
                     Text(web_domain(safe_url), style="dim"),
                 )
