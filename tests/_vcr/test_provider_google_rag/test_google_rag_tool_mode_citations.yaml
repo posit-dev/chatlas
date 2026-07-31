@@ -1,0 +1,279 @@
+interactions:
+- request:
+    body: '{"contents": [{"parts": [{"text": "How does Flurbo stream responses?"}],
+      "role": "user"}], "tools": [{"functionDeclarations": [{"description": "Search
+      the registered document store for passages relevant to a query.\nUse this whenever
+      the user''s question could be answered from the store''s\ndocuments. Ground
+      your answer in the returned results.\n\nSearch the document store.\n\nParameters\n----------\nquery\n    What
+      to look for, phrased as a focused search query.", "name": "search_documents",
+      "parameters": {"properties": {"query": {"type": "STRING"}}, "required": ["query"],
+      "type": "OBJECT"}}]}], "generationConfig": {"responseMimeType": "application/json",
+      "responseSchema": {"properties": {"segments": {"items": {"properties": {"text":
+      {"description": "A span of the answer, in plain prose. Concatenating every segment''s
+      text in order must produce the complete answer.", "title": "Text", "type": "STRING"},
+      "chunk_ids": {"description": "chunk_id values of the search results that directly
+      support this span. Empty list if none. Start a new segment whenever the set
+      of supporting sources changes.", "items": {"type": "STRING"}, "title": "Chunk
+      Ids", "type": "ARRAY"}}, "property_ordering": ["text", "chunk_ids"], "required":
+      ["text", "chunk_ids"], "title": "CitedSegment", "type": "OBJECT"}, "title":
+      "Segments", "type": "ARRAY"}}, "required": ["segments"], "title": "SegmentedAnswer",
+      "type": "OBJECT"}}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '1411'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.16.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"search_documents\",\"args\": {\"query\": \"Flurbo stream responses\"},\"id\":
+        \"zon2o2dd\"},\"thoughtSignature\": \"Et8BCtwBARFNMg/htzouZLLWwy0fjfnqtsizlf62v4vq6NY9thvFep/8Vjs7UBIuU0K2MdcPuAUPvx7wjLqgDRTkFbLQ3SrJwl6wtjm9U85PdhbjdS6IdruPs1641FXoKSKCVLf8zFm8AXBZEnCV0UvNvRncrEeF3pvVv43ZE4FAM5ikQiVzjnFBVfOWX8zJCY38t2o8XlbKHwpEBvoDCNuCSpidpuGn2WUxppt9xzlSO6CRWo9L2zsR7CxcA1mbrlSC9fkTvQxMq/KB9DTWZxqwlmTheZkoPDqrzRH83qPheg==\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 112,\"candidatesTokenCount\":
+        19,\"totalTokenCount\": 169,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        112}],\"thoughtsTokenCount\": 38,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"QKtrarXIKfnL-8YPi6bTQQ\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\"}],\"role\": \"model\"},\"finishReason\":
+        \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 112,\"candidatesTokenCount\":
+        19,\"totalTokenCount\": 169,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        112}],\"thoughtsTokenCount\": 38,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"QKtrarXIKfnL-8YPi6bTQQ\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Thu, 30 Jul 2026 19:51:29 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=1029
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "How does Flurbo stream responses?"}],
+      "role": "user"}, {"parts": [{"functionCall": {"id": "zon2o2dd", "args": {"query":
+      "Flurbo stream responses"}, "name": "search_documents"}, "thoughtSignature":
+      "Et8BCtwBARFNMg_htzouZLLWwy0fjfnqtsizlf62v4vq6NY9thvFep_8Vjs7UBIuU0K2MdcPuAUPvx7wjLqgDRTkFbLQ3SrJwl6wtjm9U85PdhbjdS6IdruPs1641FXoKSKCVLf8zFm8AXBZEnCV0UvNvRncrEeF3pvVv43ZE4FAM5ikQiVzjnFBVfOWX8zJCY38t2o8XlbKHwpEBvoDCNuCSpidpuGn2WUxppt9xzlSO6CRWo9L2zsR7CxcA1mbrlSC9fkTvQxMq_KB9DTWZxqwlmTheZkoPDqrzRH83qPheg=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "zon2o2dd", "name":
+      "search_documents", "response": {"result": "{\"results\":[{\"chunk_id\":\"c1\",\"source\":\"kb://flurbo/streaming\",\"title\":\"Flurbo
+      > Streaming\",\"text\":\"Flurbo streams responses via the flb.stream() generator,
+      which yields FlurboChunk objects.\"},{\"chunk_id\":\"c2\",\"source\":\"kb://flurbo/intro\",\"title\":\"Flurbo
+      > Introduction\",\"text\":\"The Flurbo framework was created in 2019 by Ada
+      Quist. Its default port is 7113.\"}]}"}}}], "role": "user"}], "tools": [{"functionDeclarations":
+      [{"description": "Search the registered document store for passages relevant
+      to a query.\nUse this whenever the user''s question could be answered from the
+      store''s\ndocuments. Ground your answer in the returned results.\n\nSearch the
+      document store.\n\nParameters\n----------\nquery\n    What to look for, phrased
+      as a focused search query.", "name": "search_documents", "parameters": {"properties":
+      {"query": {"type": "STRING"}}, "required": ["query"], "type": "OBJECT"}}]}],
+      "generationConfig": {"responseMimeType": "application/json", "responseSchema":
+      {"properties": {"segments": {"items": {"properties": {"text": {"description":
+      "A span of the answer, in plain prose. Concatenating every segment''s text in
+      order must produce the complete answer.", "title": "Text", "type": "STRING"},
+      "chunk_ids": {"description": "chunk_id values of the search results that directly
+      support this span. Empty list if none. Start a new segment whenever the set
+      of supporting sources changes.", "items": {"type": "STRING"}, "title": "Chunk
+      Ids", "type": "ARRAY"}}, "property_ordering": ["text", "chunk_ids"], "required":
+      ["text", "chunk_ids"], "title": "CitedSegment", "type": "OBJECT"}, "title":
+      "Segments", "type": "ARRAY"}}, "required": ["segments"], "title": "SegmentedAnswer",
+      "type": "OBJECT"}}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '2404'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.16.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"functionCall\":
+        {\"name\": \"search_documents\",\"args\": {\"query\": \"flb.stream FlurboChunk\"},\"id\":
+        \"y8u70n1a\"},\"thoughtSignature\": \"ErADCq0DARFNMg/PaUkHrjKkiNTr02Ybwxi/g0aC7uTIHtI5UBI4YcljPBCzzzFmm1QBDpzkEwnBSxVsZwZM7D9J7mFT7Z3N4g0rJ2EJGv7VL5rkkcTMjOfk4MPv7Jgbw8diZqQIJkQLU8BtGqIV4gEtLE9RNkWCsXupRpCCPhICA8rmj4UVeVeWH/Vo6A6QYG2SMDUlsRtYVgk17+z1h437faaCkYPs4QkGTszS2NfxJooM4v5c+Q90tdMmrfFrO5JnozMVLl4+KQCtJcd6ApSQN/5lIrOhzWePHfqDZTDbDUeW5CaCTHJurWugcd1HmLmZCNh+OKgZMlwuS9BZcuC0VlhoJRYq4gFHB1PI+5GLHt3bQHhGEQN1iLCHZKtDrr2CbpYKVZ32PRQF2CEtQTDjEVp5u5upLxhk8aE6Wvgh/ueakfH9eLDF7y3BeifBLfgIErlYaD0jtCLSgY45dK9vyUupbKcKlLw9HQtT9DaWv1rbGlCTQwHC4/R6sPwnoDjJl7zc2IE7Xzdf0yYA1SnKpLOtY7R5h5yLYviOblE8ZTPquqjWKg3cUhaEGkrTBXHO\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 246,\"candidatesTokenCount\":
+        22,\"totalTokenCount\": 355,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        246}],\"thoughtsTokenCount\": 87,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"QatravDEK_y9jrEPsOLL8Q8\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\"}],\"role\": \"model\"},\"finishReason\":
+        \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 284,\"candidatesTokenCount\":
+        22,\"totalTokenCount\": 393,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        284}],\"thoughtsTokenCount\": 87,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"QatravDEK_y9jrEPsOLL8Q8\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Thu, 30 Jul 2026 19:51:31 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=1759
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"contents": [{"parts": [{"text": "How does Flurbo stream responses?"}],
+      "role": "user"}, {"parts": [{"functionCall": {"id": "zon2o2dd", "args": {"query":
+      "Flurbo stream responses"}, "name": "search_documents"}, "thoughtSignature":
+      "Et8BCtwBARFNMg_htzouZLLWwy0fjfnqtsizlf62v4vq6NY9thvFep_8Vjs7UBIuU0K2MdcPuAUPvx7wjLqgDRTkFbLQ3SrJwl6wtjm9U85PdhbjdS6IdruPs1641FXoKSKCVLf8zFm8AXBZEnCV0UvNvRncrEeF3pvVv43ZE4FAM5ikQiVzjnFBVfOWX8zJCY38t2o8XlbKHwpEBvoDCNuCSpidpuGn2WUxppt9xzlSO6CRWo9L2zsR7CxcA1mbrlSC9fkTvQxMq_KB9DTWZxqwlmTheZkoPDqrzRH83qPheg=="}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "zon2o2dd", "name":
+      "search_documents", "response": {"result": "{\"results\":[{\"chunk_id\":\"c1\",\"source\":\"kb://flurbo/streaming\",\"title\":\"Flurbo
+      > Streaming\",\"text\":\"Flurbo streams responses via the flb.stream() generator,
+      which yields FlurboChunk objects.\"},{\"chunk_id\":\"c2\",\"source\":\"kb://flurbo/intro\",\"title\":\"Flurbo
+      > Introduction\",\"text\":\"The Flurbo framework was created in 2019 by Ada
+      Quist. Its default port is 7113.\"}]}"}}}], "role": "user"}, {"parts": [{"functionCall":
+      {"id": "y8u70n1a", "args": {"query": "flb.stream FlurboChunk"}, "name": "search_documents"},
+      "thoughtSignature": "ErADCq0DARFNMg_PaUkHrjKkiNTr02Ybwxi_g0aC7uTIHtI5UBI4YcljPBCzzzFmm1QBDpzkEwnBSxVsZwZM7D9J7mFT7Z3N4g0rJ2EJGv7VL5rkkcTMjOfk4MPv7Jgbw8diZqQIJkQLU8BtGqIV4gEtLE9RNkWCsXupRpCCPhICA8rmj4UVeVeWH_Vo6A6QYG2SMDUlsRtYVgk17-z1h437faaCkYPs4QkGTszS2NfxJooM4v5c-Q90tdMmrfFrO5JnozMVLl4-KQCtJcd6ApSQN_5lIrOhzWePHfqDZTDbDUeW5CaCTHJurWugcd1HmLmZCNh-OKgZMlwuS9BZcuC0VlhoJRYq4gFHB1PI-5GLHt3bQHhGEQN1iLCHZKtDrr2CbpYKVZ32PRQF2CEtQTDjEVp5u5upLxhk8aE6Wvgh_ueakfH9eLDF7y3BeifBLfgIErlYaD0jtCLSgY45dK9vyUupbKcKlLw9HQtT9DaWv1rbGlCTQwHC4_R6sPwnoDjJl7zc2IE7Xzdf0yYA1SnKpLOtY7R5h5yLYviOblE8ZTPquqjWKg3cUhaEGkrTBXHO"}],
+      "role": "model"}, {"parts": [{"functionResponse": {"id": "y8u70n1a", "name":
+      "search_documents", "response": {"result": "{\"results\":[{\"chunk_id\":\"c3\",\"source\":\"kb://flurbo/streaming\",\"title\":\"Flurbo
+      > Streaming\",\"text\":\"Flurbo streams responses via the flb.stream() generator,
+      which yields FlurboChunk objects.\"},{\"chunk_id\":\"c4\",\"source\":\"kb://flurbo/intro\",\"title\":\"Flurbo
+      > Introduction\",\"text\":\"The Flurbo framework was created in 2019 by Ada
+      Quist. Its default port is 7113.\"}]}"}}}], "role": "user"}], "tools": [{"functionDeclarations":
+      [{"description": "Search the registered document store for passages relevant
+      to a query.\nUse this whenever the user''s question could be answered from the
+      store''s\ndocuments. Ground your answer in the returned results.\n\nSearch the
+      document store.\n\nParameters\n----------\nquery\n    What to look for, phrased
+      as a focused search query.", "name": "search_documents", "parameters": {"properties":
+      {"query": {"type": "STRING"}}, "required": ["query"], "type": "OBJECT"}}]}],
+      "generationConfig": {"responseMimeType": "application/json", "responseSchema":
+      {"properties": {"segments": {"items": {"properties": {"text": {"description":
+      "A span of the answer, in plain prose. Concatenating every segment''s text in
+      order must produce the complete answer.", "title": "Text", "type": "STRING"},
+      "chunk_ids": {"description": "chunk_id values of the search results that directly
+      support this span. Empty list if none. Start a new segment whenever the set
+      of supporting sources changes.", "items": {"type": "STRING"}, "title": "Chunk
+      Ids", "type": "ARRAY"}}, "property_ordering": ["text", "chunk_ids"], "required":
+      ["text", "chunk_ids"], "title": "CitedSegment", "type": "OBJECT"}, "title":
+      "Segments", "type": "ARRAY"}}, "required": ["segments"], "title": "SegmentedAnswer",
+      "type": "OBJECT"}}}'
+    headers:
+      accept:
+      - '*/*'
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '3672'
+      content-type:
+      - application/json
+      host:
+      - generativelanguage.googleapis.com
+      x-goog-api-client:
+      - google-genai-sdk/2.16.0 gl-python/3.12.13
+    method: POST
+    uri: https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:streamGenerateContent?alt=sse
+  response:
+    body:
+      string: "data: {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"{\\n
+        \ \\\"segments\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 383,\"candidatesTokenCount\": 5,\"totalTokenCount\":
+        556,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 383}],\"thoughtsTokenCount\":
+        168,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        \"Q6traunsIMKHjrEP-t7osQk\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        {\"parts\": [{\"text\": \"\\\":\"}],\"role\": \"model\"},\"index\": 0}],\"usageMetadata\":
+        {\"promptTokenCount\": 383,\"candidatesTokenCount\": 34,\"totalTokenCount\":
+        585,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\": 383}],\"thoughtsTokenCount\":
+        168,\"serviceTier\": \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\":
+        \"Q6traunsIMKHjrEP-t7osQk\"}\r\n\r\ndata: {\"candidates\": [{\"content\":
+        {\"parts\": [{\"text\": \" [\\n    {\\n      \\\"text\\\": \\\"Flurbo streams
+        responses via the `flb.stream()` generator, which yields `FlurboChunk` objects.\\\",\\n
+        \     \\\"chunk_ids\\\": [\\n        \\\"c1\\\"\\n      ]\\n    \"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 383,\"candidatesTokenCount\":
+        58,\"totalTokenCount\": 609,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        383}],\"thoughtsTokenCount\": 168,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"Q6traunsIMKHjrEP-t7osQk\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"}\\n  ]\\n}\"}],\"role\":
+        \"model\"},\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\": 383,\"candidatesTokenCount\":
+        64,\"totalTokenCount\": 615,\"promptTokensDetails\": [{\"modality\": \"TEXT\",\"tokenCount\":
+        383}],\"thoughtsTokenCount\": 168,\"serviceTier\": \"standard\"},\"modelVersion\":
+        \"gemini-3.5-flash\",\"responseId\": \"Q6traunsIMKHjrEP-t7osQk\"}\r\n\r\ndata:
+        {\"candidates\": [{\"content\": {\"parts\": [{\"text\": \"\",\"thoughtSignature\":
+        \"Eo0GCooGARFNMg8BJ3Uq614f1opFBHegidbw0JwNziBeJP8YBJXiHvGXPAJc0AxDOdQWNWJI+Q4Xv1kDc6XQNZZEZ5GQQZn6wOvPxUxQN9ILu19D8Yn2BKKB+cSNCtwRG2EZ7n50+ZeFS46TGj2XhLrhUE73ZzQwQGdLQkvnX1gevYxzMehz+fEZ5ycl/CbRqdyAEp2KKkGXfJNTXlwhKWOgublkL2asllQbgPRtF1mb572mVh6+ZlaQY921DPmm/77MBK60Pr/3CNeGT4wT/LV85XjdDu9fHZuMFc7FMP0VnBh7xUA1ATbcwqma5wsAYNGFHokzPvryUa1C3POTN530cXkbjIQFZZrM6MhqfAgvZeT2OYM387Prie6oCeXunpQvnOOXkuu2n+7HZpcVyl4cCxf5HsLD8YA11bCCHiwnkrVkyq3De+YMu6uXe+uV6Ij/k4s173HclbWQIrnUX1xKgvyAw13i4e9rPFWU6djbbpZjurAT1uWoct6uLBbyqYKDSI+NAASsoh6GGNcJHUpwd8ee9MAx8et2jheB7qCsn3ybNvR0Bc91aoxZsWPcjefJMxiwDvUq8nEOsj5M3Ilz2Z7Q18ZrkL4CmMDXt7nwJs53iRN0Yslaj/GnuOY0wnxJMXSOqn1sVtsot0BFn/YkrDtJbRX68c40pxYVWlwEHI5g4MHdTCK2KiLGYDl9DH0+nF63CZejwG7TynRO5CO8/4tRAiF/o2iZt+5TUoNlFGnqqSLZRxAH9+mqABUYLoUBuH1eCJKj44n67hK85B8givJJPqTdg/ZEwXAUgnRcd4nuQ+tdQiJga8gUR/KnDZyEeUWMyEIexY9MthWIAqnmrS8sk5n8m1qjG42UJJfX86UiSVZ+rCcAzrM7gNJDHw/3gr32bsAdDmw6u4aO74v0sbGkQwsHWr5xCC3EOrbfkIijkwmrwPRtGszhhNSBBcSOzF9AuWdNfqWxvmTrV/LljzVlf4isVFMMdw0uj8XuAO/aXU2P5gJl84Ou2A2T/7FpiEMmpX5qHWXohbXWGg==\"}],\"role\":
+        \"model\"},\"finishReason\": \"STOP\",\"index\": 0}],\"usageMetadata\": {\"promptTokenCount\":
+        508,\"candidatesTokenCount\": 64,\"totalTokenCount\": 740,\"promptTokensDetails\":
+        [{\"modality\": \"TEXT\",\"tokenCount\": 508}],\"thoughtsTokenCount\": 168,\"serviceTier\":
+        \"standard\"},\"modelVersion\": \"gemini-3.5-flash\",\"responseId\": \"Q6traunsIMKHjrEP-t7osQk\"}\r\n\r\n"
+    headers:
+      alt-svc:
+      - h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+      content-disposition:
+      - attachment
+      content-type:
+      - text/event-stream
+      date:
+      - Thu, 30 Jul 2026 19:51:33 GMT
+      server:
+      - scaffolding on HTTPServer2
+      server-timing:
+      - gfet4t7; dur=1669
+      transfer-encoding:
+      - chunked
+      vary:
+      - Origin
+      - X-Origin
+      - Referer
+      x-content-type-options:
+      - nosniff
+      x-frame-options:
+      - SAMEORIGIN
+      x-xss-protection:
+      - '0'
+    status:
+      code: 200
+      message: OK
+version: 1

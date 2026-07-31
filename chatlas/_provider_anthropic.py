@@ -37,7 +37,11 @@ from ._content import (
     ContentToolResponseSearch,
     ContentToolResult,
     ContentUploaded,
+    DocumentSource,
     ProviderAnnotation,
+    SearchResult,
+    Source,
+    ToolSearchResults,
     WebSource,
     check_image_content_type_supported,
 )
@@ -513,7 +517,9 @@ class AnthropicProvider(
 
         kwargs_full: "SubmitInputArgs" = {
             "stream": stream,
-            "messages": self._as_message_params(turns),
+            "messages": self._as_message_params(
+                turns, citations_enabled=data_model is None
+            ),
             "model": self.model,
             "max_tokens": self._max_tokens,
             "tools": tool_schemas,
@@ -805,7 +811,12 @@ class AnthropicProvider(
     async def file_delete_async(self, id: str) -> None:  # noqa: A002
         await self._async_client.beta.files.delete(id)
 
-    def _as_message_params(self, turns: Sequence[Turn]) -> list["MessageParam"]:
+    def supports_native_search_results(self) -> bool:
+        return True
+
+    def _as_message_params(
+        self, turns: Sequence[Turn], citations_enabled: bool = True
+    ) -> list["MessageParam"]:
         messages: list["MessageParam"] = []
         for i, turn in enumerate(turns):
             if isinstance(turn, SystemTurn):
@@ -814,7 +825,7 @@ class AnthropicProvider(
                 raise ValueError(f"Unknown role {turn.role}")
 
             content = [
-                self._as_content_block(c)
+                self._as_content_block(c, citations_enabled)
                 for c in turn.contents
                 if not isinstance(c, PROVIDER_ANNOTATION_TYPES)
                 or anthropic_replayable(c)
@@ -838,7 +849,9 @@ class AnthropicProvider(
         return messages
 
     @staticmethod
-    def _as_content_block(content: Content) -> "ContentBlockParam":
+    def _as_content_block(
+        content: Content, citations_enabled: bool = True
+    ) -> "ContentBlockParam":
         if isinstance(content, ContentText):
             return {"text": content.text, "type": "text"}
         elif isinstance(content, ContentJson):
@@ -923,6 +936,11 @@ class AnthropicProvider(
                 # Anthropic supports non-text contents like ImageBlockParam
                 "content": content.get_model_value(),  # type: ignore
             }
+
+            if content.error is None and isinstance(content.value, ToolSearchResults):
+                res["content"] = anthropic_search_result_blocks(  # type: ignore
+                    content.value.results, citations_enabled
+                )
 
             return res
         elif isinstance(content, ContentThinking):
@@ -1502,18 +1520,45 @@ class AnthropicBedrockProvider(AnthropicProvider):
         return res
 
 
+def anthropic_search_result_blocks(
+    results: list[SearchResult], citations_enabled: bool
+) -> list[dict[str, Any]]:
+    """search_result content blocks (GA, no beta header) for retrieved chunks.
+
+    `source`/`title` are required by the API, so fall back to the chunk id.
+    Citations must be off when the request has a data_model (400 otherwise).
+    """
+    blocks: list[dict[str, Any]] = []
+    for r in results:
+        block: dict[str, Any] = {
+            "type": "search_result",
+            "source": r.source or r.id,
+            "title": r.title or r.id,
+            "content": [{"type": "text", "text": r.text}],
+        }
+        if citations_enabled:
+            block["citations"] = {"enabled": True}
+        blocks.append(block)
+    return blocks
+
+
 def anthropic_citations(block: "TextBlock") -> list[ContentCitation]:
     """ContentCitations for one fully-accumulated text block."""
     out: list[ContentCitation] = []
     for c in block.citations or []:
         # `url`/`title` only exist on the web-search/search-result members of the
         # TextCitation union (document citations carry `document_title` instead).
+        source: Optional[Source] = None
         url = getattr(c, "url", None)
+        if url:
+            source = WebSource(url=url, title=getattr(c, "title", None))
+        elif getattr(c, "type", None) == "search_result_location":
+            source = DocumentSource(
+                id=getattr(c, "source", None), title=getattr(c, "title", None)
+            )
         out.append(
             ContentCitation(
-                source=WebSource(url=url, title=getattr(c, "title", None))
-                if url
-                else None,
+                source=source,
                 # Anthropic scopes a citation to the text block it arrived on.
                 grounded_span=block.text,
                 cited_quote=c.cited_text,

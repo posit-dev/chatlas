@@ -1,0 +1,566 @@
+interactions:
+- request:
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
+      "content": [{"type": "input_text", "text": "How does Flurbo stream responses?"}]}],
+      "model": "gpt-5.4", "store": false, "stream": true, "text": {"format": {"type":
+      "json_schema", "name": "structured_data", "schema": {"$defs": {"CitedSegment":
+      {"properties": {"text": {"description": "A span of the answer, in plain prose.
+      Concatenating every segment''s text in order must produce the complete answer.",
+      "title": "Text", "type": "string"}, "chunk_ids": {"description": "chunk_id values
+      of the search results that directly support this span. Empty list if none. Start
+      a new segment whenever the set of supporting sources changes.", "items": {"type":
+      "string"}, "title": "Chunk Ids", "type": "array"}}, "required": ["text", "chunk_ids"],
+      "title": "CitedSegment", "type": "object", "additionalProperties": false}},
+      "properties": {"segments": {"items": {"$ref": "#/$defs/CitedSegment"}, "type":
+      "array"}}, "required": ["segments"], "type": "object", "additionalProperties":
+      false}, "strict": true}}, "tools": [{"type": "function", "name": "search_documents",
+      "description": "Search the registered document store for passages relevant to
+      a query.\nUse this whenever the user''s question could be answered from the
+      store''s\ndocuments. Ground your answer in the returned results.\n\nSearch the
+      document store.\n\nParameters\n----------\nquery\n    What to look for, phrased
+      as a focused search query.", "parameters": {"properties": {"query": {"type":
+      "string"}}, "required": ["query"], "type": "object", "additionalProperties":
+      false}, "strict": true}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '1529'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      x-stainless-async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: 'event: response.created
+
+        data: {"type":"response.created","response":{"id":"resp_02ea7e815b9094f1016a6bab3ed3448193bc0bb5c31e18e554","object":"response","created_at":1785441086,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"24h","reasoning":{"context":"current_turn","effort":"none","mode":"standard","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"json_schema","description":null,"name":"structured_data","schema":{"$defs":{"CitedSegment":{"properties":{"text":{"description":"A
+        span of the answer, in plain prose. Concatenating every segment''s text in
+        order must produce the complete answer.","title":"Text","type":"string"},"chunk_ids":{"description":"chunk_id
+        values of the search results that directly support this span. Empty list if
+        none. Start a new segment whenever the set of supporting sources changes.","items":{"type":"string"},"title":"Chunk
+        Ids","type":"array"}},"required":["text","chunk_ids"],"title":"CitedSegment","type":"object","additionalProperties":false}},"properties":{"segments":{"items":{"$ref":"#/$defs/CitedSegment"},"type":"array"}},"required":["segments"],"type":"object","additionalProperties":false},"strict":true},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"type":"function","description":"Search
+        the registered document store for passages relevant to a query.\nUse this
+        whenever the user''s question could be answered from the store''s\ndocuments.
+        Ground your answer in the returned results.\n\nSearch the document store.\n\nParameters\n----------\nquery\n    What
+        to look for, phrased as a focused search query.","name":"search_documents","output_schema":null,"parameters":{"properties":{"query":{"type":"string"}},"required":["query"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":0}
+
+
+        event: response.in_progress
+
+        data: {"type":"response.in_progress","response":{"id":"resp_02ea7e815b9094f1016a6bab3ed3448193bc0bb5c31e18e554","object":"response","created_at":1785441086,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"24h","reasoning":{"context":"current_turn","effort":"none","mode":"standard","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"json_schema","description":null,"name":"structured_data","schema":{"$defs":{"CitedSegment":{"properties":{"text":{"description":"A
+        span of the answer, in plain prose. Concatenating every segment''s text in
+        order must produce the complete answer.","title":"Text","type":"string"},"chunk_ids":{"description":"chunk_id
+        values of the search results that directly support this span. Empty list if
+        none. Start a new segment whenever the set of supporting sources changes.","items":{"type":"string"},"title":"Chunk
+        Ids","type":"array"}},"required":["text","chunk_ids"],"title":"CitedSegment","type":"object","additionalProperties":false}},"properties":{"segments":{"items":{"$ref":"#/$defs/CitedSegment"},"type":"array"}},"required":["segments"],"type":"object","additionalProperties":false},"strict":true},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"type":"function","description":"Search
+        the registered document store for passages relevant to a query.\nUse this
+        whenever the user''s question could be answered from the store''s\ndocuments.
+        Ground your answer in the returned results.\n\nSearch the document store.\n\nParameters\n----------\nquery\n    What
+        to look for, phrased as a focused search query.","name":"search_documents","output_schema":null,"parameters":{"properties":{"query":{"type":"string"}},"required":["query"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":1}
+
+
+        event: response.output_item.added
+
+        data: {"type":"response.output_item.added","item":{"id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","type":"function_call","status":"in_progress","arguments":"","call_id":"call_3oIICUkd3Moez7d531Wdlja0","name":"search_documents"},"output_index":0,"sequence_number":2}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":"{\"","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"bnpbbdlSBouSrx","output_index":0,"sequence_number":3}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":"query","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"aGKEwbTwaCZ","output_index":0,"sequence_number":4}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":"\":\"","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"CO8BqZPwdi9FY","output_index":0,"sequence_number":5}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":"Fl","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"kp5WMOAmhBolsu","output_index":0,"sequence_number":6}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":"urbo","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"7AdluVr0grp9","output_index":0,"sequence_number":7}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":" stream","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"K3GKzktqZ","output_index":0,"sequence_number":8}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":" responses","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"4193vi","output_index":0,"sequence_number":9}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":" how","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"asvl7OQIrBPg","output_index":0,"sequence_number":10}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":" does","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"AxlpGHNxHit","output_index":0,"sequence_number":11}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":" Fl","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"SHWryjKK9U0Be","output_index":0,"sequence_number":12}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":"urbo","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"1do8HeK61r59","output_index":0,"sequence_number":13}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":" stream","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"QiiEnZ9kw","output_index":0,"sequence_number":14}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":" responses","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"ztKXSh","output_index":0,"sequence_number":15}
+
+
+        event: response.function_call_arguments.delta
+
+        data: {"type":"response.function_call_arguments.delta","delta":"\"}","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","obfuscation":"AbyIQYxP3wdPxM","output_index":0,"sequence_number":16}
+
+
+        event: response.function_call_arguments.done
+
+        data: {"type":"response.function_call_arguments.done","arguments":"{\"query\":\"Flurbo
+        stream responses how does Flurbo stream responses\"}","item_id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","output_index":0,"sequence_number":17}
+
+
+        event: response.output_item.done
+
+        data: {"type":"response.output_item.done","item":{"id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","type":"function_call","status":"completed","arguments":"{\"query\":\"Flurbo
+        stream responses how does Flurbo stream responses\"}","call_id":"call_3oIICUkd3Moez7d531Wdlja0","name":"search_documents"},"output_index":0,"sequence_number":18}
+
+
+        event: response.completed
+
+        data: {"type":"response.completed","response":{"id":"resp_02ea7e815b9094f1016a6bab3ed3448193bc0bb5c31e18e554","object":"response","created_at":1785441086,"status":"completed","background":false,"completed_at":1785441087,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[{"id":"fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6","type":"function_call","status":"completed","arguments":"{\"query\":\"Flurbo
+        stream responses how does Flurbo stream responses\"}","call_id":"call_3oIICUkd3Moez7d531Wdlja0","name":"search_documents"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"24h","reasoning":{"context":"current_turn","effort":"none","mode":"standard","summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"json_schema","description":null,"name":"structured_data","schema":{"$defs":{"CitedSegment":{"properties":{"text":{"description":"A
+        span of the answer, in plain prose. Concatenating every segment''s text in
+        order must produce the complete answer.","title":"Text","type":"string"},"chunk_ids":{"description":"chunk_id
+        values of the search results that directly support this span. Empty list if
+        none. Start a new segment whenever the set of supporting sources changes.","items":{"type":"string"},"title":"Chunk
+        Ids","type":"array"}},"required":["text","chunk_ids"],"title":"CitedSegment","type":"object","additionalProperties":false}},"properties":{"segments":{"items":{"$ref":"#/$defs/CitedSegment"},"type":"array"}},"required":["segments"],"type":"object","additionalProperties":false},"strict":true},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"type":"function","description":"Search
+        the registered document store for passages relevant to a query.\nUse this
+        whenever the user''s question could be answered from the store''s\ndocuments.
+        Ground your answer in the returned results.\n\nSearch the document store.\n\nParameters\n----------\nquery\n    What
+        to look for, phrased as a focused search query.","name":"search_documents","output_schema":null,"parameters":{"properties":{"query":{"type":"string"}},"required":["query"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":252,"input_tokens_details":{"cache_write_tokens":0,"cached_tokens":0},"output_tokens":27,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":279},"user":null,"metadata":{}},"sequence_number":19}
+
+
+        '
+    headers:
+      access-control-expose-headers:
+      - X-Request-ID
+      - CF-Ray
+      - CF-Ray
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      connection:
+      - keep-alive
+      content-type:
+      - text/event-stream; charset=utf-8
+      date:
+      - Thu, 30 Jul 2026 19:51:26 GMT
+      openai-processing-ms:
+      - '178'
+      openai-version:
+      - '2020-10-01'
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-content-type-options:
+      - nosniff
+      x-ratelimit-limit-requests:
+      - '15000'
+      x-ratelimit-limit-tokens:
+      - '40000000'
+      x-ratelimit-remaining-requests:
+      - '14999'
+      x-ratelimit-remaining-tokens:
+      - '39999293'
+      x-ratelimit-reset-requests:
+      - 4ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"include": ["reasoning.encrypted_content"], "input": [{"role": "user",
+      "content": [{"type": "input_text", "text": "How does Flurbo stream responses?"}]},
+      {"type": "function_call", "call_id": "fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6",
+      "name": "search_documents", "arguments": "{\"query\":\"Flurbo stream responses
+      how does Flurbo stream responses\"}"}, {"type": "function_call_output", "call_id":
+      "fc_02ea7e815b9094f1016a6bab3f47c08193b65bbaab6d84d7f6", "output": "{\"results\":[{\"chunk_id\":\"c1\",\"source\":\"kb://flurbo/streaming\",\"title\":\"Flurbo
+      > Streaming\",\"text\":\"Flurbo streams responses via the flb.stream() generator,
+      which yields FlurboChunk objects.\"},{\"chunk_id\":\"c2\",\"source\":\"kb://flurbo/intro\",\"title\":\"Flurbo
+      > Introduction\",\"text\":\"The Flurbo framework was created in 2019 by Ada
+      Quist. Its default port is 7113.\"}]}"}], "model": "gpt-5.4", "store": false,
+      "stream": true, "text": {"format": {"type": "json_schema", "name": "structured_data",
+      "schema": {"$defs": {"CitedSegment": {"properties": {"text": {"description":
+      "A span of the answer, in plain prose. Concatenating every segment''s text in
+      order must produce the complete answer.", "title": "Text", "type": "string"},
+      "chunk_ids": {"description": "chunk_id values of the search results that directly
+      support this span. Empty list if none. Start a new segment whenever the set
+      of supporting sources changes.", "items": {"type": "string"}, "title": "Chunk
+      Ids", "type": "array"}}, "required": ["text", "chunk_ids"], "title": "CitedSegment",
+      "type": "object", "additionalProperties": false}}, "properties": {"segments":
+      {"items": {"$ref": "#/$defs/CitedSegment"}, "type": "array"}}, "required": ["segments"],
+      "type": "object", "additionalProperties": false}, "strict": true}}, "tools":
+      [{"type": "function", "name": "search_documents", "description": "Search the
+      registered document store for passages relevant to a query.\nUse this whenever
+      the user''s question could be answered from the store''s\ndocuments. Ground
+      your answer in the returned results.\n\nSearch the document store.\n\nParameters\n----------\nquery\n    What
+      to look for, phrased as a focused search query.", "parameters": {"properties":
+      {"query": {"type": "string"}}, "required": ["query"], "type": "object", "additionalProperties":
+      false}, "strict": true}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '2239'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      x-stainless-async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: 'event: response.created
+
+        data: {"type":"response.created","response":{"id":"resp_00c966f6a040503b016a6bab3f9c7481968ad0e5110985f154","object":"response","created_at":1785441087,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"24h","reasoning":{"context":"current_turn","effort":"none","mode":"standard","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"json_schema","description":null,"name":"structured_data","schema":{"$defs":{"CitedSegment":{"properties":{"text":{"description":"A
+        span of the answer, in plain prose. Concatenating every segment''s text in
+        order must produce the complete answer.","title":"Text","type":"string"},"chunk_ids":{"description":"chunk_id
+        values of the search results that directly support this span. Empty list if
+        none. Start a new segment whenever the set of supporting sources changes.","items":{"type":"string"},"title":"Chunk
+        Ids","type":"array"}},"required":["text","chunk_ids"],"title":"CitedSegment","type":"object","additionalProperties":false}},"properties":{"segments":{"items":{"$ref":"#/$defs/CitedSegment"},"type":"array"}},"required":["segments"],"type":"object","additionalProperties":false},"strict":true},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"type":"function","description":"Search
+        the registered document store for passages relevant to a query.\nUse this
+        whenever the user''s question could be answered from the store''s\ndocuments.
+        Ground your answer in the returned results.\n\nSearch the document store.\n\nParameters\n----------\nquery\n    What
+        to look for, phrased as a focused search query.","name":"search_documents","output_schema":null,"parameters":{"properties":{"query":{"type":"string"}},"required":["query"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":0}
+
+
+        event: response.in_progress
+
+        data: {"type":"response.in_progress","response":{"id":"resp_00c966f6a040503b016a6bab3f9c7481968ad0e5110985f154","object":"response","created_at":1785441087,"status":"in_progress","background":false,"completed_at":null,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"24h","reasoning":{"context":"current_turn","effort":"none","mode":"standard","summary":null},"safety_identifier":null,"service_tier":"auto","store":false,"temperature":1.0,"text":{"format":{"type":"json_schema","description":null,"name":"structured_data","schema":{"$defs":{"CitedSegment":{"properties":{"text":{"description":"A
+        span of the answer, in plain prose. Concatenating every segment''s text in
+        order must produce the complete answer.","title":"Text","type":"string"},"chunk_ids":{"description":"chunk_id
+        values of the search results that directly support this span. Empty list if
+        none. Start a new segment whenever the set of supporting sources changes.","items":{"type":"string"},"title":"Chunk
+        Ids","type":"array"}},"required":["text","chunk_ids"],"title":"CitedSegment","type":"object","additionalProperties":false}},"properties":{"segments":{"items":{"$ref":"#/$defs/CitedSegment"},"type":"array"}},"required":["segments"],"type":"object","additionalProperties":false},"strict":true},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"type":"function","description":"Search
+        the registered document store for passages relevant to a query.\nUse this
+        whenever the user''s question could be answered from the store''s\ndocuments.
+        Ground your answer in the returned results.\n\nSearch the document store.\n\nParameters\n----------\nquery\n    What
+        to look for, phrased as a focused search query.","name":"search_documents","output_schema":null,"parameters":{"properties":{"query":{"type":"string"}},"required":["query"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":null,"user":null,"metadata":{}},"sequence_number":1}
+
+
+        event: response.output_item.added
+
+        data: {"type":"response.output_item.added","item":{"id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","type":"message","status":"in_progress","content":[],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":2}
+
+
+        event: response.content_part.added
+
+        data: {"type":"response.content_part.added","content_index":0,"item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":""},"sequence_number":3}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"{\"","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"8fUeuLmUP4ayTK","output_index":0,"sequence_number":4}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"segments","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"VJ2iqUHA","output_index":0,"sequence_number":5}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"\":[","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"vUHwGixAoALoi","output_index":0,"sequence_number":6}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"{\"","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"qPipTDVTcRPWVJ","output_index":0,"sequence_number":7}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"text","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"w4Ax7bTnKf0s","output_index":0,"sequence_number":8}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"\":\"","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"URhkziveEWT48","output_index":0,"sequence_number":9}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"Fl","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"N9UUXJsgCtMHTB","output_index":0,"sequence_number":10}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"urbo","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"Q6C2RNxLu57a","output_index":0,"sequence_number":11}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" streams","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"YyDpUwAt","output_index":0,"sequence_number":12}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" responses","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"eEfEXB","output_index":0,"sequence_number":13}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" via","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"fYwCc995PN4Q","output_index":0,"sequence_number":14}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" the","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"1WUxDPnAwtWc","output_index":0,"sequence_number":15}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" `","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"X2ZjPMfGIbqYnW","output_index":0,"sequence_number":16}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"fl","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"z1wmRTEcLATBeI","output_index":0,"sequence_number":17}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"b","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"4NsuQEbHRgJ6Xjy","output_index":0,"sequence_number":18}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":".stream","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"8nfcU62Dn","output_index":0,"sequence_number":19}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"()`","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"qaSNldV1yOI3t","output_index":0,"sequence_number":20}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" generator","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"FEcCZy","output_index":0,"sequence_number":21}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":",","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"DyrfcfvGwBLNzNL","output_index":0,"sequence_number":22}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" which","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"TzrDZcTiWC","output_index":0,"sequence_number":23}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" yields","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"Q24ixChRw","output_index":0,"sequence_number":24}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" `","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"WzlxNohABL9CiO","output_index":0,"sequence_number":25}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"Fl","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"L225JaBxvW7jNp","output_index":0,"sequence_number":26}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"urbo","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"se3B9RYjx9Pp","output_index":0,"sequence_number":27}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"Chunk","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"vsDFxaBYdGY","output_index":0,"sequence_number":28}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"`","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"kzh3qPlDpoZdITM","output_index":0,"sequence_number":29}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":" objects","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"HHGe8NqO","output_index":0,"sequence_number":30}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":".\",\"","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"TWDWh1cpuZ22","output_index":0,"sequence_number":31}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"chunk","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"6WCCSLRy8hP","output_index":0,"sequence_number":32}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"_ids","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"tMZisUdik3ph","output_index":0,"sequence_number":33}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"\":[\"","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"baqlgUOCWQGI","output_index":0,"sequence_number":34}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"c","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"3mli4dPC8HFvT23","output_index":0,"sequence_number":35}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"1","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"xngJPtuUrSw1mHg","output_index":0,"sequence_number":36}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"\"]","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"XXrQPT2lem3E5j","output_index":0,"sequence_number":37}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"}","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"obgwJhmDcXp2XUz","output_index":0,"sequence_number":38}
+
+
+        event: response.output_text.delta
+
+        data: {"type":"response.output_text.delta","content_index":0,"delta":"]}","item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"obfuscation":"wBLrn1n8sIU0cl","output_index":0,"sequence_number":39}
+
+
+        event: response.output_text.done
+
+        data: {"type":"response.output_text.done","content_index":0,"item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","logprobs":[],"output_index":0,"sequence_number":40,"text":"{\"segments\":[{\"text\":\"Flurbo
+        streams responses via the `flb.stream()` generator, which yields `FlurboChunk`
+        objects.\",\"chunk_ids\":[\"c1\"]}]}"}
+
+
+        event: response.content_part.done
+
+        data: {"type":"response.content_part.done","content_index":0,"item_id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","output_index":0,"part":{"type":"output_text","annotations":[],"logprobs":[],"text":"{\"segments\":[{\"text\":\"Flurbo
+        streams responses via the `flb.stream()` generator, which yields `FlurboChunk`
+        objects.\",\"chunk_ids\":[\"c1\"]}]}"},"sequence_number":41}
+
+
+        event: response.output_item.done
+
+        data: {"type":"response.output_item.done","item":{"id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"{\"segments\":[{\"text\":\"Flurbo
+        streams responses via the `flb.stream()` generator, which yields `FlurboChunk`
+        objects.\",\"chunk_ids\":[\"c1\"]}]}"}],"phase":"final_answer","role":"assistant"},"output_index":0,"sequence_number":42}
+
+
+        event: response.completed
+
+        data: {"type":"response.completed","response":{"id":"resp_00c966f6a040503b016a6bab3f9c7481968ad0e5110985f154","object":"response","created_at":1785441087,"status":"completed","background":false,"completed_at":1785441088,"error":null,"frequency_penalty":0.0,"incomplete_details":null,"instructions":null,"max_output_tokens":null,"max_tool_calls":null,"model":"gpt-5.4-2026-03-05","moderation":null,"output":[{"id":"msg_00c966f6a040503b016a6bab401ff881969e8e0c92ce64f0ee","type":"message","status":"completed","content":[{"type":"output_text","annotations":[],"logprobs":[],"text":"{\"segments\":[{\"text\":\"Flurbo
+        streams responses via the `flb.stream()` generator, which yields `FlurboChunk`
+        objects.\",\"chunk_ids\":[\"c1\"]}]}"}],"phase":"final_answer","role":"assistant"}],"parallel_tool_calls":true,"presence_penalty":0.0,"previous_response_id":null,"prompt_cache_key":null,"prompt_cache_retention":"24h","reasoning":{"context":"current_turn","effort":"none","mode":"standard","summary":null},"safety_identifier":null,"service_tier":"default","store":false,"temperature":1.0,"text":{"format":{"type":"json_schema","description":null,"name":"structured_data","schema":{"$defs":{"CitedSegment":{"properties":{"text":{"description":"A
+        span of the answer, in plain prose. Concatenating every segment''s text in
+        order must produce the complete answer.","title":"Text","type":"string"},"chunk_ids":{"description":"chunk_id
+        values of the search results that directly support this span. Empty list if
+        none. Start a new segment whenever the set of supporting sources changes.","items":{"type":"string"},"title":"Chunk
+        Ids","type":"array"}},"required":["text","chunk_ids"],"title":"CitedSegment","type":"object","additionalProperties":false}},"properties":{"segments":{"items":{"$ref":"#/$defs/CitedSegment"},"type":"array"}},"required":["segments"],"type":"object","additionalProperties":false},"strict":true},"verbosity":"medium"},"tool_choice":"auto","tool_usage":{"image_gen":{"input_tokens":0,"input_tokens_details":{"image_tokens":0,"text_tokens":0},"output_tokens":0,"output_tokens_details":{"image_tokens":0,"text_tokens":0},"total_tokens":0},"web_search":{"num_requests":0}},"tools":[{"type":"function","description":"Search
+        the registered document store for passages relevant to a query.\nUse this
+        whenever the user''s question could be answered from the store''s\ndocuments.
+        Ground your answer in the returned results.\n\nSearch the document store.\n\nParameters\n----------\nquery\n    What
+        to look for, phrased as a focused search query.","name":"search_documents","output_schema":null,"parameters":{"properties":{"query":{"type":"string"}},"required":["query"],"type":"object","additionalProperties":false},"strict":true}],"top_logprobs":0,"top_p":0.98,"truncation":"disabled","usage":{"input_tokens":388,"input_tokens_details":{"cache_write_tokens":0,"cached_tokens":0},"output_tokens":44,"output_tokens_details":{"reasoning_tokens":0},"total_tokens":432},"user":null,"metadata":{}},"sequence_number":43}
+
+
+        '
+    headers:
+      access-control-expose-headers:
+      - X-Request-ID
+      - CF-Ray
+      - CF-Ray
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      connection:
+      - keep-alive
+      content-type:
+      - text/event-stream; charset=utf-8
+      date:
+      - Thu, 30 Jul 2026 19:51:27 GMT
+      openai-processing-ms:
+      - '205'
+      openai-version:
+      - '2020-10-01'
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      transfer-encoding:
+      - chunked
+      x-content-type-options:
+      - nosniff
+      x-ratelimit-limit-requests:
+      - '15000'
+      x-ratelimit-limit-tokens:
+      - '40000000'
+      x-ratelimit-remaining-requests:
+      - '14999'
+      x-ratelimit-remaining-tokens:
+      - '39999156'
+      x-ratelimit-reset-requests:
+      - 4ms
+      x-ratelimit-reset-tokens:
+      - 1ms
+    status:
+      code: 200
+      message: OK
+version: 1

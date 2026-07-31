@@ -1,0 +1,484 @@
+interactions:
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "How does Flurbo stream responses?", "type": "text", "cache_control": {"type":
+      "ephemeral", "ttl": "5m"}}]}], "model": "claude-sonnet-4-6", "stream": true,
+      "tools": [{"name": "search_documents", "input_schema": {"type": "object", "properties":
+      {"query": {"type": "string"}}, "required": ["query"], "additionalProperties":
+      false}, "description": "Search the registered document store for passages relevant
+      to a query.\nUse this whenever the user''s question could be answered from the
+      store''s\ndocuments. Ground your answer in the returned results.\n\nSearch the
+      document store.\n\nParameters\n----------\nquery\n    What to look for, phrased
+      as a focused search query."}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      anthropic-version:
+      - '2023-06-01'
+      connection:
+      - keep-alive
+      content-length:
+      - '709'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      x-stainless-async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-sonnet-4-6","id":"msg_011CdYncu8pfxDgjoxELYpSN","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":643,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":59,"service_tier":"standard","inference_geo":"global"}}        }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"tool_use","id":"toolu_01MvCUT8oTFjVJg1qTVSfpbN","name":"search_documents","input":{},"caller":{"type":"direct"}}   }
+
+
+        event: ping
+
+        data: {"type": "ping"}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":""}   }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"{\""}      }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"query\":
+        \"Fl"}    }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"ur"}              }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"bo
+        stream "}            }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"response"}              }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"s\"}"}          }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0            }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"tool_use","stop_sequence":null,"stop_details":null},"usage":{"input_tokens":643,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":59}    }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop"}
+
+
+        '
+    headers:
+      anthropic-ratelimit-input-tokens-limit:
+      - '10000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '10000000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-07-30T19:23:09Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '2000000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '2000000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-07-30T19:23:09Z'
+      anthropic-ratelimit-requests-limit:
+      - '20000'
+      anthropic-ratelimit-requests-remaining:
+      - '19999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-07-30T19:23:09Z'
+      anthropic-ratelimit-tokens-limit:
+      - '12000000'
+      anthropic-ratelimit-tokens-remaining:
+      - '12000000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-07-30T19:23:09Z'
+      cache-control:
+      - no-cache
+      cf-cache-status:
+      - DYNAMIC
+      connection:
+      - keep-alive
+      content-length:
+      - '2119'
+      content-security-policy:
+      - default-src 'none'; frame-ancestors 'none'
+      content-type:
+      - text/event-stream; charset=utf-8
+      date:
+      - Thu, 30 Jul 2026 19:23:10 GMT
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-beb222b6e75c94863a2a11b3e3ceb60e-9d4ea991a4d3ea96-01
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-robots-tag:
+      - none
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "How does Flurbo stream responses?", "type": "text"}]}, {"role": "assistant",
+      "content": [{"type": "tool_use", "id": "toolu_01MvCUT8oTFjVJg1qTVSfpbN", "name":
+      "search_documents", "input": {"query": "Flurbo stream responses"}}]}, {"role":
+      "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_01MvCUT8oTFjVJg1qTVSfpbN",
+      "is_error": false, "content": [{"type": "search_result", "source": "kb://flurbo/streaming",
+      "title": "Flurbo > Streaming", "content": [{"type": "text", "text": "Flurbo
+      streams responses via the flb.stream() generator, which yields FlurboChunk objects."}],
+      "citations": {"enabled": true}}, {"type": "search_result", "source": "kb://flurbo/intro",
+      "title": "Flurbo > Introduction", "content": [{"type": "text", "text": "The
+      Flurbo framework was created in 2019 by Ada Quist. Its default port is 7113."}],
+      "citations": {"enabled": true}}], "cache_control": {"type": "ephemeral", "ttl":
+      "5m"}}]}], "model": "claude-sonnet-4-6", "stream": true, "tools": [{"name":
+      "search_documents", "input_schema": {"type": "object", "properties": {"query":
+      {"type": "string"}}, "required": ["query"], "additionalProperties": false},
+      "description": "Search the registered document store for passages relevant to
+      a query.\nUse this whenever the user''s question could be answered from the
+      store''s\ndocuments. Ground your answer in the returned results.\n\nSearch the
+      document store.\n\nParameters\n----------\nquery\n    What to look for, phrased
+      as a focused search query."}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      anthropic-version:
+      - '2023-06-01'
+      connection:
+      - keep-alive
+      content-length:
+      - '1474'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      x-stainless-async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: 'event: message_start
+
+        data: {"type":"message_start","message":{"model":"claude-sonnet-4-6","id":"msg_011CdYnd1VJvqaZumFhSNdai","type":"message","role":"assistant","content":[],"stop_reason":null,"stop_sequence":null,"stop_details":null,"usage":{"input_tokens":1,"cache_creation_input_tokens":0,"cache_read_input_tokens":1429,"cache_creation":{"ephemeral_5m_input_tokens":0,"ephemeral_1h_input_tokens":0},"output_tokens":59,"service_tier":"standard","inference_geo":"global"}}     }
+
+
+        event: content_block_start
+
+        data: {"type":"content_block_start","index":0,"content_block":{"type":"tool_use","id":"toolu_01P67ZGroxh9tS4MkGUDjcGX","name":"search_documents","input":{},"caller":{"type":"direct"}}   }
+
+
+        event: ping
+
+        data: {"type": "ping"}
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":""}
+        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"{\"qu"}  }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"er"}  }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"y\":
+        \"Flu"}   }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"rboChunk
+        str"}       }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"ea"}    }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"min"}
+        }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"g
+        g"}       }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"enerat"}          }
+
+
+        event: content_block_delta
+
+        data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"or\"}"}           }
+
+
+        event: content_block_stop
+
+        data: {"type":"content_block_stop","index":0     }
+
+
+        event: message_delta
+
+        data: {"type":"message_delta","delta":{"stop_reason":"tool_use","stop_sequence":null,"stop_details":null},"usage":{"input_tokens":1,"cache_creation_input_tokens":0,"cache_read_input_tokens":1429,"output_tokens":59}               }
+
+
+        event: message_stop
+
+        data: {"type":"message_stop" }
+
+
+        '
+    headers:
+      anthropic-ratelimit-input-tokens-limit:
+      - '10000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '9999000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-07-30T19:23:10Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '2000000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '2000000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-07-30T19:23:10Z'
+      anthropic-ratelimit-requests-limit:
+      - '20000'
+      anthropic-ratelimit-requests-remaining:
+      - '19999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-07-30T19:23:10Z'
+      anthropic-ratelimit-tokens-limit:
+      - '12000000'
+      anthropic-ratelimit-tokens-remaining:
+      - '11999000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-07-30T19:23:10Z'
+      cache-control:
+      - no-cache
+      cf-cache-status:
+      - DYNAMIC
+      connection:
+      - keep-alive
+      content-length:
+      - '2503'
+      content-security-policy:
+      - default-src 'none'; frame-ancestors 'none'
+      content-type:
+      - text/event-stream; charset=utf-8
+      date:
+      - Thu, 30 Jul 2026 19:23:11 GMT
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-078b6b69116ab183e722ab957febb567-ce9456b1bd8083c5-01
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-robots-tag:
+      - none
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
+      "How does Flurbo stream responses?", "type": "text"}]}, {"role": "assistant",
+      "content": [{"type": "tool_use", "id": "toolu_01MvCUT8oTFjVJg1qTVSfpbN", "name":
+      "search_documents", "input": {"query": "Flurbo stream responses"}}]}, {"role":
+      "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_01MvCUT8oTFjVJg1qTVSfpbN",
+      "is_error": false, "content": [{"type": "search_result", "source": "kb://flurbo/streaming",
+      "title": "Flurbo > Streaming", "content": [{"type": "text", "text": "Flurbo
+      streams responses via the flb.stream() generator, which yields FlurboChunk objects."}],
+      "citations": {"enabled": true}}, {"type": "search_result", "source": "kb://flurbo/intro",
+      "title": "Flurbo > Introduction", "content": [{"type": "text", "text": "The
+      Flurbo framework was created in 2019 by Ada Quist. Its default port is 7113."}],
+      "citations": {"enabled": true}}]}]}, {"role": "assistant", "content": [{"type":
+      "tool_use", "id": "toolu_01P67ZGroxh9tS4MkGUDjcGX", "name": "search_documents",
+      "input": {"query": "FlurboChunk streaming generator"}}]}, {"role": "user", "content":
+      [{"type": "tool_result", "tool_use_id": "toolu_01P67ZGroxh9tS4MkGUDjcGX", "is_error":
+      false, "content": [{"type": "search_result", "source": "kb://flurbo/streaming",
+      "title": "Flurbo > Streaming", "content": [{"type": "text", "text": "Flurbo
+      streams responses via the flb.stream() generator, which yields FlurboChunk objects."}],
+      "citations": {"enabled": true}}, {"type": "search_result", "source": "kb://flurbo/intro",
+      "title": "Flurbo > Introduction", "content": [{"type": "text", "text": "The
+      Flurbo framework was created in 2019 by Ada Quist. Its default port is 7113."}],
+      "citations": {"enabled": true}}], "cache_control": {"type": "ephemeral", "ttl":
+      "5m"}}]}], "model": "claude-sonnet-4-6", "stream": true, "tools": [{"name":
+      "search_documents", "input_schema": {"type": "object", "properties": {"query":
+      {"type": "string"}}, "required": ["query"], "additionalProperties": false},
+      "description": "Search the registered document store for passages relevant to
+      a query.\nUse this whenever the user''s question could be answered from the
+      store''s\ndocuments. Ground your answer in the returned results.\n\nSearch the
+      document store.\n\nParameters\n----------\nquery\n    What to look for, phrased
+      as a focused search query."}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      anthropic-version:
+      - '2023-06-01'
+      connection:
+      - keep-alive
+      content-length:
+      - '2247'
+      content-type:
+      - application/json
+      host:
+      - api.anthropic.com
+      x-stainless-async:
+      - 'false'
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-timeout:
+      - NOT_GIVEN
+    method: POST
+    uri: https://api.anthropic.com/v1/messages
+  response:
+    body:
+      string: "event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"model\":\"claude-sonnet-4-6\",\"id\":\"msg_011CdYnd7QWF5sfLhAe9NEJ1\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":1,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":1753,\"cache_creation\":{\"ephemeral_5m_input_tokens\":0,\"ephemeral_1h_input_tokens\":0},\"output_tokens\":1,\"service_tier\":\"standard\",\"inference_geo\":\"global\"}}
+        \ }\n\nevent: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"text\",\"text\":\"\"}
+        \  }\n\nevent: ping\ndata: {\"type\": \"ping\"}\n\nevent: content_block_delta\ndata:
+        {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"Based\"}
+        \    }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"
+        on the available documentation, \"} }\n\nevent: content_block_stop\ndata:
+        {\"type\":\"content_block_stop\",\"index\":0              }\n\nevent: content_block_start\ndata:
+        {\"type\":\"content_block_start\",\"index\":1,\"content_block\":{\"citations\":[],\"type\":\"text\",\"text\":\"\"}
+        \            }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"citations_delta\",\"citation\":{\"type\":\"search_result_location\",\"cited_text\":\"Flurbo
+        streams responses via the flb.stream() generator, which yields FlurboChunk
+        objects.\",\"source\":\"kb://flurbo/streaming\",\"title\":\"Flurbo > Streaming\",\"search_result_index\":0,\"start_block_index\":0,\"end_block_index\":1}}
+        \    }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\"Flurbo
+        streams responses via the `flb.stream()` generator,\"}             }\n\nevent:
+        content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"text_delta\",\"text\":\"
+        which yields `FlurboChunk` objects.\"}       }\n\nevent: content_block_stop\ndata:
+        {\"type\":\"content_block_stop\",\"index\":1               }\n\nevent: content_block_start\ndata:
+        {\"type\":\"content_block_start\",\"index\":2,\"content_block\":{\"type\":\"text\",\"text\":\"\"}
+        \            }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":2,\"delta\":{\"type\":\"text_delta\",\"text\":\"\\n\\nBeyond
+        this, the available documentation doesn\"}}\n\nevent: content_block_delta\ndata:
+        {\"type\":\"content_block_delta\",\"index\":2,\"delta\":{\"type\":\"text_delta\",\"text\":\"'t
+        provide further details on streaming. For more in-depth information \u2014
+        such as how to\"}           }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":2,\"delta\":{\"type\":\"text_delta\",\"text\":\"
+        handle `FlurboChunk` objects, available options for `flb.stream()`, or example\"}
+        \              }\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":2,\"delta\":{\"type\":\"text_delta\",\"text\":\"
+        code \u2014 I'd recommend consulting the full Flurbo documentation or source
+        code directly.\"} }\n\nevent: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":2
+        \            }\n\nevent: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\",\"stop_sequence\":null,\"stop_details\":null},\"usage\":{\"input_tokens\":1,\"cache_creation_input_tokens\":0,\"cache_read_input_tokens\":1753,\"output_tokens\":119}}\n\nevent:
+        message_stop\ndata: {\"type\":\"message_stop\"  }\n\n"
+    headers:
+      anthropic-ratelimit-input-tokens-limit:
+      - '10000000'
+      anthropic-ratelimit-input-tokens-remaining:
+      - '9999000'
+      anthropic-ratelimit-input-tokens-reset:
+      - '2026-07-30T19:23:12Z'
+      anthropic-ratelimit-output-tokens-limit:
+      - '2000000'
+      anthropic-ratelimit-output-tokens-remaining:
+      - '2000000'
+      anthropic-ratelimit-output-tokens-reset:
+      - '2026-07-30T19:23:12Z'
+      anthropic-ratelimit-requests-limit:
+      - '20000'
+      anthropic-ratelimit-requests-remaining:
+      - '19999'
+      anthropic-ratelimit-requests-reset:
+      - '2026-07-30T19:23:12Z'
+      anthropic-ratelimit-tokens-limit:
+      - '12000000'
+      anthropic-ratelimit-tokens-remaining:
+      - '11999000'
+      anthropic-ratelimit-tokens-reset:
+      - '2026-07-30T19:23:12Z'
+      cache-control:
+      - no-cache
+      cf-cache-status:
+      - DYNAMIC
+      connection:
+      - keep-alive
+      content-length:
+      - '3268'
+      content-security-policy:
+      - default-src 'none'; frame-ancestors 'none'
+      content-type:
+      - text/event-stream; charset=utf-8
+      date:
+      - Thu, 30 Jul 2026 19:23:12 GMT
+      server:
+      - cloudflare
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      traceresponse:
+      - 00-d31ed7eb6da706d5c4ab1fa4a388d6eb-5281d72aaeec5ce4-01
+      transfer-encoding:
+      - chunked
+      vary:
+      - Accept-Encoding
+      x-robots-tag:
+      - none
+    status:
+      code: 200
+      message: OK
+version: 1

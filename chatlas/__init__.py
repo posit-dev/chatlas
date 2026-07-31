@@ -10,6 +10,8 @@ from ._chat import Chat
 from ._content import (
     ContentToolRequest,
     ContentToolResult,
+    SearchResult,
+    ToolSearchResults,
 )
 from ._content_document import content_document_file, content_document_url
 from ._content_image import content_image_file, content_image_plot, content_image_url
@@ -93,11 +95,13 @@ __all__ = (
     "interpolate",
     "interpolate_file",
     "Provider",
+    "SearchResult",
     "StreamController",
     "token_usage",
     "Tool",
     "ToolBuiltIn",
     "ToolRejectError",
+    "ToolSearchResults",
     "tool_web_fetch",
     "tool_web_search",
     "Turn",

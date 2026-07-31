@@ -22,15 +22,19 @@ from .._content import (
     ContentToolResponseSearch,
     ContentToolResult,
     ContentUploaded,
+    DocumentSource,
     ImageContentTypes,
+    SearchResult,
     Source,
     ToolAnnotations,
     ToolInfo,
+    ToolSearchResults,
     WebSource,
 )
 from .._files import FileMetadata
 from .._parallel import StructuredChatResult
 from .._provider import ModelInfo
+from .._rag import ChunkLike, RetrievalStore
 from .._tokens import TokenUsage
 from .._turn import FinishReason
 from .._utils import MISSING, MISSING_TYPE
@@ -59,8 +63,13 @@ __all__ = (
     "StructuredChatResult",
     "ChatResponse",
     "ChatResponseAsync",
+    "ChunkLike",
     "ImageContentTypes",
+    "RetrievalStore",
+    "SearchResult",
     "Source",
+    "DocumentSource",
+    "ToolSearchResults",
     "WebSource",
     "SubmitInputArgsT",
     "TokenUsage",
