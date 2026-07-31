@@ -8,6 +8,7 @@ skips incremental refreshes and prints only the final frame, which keeps these
 assertions deterministic and free of ANSI escapes.
 """
 
+import base64
 import logging
 import re
 from collections.abc import Sequence
@@ -36,14 +37,16 @@ from chatlas._display import (
     LiveMarkdownDisplay,
     WebActivityRow,
     WebActivitySegment,
+    base64_nbytes,
     capped_sources,
+    image_label,
     web_domain,
 )
 from chatlas._live_render import LiveRender
 from chatlas._logging import _rich_handler
 from chatlas._provider import AnyTypeDict, Provider
 from chatlas._turn import AssistantTurn
-from chatlas._utils import MISSING, MISSING_TYPE
+from chatlas._utils import MISSING, MISSING_TYPE, format_bytes
 from rich.console import Console
 from rich.text import Text
 
@@ -1651,3 +1654,42 @@ async def test_web_activity_renders_without_streaming_async():
     await chat.chat_async("when?", echo="output", stream=False)
 
     assert "Searched the web" in output()
+
+
+def test_format_bytes_scales_units():
+    assert format_bytes(0) == "0 B"
+    assert format_bytes(512) == "512 B"
+    assert format_bytes(1024) == "1.0 KB"
+    assert format_bytes(5498) == "5.4 KB"
+    assert format_bytes(224566) == "219 KB"
+    assert format_bytes(3 * 1024 * 1024) == "3.0 MB"
+    assert format_bytes(10_235) == "10 KB"
+    assert format_bytes(1024 * 1024 - 1) == "1.0 MB"
+
+
+def test_base64_nbytes_matches_the_decoded_length():
+    """Derived from the string length so a large image is never decoded twice."""
+    raw = b"\x89PNG\r\n\x1a\n" + b"x" * 3001
+    for n in range(3000, 3010):
+        data = base64.b64encode(raw[:n]).decode()
+        assert base64_nbytes(data) == n
+
+
+def test_base64_nbytes_ignores_mime_whitespace_and_unpadded_data():
+    canonical = base64.b64encode(b"x" * 100).decode("ascii")
+    mime_wrapped = "\r\n".join(
+        canonical[index : index + 76] for index in range(0, len(canonical), 76)
+    )
+
+    assert base64_nbytes(f" \t{mime_wrapped}\n") == 100
+    assert base64_nbytes("eA") == 1
+    assert base64_nbytes("eHg") == 2
+
+
+def test_image_label_includes_dimensions_only_when_known():
+    data = base64.b64encode(b"x" * 224566).decode()
+    assert image_label("image/png", data) == "🖼 image/png · 219 KB"
+    assert (
+        image_label("image/png", data, (800, 600))
+        == "🖼 image/png · 800×600 · 219 KB"
+    )

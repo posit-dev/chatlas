@@ -32,6 +32,7 @@ from ._content import (
 from ._live_render import LiveRender
 from ._logging import logger
 from ._typing_extensions import TypedDict
+from ._utils import format_bytes
 
 
 class MarkdownDisplay(ABC):
@@ -790,6 +791,35 @@ def capped_sources(
 def web_display_url(url: str) -> str:
     "A fetched URL without its scheme, which is noise in a narrow panel."
     return re.sub(r"^https?://(www\.)?", "", url or "")
+
+
+def image_label(
+    mime_type: str, data: str, size: Optional[tuple[int, int]] = None
+) -> str:
+    """
+    A one-line stand-in for an image: `🖼 image/png · 800×600 · 219 KB`.
+
+    Used both as the caption under a thumbnail and as the whole rendering when a
+    thumbnail isn't possible. `size` is omitted when the image wasn't decoded.
+    """
+    bits = [mime_type]
+    if size is not None:
+        bits.append(f"{size[0]}×{size[1]}")
+    bits.append(format_bytes(base64_nbytes(data)))
+    return "🖼 " + " · ".join(bits)
+
+
+def base64_nbytes(data: str) -> int:
+    """
+    Decoded length of base64 `data`, computed from the string.
+
+    An echoed image can be megabytes; decoding it just to report its size would
+    double the work the thumbnail already does.
+    """
+    s = "".join(char for char in data if char not in " \t\n\r\v\f")
+    groups, remainder = divmod(len(s), 4)
+    nbytes = groups * 3 + (0, 0, 1, 2)[remainder]
+    return nbytes - s.count("=")
 
 
 DisplaySegment = Union[TextSegment, ThinkingSegment, WebActivitySegment, ContentSegment]
