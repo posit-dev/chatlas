@@ -35,6 +35,7 @@ from ._content import (
     PROVIDER_ANNOTATION_TYPES,
     Content,
     ContentCitation,
+    ContentImageInline,
     ContentJson,
     ContentText,
     ContentThinking,
@@ -2880,6 +2881,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     (
                         ContentThinking,
                         ContentThinkingDelta,
+                        ContentImageInline,
                         *PROVIDER_ANNOTATION_TYPES,
                     ),
                 ):
@@ -2936,6 +2938,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             result,
                             has_data_model=data_model is not None,
                         )
+                        emit_image_contents(turn, emit)
                         if echo == "all":
                             emit_other_contents(turn, emit)
                         turn = finalize_assistant_turn(self.provider, turn)
@@ -2965,6 +2968,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     emit(turn.text)
                     yield turn.text
 
+                emit_image_contents(turn, emit)
                 if echo == "all":
                     emit_other_contents(turn, emit)
 
@@ -3030,6 +3034,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     (
                         ContentThinking,
                         ContentThinkingDelta,
+                        ContentImageInline,
                         *PROVIDER_ANNOTATION_TYPES,
                     ),
                 ):
@@ -3088,6 +3093,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             result,
                             has_data_model=data_model is not None,
                         )
+                        emit_image_contents(turn, emit)
                         if echo == "all":
                             emit_other_contents(turn, emit)
                         turn = finalize_assistant_turn(self.provider, turn)
@@ -3117,6 +3123,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     emit(turn.text)
                     yield turn.text
 
+                emit_image_contents(turn, emit)
                 if echo == "all":
                     emit_other_contents(turn, emit)
 
@@ -3620,6 +3627,16 @@ def emit_web_contents(
             emit(content)
 
 
+def emit_image_contents(
+    x: Turn,
+    emit: Callable[[Content | str], None],
+):
+    """Emit a turn's inline images after its text."""
+    for content in x.contents:
+        if isinstance(content, ContentImageInline):
+            emit(content)
+
+
 def emit_other_contents(
     x: Turn,
     emit: Callable[[Content | str], None],
@@ -3647,6 +3664,10 @@ def emit_other_contents(
         elif isinstance(content, PROVIDER_ANNOTATION_TYPES):
             # Displayed as a web-activity panel while streaming, or by
             # `emit_web_contents` when not; emitting it here would show it twice.
+            continue
+        elif isinstance(content, ContentImageInline) and isinstance(x, AssistantTurn):
+            # Assistant images were emitted after the text. User images only reach
+            # the display through this path.
             continue
         else:
             has_other = True

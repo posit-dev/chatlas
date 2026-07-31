@@ -895,6 +895,71 @@ def test_console_renders_inline_images_as_colored_thumbnails(
     assert image_label("image/png", image.data, (8, 6)) in rendered
 
 
+def test_generated_image_is_echoed_at_the_default_echo():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Here it is."), image]])
+    output = capture_echo(chat, width=60)
+
+    chat.chat("draw a die", echo="output")
+
+    rendered = output()
+    assert "Here it is." in rendered
+    assert "🖼 image/png" in rendered
+
+
+def test_generated_image_is_echoed_exactly_once_at_echo_all():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Here it is."), image]])
+    output = capture_echo(chat, width=60)
+
+    chat.chat("draw a die", echo="all")
+
+    assert output().count("🖼 image/png") == 1
+
+
+def test_generated_image_is_not_echoed_at_echo_text():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Here it is."), image]])
+    output = capture_echo(chat, width=60)
+
+    chat.chat("draw a die", echo="text")
+
+    rendered = output()
+    assert "Here it is." in rendered
+    assert "🖼" not in rendered
+
+
+def test_user_supplied_image_still_shows_at_echo_all():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("A die.")]])
+    output = capture_echo(chat, width=60)
+
+    chat.chat("what is this?", image, echo="all")
+
+    assert "🖼 image/png" in output()
+
+
+@pytest.mark.asyncio
+async def test_generated_image_is_echoed_in_async_chats():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Here it is."), image]])
+    output = capture_echo(chat, width=60)
+
+    await chat.chat_async("draw a die", echo="output")
+
+    assert "🖼 image/png" in output()
+
+
+def test_generated_image_is_echoed_without_streaming():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Here it is."), image]])
+    output = capture_echo(chat, width=60)
+
+    chat.chat("draw a die", echo="output", stream=False)
+
+    assert "🖼 image/png" in output()
+
+
 def test_image_thumbnail_leaves_fully_transparent_pixel_pairs_unstyled():
     image = Image.new("RGBA", (1, 2))
     image.putdata([(255, 0, 0, 0), (0, 0, 255, 0)])
