@@ -48,6 +48,7 @@ from ._content import (
     ToolInfo,
 )
 from ._display import (
+    DEFAULT_IMAGE_MAX_LINES,
     DEFAULT_THINKING_MAX_LINES,
     DEFAULT_TOOL_RESULT_MAX_HEIGHT,
     DEFAULT_TOOL_RESULT_MAX_LINES,
@@ -3343,6 +3344,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tool_result_max_height: str | None | MISSING_TYPE = MISSING,
         thinking_max_lines: int | None | MISSING_TYPE = MISSING,
         web_activity_max_sources: int | None | MISSING_TYPE = MISSING,
+        image_max_lines: int | None | MISSING_TYPE = MISSING,
     ):
         """
         Set echo styling options for the chat.
@@ -3381,6 +3383,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             This is only relevant when outputting to the console; in the browser
             the panel is collapsed and scrolls internally, so every source is
             listed.
+        image_max_lines
+            Cap a console image thumbnail at this many rows. Pass `None` to
+            remove the height cap. This is only relevant when outputting to the
+            console; browser output uses the original image.
         """
         self._echo_options: EchoDisplayOptions = {
             "rich_markdown": rich_markdown or {},
@@ -3397,6 +3403,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             ),
             "web_activity_max_sources": default_if_missing(
                 web_activity_max_sources, DEFAULT_WEB_ACTIVITY_MAX_SOURCES
+            ),
+            "image_max_lines": default_if_missing(
+                image_max_lines, DEFAULT_IMAGE_MAX_LINES
             ),
         }
 

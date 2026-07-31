@@ -1,3 +1,6 @@
+import base64
+import binascii
+import io
 import logging
 import re
 from abc import ABC, abstractmethod
@@ -19,6 +22,7 @@ from ._content import (
     TOOL_CSS,
     Content,
     ContentCitation,
+    ContentImageInline,
     ContentText,
     ContentThinking,
     ContentThinkingDelta,
@@ -93,6 +97,17 @@ class MarkdownDisplay(ABC):
                 last.text += content
             else:
                 self._segments.append(TextSegment(text=content))
+        elif isinstance(content, ContentImageInline):
+            self._segments.append(
+                ImageSegment(
+                    content=content,
+                    thumbnail=ImageThumbnail(
+                        mime_type=content.image_content_type,
+                        data=content.data,
+                        max_lines=self._echo_options["image_max_lines"],
+                    ),
+                )
+            )
         else:
             self._segments.append(ContentSegment(content=content))
 
@@ -234,6 +249,8 @@ class LiveMarkdownDisplay(MarkdownDisplay):
                         max_sources=self._echo_options["web_activity_max_sources"],
                     )
                 )
+            elif isinstance(segment, ImageSegment):
+                out.append(segment.thumbnail)
             else:
                 content = segment.content
                 if isinstance(content, ContentToolResult):
@@ -292,6 +309,8 @@ class IPyMarkdownDisplay(MarkdownDisplay):
                 parts.append(thinking_html(segment.thinking, is_open=segment.is_open))
             elif isinstance(segment, WebActivitySegment):
                 parts.append(web_activity_html(segment))
+            elif isinstance(segment, ImageSegment):
+                parts.append(self._content_markdown(segment.content))
             else:
                 parts.append(self._content_markdown(segment.content))
         return "".join(parts)
@@ -364,10 +383,12 @@ class EchoDisplayOptions(TypedDict):
     tool_result_max_height: Optional[str]
     thinking_max_lines: Optional[int]
     web_activity_max_sources: Optional[int]
+    image_max_lines: Optional[int]
 
 
 DEFAULT_TOOL_RESULT_MAX_LINES = 20
 DEFAULT_TOOL_RESULT_MAX_HEIGHT = "400px"
+DEFAULT_IMAGE_MAX_LINES = 16
 # Lower than the tool-result cap on purpose: reasoning is an aside, so it should
 # take up less room than the answer it precedes.
 DEFAULT_THINKING_MAX_LINES = 10
@@ -589,6 +610,100 @@ class ToolResultBlock:
         )
 
 
+class ImageThumbnail:
+    """A terminal thumbnail rendered as pairs of RGB pixels in half-block cells."""
+
+    def __init__(self, mime_type: str, data: str, max_lines: Optional[int]):
+        self.mime_type = mime_type
+        self.data = data
+        self.max_lines = max_lines
+        self._image: Any | None = None
+        self._decode_failed = False
+        self._segments_by_width: dict[int, Any] = {}
+
+    def __rich_console__(self, console: "Console", options: "ConsoleOptions"):
+        from rich.text import Text
+
+        if console.no_color or console.color_system not in ("truecolor", "256"):
+            yield Text(image_label(self.mime_type, self.data), style="dim")
+            return
+
+        image = self._decode()
+        if image is None:
+            yield Text(image_label(self.mime_type, self.data), style="dim")
+            return
+
+        yield self._segments(image, options.max_width)
+        yield Text(
+            image_label(self.mime_type, self.data, image.size),
+            style="dim",
+        )
+
+    def _decode(self) -> Any | None:
+        if self._decode_failed:
+            return None
+        if self._image is not None:
+            return self._image
+
+        try:
+            from PIL import Image
+
+            data = "".join(self.data.split())
+            decoded = base64.b64decode(data + "=" * (-len(data) % 4), validate=True)
+            with Image.open(io.BytesIO(decoded)) as image:
+                self._image = image.convert("RGBA")
+        except (ImportError, OSError, ValueError, binascii.Error):
+            self._decode_failed = True
+            return None
+
+        return self._image
+
+    def _segments(self, image: Any, max_width: int) -> Any:
+        from rich.color import Color
+        from rich.segment import Segment, Segments
+        from rich.style import Style
+
+        width = max(max_width, 1)
+        cached = self._segments_by_width.get(width)
+        if cached is not None:
+            return cached
+
+        max_height = image.height
+        if self.max_lines is not None:
+            max_height = max(max(self.max_lines, 1) * 2, 1)
+
+        scale = min(width / image.width, max_height / image.height, 1)
+        size = (
+            max(round(image.width * scale), 1),
+            max(round(image.height * scale), 1),
+        )
+        thumbnail = image.resize(size)
+        pixels = thumbnail.load()
+
+        segments: list[Any] = []
+        for y in range(0, thumbnail.height, 2):
+            for x in range(thumbnail.width):
+                top = pixels[x, y]
+                bottom = pixels[x, min(y + 1, thumbnail.height - 1)]
+                if top[3] == 0 and bottom[3] == 0:
+                    segments.append(Segment(" "))
+                    continue
+                segments.append(
+                    Segment(
+                        "▀",
+                        Style(
+                            color=Color.from_rgb(*composite_rgba(top)),
+                            bgcolor=Color.from_rgb(*composite_rgba(bottom)),
+                        ),
+                    )
+                )
+            segments.append(Segment.line())
+
+        rendered = Segments(segments)
+        self._segments_by_width[width] = rendered
+        return rendered
+
+
 class WebActivityPanel:
     """
     A panel of web activity, hard-capped at `max_sources` sources.
@@ -679,6 +794,12 @@ class ThinkingSegment:
 @dataclass
 class ContentSegment:
     content: Content
+
+
+@dataclass
+class ImageSegment:
+    content: ContentImageInline
+    thumbnail: ImageThumbnail
 
 
 @dataclass
@@ -861,4 +982,23 @@ def base64_nbytes(data: str) -> int:
     return nbytes - s.count("=")
 
 
-DisplaySegment = Union[TextSegment, ThinkingSegment, WebActivitySegment, ContentSegment]
+def composite_rgba(pixel: tuple[int, int, int, int]) -> tuple[int, int, int]:
+    red, green, blue, alpha = pixel
+    return (
+        composite_channel(red, alpha),
+        composite_channel(green, alpha),
+        composite_channel(blue, alpha),
+    )
+
+
+def composite_channel(channel: int, alpha: int) -> int:
+    return (channel * alpha + 128 * (255 - alpha) + 127) // 255
+
+
+DisplaySegment = Union[
+    TextSegment,
+    ThinkingSegment,
+    WebActivitySegment,
+    ContentSegment,
+    ImageSegment,
+]

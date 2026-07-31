@@ -11,8 +11,9 @@ assertions deterministic and free of ANSI escapes.
 import base64
 import logging
 import re
+import sys
 from collections.abc import Sequence
-from io import StringIO
+from io import BytesIO, StringIO
 from typing import Any, Callable, Literal, Optional, overload
 
 import pytest
@@ -20,6 +21,7 @@ from chatlas import Chat
 from chatlas._content import (
     Content,
     ContentCitation,
+    ContentImageInline,
     ContentImageRemote,
     ContentText,
     ContentThinking,
@@ -33,6 +35,8 @@ from chatlas._content import (
     WebSource,
 )
 from chatlas._display import (
+    DEFAULT_IMAGE_MAX_LINES,
+    ImageThumbnail,
     IPyMarkdownDisplay,
     LiveMarkdownDisplay,
     ToolResultBlock,
@@ -48,6 +52,7 @@ from chatlas._logging import _rich_handler
 from chatlas._provider import AnyTypeDict, Provider
 from chatlas._turn import AssistantTurn
 from chatlas._utils import MISSING, MISSING_TYPE, format_bytes
+from PIL import Image
 from rich.console import Console
 from rich.text import Text
 
@@ -774,6 +779,133 @@ def test_echo_all_shows_finish_reason_and_other_content_markers():
     assert "finish reason: stop" in res
 
 
+@pytest.mark.parametrize(
+    ("color_system", "color_escape"),
+    [("truecolor", "\x1b[38;2;"), ("256", "\x1b[38;5;")],
+)
+def test_console_renders_inline_images_as_colored_thumbnails(
+    color_system: Literal["truecolor", "256"], color_escape: str
+):
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(chat, color_system=color_system)
+
+    chat.chat("look at this", image, echo="all")
+
+    rendered = output()
+    assert image.data not in rendered
+    assert "▀" in rendered
+    assert color_escape in rendered
+    assert image_label("image/png", image.data, (8, 6)) in rendered
+
+
+def test_image_thumbnail_leaves_fully_transparent_pixel_pairs_unstyled():
+    image = Image.new("RGBA", (1, 2))
+    image.putdata([(255, 0, 0, 0), (0, 0, 255, 0)])
+
+    pixel = thumbnail_pixel_segment(image)
+
+    assert pixel.text == " "
+    assert pixel.style is None
+
+
+def test_image_thumbnail_composites_partially_transparent_pixels():
+    image = Image.new("RGBA", (1, 2))
+    image.putdata([(255, 0, 0, 128), (0, 255, 0, 64)])
+
+    pixel = thumbnail_pixel_segment(image)
+
+    assert pixel.text == "▀"
+    assert pixel.style is not None
+    assert pixel.style.color is not None
+    assert pixel.style.bgcolor is not None
+    assert pixel.style.color.triplet == (192, 64, 64)
+    assert pixel.style.bgcolor.triplet == (96, 160, 96)
+
+
+def test_console_caps_inline_image_thumbnail_rows():
+    image = inline_png((60, 120))
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(
+        chat,
+        width=20,
+        color_system="truecolor",
+        image_max_lines=3,
+    )
+
+    chat.chat("look at this", image, echo="all")
+
+    rows = [line for line in output().splitlines() if "▀" in line]
+    assert len(rows) == 3
+
+
+def test_console_inline_image_without_color_falls_back_to_a_label():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(chat, color_system=None)
+
+    chat.chat("look at this", image, echo="all")
+
+    rendered = output()
+    assert image.data not in rendered
+    assert "▀" not in rendered
+    assert image_label("image/png", image.data) in rendered
+
+
+def test_console_inline_image_without_pillow_falls_back_to_a_label(monkeypatch):
+    image = inline_png((8, 6))
+    monkeypatch.setitem(sys.modules, "PIL", None)
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(chat, color_system="truecolor")
+
+    chat.chat("look at this", image, echo="all")
+
+    rendered = output()
+    assert image.data not in rendered
+    assert "▀" not in rendered
+    assert image_label("image/png", image.data) in rendered
+
+
+def test_console_corrupt_inline_image_falls_back_to_a_label():
+    image = ContentImageInline(image_content_type="image/png", data="not image data")
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(chat, color_system="truecolor")
+
+    chat.chat("look at this", image, echo="all")
+
+    rendered = output()
+    assert image.data not in rendered
+    assert "▀" not in rendered
+    assert image_label("image/png", image.data) in rendered
+
+
+def test_console_keeps_remote_images_as_markdown():
+    image = ContentImageRemote(url="https://example.com/a.png")
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(chat)
+
+    chat.chat("look at this", image, echo="all")
+
+    assert "🌆 a.png" in output()
+
+
+def test_image_max_lines_defaults_to_sixteen():
+    chat = make_chat([[text("Done.")]])
+
+    assert DEFAULT_IMAGE_MAX_LINES == 16
+    assert chat._echo_options["image_max_lines"] == DEFAULT_IMAGE_MAX_LINES
+
+
+def test_notebook_keeps_inline_images_as_markdown(monkeypatch):
+    updates = capture_ipy(monkeypatch)
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Done.")]])
+
+    chat.chat("look at this", image, echo="all")
+
+    assert f"![](data:image/png;base64,{image.data})" in updates[-1]
+
+
 def test_display_is_restored_when_the_provider_raises():
     """
     `chat()` runs the display as a context manager, so a mid-stream failure must
@@ -885,6 +1017,8 @@ def capture_echo(
     tool_result_max_lines: "int | None | MISSING_TYPE" = MISSING,
     thinking_max_lines: "int | None | MISSING_TYPE" = MISSING,
     web_activity_max_sources: "int | None | MISSING_TYPE" = MISSING,
+    image_max_lines: "int | None | MISSING_TYPE" = MISSING,
+    color_system: Literal["256", "truecolor"] | None = None,
     height: Optional[int] = None,
 ) -> Callable[[], str]:
     """
@@ -901,7 +1035,10 @@ def capture_echo(
         "file": buf,
         "width": width,
         "force_terminal": force_terminal,
+        "color_system": color_system,
     }
+    if color_system is not None:
+        console["no_color"] = False
     if height is not None:
         console["height"] = height
     chat.set_echo_options(
@@ -910,6 +1047,7 @@ def capture_echo(
         tool_result_max_lines=tool_result_max_lines,
         thinking_max_lines=thinking_max_lines,
         web_activity_max_sources=web_activity_max_sources,
+        image_max_lines=image_max_lines,
     )
 
     def get() -> str:
@@ -998,6 +1136,32 @@ def thinking_chunks() -> list[Content]:
 
 def text(value: str) -> ContentText:
     return ContentText.model_construct(text=value)
+
+
+def inline_png(size: tuple[int, int]) -> ContentImageInline:
+    image = Image.new("RGB", size, color=(255, 64, 32))
+    return inline_image(image)
+
+
+def thumbnail_pixel_segment(image: Image.Image):
+    content = inline_image(image)
+    thumbnail = ImageThumbnail(content.image_content_type, content.data, max_lines=None)
+    decoded = thumbnail._decode()
+    assert decoded is not None
+    return next(
+        segment
+        for segment in thumbnail._segments(decoded, max_width=1).segments
+        if segment.text != "\n"
+    )
+
+
+def inline_image(image: Image.Image) -> ContentImageInline:
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    return ContentImageInline(
+        image_content_type="image/png",
+        data=base64.b64encode(buffer.getvalue()).decode("ascii"),
+    )
 
 
 def tool_request(
