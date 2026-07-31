@@ -18,7 +18,7 @@ from pydantic import (
 )
 
 from ._typing_extensions import TypedDict, TypeIs
-from ._utils import html_escape, truncate_lines
+from ._utils import format_bytes, html_escape, truncate_lines
 
 if TYPE_CHECKING:
     from htmltools import Tagified
@@ -746,6 +746,20 @@ class ContentJson(Content):
         return f"""```json\n{val}\n```"""
 
 
+def markdown_code_span(label: str) -> str:
+    label = label.replace("\r\n", "\\n").replace("\r", "\\n").replace("\n", "\\n")
+    longest_run = 0
+    current_run = 0
+    for character in label:
+        if character == "`":
+            current_run += 1
+            longest_run = max(longest_run, current_run)
+        else:
+            current_run = 0
+    fence = "`" * (longest_run + 1)
+    return f"{fence}{label}{fence}"
+
+
 class ContentPDF(Content):
     """
     PDF content
@@ -790,8 +804,8 @@ class ContentPDF(Content):
         return v
 
     def __str__(self):
-        size = f"{len(self.data)} bytes" if self.data is not None else f"url={self.url}"
-        return f"<PDF document file={self.filename} {size}>"
+        detail = format_bytes(len(self.data)) if self.data is not None else self.url
+        return markdown_code_span(f"[PDF {self.filename} · {detail}]")
 
 
 class ContentDocument(Content):
@@ -858,7 +872,7 @@ class ContentDocument(Content):
         return v
 
     def __str__(self):
-        return f"<document file={self.filename} mime_type={self.mime_type}>"
+        return markdown_code_span(f"[document {self.filename} · {self.mime_type}]")
 
 
 class ContentUploaded(Content):
@@ -894,7 +908,7 @@ class ContentUploaded(Content):
     content_type: ContentTypeEnum = "uploaded"
 
     def __str__(self):
-        return f"<uploaded file id={self.id} mime_type={self.mime_type}>"
+        return markdown_code_span(f"[uploaded {self.id} · {self.mime_type}]")
 
 
 class ContentThinking(Content):

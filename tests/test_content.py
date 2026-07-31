@@ -3,6 +3,7 @@ from chatlas import ChatOpenAI
 from chatlas._content import (
     ContentCitation,
     ContentDocument,
+    ContentPDF,
     ContentText,
     ContentToolRequestFetch,
     ContentToolRequestSearch,
@@ -117,7 +118,7 @@ def test_contenttext_add_concatenates():
 def test_content_uploaded_roundtrip():
     c = ContentUploaded(id="file_123", mime_type="application/pdf", provider="openai")
     assert c.content_type == "uploaded"
-    assert str(c) == "<uploaded file id=file_123 mime_type=application/pdf>"
+    assert str(c) == "`[uploaded file_123 · application/pdf]`"
 
     dumped = c.model_dump()
     restored = create_content(dumped)
@@ -136,6 +137,80 @@ def test_content_document_roundtrip():
     assert restored.data == b"hello"
     assert restored.filename == "a.txt"
     assert restored.mime_type == "text/plain"
+
+
+@pytest.mark.parametrize(
+    "content, expected",
+    [
+        (
+            ContentPDF(data=b"x" * (219 * 1024), filename="report.pdf"),
+            "`[PDF report.pdf · 219 KB]`",
+        ),
+        (
+            ContentPDF(
+                filename="r.pdf",
+                url="https://example.com/r.pdf",
+            ),
+            "`[PDF r.pdf · https://example.com/r.pdf]`",
+        ),
+        (
+            ContentDocument(data=b"hello", filename="data.csv", mime_type="text/csv"),
+            "`[document data.csv · text/csv]`",
+        ),
+        (
+            ContentUploaded(
+                id="file-abc123",
+                mime_type="image/png",
+                provider="openai",
+            ),
+            "`[uploaded file-abc123 · image/png]`",
+        ),
+    ],
+)
+def test_file_content_str_survives_markdown_rendering(content, expected):
+    assert str(content) == expected
+    rendered = expected[1:-1]
+    assert rendered in render_console_markdown(str(content))
+    assert rendered in render_notebook_markdown(str(content))
+
+
+@pytest.mark.parametrize(
+    "content, expected",
+    [
+        (
+            ContentPDF(data=b"x", filename="x`\n# heading"),
+            "``[PDF x`\\n# heading · 1 B]``",
+        ),
+        (
+            ContentDocument(
+                data=b"x",
+                filename="x`\n# heading",
+                mime_type="text/csv",
+            ),
+            "``[document x`\\n# heading · text/csv]``",
+        ),
+        (
+            ContentUploaded(
+                id="file-`abc\n# heading",
+                mime_type="image/png",
+                provider="openai",
+            ),
+            "``[uploaded file-`abc\\n# heading · image/png]``",
+        ),
+    ],
+)
+def test_file_content_with_backticks_and_newlines_stays_code(
+    content, expected
+):
+    assert str(content) == expected
+
+    console_out = render_console_markdown(str(content))
+    assert "heading" in console_out
+
+    notebook_out = render_notebook_markdown(str(content))
+    assert "<h1>" not in notebook_out
+    assert "<code>" in notebook_out
+    assert r"\n# heading" in notebook_out
 
 
 def render_console_markdown(md: str) -> str:
