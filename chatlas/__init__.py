@@ -19,6 +19,7 @@ from ._interpolate import interpolate, interpolate_file
 from ._parallel import parallel_chat, parallel_chat_structured, parallel_chat_text
 from ._provider import Provider
 from ._provider_anthropic import ChatAnthropic, ChatBedrockAnthropic
+from ._provider_bedrock import ChatBedrock
 from ._provider_cloudflare import ChatCloudflare
 from ._provider_databricks import ChatDatabricks
 from ._provider_deepseek import ChatDeepSeek
@@ -58,6 +59,7 @@ __all__ = (
     "parallel_chat_text",
     "ChatAnthropic",
     "ChatAuto",
+    "ChatBedrock",
     "ChatBedrockAnthropic",
     "ChatCloudflare",
     "ChatDatabricks",

@@ -147,6 +147,7 @@ quartodoc:
         - ChatAnthropic
         - ChatAuto
         - ChatAzureOpenAI
+        - ChatBedrock
         - ChatBedrockAnthropic
         - ChatCloudflare
         - ChatDatabricks
