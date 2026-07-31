@@ -1,15 +1,27 @@
 import json
+from datetime import date
 from importlib import resources
 
 import httpx
 import pytest
-
 from chatlas import Chat, ChatBedrock
 from chatlas._provider_bedrock import (
     bedrock_api_for_model,
     bedrock_base_url,
     bedrock_models_base_url,
     bedrock_region,
+)
+from openai.types import Model
+
+from .conftest import (
+    assert_data_extraction,
+    assert_list_models,
+    assert_tools_async,
+    assert_tools_parallel,
+    assert_tools_sequential,
+    assert_tools_simple,
+    assert_turns_existing,
+    assert_turns_system,
 )
 
 BEDROCK_APIS = json.loads(
@@ -221,9 +233,7 @@ class TestMessagesProvider:
 
     def test_cache_is_rejected_for_the_responses_api(self):
         with pytest.raises(ValueError, match="cache"):
-            ChatBedrock(
-                model="openai.gpt-5.6-sol", cache="5m", aws_region="us-east-1"
-            )
+            ChatBedrock(model="openai.gpt-5.6-sol", cache="5m", aws_region="us-east-1")
 
     def test_default_max_tokens_is_4096(self):
         chat = ChatBedrock(
@@ -240,15 +250,52 @@ class TestMessagesProvider:
         )
         assert chat.provider._max_tokens == 100
 
-    def test_list_models_raises_with_no_network_call(self):
-        # bedrock-mantle only exposes a model listing on the OpenAI path
-        # (GET /anthropic/v1/models 404s), so this must fail fast and point
-        # the user at ChatBedrock(api="responses") rather than 404ing.
+    def test_list_models_uses_mantles_combined_v1_path(self):
         chat = ChatBedrock(
             model="anthropic.claude-haiku-4-5", api="messages", aws_region="us-east-1"
         )
-        with pytest.raises(NotImplementedError, match='api="responses"'):
-            chat.list_models()
+        assert str(chat.provider._models_client.base_url).rstrip("/") == (
+            "https://bedrock-mantle.us-east-1.api.aws/v1"
+        )
+
+    def test_list_models_rewrites_a_custom_anthropic_path(self):
+        chat = ChatBedrock(
+            model="anthropic.claude-haiku-4-5",
+            api="messages",
+            aws_region="us-east-1",
+            base_url="https://mantle.internal.example/anthropic",
+        )
+        assert str(chat.provider._models_client.base_url).rstrip("/") == (
+            "https://mantle.internal.example/v1"
+        )
+
+    def test_list_models_returns_the_combined_listing(self, monkeypatch):
+        chat = ChatBedrock(
+            model="anthropic.claude-haiku-4-5", api="messages", aws_region="us-east-1"
+        )
+        monkeypatch.setattr(
+            chat.provider._models_client.models,
+            "list",
+            lambda: [
+                Model(
+                    id="anthropic.claude-mythos-5",
+                    created=43_200,
+                    object="model",
+                    owned_by="AWS",
+                )
+            ],
+        )
+
+        assert chat.list_models() == [
+            {
+                "id": "anthropic.claude-mythos-5",
+                "owned_by": "AWS",
+                "input": None,
+                "output": None,
+                "cached_input": None,
+                "created_at": date(1970, 1, 1),
+            }
+        ]
 
 
 class TestNativeSdkClients:
@@ -343,6 +390,7 @@ class TestBearerTokenAuth:
         monkeypatch.setenv("ANTHROPIC_AWS_API_KEY", "anthropic-bedrock-key")
         chat = ChatBedrock(model="anthropic.claude-mythos-5", aws_region="us-east-1")
         assert chat.provider._client._use_sigv4 is False
+        assert chat.provider._models_client.api_key == "anthropic-bedrock-key"
 
     def test_api_key_kwarg_skips_validation(self, monkeypatch):
         self._no_credentials_session(monkeypatch)
@@ -393,17 +441,6 @@ class TestBearerTokenAuth:
 # ---------------------------------------------------------------------------
 # Live API tests (require Bedrock credentials; VCR can't record SigV4 auth)
 # ---------------------------------------------------------------------------
-
-from .conftest import (
-    assert_data_extraction,
-    assert_list_models,
-    assert_tools_async,
-    assert_tools_parallel,
-    assert_tools_sequential,
-    assert_tools_simple,
-    assert_turns_existing,
-    assert_turns_system,
-)
 
 _has_mantle_credentials = True
 try:

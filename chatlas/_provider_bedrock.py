@@ -4,7 +4,7 @@ import json
 import os
 import re
 from importlib import resources
-from typing import TYPE_CHECKING, Literal, Optional, cast
+from typing import TYPE_CHECKING, Any, Literal, Optional, cast
 
 from ._chat import Chat
 from ._logging import log_model_default
@@ -277,9 +277,11 @@ class BedrockMessagesProvider(AnthropicProvider):
                 AnthropicBedrockMantle,
                 AsyncAnthropicBedrockMantle,
             )
+            from openai import BedrockOpenAI
         except ImportError:
             raise ImportError(
-                '`ChatBedrock(api="messages")` requires the `anthropic` package. '
+                '`ChatBedrock(api="messages")` requires the `anthropic` and `openai` '
+                "packages. "
                 "Install it with `pip install chatlas[bedrock]`."
             )
 
@@ -306,14 +308,21 @@ class BedrockMessagesProvider(AnthropicProvider):
         # wrapping it would mean overriding an SDK private method to fix what is
         # upstream's to fix.
         self._async_client = AsyncAnthropicBedrockMantle(**async_kwargs)
-
-    def list_models(self):
-        raise NotImplementedError(
-            '.list_models() is not implemented for ChatBedrock(api="messages"). '
-            "bedrock-mantle does not expose a model listing on the Anthropic path. "
-            'Use ChatBedrock(api="responses").list_models() instead -- mantle serves '
-            "a single combined listing there that includes Claude models too."
+        self._models_client = BedrockOpenAI(
+            **bedrock_models_client_kwargs(
+                base_url=bedrock_models_base_url(str(self._client.base_url)),
+                api_key=self._client.api_key,
+                aws_access_key=self._client.aws_access_key,
+                aws_profile=self._client.aws_profile,
+                aws_region=self._client.aws_region,
+                aws_secret_key=self._client.aws_secret_key,
+                aws_session_token=self._client.aws_session_token,
+                kwargs=sync_kwargs,
+            )
         )
+
+    def list_models(self) -> list[ModelInfo]:
+        return openai_models_to_info(self._models_client.models.list(), self.name)
 
 
 def bedrock_client_kwargs(
@@ -342,6 +351,49 @@ def bedrock_client_kwargs(
             **(kwargs or {}),
         },
     )
+
+
+def bedrock_models_client_kwargs(
+    *,
+    base_url: str,
+    api_key: Optional[str],
+    aws_access_key: Optional[str],
+    aws_profile: Optional[str],
+    aws_region: Optional[str],
+    aws_secret_key: Optional[str],
+    aws_session_token: Optional[str],
+    kwargs: AnyTypeDict,
+) -> AnyTypeDict:
+    """Adapt resolved Anthropic Bedrock client settings for `BedrockOpenAI`."""
+    kwargs_dict = cast(dict[str, Any], kwargs)
+    result: dict[str, Any] = {
+        "aws_profile": aws_profile,
+        "aws_region": aws_region,
+        "base_url": base_url,
+    }
+    for key in (
+        "aws_credentials_provider",
+        "bedrock_token_provider",
+        "default_headers",
+        "default_query",
+        "http_client",
+        "max_retries",
+        "timeout",
+        "_strict_response_validation",
+    ):
+        if key in kwargs_dict:
+            result[key] = kwargs_dict[key]
+    if api_key is not None:
+        result["api_key"] = api_key
+    if aws_access_key is not None:
+        result["aws_access_key_id"] = aws_access_key
+    if aws_secret_key is not None:
+        result["aws_secret_access_key"] = aws_secret_key
+    if aws_session_token is not None:
+        result["aws_session_token"] = aws_session_token
+    # The two Bedrock clients accept overlapping but non-identical keyword
+    # arguments; the keyless TypedDict represents that dynamic bridge.
+    return cast(AnyTypeDict, result)
 
 
 def load_model_apis() -> dict[str, BedrockAPI]:
@@ -388,12 +440,12 @@ def bedrock_models_base_url(base_url: str) -> str:
     """
     Where to list models for a chat endpoint at `base_url`.
 
-    Mantle serves the listing from `/v1/models`, so a `GET /models` against the
-    `/openai/v1` chat base URL 404s. Rewriting the path (rather than rebuilding
+    Mantle serves the listing from `/v1/models`, whereas chat requests use
+    `/openai/v1` or `/anthropic`. Rewriting the path (rather than rebuilding
     the URL from the region) keeps a proxy or private endpoint in play for
     `.list_models()` too.
     """
-    return re.sub(r"/openai/v1/?$", "/v1", base_url)
+    return re.sub(r"/(?:openai/v1|anthropic)/?$", "/v1", base_url)
 
 
 def bedrock_credentials(profile: Optional[str]) -> Credentials:
