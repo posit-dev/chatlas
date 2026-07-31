@@ -604,9 +604,7 @@ class TestRequestTransport:
 
         message = completion["output"].get("message")
         assert message is not None
-        assert message["content"][0] == {
-            "text": "Thinking was redacted."
-        }
+        assert message["content"][0] == {"text": "Thinking was redacted."}
         assert thinking.extra == {"redactedContent": b"encrypted-reasoning"}
         assert as_converse_content(thinking) == {
             "reasoningContent": {"redactedContent": b"encrypted-reasoning"}
@@ -832,3 +830,129 @@ class TestResponseParsing:
         from chatlas._provider_bedrock_converse import converse_stop_reason
 
         assert converse_stop_reason(reason) == expected
+
+
+class TestStreamAccumulation:
+    def provider(self):
+        return BedrockConverseProvider(
+            model="test-model",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+        )
+
+    def merge(self, events: list[dict]):
+        merged = None
+        for event in events:
+            merged = self.provider().stream_merge_chunks(merged, event)
+        assert merged is not None
+        return merged
+
+    def test_text_deltas_are_emitted_in_order(self):
+        from chatlas._content import ContentText
+
+        provider = self.provider()
+        events = [
+            {"messageStart": {"role": "assistant"}},
+            {"contentBlockDelta": {"contentBlockIndex": 0, "delta": {"text": "Hel"}}},
+            {"contentBlockDelta": {"contentBlockIndex": 0, "delta": {"text": "lo"}}},
+            {"contentBlockStop": {"contentBlockIndex": 0}},
+        ]
+
+        merged = None
+        emitted = []
+        for event in events:
+            merged = provider.stream_merge_chunks(merged, event)
+            emitted.extend(provider.stream_content(event, merged))
+
+        assert (
+            "".join(
+                content.text for content in emitted if isinstance(content, ContentText)
+            )
+            == "Hello"
+        )
+
+    def test_tool_use_input_fragments_are_reassembled(self):
+        from chatlas._content import ContentToolRequest
+
+        events = [
+            {"messageStart": {"role": "assistant"}},
+            {
+                "contentBlockStart": {
+                    "contentBlockIndex": 0,
+                    "start": {"toolUse": {"toolUseId": "t1", "name": "get_weather"}},
+                }
+            },
+            {
+                "contentBlockDelta": {
+                    "contentBlockIndex": 0,
+                    "delta": {"toolUse": {"input": '{"city":'}},
+                }
+            },
+            {
+                "contentBlockDelta": {
+                    "contentBlockIndex": 0,
+                    "delta": {"toolUse": {"input": '"Paris"}'}},
+                }
+            },
+            {"contentBlockStop": {"contentBlockIndex": 0}},
+            {"messageStop": {"stopReason": "tool_use"}},
+            {
+                "metadata": {
+                    "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2}
+                }
+            },
+        ]
+
+        turn = self.provider().stream_turn(self.merge(events), has_data_model=False)
+        requests = [
+            content
+            for content in turn.contents
+            if isinstance(content, ContentToolRequest)
+        ]
+
+        assert len(requests) == 1
+        assert requests[0].name == "get_weather"
+        assert requests[0].arguments == {"city": "Paris"}
+        assert turn.finish_reason == "tool_use"
+
+    def test_interleaved_block_indices_stay_separate(self):
+        events = [
+            {"messageStart": {"role": "assistant"}},
+            {"contentBlockDelta": {"contentBlockIndex": 0, "delta": {"text": "A"}}},
+            {"contentBlockDelta": {"contentBlockIndex": 1, "delta": {"text": "B"}}},
+            {"contentBlockDelta": {"contentBlockIndex": 0, "delta": {"text": "C"}}},
+            {"contentBlockStop": {"contentBlockIndex": 0}},
+            {"contentBlockStop": {"contentBlockIndex": 1}},
+            {"messageStop": {"stopReason": "end_turn"}},
+            {
+                "metadata": {
+                    "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2}
+                }
+            },
+        ]
+
+        turn = self.provider().stream_turn(self.merge(events), has_data_model=False)
+
+        assert turn.text == "ACB"
+
+    def test_invalid_tool_arguments_name_the_tool(self):
+        events = [
+            {"messageStart": {"role": "assistant"}},
+            {
+                "contentBlockStart": {
+                    "contentBlockIndex": 0,
+                    "start": {"toolUse": {"toolUseId": "t1", "name": "get_weather"}},
+                }
+            },
+            {
+                "contentBlockDelta": {
+                    "contentBlockIndex": 0,
+                    "delta": {"toolUse": {"input": "not json"}},
+                }
+            },
+            {"contentBlockStop": {"contentBlockIndex": 0}},
+        ]
+
+        with pytest.raises(ValueError, match="get_weather"):
+            self.merge(events)

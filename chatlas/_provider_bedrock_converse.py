@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import json
 from functools import cache
 from typing import (
     TYPE_CHECKING,
@@ -489,19 +490,44 @@ class BedrockConverseProvider(
         completion: Optional[ConverseAccumulator],
         chunk: dict,
     ) -> Optional[ConverseAccumulator]:
-        # Minimal accumulator: plain text only, keyed by `contentBlockIndex` so
-        # interleaved blocks stay separate. Task 4 extends this to reassemble
-        # streamed tool-use input and reasoning content.
         merged: ConverseAccumulator = completion or {}
         if "messageStart" in chunk:
             merged["role"] = chunk["messageStart"]["role"]
+        elif "contentBlockStart" in chunk:
+            start_event = chunk["contentBlockStart"]
+            tool_use = start_event.get("start", {}).get("toolUse")
+            if tool_use is not None:
+                blocks = merged.setdefault("blocks", {})
+                blocks[start_event["contentBlockIndex"]] = {
+                    "toolUseId": tool_use["toolUseId"],
+                    "name": tool_use["name"],
+                    "input": [],
+                }
         elif "contentBlockDelta" in chunk:
             delta_event = chunk["contentBlockDelta"]
+            blocks = merged.setdefault("blocks", {})
+            index = delta_event["contentBlockIndex"]
             text = delta_event.get("delta", {}).get("text")
             if text is not None:
-                blocks = merged.setdefault("text", {})
-                index = delta_event["contentBlockIndex"]
-                blocks[index] = blocks.get(index, "") + text
+                block = blocks.setdefault(index, {})
+                block["text"] = block.get("text", "") + text
+            tool_use = delta_event.get("delta", {}).get("toolUse")
+            if tool_use is not None:
+                block = blocks.setdefault(index, {})
+                block.setdefault("input", []).append(tool_use["input"])
+        elif "contentBlockStop" in chunk:
+            blocks = merged.get("blocks", {})
+            block = blocks.get(chunk["contentBlockStop"]["contentBlockIndex"])
+            if block is not None and "toolUseId" in block:
+                raw_arguments = "".join(block.get("input", []))
+                tool_name = block.get("name", "<unknown>")
+                try:
+                    arguments = json.loads(raw_arguments) if raw_arguments else {}
+                except json.JSONDecodeError as exc:
+                    raise ValueError(
+                        f'Invalid JSON streamed for tool "{tool_name}".'
+                    ) from exc
+                block["arguments"] = cast(dict[str, Any], arguments)
         elif "messageStop" in chunk:
             merged["stopReason"] = chunk["messageStop"]["stopReason"]
         elif "metadata" in chunk:
@@ -519,10 +545,25 @@ class BedrockConverseProvider(
         # `_as_turn` with `value_turn` -- matching the pattern
         # SnowflakeProvider.stream_turn() uses for the same completion/chunk
         # type mismatch.
-        content_blocks = [
-            cast("ContentBlockOutputTypeDef", {"text": text})
-            for _, text in sorted(completion.get("text", {}).items())
-        ]
+        content_blocks: list[ContentBlockOutputTypeDef] = []
+        for _, block in sorted(completion.get("blocks", {}).items()):
+            if "text" in block:
+                content_blocks.append(
+                    cast("ContentBlockOutputTypeDef", {"text": block["text"]})
+                )
+            elif "toolUseId" in block and "name" in block:
+                content_blocks.append(
+                    cast(
+                        "ContentBlockOutputTypeDef",
+                        {
+                            "toolUse": {
+                                "toolUseId": block["toolUseId"],
+                                "name": block["name"],
+                                "input": block.get("arguments", {}),
+                            }
+                        },
+                    )
+                )
         usage = completion.get("usage") or {
             "inputTokens": 0,
             "outputTokens": 0,
@@ -845,15 +886,22 @@ class LazyCredentials:
 class ConverseAccumulator(TypedDict):
     """Streaming state merged across `converse-stream` events into one dict.
 
-    This only accumulates plain text, keyed by `contentBlockIndex` (so
-    interleaved blocks stay separate); Task 4 extends it to reassemble
-    streamed tool-use input and reasoning content.
+    Blocks are keyed by `contentBlockIndex`, which keeps interleaved text and
+    tool-use deltas separate until the stream is finalized.
     """
 
     role: NotRequired[str]
-    text: NotRequired[dict[int, str]]
+    blocks: NotRequired[dict[int, ConverseStreamBlock]]
     stopReason: NotRequired[str]
     usage: NotRequired[TokenUsageTypeDef]
+
+
+class ConverseStreamBlock(TypedDict, total=False):
+    text: str
+    toolUseId: str
+    name: str
+    input: list[str]
+    arguments: dict[str, Any]
 
 
 class ConverseSubmitArgs(TypedDict, total=False):
