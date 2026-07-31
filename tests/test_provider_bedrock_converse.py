@@ -1065,7 +1065,20 @@ class TestStructuredOutputAndCaching:
         response = cast(
             "ConverseResponseTypeDef",
             {
-                "output": {"message": {"role": "assistant", "content": []}},
+                "output": {
+                    "message": {
+                        "role": "assistant",
+                        "content": [
+                            {
+                                "toolUse": {
+                                    "toolUseId": "structured-1",
+                                    "name": "_structured_tool_call",
+                                    "input": {},
+                                }
+                            }
+                        ],
+                    }
+                },
                 "stopReason": "max_tokens",
                 "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2},
             },
@@ -1121,6 +1134,22 @@ class TestStructuredOutputAndCaching:
         )
 
         self.assert_cache_point(args, expected=True)
+
+    def test_system_request_kwargs_override_turns_without_cache(self):
+        from chatlas._turn import SystemTurn
+
+        args = self.provider(cache="none")._chat_perform_args(
+            stream=False,
+            turns=[SystemTurn("from turn"), UserTurn("hi")],
+            tools={},
+            kwargs=cast(
+                "ConverseSubmitArgs",
+                {"system": [{"text": "from kwargs"}]},
+            ),
+        )
+
+        system = args.get("system")
+        assert system == [{"text": "from kwargs"}]
 
     @pytest.mark.parametrize("cache", ["5m", "1h"])
     def test_explicit_cache_ttls_add_a_cache_point(self, cache):

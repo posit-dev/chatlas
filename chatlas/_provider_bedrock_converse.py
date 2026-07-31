@@ -715,11 +715,13 @@ class BedrockConverseProvider(
             inference_config.update(extra_inference_config)
         args.update(extra)
 
-        system = as_converse_system(turns)
+        extra_system = extra.get("system")
+        system = (
+            list(cast("list[SystemContentBlockTypeDef]", extra_system))
+            if extra_system is not None
+            else as_converse_system(turns)
+        )
         if converse_cache_point_enabled(self._cache, self.model):
-            extra_system = extra.get("system")
-            if extra_system is not None:
-                system = list(cast("list[SystemContentBlockTypeDef]", extra_system))
             system.append({"cachePoint": {"type": "default"}})
         if system:
             args["system"] = system
