@@ -3,7 +3,7 @@ import warnings
 
 import httpx
 import pytest
-from chatlas import ChatOpenAI, tool_web_search
+from chatlas import AssistantTurn, ChatOpenAI, UserTurn, tool_web_search
 from chatlas._content import (
     ContentDocument,
     ContentImageInline,
@@ -156,6 +156,30 @@ def test_openai_rejects_heif_images():
     c = ContentImageInline(image_content_type="image/heif", data="abcd")
     with pytest.raises(ValueError, match="image/heif"):
         as_input_param(c, role="user")
+
+
+def test_replayed_assistant_messages_carry_no_id():
+    # chatlas used to synthesize a placeholder id for every replayed assistant
+    # message purely to satisfy ResponseOutputMessageParam's Required fields.
+    # The API doesn't need one, and backends that reject duplicate item ids
+    # (e.g. bedrock-mantle) 400 as soon as a conversation has two assistant
+    # turns. Omitting it is what ellmer does too.
+    chat = ChatOpenAI()
+    turns = [
+        UserTurn("hi"),
+        AssistantTurn("first"),
+        UserTurn("again"),
+        AssistantTurn("second"),
+    ]
+    inputs = chat.provider._turns_as_inputs(turns)
+
+    assistant_msgs = [
+        item
+        for item in inputs
+        if item.get("type") == "message" and item.get("role") == "assistant"
+    ]
+    assert len(assistant_msgs) == 2
+    assert all("id" not in item for item in assistant_msgs)
 
 
 @pytest.mark.vcr
