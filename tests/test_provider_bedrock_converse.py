@@ -1,23 +1,44 @@
 import binascii
 import json
 import struct
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, AsyncIterator, cast
 
+import boto3
 import httpx
 import pytest
 from botocore.credentials import Credentials
+from chatlas._content import ContentThinking
+from chatlas._provider_bedrock_converse import (
+    BedrockConverseProvider,
+    ConverseSubmitArgs,
+    as_converse_content,
+    content_from_converse_block,
+    decode_eventstream,
+    decode_eventstream_async,
+)
+from chatlas._turn import UserTurn
 
 if TYPE_CHECKING:
-    from mypy_boto3_bedrock_runtime.type_defs import ConverseResponseTypeDef
+    from mypy_boto3_bedrock_runtime.type_defs import (
+        ContentBlockOutputTypeDef,
+        ConverseRequestTypeDef,
+        ConverseResponseTypeDef,
+    )
 
 
-def eventstream_frame(payload: bytes, event_type: str) -> bytes:
+def eventstream_frame(
+    payload: bytes,
+    event_type: str,
+    *,
+    message_type: str = "event",
+) -> bytes:
     """Encode one AWS eventstream frame the way bedrock-runtime does."""
     headers = b""
+    type_header = ":event-type" if message_type == "event" else ":exception-type"
     for name, value in (
-        (":event-type", event_type),
+        (type_header, event_type),
         (":content-type", "application/json"),
-        (":message-type", "event"),
+        (":message-type", message_type),
     ):
         headers += bytes([len(name)]) + name.encode()
         headers += b"\x07" + struct.pack(">H", len(value)) + value.encode()
@@ -106,6 +127,46 @@ class TestEventstreamDecoding:
         events = [e async for e in decode_eventstream_async(chunks())]
         assert len(events) == 6
         assert events[1]["contentBlockDelta"]["delta"]["text"] == "Hello"
+
+    def test_sync_exception_frame_raises(self):
+        frame = eventstream_frame(
+            json.dumps(
+                {
+                    "__type": "ThrottlingException",
+                    "message": "Too many requests",
+                }
+            ).encode(),
+            "throttlingException",
+            message_type="exception",
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="throttlingException: Too many requests",
+        ):
+            list(decode_eventstream(iter([frame])))
+
+    @pytest.mark.asyncio
+    async def test_async_exception_frame_raises(self):
+        frame = eventstream_frame(
+            json.dumps(
+                {
+                    "__type": "ValidationException",
+                    "message": "Invalid request",
+                }
+            ).encode(),
+            "validationException",
+            message_type="exception",
+        )
+
+        async def chunks() -> AsyncIterator[bytes]:
+            yield frame
+
+        with pytest.raises(
+            ValueError,
+            match="validationException: Invalid request",
+        ):
+            _ = [event async for event in decode_eventstream_async(chunks())]
 
 
 def make_request(**extra_headers: str) -> httpx.Request:
@@ -368,6 +429,228 @@ class TestContentSerialization:
             as_converse_messages([turn])
 
 
+class TestRequestTransport:
+    def binary_request(self) -> "ConverseRequestTypeDef":
+        return cast(
+            "ConverseRequestTypeDef",
+            {
+                "modelId": "vendor/model:version",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "image": {
+                                    "format": "png",
+                                    "source": {"bytes": b"image-bytes"},
+                                }
+                            },
+                            {
+                                "document": {
+                                    "format": "pdf",
+                                    "name": "document-0",
+                                    "source": {"bytes": b"pdf-bytes"},
+                                }
+                            },
+                        ],
+                    }
+                ],
+            },
+        )
+
+    def test_sync_request_base64_encodes_binary_content(self):
+        requests: list[httpx.Request] = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            requests.append(request)
+            return httpx.Response(200, json=CONVERSE_RESPONSE)
+
+        provider = BedrockConverseProvider(
+            model="vendor/model:version",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+        )
+        provider._client = httpx.Client(
+            base_url="https://bedrock-runtime.example.com",
+            transport=httpx.MockTransport(handler),
+        )
+        args = self.binary_request()
+
+        assert provider._converse(args) == CONVERSE_RESPONSE
+        assert requests[0].url.raw_path == b"/model/vendor%2Fmodel:version/converse"
+        body = json.loads(requests[0].content)
+        content = body["messages"][0]["content"]
+        assert content[0]["image"]["source"]["bytes"] == "aW1hZ2UtYnl0ZXM="
+        assert content[1]["document"]["source"]["bytes"] == "cGRmLWJ5dGVz"
+        assert args["messages"][0]["content"][0]["image"]["source"]["bytes"] == (
+            b"image-bytes"
+        )
+
+    @pytest.mark.asyncio
+    async def test_async_request_base64_encodes_binary_content(self):
+        requests: list[httpx.Request] = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            requests.append(request)
+            return httpx.Response(200, json=CONVERSE_RESPONSE)
+
+        provider = BedrockConverseProvider(
+            model="vendor/model:version",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+        )
+        provider._async_client = httpx.AsyncClient(
+            base_url="https://bedrock-runtime.example.com",
+            transport=httpx.MockTransport(handler),
+        )
+        args = self.binary_request()
+
+        assert await provider._converse_async(args) == CONVERSE_RESPONSE
+        body = json.loads(requests[0].content)
+        content = body["messages"][0]["content"]
+        assert content[0]["image"]["source"]["bytes"] == "aW1hZ2UtYnl0ZXM="
+        assert content[1]["document"]["source"]["bytes"] == "cGRmLWJ5dGVz"
+        assert args["messages"][0]["content"][1]["document"]["source"]["bytes"] == (
+            b"pdf-bytes"
+        )
+
+    def test_non_streaming_http_error_includes_status_and_message(self):
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                429,
+                json={"message": "Capacity is unavailable"},
+            )
+
+        provider = BedrockConverseProvider(
+            model="test-model",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+        )
+        provider._client = httpx.Client(
+            base_url="https://bedrock-runtime.example.com",
+            transport=httpx.MockTransport(handler),
+        )
+        args = cast(
+            "ConverseRequestTypeDef",
+            {"modelId": "test-model", "messages": []},
+        )
+
+        with pytest.raises(
+            ValueError,
+            match="status 429: Capacity is unavailable",
+        ):
+            provider._converse(args)
+
+
+class TestRequestArguments:
+    def test_reusing_kwargs_preserves_inference_config(self):
+        provider = BedrockConverseProvider(
+            model="test-model",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+        )
+        kwargs = {"inferenceConfig": {"temperature": 0.25}}
+
+        first = provider._chat_perform_args(
+            False,
+            [UserTurn("hello")],
+            {},
+            kwargs=cast("ConverseSubmitArgs", kwargs),
+        )
+        second = provider._chat_perform_args(
+            False,
+            [UserTurn("hello again")],
+            {},
+            kwargs=cast("ConverseSubmitArgs", kwargs),
+        )
+
+        assert kwargs == {"inferenceConfig": {"temperature": 0.25}}
+        assert first["inferenceConfig"] == {
+            "maxTokens": 4096,
+            "temperature": 0.25,
+        }
+        assert second["inferenceConfig"] == {
+            "maxTokens": 4096,
+            "temperature": 0.25,
+        }
+
+
+class TestProviderCapabilities:
+    def provider(self) -> BedrockConverseProvider:
+        return BedrockConverseProvider(
+            model="test-model",
+            aws_profile="test-profile",
+            aws_region="us-east-1",
+            base_url=None,
+        )
+
+    def test_token_count_is_unsupported(self):
+        with pytest.raises(
+            NotImplementedError,
+            match="no standalone token-counting endpoint",
+        ):
+            self.provider().token_count([], tools={}, data_model=None)
+
+    @pytest.mark.asyncio
+    async def test_async_token_count_is_unsupported(self):
+        with pytest.raises(
+            NotImplementedError,
+            match="no standalone token-counting endpoint",
+        ):
+            await self.provider().token_count_async([], tools={}, data_model=None)
+
+    def test_list_models_uses_bedrock_control_plane_without_aws(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        calls: dict[str, object] = {}
+
+        class FakeBedrock:
+            def list_foundation_models(self) -> dict[str, list[dict[str, str]]]:
+                return {
+                    "modelSummaries": [
+                        {
+                            "modelId": "vendor.test-model",
+                            "modelName": "Test Model",
+                            "providerName": "Vendor",
+                        }
+                    ]
+                }
+
+        class FakeSession:
+            def __init__(self, *, profile_name: str, region_name: str):
+                calls["profile_name"] = profile_name
+                calls["region_name"] = region_name
+
+            def client(self, service_name: str) -> FakeBedrock:
+                calls["service_name"] = service_name
+                return FakeBedrock()
+
+        monkeypatch.setattr(boto3, "Session", FakeSession)
+
+        models = self.provider().list_models()
+
+        assert calls == {
+            "profile_name": "test-profile",
+            "region_name": "us-east-1",
+            "service_name": "bedrock",
+        }
+        assert models == [
+            {
+                "id": "vendor.test-model",
+                "name": "Test Model",
+                "provider": "Vendor",
+                "input": None,
+                "output": None,
+                "cached_input": None,
+            }
+        ]
+
+
 # `ConverseResponseTypeDef` marks every field required (`modelId` is the only
 # NotRequired-free exception on the request side, but the response side has
 # none at all), so a literal missing fields like `metrics`/`trace` needs a
@@ -445,6 +728,21 @@ class TestResponseParsing:
         assert len(requests) == 1
         assert requests[0].name == "get_weather"
         assert requests[0].arguments == {"city": "Paris"}
+
+    def test_redacted_reasoning_round_trips_to_the_next_request(self):
+        block = cast(
+            "ContentBlockOutputTypeDef",
+            {"reasoningContent": {"redactedContent": b"encrypted-reasoning"}},
+        )
+
+        content = content_from_converse_block(block)
+
+        assert isinstance(content, ContentThinking)
+        assert content.thinking == ""
+        assert content.extra == {"redactedContent": b"encrypted-reasoning"}
+        assert as_converse_content(content) == {
+            "reasoningContent": {"redactedContent": b"encrypted-reasoning"}
+        }
 
     @pytest.mark.parametrize(
         "reason,expected",

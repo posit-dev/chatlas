@@ -117,7 +117,18 @@ def events_from_buffer(
     # Parsing a buffered frame is synchronous either way, so both decoders
     # share this loop and only differ in how they feed the buffer.
     for event in buffer:
-        yield parser.parse(event.to_response_dict(), shape)
+        parsed = parser.parse(event.to_response_dict(), shape)
+        raise_for_converse_stream_event(parsed)
+        yield parsed
+
+
+def raise_for_converse_stream_event(event: dict) -> None:
+    error = event.get("Error")
+    if not isinstance(error, dict):
+        return
+    code = error.get("Code") or "unknown error"
+    message = error.get("Message") or "No error message returned."
+    raise ValueError(f"Bedrock Converse stream failed with {code}: {message}")
 
 
 class CredentialsLike(Protocol):
@@ -245,6 +256,13 @@ def as_converse_content(
         }
     elif isinstance(content, ContentThinking):
         extra = content.extra or {}
+        redacted_content = extra.get("redactedContent")
+        if redacted_content is not None:
+            if not isinstance(redacted_content, bytes):
+                raise ValueError(
+                    "Bedrock Converse redacted reasoning content must be bytes."
+                )
+            return {"reasoningContent": {"redactedContent": redacted_content}}
         return {
             "reasoningContent": {
                 "reasoningText": {
@@ -605,7 +623,7 @@ class BedrockConverseProvider(
         if tools:
             args["toolConfig"] = as_converse_tools(tools)
 
-        extra = cast(dict, kwargs or {})
+        extra = dict(cast(dict, kwargs or {}))
         # Merge inferenceConfig rather than replacing it outright, so a
         # per-request override (e.g. from `set_model_params(temperature=...)`)
         # doesn't silently drop `maxTokens`.
@@ -625,7 +643,10 @@ class BedrockConverseProvider(
         # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html
         model_id = args["modelId"]
         body = {k: v for k, v in args.items() if k != "modelId"}
-        return f"/model/{quote(model_id, safe=':')}/{endpoint}", body
+        return (
+            f"/model/{quote(model_id, safe=':')}/{endpoint}",
+            converse_wire_value(body),
+        )
 
     def _converse(self, args: ConverseRequestTypeDef) -> ConverseResponseTypeDef:
         url, body = self._request_target(args, "converse")
@@ -714,6 +735,16 @@ def converse_tokens(usage: TokenUsageTypeDef) -> tuple[int, int, int]:
     )
 
 
+def converse_wire_value(value: Any) -> Any:
+    if isinstance(value, bytes):
+        return base64.b64encode(value).decode("ascii")
+    if isinstance(value, dict):
+        return {key: converse_wire_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [converse_wire_value(item) for item in value]
+    return value
+
+
 def content_from_converse_block(
     block: ContentBlockOutputTypeDef,
 ) -> Optional[Content]:
@@ -731,7 +762,13 @@ def content_from_converse_block(
             arguments=tool_use["input"],
         )
     if "reasoningContent" in fields:
-        reasoning_text = fields["reasoningContent"].get("reasoningText") or {}
+        reasoning_content = fields["reasoningContent"]
+        if "redactedContent" in reasoning_content:
+            return ContentThinking(
+                thinking="",
+                extra={"redactedContent": reasoning_content["redactedContent"]},
+            )
+        reasoning_text = reasoning_content.get("reasoningText") or {}
         return ContentThinking(
             thinking=reasoning_text.get("text", ""),
             extra={"signature": reasoning_text.get("signature", "")},
