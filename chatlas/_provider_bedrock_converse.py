@@ -721,7 +721,11 @@ class BedrockConverseProvider(
             if extra_system is not None
             else as_converse_system(turns)
         )
-        if converse_cache_point_enabled(self._cache, self.model):
+        if (
+            converse_cache_point_enabled(self._cache, self.model)
+            and system
+            and not any("cachePoint" in block for block in system)
+        ):
             system.append({"cachePoint": {"type": "default"}})
         if system:
             args["system"] = system
@@ -801,7 +805,12 @@ class BedrockConverseProvider(
                     and tool_use
                     and tool_use["name"] == "_structured_tool_call"
                 ):
-                    data = tool_use["input"].get("data")
+                    tool_input = tool_use["input"]
+                    if not isinstance(tool_input, dict):
+                        raise ValueError(
+                            "Expected data extraction tool to return a dictionary."
+                        )
+                    data = tool_input.get("data")
                     if not isinstance(data, dict):
                         raise ValueError(
                             "Expected data extraction tool to return a 'data' dictionary."

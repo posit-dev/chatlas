@@ -1061,6 +1061,32 @@ class TestStructuredOutputAndCaching:
         assert len(contents) == 1
         assert contents[0].value == {"name": "Alice", "age": 30}
 
+    def test_malformed_structured_tool_input_raises_value_error(self):
+        response = cast(
+            "ConverseResponseTypeDef",
+            {
+                "output": {
+                    "message": {
+                        "role": "assistant",
+                        "content": [
+                            {
+                                "toolUse": {
+                                    "toolUseId": "structured-1",
+                                    "name": "_structured_tool_call",
+                                    "input": [],
+                                }
+                            }
+                        ],
+                    }
+                },
+                "stopReason": "tool_use",
+                "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2},
+            },
+        )
+
+        with pytest.raises(ValueError, match="data extraction tool"):
+            self.provider().value_turn(response, has_data_model=True)
+
     def test_incomplete_structured_response_raises_the_finish_reason(self):
         response = cast(
             "ConverseResponseTypeDef",
@@ -1122,6 +1148,15 @@ class TestStructuredOutputAndCaching:
 
         self.assert_cache_point(args, expected=False)
 
+    def test_cache_auto_skips_the_cache_point_without_system_content(self):
+        args = self.provider(cache="auto")._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("hi")],
+            tools={},
+        )
+
+        assert "system" not in args
+
     def test_cache_point_is_preserved_with_request_system_blocks(self):
         args = self.provider(cache="auto")._chat_perform_args(
             stream=False,
@@ -1134,6 +1169,26 @@ class TestStructuredOutputAndCaching:
         )
 
         self.assert_cache_point(args, expected=True)
+
+    def test_cache_does_not_duplicate_a_system_cache_point(self):
+        args = self.provider(cache="auto")._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("hi")],
+            tools={},
+            kwargs=cast(
+                "ConverseSubmitArgs",
+                {
+                    "system": [
+                        {"text": "be terse"},
+                        {"cachePoint": {"type": "default"}},
+                    ]
+                },
+            ),
+        )
+
+        system = args.get("system")
+        assert system is not None
+        assert system.count({"cachePoint": {"type": "default"}}) == 1
 
     def test_system_request_kwargs_override_turns_without_cache(self):
         from chatlas._turn import SystemTurn
