@@ -299,6 +299,11 @@ class TestMessagesProvider:
 
 
 class TestNativeSdkClients:
+    def test_responses_default_clients_stabilize_the_connection_header(self):
+        chat = ChatBedrock(model="openai.gpt-5.6-sol", aws_region="us-east-1")
+        assert chat.provider._client._client.headers["connection"] == ""
+        assert chat.provider._async_client._client.headers["connection"] == ""
+
     def test_responses_provider_uses_the_sdk_bedrock_client(self):
         from openai import AsyncBedrockOpenAI, BedrockOpenAI
 

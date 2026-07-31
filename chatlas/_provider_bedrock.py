@@ -6,6 +6,8 @@ import re
 from importlib import resources
 from typing import TYPE_CHECKING, Any, Literal, Optional, cast
 
+import httpx
+
 from ._chat import Chat
 from ._logging import log_model_default
 from ._provider import ModelInfo, no_file_management
@@ -239,7 +241,7 @@ class BedrockResponsesProvider(OpenAIProvider):
             api_key="not-used",
         )
 
-        sync_kwargs, async_kwargs = split_http_client_kwargs(
+        sync_kwargs, async_kwargs = bedrock_responses_client_kwargs(
             bedrock_client_kwargs(
                 aws_profile=aws_profile,
                 aws_region=aws_region,
@@ -351,6 +353,21 @@ def bedrock_client_kwargs(
             **(kwargs or {}),
         },
     )
+
+
+def bedrock_responses_client_kwargs(
+    kwargs: AnyTypeDict,
+) -> tuple[AnyTypeDict, AnyTypeDict]:
+    sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs)
+    sync_kwargs_dict = cast(dict[str, Any], sync_kwargs)
+    async_kwargs_dict = cast(dict[str, Any], async_kwargs)
+    # Mantle rewrites this hop-by-hop header after OpenAI's SDK signs it, so
+    # stabilize the signed value until the SDK stops including it in SigV4.
+    if "http_client" not in sync_kwargs_dict:
+        sync_kwargs_dict["http_client"] = httpx.Client(headers={"Connection": ""})
+    if "http_client" not in async_kwargs_dict:
+        async_kwargs_dict["http_client"] = httpx.AsyncClient(headers={"Connection": ""})
+    return cast(AnyTypeDict, sync_kwargs_dict), cast(AnyTypeDict, async_kwargs_dict)
 
 
 def bedrock_models_client_kwargs(
