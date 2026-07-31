@@ -544,6 +544,64 @@ class TestRequestTransport:
         ):
             provider._converse(args)
 
+    def test_response_decodes_redacted_reasoning_before_replay(self):
+        def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                200,
+                json={
+                    "output": {
+                        "message": {
+                            "role": "assistant",
+                            "content": [
+                                {"text": "Thinking was redacted."},
+                                {
+                                    "reasoningContent": {
+                                        "redactedContent": (
+                                            "ZW5jcnlwdGVkLXJlYXNvbmluZw=="
+                                        )
+                                    }
+                                },
+                            ],
+                        }
+                    },
+                    "stopReason": "end_turn",
+                    "usage": {
+                        "inputTokens": 1,
+                        "outputTokens": 1,
+                        "totalTokens": 2,
+                    },
+                },
+            )
+
+        provider = BedrockConverseProvider(
+            model="test-model",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+        )
+        provider._client = httpx.Client(
+            base_url="https://bedrock-runtime.example.com",
+            transport=httpx.MockTransport(handler),
+        )
+        args = cast(
+            "ConverseRequestTypeDef",
+            {"modelId": "test-model", "messages": []},
+        )
+
+        completion = provider._converse(args)
+        turn = provider.value_turn(completion, has_data_model=False)
+        thinking = next(
+            content for content in turn.contents if isinstance(content, ContentThinking)
+        )
+
+        assert completion["output"]["message"]["content"][0] == {
+            "text": "Thinking was redacted."
+        }
+        assert thinking.extra == {"redactedContent": b"encrypted-reasoning"}
+        assert as_converse_content(thinking) == {
+            "reasoningContent": {"redactedContent": b"encrypted-reasoning"}
+        }
+
 
 class TestRequestArguments:
     def test_reusing_kwargs_preserves_inference_config(self):

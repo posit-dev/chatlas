@@ -652,7 +652,7 @@ class BedrockConverseProvider(
         url, body = self._request_target(args, "converse")
         response = self._client.post(url, json=body)
         raise_for_converse_status(response)
-        return cast("ConverseResponseTypeDef", response.json())
+        return converse_response_from_json(response.json())
 
     async def _converse_async(
         self, args: ConverseRequestTypeDef
@@ -660,7 +660,7 @@ class BedrockConverseProvider(
         url, body = self._request_target(args, "converse")
         response = await self._async_client.post(url, json=body)
         raise_for_converse_status(response)
-        return cast("ConverseResponseTypeDef", response.json())
+        return converse_response_from_json(response.json())
 
     def _converse_stream(self, args: ConverseRequestTypeDef) -> Iterator[dict]:
         url, body = self._request_target(args, "converse-stream")
@@ -743,6 +743,26 @@ def converse_wire_value(value: Any) -> Any:
     if isinstance(value, (list, tuple)):
         return [converse_wire_value(item) for item in value]
     return value
+
+
+def converse_response_from_json(
+    response: dict[str, Any],
+) -> ConverseResponseTypeDef:
+    output = response.get("output")
+    message = output.get("message") if isinstance(output, dict) else None
+    content = message.get("content") if isinstance(message, dict) else None
+    if isinstance(content, list):
+        for block in content:
+            if not isinstance(block, dict):
+                continue
+            reasoning = block.get("reasoningContent")
+            if not isinstance(reasoning, dict):
+                continue
+            redacted = reasoning.get("redactedContent")
+            if isinstance(redacted, str):
+                reasoning["redactedContent"] = base64.b64decode(redacted)
+
+    return cast("ConverseResponseTypeDef", response)
 
 
 def content_from_converse_block(
