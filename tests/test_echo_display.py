@@ -45,6 +45,7 @@ from chatlas._display import (
     base64_nbytes,
     capped_sources,
     image_label,
+    remote_image_html,
     tool_result_images,
     web_domain,
 )
@@ -610,6 +611,71 @@ def test_ipy_image_tool_result_renders_a_real_image(monkeypatch):
 
     assert "![](data:image/png;base64," in final
     assert "chatlas-tool-result" in final
+    tool_result, _, _ = final.partition("![](data:image/png;base64,")
+    assert image.data not in tool_result
+
+
+def test_ipy_remote_image_tool_result_renders_a_real_image(monkeypatch):
+    image = ContentImageRemote(url="https://example.com/image.png")
+
+    def remote_image_tool() -> ContentImageRemote:
+        return image
+
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat(
+        [[tool_request(name="remote_image_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(remote_image_tool)
+    chat.chat("go", echo="output")
+    final = updates[-1]
+
+    assert '<a href="https://example.com/image.png"' in final
+    assert '<img src="https://example.com/image.png"' in final
+    assert "chatlas-tool-result" in final
+
+
+def test_ipy_image_in_mapping_tool_result_renders_outside_result(monkeypatch):
+    image = inline_png((8, 6))
+
+    def screenshot_tool() -> dict[str, object]:
+        return {"image": image}
+
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat(
+        [[tool_request(name="screenshot_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(screenshot_tool)
+    chat.chat("go", echo="output")
+    final = updates[-1]
+
+    assert "![](data:image/png;base64," in final
+    tool_result, _, _ = final.partition("![](data:image/png;base64,")
+    assert image.data not in tool_result
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("javascript:alert(1)", "javascript:alert(1)"),
+        (
+            'https://example.com/image.png?caption="example"',
+            "caption=&quot;example&quot;",
+        ),
+    ],
+)
+def test_remote_image_html_handles_unsafe_and_escaped_urls(url: str, expected: str):
+    html = remote_image_html(url)
+
+    assert expected in html
+    if url.startswith("javascript:"):
+        assert "<a " not in html
+        assert "<img " not in html
+
+
+def test_tool_result_html_has_one_disclosure():
+    result = ContentToolResult(value="done", request=tool_request())
+
+    assert result.to_html().count("<details") == 1
 
 
 @pytest.mark.parametrize("nested", [False, True])
@@ -637,7 +703,7 @@ def test_image_inside_a_list_tool_result_is_split_out(nested: bool):
     assert "🖼 image/png" in rendered
 
 
-def test_tool_result_images_finds_images_at_any_list_depth():
+def test_tool_result_images_finds_images_at_any_supported_depth():
     image = inline_png((8, 6))
     request = tool_request()
 
@@ -647,6 +713,9 @@ def test_tool_result_images_finds_images_at_any_list_depth():
     ) == [image]
     assert tool_result_images(
         ContentToolResult(value=[["a", image]], request=request)
+    ) == [image]
+    assert tool_result_images(
+        ContentToolResult(value={"image": image}, request=request)
     ) == [image]
     assert tool_result_images(ContentToolResult(value="plain", request=request)) == []
 

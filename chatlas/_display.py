@@ -4,7 +4,7 @@ import io
 import logging
 import re
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from html import escape
 from typing import TYPE_CHECKING, Any, Optional, Union
@@ -23,6 +23,7 @@ from ._content import (
     Content,
     ContentCitation,
     ContentImageInline,
+    ContentImageRemote,
     ContentText,
     ContentThinking,
     ContentThinkingDelta,
@@ -332,6 +333,8 @@ class IPyMarkdownDisplay(MarkdownDisplay):
         if isinstance(content, ContentToolResult):
             # Already collapsed, and TOOL_CSS bounds its height once expanded.
             return f"\n\n{content.to_html()}\n\n"
+        if isinstance(content, ContentImageRemote):
+            return f"\n\n{remote_image_html(content.url)}\n\n"
         return f"\n\n{content}\n\n"
 
     def _init_display(self) -> str:
@@ -435,6 +438,18 @@ def web_activity_safe_url(url: Optional[str]) -> Optional[str]:
     if not url:
         return None
     return url if urlparse(url).scheme in ("http", "https") else None
+
+
+def remote_image_html(url: str) -> str:
+    """A remote image linked to its source, or plain text for an unsafe URL."""
+    safe = web_activity_safe_url(url)
+    if safe is None:
+        return escape(url)
+    escaped = escape(safe, quote=True)
+    return (
+        f'<a href="{escaped}" target="_blank" rel="noopener noreferrer">'
+        f'<img src="{escaped}" alt="" /></a>'
+    )
 
 
 def web_activity_html(segment: "WebActivitySegment") -> str:
@@ -986,17 +1001,24 @@ def image_label(
     return "🖼 " + " · ".join(bits)
 
 
-def tool_result_images(content: ContentToolResult) -> list[ContentImageInline]:
-    """Inline images carried by a tool result's value."""
+def tool_result_images(
+    content: ContentToolResult,
+) -> list[ContentImageInline | ContentImageRemote]:
+    """Images carried by a tool result's value."""
     return inline_images(content.value)
 
 
-def inline_images(value: object) -> list[ContentImageInline]:
-    if isinstance(value, ContentImageInline):
+def inline_images(value: object) -> list[ContentImageInline | ContentImageRemote]:
+    if isinstance(value, (ContentImageInline, ContentImageRemote)):
         return [value]
     if isinstance(value, (list, tuple)):
-        images: list[ContentImageInline] = []
+        images: list[ContentImageInline | ContentImageRemote] = []
         for item in value:
+            images.extend(inline_images(item))
+        return images
+    if isinstance(value, Mapping):
+        images = []
+        for item in value.values():
             images.extend(inline_images(item))
         return images
     return []
@@ -1006,8 +1028,12 @@ def replace_images(value: object) -> object:
     """Swap inline images for labels in the display-only copy of a result."""
     if isinstance(value, ContentImageInline):
         return image_label(value.image_content_type, value.data)
+    if isinstance(value, ContentImageRemote):
+        return f"image: {value.url}"
     if isinstance(value, (list, tuple)):
         return [replace_images(item) for item in value]
+    if isinstance(value, Mapping):
+        return {key: replace_images(item) for key, item in value.items()}
     return value
 
 

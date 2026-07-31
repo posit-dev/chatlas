@@ -691,17 +691,10 @@ class ContentToolResult(Content):
         else:
             args = pre_code(str(args))
 
-        # Wrap the input parameters in an (open) details block.
-        if args:
-            params = details_block("<strong>Input parameters:</strong>", args)
-        else:
-            params = ""
-
-        # Also wrap the tool result in an (open) details block.
-        result = details_block(
-            "<strong>Result:</strong>",
-            pre_code(self._get_display_value()),
+        params = (
+            f"<strong>Input parameters:</strong>{args}" if args else ""
         )
+        result = f"<strong>Result:</strong>{pre_code(self._get_display_value())}"
 
         # Put both the result and parameters into a container
         result_div = f'<div class="chatlas-tool-result-content">{result}{params}</div>'
