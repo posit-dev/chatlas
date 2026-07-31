@@ -108,6 +108,17 @@ class MarkdownDisplay(ABC):
                     ),
                 )
             )
+        elif isinstance(content, ContentToolResult):
+            images = tool_result_images(content)
+            if images:
+                shown = content.model_copy(
+                    update={"value": replace_images(content.value)}
+                )
+                self._segments.append(ContentSegment(content=shown))
+                for image in images:
+                    self._append(image)
+                return
+            self._segments.append(ContentSegment(content=content))
         else:
             self._segments.append(ContentSegment(content=content))
 
@@ -967,6 +978,31 @@ def image_label(
         bits.append(f"{size[0]}×{size[1]}")
     bits.append(format_bytes(base64_nbytes(data)))
     return "🖼 " + " · ".join(bits)
+
+
+def tool_result_images(content: ContentToolResult) -> list[ContentImageInline]:
+    """Inline images carried by a tool result's value."""
+    return inline_images(content.value)
+
+
+def inline_images(value: object) -> list[ContentImageInline]:
+    if isinstance(value, ContentImageInline):
+        return [value]
+    if isinstance(value, (list, tuple)):
+        images: list[ContentImageInline] = []
+        for item in value:
+            images.extend(inline_images(item))
+        return images
+    return []
+
+
+def replace_images(value: object) -> object:
+    """Swap inline images for labels in the display-only copy of a result."""
+    if isinstance(value, ContentImageInline):
+        return image_label(value.image_content_type, value.data)
+    if isinstance(value, (list, tuple)):
+        return [replace_images(item) for item in value]
+    return value
 
 
 def base64_nbytes(data: str) -> int:

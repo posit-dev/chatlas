@@ -45,6 +45,7 @@ from chatlas._display import (
     base64_nbytes,
     capped_sources,
     image_label,
+    tool_result_images,
     web_domain,
 )
 from chatlas._live_render import LiveRender
@@ -553,6 +554,101 @@ def test_echo_caps_a_single_line_tool_result_by_terminal_lines():
     assert "x" * 50 in rendered
     assert "x" * 4000 not in rendered
     assert re.search(r"… \d+ more lines", rendered)
+
+
+def test_echo_of_an_image_tool_result_is_bounded():
+    image = inline_png((8, 6))
+
+    def screenshot_tool() -> ContentImageInline:
+        return image
+
+    chat = make_chat(
+        [[tool_request(name="screenshot_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(screenshot_tool)
+    output = capture_echo(chat, width=80, tool_result_max_lines=20, image_max_lines=16)
+    chat.chat("take a screenshot", echo="output")
+    rendered = output()
+
+    assert image.data[:40] not in rendered
+    assert "🖼 image/png" in rendered
+    assert len(rendered.splitlines()) <= 20 + 16 + 4
+
+
+def test_image_tool_result_shows_the_result_block_and_the_image():
+    image = inline_png((8, 6))
+
+    def screenshot_tool() -> ContentImageInline:
+        return image
+
+    chat = make_chat(
+        [[tool_request(name="screenshot_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(screenshot_tool)
+    output = capture_echo(chat, width=80)
+    chat.chat("go", echo="output")
+    rendered = output()
+
+    assert "✅ tool result" in rendered
+    assert "🖼 image/png" in rendered
+    assert "tool-content" not in rendered
+
+
+def test_ipy_image_tool_result_renders_a_real_image(monkeypatch):
+    image = inline_png((8, 6))
+
+    def screenshot_tool() -> ContentImageInline:
+        return image
+
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat(
+        [[tool_request(name="screenshot_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(screenshot_tool)
+    chat.chat("go", echo="output")
+    final = updates[-1]
+
+    assert "![](data:image/png;base64," in final
+    assert "chatlas-tool-result" in final
+
+
+@pytest.mark.parametrize("nested", [False, True])
+def test_image_inside_a_list_tool_result_is_split_out(nested: bool):
+    image = inline_png((8, 6))
+    value: list[object] = ["before", image]
+    if nested:
+        value = ["before", ["nested", image]]
+
+    def screenshot_tool() -> list[object]:
+        return value
+
+    chat = make_chat(
+        [[tool_request(name="screenshot_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(screenshot_tool)
+    output = capture_echo(chat, width=80)
+    chat.chat("go", echo="output")
+    rendered = output()
+
+    assert image.data[:40] not in rendered
+    assert "before" in rendered
+    if nested:
+        assert "nested" in rendered
+    assert "🖼 image/png" in rendered
+
+
+def test_tool_result_images_finds_images_at_any_list_depth():
+    image = inline_png((8, 6))
+    request = tool_request()
+
+    assert tool_result_images(ContentToolResult(value=image, request=request)) == [image]
+    assert tool_result_images(
+        ContentToolResult(value=["a", image], request=request)
+    ) == [image]
+    assert tool_result_images(
+        ContentToolResult(value=[["a", image]], request=request)
+    ) == [image]
+    assert tool_result_images(ContentToolResult(value="plain", request=request)) == []
 
 
 def test_tool_result_str_is_never_truncated():
