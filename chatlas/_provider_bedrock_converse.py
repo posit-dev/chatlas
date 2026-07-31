@@ -219,6 +219,8 @@ def as_converse_content(
 ) -> ContentBlockUnionTypeDef:
     if isinstance(content, ContentText):
         return {"text": content.text}
+    elif isinstance(content, ContentJson):
+        return {"text": json.dumps(content.value, separators=(",", ":"))}
     elif isinstance(content, ContentImageInline):
         if content.image_content_type not in CONVERSE_IMAGE_FORMATS:
             raise ValueError(
@@ -688,20 +690,15 @@ class BedrockConverseProvider(
             "inferenceConfig": inference_config,
         }
 
-        system = as_converse_system(turns)
-        if converse_cache_point_enabled(self._cache, self.model):
-            system.append({"cachePoint": {"type": "default"}})
-        if system:
-            args["system"] = system
-
         data_model_tool: Optional[Tool] = None
         tool_specs = [converse_tool_spec(tool) for tool in tools.values()]
+        tool_config: Optional[ToolConfigurationTypeDef] = None
         if data_model is not None:
             data_model_tool = AnthropicProvider.create_data_model_tool(data_model)
             tool_specs.append(converse_tool_spec(data_model_tool))
 
         if tool_specs:
-            tool_config: ToolConfigurationTypeDef = {"tools": tool_specs}
+            tool_config = {"tools": tool_specs}
             if data_model_tool is not None:
                 tool_config["toolChoice"] = cast(
                     "ToolChoiceTypeDef",
@@ -717,6 +714,19 @@ class BedrockConverseProvider(
         if extra_inference_config:
             inference_config.update(extra_inference_config)
         args.update(extra)
+
+        system = as_converse_system(turns)
+        if converse_cache_point_enabled(self._cache, self.model):
+            extra_system = extra.get("system")
+            if extra_system is not None:
+                system = list(cast("list[SystemContentBlockTypeDef]", extra_system))
+            system.append({"cachePoint": {"type": "default"}})
+        if system:
+            args["system"] = system
+
+        if data_model_tool is not None:
+            assert tool_config is not None
+            args["toolConfig"] = tool_config
 
         return args
 

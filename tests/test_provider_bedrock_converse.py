@@ -342,13 +342,12 @@ class TestContentSerialization:
         with pytest.raises(ValueError, match="Remote images aren't supported"):
             as_converse_content(content)
 
-    def test_out_of_scope_content_type_raises(self):
+    def test_json_becomes_a_text_block(self):
         from chatlas._content import ContentJson
         from chatlas._provider_bedrock_converse import as_converse_content
 
         content = ContentJson(value={"a": 1})
-        with pytest.raises(ValueError, match="ContentJson"):
-            as_converse_content(content)
+        assert as_converse_content(content) == {"text": '{"a":1}'}
 
     def test_pdf_becomes_a_document_block(self):
         from chatlas._content import ContentPDF
@@ -1008,6 +1007,27 @@ class TestStructuredOutputAndCaching:
         assert tool_name in tool_names
         assert weather_tool.name in tool_names
 
+    def test_data_model_tool_choice_overrides_request_tool_config(self):
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+
+        args = self.provider()._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("Alice")],
+            tools={},
+            data_model=Person,
+            kwargs=cast("ConverseSubmitArgs", {"toolConfig": {"tools": []}}),
+        )
+
+        tool_config = args.get("toolConfig")
+        assert tool_config is not None
+        tool_choice = tool_config.get("toolChoice")
+        assert tool_choice == {
+            "tool": {"name": "_structured_tool_call"}
+        }
+
     def test_data_model_tool_response_becomes_json_content(self):
         from chatlas._content import ContentJson
 
@@ -1088,6 +1108,19 @@ class TestStructuredOutputAndCaching:
         )
 
         self.assert_cache_point(args, expected=False)
+
+    def test_cache_point_is_preserved_with_request_system_blocks(self):
+        args = self.provider(cache="auto")._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("hi")],
+            tools={},
+            kwargs=cast(
+                "ConverseSubmitArgs",
+                {"system": [{"text": "be terse"}]},
+            ),
+        )
+
+        self.assert_cache_point(args, expected=True)
 
     @pytest.mark.parametrize("cache", ["5m", "1h"])
     def test_explicit_cache_ttls_add_a_cache_point(self, cache):
