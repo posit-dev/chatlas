@@ -1024,9 +1024,7 @@ class TestStructuredOutputAndCaching:
         tool_config = args.get("toolConfig")
         assert tool_config is not None
         tool_choice = tool_config.get("toolChoice")
-        assert tool_choice == {
-            "tool": {"name": "_structured_tool_call"}
-        }
+        assert tool_choice == {"tool": {"name": "_structured_tool_call"}}
 
     def test_data_model_tool_response_becomes_json_content(self):
         from chatlas._content import ContentJson
