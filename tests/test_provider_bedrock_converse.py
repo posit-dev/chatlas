@@ -1,7 +1,7 @@
 import binascii
 import json
 import struct
-from typing import TYPE_CHECKING, AsyncIterator, cast
+from typing import TYPE_CHECKING, AsyncIterator, Literal, cast
 
 import boto3
 import httpx
@@ -956,3 +956,166 @@ class TestStreamAccumulation:
 
         with pytest.raises(ValueError, match="get_weather"):
             self.merge(events)
+
+
+class TestStructuredOutputAndCaching:
+    def provider(
+        self,
+        *,
+        model: str = "us.anthropic.claude-sonnet-4-6",
+        cache: Literal["auto", "5m", "1h", "none"] = "auto",
+    ):
+        return BedrockConverseProvider(
+            model=model,
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            cache=cache,
+        )
+
+    def test_data_model_forces_a_tool_choice(self):
+        from chatlas._tools import Tool
+        from pydantic import BaseModel
+
+        class Person(BaseModel):
+            name: str
+            age: int
+
+        def get_weather(city: str) -> str:
+            return city
+
+        weather_tool = Tool.from_func(get_weather)
+        args = self.provider()._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("Alice is 30")],
+            tools={weather_tool.name: weather_tool},
+            data_model=Person,
+        )
+
+        tool_config = args.get("toolConfig")
+        assert tool_config is not None
+        tool_choice = tool_config.get("toolChoice")
+        assert tool_choice is not None
+        selected_tool = tool_choice.get("tool")
+        assert selected_tool is not None
+        tool_name = selected_tool["name"]
+        tool_names = [
+            tool["toolSpec"]["name"]
+            for tool in tool_config["tools"]
+            if "toolSpec" in tool
+        ]
+
+        assert tool_name in tool_names
+        assert weather_tool.name in tool_names
+
+    def test_data_model_tool_response_becomes_json_content(self):
+        from chatlas._content import ContentJson
+
+        response = cast(
+            "ConverseResponseTypeDef",
+            {
+                "output": {
+                    "message": {
+                        "role": "assistant",
+                        "content": [
+                            {
+                                "toolUse": {
+                                    "toolUseId": "structured-1",
+                                    "name": "_structured_tool_call",
+                                    "input": {"data": {"name": "Alice", "age": 30}},
+                                }
+                            }
+                        ],
+                    }
+                },
+                "stopReason": "tool_use",
+                "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2},
+            },
+        )
+
+        turn = self.provider().value_turn(response, has_data_model=True)
+        contents = [
+            content for content in turn.contents if isinstance(content, ContentJson)
+        ]
+
+        assert len(contents) == 1
+        assert contents[0].value == {"name": "Alice", "age": 30}
+
+    def test_incomplete_structured_response_raises_the_finish_reason(self):
+        response = cast(
+            "ConverseResponseTypeDef",
+            {
+                "output": {"message": {"role": "assistant", "content": []}},
+                "stopReason": "max_tokens",
+                "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2},
+            },
+        )
+
+        with pytest.raises(ValueError, match="max_tokens"):
+            self.provider().value_turn(response, has_data_model=True)
+
+    def test_cache_auto_adds_a_cache_point_for_claude(self):
+        from chatlas._turn import SystemTurn
+
+        args = self.provider(cache="auto")._chat_perform_args(
+            stream=False,
+            turns=[SystemTurn("be terse"), UserTurn("hi")],
+            tools={},
+        )
+
+        self.assert_cache_point(args, expected=True)
+
+    def test_cache_auto_adds_a_cache_point_for_nova(self):
+        from chatlas._turn import SystemTurn
+
+        args = self.provider(
+            model="us.amazon.nova-pro-v1:0", cache="auto"
+        )._chat_perform_args(
+            stream=False,
+            turns=[SystemTurn("be terse"), UserTurn("hi")],
+            tools={},
+        )
+
+        self.assert_cache_point(args, expected=True)
+
+    def test_cache_none_adds_no_cache_point(self):
+        from chatlas._turn import SystemTurn
+
+        args = self.provider(cache="none")._chat_perform_args(
+            stream=False,
+            turns=[SystemTurn("be terse"), UserTurn("hi")],
+            tools={},
+        )
+
+        self.assert_cache_point(args, expected=False)
+
+    @pytest.mark.parametrize("cache", ["5m", "1h"])
+    def test_explicit_cache_ttls_add_a_cache_point(self, cache):
+        from chatlas._turn import SystemTurn
+
+        args = self.provider(cache=cache)._chat_perform_args(
+            stream=False,
+            turns=[SystemTurn("be terse"), UserTurn("hi")],
+            tools={},
+        )
+
+        self.assert_cache_point(args, expected=True)
+
+    def test_cache_auto_is_disabled_for_models_without_support(self):
+        from chatlas._turn import SystemTurn
+
+        args = self.provider(
+            model="meta.llama3-70b-instruct-v1:0", cache="auto"
+        )._chat_perform_args(
+            stream=False,
+            turns=[SystemTurn("be terse"), UserTurn("hi")],
+            tools={},
+        )
+
+        self.assert_cache_point(args, expected=False)
+
+    def assert_cache_point(self, args, *, expected: bool):
+        system = args.get("system")
+        assert system is not None
+        cache_point = {"cachePoint": {"type": "default"}}
+        assert (cache_point in system) is expected

@@ -29,6 +29,7 @@ from ._content import (
     Content,
     ContentImageInline,
     ContentImageRemote,
+    ContentJson,
     ContentPDF,
     ContentText,
     ContentThinking,
@@ -41,10 +42,22 @@ from ._provider import (
     StandardModelParamNames,
     StandardModelParams,
 )
-from ._provider_bedrock import bedrock_base_url, bedrock_credentials
+from ._provider_anthropic import AnthropicProvider
+from ._provider_bedrock import (
+    CROSS_REGION_PREFIX,
+    bedrock_base_url,
+    bedrock_credentials,
+)
 from ._tokens import get_price_info
 from ._tools import Tool, ToolBuiltIn
-from ._turn import AssistantTurn, FinishReason, SystemTurn, Turn, UserTurn
+from ._turn import (
+    AssistantTurn,
+    FinishReason,
+    SystemTurn,
+    Turn,
+    UserTurn,
+    check_finish_reason,
+)
 from ._typing_extensions import NotRequired, TypedDict
 
 try:
@@ -73,6 +86,7 @@ if TYPE_CHECKING:
         MessageUnionTypeDef,
         SystemContentBlockTypeDef,
         TokenUsageTypeDef,
+        ToolChoiceTypeDef,
         ToolConfigurationTypeDef,
         ToolTypeDef,
     )
@@ -301,6 +315,22 @@ def as_converse_tools(tools: dict[str, Tool | ToolBuiltIn]) -> ToolConfiguration
     return {"tools": [converse_tool_spec(tool) for tool in tools.values()]}
 
 
+def converse_cache_point_enabled(
+    cache: Literal["auto", "5m", "1h", "none"], model: str
+) -> bool:
+    """Whether to append a Converse cache point to this request's system blocks.
+
+    Converse only accepts the ``default`` cache point type, so its wire format
+    cannot distinguish the explicit 5-minute and 1-hour cache choices.
+    """
+    if cache == "none":
+        return False
+    if cache in ("5m", "1h"):
+        return True
+    model_id = CROSS_REGION_PREFIX.sub("", model)
+    return model_id.startswith(("anthropic.", "amazon.nova"))
+
+
 CONVERSE_IMAGE_FORMATS: dict[str, ImageFormatType] = {
     "image/png": "png",
     "image/jpeg": "jpeg",
@@ -357,7 +387,7 @@ class BedrockConverseProvider(
         self._aws_profile = aws_profile
         self._aws_region = aws_region
         self._max_tokens = max_tokens
-        self._cache = cache
+        self._cache: Literal["auto", "5m", "1h", "none"] = cache
 
         resolved_base_url = base_url or bedrock_base_url("converse", aws_region)
         # `LazyCredentials` defers the botocore credential chain to the first
@@ -659,10 +689,25 @@ class BedrockConverseProvider(
         }
 
         system = as_converse_system(turns)
+        if converse_cache_point_enabled(self._cache, self.model):
+            system.append({"cachePoint": {"type": "default"}})
         if system:
             args["system"] = system
-        if tools:
-            args["toolConfig"] = as_converse_tools(tools)
+
+        data_model_tool: Optional[Tool] = None
+        tool_specs = [converse_tool_spec(tool) for tool in tools.values()]
+        if data_model is not None:
+            data_model_tool = AnthropicProvider.create_data_model_tool(data_model)
+            tool_specs.append(converse_tool_spec(data_model_tool))
+
+        if tool_specs:
+            tool_config: ToolConfigurationTypeDef = {"tools": tool_specs}
+            if data_model_tool is not None:
+                tool_config["toolChoice"] = cast(
+                    "ToolChoiceTypeDef",
+                    {"tool": {"name": data_model_tool.name}},
+                )
+            args["toolConfig"] = tool_config
 
         extra = dict(cast(dict, kwargs or {}))
         # Merge inferenceConfig rather than replacing it outright, so a
@@ -729,19 +774,29 @@ class BedrockConverseProvider(
     ) -> AssistantTurn[ConverseResponseTypeDef]:
         finish_reason = converse_stop_reason(completion["stopReason"])
         tokens = self.value_tokens(completion)
+        if has_data_model:
+            check_finish_reason(finish_reason, "error")
 
         # `message` is NotRequired -- absent e.g. when a guardrail intervened
         # before the model produced any content.
         message = completion["output"].get("message")
-        contents = (
-            [
-                content
-                for block in message["content"]
-                if (content := content_from_converse_block(block)) is not None
-            ]
-            if message is not None
-            else []
-        )
+        contents: list[Content] = []
+        if message is not None:
+            for block in message["content"]:
+                tool_use = cast(dict, block).get("toolUse")
+                if (
+                    has_data_model
+                    and tool_use
+                    and tool_use["name"] == "_structured_tool_call"
+                ):
+                    data = tool_use["input"].get("data")
+                    if not isinstance(data, dict):
+                        raise ValueError(
+                            "Expected data extraction tool to return a 'data' dictionary."
+                        )
+                    contents.append(ContentJson(value=data))
+                elif (content := content_from_converse_block(block)) is not None:
+                    contents.append(content)
         return AssistantTurn(
             contents,
             finish_reason=finish_reason,
