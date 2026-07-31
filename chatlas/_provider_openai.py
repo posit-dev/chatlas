@@ -61,9 +61,6 @@ if TYPE_CHECKING:
         ResponseReasoningItemParam,
     )
     from openai.types.responses.easy_input_message_param import EasyInputMessageParam
-    from openai.types.responses.response_output_message_param import (
-        ResponseOutputMessageParam,
-    )
     from openai.types.responses.tool_param import ToolParam
     from openai.types.shared.reasoning_effort import ReasoningEffort
     from openai.types.shared_params.reasoning import Reasoning
@@ -708,15 +705,9 @@ def openai_replayable(content: ProviderAnnotation) -> bool:
 def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
     if isinstance(content, ContentText):
         if role == "assistant":
-            # Assistant text can't reuse as_message(): the Responses API only
-            # accepts `output_text`/`refusal` parts for this role, not
-            # `input_text`. ResponseOutputMessageParam marks `id` as Required,
-            # but a replayed message has none to give (Turn is provider-agnostic
-            # and doesn't carry one) and the API doesn't need it -- so omit it
-            # rather than synthesizing a fake, which some backends (e.g.
-            # bedrock-mantle) reject as a duplicate. Hence the cast.
+            # Assistant messages use output_text, but the SDK incorrectly requires an id.
             return cast(
-                "ResponseOutputMessageParam",
+                "ResponseInputItemParam",
                 {
                     "role": "assistant",
                     "content": [
