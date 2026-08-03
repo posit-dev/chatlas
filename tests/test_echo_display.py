@@ -46,6 +46,7 @@ from chatlas._display import (
     capped_sources,
     image_label,
     remote_image_html,
+    replace_images,
     tool_result_images,
     web_domain,
 )
@@ -529,6 +530,20 @@ def test_tool_result_block_leaves_short_content_alone():
     rendered = render_tool_result_block(Text("first\nsecond"), max_lines=5)
 
     assert rendered == "first\nsecond"
+
+
+def test_tool_result_block_does_not_materialize_all_rendered_lines(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    console = Console(width=20)
+    block = ToolResultBlock(Text("first\nsecond"), max_lines=1)
+
+    def fail(*args: object, **kwargs: object) -> None:
+        raise AssertionError("render_lines() materializes all rendered lines")
+
+    monkeypatch.setattr(console, "render_lines", fail)
+
+    assert len(list(block.__rich_console__(console, console.options))) == 2
 
 
 @pytest.mark.parametrize("max_lines", [0, -1])
@@ -2155,6 +2170,21 @@ def test_base64_nbytes_ignores_mime_whitespace_and_unpadded_data():
     assert base64_nbytes(f" \t{mime_wrapped}\n") == 100
     assert base64_nbytes("eA") == 1
     assert base64_nbytes("eHg") == 2
+
+
+@pytest.mark.parametrize("data", ["=", "==", "==="])
+def test_base64_nbytes_never_returns_a_negative_size(data: str):
+    assert base64_nbytes(data) == 0
+
+
+def test_replace_images_preserves_tuples():
+    image = inline_png((8, 6))
+
+    replaced = replace_images(("before", image))
+
+    assert isinstance(replaced, tuple)
+    assert replaced[0] == "before"
+    assert replaced[1].startswith("🖼 image/png")
 
 
 def test_image_label_includes_dimensions_only_when_known():

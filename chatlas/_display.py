@@ -616,18 +616,28 @@ class ToolResultBlock:
             yield self.body
             return
 
-        lines = console.render_lines(self.body, options, pad=False)
         keep = max(1, self.max_lines)
-        dropped = len(lines) - keep
-        if dropped <= 0:
-            yield self.body
-            return
+        rendered = console.render(self.body, options)
+        lines = Segment.split_and_crop_lines(
+            rendered, options.max_width, pad=False, include_new_lines=False
+        )
+        kept: list[list[Segment]] = []
+        dropped = 0
+        for line in lines:
+            if len(kept) < keep:
+                kept.append(line)
+            else:
+                dropped += 1
 
         segments: list[Segment] = []
-        for index, line in enumerate(lines[:keep]):
+        for index, line in enumerate(kept):
             if index:
                 segments.append(Segment.line())
             segments.extend(line)
+
+        if dropped <= 0:
+            yield Segments(segments)
+            return
 
         plural = "" if dropped == 1 else "s"
         segments.append(Segment.line())
@@ -1030,8 +1040,10 @@ def replace_images(value: object) -> object:
         return image_label(value.image_content_type, value.data)
     if isinstance(value, ContentImageRemote):
         return f"image: {value.url}"
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list):
         return [replace_images(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(replace_images(item) for item in value)
     if isinstance(value, Mapping):
         return {key: replace_images(item) for key, item in value.items()}
     return value
@@ -1047,7 +1059,7 @@ def base64_nbytes(data: str) -> int:
     s = "".join(char for char in data if char not in " \t\n\r\v\f")
     groups, remainder = divmod(len(s), 4)
     nbytes = groups * 3 + (0, 0, 1, 2)[remainder]
-    return nbytes - s.count("=")
+    return max(0, nbytes - s.count("="))
 
 
 def composite_rgba(pixel: tuple[int, int, int, int]) -> tuple[int, int, int]:
