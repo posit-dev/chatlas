@@ -139,6 +139,7 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#improvements" id="toc-improvements" class="nav-link" data-scroll-target="#improvements">Improvements</a></li>
   <li><a href="#bug-fixes" id="toc-bug-fixes" class="nav-link" data-scroll-target="#bug-fixes">Bug fixes</a></li>
+  <li><a href="#breaking-changes" id="toc-breaking-changes" class="nav-link" data-scroll-target="#breaking-changes">Breaking changes</a></li>
   </ul></li>
   <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section">[0.20.0] - 2026-07-29</a>
   <ul class="collapse">
@@ -146,7 +147,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#improvements-1" id="toc-improvements-1" class="nav-link" data-scroll-target="#improvements-1">Improvements</a></li>
   <li><a href="#changes" id="toc-changes" class="nav-link" data-scroll-target="#changes">Changes</a></li>
   <li><a href="#bug-fixes-1" id="toc-bug-fixes-1" class="nav-link" data-scroll-target="#bug-fixes-1">Bug fixes</a></li>
-  <li><a href="#breaking-changes" id="toc-breaking-changes" class="nav-link" data-scroll-target="#breaking-changes">Breaking changes</a></li>
+  <li><a href="#breaking-changes-1" id="toc-breaking-changes-1" class="nav-link" data-scroll-target="#breaking-changes-1">Breaking changes</a></li>
   </ul></li>
   <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1">[0.19.2] - 2026-07-08</a>
   <ul class="collapse">
@@ -221,7 +222,7 @@ ul.task-list li input[type="checkbox"] {
   </ul></li>
   <li><a href="#section-15" id="toc-section-15" class="nav-link" data-scroll-target="#section-15">[0.12.0] - 2025-09-08</a>
   <ul class="collapse">
-  <li><a href="#breaking-changes-1" id="toc-breaking-changes-1" class="nav-link" data-scroll-target="#breaking-changes-1">Breaking changes</a></li>
+  <li><a href="#breaking-changes-2" id="toc-breaking-changes-2" class="nav-link" data-scroll-target="#breaking-changes-2">Breaking changes</a></li>
   <li><a href="#new-features-11" id="toc-new-features-11" class="nav-link" data-scroll-target="#new-features-11">New features</a></li>
   <li><a href="#bug-fixes-12" id="toc-bug-fixes-12" class="nav-link" data-scroll-target="#bug-fixes-12">Bug fixes</a></li>
   </ul></li>
@@ -273,7 +274,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#new-features-17" id="toc-new-features-17" class="nav-link" data-scroll-target="#new-features-17">New features</a></li>
   <li><a href="#improvements-13" id="toc-improvements-13" class="nav-link" data-scroll-target="#improvements-13">Improvements</a></li>
   <li><a href="#changes-8" id="toc-changes-8" class="nav-link" data-scroll-target="#changes-8">Changes</a></li>
-  <li><a href="#breaking-changes-3" id="toc-breaking-changes-3" class="nav-link" data-scroll-target="#breaking-changes-3">Breaking changes</a></li>
+  <li><a href="#breaking-changes-4" id="toc-breaking-changes-4" class="nav-link" data-scroll-target="#breaking-changes-4">Breaking changes</a></li>
   </ul></li>
   <li><a href="#section-26" id="toc-section-26" class="nav-link" data-scroll-target="#section-26">[0.6.1] - 2025-04-03</a>
   <ul class="collapse">
@@ -345,6 +346,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <li><code>ContentCitation</code>, <code>ContentToolRequestFetch</code>, and <code>ContentToolResponseFetch</code> rendered as nothing at all. They stringified to <code>[label]: &lt;url&gt;</code>, which markdown parses as a link reference definition, so the console, notebooks, and <code>Chat.export(content="all")</code> all silently dropped the line.</li>
 </ul>
 </section>
+<section id="breaking-changes" class="level3">
+<h3 class="anchored" data-anchor-id="breaking-changes">Breaking changes</h3>
+<ul>
+<li><code>ChatGithub()</code> is now defunct: it always raises <code>RuntimeError</code>. GitHub Models was retired on 2026-07-30, so the underlying API no longer works. Use <code>ChatGoogle()</code> (offers a free tier) or <code>ChatPosit()</code> (offers a free trial) instead.</li>
+</ul>
+</section>
 </section>
 <section id="section" class="level2">
 <h2 class="anchored" data-anchor-id="section">[0.20.0] - 2026-07-29</h2>
@@ -400,8 +407,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesnâ€
 <li>Streaming two adjacent pieces of same-typed content that define no merge behavior (e.g.&nbsp;two tool requests) no longer raises <code>TypeError</code>. They are now appended as separate content instead.</li>
 </ul>
 </section>
-<section id="breaking-changes" class="level3">
-<h3 class="anchored" data-anchor-id="breaking-changes">Breaking changes</h3>
+<section id="breaking-changes-1" class="level3">
+<h3 class="anchored" data-anchor-id="breaking-changes-1">Breaking changes</h3>
 <ul>
 <li><code>ContentToolResponseSearch.urls</code> (a <code>list[str]</code>) has been replaced by <code>.sources</code> (a <code>list[WebSource]</code>), each carrying the resultâ€™s <code>url</code> and <code>title</code>. Code reading <code>.urls</code> should switch to <code>[s.url for s in x.sources]</code>.</li>
 <li>The <code>Provider</code> abstract base class changed shape, which affects third-party <code>Provider</code> subclasses (not users of the built-in <code>Chat*()</code> functions): <code>stream_text()</code> was removed, and <code>stream_content()</code> both returns a <code>Sequence[Content]</code> (subsuming what <code>stream_text()</code> did) and takes a second <code>completion</code> argument holding the merged-so-far completion. Implementations needing state across chunks should read it from <code>completion</code> rather than storing it on <code>self</code>, since one provider instance is shared across forked chats.</li>
@@ -700,8 +707,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesnâ€
 </section>
 <section id="section-15" class="level2">
 <h2 class="anchored" data-anchor-id="section-15">[0.12.0] - 2025-09-08</h2>
-<section id="breaking-changes-1" class="level3">
-<h3 class="anchored" data-anchor-id="breaking-changes-1">Breaking changes</h3>
+<section id="breaking-changes-2" class="level3">
+<h3 class="anchored" data-anchor-id="breaking-changes-2">Breaking changes</h3>
 <ul>
 <li><code>ChatAuto()</code>â€™s first (optional) positional parameter has changed from <code>system_prompt</code> to <code>provider_model</code>, and <code>system_prompt</code> is now a keyword parameter. As a result, you may need to change <code>ChatAuto("[system prompt]")</code> -&gt; <code>ChatAuto(system_prompt="[system prompt]")</code>. In addition, the <code>provider</code> and <code>model</code> keyword arguments are now deprecated, but continue to work with a warning, as are the previous <code>CHATLAS_CHAT_PROVIDER</code> and <code>CHATLAS_CHAT_MODEL</code> environment variables. (#159)</li>
 </ul>
@@ -837,8 +844,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesnâ€
 </section>
 <section id="changes-6" class="level3">
 <h3 class="anchored" data-anchor-id="changes-6">Changes</h3>
-<section id="breaking-changes-2" class="level4">
-<h4 class="anchored" data-anchor-id="breaking-changes-2">Breaking Changes</h4>
+<section id="breaking-changes-3" class="level4">
+<h4 class="anchored" data-anchor-id="breaking-changes-3">Breaking Changes</h4>
 <ul>
 <li><code>Chat</code> constructors (<code>ChatOpenAI()</code>, <code>ChatAnthropic()</code>, etc) no longer have a <code>turns</code> keyword parameter. Use the <code>.set_turns()</code> method instead to set the (initial) chat history. (#126)</li>
 <li><code>Chat</code>â€™s <code>.tokens()</code> methods have been removed in favor of <code>.get_tokens()</code> which returns both cumulative tokens in the turn and discrete tokens. (#106)</li>
@@ -958,8 +965,8 @@ Like <code>content_pdf_url()</code>, <code>content_document_url()</code> doesnâ€
 <li>Tool results are now dumped to JSON by default before being sent to the model. To revert to the previous behavior, have the tool return a <code>ContentToolResult</code> with <code>model_format="str"</code>. (#87)</li>
 </ul>
 </section>
-<section id="breaking-changes-3" class="level3">
-<h3 class="anchored" data-anchor-id="breaking-changes-3">Breaking changes</h3>
+<section id="breaking-changes-4" class="level3">
+<h3 class="anchored" data-anchor-id="breaking-changes-4">Breaking changes</h3>
 <ul>
 <li>The <code>.export()</code> methodâ€™s <code>include</code> argument has been renamed to <code>content</code> (to match <code>.stream()</code>). (#75)</li>
 </ul>

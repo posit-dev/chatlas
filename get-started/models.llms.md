@@ -14,7 +14,6 @@ Below is a table of model providers that come pre-packaged with chatlas.
 | Azure OpenAI | [`ChatAzureOpenAI()`](../reference/ChatAzureOpenAI.llms.md) | ✅ |
 | Google (Gemini) | [`ChatGoogle()`](../reference/ChatGoogle.llms.md) |  |
 | Google (Vertex) | [`ChatVertex()`](../reference/ChatVertex.llms.md) | ✅ |
-| GitHub model marketplace | [`ChatGithub()`](../reference/ChatGithub.llms.md) |  |
 | Ollama (local models) | [`ChatOllama()`](../reference/ChatOllama.llms.md) |  |
 | LM Studio (local models) | [`ChatLMStudio()`](../reference/ChatLMStudio.llms.md) |  |
 | Open Router | [`ChatOpenRouter()`](../reference/ChatOpenRouter.llms.md) |  |
