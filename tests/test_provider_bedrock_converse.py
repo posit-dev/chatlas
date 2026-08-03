@@ -957,6 +957,44 @@ class TestStreamAccumulation:
             self.merge(events)
 
 
+class TestConverseDispatch:
+    def test_converse_model_builds_a_converse_provider(self):
+        from chatlas import ChatBedrock
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        chat = ChatBedrock(model="amazon.nova-pro-v1:0", aws_region="us-east-1")
+
+        assert isinstance(chat.provider, BedrockConverseProvider)
+
+    def test_default_model_is_ellmers_claude_sonnet(self):
+        from chatlas import ChatBedrock
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        chat = ChatBedrock(aws_region="us-east-1")
+
+        assert chat.provider.model == "us.anthropic.claude-sonnet-4-6"
+        assert isinstance(chat.provider, BedrockConverseProvider)
+
+    def test_claude_routes_to_converse_not_mantle(self):
+        from chatlas import ChatBedrock
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        chat = ChatBedrock(model="anthropic.claude-sonnet-5", aws_region="us-east-1")
+
+        assert isinstance(chat.provider, BedrockConverseProvider)
+
+    def test_converse_base_url_is_the_runtime_endpoint(self):
+        from chatlas import ChatBedrock
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        chat = ChatBedrock(model="amazon.nova-pro-v1:0", aws_region="us-west-2")
+        provider = cast(BedrockConverseProvider, chat.provider)
+
+        assert "bedrock-runtime.us-west-2.amazonaws.com" in str(
+            provider._client.base_url
+        )
+
+
 class TestStructuredOutputAndCaching:
     def provider(
         self,

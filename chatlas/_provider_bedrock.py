@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 BedrockAPI = Literal["converse", "messages", "responses"]
 
-DEFAULT_MODEL = "openai.gpt-5.6-sol"
+DEFAULT_MODEL = "us.anthropic.claude-sonnet-4-6"
 
 MANTLE_HOST = "https://bedrock-mantle.{region}.api.aws"
 
@@ -59,8 +59,7 @@ def ChatBedrock(
       endpoint. Only Claude models are available here, but it includes some
       (like Claude Mythos) that no other Bedrock API serves.
     * `"converse"` uses the Converse API on the `bedrock-runtime` endpoint.
-      Not yet implemented in chatlas -- use `ChatBedrockAnthropic()` for Claude
-      models on `bedrock-runtime`.
+      This is the default path for models available through Converse.
 
     By default the API is picked from `model`, falling back to `"converse"` for
     models that aren't recognised as mantle-only. Set `api` explicitly to
@@ -94,7 +93,8 @@ def ChatBedrock(
     system_prompt
         A system prompt to set the behavior of the assistant.
     model
-        The model to use for the chat. Defaults to `"openai.gpt-5.6-sol"`.
+        The model to use for the chat. Defaults to
+        `"us.anthropic.claude-sonnet-4-6"`.
     api
         Which Bedrock API to use. The default, `None`, picks the API from
         `model`.
@@ -108,13 +108,13 @@ def ChatBedrock(
         like `gpt-oss` and rejects the models `/openai/v1` serves.
     max_tokens
         Maximum number of tokens to generate, defaulting to 4096 when
-        `api="messages"`. Passing this when `api="responses"` raises, since
+        `api="converse"` or `api="messages"`. Passing this when `api="responses"` raises, since
         the Responses API has no constructor-level equivalent -- set a cap
         per-request instead via `chat.set_model_params(max_tokens=...)`.
     cache
-        Prompt caching. `api="messages"` only; `"auto"` enables a 5-minute TTL.
-        The Responses API caches automatically, so this must be left at
-        `"auto"` when `api="responses"`.
+        Prompt caching for `api="converse"` and `api="messages"`. The Responses
+        API caches automatically, so this must be left at `"auto"` when
+        `api="responses"`.
     kwargs
         Additional arguments passed to the underlying vendor SDK client.
         These are merged in last, so anything supplied here (including a
@@ -150,17 +150,6 @@ def ChatBedrock(
             'Must be one of "converse", "messages", or "responses".'
         )
 
-    if api == "converse":
-        raise NotImplementedError(
-            f'The Converse API is not yet supported by chatlas, and "{model}" '
-            "isn't a model known to require one of the bedrock-mantle APIs.\n"
-            "* For Claude models on bedrock-runtime, use ChatBedrockAnthropic().\n"
-            '* If this model is served by bedrock-mantle, set api="responses" '
-            '(or api="messages" for Claude) explicitly -- some models (e.g. '
-            "gpt-oss, which Converse can also serve) also need base_url set to "
-            "mantle's other OpenAI path, /v1."
-        )
-
     region = bedrock_region(aws_profile, aws_region)
     if bedrock_uses_credential_chain(kwargs, aws_profile):
         # Fail fast with botocore's own error (expired SSO, broken assume-role)
@@ -188,6 +177,24 @@ def ChatBedrock(
                 # union applies; the type system can't express that through a
                 # runtime branch.
                 kwargs=cast("Optional[OpenAIClientArgs]", kwargs),
+            ),
+            system_prompt=system_prompt,
+        )
+
+    if api == "converse":
+        # Imported here because BedrockConverseProvider uses this module's
+        # endpoint and credential helpers.
+        from ._provider_bedrock_converse import BedrockConverseProvider
+
+        return Chat(
+            provider=BedrockConverseProvider(
+                model=model,
+                aws_profile=aws_profile,
+                aws_region=region,
+                base_url=base_url,
+                max_tokens=4096 if isinstance(max_tokens, MISSING_TYPE) else max_tokens,
+                cache=cache,
+                kwargs=cast("Optional[dict[str, Any]]", kwargs),
             ),
             system_prompt=system_prompt,
         )
