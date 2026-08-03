@@ -36,7 +36,7 @@ class TestContentToolResultHTML:
         assert "test_tool" in html
 
     def test_improved_html_structure(self):
-        """Test the improved HTML structure with nested details."""
+        """Test the tool result has one disclosure containing its details."""
 
         request = ContentToolRequest(
             id="test-id",
@@ -49,15 +49,14 @@ class TestContentToolResultHTML:
         html = result.tagify()
         html_str = str(html)
 
-        # Should contain the new structure with nested details
         assert 'class="chatlas-tool-result"' in html_str
-        assert "<details>" in html_str
+        assert html_str.count("<details") == 1
         assert (
             "<summary>Result from tool call: <code>test_tool</code></summary>"
             in html_str
         )
-        assert "<summary><strong>Result:</strong></summary>" in html_str
-        assert "<summary><strong>Input parameters:</strong></summary>" in html_str
+        assert "<strong>Result:</strong>" in html_str
+        assert "<strong>Input parameters:</strong>" in html_str
 
         # Should contain escaped content
         assert "test result" in html_str

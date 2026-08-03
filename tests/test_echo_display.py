@@ -8,10 +8,12 @@ skips incremental refreshes and prints only the final frame, which keeps these
 assertions deterministic and free of ANSI escapes.
 """
 
+import base64
 import logging
 import re
+import sys
 from collections.abc import Sequence
-from io import StringIO
+from io import BytesIO, StringIO
 from typing import Any, Callable, Literal, Optional, overload
 
 import pytest
@@ -19,6 +21,7 @@ from chatlas import Chat
 from chatlas._content import (
     Content,
     ContentCitation,
+    ContentImageInline,
     ContentImageRemote,
     ContentText,
     ContentThinking,
@@ -32,18 +35,27 @@ from chatlas._content import (
     WebSource,
 )
 from chatlas._display import (
+    DEFAULT_IMAGE_MAX_LINES,
+    ImageThumbnail,
     IPyMarkdownDisplay,
     LiveMarkdownDisplay,
+    ToolResultBlock,
     WebActivityRow,
     WebActivitySegment,
+    base64_nbytes,
     capped_sources,
+    image_label,
+    remote_image_html,
+    replace_images,
+    tool_result_images,
     web_domain,
 )
 from chatlas._live_render import LiveRender
 from chatlas._logging import _rich_handler
 from chatlas._provider import AnyTypeDict, Provider
 from chatlas._turn import AssistantTurn
-from chatlas._utils import MISSING, MISSING_TYPE
+from chatlas._utils import MISSING, MISSING_TYPE, format_bytes
+from PIL import Image
 from rich.console import Console
 from rich.text import Text
 
@@ -412,10 +424,8 @@ def test_echo_truncates_a_long_tool_result():
     res = output()
 
     assert "'row-0'" in res
-    assert "'row-4'" in res
-    # 30 rows over 5 kept lines, and pformat puts one row per line.
     assert "'row-29'" not in res
-    assert "… 25 more lines" in res
+    assert re.search(r"… \d+ more lines", res)
 
     # The full value is untouched on the turn -- only the display is bounded.
     turn = chat.get_last_turn(role="user")
@@ -440,7 +450,7 @@ def test_echo_all_truncates_a_long_tool_result_exactly_once():
     res = output()
 
     assert res.count("✅ tool result") == 1
-    assert res.count("… 25 more lines") == 1
+    assert res.count("more lines") == 1
     assert "'row-29'" not in res
 
 
@@ -469,16 +479,260 @@ def test_tool_result_max_lines_defaults_to_twenty():
     chat.register_tool(big_tool)
     output = capture_echo(chat, width=80)
     chat.chat("go", echo="output")
-    assert "… 10 more lines" in output()
+    assert re.search(r"… \d+ more lines", output())
 
 
-def test_truncated_tool_result_reports_a_single_dropped_line():
-    result = ContentToolResult(
-        value="\n".join(f"line {i}" for i in range(6)),
-        request=tool_request(),
+def test_tool_result_block_caps_wrapped_terminal_lines():
+    rendered = render_tool_result_block(Text("word " * 20), max_lines=2, width=20)
+
+    assert len(rendered.splitlines()) == 3
+    assert rendered.splitlines()[-1] == "… 3 more lines"
+
+
+def test_tool_result_block_keeps_the_head():
+    rendered = render_tool_result_block(
+        Text("first\nsecond\nthird"), max_lines=2, width=20
     )
-    assert "… 1 more line" in result.to_display_markdown(max_lines=5)
-    assert "more lines" not in result.to_display_markdown(max_lines=5)
+
+    assert "first" in rendered
+    assert "second" in rendered
+    assert "third" not in rendered
+
+
+@pytest.mark.parametrize(
+    ("body", "expected_footer"),
+    [
+        ("first\nsecond", "… 1 more line"),
+        ("first\nsecond\nthird", "… 2 more lines"),
+    ],
+)
+def test_tool_result_block_footer_counts_dropped_lines(
+    body: str, expected_footer: str
+):
+    rendered = render_tool_result_block(Text(body), max_lines=1, width=20)
+
+    assert rendered.splitlines()[-1] == expected_footer
+
+
+def test_tool_result_block_wraps_a_narrow_footer():
+    rendered = render_tool_result_block(Text("first\nsecond"), max_lines=1, width=10)
+
+    assert rendered.endswith("… 1 more\nline")
+
+
+def test_tool_result_block_without_a_cap_renders_every_line():
+    rendered = render_tool_result_block(Text("first\nsecond\nthird"), max_lines=None)
+
+    assert rendered == "first\nsecond\nthird"
+
+
+def test_tool_result_block_leaves_short_content_alone():
+    rendered = render_tool_result_block(Text("first\nsecond"), max_lines=5)
+
+    assert rendered == "first\nsecond"
+
+
+def test_tool_result_block_does_not_materialize_all_rendered_lines(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    console = Console(width=20)
+    block = ToolResultBlock(Text("first\nsecond"), max_lines=1)
+
+    def fail(*args: object, **kwargs: object) -> None:
+        raise AssertionError("render_lines() materializes all rendered lines")
+
+    monkeypatch.setattr(console, "render_lines", fail)
+
+    assert len(list(block.__rich_console__(console, console.options))) == 2
+
+
+@pytest.mark.parametrize("max_lines", [0, -1])
+def test_tool_result_block_nonpositive_cap_keeps_one_line(max_lines: int):
+    rendered = render_tool_result_block(
+        Text("first\nsecond\nthird"), max_lines=max_lines, width=20
+    )
+
+    assert rendered == "first\n… 2 more lines"
+
+
+def test_echo_caps_a_single_line_tool_result_by_terminal_lines():
+    def large_tool_result() -> str:
+        return "x" * 4000
+
+    chat = make_chat(
+        [[tool_request(name="large_tool_result", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(large_tool_result)
+    output = capture_echo(chat, width=80, tool_result_max_lines=5)
+    chat.chat("go", echo="output")
+    rendered = output()
+
+    assert "x" * 50 in rendered
+    assert "x" * 4000 not in rendered
+    assert re.search(r"… \d+ more lines", rendered)
+
+
+def test_echo_of_an_image_tool_result_is_bounded():
+    image = inline_png((8, 6))
+
+    def screenshot_tool() -> ContentImageInline:
+        return image
+
+    chat = make_chat(
+        [[tool_request(name="screenshot_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(screenshot_tool)
+    output = capture_echo(chat, width=80, tool_result_max_lines=20, image_max_lines=16)
+    chat.chat("take a screenshot", echo="output")
+    rendered = output()
+
+    assert image.data[:40] not in rendered
+    assert "🖼 image/png" in rendered
+    assert len(rendered.splitlines()) <= 20 + 16 + 4
+
+
+def test_image_tool_result_shows_the_result_block_and_the_image():
+    image = inline_png((8, 6))
+
+    def screenshot_tool() -> ContentImageInline:
+        return image
+
+    chat = make_chat(
+        [[tool_request(name="screenshot_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(screenshot_tool)
+    output = capture_echo(chat, width=80)
+    chat.chat("go", echo="output")
+    rendered = output()
+
+    assert "✅ tool result" in rendered
+    assert "🖼 image/png" in rendered
+    assert "tool-content" not in rendered
+
+
+def test_ipy_image_tool_result_renders_a_real_image(monkeypatch):
+    image = inline_png((8, 6))
+
+    def screenshot_tool() -> ContentImageInline:
+        return image
+
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat(
+        [[tool_request(name="screenshot_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(screenshot_tool)
+    chat.chat("go", echo="output")
+    final = updates[-1]
+
+    assert "![](data:image/png;base64," in final
+    assert "chatlas-tool-result" in final
+    tool_result, _, _ = final.partition("![](data:image/png;base64,")
+    assert image.data not in tool_result
+
+
+def test_ipy_remote_image_tool_result_renders_a_real_image(monkeypatch):
+    image = ContentImageRemote(url="https://example.com/image.png")
+
+    def remote_image_tool() -> ContentImageRemote:
+        return image
+
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat(
+        [[tool_request(name="remote_image_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(remote_image_tool)
+    chat.chat("go", echo="output")
+    final = updates[-1]
+
+    assert '<a href="https://example.com/image.png"' in final
+    assert '<img src="https://example.com/image.png"' in final
+    assert "chatlas-tool-result" in final
+
+
+def test_ipy_image_in_mapping_tool_result_renders_outside_result(monkeypatch):
+    image = inline_png((8, 6))
+
+    def screenshot_tool() -> dict[str, object]:
+        return {"image": image}
+
+    updates = capture_ipy(monkeypatch)
+    chat = make_chat(
+        [[tool_request(name="screenshot_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(screenshot_tool)
+    chat.chat("go", echo="output")
+    final = updates[-1]
+
+    assert "![](data:image/png;base64," in final
+    tool_result, _, _ = final.partition("![](data:image/png;base64,")
+    assert image.data not in tool_result
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("javascript:alert(1)", "javascript:alert(1)"),
+        (
+            'https://example.com/image.png?caption="example"',
+            "caption=&quot;example&quot;",
+        ),
+    ],
+)
+def test_remote_image_html_handles_unsafe_and_escaped_urls(url: str, expected: str):
+    html = remote_image_html(url)
+
+    assert expected in html
+    if url.startswith("javascript:"):
+        assert "<a " not in html
+        assert "<img " not in html
+
+
+def test_tool_result_html_has_one_disclosure():
+    result = ContentToolResult(value="done", request=tool_request())
+
+    assert result.to_html().count("<details") == 1
+
+
+@pytest.mark.parametrize("nested", [False, True])
+def test_image_inside_a_list_tool_result_is_split_out(nested: bool):
+    image = inline_png((8, 6))
+    value: list[object] = ["before", image]
+    if nested:
+        value = ["before", ["nested", image]]
+
+    def screenshot_tool() -> list[object]:
+        return value
+
+    chat = make_chat(
+        [[tool_request(name="screenshot_tool", arguments={})], [text("Done.")]]
+    )
+    chat.register_tool(screenshot_tool)
+    output = capture_echo(chat, width=80)
+    chat.chat("go", echo="output")
+    rendered = output()
+
+    assert image.data[:40] not in rendered
+    assert "before" in rendered
+    if nested:
+        assert "nested" in rendered
+    assert "🖼 image/png" in rendered
+
+
+def test_tool_result_images_finds_images_at_any_supported_depth():
+    image = inline_png((8, 6))
+    request = tool_request()
+
+    assert tool_result_images(ContentToolResult(value=image, request=request)) == [image]
+    assert tool_result_images(
+        ContentToolResult(value=["a", image], request=request)
+    ) == [image]
+    assert tool_result_images(
+        ContentToolResult(value=[["a", image]], request=request)
+    ) == [image]
+    assert tool_result_images(
+        ContentToolResult(value={"image": image}, request=request)
+    ) == [image]
+    assert tool_result_images(ContentToolResult(value="plain", request=request)) == []
 
 
 def test_tool_result_str_is_never_truncated():
@@ -705,6 +959,198 @@ def test_echo_all_shows_finish_reason_and_other_content_markers():
     assert "finish reason: stop" in res
 
 
+@pytest.mark.parametrize(
+    ("color_system", "color_escape"),
+    [("truecolor", "\x1b[38;2;"), ("256", "\x1b[38;5;")],
+)
+def test_console_renders_inline_images_as_colored_thumbnails(
+    color_system: Literal["truecolor", "256"], color_escape: str
+):
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(chat, color_system=color_system)
+
+    chat.chat("look at this", image, echo="all")
+
+    rendered = output()
+    assert image.data not in rendered
+    assert "▀" in rendered
+    assert color_escape in rendered
+    assert image_label("image/png", image.data, (8, 6)) in rendered
+
+
+def test_generated_image_is_echoed_at_the_default_echo():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Here it is."), image]])
+    output = capture_echo(chat, width=60)
+
+    chat.chat("draw a die", echo="output")
+
+    rendered = output()
+    assert "Here it is." in rendered
+    assert "🖼 image/png" in rendered
+
+
+def test_generated_image_is_echoed_exactly_once_at_echo_all():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Here it is."), image]])
+    output = capture_echo(chat, width=60)
+
+    chat.chat("draw a die", echo="all")
+
+    assert output().count("🖼 image/png") == 1
+
+
+def test_generated_image_is_not_echoed_at_echo_text():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Here it is."), image]])
+    output = capture_echo(chat, width=60)
+
+    chat.chat("draw a die", echo="text")
+
+    rendered = output()
+    assert "Here it is." in rendered
+    assert "🖼" not in rendered
+
+
+def test_user_supplied_image_still_shows_at_echo_all():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("A die.")]])
+    output = capture_echo(chat, width=60)
+
+    chat.chat("what is this?", image, echo="all")
+
+    assert "🖼 image/png" in output()
+
+
+@pytest.mark.asyncio
+async def test_generated_image_is_echoed_in_async_chats():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Here it is."), image]])
+    output = capture_echo(chat, width=60)
+
+    await chat.chat_async("draw a die", echo="output")
+
+    assert "🖼 image/png" in output()
+
+
+def test_generated_image_is_echoed_without_streaming():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Here it is."), image]])
+    output = capture_echo(chat, width=60)
+
+    chat.chat("draw a die", echo="output", stream=False)
+
+    assert "🖼 image/png" in output()
+
+
+def test_image_thumbnail_leaves_fully_transparent_pixel_pairs_unstyled():
+    image = Image.new("RGBA", (1, 2))
+    image.putdata([(255, 0, 0, 0), (0, 0, 255, 0)])
+
+    pixel = thumbnail_pixel_segment(image)
+
+    assert pixel.text == " "
+    assert pixel.style is None
+
+
+def test_image_thumbnail_composites_partially_transparent_pixels():
+    image = Image.new("RGBA", (1, 2))
+    image.putdata([(255, 0, 0, 128), (0, 255, 0, 64)])
+
+    pixel = thumbnail_pixel_segment(image)
+
+    assert pixel.text == "▀"
+    assert pixel.style is not None
+    assert pixel.style.color is not None
+    assert pixel.style.bgcolor is not None
+    assert pixel.style.color.triplet == (192, 64, 64)
+    assert pixel.style.bgcolor.triplet == (96, 160, 96)
+
+
+def test_console_caps_inline_image_thumbnail_rows():
+    image = inline_png((60, 120))
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(
+        chat,
+        width=20,
+        color_system="truecolor",
+        image_max_lines=3,
+    )
+
+    chat.chat("look at this", image, echo="all")
+
+    rows = [line for line in output().splitlines() if "▀" in line]
+    assert len(rows) == 3
+
+
+def test_console_inline_image_without_color_falls_back_to_a_label():
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(chat, color_system=None)
+
+    chat.chat("look at this", image, echo="all")
+
+    rendered = output()
+    assert image.data not in rendered
+    assert "▀" not in rendered
+    assert image_label("image/png", image.data) in rendered
+
+
+def test_console_inline_image_without_pillow_falls_back_to_a_label(monkeypatch):
+    image = inline_png((8, 6))
+    monkeypatch.setitem(sys.modules, "PIL", None)
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(chat, color_system="truecolor")
+
+    chat.chat("look at this", image, echo="all")
+
+    rendered = output()
+    assert image.data not in rendered
+    assert "▀" not in rendered
+    assert image_label("image/png", image.data) in rendered
+
+
+def test_console_corrupt_inline_image_falls_back_to_a_label():
+    image = ContentImageInline(image_content_type="image/png", data="not image data")
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(chat, color_system="truecolor")
+
+    chat.chat("look at this", image, echo="all")
+
+    rendered = output()
+    assert image.data not in rendered
+    assert "▀" not in rendered
+    assert image_label("image/png", image.data) in rendered
+
+
+def test_console_keeps_remote_images_as_markdown():
+    image = ContentImageRemote(url="https://example.com/a.png")
+    chat = make_chat([[text("Done.")]])
+    output = capture_echo(chat)
+
+    chat.chat("look at this", image, echo="all")
+
+    assert "🌆 a.png" in output()
+
+
+def test_image_max_lines_defaults_to_sixteen():
+    chat = make_chat([[text("Done.")]])
+
+    assert DEFAULT_IMAGE_MAX_LINES == 16
+    assert chat._echo_options["image_max_lines"] == DEFAULT_IMAGE_MAX_LINES
+
+
+def test_notebook_keeps_inline_images_as_markdown(monkeypatch):
+    updates = capture_ipy(monkeypatch)
+    image = inline_png((8, 6))
+    chat = make_chat([[text("Done.")]])
+
+    chat.chat("look at this", image, echo="all")
+
+    assert f"![](data:image/png;base64,{image.data})" in updates[-1]
+
+
 def test_display_is_restored_when_the_provider_raises():
     """
     `chat()` runs the display as a context manager, so a mid-stream failure must
@@ -816,6 +1262,8 @@ def capture_echo(
     tool_result_max_lines: "int | None | MISSING_TYPE" = MISSING,
     thinking_max_lines: "int | None | MISSING_TYPE" = MISSING,
     web_activity_max_sources: "int | None | MISSING_TYPE" = MISSING,
+    image_max_lines: "int | None | MISSING_TYPE" = MISSING,
+    color_system: Literal["256", "truecolor"] | None = None,
     height: Optional[int] = None,
 ) -> Callable[[], str]:
     """
@@ -832,7 +1280,10 @@ def capture_echo(
         "file": buf,
         "width": width,
         "force_terminal": force_terminal,
+        "color_system": color_system,
     }
+    if color_system is not None:
+        console["no_color"] = False
     if height is not None:
         console["height"] = height
     chat.set_echo_options(
@@ -841,6 +1292,7 @@ def capture_echo(
         tool_result_max_lines=tool_result_max_lines,
         thinking_max_lines=thinking_max_lines,
         web_activity_max_sources=web_activity_max_sources,
+        image_max_lines=image_max_lines,
     )
 
     def get() -> str:
@@ -850,6 +1302,17 @@ def capture_echo(
         return "\n".join(line.rstrip() for line in res.splitlines()).strip("\n")
 
     return get
+
+
+def render_tool_result_block(
+    body: Text, max_lines: Optional[int], width: int = 60
+) -> str:
+    buffer = StringIO()
+    console = Console(file=buffer, width=width)
+    console.print(ToolResultBlock(body, max_lines=max_lines))
+    return "\n".join(line.rstrip() for line in buffer.getvalue().splitlines()).strip(
+        "\n"
+    )
 
 
 def capture_ipy(monkeypatch: pytest.MonkeyPatch) -> list[str]:
@@ -918,6 +1381,32 @@ def thinking_chunks() -> list[Content]:
 
 def text(value: str) -> ContentText:
     return ContentText.model_construct(text=value)
+
+
+def inline_png(size: tuple[int, int]) -> ContentImageInline:
+    image = Image.new("RGB", size, color=(255, 64, 32))
+    return inline_image(image)
+
+
+def thumbnail_pixel_segment(image: Image.Image):
+    content = inline_image(image)
+    thumbnail = ImageThumbnail(content.image_content_type, content.data, max_lines=None)
+    decoded = thumbnail._decode()
+    assert decoded is not None
+    return next(
+        segment
+        for segment in thumbnail._segments(decoded, max_width=1).segments
+        if segment.text != "\n"
+    )
+
+
+def inline_image(image: Image.Image) -> ContentImageInline:
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    return ContentImageInline(
+        image_content_type="image/png",
+        data=base64.b64encode(buffer.getvalue()).decode("ascii"),
+    )
 
 
 def tool_request(
@@ -1651,3 +2140,57 @@ async def test_web_activity_renders_without_streaming_async():
     await chat.chat_async("when?", echo="output", stream=False)
 
     assert "Searched the web" in output()
+
+
+def test_format_bytes_scales_units():
+    assert format_bytes(0) == "0 B"
+    assert format_bytes(512) == "512 B"
+    assert format_bytes(1024) == "1.0 KB"
+    assert format_bytes(5498) == "5.4 KB"
+    assert format_bytes(224566) == "219 KB"
+    assert format_bytes(3 * 1024 * 1024) == "3.0 MB"
+    assert format_bytes(10_235) == "10 KB"
+    assert format_bytes(1024 * 1024 - 1) == "1.0 MB"
+
+
+def test_base64_nbytes_matches_the_decoded_length():
+    """Derived from the string length so a large image is never decoded twice."""
+    raw = b"\x89PNG\r\n\x1a\n" + b"x" * 3001
+    for n in range(3000, 3010):
+        data = base64.b64encode(raw[:n]).decode()
+        assert base64_nbytes(data) == n
+
+
+def test_base64_nbytes_ignores_mime_whitespace_and_unpadded_data():
+    canonical = base64.b64encode(b"x" * 100).decode("ascii")
+    mime_wrapped = "\r\n".join(
+        canonical[index : index + 76] for index in range(0, len(canonical), 76)
+    )
+
+    assert base64_nbytes(f" \t{mime_wrapped}\n") == 100
+    assert base64_nbytes("eA") == 1
+    assert base64_nbytes("eHg") == 2
+
+
+@pytest.mark.parametrize("data", ["=", "==", "==="])
+def test_base64_nbytes_never_returns_a_negative_size(data: str):
+    assert base64_nbytes(data) == 0
+
+
+def test_replace_images_preserves_tuples():
+    image = inline_png((8, 6))
+
+    replaced = replace_images(("before", image))
+
+    assert isinstance(replaced, tuple)
+    assert replaced[0] == "before"
+    assert replaced[1].startswith("🖼 image/png")
+
+
+def test_image_label_includes_dimensions_only_when_known():
+    data = base64.b64encode(b"x" * 224566).decode()
+    assert image_label("image/png", data) == "🖼 image/png · 219 KB"
+    assert (
+        image_label("image/png", data, (800, 600))
+        == "🖼 image/png · 800×600 · 219 KB"
+    )

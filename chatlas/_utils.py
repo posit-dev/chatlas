@@ -192,6 +192,32 @@ def truncate_lines(text: str, max_lines: int) -> str:
     return "\n".join([*lines[:max_lines], f"# … {n_dropped} more line{plural}"])
 
 
+def format_bytes(n: int) -> str:
+    """
+    A byte count at human scale: `512 B`, `5.4 KB`, `219 KB`, `3.0 MB`.
+
+    Three significant figures below 10 units and none above, so the width stays
+    roughly constant in a label that sits next to other fields.
+    """
+    if n < 1024:
+        return f"{n} B"
+    size = float(n)
+    for unit in ("KB", "MB", "GB", "TB"):
+        size /= 1024.0
+        if size < 1024 or unit == "TB":
+            if size < 10:
+                rounded = round(size, 1)
+                return (
+                    f"{rounded:.0f} {unit}"
+                    if rounded >= 10
+                    else f"{rounded:.1f} {unit}"
+                )
+            rounded = round(size)
+            if rounded < 1024 or unit == "TB":
+                return f"{rounded:.0f} {unit}"
+    raise AssertionError("unreachable")
+
+
 def html_escape(text: str, attr: bool = True) -> str:
     table = HTML_ATTRS_ESCAPE_TABLE if attr else HTML_ESCAPE_TABLE
     if not re.search("|".join(table), text):

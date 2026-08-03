@@ -1,7 +1,10 @@
+import base64
+import binascii
+import io
 import logging
 import re
 from abc import ABC, abstractmethod
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from html import escape
 from typing import TYPE_CHECKING, Any, Optional, Union
@@ -19,6 +22,8 @@ from ._content import (
     TOOL_CSS,
     Content,
     ContentCitation,
+    ContentImageInline,
+    ContentImageRemote,
     ContentText,
     ContentThinking,
     ContentThinkingDelta,
@@ -32,6 +37,7 @@ from ._content import (
 from ._live_render import LiveRender
 from ._logging import logger
 from ._typing_extensions import TypedDict
+from ._utils import format_bytes
 
 
 class MarkdownDisplay(ABC):
@@ -92,6 +98,28 @@ class MarkdownDisplay(ABC):
                 last.text += content
             else:
                 self._segments.append(TextSegment(text=content))
+        elif isinstance(content, ContentImageInline):
+            self._segments.append(
+                ImageSegment(
+                    content=content,
+                    thumbnail=ImageThumbnail(
+                        mime_type=content.image_content_type,
+                        data=content.data,
+                        max_lines=self._echo_options["image_max_lines"],
+                    ),
+                )
+            )
+        elif isinstance(content, ContentToolResult):
+            images = tool_result_images(content)
+            if images:
+                shown = content.model_copy(
+                    update={"value": replace_images(content.value)}
+                )
+                self._segments.append(ContentSegment(content=shown))
+                for image in images:
+                    self._append(image)
+                return
+            self._segments.append(ContentSegment(content=content))
         else:
             self._segments.append(ContentSegment(content=content))
 
@@ -127,7 +155,9 @@ class MarkdownDisplay(ABC):
             return
 
         last = self._last_web
-        segment = last if last is not None and last.is_open else self._open_web_activity()
+        segment = (
+            last if last is not None and last.is_open else self._open_web_activity()
+        )
 
         if isinstance(content, ContentToolRequestSearch):
             segment.add_query(content.query)
@@ -233,16 +263,20 @@ class LiveMarkdownDisplay(MarkdownDisplay):
                         max_sources=self._echo_options["web_activity_max_sources"],
                     )
                 )
+            elif isinstance(segment, ImageSegment):
+                out.append(segment.thumbnail)
             else:
-                out.append(self._markdown(self._content_markdown(segment.content)))
+                content = segment.content
+                if isinstance(content, ContentToolResult):
+                    out.append(
+                        ToolResultBlock(
+                            self._markdown(content.to_display_markdown()),
+                            max_lines=self._echo_options["tool_result_max_lines"],
+                        )
+                    )
+                else:
+                    out.append(self._markdown(str(content)))
         return out
-
-    def _content_markdown(self, content: Content) -> str:
-        if isinstance(content, ContentToolResult):
-            return content.to_display_markdown(
-                max_lines=self._echo_options["tool_result_max_lines"]
-            )
-        return str(content)
 
     def _markdown(self, text: str) -> Any:
         from rich.markdown import Markdown
@@ -289,6 +323,8 @@ class IPyMarkdownDisplay(MarkdownDisplay):
                 parts.append(thinking_html(segment.thinking, is_open=segment.is_open))
             elif isinstance(segment, WebActivitySegment):
                 parts.append(web_activity_html(segment))
+            elif isinstance(segment, ImageSegment):
+                parts.append(self._content_markdown(segment.content))
             else:
                 parts.append(self._content_markdown(segment.content))
         return "".join(parts)
@@ -297,6 +333,8 @@ class IPyMarkdownDisplay(MarkdownDisplay):
         if isinstance(content, ContentToolResult):
             # Already collapsed, and TOOL_CSS bounds its height once expanded.
             return f"\n\n{content.to_html()}\n\n"
+        if isinstance(content, ContentImageRemote):
+            return f"\n\n{remote_image_html(content.url)}\n\n"
         return f"\n\n{content}\n\n"
 
     def _init_display(self) -> str:
@@ -361,10 +399,12 @@ class EchoDisplayOptions(TypedDict):
     tool_result_max_height: Optional[str]
     thinking_max_lines: Optional[int]
     web_activity_max_sources: Optional[int]
+    image_max_lines: Optional[int]
 
 
 DEFAULT_TOOL_RESULT_MAX_LINES = 20
 DEFAULT_TOOL_RESULT_MAX_HEIGHT = "400px"
+DEFAULT_IMAGE_MAX_LINES = 16
 # Lower than the tool-result cap on purpose: reasoning is an aside, so it should
 # take up less room than the answer it precedes.
 DEFAULT_THINKING_MAX_LINES = 10
@@ -398,6 +438,18 @@ def web_activity_safe_url(url: Optional[str]) -> Optional[str]:
     if not url:
         return None
     return url if urlparse(url).scheme in ("http", "https") else None
+
+
+def remote_image_html(url: str) -> str:
+    """A remote image linked to its source, or plain text for an unsafe URL."""
+    safe = web_activity_safe_url(url)
+    if safe is None:
+        return escape(url)
+    escaped = escape(safe, quote=True)
+    return (
+        f'<a href="{escaped}" target="_blank" rel="noopener noreferrer">'
+        f'<img src="{escaped}" alt="" /></a>'
+    )
 
 
 def web_activity_html(segment: "WebActivitySegment") -> str:
@@ -549,6 +601,147 @@ class ThinkingPanel:
         yield Panel(body, title=title, title_align="left", border_style="dim")
 
 
+class ToolResultBlock:
+    """A tool result capped by rendered terminal lines."""
+
+    def __init__(self, body: Any, max_lines: Optional[int]):
+        self.body = body
+        self.max_lines = max_lines
+
+    def __rich_console__(self, console: "Console", options: "ConsoleOptions"):
+        from rich.segment import Segment, Segments
+        from rich.text import Text
+
+        if self.max_lines is None:
+            yield self.body
+            return
+
+        keep = max(1, self.max_lines)
+        rendered = console.render(self.body, options)
+        lines = Segment.split_and_crop_lines(
+            rendered, options.max_width, pad=False, include_new_lines=False
+        )
+        kept: list[list[Segment]] = []
+        dropped = 0
+        for line in lines:
+            if len(kept) < keep:
+                kept.append(line)
+            else:
+                dropped += 1
+
+        segments: list[Segment] = []
+        for index, line in enumerate(kept):
+            if index:
+                segments.append(Segment.line())
+            segments.extend(line)
+
+        if dropped <= 0:
+            yield Segments(segments)
+            return
+
+        plural = "" if dropped == 1 else "s"
+        segments.append(Segment.line())
+        yield Segments(segments)
+        yield Text(
+            f"… {dropped} more line{plural}",
+            style="dim italic",
+        )
+
+
+class ImageThumbnail:
+    """A terminal thumbnail rendered as pairs of RGB pixels in half-block cells."""
+
+    def __init__(self, mime_type: str, data: str, max_lines: Optional[int]):
+        self.mime_type = mime_type
+        self.data = data
+        self.max_lines = max_lines
+        self._image: Any | None = None
+        self._decode_failed = False
+        self._segments_by_width: dict[int, Any] = {}
+
+    def __rich_console__(self, console: "Console", options: "ConsoleOptions"):
+        from rich.text import Text
+
+        if console.no_color or console.color_system not in ("truecolor", "256"):
+            yield Text(image_label(self.mime_type, self.data), style="dim")
+            return
+
+        image = self._decode()
+        if image is None:
+            yield Text(image_label(self.mime_type, self.data), style="dim")
+            return
+
+        yield self._segments(image, options.max_width)
+        yield Text(
+            image_label(self.mime_type, self.data, image.size),
+            style="dim",
+        )
+
+    def _decode(self) -> Any | None:
+        if self._decode_failed:
+            return None
+        if self._image is not None:
+            return self._image
+
+        try:
+            from PIL import Image
+
+            data = "".join(self.data.split())
+            decoded = base64.b64decode(data + "=" * (-len(data) % 4), validate=True)
+            with Image.open(io.BytesIO(decoded)) as image:
+                self._image = image.convert("RGBA")
+        except (ImportError, OSError, ValueError, binascii.Error):
+            self._decode_failed = True
+            return None
+
+        return self._image
+
+    def _segments(self, image: Any, max_width: int) -> Any:
+        from rich.color import Color
+        from rich.segment import Segment, Segments
+        from rich.style import Style
+
+        width = max(max_width, 1)
+        cached = self._segments_by_width.get(width)
+        if cached is not None:
+            return cached
+
+        max_height = image.height
+        if self.max_lines is not None:
+            max_height = max(max(self.max_lines, 1) * 2, 1)
+
+        scale = min(width / image.width, max_height / image.height, 1)
+        size = (
+            max(round(image.width * scale), 1),
+            max(round(image.height * scale), 1),
+        )
+        thumbnail = image.resize(size)
+        pixels = thumbnail.load()
+
+        segments: list[Any] = []
+        for y in range(0, thumbnail.height, 2):
+            for x in range(thumbnail.width):
+                top = pixels[x, y]
+                bottom = pixels[x, min(y + 1, thumbnail.height - 1)]
+                if top[3] == 0 and bottom[3] == 0:
+                    segments.append(Segment(" "))
+                    continue
+                segments.append(
+                    Segment(
+                        "▀",
+                        Style(
+                            color=Color.from_rgb(*composite_rgba(top)),
+                            bgcolor=Color.from_rgb(*composite_rgba(bottom)),
+                        ),
+                    )
+                )
+            segments.append(Segment.line())
+
+        rendered = Segments(segments)
+        self._segments_by_width[width] = rendered
+        return rendered
+
+
 class WebActivityPanel:
     """
     A panel of web activity, hard-capped at `max_sources` sources.
@@ -584,7 +777,9 @@ class WebActivityPanel:
             mark = "✗" if status == "error" else "✓" if status == "success" else "…"
             safe_url = web_activity_safe_url(url)
             line = Text("🌐 Read ", style="dim")
-            line.append(web_safe_fetch_label(url), style=f"link {safe_url}" if safe_url else "")
+            line.append(
+                web_safe_fetch_label(url), style=f"link {safe_url}" if safe_url else ""
+            )
             line.append(f" {mark}", style="dim")
             rows.append(line)
 
@@ -605,7 +800,9 @@ class WebActivityPanel:
                 # safe URL gets one -- an unsafe scheme (e.g. `javascript:`) renders
                 # as plain text instead, same as the notebook.
                 table.add_row(
-                    Text("*" if row.cited else " ", style="yellow" if row.cited else ""),
+                    Text(
+                        "*" if row.cited else " ", style="yellow" if row.cited else ""
+                    ),
                     Text(label, style=f"link {safe_url}" if safe_url else ""),
                     Text(web_domain(safe_url), style="dim"),
                 )
@@ -639,6 +836,12 @@ class ThinkingSegment:
 @dataclass
 class ContentSegment:
     content: Content
+
+
+@dataclass
+class ImageSegment:
+    content: ContentImageInline
+    thumbnail: ImageThumbnail
 
 
 @dataclass
@@ -792,4 +995,90 @@ def web_display_url(url: str) -> str:
     return re.sub(r"^https?://(www\.)?", "", url or "")
 
 
-DisplaySegment = Union[TextSegment, ThinkingSegment, WebActivitySegment, ContentSegment]
+def image_label(
+    mime_type: str, data: str, size: Optional[tuple[int, int]] = None
+) -> str:
+    """
+    A one-line stand-in for an image: `🖼 image/png · 800×600 · 219 KB`.
+
+    Used both as the caption under a thumbnail and as the whole rendering when a
+    thumbnail isn't possible. `size` is omitted when the image wasn't decoded.
+    """
+    bits = [mime_type]
+    if size is not None:
+        bits.append(f"{size[0]}×{size[1]}")
+    bits.append(format_bytes(base64_nbytes(data)))
+    return "🖼 " + " · ".join(bits)
+
+
+def tool_result_images(
+    content: ContentToolResult,
+) -> list[ContentImageInline | ContentImageRemote]:
+    """Images carried by a tool result's value."""
+    return inline_images(content.value)
+
+
+def inline_images(value: object) -> list[ContentImageInline | ContentImageRemote]:
+    if isinstance(value, (ContentImageInline, ContentImageRemote)):
+        return [value]
+    if isinstance(value, (list, tuple)):
+        images: list[ContentImageInline | ContentImageRemote] = []
+        for item in value:
+            images.extend(inline_images(item))
+        return images
+    if isinstance(value, Mapping):
+        images = []
+        for item in value.values():
+            images.extend(inline_images(item))
+        return images
+    return []
+
+
+def replace_images(value: object) -> object:
+    """Swap inline images for labels in the display-only copy of a result."""
+    if isinstance(value, ContentImageInline):
+        return image_label(value.image_content_type, value.data)
+    if isinstance(value, ContentImageRemote):
+        return f"image: {value.url}"
+    if isinstance(value, list):
+        return [replace_images(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(replace_images(item) for item in value)
+    if isinstance(value, Mapping):
+        return {key: replace_images(item) for key, item in value.items()}
+    return value
+
+
+def base64_nbytes(data: str) -> int:
+    """
+    Decoded length of base64 `data`, computed from the string.
+
+    An echoed image can be megabytes; decoding it just to report its size would
+    double the work the thumbnail already does.
+    """
+    s = "".join(char for char in data if char not in " \t\n\r\v\f")
+    groups, remainder = divmod(len(s), 4)
+    nbytes = groups * 3 + (0, 0, 1, 2)[remainder]
+    return max(0, nbytes - s.count("="))
+
+
+def composite_rgba(pixel: tuple[int, int, int, int]) -> tuple[int, int, int]:
+    red, green, blue, alpha = pixel
+    return (
+        composite_channel(red, alpha),
+        composite_channel(green, alpha),
+        composite_channel(blue, alpha),
+    )
+
+
+def composite_channel(channel: int, alpha: int) -> int:
+    return (channel * alpha + 128 * (255 - alpha) + 127) // 255
+
+
+DisplaySegment = Union[
+    TextSegment,
+    ThinkingSegment,
+    WebActivitySegment,
+    ContentSegment,
+    ImageSegment,
+]

@@ -35,6 +35,7 @@ from ._content import (
     PROVIDER_ANNOTATION_TYPES,
     Content,
     ContentCitation,
+    ContentImageInline,
     ContentJson,
     ContentText,
     ContentThinking,
@@ -48,6 +49,7 @@ from ._content import (
     ToolInfo,
 )
 from ._display import (
+    DEFAULT_IMAGE_MAX_LINES,
     DEFAULT_THINKING_MAX_LINES,
     DEFAULT_TOOL_RESULT_MAX_HEIGHT,
     DEFAULT_TOOL_RESULT_MAX_LINES,
@@ -2879,6 +2881,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     (
                         ContentThinking,
                         ContentThinkingDelta,
+                        ContentImageInline,
                         *PROVIDER_ANNOTATION_TYPES,
                     ),
                 ):
@@ -2935,6 +2938,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             result,
                             has_data_model=data_model is not None,
                         )
+                        emit_image_contents(turn, emit)
                         if echo == "all":
                             emit_other_contents(turn, emit)
                         turn = finalize_assistant_turn(self.provider, turn)
@@ -2964,6 +2968,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     emit(turn.text)
                     yield turn.text
 
+                emit_image_contents(turn, emit)
                 if echo == "all":
                     emit_other_contents(turn, emit)
 
@@ -3029,6 +3034,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     (
                         ContentThinking,
                         ContentThinkingDelta,
+                        ContentImageInline,
                         *PROVIDER_ANNOTATION_TYPES,
                     ),
                 ):
@@ -3087,6 +3093,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             result,
                             has_data_model=data_model is not None,
                         )
+                        emit_image_contents(turn, emit)
                         if echo == "all":
                             emit_other_contents(turn, emit)
                         turn = finalize_assistant_turn(self.provider, turn)
@@ -3116,6 +3123,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     emit(turn.text)
                     yield turn.text
 
+                emit_image_contents(turn, emit)
                 if echo == "all":
                     emit_other_contents(turn, emit)
 
@@ -3343,6 +3351,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         tool_result_max_height: str | None | MISSING_TYPE = MISSING,
         thinking_max_lines: int | None | MISSING_TYPE = MISSING,
         web_activity_max_sources: int | None | MISSING_TYPE = MISSING,
+        image_max_lines: int | None | MISSING_TYPE = MISSING,
     ):
         """
         Set echo styling options for the chat.
@@ -3381,6 +3390,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             This is only relevant when outputting to the console; in the browser
             the panel is collapsed and scrolls internally, so every source is
             listed.
+        image_max_lines
+            Cap a console image thumbnail at this many rows. Pass `None` to
+            remove the height cap. This is only relevant when outputting to the
+            console; browser output uses the original image.
         """
         self._echo_options: EchoDisplayOptions = {
             "rich_markdown": rich_markdown or {},
@@ -3397,6 +3410,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             ),
             "web_activity_max_sources": default_if_missing(
                 web_activity_max_sources, DEFAULT_WEB_ACTIVITY_MAX_SOURCES
+            ),
+            "image_max_lines": default_if_missing(
+                image_max_lines, DEFAULT_IMAGE_MAX_LINES
             ),
         }
 
@@ -3611,6 +3627,16 @@ def emit_web_contents(
             emit(content)
 
 
+def emit_image_contents(
+    x: Turn,
+    emit: Callable[[Content | str], None],
+):
+    """Emit a turn's inline images after its text."""
+    for content in x.contents:
+        if isinstance(content, ContentImageInline):
+            emit(content)
+
+
 def emit_other_contents(
     x: Turn,
     emit: Callable[[Content | str], None],
@@ -3638,6 +3664,10 @@ def emit_other_contents(
         elif isinstance(content, PROVIDER_ANNOTATION_TYPES):
             # Displayed as a web-activity panel while streaming, or by
             # `emit_web_contents` when not; emitting it here would show it twice.
+            continue
+        elif isinstance(content, ContentImageInline) and isinstance(x, AssistantTurn):
+            # Assistant images were emitted after the text. User images only reach
+            # the display through this path.
             continue
         else:
             has_other = True

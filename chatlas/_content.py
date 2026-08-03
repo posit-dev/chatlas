@@ -18,7 +18,7 @@ from pydantic import (
 )
 
 from ._typing_extensions import TypedDict, TypeIs
-from ._utils import html_escape, truncate_lines
+from ._utils import format_bytes, html_escape, truncate_lines
 
 if TYPE_CHECKING:
     from htmltools import Tagified
@@ -691,17 +691,10 @@ class ContentToolResult(Content):
         else:
             args = pre_code(str(args))
 
-        # Wrap the input parameters in an (open) details block.
-        if args:
-            params = details_block("<strong>Input parameters:</strong>", args)
-        else:
-            params = ""
-
-        # Also wrap the tool result in an (open) details block.
-        result = details_block(
-            "<strong>Result:</strong>",
-            pre_code(self._get_display_value()),
+        params = (
+            f"<strong>Input parameters:</strong>{args}" if args else ""
         )
+        result = f"<strong>Result:</strong>{pre_code(self._get_display_value())}"
 
         # Put both the result and parameters into a container
         result_div = f'<div class="chatlas-tool-result-content">{result}{params}</div>'
@@ -744,6 +737,20 @@ class ContentJson(Content):
     def __str__(self):
         val = orjson.dumps(self.value, option=orjson.OPT_INDENT_2).decode("utf-8")
         return f"""```json\n{val}\n```"""
+
+
+def markdown_code_span(label: str) -> str:
+    label = label.replace("\r\n", "\\n").replace("\r", "\\n").replace("\n", "\\n")
+    longest_run = 0
+    current_run = 0
+    for character in label:
+        if character == "`":
+            current_run += 1
+            longest_run = max(longest_run, current_run)
+        else:
+            current_run = 0
+    fence = "`" * (longest_run + 1)
+    return f"{fence}{label}{fence}"
 
 
 class ContentPDF(Content):
@@ -790,8 +797,8 @@ class ContentPDF(Content):
         return v
 
     def __str__(self):
-        size = f"{len(self.data)} bytes" if self.data is not None else f"url={self.url}"
-        return f"<PDF document file={self.filename} {size}>"
+        detail = format_bytes(len(self.data)) if self.data is not None else self.url
+        return markdown_code_span(f"[PDF {self.filename} · {detail}]")
 
 
 class ContentDocument(Content):
@@ -858,7 +865,7 @@ class ContentDocument(Content):
         return v
 
     def __str__(self):
-        return f"<document file={self.filename} mime_type={self.mime_type}>"
+        return markdown_code_span(f"[document {self.filename} · {self.mime_type}]")
 
 
 class ContentUploaded(Content):
@@ -894,7 +901,7 @@ class ContentUploaded(Content):
     content_type: ContentTypeEnum = "uploaded"
 
     def __str__(self):
-        return f"<uploaded file id={self.id} mime_type={self.mime_type}>"
+        return markdown_code_span(f"[uploaded {self.id} · {self.mime_type}]")
 
 
 class ContentThinking(Content):
