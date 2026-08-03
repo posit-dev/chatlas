@@ -576,6 +576,15 @@ class BedrockConverseProvider(
             if tool_use is not None:
                 block = blocks.setdefault(index, {})
                 block.setdefault("input", []).append(tool_use["input"])
+            reasoning = delta_event.get("delta", {}).get("reasoningContent")
+            if reasoning is not None:
+                block = blocks.setdefault(index, {})
+                if "text" in reasoning:
+                    block["reasoningText"] = (
+                        block.get("reasoningText", "") + reasoning["text"]
+                    )
+                elif "signature" in reasoning:
+                    block["reasoningSignature"] = reasoning["signature"]
         elif "contentBlockStop" in chunk:
             blocks = merged.get("blocks", {})
             block = blocks.get(chunk["contentBlockStop"]["contentBlockIndex"])
@@ -621,6 +630,20 @@ class BedrockConverseProvider(
                                 "toolUseId": block["toolUseId"],
                                 "name": block["name"],
                                 "input": block.get("arguments", {}),
+                            }
+                        },
+                    )
+                )
+            elif "reasoningText" in block or "reasoningSignature" in block:
+                content_blocks.append(
+                    cast(
+                        "ContentBlockOutputTypeDef",
+                        {
+                            "reasoningContent": {
+                                "reasoningText": {
+                                    "text": block.get("reasoningText", ""),
+                                    "signature": block.get("reasoningSignature", ""),
+                                }
                             }
                         },
                     )
@@ -1047,6 +1070,8 @@ class ConverseStreamBlock(TypedDict, total=False):
     name: str
     input: list[str]
     arguments: dict[str, Any]
+    reasoningText: str
+    reasoningSignature: str
 
 
 class ConverseSubmitArgs(TypedDict, total=False):

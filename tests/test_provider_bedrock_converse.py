@@ -981,6 +981,53 @@ class TestStreamAccumulation:
         with pytest.raises(ValueError, match="get_weather"):
             self.merge(events)
 
+    def test_reasoning_content_deltas_are_reassembled(self):
+        events = [
+            {"messageStart": {"role": "assistant"}},
+            {
+                "contentBlockDelta": {
+                    "contentBlockIndex": 0,
+                    "delta": {"reasoningContent": {"text": "let me "}},
+                }
+            },
+            {
+                "contentBlockDelta": {
+                    "contentBlockIndex": 0,
+                    "delta": {"reasoningContent": {"text": "think"}},
+                }
+            },
+            {
+                "contentBlockDelta": {
+                    "contentBlockIndex": 0,
+                    "delta": {"reasoningContent": {"signature": "sig-123"}},
+                }
+            },
+            {"contentBlockStop": {"contentBlockIndex": 0}},
+            {
+                "contentBlockDelta": {
+                    "contentBlockIndex": 1,
+                    "delta": {"text": "The answer is 4."},
+                }
+            },
+            {"contentBlockStop": {"contentBlockIndex": 1}},
+            {"messageStop": {"stopReason": "end_turn"}},
+            {
+                "metadata": {
+                    "usage": {"inputTokens": 1, "outputTokens": 1, "totalTokens": 2}
+                }
+            },
+        ]
+
+        turn = self.provider().stream_turn(self.merge(events), has_data_model=False)
+        thinking = [
+            content for content in turn.contents if isinstance(content, ContentThinking)
+        ]
+
+        assert len(thinking) == 1
+        assert thinking[0].thinking == "let me think"
+        assert thinking[0].extra == {"signature": "sig-123"}
+        assert turn.text == "The answer is 4."
+
 
 class TestConverseDispatch:
     def test_converse_model_builds_a_converse_provider(self):
