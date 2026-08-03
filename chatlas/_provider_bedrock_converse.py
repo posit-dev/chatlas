@@ -4,7 +4,6 @@ import asyncio
 import base64
 import json
 import os
-import ssl
 from collections.abc import Mapping
 from functools import cache
 from typing import (
@@ -13,7 +12,6 @@ from typing import (
     AsyncGenerator,
     AsyncIterable,
     AsyncIterator,
-    Callable,
     Generator,
     Iterable,
     Iterator,
@@ -27,14 +25,6 @@ from typing import (
 from urllib.parse import quote
 
 import httpx
-from httpx._types import (
-    CertTypes,
-    CookieTypes,
-    HeaderTypes,
-    ProxyTypes,
-    QueryParamTypes,
-    TimeoutTypes,
-)
 from pydantic import BaseModel
 
 from ._content import (
@@ -72,6 +62,7 @@ from ._turn import (
 )
 from ._typing_extensions import NotRequired, TypedDict
 from ._utils import is_async_callable
+from .types.bedrock import ChatClientArgs as ConverseClientArgs
 
 try:
     from botocore.auth import SigV4Auth
@@ -238,29 +229,6 @@ class BedrockBearerAuth(httpx.Auth):
     ) -> Generator[httpx.Request, httpx.Response, None]:
         request.headers["Authorization"] = f"Bearer {self._token}"
         yield request
-
-
-class ConverseClientArgs(TypedDict, total=False):
-    """Client options for direct `ChatBedrock(api="converse")` HTTP requests."""
-
-    api_key: str | None
-    params: QueryParamTypes | None
-    headers: HeaderTypes | None
-    cookies: CookieTypes | None
-    verify: ssl.SSLContext | str | bool
-    cert: CertTypes | None
-    trust_env: bool
-    http1: bool
-    http2: bool
-    proxy: ProxyTypes | None
-    mounts: Mapping[str, httpx.BaseTransport | httpx.AsyncBaseTransport | None] | None
-    timeout: TimeoutTypes
-    follow_redirects: bool
-    limits: httpx.Limits
-    max_redirects: int
-    event_hooks: Mapping[str, list[Callable[..., Any]]] | None
-    transport: httpx.BaseTransport | httpx.AsyncBaseTransport | None
-    default_encoding: str | Callable[[bytes], str]
 
 
 def as_converse_content(
