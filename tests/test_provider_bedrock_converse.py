@@ -994,6 +994,99 @@ class TestConverseDispatch:
             provider._client.base_url
         )
 
+    def test_explicit_converse_forwards_config_without_validating_credentials(
+        self, monkeypatch
+    ):
+        from chatlas import ChatBedrock
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        def credentials_must_not_be_resolved(_profile):
+            raise AssertionError("Converse construction must not resolve credentials")
+
+        monkeypatch.setattr(
+            "chatlas._provider_bedrock.bedrock_credentials",
+            credentials_must_not_be_resolved,
+        )
+
+        chat = ChatBedrock(
+            api="converse",
+            model="amazon.nova-pro-v1:0",
+            aws_region="us-east-1",
+            base_url="https://bedrock.example",
+            max_tokens=123,
+            cache="none",
+        )
+        provider = cast(BedrockConverseProvider, chat.provider)
+
+        assert provider._max_tokens == 123
+        assert provider._cache == "none"
+        assert str(provider._client.base_url).rstrip("/") == "https://bedrock.example"
+
+    def test_api_key_kwarg_authenticates_converse_http_requests(self):
+        from chatlas import ChatBedrock
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        headers: list[str] = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            headers.append(request.headers["Authorization"])
+            return httpx.Response(200, request=request)
+
+        chat = ChatBedrock(
+            api="converse",
+            model="amazon.nova-pro-v1:0",
+            aws_region="us-east-1",
+            kwargs={
+                "api_key": "explicit-bedrock-key",
+                "transport": httpx.MockTransport(handler),
+            },
+        )
+        provider = cast(BedrockConverseProvider, chat.provider)
+        provider._client.get("/")
+
+        assert headers == ["Bearer explicit-bedrock-key"]
+
+    def test_bearer_token_env_var_authenticates_converse_http_requests(
+        self, monkeypatch
+    ):
+        from chatlas import ChatBedrock
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        headers: list[str] = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            headers.append(request.headers["Authorization"])
+            return httpx.Response(200, request=request)
+
+        monkeypatch.setenv("AWS_BEARER_TOKEN_BEDROCK", "env-bedrock-key")
+        chat = ChatBedrock(
+            api="converse",
+            model="amazon.nova-pro-v1:0",
+            aws_region="us-east-1",
+            kwargs={"transport": httpx.MockTransport(handler)},
+        )
+        provider = cast(BedrockConverseProvider, chat.provider)
+        provider._client.get("/")
+
+        assert headers == ["Bearer env-bedrock-key"]
+
+    def test_converse_uses_sigv4_without_a_bearer_token(self, monkeypatch):
+        from chatlas import ChatBedrock
+        from chatlas._provider_bedrock_converse import (
+            BedrockConverseProvider,
+            BedrockSigV4Auth,
+        )
+
+        monkeypatch.delenv("AWS_BEARER_TOKEN_BEDROCK", raising=False)
+        chat = ChatBedrock(
+            api="converse",
+            model="amazon.nova-pro-v1:0",
+            aws_region="us-east-1",
+        )
+        provider = cast(BedrockConverseProvider, chat.provider)
+
+        assert isinstance(provider._client.auth, BedrockSigV4Auth)
+
 
 class TestStructuredOutputAndCaching:
     def provider(

@@ -4,7 +4,7 @@ import json
 import os
 import re
 from importlib import resources
-from typing import TYPE_CHECKING, Any, Literal, Optional, cast
+from typing import TYPE_CHECKING, Literal, Optional, cast
 
 import httpx
 
@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from botocore.credentials import Credentials
     from botocore.session import Session
 
+    from ._provider_bedrock_converse import ConverseClientArgs
     from .types.anthropic import ChatClientArgs as AnthropicClientArgs
     from .types.openai import ChatClientArgs as OpenAIClientArgs
 
@@ -44,7 +45,9 @@ def ChatBedrock(
     base_url: Optional[str] = None,
     max_tokens: int | MISSING_TYPE = MISSING,
     cache: Literal["auto", "5m", "1h", "none"] = "auto",
-    kwargs: Optional["OpenAIClientArgs | AnthropicClientArgs"] = None,
+    kwargs: Optional[
+        "OpenAIClientArgs | AnthropicClientArgs | ConverseClientArgs"
+    ] = None,
 ) -> Chat:
     """
     Chat with a model hosted on AWS Bedrock.
@@ -116,11 +119,13 @@ def ChatBedrock(
         API caches automatically, so this must be left at `"auto"` when
         `api="responses"`.
     kwargs
-        Additional arguments passed to the underlying vendor SDK client.
-        These are merged in last, so anything supplied here (including a
-        custom `http_client`) overrides what `ChatBedrock` otherwise
-        resolves. Passing `api_key` authenticates with a Bedrock API key
-        (bearer token) instead of the SigV4 credential chain.
+        Additional client arguments. For `api="converse"`, these are raw
+        `httpx.Client` arguments (except `auth` and `base_url`, which
+        `ChatBedrock` manages) and `api_key` is a Bedrock bearer token. For
+        `api="responses"` and `api="messages"`, these are arguments for the
+        respective OpenAI or Anthropic SDK client. On the Converse path,
+        `api_key` is consumed to create an `Authorization: Bearer ...` header,
+        not passed to `httpx.Client`.
 
     Returns
     -------
@@ -151,7 +156,9 @@ def ChatBedrock(
         )
 
     region = bedrock_region(aws_profile, aws_region)
-    if bedrock_uses_credential_chain(kwargs, aws_profile):
+    if api != "converse" and bedrock_uses_credential_chain(
+        cast("Optional[OpenAIClientArgs | AnthropicClientArgs]", kwargs), aws_profile
+    ):
         # Fail fast with botocore's own error (expired SSO, broken assume-role)
         # instead of a request-time failure buried by the SDK's retry machinery.
         bedrock_credentials(aws_profile)
@@ -194,7 +201,7 @@ def ChatBedrock(
                 base_url=base_url,
                 max_tokens=4096 if isinstance(max_tokens, MISSING_TYPE) else max_tokens,
                 cache=cache,
-                kwargs=cast("Optional[dict[str, Any]]", kwargs),
+                kwargs=cast("Optional[ConverseClientArgs]", kwargs),
             ),
             system_prompt=system_prompt,
         )

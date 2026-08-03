@@ -3,6 +3,8 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import os
+import ssl
 from functools import cache
 from typing import (
     TYPE_CHECKING,
@@ -10,6 +12,7 @@ from typing import (
     AsyncGenerator,
     AsyncIterable,
     AsyncIterator,
+    Callable,
     Generator,
     Iterable,
     Iterator,
@@ -23,6 +26,14 @@ from typing import (
 from urllib.parse import quote
 
 import httpx
+from httpx._types import (
+    CertTypes,
+    CookieTypes,
+    HeaderTypes,
+    ProxyTypes,
+    QueryParamTypes,
+    TimeoutTypes,
+)
 from pydantic import BaseModel
 
 from ._content import (
@@ -59,6 +70,7 @@ from ._turn import (
     check_finish_reason,
 )
 from ._typing_extensions import NotRequired, TypedDict
+from ._utils import AnyTypeDict
 
 try:
     from botocore.auth import SigV4Auth
@@ -212,6 +224,42 @@ class BedrockSigV4Auth(httpx.Auth):
         # thread; botocore may refresh SSO/STS credentials with a synchronous
         # network call there, stalling every other task on the loop.
         yield await asyncio.to_thread(self.sign, request)
+
+
+class BedrockBearerAuth(httpx.Auth):
+    """Adds an AWS Bedrock bearer token to direct Converse API requests."""
+
+    def __init__(self, token: str):
+        self._token = token
+
+    def auth_flow(
+        self, request: httpx.Request
+    ) -> Generator[httpx.Request, httpx.Response, None]:
+        request.headers["Authorization"] = f"Bearer {self._token}"
+        yield request
+
+
+class ConverseClientArgs(TypedDict, total=False):
+    """Client options for direct `ChatBedrock(api="converse")` HTTP requests."""
+
+    api_key: str
+    params: QueryParamTypes
+    headers: HeaderTypes
+    cookies: CookieTypes
+    verify: ssl.SSLContext | str | bool
+    cert: CertTypes
+    trust_env: bool
+    http1: bool
+    http2: bool
+    proxy: ProxyTypes
+    mounts: dict[str, httpx.BaseTransport | httpx.AsyncBaseTransport | None]
+    timeout: TimeoutTypes
+    follow_redirects: bool
+    limits: httpx.Limits
+    max_redirects: int
+    event_hooks: dict[str, list[Callable[..., Any]]]
+    transport: httpx.BaseTransport | httpx.AsyncBaseTransport
+    default_encoding: str | Callable[[bytes], str]
 
 
 def as_converse_content(
@@ -383,7 +431,7 @@ class BedrockConverseProvider(
         max_tokens: int = 4096,
         cache: Literal["auto", "5m", "1h", "none"] = "auto",
         name: str = "AWS/Bedrock",
-        kwargs: Optional[dict[str, Any]] = None,
+        kwargs: Optional[ConverseClientArgs] = None,
     ):
         super().__init__(name=name, model=model)
         self._aws_profile = aws_profile
@@ -398,8 +446,15 @@ class BedrockConverseProvider(
         # to fail fast on a broken chain) would break offline construction --
         # this provider is built well before, or without ever, sending a
         # request.
-        auth = BedrockSigV4Auth(LazyCredentials(aws_profile), aws_region)
-        client_kwargs = kwargs or {}
+        api_key = kwargs.get("api_key") if kwargs else None
+        client_kwargs = cast(AnyTypeDict, dict(kwargs or {}))
+        client_kwargs.pop("api_key", None)
+        token = api_key or os.environ.get("AWS_BEARER_TOKEN_BEDROCK")
+        auth: httpx.Auth
+        if token:
+            auth = BedrockBearerAuth(token)
+        else:
+            auth = BedrockSigV4Auth(LazyCredentials(aws_profile), aws_region)
         self._client = httpx.Client(
             auth=auth, base_url=resolved_base_url, **client_kwargs
         )
