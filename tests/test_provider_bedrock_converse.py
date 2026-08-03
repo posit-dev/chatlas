@@ -7,6 +7,7 @@ import boto3
 import httpx
 import pytest
 from botocore.credentials import Credentials
+from chatlas import ChatBedrock
 from chatlas._content import ContentThinking
 from chatlas._provider_bedrock_converse import (
     BedrockConverseProvider,
@@ -17,6 +18,19 @@ from chatlas._provider_bedrock_converse import (
     decode_eventstream_async,
 )
 from chatlas._turn import UserTurn
+
+from .conftest import (
+    assert_data_extraction,
+    assert_images_inline,
+    assert_images_remote_error,
+    assert_list_models,
+    assert_tools_async,
+    assert_tools_parallel,
+    assert_tools_sequential,
+    assert_tools_simple,
+    assert_turns_existing,
+    assert_turns_system,
+)
 
 if TYPE_CHECKING:
     from mypy_boto3_bedrock_runtime.type_defs import (
@@ -1505,3 +1519,88 @@ class TestStructuredOutputAndCaching:
         assert system is not None
         cache_point = {"cachePoint": {"type": "default"}}
         assert (cache_point in system) is expected
+
+
+# ---------------------------------------------------------------------------
+# Live API tests (require Bedrock credentials; VCR can't record SigV4 auth)
+# ---------------------------------------------------------------------------
+
+_has_converse_credentials = True
+try:
+    _chat = ChatBedrock()
+    _chat.chat("What is 1 + 1?")
+except Exception:
+    _has_converse_credentials = False
+
+requires_converse = pytest.mark.skipif(
+    not _has_converse_credentials,
+    reason="Bedrock credentials aren't configured",
+)
+
+
+@requires_converse
+class TestLiveConverse:
+    def test_simple_request(self):
+        chat = ChatBedrock(system_prompt="Be as terse as possible; no punctuation")
+        chat.chat("What is 1 + 1?")
+        turn = chat.get_last_turn()
+        assert turn is not None
+        assert "2" in turn.text
+        assert turn.finish_reason == "success"
+        assert turn.tokens is not None
+        assert turn.tokens[0] > 0
+
+    @pytest.mark.asyncio
+    async def test_simple_streaming_request(self):
+        chat = ChatBedrock(system_prompt="Be as terse as possible; no punctuation")
+        res = []
+        async for chunk in await chat.stream_async("What is 1 + 1?"):
+            res.append(chunk)
+        assert "2" in "".join(res)
+        turn = chat.get_last_turn()
+        assert turn is not None
+        assert turn.finish_reason == "success"
+
+    def test_respects_turns_interface(self):
+        assert_turns_system(ChatBedrock)
+        assert_turns_existing(ChatBedrock)
+
+    def test_tool_variations(self):
+        assert_tools_simple(ChatBedrock)
+        assert_tools_parallel(ChatBedrock)
+        assert_tools_sequential(ChatBedrock, total_calls=6)
+
+    @pytest.mark.asyncio
+    async def test_tool_variations_async(self):
+        await assert_tools_async(ChatBedrock)
+
+    def test_data_extraction(self):
+        assert_data_extraction(ChatBedrock)
+
+    def test_images(self):
+        assert_images_inline(ChatBedrock)
+        assert_images_remote_error(ChatBedrock)
+
+    def test_list_models(self):
+        assert_list_models(ChatBedrock)
+
+    def test_non_claude_models_work(self):
+        # The whole point of Converse: models chatlas couldn't reach before.
+        for model in [
+            "amazon.nova-lite-v1:0",
+            "mistral.mistral-large-3-675b-instruct",
+        ]:
+            chat = ChatBedrock(model=model)
+            chat.chat("What is 1 + 1? Just the number.")
+            turn = chat.get_last_turn()
+            assert turn is not None, f"{model} returned no turn"
+            assert "2" in turn.text, f"{model} gave {turn.text!r}"
+
+    def test_prompt_caching_reports_cache_tokens(self):
+        chat = ChatBedrock(cache="5m", system_prompt="You are terse. " * 400)
+        chat.chat("Hi")
+        chat.chat("Hi again")
+        turn = chat.get_last_turn()
+        assert turn is not None
+        assert turn.tokens is not None
+        assert turn.tokens[2] > 0
