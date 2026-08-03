@@ -7,6 +7,17 @@ import boto3
 import httpx
 import pytest
 from botocore.credentials import Credentials
+from botocore.exceptions import (
+    CredentialRetrievalError,
+    InvalidConfigError,
+    NoCredentialsError,
+    PartialCredentialsError,
+    ProfileNotFound,
+    RefreshWithMFAUnsupportedError,
+    SSOTokenLoadError,
+    TokenRetrievalError,
+    UnauthorizedSSOTokenError,
+)
 from chatlas import ChatBedrock
 from chatlas._content import ContentThinking
 from chatlas._provider_bedrock_converse import (
@@ -1521,24 +1532,71 @@ class TestStructuredOutputAndCaching:
         assert (cache_point in system) is expected
 
 
+def test_blocked_network_skips_live_converse_before_credential_probe(monkeypatch):
+    class BlockedConfig:
+        def getoption(self, option: str) -> bool:
+            assert option == "--block-network"
+            return True
+
+    class BlockedRequest:
+        config = BlockedConfig()
+
+    def unexpected_credential_probe(*args, **kwargs):
+        raise AssertionError("ChatBedrock() must not run when network is blocked")
+
+    monkeypatch.setitem(globals(), "ChatBedrock", unexpected_credential_probe)
+
+    with pytest.raises(pytest.skip.Exception, match="network access is blocked"):
+        check_live_converse_available(cast(pytest.FixtureRequest, BlockedRequest()))
+
+
 # ---------------------------------------------------------------------------
 # Live API tests (require Bedrock credentials; VCR can't record SigV4 auth)
 # ---------------------------------------------------------------------------
 
-_has_converse_credentials = True
-try:
-    _chat = ChatBedrock()
-    _chat.chat("What is 1 + 1?")
-except Exception:
-    _has_converse_credentials = False
 
-requires_converse = pytest.mark.skipif(
-    not _has_converse_credentials,
-    reason="Bedrock credentials aren't configured",
-)
+def check_live_converse_available(request: pytest.FixtureRequest) -> None:
+    if request.config.getoption("--block-network"):
+        pytest.skip("Live Converse tests skipped because network access is blocked")
+
+    try:
+        ChatBedrock().chat("What is 1 + 1?")
+    except (
+        CredentialRetrievalError,
+        InvalidConfigError,
+        NoCredentialsError,
+        PartialCredentialsError,
+        ProfileNotFound,
+        RefreshWithMFAUnsupportedError,
+        SSOTokenLoadError,
+        TokenRetrievalError,
+        UnauthorizedSSOTokenError,
+    ) as error:
+        pytest.skip(f"Bedrock credentials aren't configured: {error}")
+    except ValueError as error:
+        if not is_converse_credential_or_access_error(error):
+            raise
+        pytest.skip(f"Bedrock credentials aren't configured: {error}")
 
 
-@requires_converse
+def is_converse_credential_or_access_error(error: ValueError) -> bool:
+    message = str(error)
+    return message.startswith(
+        ("No AWS credentials found.", "No AWS region found.")
+    ) or message.startswith(
+        (
+            "Bedrock Converse request failed with status 401:",
+            "Bedrock Converse request failed with status 403:",
+        )
+    )
+
+
+@pytest.fixture(scope="class", autouse=True)
+def require_live_converse(request: pytest.FixtureRequest) -> None:
+    if request.cls is TestLiveConverse:
+        check_live_converse_available(request)
+
+
 class TestLiveConverse:
     def test_simple_request(self):
         chat = ChatBedrock(system_prompt="Be as terse as possible; no punctuation")
