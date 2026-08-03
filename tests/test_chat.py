@@ -19,7 +19,7 @@ from pydantic import BaseModel
 
 @pytest.mark.vcr
 def test_simple_batch_chat():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     response = chat.chat("What's 1 + 1. Just give me the answer, no punctuation")
     assert str(response) == "2"
 
@@ -27,7 +27,7 @@ def test_simple_batch_chat():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_simple_async_batch_chat():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     response = await chat.chat_async(
         "What's 1 + 1. Just give me the answer, no punctuation",
     )
@@ -36,7 +36,7 @@ async def test_simple_async_batch_chat():
 
 @pytest.mark.vcr
 def test_simple_streaming_chat():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     res = chat.stream(
         """
         What are the canonical colors of the ROYGBIV rainbow?
@@ -57,7 +57,7 @@ def test_simple_streaming_chat():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_simple_streaming_chat_async():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     res = await chat.stream_async(
         """
         What are the canonical colors of the ROYGBIV rainbow?
@@ -87,6 +87,7 @@ def test_model_property_get_and_set():
 
 def test_basic_repr(snapshot):
     chat = ChatOpenAI(
+        model="gpt-5.4",
         system_prompt="You're a helpful assistant that returns very minimal output",
     )
     chat.set_turns(
@@ -100,6 +101,7 @@ def test_basic_repr(snapshot):
 
 def test_basic_str(snapshot):
     chat = ChatOpenAI(
+        model="gpt-5.4",
         system_prompt="You're a helpful assistant that returns very minimal output",
     )
     chat.set_turns(
@@ -130,7 +132,7 @@ def test_basic_export(snapshot):
 
 @pytest.mark.vcr
 def test_chat_structured():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
 
     class Person(BaseModel):
         name: str
@@ -143,7 +145,7 @@ def test_chat_structured():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_chat_structured_async():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
 
     class Person(BaseModel):
         name: str
@@ -159,7 +161,7 @@ async def test_chat_structured_async():
 def test_stream_with_data_model():
     from chatlas._content import ContentJson
 
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
 
     class Person(BaseModel):
         name: str
@@ -183,7 +185,7 @@ def test_stream_with_data_model():
 async def test_stream_async_with_data_model():
     from chatlas._content import ContentJson
 
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
 
     class Person(BaseModel):
         name: str
@@ -209,7 +211,7 @@ async def test_stream_async_with_data_model():
 
 @pytest.mark.vcr
 def test_last_turn_retrieval():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     assert chat.get_last_turn(role="user") is None
     assert chat.get_last_turn(role="assistant") is None
 
@@ -259,7 +261,7 @@ def test_modify_system_prompt():
 
 @pytest.mark.vcr
 def test_json_serialize():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     chat.chat("Tell me a short joke", echo="none")
     turns = chat.get_turns()
     turns_json = [x.model_dump_json() for x in turns]
@@ -293,7 +295,7 @@ def test_json_serialize():
 def test_deepcopy_chat():
     import copy
 
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     chat.chat("Hi", echo="none")
     chat_fork = copy.deepcopy(chat)
 
@@ -308,7 +310,7 @@ def test_deepcopy_chat():
 
 @pytest.mark.vcr
 def test_chat_callbacks():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
 
     def test_tool(user: str) -> str:
         "Find out a user's favorite color"
@@ -624,7 +626,7 @@ def test_json_serialize_with_tool_failure():
 @pytest.mark.vcr
 def test_partial_turn_preserved_on_close():
     """Closing a streaming generator mid-response preserves the partial turn."""
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     gen = chat.stream(
         """
         What are the canonical colors of the ROYGBIV rainbow?
@@ -652,7 +654,7 @@ def test_partial_turn_preserved_on_close():
 @pytest.mark.asyncio
 async def test_partial_turn_preserved_on_close_async():
     """Closing an async streaming generator mid-response preserves the partial turn."""
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     gen = await chat.stream_async(
         """
         What are the canonical colors of the ROYGBIV rainbow?
@@ -677,7 +679,7 @@ async def test_partial_turn_preserved_on_close_async():
 
 
 def test_partial_turn_display(snapshot):
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     chat.set_turns(
         [
             UserTurn("hello"),

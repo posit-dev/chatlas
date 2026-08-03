@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improvements
 
+* Updated default models to match the latest generation:
+  * Anthropic / BedrockAnthropic / Posit: `claude-sonnet-5`
+  * OpenAI / Completions / OpenRouter: `gpt-5.6-terra`
 * Reasoning is now visible when echoing. Previously, thinking content was wrapped in literal `<thinking>` tags that a markdown renderer treated as an HTML block and dropped, so reasoning never appeared at all — even with `echo="all"`. It now renders in a "Thinking" panel in the console, and in a `<details>` block in notebooks that stays expanded while reasoning streams in and collapses once it's done. `echo="text"` continues to show only the assistant's answer. (#361)
 * Long tool results no longer dominate the display. In notebooks they render collapsed, with the same look shinychat uses, and scroll internally beyond a bounded height once expanded. In the console they're truncated with a count of the dropped lines. Either way a big tool result now costs a fixed amount of vertical space, and the full value remains on the turn. `Chat.set_echo_options()` gained `tool_result_max_lines` (console, default 20) and `tool_result_max_height` (notebook, default `"400px"`) to tune this. (#361)
 * Echoed inline images — including screenshots and images returned by models or tools — now render as compact thumbnails in color terminals and as images in notebooks, instead of exposing raw base64 data. A plain metadata label is used when a terminal can't render a thumbnail. Model-generated images are included at the default `echo="output"` level, and `Chat.set_echo_options(image_max_lines=)` (default `16`) controls thumbnail height in the console.
