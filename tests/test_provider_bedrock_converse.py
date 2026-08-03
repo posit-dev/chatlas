@@ -1547,8 +1547,14 @@ class TestStructuredOutputAndCaching:
         system = args.get("system")
         assert system == [{"text": "from kwargs"}]
 
-    @pytest.mark.parametrize("cache", ["5m", "1h"])
-    def test_explicit_cache_ttls_add_a_cache_point(self, cache):
+    @pytest.mark.parametrize(
+        "cache,expected_cache_point",
+        [
+            ("5m", {"type": "default"}),
+            ("1h", {"type": "default", "ttl": "1h"}),
+        ],
+    )
+    def test_explicit_cache_ttls_add_a_cache_point(self, cache, expected_cache_point):
         from chatlas._turn import SystemTurn
 
         args = self.provider(cache=cache)._chat_perform_args(
@@ -1557,7 +1563,9 @@ class TestStructuredOutputAndCaching:
             tools={},
         )
 
-        self.assert_cache_point(args, expected=True)
+        system = args.get("system")
+        assert system is not None
+        assert {"cachePoint": expected_cache_point} in system
 
     def test_cache_auto_is_disabled_for_models_without_support(self):
         from chatlas._turn import SystemTurn

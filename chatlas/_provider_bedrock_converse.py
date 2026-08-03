@@ -82,6 +82,7 @@ if TYPE_CHECKING:
     from botocore.model import Shape
     from mypy_boto3_bedrock_runtime.literals import ImageFormatType
     from mypy_boto3_bedrock_runtime.type_defs import (
+        CachePointBlockTypeDef,
         ContentBlockOutputTypeDef,
         ContentBlockUnionTypeDef,
         ConverseRequestTypeDef,
@@ -337,17 +338,26 @@ def as_converse_tools(tools: dict[str, Tool | ToolBuiltIn]) -> ToolConfiguration
 def converse_cache_point_enabled(
     cache: Literal["auto", "5m", "1h", "none"], model: str
 ) -> bool:
-    """Whether to append a Converse cache point to this request's system blocks.
-
-    Converse only accepts the ``default`` cache point type, so its wire format
-    cannot distinguish the explicit 5-minute and 1-hour cache choices.
-    """
+    """Whether to append a Converse cache point to this request's system blocks."""
     if cache == "none":
         return False
     if cache in ("5m", "1h"):
         return True
     model_id = CROSS_REGION_PREFIX.sub("", model)
     return model_id.startswith(("anthropic.", "amazon.nova"))
+
+
+def converse_cache_point(
+    cache: Literal["auto", "5m", "1h", "none"],
+) -> CachePointBlockTypeDef:
+    """Build the cache point block for `cache`.
+
+    `ttl` is omitted for `"5m"`/`"auto"` since `type: "default"` alone already
+    means a 5-minute TTL -- only `"1h"` needs to be spelled out explicitly.
+    """
+    if cache == "1h":
+        return {"type": "default", "ttl": "1h"}
+    return {"type": "default"}
 
 
 CONVERSE_IMAGE_FORMATS: dict[str, ImageFormatType] = {
@@ -778,7 +788,7 @@ class BedrockConverseProvider(
             and system
             and not any("cachePoint" in block for block in system)
         ):
-            system.append({"cachePoint": {"type": "default"}})
+            system.append({"cachePoint": converse_cache_point(self._cache)})
         if system:
             args["system"] = system
 
