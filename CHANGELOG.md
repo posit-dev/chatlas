@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### New features
 
 * New `ChatBedrock()` reaches models on AWS's `bedrock-mantle` endpoint, including the GPT-5 family, Grok 4.3, Gemma 4, and Claude Mythos — none of which were previously available through chatlas. It picks the request format from the model name (`api="responses"` for the OpenAI Responses API, `api="messages"` for the Anthropic Messages API), or you can set `api` explicitly. Authentication uses your AWS credential chain (profiles, SSO, instance roles), or a Bedrock API key via the `AWS_BEARER_TOKEN_BEDROCK` environment variable.
+* `ChatAnthropic()` (and `ChatBedrockAnthropic()`) now correctly handle the `fallback` content block returned when a model's server-side refusal fallback (`server-side-fallback-2026-06-01`) is triggered, and price the turn at the serving model's rate rather than the requested model's, mirroring [ellmer's equivalent fix](https://github.com/tidyverse/ellmer/pull/1058).
 
 ### Improvements
 
