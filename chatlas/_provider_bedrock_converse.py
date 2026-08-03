@@ -5,6 +5,7 @@ import base64
 import json
 import os
 import ssl
+from collections.abc import Mapping
 from functools import cache
 from typing import (
     TYPE_CHECKING,
@@ -70,7 +71,6 @@ from ._turn import (
     check_finish_reason,
 )
 from ._typing_extensions import NotRequired, TypedDict
-from ._utils import AnyTypeDict
 
 try:
     from botocore.auth import SigV4Auth
@@ -447,7 +447,7 @@ class BedrockConverseProvider(
         # this provider is built well before, or without ever, sending a
         # request.
         api_key = kwargs.get("api_key") if kwargs else None
-        client_kwargs = cast(AnyTypeDict, dict(kwargs or {}))
+        client_kwargs = cast(dict[str, Any], dict(kwargs or {}))
         client_kwargs.pop("api_key", None)
         token = api_key or os.environ.get("AWS_BEARER_TOKEN_BEDROCK")
         auth: httpx.Auth
@@ -455,11 +455,14 @@ class BedrockConverseProvider(
             auth = BedrockBearerAuth(token)
         else:
             auth = BedrockSigV4Auth(LazyCredentials(aws_profile), aws_region)
+        sync_client_kwargs, async_client_kwargs = split_httpx_client_kwargs(
+            client_kwargs
+        )
         self._client = httpx.Client(
-            auth=auth, base_url=resolved_base_url, **client_kwargs
+            auth=auth, base_url=resolved_base_url, **sync_client_kwargs
         )
         self._async_client = httpx.AsyncClient(
-            auth=auth, base_url=resolved_base_url, **client_kwargs
+            auth=auth, base_url=resolved_base_url, **async_client_kwargs
         )
 
     def list_models(self) -> list[ModelInfo]:
@@ -879,6 +882,35 @@ class BedrockConverseProvider(
             tokens=tokens,
             completion=completion,
         )
+
+
+def split_httpx_client_kwargs(
+    client_kwargs: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    sync_client_kwargs = client_kwargs.copy()
+    async_client_kwargs = client_kwargs.copy()
+
+    transport = client_kwargs.get("transport")
+    if transport is not None:
+        if not isinstance(transport, httpx.BaseTransport):
+            sync_client_kwargs.pop("transport", None)
+        if not isinstance(transport, httpx.AsyncBaseTransport):
+            async_client_kwargs.pop("transport", None)
+
+    mounts = client_kwargs.get("mounts")
+    if isinstance(mounts, Mapping):
+        sync_client_kwargs["mounts"] = {
+            pattern: transport
+            for pattern, transport in mounts.items()
+            if transport is None or isinstance(transport, httpx.BaseTransport)
+        }
+        async_client_kwargs["mounts"] = {
+            pattern: transport
+            for pattern, transport in mounts.items()
+            if transport is None or isinstance(transport, httpx.AsyncBaseTransport)
+        }
+
+    return sync_client_kwargs, async_client_kwargs
 
 
 # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html#API_runtime_Converse_RequestSyntax

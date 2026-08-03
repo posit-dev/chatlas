@@ -1087,6 +1087,81 @@ class TestConverseDispatch:
 
         assert isinstance(provider._client.auth, BedrockSigV4Auth)
 
+    def test_sync_transport_is_only_used_by_sync_client(self):
+        transport = httpx.HTTPTransport()
+        provider = BedrockConverseProvider(
+            model="amazon.nova-pro-v1:0",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            kwargs={"transport": transport, "trust_env": False},
+        )
+
+        assert provider._client._transport is transport
+        assert isinstance(provider._async_client._transport, httpx.AsyncHTTPTransport)
+
+    def test_async_transport_is_only_used_by_async_client(self):
+        transport = httpx.AsyncHTTPTransport()
+        provider = BedrockConverseProvider(
+            model="amazon.nova-pro-v1:0",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            kwargs={"transport": transport, "trust_env": False},
+        )
+
+        assert isinstance(provider._client._transport, httpx.HTTPTransport)
+        assert provider._async_client._transport is transport
+
+    def test_dual_mode_transport_is_used_by_both_clients(self):
+        transport = httpx.MockTransport(lambda request: httpx.Response(200))
+        provider = BedrockConverseProvider(
+            model="amazon.nova-pro-v1:0",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            kwargs={"transport": transport, "trust_env": False},
+        )
+
+        assert provider._client._transport is transport
+        assert provider._async_client._transport is transport
+
+    def test_sync_mount_is_only_used_by_sync_client(self):
+        transport = httpx.HTTPTransport()
+        provider = BedrockConverseProvider(
+            model="amazon.nova-pro-v1:0",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            kwargs={
+                "mounts": {"https://mounted.example": transport},
+                "trust_env": False,
+            },
+        )
+        url = httpx.URL("https://mounted.example")
+
+        assert provider._client._transport_for_url(url) is transport
+        assert isinstance(
+            provider._async_client._transport_for_url(url), httpx.AsyncHTTPTransport
+        )
+
+    def test_async_mount_is_only_used_by_async_client(self):
+        transport = httpx.AsyncHTTPTransport()
+        provider = BedrockConverseProvider(
+            model="amazon.nova-pro-v1:0",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            kwargs={
+                "mounts": {"https://mounted.example": transport},
+                "trust_env": False,
+            },
+        )
+        url = httpx.URL("https://mounted.example")
+
+        assert isinstance(provider._client._transport_for_url(url), httpx.HTTPTransport)
+        assert provider._async_client._transport_for_url(url) is transport
+
 
 class TestStructuredOutputAndCaching:
     def provider(
