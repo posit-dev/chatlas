@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>types.source – chatlas</title>
+<title>chatbedrock – chatlas</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -68,8 +68,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
-<link href="../reference/types.SubmitInputArgsT.html" rel="next">
-<link href="../reference/types.MISSING.html" rel="prev">
+<link href="../reference/ChatBedrockAnthropic.html" rel="next">
+<link href="../reference/ChatAzureOpenAI.html" rel="prev">
 <link href="../images/posit-logo.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -167,7 +167,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.Source.html">types.Source</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/ChatAnthropic.html">Chat model providers</a></li><li class="breadcrumb-item"><a href="../reference/ChatBedrock.html">ChatBedrock</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -214,7 +214,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/ChatBedrock.html" class="sidebar-item-text sidebar-link">
+  <a href="../reference/ChatBedrock.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">ChatBedrock</span></a>
   </div>
 </li>
@@ -778,7 +778,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../reference/types.Source.html" class="sidebar-item-text sidebar-link active">
+  <a href="../reference/types.Source.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">types.Source</span></a>
   </div>
 </li>
@@ -824,23 +824,163 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#chatlas.types.Source" id="toc-chatlas.types.Source" class="nav-link active" data-scroll-target="#chatlas.types.Source">types.Source</a></li>
+  <li><a href="#chatlas.ChatBedrock" id="toc-chatlas.ChatBedrock" class="nav-link active" data-scroll-target="#chatlas.ChatBedrock">ChatBedrock</a>
+  <ul class="collapse">
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
+  <li><a href="#returns" id="toc-returns" class="nav-link" data-scroll-target="#returns">Returns</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  </ul></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.Source.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatBedrock.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/types.Content.html">User-facing types</a></li><li class="breadcrumb-item"><a href="../reference/types.Source.html">types.Source</a></li></ol></nav></header>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../reference/ChatAnthropic.html">Chat model providers</a></li><li class="breadcrumb-item"><a href="../reference/ChatBedrock.html">ChatBedrock</a></li></ol></nav></header>
 
 
 
 
-<section id="chatlas.types.Source" class="level1">
-<h1>types.Source</h1>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>types.Source()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Identity of a piece of evidence a citation or search result points to.</p>
-<p>Subclasses set a distinct <code>type</code> and add their identity fields. Today the only concrete source is :class:<code>WebSource</code>; file/document/RAG variants are added when that support lands.</p>
+<section id="chatlas.ChatBedrock" class="level1">
+<h1>ChatBedrock</h1>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ChatBedrock(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    system_prompt<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    api<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    aws_profile<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    aws_region<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    base_url<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    max_tokens<span class="op">=</span>MISSING,</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    cache<span class="op">=</span><span class="st">'auto'</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Chat with a model hosted on AWS Bedrock.</p>
+<p>Bedrock serves models from two endpoints, and <code>api</code> selects which one to use and which request format to send:</p>
+<ul>
+<li><code>"responses"</code> uses the OpenAI Responses API on the <code>bedrock-mantle</code> endpoint. This is the only way to reach the GPT-5 family, Grok, and Gemma on Bedrock.</li>
+<li><code>"messages"</code> uses the Anthropic Messages API on the <code>bedrock-mantle</code> endpoint. Only Claude models are available here, but it includes some (like Claude Mythos) that no other Bedrock API serves.</li>
+<li><code>"converse"</code> uses the Converse API on the <code>bedrock-runtime</code> endpoint. Not yet implemented in chatlas – use <code>ChatBedrockAnthropic()</code> for Claude models on <code>bedrock-runtime</code>.</li>
+</ul>
+<p>By default the API is picked from <code>model</code>, falling back to <code>"converse"</code> for models that aren’t recognised as mantle-only. Set <code>api</code> explicitly to override this – which is also how you reach a mantle model that Converse can also serve, since those aren’t auto-routed.</p>
+<p>Note that the two endpoints have separate token quotas, so moving a model from one to the other changes which quota it consumes.</p>
+<section id="prerequisites" class="level2 doc-section doc-section-prerequisites">
+<h2 class="doc-section doc-section-prerequisites anchored" data-anchor-id="prerequisites">Prerequisites</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>AWS credentials
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Authentication uses botocore’s standard credential chain, so environment variables, <code>~/.aws/config</code>, SSO, and instance roles all work. Pass <code>aws_profile</code> to select a named profile.</p>
+<p>Alternatively, set a Bedrock API key in the <code>AWS_BEARER_TOKEN_BEDROCK</code> environment variable (or pass <code>api_key</code> via <code>kwargs</code>) to authenticate with a bearer token instead of SigV4.</p>
+</div>
+</div>
+<p>The <code>bedrock</code> extra installs the vendor SDK behind each API (<code>openai</code> for <code>api="responses"</code>, <code>anthropic</code> for <code>api="messages"</code>) plus the AWS libraries they sign requests with, even though a given chat only ever uses one of the two.</p>
+</section>
+<section id="parameters" class="level2 doc-section doc-section-parameters">
+<h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>system_prompt</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>A system prompt to set the behavior of the assistant.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>model</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>The model to use for the chat. Defaults to <code>"openai.gpt-5.6-sol"</code>.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>api</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<code>BedrockAPI</code>]</td>
+<td>Which Bedrock API to use. The default, <code>None</code>, picks the API from <code>model</code>.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>aws_profile</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>The AWS profile to use. Defaults to botocore’s default profile.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>aws_region</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>The AWS region to use. Defaults to the region from your AWS config.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="even">
+<td>base_url</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
+<td>Override the endpoint URL. Needed to reach mantle’s other OpenAI-compatible path, <code>/v1</code>, which serves older open-weight models like <code>gpt-oss</code> and rejects the models <code>/openai/v1</code> serves.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td>max_tokens</td>
+<td><a href="https://docs.python.org/3/library/functions.html#int">int</a> | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a></td>
+<td>Maximum number of tokens to generate, defaulting to 4096 when <code>api="messages"</code>. Passing this when <code>api="responses"</code> raises, since the Responses API has no constructor-level equivalent – set a cap per-request instead via <code>chat.set_model_params(max_tokens=...)</code>.</td>
+<td><code>MISSING</code></td>
+</tr>
+<tr class="even">
+<td>cache</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['auto', '5m', '1h', 'none']</td>
+<td>Prompt caching. <code>api="messages"</code> only; <code>"auto"</code> enables a 5-minute TTL. The Responses API caches automatically, so this must be left at <code>"auto"</code> when <code>api="responses"</code>.</td>
+<td><code>'auto'</code></td>
+</tr>
+<tr class="odd">
+<td>kwargs</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['OpenAIClientArgs | AnthropicClientArgs']</td>
+<td>Additional arguments passed to the underlying vendor SDK client. These are merged in last, so anything supplied here (including a custom <code>http_client</code>) overrides what <code>ChatBedrock</code> otherwise resolves. Passing <code>api_key</code> authenticates with a Bedrock API key (bearer token) instead of the SigV4 credential chain.</td>
+<td><code>None</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level2 doc-section doc-section-returns">
+<h2 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td><a href="https://posit-dev.github.io/chatlas/reference/Chat.html#chatlas.Chat">Chat</a></td>
+<td>A Chat object.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples" class="level2 doc-section doc-section-examples">
+<h2 class="doc-section doc-section-examples anchored" data-anchor-id="examples">Examples</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> chatlas <span class="im">import</span> ChatBedrock</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Frontier OpenAI models, which only exist on bedrock-mantle</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatBedrock(model<span class="op">=</span><span class="st">"openai.gpt-5.6-sol"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>chat.chat(<span class="st">"What is 1 + 1? Just the number."</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Claude through the Anthropic Messages API on mantle</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>chat <span class="op">=</span> ChatBedrock(model<span class="op">=</span><span class="st">"anthropic.claude-haiku-4-5"</span>, api<span class="op">=</span><span class="st">"messages"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -1246,13 +1386,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../reference/types.MISSING.html" class="pagination-link" aria-label="types.MISSING">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">types.MISSING</span>
+      <a href="../reference/ChatAzureOpenAI.html" class="pagination-link" aria-label="ChatAzureOpenAI">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">ChatAzureOpenAI</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../reference/types.SubmitInputArgsT.html" class="pagination-link" aria-label="types.SubmitInputArgsT">
-        <span class="nav-page-text">types.SubmitInputArgsT</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../reference/ChatBedrockAnthropic.html" class="pagination-link" aria-label="ChatBedrockAnthropic">
+        <span class="nav-page-text">ChatBedrockAnthropic</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1264,7 +1404,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>   
     <div class="nav-footer-center">
       &nbsp;
-    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/types.Source.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
+    <div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/posit-dev/chatlas/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li><li><a href="https://github.com/posit-dev/chatlas/edit/main/docs/reference/ChatBedrock.qmd" class="toc-action"><i class="bi empty"></i>Edit this page</a></li></ul></div></div>
     <div class="nav-footer-right">
       &nbsp;
     </div>

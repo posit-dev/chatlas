@@ -9,7 +9,7 @@ Below is a table of model providers that come pre-packaged with chatlas.
 | Name | Usage | Enterprise? |
 |----|----|----|
 | Anthropic (Claude) | [`ChatAnthropic()`](../reference/ChatAnthropic.llms.md) |  |
-| AWS Bedrock | [`ChatBedrockAnthropic()`](../reference/ChatBedrockAnthropic.llms.md) | ✅ |
+| AWS Bedrock | [`ChatBedrock()`](../reference/ChatBedrock.llms.md), [`ChatBedrockAnthropic()`](../reference/ChatBedrockAnthropic.llms.md) | ✅ |
 | OpenAI | [`ChatOpenAI()`](../reference/ChatOpenAI.llms.md) |  |
 | Azure OpenAI | [`ChatAzureOpenAI()`](../reference/ChatAzureOpenAI.llms.md) | ✅ |
 | Google (Gemini) | [`ChatGoogle()`](../reference/ChatGoogle.llms.md) |  |
@@ -43,7 +43,7 @@ Below is a table of model providers that come pre-packaged with chatlas.
 
 In addition to choosing a model provider, you also need to choose a specific model from that provider. This is important because different models have different capabilities and performance characteristics. For example, some models are faster and cheaper, while others are more accurate and capable of handling more complex tasks.
 
-If you’re using `chatlas` inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g. `ChatAzureOpenAI()` and `ChatBedrockAnthropic()`). If you’re using `chatlas` for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:
+If you’re using `chatlas` inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider (e.g. `ChatAzureOpenAI()`, `ChatBedrockAnthropic()`, or `ChatBedrock()`). If you’re using `chatlas` for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:
 
 - `ChatOpenAI()` or `ChatAnthropic()` are both good places to start. `ChatOpenAI()` defaults to **GPT-5.4**, but you can use `model = "gpt-5.4-mini"` for a cheaper lower-quality model, or `model = "o3"` for more complex [reasoning](../get-started/reasoning.llms.md). `ChatAnthropic()` is similarly good; it defaults to **Claude Sonnet 4.6** which we have found to be particularly good at writing code.
 

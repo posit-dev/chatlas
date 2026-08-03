@@ -8,6 +8,8 @@ chatlas.ChatAuto py:function 1 reference/ChatAuto.html#chatlas.ChatAuto -
 chatlas._auto.ChatAuto py:function 1 reference/ChatAuto.html#chatlas.ChatAuto chatlas.ChatAuto
 chatlas.ChatAzureOpenAI py:function 1 reference/ChatAzureOpenAI.html#chatlas.ChatAzureOpenAI -
 chatlas._provider_openai_azure.ChatAzureOpenAI py:function 1 reference/ChatAzureOpenAI.html#chatlas.ChatAzureOpenAI chatlas.ChatAzureOpenAI
+chatlas.ChatBedrock py:function 1 reference/ChatBedrock.html#chatlas.ChatBedrock -
+chatlas._provider_bedrock.ChatBedrock py:function 1 reference/ChatBedrock.html#chatlas.ChatBedrock chatlas.ChatBedrock
 chatlas.ChatBedrockAnthropic py:function 1 reference/ChatBedrockAnthropic.html#chatlas.ChatBedrockAnthropic -
 chatlas._provider_anthropic.ChatBedrockAnthropic py:function 1 reference/ChatBedrockAnthropic.html#chatlas.ChatBedrockAnthropic chatlas.ChatBedrockAnthropic
 chatlas.ChatCloudflare py:function 1 reference/ChatCloudflare.html#chatlas.ChatCloudflare -

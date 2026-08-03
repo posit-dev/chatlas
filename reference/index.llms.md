@@ -9,6 +9,7 @@ Start a chat with a particular large language model (llm) provider.
 | [ChatAnthropic](../reference/ChatAnthropic.llms.md#chatlas.ChatAnthropic) | Chat with an Anthropic Claude model. |
 | [ChatAuto](../reference/ChatAuto.llms.md#chatlas.ChatAuto) | Chat with any provider. |
 | [ChatAzureOpenAI](../reference/ChatAzureOpenAI.llms.md#chatlas.ChatAzureOpenAI) | Chat with a model hosted on Azure OpenAI. |
+| [ChatBedrock](../reference/ChatBedrock.llms.md#chatlas.ChatBedrock) | Chat with a model hosted on AWS Bedrock. |
 | [ChatBedrockAnthropic](../reference/ChatBedrockAnthropic.llms.md#chatlas.ChatBedrockAnthropic) | Chat with an AWS bedrock model. |
 | [ChatCloudflare](../reference/ChatCloudflare.llms.md#chatlas.ChatCloudflare) | Chat with a model hosted on Cloudflare Workers AI. |
 | [ChatDatabricks](../reference/ChatDatabricks.llms.md#chatlas.ChatDatabricks) | Chat with a model hosted on Databricks. |
