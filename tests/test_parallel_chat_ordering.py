@@ -16,7 +16,7 @@ async def test_parallel_chat_tool_ordering_basic():
         execution_order.append(prompt_id)
         return f"Executed for {prompt_id}"
 
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     chat.register_tool(record_tool)
 
     prompts = [
@@ -52,7 +52,7 @@ async def test_parallel_chat_tool_ordering_multiple_tools_per_prompt():
         execution_order.append(prompt_id)
         return f"Executed for {prompt_id}"
 
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     chat.register_tool(record_tool)
 
     # Ask the model to call the tool multiple times per prompt
@@ -87,7 +87,7 @@ async def test_parallel_chat_tool_ordering_multiple_tools_per_prompt():
 @pytest.mark.asyncio
 async def test_parallel_chat_no_tools():
     """Test that parallel_chat works normally when no tools are needed."""
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
 
     prompts = [
         "Say 'Hello'",
@@ -116,7 +116,7 @@ async def test_parallel_chat_mixed_tools_and_no_tools():
         execution_order.append(prompt_id)
         return f"Executed for {prompt_id}"
 
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     chat.register_tool(record_tool)
 
     prompts = [
