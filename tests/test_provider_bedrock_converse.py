@@ -1087,6 +1087,71 @@ class TestConverseDispatch:
 
         assert isinstance(provider._client.auth, BedrockSigV4Auth)
 
+    def test_explicit_api_key_outranks_profile_and_env_bearer_token(self, monkeypatch):
+        headers: list[str] = []
+
+        def handler(request: httpx.Request) -> httpx.Response:
+            headers.append(request.headers["Authorization"])
+            return httpx.Response(200, request=request)
+
+        monkeypatch.setenv("AWS_BEARER_TOKEN_BEDROCK", "env-bedrock-key")
+        provider = BedrockConverseProvider(
+            model="amazon.nova-pro-v1:0",
+            aws_profile="some-profile",
+            aws_region="us-east-1",
+            base_url=None,
+            kwargs={
+                "api_key": "explicit-bedrock-key",
+                "transport": httpx.MockTransport(handler),
+            },
+        )
+        provider._client.get("/")
+
+        assert headers == ["Bearer explicit-bedrock-key"]
+
+    def test_explicit_profile_uses_sigv4_instead_of_env_bearer_token(self, monkeypatch):
+        from chatlas._provider_bedrock_converse import BedrockSigV4Auth
+
+        monkeypatch.setenv("AWS_BEARER_TOKEN_BEDROCK", "env-bedrock-key")
+        provider = BedrockConverseProvider(
+            model="amazon.nova-pro-v1:0",
+            aws_profile="some-profile",
+            aws_region="us-east-1",
+            base_url=None,
+        )
+
+        assert isinstance(provider._client.auth, BedrockSigV4Auth)
+
+    def test_sync_event_hooks_are_only_used_by_sync_client(self):
+        def hook(_request: httpx.Request) -> None:
+            pass
+
+        provider = BedrockConverseProvider(
+            model="amazon.nova-pro-v1:0",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            kwargs={"event_hooks": {"request": [hook]}},
+        )
+
+        assert provider._client.event_hooks["request"] == [hook]
+        assert provider._async_client.event_hooks["request"] == []
+
+    def test_async_event_hooks_are_only_used_by_async_client(self):
+        async def hook(_request: httpx.Request) -> None:
+            pass
+
+        provider = BedrockConverseProvider(
+            model="amazon.nova-pro-v1:0",
+            aws_profile=None,
+            aws_region="us-east-1",
+            base_url=None,
+            kwargs={"event_hooks": {"request": [hook]}},
+        )
+
+        assert provider._client.event_hooks["request"] == []
+        assert provider._async_client.event_hooks["request"] == [hook]
+
     def test_sync_transport_is_only_used_by_sync_client(self):
         transport = httpx.HTTPTransport()
         provider = BedrockConverseProvider(

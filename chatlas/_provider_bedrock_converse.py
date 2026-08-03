@@ -71,6 +71,7 @@ from ._turn import (
     check_finish_reason,
 )
 from ._typing_extensions import NotRequired, TypedDict
+from ._utils import is_async_callable
 
 try:
     from botocore.auth import SigV4Auth
@@ -242,23 +243,23 @@ class BedrockBearerAuth(httpx.Auth):
 class ConverseClientArgs(TypedDict, total=False):
     """Client options for direct `ChatBedrock(api="converse")` HTTP requests."""
 
-    api_key: str
-    params: QueryParamTypes
-    headers: HeaderTypes
-    cookies: CookieTypes
+    api_key: str | None
+    params: QueryParamTypes | None
+    headers: HeaderTypes | None
+    cookies: CookieTypes | None
     verify: ssl.SSLContext | str | bool
-    cert: CertTypes
+    cert: CertTypes | None
     trust_env: bool
     http1: bool
     http2: bool
-    proxy: ProxyTypes
-    mounts: dict[str, httpx.BaseTransport | httpx.AsyncBaseTransport | None]
+    proxy: ProxyTypes | None
+    mounts: Mapping[str, httpx.BaseTransport | httpx.AsyncBaseTransport | None] | None
     timeout: TimeoutTypes
     follow_redirects: bool
     limits: httpx.Limits
     max_redirects: int
-    event_hooks: dict[str, list[Callable[..., Any]]]
-    transport: httpx.BaseTransport | httpx.AsyncBaseTransport
+    event_hooks: Mapping[str, list[Callable[..., Any]]] | None
+    transport: httpx.BaseTransport | httpx.AsyncBaseTransport | None
     default_encoding: str | Callable[[bytes], str]
 
 
@@ -449,7 +450,9 @@ class BedrockConverseProvider(
         api_key = kwargs.get("api_key") if kwargs else None
         client_kwargs = cast(dict[str, Any], dict(kwargs or {}))
         client_kwargs.pop("api_key", None)
-        token = api_key or os.environ.get("AWS_BEARER_TOKEN_BEDROCK")
+        token = api_key
+        if token is None and aws_profile is None:
+            token = os.environ.get("AWS_BEARER_TOKEN_BEDROCK")
         auth: httpx.Auth
         if token:
             auth = BedrockBearerAuth(token)
@@ -908,6 +911,17 @@ def split_httpx_client_kwargs(
             pattern: transport
             for pattern, transport in mounts.items()
             if transport is None or isinstance(transport, httpx.AsyncBaseTransport)
+        }
+
+    event_hooks = client_kwargs.get("event_hooks")
+    if isinstance(event_hooks, Mapping):
+        sync_client_kwargs["event_hooks"] = {
+            event: [hook for hook in hooks if not is_async_callable(hook)]
+            for event, hooks in event_hooks.items()
+        }
+        async_client_kwargs["event_hooks"] = {
+            event: [hook for hook in hooks if is_async_callable(hook)]
+            for event, hooks in event_hooks.items()
         }
 
     return sync_client_kwargs, async_client_kwargs

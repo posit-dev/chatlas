@@ -52,8 +52,8 @@ def ChatBedrock(
     """
     Chat with a model hosted on AWS Bedrock.
 
-    Bedrock serves models from two endpoints, and `api` selects which one to use
-    and which request format to send:
+    Bedrock exposes three APIs across two endpoints, and `api` selects which
+    one to use and which request format to send:
 
     * `"responses"` uses the OpenAI Responses API on the `bedrock-mantle`
       endpoint. This is the only way to reach the GPT-5 family, Grok, and Gemma
@@ -81,15 +81,16 @@ def ChatBedrock(
     variables, `~/.aws/config`, SSO, and instance roles all work. Pass
     `aws_profile` to select a named profile.
 
-    Alternatively, set a Bedrock API key in the `AWS_BEARER_TOKEN_BEDROCK`
-    environment variable (or pass `api_key` via `kwargs`) to authenticate
-    with a bearer token instead of SigV4.
+    For direct Converse requests, pass `api_key` via `kwargs` or set
+    `AWS_BEARER_TOKEN_BEDROCK` to authenticate with a bearer token instead of
+    SigV4. An explicit `api_key` takes priority; otherwise an explicit
+    `aws_profile` uses SigV4 before the environment bearer token is considered.
     :::
 
-    The `bedrock` extra installs the vendor SDK behind each API (`openai` for
-    `api="responses"`, `anthropic` for `api="messages"`) plus the AWS libraries
-    they sign requests with, even though a given chat only ever uses one of the
-    two.
+    The direct Converse client uses raw HTTPX plus AWS libraries. The `bedrock`
+    extra provides the AWS libraries and vendor SDKs for the mantle APIs
+    (`openai` for `api="responses"` and `anthropic` for `api="messages"`). A
+    chat uses one of these three API clients.
 
     Parameters
     ----------
