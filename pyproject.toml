@@ -106,6 +106,9 @@ eval = [
 ]
 # Provider extras ----
 anthropic = ["anthropic>=0.109.1"]
+# botocore is a direct import (region/credential resolution); the `bedrock`
+# extra of anthropic adds the boto3 session its mantle SigV4 signer needs.
+bedrock = ["botocore", "anthropic[bedrock]>=0.109.1", "openai>=2.50.0"]
 bedrock-anthropic = ["anthropic[bedrock]>=0.109.1"]
 databricks = ["databricks-sdk"]
 # Intentionally empty since these providers used to require 

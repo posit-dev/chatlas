@@ -6,6 +6,7 @@ website:
       - reference/ChatAnthropic.qmd
       - reference/ChatAuto.qmd
       - reference/ChatAzureOpenAI.qmd
+      - reference/ChatBedrock.qmd
       - reference/ChatBedrockAnthropic.qmd
       - reference/ChatCloudflare.qmd
       - reference/ChatDatabricks.qmd

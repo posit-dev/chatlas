@@ -8,6 +8,7 @@ import orjson
 
 from ._chat import Chat
 from ._provider_anthropic import ChatAnthropic, ChatBedrockAnthropic
+from ._provider_bedrock import ChatBedrock
 from ._provider_cloudflare import ChatCloudflare
 from ._provider_databricks import ChatDatabricks
 from ._provider_deepseek import ChatDeepSeek
@@ -30,6 +31,7 @@ from ._utils import MISSING_TYPE as DEPRECATED_TYPE
 
 AutoProviders = Literal[
     "anthropic",
+    "bedrock",
     "bedrock-anthropic",
     "claude",
     "cloudflare",
@@ -56,6 +58,7 @@ AutoProviders = Literal[
 
 _provider_chat_model_map: dict[AutoProviders, Callable[..., Chat]] = {
     "anthropic": ChatAnthropic,
+    "bedrock": ChatBedrock,
     "bedrock-anthropic": ChatBedrockAnthropic,
     "claude": ChatAnthropic,
     "cloudflare": ChatCloudflare,
@@ -174,8 +177,9 @@ def ChatAuto(
     provider_model
         The name of the provider and model to use in the format
         `"{provider}/{model}"`. Providers are strings formatted in kebab-case,
-        e.g. to use `ChatBedrockAnthropic` set `provider="bedrock-anthropic"`,
-        and models are the provider-specific model names, e.g.
+        e.g. to use `ChatBedrockAnthropic` set `provider="bedrock-anthropic"`
+        (`provider="bedrock"` instead selects `ChatBedrock`), and models are
+        the provider-specific model names, e.g.
         `"claude-sonnet-4-6"`. The `/{model}` portion may also be
         omitted, in which case, the default model for that provider will be
         used.

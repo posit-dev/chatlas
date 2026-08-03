@@ -29,6 +29,8 @@ ChatFun = Callable[..., Chat]
 
 _DUMMY_CREDENTIALS = {
     "ANTHROPIC_API_KEY": "dummy-anthropic-key",
+    "AWS_ACCESS_KEY_ID": "dummy-aws-access-key-id",
+    "AWS_SECRET_ACCESS_KEY": "dummy-aws-secret-access-key",
     "AZURE_OPENAI_API_KEY": "dummy-azure-key",
     "CLOUDFLARE_API_KEY": "dummy-cloudflare-key",
     "CLOUDFLARE_ACCOUNT_ID": "dummy-cloudflare-id",
@@ -45,10 +47,56 @@ _DUMMY_CREDENTIALS = {
 }
 
 
+_AWS_DUMMY_KEYS = {"AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY"}
+
+
+def _has_ambient_aws_credentials() -> bool:
+    """
+    Whether AWS credentials are already resolvable through botocore's normal
+    chain (env vars, `~/.aws/credentials`, SSO, container/instance role).
+
+    Every other entry in `_DUMMY_CREDENTIALS` is safe to inject purely by
+    checking `os.environ`, because that single env var *is* how a real
+    credential would be supplied. AWS is different: real credentials just as
+    often come from a profile or an instance role that never touches
+    AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, and botocore's env-var provider
+    always wins over those regardless of profile -- so an unconditional
+    fallback would silently shadow real credentials with fake ones. Checking
+    the whole chain instead (not just os.environ) avoids that. When no
+    earlier provider resolves, the chain walk ends by probing the
+    IMDS/ECS instance-metadata service, a real (but bounded, ~1s) network
+    call -- that cost is the unavoidable price of honoring instance roles,
+    so don't "optimize" this into an env-var-only check; that would
+    reintroduce the credential-shadowing bug above.
+    """
+    try:
+        from botocore.session import Session
+
+        credentials = Session().get_credentials()
+        if credentials is None:
+            return False
+        # Resolvable is not the same as usable: an expired SSO token or a
+        # broken assume-role profile resolves here but fails to freeze.
+        # ChatBedrock() resolves eagerly at construction, so treating
+        # unusable ambient credentials as present would fail the offline
+        # suite instead of falling back to dummies.
+        credentials.get_frozen_credentials()
+        return True
+    except Exception:
+        # Covers "botocore isn't installed" (it's the `bedrock` extra, not
+        # part of `test`), "no credentials resolvable", and "credentials
+        # resolvable but unusable" -- either way, fall back to the dummy
+        # values below.
+        return False
+
+
 # Pytest initialization hook to fallback to dummy credentials
 # (this is needed since some SDKs will fail before preparing the request if no key is set)
 def pytest_configure(config):
+    skip_aws_dummies = _has_ambient_aws_credentials()
     for key, value in _DUMMY_CREDENTIALS.items():
+        if key in _AWS_DUMMY_KEYS and skip_aws_dummies:
+            continue
         if key not in os.environ:
             os.environ[key] = value
 

@@ -6,7 +6,7 @@ import re
 import tempfile
 from abc import abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Generic, Literal, Optional
+from typing import TYPE_CHECKING, Any, Generic, Iterable, Literal, Optional
 
 import orjson
 from openai import AsyncOpenAI, OpenAI
@@ -29,7 +29,40 @@ from ._turn import AssistantTurn, Turn
 from ._utils import split_http_client_kwargs
 
 if TYPE_CHECKING:
+    from openai.types.model import Model
+
     from .types.openai import ChatClientArgs
+
+
+def openai_models_to_info(models: Iterable["Model"], provider_name: str) -> list[ModelInfo]:
+    """Convert OpenAI SDK `Model` objects into chatlas `ModelInfo` dicts.
+
+    Shared by `OpenAIAbstractProvider.list_models()` and by providers (like
+    bedrock-mantle) that need to list models from a different base URL than
+    the one their chat client is pointed at.
+    """
+    res: list[ModelInfo] = []
+    for m in models:
+        pricing = get_price_info(provider_name, m.id) or {}
+        info: ModelInfo = {
+            "id": m.id,
+            "owned_by": m.owned_by,
+            "input": pricing.get("input"),
+            "output": pricing.get("output"),
+            "cached_input": pricing.get("cached_input"),
+        }
+        # DeepSeek compatibility
+        if m.created is not None:
+            info["created_at"] = datetime.fromtimestamp(m.created).date()
+        res.append(info)
+
+    # More recent models first
+    res.sort(
+        key=lambda x: x.get("created_at", 0),
+        reverse=True,
+    )
+
+    return res
 
 
 # Seems there is no native typing support for `files.content()` results
@@ -94,30 +127,7 @@ class OpenAIAbstractProvider(
         self._async_client = AsyncOpenAI(**async_kwargs)
 
     def list_models(self):
-        models = self._client.models.list()
-
-        res: list[ModelInfo] = []
-        for m in models:
-            pricing = get_price_info(self.name, m.id) or {}
-            info: ModelInfo = {
-                "id": m.id,
-                "owned_by": m.owned_by,
-                "input": pricing.get("input"),
-                "output": pricing.get("output"),
-                "cached_input": pricing.get("cached_input"),
-            }
-            # DeepSeek compatibility
-            if m.created is not None:
-                info["created_at"] = datetime.fromtimestamp(m.created).date()
-            res.append(info)
-
-        # More recent models first
-        res.sort(
-            key=lambda x: x.get("created_at", 0),
-            reverse=True,
-        )
-
-        return res
+        return openai_models_to_info(self._client.models.list(), self.name)
 
     def token_count(
         self,

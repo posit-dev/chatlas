@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### New features
+
+* New `ChatBedrock()` reaches models on AWS's `bedrock-mantle` endpoint, including the GPT-5 family, Grok 4.3, Gemma 4, and Claude Mythos — none of which were previously available through chatlas. It picks the request format from the model name (`api="responses"` for the OpenAI Responses API, `api="messages"` for the Anthropic Messages API), or you can set `api` explicitly. Authentication uses your AWS credential chain (profiles, SSO, instance roles), or a Bedrock API key via the `AWS_BEARER_TOKEN_BEDROCK` environment variable.
+
 ### Improvements
 
 * Reasoning is now visible when echoing. Previously, thinking content was wrapped in literal `<thinking>` tags that a markdown renderer treated as an HTML block and dropped, so reasoning never appeared at all — even with `echo="all"`. It now renders in a "Thinking" panel in the console, and in a `<details>` block in notebooks that stays expanded while reasoning streams in and collapses once it's done. `echo="text"` continues to show only the assistant's answer. (#361)

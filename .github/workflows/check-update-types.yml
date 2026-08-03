@@ -39,14 +39,15 @@ jobs:
         run: |
           make update-types
           make update-pricing
+          make update-bedrock-apis
 
       - name: Check for changes
         id: check
         run: |
           echo "Checking for changes in types and pricing..."
-          git status chatlas/types chatlas/data/prices.json
-          git diff --stat chatlas/types chatlas/data/prices.json
-          if [[ -n $(git status --porcelain chatlas/types chatlas/data/prices.json) ]]; then
+          git status chatlas/types chatlas/data/prices.json chatlas/data/bedrock_apis.json
+          git diff --stat chatlas/types chatlas/data/prices.json chatlas/data/bedrock_apis.json
+          if [[ -n $(git status --porcelain chatlas/types chatlas/data/prices.json chatlas/data/bedrock_apis.json) ]]; then
             echo "dirty=true" >> "$GITHUB_OUTPUT"
           else
             echo "dirty=false" >> "$GITHUB_OUTPUT"
@@ -60,7 +61,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add chatlas/types chatlas/data/prices.json
+          git add chatlas/types chatlas/data/prices.json chatlas/data/bedrock_apis.json
           git commit -m "chore: update provider types and pricing data"
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
           echo "::error::Provider types and/or pricing were out of date. A fix commit was pushed to this branch; CI will re-run automatically."
@@ -71,7 +72,7 @@ jobs:
           steps.check.outputs.dirty == 'true' &&
           !(github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
         run: |
-          git status --porcelain chatlas/types chatlas/data/prices.json
-          git diff chatlas/types chatlas/data/prices.json
-          echo "::error::Provider types and/or pricing are out of date. Please run 'make update-types' and 'make update-pricing' locally and commit the changes."
+          git status --porcelain chatlas/types chatlas/data/prices.json chatlas/data/bedrock_apis.json
+          git diff chatlas/types chatlas/data/prices.json chatlas/data/bedrock_apis.json
+          echo "::error::Provider types and/or pricing are out of date. Please run 'make update-types', 'make update-pricing', and 'make update-bedrock-apis' locally and commit the changes."
           exit 1

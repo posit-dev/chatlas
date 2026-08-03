@@ -1,5 +1,11 @@
 import pytest
-from chatlas import ChatAzureOpenAI, ChatBedrockAnthropic, ChatOllama, ChatPosit
+from chatlas import (
+    ChatAzureOpenAI,
+    ChatBedrock,
+    ChatBedrockAnthropic,
+    ChatOllama,
+    ChatPosit,
+)
 from chatlas._files import FileManager, maybe_write
 from chatlas._provider_openai import OpenAIProvider
 
@@ -58,8 +64,9 @@ def test_unsupported_provider_raises(monkeypatch):
 
 # Each of these subclasses a provider that *does* implement file management, so
 # each has to opt back out: Azure OpenAI has no Files API, Bedrock's Anthropic
-# client has no `.beta.files`, and Posit's Anthropic gateway proxy doesn't
-# support the beta Files API.
+# client has no `.beta.files`, Posit's Anthropic gateway proxy doesn't support
+# the beta Files API, and bedrock-mantle's OpenAI Responses path 404s on
+# GET /openai/v1/files (files are only served from mantle's other path, /v1).
 def azure_chat():
     return ChatAzureOpenAI(
         endpoint="https://example.openai.azure.com/",
@@ -74,11 +81,19 @@ def bedrock_chat():
     )
 
 
+def bedrock_mantle_responses_chat():
+    return ChatBedrock(
+        model="openai.gpt-5.6-sol", api="responses", aws_region="us-east-1"
+    )
+
+
 def posit_chat():
     return ChatPosit(model="claude-sonnet-4-6", credentials=lambda: "test-token")
 
 
-@pytest.mark.parametrize("make_chat", [azure_chat, bedrock_chat, posit_chat])
+@pytest.mark.parametrize(
+    "make_chat", [azure_chat, bedrock_chat, bedrock_mantle_responses_chat, posit_chat]
+)
 @pytest.mark.parametrize(
     "call",
     [
@@ -104,20 +119,28 @@ def test_no_file_management_covers_every_file_method():
     # can't silently reach an opted-out provider's client.
     from chatlas._provider import Provider
     from chatlas._provider_anthropic import AnthropicBedrockProvider
+    from chatlas._provider_bedrock import BedrockResponsesProvider
     from chatlas._provider_openai_azure import OpenAIAzureProvider
     from chatlas._provider_posit import PositAnthropicProvider
 
     names = [n for n in vars(Provider) if n.startswith("file_")]
     assert len(names) == 10, "expected 5 file methods x sync/async"
 
-    for cls in (OpenAIAzureProvider, AnthropicBedrockProvider, PositAnthropicProvider):
+    for cls in (
+        OpenAIAzureProvider,
+        AnthropicBedrockProvider,
+        BedrockResponsesProvider,
+        PositAnthropicProvider,
+    ):
         for name in names:
             assert getattr(cls, name) is getattr(Provider, name), (
                 f"{cls.__name__}.{name} is not opted out of file management"
             )
 
 
-@pytest.mark.parametrize("make_chat", [azure_chat, bedrock_chat, posit_chat])
+@pytest.mark.parametrize(
+    "make_chat", [azure_chat, bedrock_chat, bedrock_mantle_responses_chat, posit_chat]
+)
 @pytest.mark.parametrize(
     "call",
     [

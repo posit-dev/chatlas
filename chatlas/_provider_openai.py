@@ -705,22 +705,22 @@ def openai_replayable(content: ProviderAnnotation) -> bool:
 def as_input_param(content: Content, role: Role) -> "ResponseInputItemParam":
     if isinstance(content, ContentText):
         if role == "assistant":
-            # OpenAI's type for this value (ResponseOutputMessageParam) currently has a bunch
-            # of fields marked as Required that probably shouldn't be?
-            # When that gets fixed, this can be updated to be simpler (i.e., as_message() call)
-            return {
-                "role": "assistant",
-                "content": [
-                    {
-                        "type": "output_text",
-                        "text": content.text,
-                        "annotations": [],
-                    }
-                ],
-                "status": "completed",
-                "type": "message",
-                "id": "msg_missing_id",  # Not sure if it matters if we have a fake id here?
-            }
+            # Assistant messages use output_text, but the SDK incorrectly requires an id.
+            return cast(
+                "ResponseInputItemParam",
+                {
+                    "role": "assistant",
+                    "content": [
+                        {
+                            "type": "output_text",
+                            "text": content.text,
+                            "annotations": [],
+                        }
+                    ],
+                    "status": "completed",
+                    "type": "message",
+                },
+            )
         else:
             return as_message({"type": "input_text", "text": content.text}, role)
     elif isinstance(content, ContentJson):
