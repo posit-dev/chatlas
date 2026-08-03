@@ -191,7 +191,7 @@ def ChatOpenAI(
     check_base_url(base_url)
 
     if model is None:
-        model = log_model_default("gpt-5.4")
+        model = log_model_default("gpt-5.6-terra")
 
     kwargs_chat: "SubmitInputArgs" = {}
 

@@ -16,7 +16,7 @@ from pydantic import BaseModel
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_basic():
-    chat = ChatOpenAI(system_prompt="Be terse.")
+    chat = ChatOpenAI(model="gpt-5.4", system_prompt="Be terse.")
 
     prompts = [
         "What is 1 + 1?",
@@ -59,7 +59,7 @@ def new_roll_func():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_tools():
-    chat = ChatOpenAI(system_prompt="Be terse.")
+    chat = ChatOpenAI(model="gpt-5.4", system_prompt="Be terse.")
 
     prompts = [
         "Roll the dice, please! Reply with 'You rolled ____'",
@@ -90,7 +90,7 @@ async def test_parallel_chat_tools():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_parallel_chat_tools_uneven():
-    chat = ChatOpenAI(system_prompt="Be terse.")
+    chat = ChatOpenAI(model="gpt-5.4", system_prompt="Be terse.")
 
     prompts = [
         "Roll the dice, please! Reply with 'You rolled ____'",
@@ -130,7 +130,7 @@ async def test_parallel_chat_tools_uneven():
 @pytest.mark.asyncio
 async def test_parallel_chat_structured():
     """Test parallel_chat_structured for structured data extraction."""
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
 
     prompts = ["John, age 15", "Jane, age 16"]
 

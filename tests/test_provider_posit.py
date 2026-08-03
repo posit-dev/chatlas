@@ -486,7 +486,7 @@ def test_chat_posit_dispatches_to_openai_flavor():
 
 def test_chat_posit_defaults_to_claude_sonnet():
     chat = ChatPosit(credentials=lambda: "test-token")
-    assert chat.provider.model == "claude-sonnet-4-6"
+    assert chat.provider.model == "claude-sonnet-5"
 
 
 def test_chat_posit_custom_credentials_bypasses_device_flow(

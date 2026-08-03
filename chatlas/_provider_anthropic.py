@@ -294,7 +294,7 @@ def ChatAnthropic(
     """
 
     if model is None:
-        model = log_model_default("claude-sonnet-4-6")
+        model = log_model_default("claude-sonnet-5")
 
     kwargs_chat: "SubmitInputArgs" = {}
     if isinstance(reasoning, str):
@@ -337,6 +337,26 @@ def normalize_finish_reason(reason: str | None) -> str | None:
     if reason is None:
         return None
     return _ANTHROPIC_FINISH_REASON_MAP.get(reason, reason)
+
+
+def serving_model(completion: Message) -> str:
+    """
+    The model that actually served the response.
+
+    A server-side refusal fallback
+    (https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback)
+    can route a request to a different model than the one requested.
+    `completion.model` is unreliable for a mid-response fallback in a stream
+    (it keeps the requested model named at `message_start`), so prefer the
+    last `fallback` content block's `to.model`.
+    """
+    served_model = None
+    for content in completion.content:
+        if getattr(content, "type", None) == "fallback":
+            to = getattr(content, "to", None)
+            if isinstance(to, dict) and "model" in to:
+                served_model = to["model"]
+    return served_model or completion.model
 
 
 class AnthropicProvider(
@@ -674,6 +694,25 @@ class AnthropicProvider(
             completion.usage.output_tokens,
             usage.cache_read_input_tokens if usage.cache_read_input_tokens else 0,
         )
+
+    def value_cost(
+        self,
+        completion,
+        tokens: tuple[int, int, int] | None = None,
+    ) -> float | None:
+        """
+        Compute the cost for a completion, pricing a refusal fallback at the
+        serving model's rate rather than the requested model's.
+        """
+        from ._tokens import get_token_cost
+
+        if tokens is None:
+            tokens = self.value_tokens(completion)
+        if tokens is None:
+            return None
+
+        model = serving_model(completion) if completion is not None else self.model
+        return get_token_cost(self.name, model, tokens)
 
     def token_count(
         self,
@@ -1057,6 +1096,9 @@ class AnthropicProvider(
                 contents.append(anthropic_search_result(content))
             elif content.type == "web_fetch_tool_result":
                 contents.append(anthropic_fetch_result(content))
+            elif content.type == "fallback":
+                # https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback
+                pass
 
         return AssistantTurn(
             contents,
@@ -1394,7 +1436,7 @@ def ChatBedrockAnthropic(
     """
 
     if model is None:
-        model = log_model_default("us.anthropic.claude-sonnet-4-6")
+        model = log_model_default("us.anthropic.claude-sonnet-5")
 
     kwargs_chat: "SubmitInputArgs" = {}
     if reasoning is not None:
