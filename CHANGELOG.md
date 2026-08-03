@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
-* New `ChatBedrock()` reaches models on AWS's `bedrock-mantle` endpoint, including the GPT-5 family, Grok 4.3, Gemma 4, and Claude Mythos — none of which were previously available through chatlas. It picks the request format from the model name (`api="responses"` for the OpenAI Responses API, `api="messages"` for the Anthropic Messages API), or you can set `api` explicitly. Authentication uses your AWS credential chain (profiles, SSO, instance roles), or a Bedrock API key via the `AWS_BEARER_TOKEN_BEDROCK` environment variable. Note that `api="converse"` is not yet implemented; continue to use `ChatBedrockAnthropic()` for Claude models on the `bedrock-runtime` endpoint.
+* New `ChatBedrock()` reaches models on AWS's `bedrock-mantle` endpoint, including the GPT-5 family, Grok 4.3, Gemma 4, and Claude Mythos — none of which were previously available through chatlas. It picks the request format from the model name (`api="responses"` for the OpenAI Responses API, `api="messages"` for the Anthropic Messages API), or you can set `api` explicitly. Authentication uses your AWS credential chain (profiles, SSO, instance roles), or a Bedrock API key via the `AWS_BEARER_TOKEN_BEDROCK` environment variable.
 
 ### Improvements
 
@@ -75,7 +75,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `ChatGoogle()` now records its built-in web search and URL-context work in the assistant turn, as `ContentToolRequestSearch`/`ContentToolResponseSearch` for grounded searches and `ContentToolRequestFetch`/`ContentToolResponseFetch` for fetched URLs. Previously `tool_web_search()` and `tool_web_fetch()` worked but reported nothing about what was searched or fetched, unlike `ChatAnthropic()` and `ChatOpenAI()`. Google's raw `grounding_metadata`/`url_metadata` is kept on each item's `extra`.
 * `.chat_structured()` now explains itself when the response is cut short. Previously, extracting a data model large enough to hit the model's output limit failed with a bare `JSONDecodeError` pointing at a column number in the truncated JSON, giving no hint that `max_tokens` was the problem (#315). It now raises a `ValueError` naming `max_tokens` and suggesting you raise it. Responses truncated by the context window, or stopped by the provider's content filter, are reported the same way. Plain `.chat()` warns instead of erroring, since a partial response is still usable there — previously it returned truncated text with no indication anything was missing.
 * Streaming two adjacent pieces of same-typed content that define no merge behavior (e.g. two tool requests) no longer raises `TypeError`. They are now appended as separate content instead.
-* `ChatOpenAI()` no longer sends duplicate item ids when replaying a multi-turn conversation to the Responses API. Every prior assistant message was stamped with the same placeholder id, which real OpenAI silently tolerates but which stricter Responses-compatible backends (e.g. AWS `bedrock-mantle`) reject with a 400 `validation_error` as soon as a conversation has more than one assistant turn. Ids are now unique per request.
 
 ### Breaking changes
 
