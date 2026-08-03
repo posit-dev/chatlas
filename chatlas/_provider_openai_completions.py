@@ -278,6 +278,10 @@ class OpenAICompletionsProvider(
 
         return kwargs_full
 
+    def supports_tools_with_data_model(self) -> bool:
+        # _chat_perform_args drops `tools` whenever data_model is set
+        return False
+
     def stream_content(self, chunk, completion) -> list[Content]:
         if not chunk.choices:
             return []

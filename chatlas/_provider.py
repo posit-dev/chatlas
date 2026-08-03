@@ -506,6 +506,14 @@ class Provider(
             "Supported providers: ChatOpenAI, ChatAnthropic, ChatGoogle."
         )
 
+    def supports_native_search_results(self) -> bool:
+        """Whether tool results can be sent as natively-citable search results."""
+        return False
+
+    def supports_tools_with_data_model(self) -> bool:
+        """Whether tools and a `data_model` can coexist in one request."""
+        return True
+
 
 ProviderClassT = TypeVar("ProviderClassT", bound=type[Provider[Any, Any, Any, Any]])
 

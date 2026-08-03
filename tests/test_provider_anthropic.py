@@ -705,3 +705,65 @@ def test_anthropic_truncated_plain_text_still_returns_a_turn():
 
     assert turn.text == '{"comments": [{"body": "trunc'
     assert turn.finish_reason == "max_tokens"
+
+
+def test_tool_search_results_serialize_as_search_result_blocks():
+    from chatlas._content import ContentToolRequest, ContentToolResult
+    from chatlas.types import SearchResult, ToolSearchResults
+
+    request = ContentToolRequest(id="toolu_1", name="search_documents", arguments={})
+    result = ContentToolResult(
+        value=ToolSearchResults(
+            results=[SearchResult(id="c1", text="alpha", source="kb://a", title="A")]
+        ),
+        request=request,
+    )
+    block = AnthropicProvider._as_content_block(result, citations_enabled=True)
+    assert block["type"] == "tool_result"
+    (sr,) = block["content"]
+    assert sr["type"] == "search_result"
+    assert sr["source"] == "kb://a"
+    assert sr["title"] == "A"
+    assert sr["content"] == [{"type": "text", "text": "alpha"}]
+    assert sr["citations"] == {"enabled": True}
+
+
+def test_search_result_blocks_disable_citations_with_data_model():
+    from chatlas._provider_anthropic import anthropic_search_result_blocks
+    from chatlas.types import SearchResult
+
+    (sr,) = anthropic_search_result_blocks(
+        [SearchResult(id="c1", text="alpha")], citations_enabled=False
+    )
+    assert "citations" not in sr
+    assert (
+        sr["source"] == "c1" and sr["title"] == "c1"
+    )  # required fields fall back to id
+
+
+def test_anthropic_search_result_citation_becomes_document_source():
+    from anthropic.types import CitationsSearchResultLocation, TextBlock
+    from chatlas._provider_anthropic import anthropic_citations
+    from chatlas.types import DocumentSource
+
+    block = TextBlock(
+        type="text",
+        text="Streaming uses .stream().",
+        citations=[
+            CitationsSearchResultLocation(
+                type="search_result_location",
+                cited_text="Use .stream() for streaming.",
+                source="kb://docs/streaming",
+                title="Streaming",
+                search_result_index=0,
+                start_block_index=0,
+                end_block_index=1,
+            )
+        ],
+    )
+    (citation,) = anthropic_citations(block)
+    assert isinstance(citation.source, DocumentSource)
+    assert citation.source.id == "kb://docs/streaming"
+    assert citation.source.title == "Streaming"
+    assert citation.grounded_span == "Streaming uses .stream()."
+    assert citation.cited_quote == "Use .stream() for streaming."

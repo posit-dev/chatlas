@@ -246,15 +246,13 @@ class Content(BaseModel):
         return self.__str__()
 
 
-SourceTypeEnum = Literal["web"]
+SourceTypeEnum = Literal["web", "document"]
 
 
 class Source(BaseModel):
     """Identity of a piece of evidence a citation or search result points to.
 
-    Subclasses set a distinct ``type`` and add their identity fields. Today the
-    only concrete source is :class:`WebSource`; file/document/RAG variants are
-    added when that support lands.
+    Subclasses set a distinct ``type`` and add their identity fields.
     """
 
     type: SourceTypeEnum
@@ -272,6 +270,17 @@ class WebSource(Source):
 
     def __str__(self) -> str:
         return self.url or self.title or "[web source]"
+
+
+class DocumentSource(Source):
+    """A document (file, store chunk, or upload) a citation points to."""
+
+    type: SourceTypeEnum = "document"
+    id: Optional[str] = None
+    title: Optional[str] = None
+
+    def __str__(self) -> str:
+        return self.id or self.title or "[document source]"
 
 
 class ContentText(Content):
@@ -722,6 +731,45 @@ class ContentToolResult(Content):
         if isinstance(self.arguments, dict):
             return ", ".join(f"{k}={v}" for k, v in self.arguments.items())
         return str(self.arguments)
+
+
+class SearchResult(BaseModel):
+    """One retrieved chunk, normalized for citation plumbing.
+
+    `id` must be unique across the whole conversation (RagManager assigns
+    them); it is the handle citations use to refer back to the chunk.
+    """
+
+    id: str
+    text: str
+    source: Optional[str] = None
+    title: Optional[str] = None
+    extra: dict[str, Any] = Field(default_factory=dict)
+
+
+class ToolSearchResults(BaseModel):
+    """Search results returned from a tool, opted into citability.
+
+    Return this from any tool (`ContentToolResult(value=ToolSearchResults(...))`
+    or directly) to let providers with native search-result citations
+    (Anthropic) cite individual results. Other providers receive the tagged
+    JSON from `to_dict()`.
+    """
+
+    results: list[SearchResult]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "results": [
+                {
+                    "chunk_id": r.id,
+                    "source": r.source,
+                    "title": r.title,
+                    "text": r.text,
+                }
+                for r in self.results
+            ]
+        }
 
 
 class ContentJson(Content):
@@ -1209,6 +1257,8 @@ def create_source(data: dict[str, Any]) -> Source:
     t = data.get("type")
     if t == "web":
         return WebSource.model_validate(data)
+    if t == "document":
+        return DocumentSource.model_validate(data)
     raise ValueError(f"Unknown source type: {t}")
 
 

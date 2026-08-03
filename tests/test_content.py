@@ -8,7 +8,11 @@ from chatlas._content import (
     ContentToolRequestSearch,
     ContentToolResponseFetch,
     ContentToolResponseSearch,
+    ContentToolResult,
     ContentUploaded,
+    DocumentSource,
+    SearchResult,
+    ToolSearchResults,
     WebSource,
     create_content,
     create_source,
@@ -40,6 +44,38 @@ def test_create_source_dispatches_web():
 def test_create_source_unknown_type_raises():
     with pytest.raises(ValueError):
         create_source({"type": "nope"})
+
+
+def test_document_source_fields():
+    src = DocumentSource(id="kb://doc-1", title="Runbook")
+    assert src.type == "document"
+    assert src.id == "kb://doc-1"
+    assert src.title == "Runbook"
+    assert str(src) == "kb://doc-1"
+    assert str(DocumentSource(title="Runbook")) == "Runbook"
+    assert str(DocumentSource()) == "[document source]"
+
+
+def test_create_source_dispatches_document():
+    src = create_source({"type": "document", "id": "kb://doc-1", "title": "T"})
+    assert isinstance(src, DocumentSource)
+
+
+def test_content_citation_roundtrip_rebuilds_document_source():
+    citation = ContentCitation(
+        source=DocumentSource(id="kb://doc-1", title="T"),
+        grounded_span="span",
+    )
+    rebuilt = create_content(citation.model_dump())
+    assert isinstance(rebuilt, ContentCitation)
+    assert isinstance(rebuilt.source, DocumentSource)
+    assert rebuilt.source.id == "kb://doc-1"
+
+
+def test_document_source_exported_from_types():
+    from chatlas.types import DocumentSource as Exported
+
+    assert Exported is DocumentSource
 
 
 def test_search_results_use_web_sources():
@@ -213,3 +249,14 @@ def test_web_content_survives_markdown_rendering(content, label, detail):
 def test_web_content_str_has_no_link_reference_prefix(content, label, detail):
     """The `[label]:` form is the bug; assert it can't come back."""
     assert not str(content).startswith("[")
+
+
+def test_tool_search_results_model_value():
+    tsr = ToolSearchResults(
+        results=[SearchResult(id="c1", text="chunk text", source="kb://d", title="T")]
+    )
+    result = ContentToolResult(value=tsr)
+    value = result.get_model_value()
+    assert isinstance(value, str)
+    assert '"chunk_id":"c1"' in value.replace(" ", "")
+    assert "chunk text" in value

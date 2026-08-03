@@ -70,6 +70,7 @@ from ._otel import (
     start_tool_span,
 )
 from ._provider import ModelInfo, Provider, StandardModelParams, SubmitInputArgsT
+from ._rag import SegmentedAnswer, SegmentsDecoder
 from ._stream_controller import StreamController
 from ._tokens import tokens_log
 from ._tools import Tool, ToolBuiltIn, ToolRejectError
@@ -98,6 +99,7 @@ if TYPE_CHECKING:
 
     from ._content import ToolAnnotations
     from ._files import FileManager
+    from ._rag import RagManager
 
 
 class TokensDict(TypedDict):
@@ -194,6 +196,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self.kwargs_chat: SubmitInputArgsT = kwargs_chat or {}
 
         self._tools: dict[str, Tool | ToolBuiltIn] = {}
+        self._rag: Optional["RagManager"] = None
         self._on_tool_request_callbacks = CallbackManager()
         self._on_tool_result_callbacks = CallbackManager()
         self._current_display: Optional[MarkdownDisplay] = None
@@ -462,6 +465,21 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         from ._files import FileManager
 
         return FileManager(self.provider)
+
+    @property
+    def rag(self) -> "RagManager":
+        """
+        Configure retrieval-augmented answers with citations.
+
+        Register a retrieval store (e.g. a raghilda store) once; afterwards
+        `.chat()` and `.stream()` answers cite the store's documents. See the
+        RAG article for details, including per-provider citation fidelity.
+        """
+        from ._rag import RagManager
+
+        if self._rag is None:
+            self._rag = RagManager(self)
+        return self._rag
 
     @property
     def model(self) -> str:
@@ -2866,6 +2884,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
+        # A user-supplied `data_model` always wins: only fall back to the
+        # hand-rolled RAG tier's segments schema when the caller hasn't asked
+        # for structured output of their own.
+        rag = self._rag
+        rag_decoder: Optional[SegmentsDecoder] = None
+        if data_model is None and rag is not None and rag.uses_segments_schema():
+            data_model = SegmentedAnswer
+            rag_decoder = SegmentsDecoder(rag._chunks)
+
         chat_span = start_chat_span(
             self.provider, [*self._turns, user_turn], _otel_parent
         )
@@ -2924,17 +2951,32 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             break
                         result = self.provider.stream_merge_chunks(result, chunk)
                         for content in self.provider.stream_content(chunk, result):
-                            yield from acc.process_content(
-                                content, display_text(content), content_mode, emit
-                            )
+                            if rag_decoder is not None and isinstance(
+                                content, ContentText
+                            ):
+                                for c in rag_decoder.feed(content.text):
+                                    yield from acc.process_content(
+                                        c, display_text(c), content_mode, emit
+                                    )
+                            else:
+                                yield from acc.process_content(
+                                    content, display_text(content), content_mode, emit
+                                )
 
                     yield from acc.flush_thinking(content_mode, emit)
+                    if rag_decoder is not None:
+                        for c in rag_decoder.finish():
+                            yield from acc.process_content(
+                                c, display_text(c), content_mode, emit
+                            )
 
                     if not controller.cancelled:
                         turn = self.provider.stream_turn(
                             result,
                             has_data_model=data_model is not None,
                         )
+                        if rag is not None and rag_decoder is not None:
+                            turn = rag.transform_turn(turn)
                         if echo == "all":
                             emit_other_contents(turn, emit)
                         turn = finalize_assistant_turn(self.provider, turn)
@@ -2957,6 +2999,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = self.provider.value_turn(
                     response, has_data_model=data_model is not None
                 )
+                if rag is not None and rag_decoder is not None:
+                    turn = rag.transform_turn(turn)
                 emit_thinking_contents(turn, emit)
                 emit_web_contents(turn, emit)
 
@@ -3016,6 +3060,15 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
+        # A user-supplied `data_model` always wins: only fall back to the
+        # hand-rolled RAG tier's segments schema when the caller hasn't asked
+        # for structured output of their own.
+        rag = self._rag
+        rag_decoder: Optional[SegmentsDecoder] = None
+        if data_model is None and rag is not None and rag.uses_segments_schema():
+            data_model = SegmentedAnswer
+            rag_decoder = SegmentsDecoder(rag._chunks)
+
         chat_span = start_chat_span(
             self.provider, [*self._turns, user_turn], _otel_parent
         )
@@ -3074,19 +3127,36 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             break
                         result = self.provider.stream_merge_chunks(result, chunk)
                         for content in self.provider.stream_content(chunk, result):
-                            for item in acc.process_content(
-                                content, display_text(content), content_mode, emit
+                            if rag_decoder is not None and isinstance(
+                                content, ContentText
                             ):
-                                yield item
+                                for c in rag_decoder.feed(content.text):
+                                    for item in acc.process_content(
+                                        c, display_text(c), content_mode, emit
+                                    ):
+                                        yield item
+                            else:
+                                for item in acc.process_content(
+                                    content, display_text(content), content_mode, emit
+                                ):
+                                    yield item
 
                     for item in acc.flush_thinking(content_mode, emit):
                         yield item
+                    if rag_decoder is not None:
+                        for c in rag_decoder.finish():
+                            for item in acc.process_content(
+                                c, display_text(c), content_mode, emit
+                            ):
+                                yield item
 
                     if not controller.cancelled:
                         turn = self.provider.stream_turn(
                             result,
                             has_data_model=data_model is not None,
                         )
+                        if rag is not None and rag_decoder is not None:
+                            turn = rag.transform_turn(turn)
                         if echo == "all":
                             emit_other_contents(turn, emit)
                         turn = finalize_assistant_turn(self.provider, turn)
@@ -3109,6 +3179,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = self.provider.value_turn(
                     response, has_data_model=data_model is not None
                 )
+                if rag is not None and rag_decoder is not None:
+                    turn = rag.transform_turn(turn)
                 emit_thinking_contents(turn, emit)
                 emit_web_contents(turn, emit)
 
