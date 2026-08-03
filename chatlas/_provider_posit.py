@@ -427,7 +427,7 @@ def ChatPosit(
         selected.
     """
     if model is None:
-        model = log_model_default("claude-sonnet-4-6")
+        model = log_model_default("claude-sonnet-5")
 
     token_provider = credentials or PositCredentials().get_token
 
