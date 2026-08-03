@@ -29,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `register_mcp_tools_stdio_async()` and `register_mcp_tools_http_stream_async()` no longer fail when an MCP server leaves some tool annotations unset.
 * `ContentCitation`, `ContentToolRequestFetch`, and `ContentToolResponseFetch` rendered as nothing at all. They stringified to `[label]: <url>`, which markdown parses as a link reference definition, so the console, notebooks, and `Chat.export(content="all")` all silently dropped the line.
 
+### Breaking changes
+
+* `ChatGithub()` is now defunct: it always raises `RuntimeError`. GitHub Models was retired on 2026-07-30, so the underlying API no longer works. Use `ChatGoogle()` (offers a free tier) or `ChatPosit()` (offers a free trial) instead.
+
 ## [0.20.0] - 2026-07-29
 
 ### New features
