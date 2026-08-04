@@ -56,7 +56,7 @@ def test_stream_controller_ensure_ready_noop_when_not_cancelled():
 
 @pytest.mark.vcr
 def test_stream_cancel_after_chunks():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     ctrl = StreamController()
 
     chunks = []
@@ -81,7 +81,7 @@ def test_stream_cancel_after_chunks():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_stream_cancel_after_chunks_async():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     ctrl = StreamController()
 
     chunks = []

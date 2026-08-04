@@ -185,6 +185,7 @@ def test_replayed_assistant_messages_carry_no_id():
 @pytest.mark.vcr
 def test_openai_simple_request():
     chat = ChatOpenAI(
+        model="gpt-5.4",
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -200,6 +201,7 @@ def test_openai_simple_request():
 @pytest.mark.asyncio
 async def test_openai_simple_streaming_request():
     chat = ChatOpenAI(
+        model="gpt-5.4",
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -212,14 +214,18 @@ async def test_openai_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_openai_respects_turns_interface():
-    chat_fun = ChatOpenAI
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-5.4", **kwargs)
+
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
 
 @pytest.mark.vcr
 def test_openai_tool_variations():
-    chat_fun = ChatOpenAI
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-5.4", **kwargs)
+
     assert_tools_simple(chat_fun)
     assert_tools_simple_stream_content(chat_fun)
     assert_tools_parallel(chat_fun)
@@ -229,12 +235,18 @@ def test_openai_tool_variations():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_tool_variations_async():
-    await assert_tools_async(ChatOpenAI)
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-5.4", **kwargs)
+
+    await assert_tools_async(chat_fun)
 
 
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(ChatOpenAI)
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-5.4", **kwargs)
+
+    assert_data_extraction(chat_fun)
 
 
 @pytest.mark.vcr
@@ -292,7 +304,9 @@ def test_openai_web_search_streaming():
 
 @pytest.mark.vcr
 def test_openai_images():
-    chat_fun = ChatOpenAI
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-5.4", **kwargs)
+
     assert_images_inline(chat_fun)
     assert_images_remote(chat_fun)
 
@@ -300,7 +314,7 @@ def test_openai_images():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_logprobs():
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     chat.set_model_params(log_probs=True)
 
     pieces = []
@@ -321,22 +335,34 @@ async def test_openai_logprobs():
 
 @pytest.mark.vcr
 def test_openai_pdf():
-    assert_pdf_local(ChatOpenAI)
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-5.4", **kwargs)
+
+    assert_pdf_local(chat_fun)
 
 
 @pytest.mark.vcr
 def test_openai_pdf_url():
-    assert_pdf_remote(ChatOpenAI)
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-5.4", **kwargs)
+
+    assert_pdf_remote(chat_fun)
 
 
 @pytest.mark.vcr
 def test_openai_document():
-    assert_document_local(ChatOpenAI)
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-5.4", **kwargs)
+
+    assert_document_local(chat_fun)
 
 
 @pytest.mark.vcr
 def test_openai_document_docx():
-    assert_document_local_docx(ChatOpenAI)
+    def chat_fun(**kwargs):
+        return ChatOpenAI(model="gpt-5.4", **kwargs)
+
+    assert_document_local_docx(chat_fun)
 
 
 @pytest.mark.vcr
@@ -345,7 +371,7 @@ def test_openai_token_count_uses_endpoint_and_counts_tools():
         "Get weather for a city."
         return "sunny"
 
-    chat = ChatOpenAI()
+    chat = ChatOpenAI(model="gpt-5.4")
     without_tool = chat.token_count("What is the weather?")
 
     chat.register_tool(get_weather)
@@ -373,7 +399,7 @@ def test_openai_service_tier():
 def test_openai_service_tier_affects_pricing():
     from chatlas._tokens import get_token_cost
 
-    chat = ChatOpenAI(service_tier="priority")
+    chat = ChatOpenAI(model="gpt-5.4", service_tier="priority")
     chat.chat("What is 1+1?")
 
     turn = chat.get_last_turn()

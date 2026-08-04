@@ -55,6 +55,7 @@ def test_normalize_finish_reason_handles_none():
 @pytest.mark.vcr
 def test_openai_simple_request():
     chat = ChatOpenAICompletions(
+        model="gpt-5.4",
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -71,6 +72,7 @@ def test_openai_simple_request():
 @pytest.mark.asyncio
 async def test_openai_simple_streaming_request():
     chat = ChatOpenAICompletions(
+        model="gpt-5.4",
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -84,39 +86,54 @@ async def test_openai_simple_streaming_request():
 
 @pytest.mark.vcr
 def test_openai_respects_turns_interface():
-    assert_turns_system(ChatOpenAICompletions)
-    assert_turns_existing(ChatOpenAICompletions)
+    def chat_fun(**kwargs):
+        return ChatOpenAICompletions(model="gpt-5.4", **kwargs)
+
+    assert_turns_system(chat_fun)
+    assert_turns_existing(chat_fun)
 
 
 @pytest.mark.vcr
 def test_openai_tool_variations():
-    assert_tools_simple(ChatOpenAICompletions)
-    assert_tools_simple_stream_content(ChatOpenAICompletions)
-    assert_tools_parallel(ChatOpenAICompletions)
-    assert_tools_sequential(ChatOpenAICompletions, total_calls=6)
+    def chat_fun(**kwargs):
+        return ChatOpenAICompletions(model="gpt-5.4", **kwargs)
+
+    assert_tools_simple(chat_fun)
+    assert_tools_simple_stream_content(chat_fun)
+    assert_tools_parallel(chat_fun)
+    assert_tools_sequential(chat_fun, total_calls=6)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_tool_variations_async():
-    await assert_tools_async(ChatOpenAICompletions)
+    def chat_fun(**kwargs):
+        return ChatOpenAICompletions(model="gpt-5.4", **kwargs)
+
+    await assert_tools_async(chat_fun)
 
 
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(ChatOpenAICompletions)
+    def chat_fun(**kwargs):
+        return ChatOpenAICompletions(model="gpt-5.4", **kwargs)
+
+    assert_data_extraction(chat_fun)
 
 
 @pytest.mark.vcr
 def test_openai_images():
-    assert_images_inline(ChatOpenAICompletions)
-    assert_images_remote(ChatOpenAICompletions)
+    def chat_fun(**kwargs):
+        return ChatOpenAICompletions(model="gpt-5.4", **kwargs)
+
+    assert_images_inline(chat_fun)
+    assert_images_remote(chat_fun)
 
 
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_openai_logprobs():
-    chat = ChatOpenAICompletions()
+    chat = ChatOpenAICompletions(model="gpt-5.4")
     chat.set_model_params(log_probs=True)
 
     pieces = []
@@ -134,7 +151,10 @@ async def test_openai_logprobs():
 
 @pytest.mark.vcr
 def test_openai_pdf():
-    assert_pdf_local(ChatOpenAICompletions)
+    def chat_fun(**kwargs):
+        return ChatOpenAICompletions(model="gpt-5.4", **kwargs)
+
+    assert_pdf_local(chat_fun)
 
 
 # No document counterpart here: OpenAI's own endpoint 400s on any non-PDF
@@ -143,7 +163,10 @@ def test_openai_pdf():
 # serialization instead.
 @pytest.mark.vcr
 def test_openai_completions_pdf_url():
-    assert_pdf_remote(ChatOpenAICompletions)
+    def chat_fun(**kwargs):
+        return ChatOpenAICompletions(model="gpt-5.4", **kwargs)
+
+    assert_pdf_remote(chat_fun)
 
 
 def test_openai_custom_http_client():
