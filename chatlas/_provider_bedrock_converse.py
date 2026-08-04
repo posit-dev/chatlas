@@ -1104,9 +1104,24 @@ class ConverseSubmitArgs(TypedDict, total=False):
     here), which makes it unusable as-is for a "some or none of these" kwargs
     bag -- unlike every other provider's `SubmitInputArgs`, a literal or
     partial dict assigned to it fails a TypedDict completeness check.
+
+    `additionalModelRequestFields` passes model-specific inference parameters
+    straight through to Converse, e.g. to enable thinking on a Claude model:
+
+    ```python
+    chat.chat(
+        "...",
+        kwargs={
+            "additionalModelRequestFields": {
+                "thinking": {"type": "enabled", "budget_tokens": 4000}
+            }
+        },
+    )
+    ```
     """
 
     messages: Sequence[MessageUnionTypeDef]
     system: Sequence[SystemContentBlockTypeDef]
     inferenceConfig: InferenceConfigurationTypeDef
     toolConfig: ToolConfigurationTypeDef
+    additionalModelRequestFields: Mapping[str, Any]

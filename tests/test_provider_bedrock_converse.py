@@ -1594,6 +1594,20 @@ class TestStructuredOutputAndCaching:
         system = args.get("system")
         assert system == [{"text": "from kwargs"}]
 
+    def test_additional_model_request_fields_reach_the_request(self):
+        fields = {"thinking": {"type": "enabled", "budget_tokens": 4000}}
+        args = self.provider()._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("hi")],
+            tools={},
+            kwargs=cast(
+                "ConverseSubmitArgs",
+                {"additionalModelRequestFields": fields},
+            ),
+        )
+
+        assert args["additionalModelRequestFields"] == fields
+
     @pytest.mark.parametrize(
         "cache,expected_cache_point",
         [
