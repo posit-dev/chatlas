@@ -68,6 +68,8 @@ requires_bedrock = pytest.mark.skipif(
 @pytest.mark.vcr
 def test_anthropic_simple_request():
     chat = ChatBedrockAnthropic(
+        model="us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        cache="none",
         system_prompt="Be as terse as possible; no punctuation",
     )
     chat.chat("What is 1 + 1?")
@@ -81,6 +83,8 @@ def test_anthropic_simple_request():
 @pytest.mark.asyncio
 async def test_anthropic_simple_streaming_request():
     chat = ChatBedrockAnthropic(
+        model="us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        cache="none",
         system_prompt="Be as terse as possible; no punctuation",
     )
     res = []
@@ -96,7 +100,11 @@ async def test_anthropic_simple_streaming_request():
 @requires_bedrock
 @pytest.mark.vcr
 def test_anthropic_respects_turns_interface():
-    chat_fun = ChatBedrockAnthropic
+    def chat_fun(**kwargs):
+        return ChatBedrockAnthropic(
+            model="us.anthropic.claude-sonnet-4-5-20250929-v1:0", cache="none", **kwargs
+        )
+
     assert_turns_system(chat_fun)
     assert_turns_existing(chat_fun)
 
@@ -104,7 +112,11 @@ def test_anthropic_respects_turns_interface():
 @requires_bedrock
 @pytest.mark.vcr
 def test_anthropic_tool_variations():
-    chat_fun = ChatBedrockAnthropic
+    def chat_fun(**kwargs):
+        return ChatBedrockAnthropic(
+            model="us.anthropic.claude-sonnet-4-5-20250929-v1:0", cache="none", **kwargs
+        )
+
     assert_tools_simple(chat_fun)
     assert_tools_parallel(chat_fun)
     assert_tools_sequential(chat_fun, total_calls=6)
@@ -114,21 +126,35 @@ def test_anthropic_tool_variations():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_anthropic_tool_variations_async():
-    await assert_tools_async(ChatBedrockAnthropic)
+    def chat_fun(**kwargs):
+        return ChatBedrockAnthropic(
+            model="us.anthropic.claude-sonnet-4-5-20250929-v1:0", cache="none", **kwargs
+        )
+
+    await assert_tools_async(chat_fun)
 
 
 @requires_bedrock
 @pytest.mark.vcr
 def test_data_extraction():
-    assert_data_extraction(ChatBedrockAnthropic)
+    def chat_fun(**kwargs):
+        return ChatBedrockAnthropic(
+            model="us.anthropic.claude-sonnet-4-5-20250929-v1:0", cache="none", **kwargs
+        )
+
+    assert_data_extraction(chat_fun)
 
 
 @requires_bedrock
 @pytest.mark.vcr
 def test_anthropic_images():
-    chat_fun = ChatBedrockAnthropic
+    def chat_fun(**kwargs):
+        return ChatBedrockAnthropic(
+            model="us.anthropic.claude-sonnet-4-5-20250929-v1:0", cache="none", **kwargs
+        )
+
     assert_images_inline(chat_fun)
-    assert_images_remote_error(chat_fun)
+    assert_images_remote_error(chat_fun, message="URL sources are not supported")
 
 
 @requires_bedrock
@@ -142,7 +168,11 @@ def test_anthropic_models():
 def test_reasoning():
     from chatlas._content import ContentThinking
 
-    chat = ChatBedrockAnthropic(reasoning=4000)
+    chat = ChatBedrockAnthropic(
+        model="us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+        cache="none",
+        reasoning=4000,
+    )
     chat.chat("What is 1 + 1?")
     turn = chat.get_last_turn()
     assert turn is not None

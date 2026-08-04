@@ -1,11 +1,6 @@
 interactions:
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}], "system":
-      [{"type": "text", "text": "Always use a tool to help you answer. Reply with
-      ''It is ____.''."}], "tools": [{"name": "get_date", "input_schema": {"type":
-      "object", "properties": {}}, "description": "Gets the current date"}], "anthropic_version":
-      "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}], "system": [{"type": "text", "text": "Always use a tool to help you answer. Reply with ''It is ____.''."}], "tools": [{"name": "get_date", "input_schema": {"type": "object", "properties": {}, "additionalProperties": false, "required": []}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive
@@ -83,15 +78,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role":
-      "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01AVQwab7jHotpU7uC9dLJrw",
-      "name": "get_date", "input": {}}]}, {"role": "user", "content": [{"type": "tool_result",
-      "tool_use_id": "toolu_bdrk_01AVQwab7jHotpU7uC9dLJrw", "is_error": false, "content":
-      "2024-01-01"}]}], "system": [{"type": "text", "text": "Always use a tool to
-      help you answer. Reply with ''It is ____.''."}], "tools": [{"name": "get_date",
-      "input_schema": {"type": "object", "properties": {}}, "description": "Gets the
-      current date"}], "anthropic_version": "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role": "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01AVQwab7jHotpU7uC9dLJrw", "name": "get_date", "input": {}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01AVQwab7jHotpU7uC9dLJrw", "is_error": false, "content": "2024-01-01"}]}], "system": [{"type": "text", "text": "Always use a tool to help you answer. Reply with ''It is ____.''."}], "tools": [{"name": "get_date", "input_schema": {"type": "object", "properties": {}, "additionalProperties": false, "required": []}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive
@@ -177,17 +164,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role":
-      "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01AVQwab7jHotpU7uC9dLJrw",
-      "name": "get_date", "input": {}}]}, {"role": "user", "content": [{"type": "tool_result",
-      "tool_use_id": "toolu_bdrk_01AVQwab7jHotpU7uC9dLJrw", "is_error": false, "content":
-      "2024-01-01"}]}, {"role": "assistant", "content": [{"text": "It is 2024-01-01.",
-      "type": "text"}]}, {"role": "user", "content": [{"text": "What month is it?
-      Provide the full name.", "type": "text"}]}], "system": [{"type": "text", "text":
-      "Always use a tool to help you answer. Reply with ''It is ____.''."}], "tools":
-      [{"name": "get_date", "input_schema": {"type": "object", "properties": {}},
-      "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role": "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01AVQwab7jHotpU7uC9dLJrw", "name": "get_date", "input": {}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01AVQwab7jHotpU7uC9dLJrw", "is_error": false, "content": "2024-01-01"}]}, {"role": "assistant", "content": [{"text": "It is 2024-01-01.", "type": "text"}]}, {"role": "user", "content": [{"text": "What month is it? Provide the full name.", "type": "text"}]}], "system": [{"type": "text", "text": "Always use a tool to help you answer. Reply with ''It is ____.''."}], "tools": [{"name": "get_date", "input_schema": {"type": "object", "properties": {}, "additionalProperties": false, "required": []}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive
@@ -313,13 +290,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "\n        What are Joe and Hadley''s favourite colours?\n        Answer like
-      name1: colour1, name2: colour2\n    ", "type": "text"}]}], "system": [{"type":
-      "text", "text": "Be very terse, not even punctuation."}], "tools": [{"name":
-      "favorite_color", "input_schema": {"type": "object", "properties": {"_person":
-      {"type": "string"}}}, "description": "Returns a person''s favourite colour"}],
-      "anthropic_version": "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "\n        What are Joe and Hadley''s favourite colours?\n        Answer like name1: colour1, name2: colour2\n    ", "type": "text"}]}], "system": [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools": [{"name": "favorite_color", "input_schema": {"type": "object", "properties": {"_person": {"type": "string"}}, "additionalProperties": false, "required": ["_person"]}, "description": "Returns a person''s favourite colour"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive
@@ -451,20 +422,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "\n        What are Joe and Hadley''s favourite colours?\n        Answer like
-      name1: colour1, name2: colour2\n    ", "type": "text"}]}, {"role": "assistant",
-      "content": [{"type": "tool_use", "id": "toolu_bdrk_01QeSa7yxg9W8MHDcKvxr43K",
-      "name": "favorite_color", "input": {"_person": "Joe"}}, {"type": "tool_use",
-      "id": "toolu_bdrk_01MiHh299hCr8NBoBCA9qS6E", "name": "favorite_color", "input":
-      {"_person": "Hadley"}}]}, {"role": "user", "content": [{"type": "tool_result",
-      "tool_use_id": "toolu_bdrk_01QeSa7yxg9W8MHDcKvxr43K", "is_error": false, "content":
-      "sage green"}, {"type": "tool_result", "tool_use_id": "toolu_bdrk_01MiHh299hCr8NBoBCA9qS6E",
-      "is_error": false, "content": "red"}]}], "system": [{"type": "text", "text":
-      "Be very terse, not even punctuation."}], "tools": [{"name": "favorite_color",
-      "input_schema": {"type": "object", "properties": {"_person": {"type": "string"}}},
-      "description": "Returns a person''s favourite colour"}], "anthropic_version":
-      "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "\n        What are Joe and Hadley''s favourite colours?\n        Answer like name1: colour1, name2: colour2\n    ", "type": "text"}]}, {"role": "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01QeSa7yxg9W8MHDcKvxr43K", "name": "favorite_color", "input": {"_person": "Joe"}}, {"type": "tool_use", "id": "toolu_bdrk_01MiHh299hCr8NBoBCA9qS6E", "name": "favorite_color", "input": {"_person": "Hadley"}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01QeSa7yxg9W8MHDcKvxr43K", "is_error": false, "content": "sage green"}, {"type": "tool_result", "tool_use_id": "toolu_bdrk_01MiHh299hCr8NBoBCA9qS6E", "is_error": false, "content": "red"}]}], "system": [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools": [{"name": "favorite_color", "input_schema": {"type": "object", "properties": {"_person": {"type": "string"}}, "additionalProperties": false, "required": ["_person"]}, "description": "Returns a person''s favourite colour"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive
@@ -553,16 +511,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "What should I pack for New York this weekend?", "type": "text"}]}], "system":
-      [{"type": "text", "text": "\n        Be very terse, not even punctuation. If
-      asked for equipment to pack,\n        first use the weather_forecast tool provided
-      to you. Then, use the\n        equipment tool provided to you.\n        "}],
-      "tools": [{"name": "weather_forecast", "input_schema": {"type": "object", "properties":
-      {"city": {"type": "string"}}}, "description": "Gets the weather forecast for
-      a city"}, {"name": "equipment", "input_schema": {"type": "object", "properties":
-      {"weather": {"type": "string"}}}, "description": "Gets the equipment needed
-      for a weather condition"}], "anthropic_version": "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What should I pack for New York this weekend?", "type": "text"}]}], "system": [{"type": "text", "text": "\n        Be very terse, not even punctuation. If asked for equipment to pack,\n        first use the weather_forecast tool provided to you. Then, use the\n        equipment tool provided to you.\n        "}], "tools": [{"name": "weather_forecast", "input_schema": {"type": "object", "properties": {"city": {"type": "string"}}, "additionalProperties": false, "required": ["city"]}, "description": "Gets the weather forecast for a city"}, {"name": "equipment", "input_schema": {"type": "object", "properties": {"weather": {"type": "string"}}, "additionalProperties": false, "required": ["weather"]}, "description": "Gets the equipment needed for a weather condition"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive
@@ -650,20 +599,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "What should I pack for New York this weekend?", "type": "text"}]}, {"role":
-      "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01KV2PvJmnsARK5MF4cixGUd",
-      "name": "weather_forecast", "input": {"city": "New York"}}]}, {"role": "user",
-      "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01KV2PvJmnsARK5MF4cixGUd",
-      "is_error": false, "content": "rainy"}]}], "system": [{"type": "text", "text":
-      "\n        Be very terse, not even punctuation. If asked for equipment to pack,\n        first
-      use the weather_forecast tool provided to you. Then, use the\n        equipment
-      tool provided to you.\n        "}], "tools": [{"name": "weather_forecast", "input_schema":
-      {"type": "object", "properties": {"city": {"type": "string"}}}, "description":
-      "Gets the weather forecast for a city"}, {"name": "equipment", "input_schema":
-      {"type": "object", "properties": {"weather": {"type": "string"}}}, "description":
-      "Gets the equipment needed for a weather condition"}], "anthropic_version":
-      "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What should I pack for New York this weekend?", "type": "text"}]}, {"role": "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01KV2PvJmnsARK5MF4cixGUd", "name": "weather_forecast", "input": {"city": "New York"}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01KV2PvJmnsARK5MF4cixGUd", "is_error": false, "content": "rainy"}]}], "system": [{"type": "text", "text": "\n        Be very terse, not even punctuation. If asked for equipment to pack,\n        first use the weather_forecast tool provided to you. Then, use the\n        equipment tool provided to you.\n        "}], "tools": [{"name": "weather_forecast", "input_schema": {"type": "object", "properties": {"city": {"type": "string"}}, "additionalProperties": false, "required": ["city"]}, "description": "Gets the weather forecast for a city"}, {"name": "equipment", "input_schema": {"type": "object", "properties": {"weather": {"type": "string"}}, "additionalProperties": false, "required": ["weather"]}, "description": "Gets the equipment needed for a weather condition"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive
@@ -756,24 +692,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "What should I pack for New York this weekend?", "type": "text"}]}, {"role":
-      "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01KV2PvJmnsARK5MF4cixGUd",
-      "name": "weather_forecast", "input": {"city": "New York"}}]}, {"role": "user",
-      "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01KV2PvJmnsARK5MF4cixGUd",
-      "is_error": false, "content": "rainy"}]}, {"role": "assistant", "content": [{"type":
-      "tool_use", "id": "toolu_bdrk_01GXXGYP5zQeyjGiZNURPj4S", "name": "equipment",
-      "input": {"weather": "rainy"}}]}, {"role": "user", "content": [{"type": "tool_result",
-      "tool_use_id": "toolu_bdrk_01GXXGYP5zQeyjGiZNURPj4S", "is_error": false, "content":
-      "umbrella"}]}], "system": [{"type": "text", "text": "\n        Be very terse,
-      not even punctuation. If asked for equipment to pack,\n        first use the
-      weather_forecast tool provided to you. Then, use the\n        equipment tool
-      provided to you.\n        "}], "tools": [{"name": "weather_forecast", "input_schema":
-      {"type": "object", "properties": {"city": {"type": "string"}}}, "description":
-      "Gets the weather forecast for a city"}, {"name": "equipment", "input_schema":
-      {"type": "object", "properties": {"weather": {"type": "string"}}}, "description":
-      "Gets the equipment needed for a weather condition"}], "anthropic_version":
-      "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What should I pack for New York this weekend?", "type": "text"}]}, {"role": "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01KV2PvJmnsARK5MF4cixGUd", "name": "weather_forecast", "input": {"city": "New York"}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01KV2PvJmnsARK5MF4cixGUd", "is_error": false, "content": "rainy"}]}, {"role": "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01GXXGYP5zQeyjGiZNURPj4S", "name": "equipment", "input": {"weather": "rainy"}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01GXXGYP5zQeyjGiZNURPj4S", "is_error": false, "content": "umbrella"}]}], "system": [{"type": "text", "text": "\n        Be very terse, not even punctuation. If asked for equipment to pack,\n        first use the weather_forecast tool provided to you. Then, use the\n        equipment tool provided to you.\n        "}], "tools": [{"name": "weather_forecast", "input_schema": {"type": "object", "properties": {"city": {"type": "string"}}, "additionalProperties": false, "required": ["city"]}, "description": "Gets the weather forecast for a city"}, {"name": "equipment", "input_schema": {"type": "object", "properties": {"weather": {"type": "string"}}, "additionalProperties": false, "required": ["weather"]}, "description": "Gets the equipment needed for a weather condition"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive
