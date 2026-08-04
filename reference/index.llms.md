@@ -14,7 +14,6 @@ Start a chat with a particular large language model (llm) provider.
 | [ChatCloudflare](../reference/ChatCloudflare.llms.md#chatlas.ChatCloudflare) | Chat with a model hosted on Cloudflare Workers AI. |
 | [ChatDatabricks](../reference/ChatDatabricks.llms.md#chatlas.ChatDatabricks) | Chat with a model hosted on Databricks. |
 | [ChatDeepSeek](../reference/ChatDeepSeek.llms.md#chatlas.ChatDeepSeek) | Chat with a model hosted on DeepSeek. |
-| [ChatGithub](../reference/ChatGithub.llms.md#chatlas.ChatGithub) | Deprecated: chat with a model hosted on the GitHub model marketplace. |
 | [ChatGoogle](../reference/ChatGoogle.llms.md#chatlas.ChatGoogle) | Chat with a Google Gemini model. |
 | [ChatGroq](../reference/ChatGroq.llms.md#chatlas.ChatGroq) | Chat with a model hosted on Groq. |
 | [ChatHuggingFace](../reference/ChatHuggingFace.llms.md#chatlas.ChatHuggingFace) | Chat with a model hosted on Hugging Face Inference API. |

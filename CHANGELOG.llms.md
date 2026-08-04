@@ -4,31 +4,30 @@
 
 ### New features
 
-- New `ChatBedrock()` provides full access to AWS Bedrock, replacing the Claude-only `ChatBedrockAnthropic()` as the recommended entrypoint. It reaches every Bedrock model — Nova, Llama, Mistral, DeepSeek, Qwen and more via the Converse API, plus the GPT-5 family, Grok 4.3, and Gemma 4 on the newer `bedrock-mantle` endpoint, none of which were previously available through chatlas. The request format is chosen from the model name, or set `api` explicitly to `"converse"`, `"responses"`, or `"messages"`.
-- `ChatAnthropic()` (and `ChatBedrockAnthropic()`) now correctly handle the `fallback` content block returned when a model’s server-side refusal fallback (`server-side-fallback-2026-06-01`) is triggered, and price the turn at the serving model’s rate rather than the requested model’s, mirroring [ellmer’s equivalent fix](https://github.com/tidyverse/ellmer/pull/1058).
+- New `ChatBedrock()` gives full access to AWS Bedrock’s model catalog — Nova, Llama, Mistral, DeepSeek, Qwen, plus the GPT-5 family, Grok 4.3, and Gemma 4 — not just Claude, none of which were previously available through chatlas. It replaces `ChatBedrockAnthropic()` as the recommended entrypoint; the right request format (`"converse"`, `"responses"`, or `"messages"`) is picked automatically from the model name, or set `api` explicitly.
 
 ### Improvements
 
 - Updated default models to match the latest generation:
   - Anthropic / BedrockAnthropic / Posit: `claude-sonnet-5`
   - OpenAI / Completions / OpenRouter: `gpt-5.6-terra`
-- Reasoning is now visible when echoing. Previously, thinking content was wrapped in literal `<thinking>` tags that a markdown renderer treated as an HTML block and dropped, so reasoning never appeared at all — even with `echo="all"`. It now renders in a “Thinking” panel in the console, and in a `<details>` block in notebooks that stays expanded while reasoning streams in and collapses once it’s done. `echo="text"` continues to show only the assistant’s answer. (#361)
-- Long tool results no longer dominate the display. In notebooks they render collapsed, with the same look shinychat uses, and scroll internally beyond a bounded height once expanded. In the console they’re truncated with a count of the dropped lines. Either way a big tool result now costs a fixed amount of vertical space, and the full value remains on the turn. `Chat.set_echo_options()` gained `tool_result_max_lines` (console, default 20) and `tool_result_max_height` (notebook, default `"400px"`) to tune this. (#361)
-- Echoed inline images — including screenshots and images returned by models or tools — now render as compact thumbnails in color terminals and as images in notebooks, instead of exposing raw base64 data. A plain metadata label is used when a terminal can’t render a thumbnail. Model-generated images are included at the default `echo="output"` level, and `Chat.set_echo_options(image_max_lines=)` (default `16`) controls thumbnail height in the console.
-- Long reasoning is likewise bounded in the console, capped at `thinking_max_lines` (default 10). Unlike a tool result it’s cropped from the *top*, keeping the newest reasoning — cropping the other way would pin the panel to text you’ve already read while new text streamed in unseen. The title reports how many earlier lines were dropped. The cap counts rendered (wrapped) lines rather than newlines, since reasoning is prose that wraps well past its own line count, so the dropped count stays correct at any console width.
-- All three echo size options (`tool_result_max_lines`, `tool_result_max_height`, `thinking_max_lines`) accept `None` to turn the bound off entirely.
-- Registering a built-in tool (`tool_web_search()`, `tool_web_fetch()`) with a provider that can’t run it now raises immediately, naming the tool and the provider, instead of failing on the next request. Previously `ChatOpenAICompletions()` (and the other OpenAI-compatible providers, none of which have server-side tools) sent an *empty* tool definition, and `ChatBedrockAnthropic()` sent Anthropic server-tool JSON that Amazon Bedrock doesn’t accept — so the tool was either quietly ignored or the request died with a cryptic provider error far from the line that caused it. Passing a `ToolBuiltIn` with your own provider-specific definition still works everywhere, since that’s raw JSON chatlas doesn’t need to translate. (#367)
-- Web search, web fetch, and citations are now visible when echoing. Previously they only appeared with `echo="all"`, and citations and web-fetch content didn’t render at all (see the bug fix below). They now group into one “Searched the web” / “Read the web” block per episode, rendered as a bounded panel in the console and a collapsed `<details>` block in notebooks, with sources the answer actually cites marked with `*` (defined by a `* N cited` legend in the block’s title) (#256).
-- `Chat.set_echo_options()` gains `web_activity_max_sources` (default `4`) to cap the console’s source list, noting how many were dropped; pass `None` to list them all. Notebooks always list every source, since the block scrolls internally.
+- Echoing turns in the console and notebooks got a round of display improvements:
+  - Reasoning/thinking content now actually shows up — it used to silently disappear, since it was wrapped in literal `<thinking>` tags that a markdown renderer treated as an HTML block and dropped. It renders in a collapsible “Thinking” panel (a `<details>` block in notebooks) that stays open while streaming and collapses once done, and is capped to the most recent lines when long. (#361)
+  - Long tool results no longer flood the screen — they collapse/truncate with a clear count of what’s hidden, scrolling internally in notebooks beyond a bounded height. (#361)
+  - Images from models or tools now render as compact thumbnails instead of raw base64 data.
+  - Web search, fetch, and citation activity is now visible too, grouped into a “Searched the web” / “Read the web” panel that marks which sources were actually cited. (#256)
+  - All of these size limits are tunable via `Chat.set_echo_options()` (`tool_result_max_lines`, `tool_result_max_height`, `thinking_max_lines`, `image_max_lines`, `web_activity_max_sources`), and can be turned off entirely with `None`.
+- Registering a built-in tool (`tool_web_search()`, `tool_web_fetch()`) with a provider that can’t run it now fails immediately with a clear error naming the tool and provider, instead of silently no-op’ing or dying deep inside a later request. (#367)
 
 ### Bug fixes
 
-- `echo="all"` no longer displays tool results twice — once in full as part of the user turn they’re attached to, and again on their own.
-- `Chat.set_echo_options(css_styles=)` now actually applies in notebooks: the styles were previously attached to a CSS sibling selector that could never match the wrapper they were meant to style.
-- Tool names and argument names are now HTML-escaped in the notebook/shiny rendering of tool requests and results, closing an HTML-injection hole (both are model-controlled).
-- A tool that reports progress by yielding more than once, or an MCP server that answers a call with several content parts (text plus an image, say), no longer breaks the request. Those results are now combined into the single result providers expect, images and PDFs included, and placed correctly even alongside other tool calls in the same turn.
+- `echo="all"` no longer displays tool results twice — once in full as part of the user turn, and again on their own.
+- `Chat.set_echo_options(css_styles=)` now actually applies in notebooks.
+- Tool names and argument names are now HTML-escaped in notebook/shiny rendering, closing an HTML-injection hole.
+- A tool that reports progress by yielding more than once, or an MCP server that answers a call with several content parts (text plus an image, say), no longer breaks the request.
 - `register_mcp_tools_stdio_async()` and `register_mcp_tools_http_stream_async()` no longer fail when an MCP server leaves some tool annotations unset.
-- `ContentCitation`, `ContentToolRequestFetch`, and `ContentToolResponseFetch` rendered as nothing at all. They stringified to `[label]: <url>`, which markdown parses as a link reference definition, so the console, notebooks, and `Chat.export(content="all")` all silently dropped the line.
+- `ContentCitation`, `ContentToolRequestFetch`, and `ContentToolResponseFetch` now actually render, instead of silently vanishing due to a markdown link-reference parsing quirk.
+- `ChatAnthropic()` (and `ChatBedrockAnthropic()`) now bill refusal-fallback turns at the correct (serving model’s) rate rather than the originally requested model’s, mirroring [ellmer’s equivalent fix](https://github.com/tidyverse/ellmer/pull/1058).
 
 ### Breaking changes
 

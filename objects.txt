@@ -18,8 +18,6 @@ chatlas.ChatDatabricks py:function 1 reference/ChatDatabricks.html#chatlas.ChatD
 chatlas._provider_databricks.ChatDatabricks py:function 1 reference/ChatDatabricks.html#chatlas.ChatDatabricks chatlas.ChatDatabricks
 chatlas.ChatDeepSeek py:function 1 reference/ChatDeepSeek.html#chatlas.ChatDeepSeek -
 chatlas._provider_deepseek.ChatDeepSeek py:function 1 reference/ChatDeepSeek.html#chatlas.ChatDeepSeek chatlas.ChatDeepSeek
-chatlas.ChatGithub py:function 1 reference/ChatGithub.html#chatlas.ChatGithub -
-chatlas._provider_github.ChatGithub py:function 1 reference/ChatGithub.html#chatlas.ChatGithub chatlas.ChatGithub
 chatlas.ChatGoogle py:function 1 reference/ChatGoogle.html#chatlas.ChatGoogle -
 chatlas._provider_google.ChatGoogle py:function 1 reference/ChatGoogle.html#chatlas.ChatGoogle chatlas.ChatGoogle
 chatlas.ChatGroq py:function 1 reference/ChatGroq.html#chatlas.ChatGroq -
