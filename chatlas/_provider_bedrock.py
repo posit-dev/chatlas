@@ -20,8 +20,8 @@ if TYPE_CHECKING:
     from botocore.credentials import Credentials
     from botocore.session import Session
 
-    from ._provider_bedrock_converse import ConverseClientArgs
     from .types.anthropic import ChatClientArgs as AnthropicClientArgs
+    from .types.bedrock import ChatClientArgs as ConverseClientArgs
     from .types.openai import ChatClientArgs as OpenAIClientArgs
 
 BedrockAPI = Literal["converse", "messages", "responses"]
