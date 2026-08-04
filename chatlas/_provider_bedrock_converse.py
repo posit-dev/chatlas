@@ -38,6 +38,7 @@ from ._content import (
     ContentToolRequest,
     ContentToolResult,
 )
+from ._content_file import ensure_bytes
 from ._provider import (
     ModelInfo,
     Provider,
@@ -265,7 +266,7 @@ def as_converse_content(
                 # user filenames) and must be unique per request, so it's
                 # derived from position rather than from `content.filename`.
                 "name": f"document-{document_index}",
-                "source": {"bytes": content.data},
+                "source": {"bytes": ensure_bytes(content, "document")},
             }
         }
     elif isinstance(content, ContentToolRequest):
@@ -801,13 +802,16 @@ class BedrockConverseProvider(
             # Copy the list and the last message rather than mutating them in
             # place -- `messages` may be the caller's own `kwargs["messages"]`.
             messages = list(messages)
-            messages[-1] = {
-                **messages[-1],
-                "content": [
-                    *messages[-1]["content"],
-                    {"cachePoint": converse_cache_point(self._cache)},
-                ],
-            }
+            messages[-1] = cast(
+                "MessageUnionTypeDef",
+                {
+                    **messages[-1],
+                    "content": [
+                        *messages[-1]["content"],
+                        {"cachePoint": converse_cache_point(self._cache)},
+                    ],
+                },
+            )
             args["messages"] = messages
 
         if data_model_tool is not None:
