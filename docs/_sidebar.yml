@@ -11,7 +11,6 @@ website:
       - reference/ChatCloudflare.qmd
       - reference/ChatDatabricks.qmd
       - reference/ChatDeepSeek.qmd
-      - reference/ChatGithub.qmd
       - reference/ChatGoogle.qmd
       - reference/ChatGroq.qmd
       - reference/ChatHuggingFace.qmd

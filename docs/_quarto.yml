@@ -152,7 +152,6 @@ quartodoc:
         - ChatCloudflare
         - ChatDatabricks
         - ChatDeepSeek
-        - ChatGithub
         - ChatGoogle
         - ChatGroq
         - ChatHuggingFace
