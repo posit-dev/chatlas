@@ -327,7 +327,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 <section id="new-features" class="level3">
 <h3 class="anchored" data-anchor-id="new-features">New features</h3>
 <ul>
-<li>New <code>ChatBedrock()</code> reaches models on AWS’s <code>bedrock-mantle</code> endpoint, including the GPT-5 family, Grok 4.3, Gemma 4, and Claude Mythos — none of which were previously available through chatlas. It picks the request format from the model name (<code>api="responses"</code> for the OpenAI Responses API, <code>api="messages"</code> for the Anthropic Messages API), or you can set <code>api</code> explicitly. Authentication uses your AWS credential chain (profiles, SSO, instance roles), or a Bedrock API key via the <code>AWS_BEARER_TOKEN_BEDROCK</code> environment variable.</li>
+<li>New <code>ChatBedrock()</code> provides full access to AWS Bedrock, replacing the Claude-only <code>ChatBedrockAnthropic()</code> as the recommended entrypoint. It reaches every Bedrock model — Nova, Llama, Mistral, DeepSeek, Qwen and more via the Converse API, plus the GPT-5 family, Grok 4.3, and Gemma 4 on the newer <code>bedrock-mantle</code> endpoint, none of which were previously available through chatlas. The request format is chosen from the model name, or set <code>api</code> explicitly to <code>"converse"</code>, <code>"responses"</code>, or <code>"messages"</code>.</li>
+<li><code>ChatAnthropic()</code> (and <code>ChatBedrockAnthropic()</code>) now correctly handle the <code>fallback</code> content block returned when a model’s server-side refusal fallback (<code>server-side-fallback-2026-06-01</code>) is triggered, and price the turn at the serving model’s rate rather than the requested model’s, mirroring <a href="https://github.com/tidyverse/ellmer/pull/1058">ellmer’s equivalent fix</a>.</li>
 </ul>
 </section>
 <section id="improvements" class="level3">

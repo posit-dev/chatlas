@@ -854,11 +854,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    kwargs<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Chat with a model hosted on AWS Bedrock.</p>
-<p>Bedrock serves models from two endpoints, and <code>api</code> selects which one to use and which request format to send:</p>
+<p>Bedrock exposes three APIs across two endpoints, and <code>api</code> selects which one to use and which request format to send:</p>
 <ul>
 <li><code>"responses"</code> uses the OpenAI Responses API on the <code>bedrock-mantle</code> endpoint. This is the only way to reach the GPT-5 family, Grok, and Gemma on Bedrock.</li>
 <li><code>"messages"</code> uses the Anthropic Messages API on the <code>bedrock-mantle</code> endpoint. Only Claude models are available here, but it includes some (like Claude Mythos) that no other Bedrock API serves.</li>
-<li><code>"converse"</code> uses the Converse API on the <code>bedrock-runtime</code> endpoint. Not yet implemented in chatlas – use <code>ChatBedrockAnthropic()</code> for Claude models on <code>bedrock-runtime</code>.</li>
+<li><code>"converse"</code> uses the Converse API on the <code>bedrock-runtime</code> endpoint. This is the default path for models available through Converse.</li>
 </ul>
 <p>By default the API is picked from <code>model</code>, falling back to <code>"converse"</code> for models that aren’t recognised as mantle-only. Set <code>api</code> explicitly to override this – which is also how you reach a mantle model that Converse can also serve, since those aren’t auto-routed.</p>
 <p>Note that the two endpoints have separate token quotas, so moving a model from one to the other changes which quota it consumes.</p>
@@ -875,10 +875,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="callout-body-container callout-body">
 <p>Authentication uses botocore’s standard credential chain, so environment variables, <code>~/.aws/config</code>, SSO, and instance roles all work. Pass <code>aws_profile</code> to select a named profile.</p>
-<p>Alternatively, set a Bedrock API key in the <code>AWS_BEARER_TOKEN_BEDROCK</code> environment variable (or pass <code>api_key</code> via <code>kwargs</code>) to authenticate with a bearer token instead of SigV4.</p>
+<p>For direct Converse requests, pass <code>api_key</code> via <code>kwargs</code> or set <code>AWS_BEARER_TOKEN_BEDROCK</code> to authenticate with a bearer token instead of SigV4. An explicit <code>api_key</code> takes priority; otherwise an explicit <code>aws_profile</code> uses SigV4 before the environment bearer token is considered.</p>
 </div>
 </div>
-<p>The <code>bedrock</code> extra installs the vendor SDK behind each API (<code>openai</code> for <code>api="responses"</code>, <code>anthropic</code> for <code>api="messages"</code>) plus the AWS libraries they sign requests with, even though a given chat only ever uses one of the two.</p>
+<p>The direct Converse client uses raw HTTPX plus AWS libraries. The <code>bedrock</code> extra provides the AWS libraries and vendor SDKs for the mantle APIs (<code>openai</code> for <code>api="responses"</code> and <code>anthropic</code> for <code>api="messages"</code>). A chat uses one of these three API clients.</p>
 </section>
 <section id="parameters" class="level2 doc-section doc-section-parameters">
 <h2 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h2>
@@ -901,7 +901,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="even">
 <td>model</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a href="https://docs.python.org/3/library/stdtypes.html#str">str</a>]</td>
-<td>The model to use for the chat. Defaults to <code>"openai.gpt-5.6-sol"</code>.</td>
+<td>The model to use for the chat. Defaults to <code>"us.anthropic.claude-sonnet-4-6"</code>.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
@@ -931,19 +931,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="odd">
 <td>max_tokens</td>
 <td><a href="https://docs.python.org/3/library/functions.html#int">int</a> | <a href="https://posit-dev.github.io/chatlas/reference/types.MISSING_TYPE.html#chatlas.types.MISSING_TYPE">MISSING_TYPE</a></td>
-<td>Maximum number of tokens to generate, defaulting to 4096 when <code>api="messages"</code>. Passing this when <code>api="responses"</code> raises, since the Responses API has no constructor-level equivalent – set a cap per-request instead via <code>chat.set_model_params(max_tokens=...)</code>.</td>
+<td>Maximum number of tokens to generate, defaulting to 4096 when <code>api="converse"</code> or <code>api="messages"</code>. Passing this when <code>api="responses"</code> raises, since the Responses API has no constructor-level equivalent – set a cap per-request instead via <code>chat.set_model_params(max_tokens=...)</code>.</td>
 <td><code>MISSING</code></td>
 </tr>
 <tr class="even">
 <td>cache</td>
 <td><a href="https://docs.python.org/3/library/typing.html#typing.Literal">Literal</a>['auto', '5m', '1h', 'none']</td>
-<td>Prompt caching. <code>api="messages"</code> only; <code>"auto"</code> enables a 5-minute TTL. The Responses API caches automatically, so this must be left at <code>"auto"</code> when <code>api="responses"</code>.</td>
+<td>Prompt caching for <code>api="converse"</code> and <code>api="messages"</code>. The Responses API caches automatically, so this must be left at <code>"auto"</code> when <code>api="responses"</code>.</td>
 <td><code>'auto'</code></td>
 </tr>
 <tr class="odd">
 <td>kwargs</td>
-<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['OpenAIClientArgs | AnthropicClientArgs']</td>
-<td>Additional arguments passed to the underlying vendor SDK client. These are merged in last, so anything supplied here (including a custom <code>http_client</code>) overrides what <code>ChatBedrock</code> otherwise resolves. Passing <code>api_key</code> authenticates with a Bedrock API key (bearer token) instead of the SigV4 credential chain.</td>
+<td><a href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>['OpenAIClientArgs | AnthropicClientArgs | ConverseClientArgs']</td>
+<td>Additional client arguments. For <code>api="converse"</code>, these are raw <code>httpx.Client</code> arguments (except <code>auth</code> and <code>base_url</code>, which <code>ChatBedrock</code> manages) and <code>api_key</code> is a Bedrock bearer token. For <code>api="responses"</code> and <code>api="messages"</code>, these are arguments for the respective OpenAI or Anthropic SDK client. On the Converse path, <code>api_key</code> is consumed to create an <code>Authorization: Bearer ...</code> header, not passed to <code>httpx.Client</code>.</td>
 <td><code>None</code></td>
 </tr>
 </tbody>

@@ -4,7 +4,8 @@
 
 ### New features
 
-- New `ChatBedrock()` reaches models on AWS’s `bedrock-mantle` endpoint, including the GPT-5 family, Grok 4.3, Gemma 4, and Claude Mythos — none of which were previously available through chatlas. It picks the request format from the model name (`api="responses"` for the OpenAI Responses API, `api="messages"` for the Anthropic Messages API), or you can set `api` explicitly. Authentication uses your AWS credential chain (profiles, SSO, instance roles), or a Bedrock API key via the `AWS_BEARER_TOKEN_BEDROCK` environment variable.
+- New `ChatBedrock()` provides full access to AWS Bedrock, replacing the Claude-only `ChatBedrockAnthropic()` as the recommended entrypoint. It reaches every Bedrock model — Nova, Llama, Mistral, DeepSeek, Qwen and more via the Converse API, plus the GPT-5 family, Grok 4.3, and Gemma 4 on the newer `bedrock-mantle` endpoint, none of which were previously available through chatlas. The request format is chosen from the model name, or set `api` explicitly to `"converse"`, `"responses"`, or `"messages"`.
+- `ChatAnthropic()` (and `ChatBedrockAnthropic()`) now correctly handle the `fallback` content block returned when a model’s server-side refusal fallback (`server-side-fallback-2026-06-01`) is triggered, and price the turn at the serving model’s rate rather than the requested model’s, mirroring [ellmer’s equivalent fix](https://github.com/tidyverse/ellmer/pull/1058).
 
 ### Improvements
 
