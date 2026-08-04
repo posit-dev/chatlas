@@ -1545,6 +1545,20 @@ class TestStructuredOutputAndCaching:
         content = args["messages"][-1]["content"]
         assert content.count({"cachePoint": {"type": "default"}}) == 1
 
+    def test_message_cache_point_does_not_mutate_caller_kwargs(self):
+        original_content = [{"text": "hi"}]
+        original_message = {"role": "user", "content": original_content}
+        kwargs = cast("ConverseSubmitArgs", {"messages": [original_message]})
+
+        self.provider(cache="auto")._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("hi")],
+            tools={},
+            kwargs=kwargs,
+        )
+
+        assert original_message["content"] == original_content
+
     def test_cache_point_is_preserved_with_request_system_blocks(self):
         args = self.provider(cache="auto")._chat_perform_args(
             stream=False,

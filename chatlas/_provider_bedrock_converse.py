@@ -798,10 +798,17 @@ class BedrockConverseProvider(
             and messages
             and not any("cachePoint" in block for block in messages[-1]["content"])
         ):
-            messages[-1]["content"] = [
-                *messages[-1]["content"],
-                {"cachePoint": converse_cache_point(self._cache)},
-            ]
+            # Copy the list and the last message rather than mutating them in
+            # place -- `messages` may be the caller's own `kwargs["messages"]`.
+            messages = list(messages)
+            messages[-1] = {
+                **messages[-1],
+                "content": [
+                    *messages[-1]["content"],
+                    {"cachePoint": converse_cache_point(self._cache)},
+                ],
+            }
+            args["messages"] = messages
 
         if data_model_tool is not None:
             assert tool_config is not None
