@@ -792,6 +792,17 @@ class BedrockConverseProvider(
         if system:
             args["system"] = system
 
+        messages = args["messages"]
+        if (
+            converse_cache_point_enabled(self._cache, self.model)
+            and messages
+            and not any("cachePoint" in block for block in messages[-1]["content"])
+        ):
+            messages[-1]["content"] = [
+                *messages[-1]["content"],
+                {"cachePoint": converse_cache_point(self._cache)},
+            ]
+
         if data_model_tool is not None:
             assert tool_config is not None
             args["toolConfig"] = tool_config

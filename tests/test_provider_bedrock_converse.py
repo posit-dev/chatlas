@@ -1498,6 +1498,53 @@ class TestStructuredOutputAndCaching:
 
         assert "system" not in args
 
+    def test_cache_auto_adds_a_cache_point_to_the_last_message(self):
+        from chatlas._turn import SystemTurn
+
+        args = self.provider(cache="auto")._chat_perform_args(
+            stream=False,
+            turns=[SystemTurn("be terse"), UserTurn("hi"), UserTurn("again")],
+            tools={},
+        )
+
+        messages = args["messages"]
+        assert messages[-1]["content"][-1] == {"cachePoint": {"type": "default"}}
+        assert not any("cachePoint" in block for block in messages[0]["content"])
+
+    def test_cache_none_adds_no_cache_point_to_messages(self):
+        args = self.provider(cache="none")._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("hi")],
+            tools={},
+        )
+
+        content = args["messages"][-1]["content"]
+        assert not any("cachePoint" in block for block in content)
+
+    def test_cache_does_not_duplicate_a_message_cache_point(self):
+        args = self.provider(cache="auto")._chat_perform_args(
+            stream=False,
+            turns=[UserTurn("hi")],
+            tools={},
+            kwargs=cast(
+                "ConverseSubmitArgs",
+                {
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": [
+                                {"text": "hi"},
+                                {"cachePoint": {"type": "default"}},
+                            ],
+                        }
+                    ]
+                },
+            ),
+        )
+
+        content = args["messages"][-1]["content"]
+        assert content.count({"cachePoint": {"type": "default"}}) == 1
+
     def test_cache_point_is_preserved_with_request_system_blocks(self):
         args = self.provider(cache="auto")._chat_perform_args(
             stream=False,
