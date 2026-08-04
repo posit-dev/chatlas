@@ -168,17 +168,6 @@ class TestChatBedrockDispatch:
         base_url = str(chat.provider._client.base_url)
         assert base_url.rstrip("/") == "https://bedrock-mantle.us-east-1.api.aws/v1"
 
-    def test_converse_is_not_implemented_and_says_what_to_do(self):
-        with pytest.raises(NotImplementedError) as excinfo:
-            ChatBedrock(model="amazon.nova-pro-v1:0", aws_region="us-east-1")
-        message = str(excinfo.value)
-        assert "converse" in message.lower()
-        assert "ChatBedrockAnthropic" in message
-        assert 'api="responses"' in message
-        # A model like openai.gpt-oss-120b needs both api="responses" *and* a
-        # base_url override (see test_gpt_oss_works_via_the_v1_base_url_escape_hatch).
-        assert "base_url" in message
-
     def test_invalid_api_is_rejected(self):
         with pytest.raises(ValueError, match="api"):
             ChatBedrock(

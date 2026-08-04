@@ -21,11 +21,12 @@ if TYPE_CHECKING:
     from botocore.session import Session
 
     from .types.anthropic import ChatClientArgs as AnthropicClientArgs
+    from .types.bedrock import ChatClientArgs as ConverseClientArgs
     from .types.openai import ChatClientArgs as OpenAIClientArgs
 
 BedrockAPI = Literal["converse", "messages", "responses"]
 
-DEFAULT_MODEL = "openai.gpt-5.6-sol"
+DEFAULT_MODEL = "us.anthropic.claude-sonnet-4-6"
 
 MANTLE_HOST = "https://bedrock-mantle.{region}.api.aws"
 
@@ -44,13 +45,15 @@ def ChatBedrock(
     base_url: Optional[str] = None,
     max_tokens: int | MISSING_TYPE = MISSING,
     cache: Literal["auto", "5m", "1h", "none"] = "auto",
-    kwargs: Optional["OpenAIClientArgs | AnthropicClientArgs"] = None,
+    kwargs: Optional[
+        "OpenAIClientArgs | AnthropicClientArgs | ConverseClientArgs"
+    ] = None,
 ) -> Chat:
     """
     Chat with a model hosted on AWS Bedrock.
 
-    Bedrock serves models from two endpoints, and `api` selects which one to use
-    and which request format to send:
+    Bedrock exposes three APIs across two endpoints, and `api` selects which
+    one to use and which request format to send:
 
     * `"responses"` uses the OpenAI Responses API on the `bedrock-mantle`
       endpoint. This is the only way to reach the GPT-5 family, Grok, and Gemma
@@ -59,8 +62,7 @@ def ChatBedrock(
       endpoint. Only Claude models are available here, but it includes some
       (like Claude Mythos) that no other Bedrock API serves.
     * `"converse"` uses the Converse API on the `bedrock-runtime` endpoint.
-      Not yet implemented in chatlas -- use `ChatBedrockAnthropic()` for Claude
-      models on `bedrock-runtime`.
+      This is the default path for models available through Converse.
 
     By default the API is picked from `model`, falling back to `"converse"` for
     models that aren't recognised as mantle-only. Set `api` explicitly to
@@ -79,22 +81,24 @@ def ChatBedrock(
     variables, `~/.aws/config`, SSO, and instance roles all work. Pass
     `aws_profile` to select a named profile.
 
-    Alternatively, set a Bedrock API key in the `AWS_BEARER_TOKEN_BEDROCK`
-    environment variable (or pass `api_key` via `kwargs`) to authenticate
-    with a bearer token instead of SigV4.
+    For direct Converse requests, pass `api_key` via `kwargs` or set
+    `AWS_BEARER_TOKEN_BEDROCK` to authenticate with a bearer token instead of
+    SigV4. An explicit `api_key` takes priority; otherwise an explicit
+    `aws_profile` uses SigV4 before the environment bearer token is considered.
     :::
 
-    The `bedrock` extra installs the vendor SDK behind each API (`openai` for
-    `api="responses"`, `anthropic` for `api="messages"`) plus the AWS libraries
-    they sign requests with, even though a given chat only ever uses one of the
-    two.
+    The direct Converse client uses raw HTTPX plus AWS libraries. The `bedrock`
+    extra provides the AWS libraries and vendor SDKs for the mantle APIs
+    (`openai` for `api="responses"` and `anthropic` for `api="messages"`). A
+    chat uses one of these three API clients.
 
     Parameters
     ----------
     system_prompt
         A system prompt to set the behavior of the assistant.
     model
-        The model to use for the chat. Defaults to `"openai.gpt-5.6-sol"`.
+        The model to use for the chat. Defaults to
+        `"us.anthropic.claude-sonnet-4-6"`.
     api
         Which Bedrock API to use. The default, `None`, picks the API from
         `model`.
@@ -108,19 +112,21 @@ def ChatBedrock(
         like `gpt-oss` and rejects the models `/openai/v1` serves.
     max_tokens
         Maximum number of tokens to generate, defaulting to 4096 when
-        `api="messages"`. Passing this when `api="responses"` raises, since
+        `api="converse"` or `api="messages"`. Passing this when `api="responses"` raises, since
         the Responses API has no constructor-level equivalent -- set a cap
         per-request instead via `chat.set_model_params(max_tokens=...)`.
     cache
-        Prompt caching. `api="messages"` only; `"auto"` enables a 5-minute TTL.
-        The Responses API caches automatically, so this must be left at
-        `"auto"` when `api="responses"`.
+        Prompt caching for `api="converse"` and `api="messages"`. The Responses
+        API caches automatically, so this must be left at `"auto"` when
+        `api="responses"`.
     kwargs
-        Additional arguments passed to the underlying vendor SDK client.
-        These are merged in last, so anything supplied here (including a
-        custom `http_client`) overrides what `ChatBedrock` otherwise
-        resolves. Passing `api_key` authenticates with a Bedrock API key
-        (bearer token) instead of the SigV4 credential chain.
+        Additional client arguments. For `api="converse"`, these are raw
+        `httpx.Client` arguments (except `auth` and `base_url`, which
+        `ChatBedrock` manages) and `api_key` is a Bedrock bearer token. For
+        `api="responses"` and `api="messages"`, these are arguments for the
+        respective OpenAI or Anthropic SDK client. On the Converse path,
+        `api_key` is consumed to create an `Authorization: Bearer ...` header,
+        not passed to `httpx.Client`.
 
     Returns
     -------
@@ -150,19 +156,10 @@ def ChatBedrock(
             'Must be one of "converse", "messages", or "responses".'
         )
 
-    if api == "converse":
-        raise NotImplementedError(
-            f'The Converse API is not yet supported by chatlas, and "{model}" '
-            "isn't a model known to require one of the bedrock-mantle APIs.\n"
-            "* For Claude models on bedrock-runtime, use ChatBedrockAnthropic().\n"
-            '* If this model is served by bedrock-mantle, set api="responses" '
-            '(or api="messages" for Claude) explicitly -- some models (e.g. '
-            "gpt-oss, which Converse can also serve) also need base_url set to "
-            "mantle's other OpenAI path, /v1."
-        )
-
     region = bedrock_region(aws_profile, aws_region)
-    if bedrock_uses_credential_chain(kwargs, aws_profile):
+    if api != "converse" and bedrock_uses_credential_chain(
+        cast("Optional[OpenAIClientArgs | AnthropicClientArgs]", kwargs), aws_profile
+    ):
         # Fail fast with botocore's own error (expired SSO, broken assume-role)
         # instead of a request-time failure buried by the SDK's retry machinery.
         bedrock_credentials(aws_profile)
@@ -188,6 +185,24 @@ def ChatBedrock(
                 # union applies; the type system can't express that through a
                 # runtime branch.
                 kwargs=cast("Optional[OpenAIClientArgs]", kwargs),
+            ),
+            system_prompt=system_prompt,
+        )
+
+    if api == "converse":
+        # Imported here because BedrockConverseProvider uses this module's
+        # endpoint and credential helpers.
+        from ._provider_bedrock_converse import BedrockConverseProvider
+
+        return Chat(
+            provider=BedrockConverseProvider(
+                model=model,
+                aws_profile=aws_profile,
+                aws_region=region,
+                base_url=base_url,
+                max_tokens=4096 if isinstance(max_tokens, MISSING_TYPE) else max_tokens,
+                cache=cache,
+                kwargs=cast("Optional[ConverseClientArgs]", kwargs),
             ),
             system_prompt=system_prompt,
         )

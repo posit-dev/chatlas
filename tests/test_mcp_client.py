@@ -189,7 +189,9 @@ async def test_register_multiple_mcp_servers():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_call_http_mcp_tool():
-    chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
+    chat = ChatOpenAI(
+        model="gpt-5.4", system_prompt="Be very terse, not even punctuation."
+    )
 
     async with http_mcp_server("http_current_date.py"):
         await chat.register_mcp_tools_http_stream_async(
@@ -211,7 +213,9 @@ async def test_call_http_mcp_tool():
 @pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_call_stdio_mcp_tool():
-    chat = ChatOpenAI(system_prompt="Be very terse, not even punctuation.")
+    chat = ChatOpenAI(
+        model="gpt-5.4", system_prompt="Be very terse, not even punctuation."
+    )
 
     await chat.register_mcp_tools_stdio_async(
         name="stdio_test",

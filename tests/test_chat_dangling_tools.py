@@ -54,7 +54,10 @@ class TestDanglingToolRequests:
 
     @pytest.mark.vcr
     def test_can_resume_chat_after_dangling_tool_requests(self):
-        chat = ChatOpenAI(system_prompt="Be terse and use tool results over your internal knowledge.")
+        chat = ChatOpenAI(
+            model="gpt-5.4",
+            system_prompt="Be terse and use tool results over your internal knowledge.",
+        )
         chat.register_tool(get_date)
 
         # Simulate a broken chat history with dangling tool request

@@ -240,13 +240,18 @@ class MCPSessionManager:
             # Whether successful or not, set ready state to prevent deadlock
             session_info.ready_event.set()
 
-        # If successful, wait for shutdown signal
-        await session_info.shutdown_event.wait()
-
-        # On shutdown close connection to MCP server
-        # This is why we're using a background task in the 1st place...
-        # we must close in the same task that opened the session
-        await session_info.close_session()
+        # If successful, wait for shutdown signal. This task may also be
+        # cancelled without a clean shutdown (e.g. the caller errors before
+        # calling cleanup, or the event loop is closing) -- close_session()
+        # must still run in that case, since it's the only thing that can
+        # close the underlying subprocess/transport, and it must run in this
+        # same task (that's the whole reason this is a background task).
+        # Leaving it unclosed leaks the subprocess and can deadlock the event
+        # loop's shutdown_asyncgens() pass trying to finalize it elsewhere.
+        try:
+            await session_info.shutdown_event.wait()
+        finally:
+            await session_info.close_session()
 
     async def close_sessions(self, names: Optional[Sequence[str]] = None):
         if names is None:

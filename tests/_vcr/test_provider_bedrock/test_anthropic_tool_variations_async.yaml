@@ -1,10 +1,6 @@
 interactions:
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}], "system":
-      [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools":
-      [{"name": "get_current_date", "input_schema": {"type": "object", "properties":
-      {}}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}], "system": [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools": [{"name": "get_current_date", "input_schema": {"type": "object", "properties": {}, "additionalProperties": false, "required": []}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive
@@ -82,15 +78,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role":
-      "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01PNjP1XJ26WJB3WZa7LyfBp",
-      "name": "get_current_date", "input": {}}]}, {"role": "user", "content": [{"type":
-      "tool_result", "tool_use_id": "toolu_bdrk_01PNjP1XJ26WJB3WZa7LyfBp", "is_error":
-      false, "content": "2024-01-01"}]}], "system": [{"type": "text", "text": "Be
-      very terse, not even punctuation."}], "tools": [{"name": "get_current_date",
-      "input_schema": {"type": "object", "properties": {}}, "description": "Gets the
-      current date"}], "anthropic_version": "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role": "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01PNjP1XJ26WJB3WZa7LyfBp", "name": "get_current_date", "input": {}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01PNjP1XJ26WJB3WZa7LyfBp", "is_error": false, "content": "2024-01-01"}]}], "system": [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools": [{"name": "get_current_date", "input_schema": {"type": "object", "properties": {}, "additionalProperties": false, "required": []}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive
@@ -170,11 +158,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}], "system":
-      [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools":
-      [{"name": "get_current_date2", "input_schema": {"type": "object", "properties":
-      {}}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}], "system": [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools": [{"name": "get_current_date2", "input_schema": {"type": "object", "properties": {}, "additionalProperties": false, "required": []}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive
@@ -252,15 +236,7 @@ interactions:
       code: 200
       message: OK
 - request:
-    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text":
-      "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role":
-      "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01LvkLsi1CKfwjSdABAY5LiB",
-      "name": "get_current_date2", "input": {}}]}, {"role": "user", "content": [{"type":
-      "tool_result", "tool_use_id": "toolu_bdrk_01LvkLsi1CKfwjSdABAY5LiB", "is_error":
-      false, "content": "2024-01-01"}]}], "system": [{"type": "text", "text": "Be
-      very terse, not even punctuation."}], "tools": [{"name": "get_current_date2",
-      "input_schema": {"type": "object", "properties": {}}, "description": "Gets the
-      current date"}], "anthropic_version": "bedrock-2023-05-31"}'
+    body: '{"max_tokens": 4096, "messages": [{"role": "user", "content": [{"text": "What''s the current date in YYYY-MM-DD format?", "type": "text"}]}, {"role": "assistant", "content": [{"type": "tool_use", "id": "toolu_bdrk_01LvkLsi1CKfwjSdABAY5LiB", "name": "get_current_date2", "input": {}}]}, {"role": "user", "content": [{"type": "tool_result", "tool_use_id": "toolu_bdrk_01LvkLsi1CKfwjSdABAY5LiB", "is_error": false, "content": "2024-01-01"}]}], "system": [{"type": "text", "text": "Be very terse, not even punctuation."}], "tools": [{"name": "get_current_date2", "input_schema": {"type": "object", "properties": {}, "additionalProperties": false, "required": []}, "description": "Gets the current date"}], "anthropic_version": "bedrock-2023-05-31"}'
     headers:
       Connection:
       - keep-alive

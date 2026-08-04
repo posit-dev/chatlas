@@ -665,7 +665,9 @@ def test_anthropic_adaptive_effort_merges_with_structured_output():
 
 @pytest.mark.vcr
 def test_anthropic_token_count_complete_exceeds_new():
-    chat = ChatAnthropic(system_prompt="You are a terse assistant.")
+    chat = ChatAnthropic(
+        model="claude-sonnet-4-6", system_prompt="You are a terse assistant."
+    )
     chat.set_turns(
         [
             UserTurn("an earlier question with some length to it"),

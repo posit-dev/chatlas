@@ -3,6 +3,7 @@ from pathlib import Path
 
 scripts = [
     "_generate_anthropic_types.py",
+    "_generate_bedrock_types.py",
     "_generate_google_types.py",
     "_generate_openai_types.py",
 ]
