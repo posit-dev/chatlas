@@ -2868,9 +2868,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if any(isinstance(x, Tool) and x._is_async for x in self._tools.values()):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
-        chat_span = start_chat_span(
-            self.provider, [*self._turns, user_turn], _otel_parent
-        )
+        request_turns = [*self._turns, user_turn]
+        chat_span = start_chat_span(self.provider, request_turns, _otel_parent)
         try:
 
             def emit(x: str | Content):
@@ -2905,7 +2904,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 with activate_span(chat_span):
                     response = self.provider.chat_perform(
                         stream=True,
-                        turns=[*self._turns, user_turn],
+                        turns=request_turns,
                         tools=self._tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
@@ -2927,7 +2926,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             break
                         result = self.provider.stream_merge_chunks(result, chunk)
                         for content in self.provider.stream_content(
-                            chunk, result, turns=[*self._turns, user_turn]
+                            chunk, result, turns=request_turns
                         ):
                             yield from acc.process_content(
                                 content, display_text(content), content_mode, emit
@@ -2939,7 +2938,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         turn = self.provider.stream_turn(
                             result,
                             has_data_model=data_model is not None,
-                            turns=[*self._turns, user_turn],
+                            turns=request_turns,
                         )
                         emit_image_contents(turn, emit)
                         if echo == "all":
@@ -2955,7 +2954,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 with activate_span(chat_span):
                     response = self.provider.chat_perform(
                         stream=False,
-                        turns=[*self._turns, user_turn],
+                        turns=request_turns,
                         tools=self._tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
@@ -2964,7 +2963,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = self.provider.value_turn(
                     response,
                     has_data_model=data_model is not None,
-                    turns=[*self._turns, user_turn],
+                    turns=request_turns,
                 )
                 emit_thinking_contents(turn, emit)
                 emit_web_contents(turn, emit)
@@ -3026,9 +3025,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
-        chat_span = start_chat_span(
-            self.provider, [*self._turns, user_turn], _otel_parent
-        )
+        request_turns = [*self._turns, user_turn]
+        chat_span = start_chat_span(self.provider, request_turns, _otel_parent)
         try:
 
             def emit(x: str | Content):
@@ -3063,7 +3061,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 with activate_span(chat_span):
                     response = await self.provider.chat_perform_async(
                         stream=True,
-                        turns=[*self._turns, user_turn],
+                        turns=request_turns,
                         tools=self._tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
@@ -3085,7 +3083,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             break
                         result = self.provider.stream_merge_chunks(result, chunk)
                         for content in self.provider.stream_content(
-                            chunk, result, turns=[*self._turns, user_turn]
+                            chunk, result, turns=request_turns
                         ):
                             for item in acc.process_content(
                                 content, display_text(content), content_mode, emit
@@ -3099,7 +3097,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         turn = self.provider.stream_turn(
                             result,
                             has_data_model=data_model is not None,
-                            turns=[*self._turns, user_turn],
+                            turns=request_turns,
                         )
                         emit_image_contents(turn, emit)
                         if echo == "all":
@@ -3115,7 +3113,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 with activate_span(chat_span):
                     response = await self.provider.chat_perform_async(
                         stream=False,
-                        turns=[*self._turns, user_turn],
+                        turns=request_turns,
                         tools=self._tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
@@ -3124,7 +3122,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = self.provider.value_turn(
                     response,
                     has_data_model=data_model is not None,
-                    turns=[*self._turns, user_turn],
+                    turns=request_turns,
                 )
                 emit_thinking_contents(turn, emit)
                 emit_web_contents(turn, emit)
