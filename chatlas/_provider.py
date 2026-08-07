@@ -279,6 +279,7 @@ class Provider(
         self,
         chunk: ChatCompletionChunkT,
         completion: Optional[ChatCompletionDictT],
+        turns: Sequence[Turn] = (),
     ) -> "Sequence[Content]":
         """
         Content to yield for `chunk`.
@@ -289,6 +290,12 @@ class Provider(
         single provider instance is shared across forked chats
         (`Chat.__deepcopy__` keeps `provider` by reference), so several streams
         can be in flight at once.
+
+        `turns` is the full request history (prior turns plus the newest user
+        turn) that produced this stream, for providers that need to resolve
+        content referencing something outside `completion` itself (e.g.
+        Anthropic's `document_index` citations, which can reference a document
+        from an earlier turn). Defaults to `()` for callers that don't have it.
         """
         ...
 
@@ -304,6 +311,7 @@ class Provider(
         self,
         completion: ChatCompletionDictT,
         has_data_model: bool,
+        turns: Sequence[Turn] = (),
     ) -> AssistantTurn[ChatCompletionT]: ...
 
     @abstractmethod
@@ -311,6 +319,7 @@ class Provider(
         self,
         completion: ChatCompletionT,
         has_data_model: bool,
+        turns: Sequence[Turn] = (),
     ) -> AssistantTurn[ChatCompletionT]: ...
 
     @abstractmethod
