@@ -35,6 +35,7 @@ from chatlas._content import (
 from chatlas._provider_anthropic import (
     _ANTHROPIC_FINISH_REASON_MAP,
     AnthropicProvider,
+    anthropic_fetch_result,
     serving_model,
 )
 from chatlas._provider_anthropic import (
@@ -395,6 +396,66 @@ def test_anthropic_web_fetch_citation_with_invalid_document_index_has_no_source(
     citation = next(c for c in turn.contents if isinstance(c, ContentCitation))
 
     assert citation.source is None
+
+
+def test_anthropic_web_fetch_citation_resolves_across_turns():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+
+    turn_1_fetch = web_fetch_result("https://a.example", "First document")
+    prior_turns = [
+        UserTurn("Look at https://a.example"),
+        AssistantTurn(
+            [
+                anthropic_fetch_result(turn_1_fetch),
+            ],
+            finish_reason="stop",
+        ),
+    ]
+
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            web_fetch_result("https://b.example", "Second document"),
+            TextBlock(
+                type="text",
+                text="Comparing both pages",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim about the first page",
+                        document_index=0,
+                        document_title="First document",
+                        start_char_index=0,
+                        end_char_index=27,
+                    ),
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim about the second page",
+                        document_index=1,
+                        document_title="Second document",
+                        start_char_index=28,
+                        end_char_index=56,
+                    ),
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion, turns=prior_turns)
+    citations = [c for c in turn.contents if isinstance(c, ContentCitation)]
+
+    assert citations[0].source is not None
+    assert citations[0].source.url == "https://a.example"
+    assert citations[1].source is not None
+    assert citations[1].source.url == "https://b.example"
 
 
 def web_fetch_result(url: str, title: str) -> WebFetchToolResultBlock:
