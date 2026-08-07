@@ -593,7 +593,7 @@ class AnthropicProvider(
 
         return data_model_tool
 
-    def stream_content(self, chunk, completion) -> list[Content]:
+    def stream_content(self, chunk, completion, turns=()) -> list[Content]:
         if chunk.type == "content_block_delta":
             if chunk.delta.type == "text_delta":
                 return [ContentText.model_construct(text=chunk.delta.text)]
@@ -619,7 +619,9 @@ class AnthropicProvider(
                 return list(
                     anthropic_citations(
                         block,
-                        fetch_sources=anthropic_fetch_sources(completion.content),
+                        fetch_sources=anthropic_document_sources(
+                            turns, completion.content
+                        ),
                     )
                 )
             if block.type == "server_tool_use":
@@ -679,11 +681,11 @@ class AnthropicProvider(
 
         return completion
 
-    def stream_turn(self, completion, has_data_model):
-        return self._as_turn(completion, has_data_model)
+    def stream_turn(self, completion, has_data_model, turns=()):
+        return self._as_turn(completion, has_data_model, turns)
 
-    def value_turn(self, completion, has_data_model):
-        return self._as_turn(completion, has_data_model)
+    def value_turn(self, completion, has_data_model, turns=()):
+        return self._as_turn(completion, has_data_model, turns)
 
     def value_tokens(self, completion):
         usage = completion.usage
@@ -1041,14 +1043,19 @@ class AnthropicProvider(
 
         return res
 
-    def _as_turn(self, completion: Message, has_data_model=False) -> AssistantTurn:
+    def _as_turn(
+        self,
+        completion: Message,
+        has_data_model=False,
+        turns: Sequence[Turn] = (),
+    ) -> AssistantTurn:
         finish_reason = normalize_finish_reason(completion.stop_reason)
         if has_data_model:
             # Must precede the JSON parse below; see check_finish_reason().
             check_finish_reason(finish_reason, "error")
 
         contents = []
-        fetch_sources = anthropic_fetch_sources(completion.content)
+        fetch_sources = anthropic_document_sources(turns, completion.content)
 
         # Detect which structured output approach was used:
         # - Old approach: has a _structured_tool_call tool_use block
@@ -1553,7 +1560,7 @@ class AnthropicBedrockProvider(AnthropicProvider):
 
 def anthropic_citations(
     block: "TextBlock",
-    fetch_sources: Sequence[WebSource] = (),
+    fetch_sources: Sequence[Optional[WebSource]] = (),
 ) -> list[ContentCitation]:
     """ContentCitations for one fully-accumulated text block."""
     out: list[ContentCitation] = []
@@ -1571,10 +1578,12 @@ def anthropic_citations(
                 and not isinstance(document_index, bool)
                 and 0 <= document_index < len(fetch_sources)
             ):
-                source = WebSource(
-                    url=fetch_sources[document_index].url,
-                    title=getattr(c, "document_title", None),
-                )
+                resolved = fetch_sources[document_index]
+                if resolved is not None:
+                    source = WebSource(
+                        url=resolved.url,
+                        title=getattr(c, "document_title", None),
+                    )
         out.append(
             ContentCitation(
                 source=source,
@@ -1587,18 +1596,45 @@ def anthropic_citations(
     return out
 
 
-def anthropic_fetch_sources(contents: Sequence["ContentBlock"]) -> list[WebSource]:
-    """Successful web-fetch sources in the order citations reference them."""
+def anthropic_document_sources(
+    turns: Sequence[Turn], contents: Sequence["ContentBlock"]
+) -> list[Optional[WebSource]]:
+    """Ordered document slots for `document_index` citations in `contents`.
+
+    Anthropic's `document_index` counts every document-shaped content block
+    across the *whole* request (spanning prior turns), not just this
+    completion's own fetches -- a `web_fetch_tool_result`'s embedded document
+    and a user-attached PDF/text document share one index space. `turns` (the
+    prior history plus the newest user turn) supplies everything that
+    precedes this completion in that space; `contents` supplies this
+    completion's own new fetches, appended last. A slot with no representable
+    URL (e.g. an uploaded PDF) stays `None` so later slots still land on the
+    right index -- it never fabricates a source.
+    """
     from anthropic.types import WebFetchBlock
 
-    out: list[WebSource] = []
+    sources: list[Optional[WebSource]] = []
+    for turn in turns:
+        if isinstance(turn, SystemTurn):
+            continue
+        for content in turn.contents:
+            if isinstance(content, ContentToolResponseFetch):
+                if content.status == "success" and anthropic_replayable(content):
+                    sources.append(WebSource(url=content.url))
+            elif isinstance(content, (ContentPDF, ContentDocument)):
+                sources.append(WebSource(url=content.url) if content.url else None)
+            elif isinstance(content, ContentUploaded):
+                if not content.mime_type.startswith("image/"):
+                    sources.append(None)
+
     for block in contents:
         if block.type != "web_fetch_tool_result":
             continue
-        content = block.content
-        if isinstance(content, WebFetchBlock):
-            out.append(WebSource(url=content.url, title=content.content.title))
-    return out
+        result = block.content
+        if isinstance(result, WebFetchBlock):
+            sources.append(WebSource(url=result.url))
+
+    return sources
 
 
 def anthropic_server_tool_request(
