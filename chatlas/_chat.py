@@ -2926,7 +2926,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         if controller.cancelled:
                             break
                         result = self.provider.stream_merge_chunks(result, chunk)
-                        for content in self.provider.stream_content(chunk, result):
+                        for content in self.provider.stream_content(
+                            chunk, result, turns=[*self._turns, user_turn]
+                        ):
                             yield from acc.process_content(
                                 content, display_text(content), content_mode, emit
                             )
@@ -2937,6 +2939,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         turn = self.provider.stream_turn(
                             result,
                             has_data_model=data_model is not None,
+                            turns=[*self._turns, user_turn],
                         )
                         emit_image_contents(turn, emit)
                         if echo == "all":
@@ -2959,7 +2962,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     )
 
                 turn = self.provider.value_turn(
-                    response, has_data_model=data_model is not None
+                    response,
+                    has_data_model=data_model is not None,
+                    turns=[*self._turns, user_turn],
                 )
                 emit_thinking_contents(turn, emit)
                 emit_web_contents(turn, emit)
@@ -3079,7 +3084,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         if controller.cancelled:
                             break
                         result = self.provider.stream_merge_chunks(result, chunk)
-                        for content in self.provider.stream_content(chunk, result):
+                        for content in self.provider.stream_content(
+                            chunk, result, turns=[*self._turns, user_turn]
+                        ):
                             for item in acc.process_content(
                                 content, display_text(content), content_mode, emit
                             ):
@@ -3092,6 +3099,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         turn = self.provider.stream_turn(
                             result,
                             has_data_model=data_model is not None,
+                            turns=[*self._turns, user_turn],
                         )
                         emit_image_contents(turn, emit)
                         if echo == "all":
@@ -3114,7 +3122,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     )
 
                 turn = self.provider.value_turn(
-                    response, has_data_model=data_model is not None
+                    response,
+                    has_data_model=data_model is not None,
+                    turns=[*self._turns, user_turn],
                 )
                 emit_thinking_contents(turn, emit)
                 emit_web_contents(turn, emit)
