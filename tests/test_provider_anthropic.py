@@ -458,6 +458,115 @@ def test_anthropic_web_fetch_citation_resolves_across_turns():
     assert citations[1].source.url == "https://b.example"
 
 
+def test_anthropic_web_fetch_citation_accounts_for_attached_document():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+
+    prior_turns = [
+        UserTurn(
+            [
+                ContentPDF(data=b"%PDF-1.4 fake", filename="report.pdf"),
+                "Compare this report with https://site.example",
+            ]
+        ),
+    ]
+
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            web_fetch_result("https://site.example", "Site page"),
+            TextBlock(
+                type="text",
+                text="The report and the site disagree",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the PDF",
+                        document_index=0,
+                        document_title="report.pdf",
+                        start_char_index=0,
+                        end_char_index=19,
+                    ),
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the site",
+                        document_index=1,
+                        document_title="Site page",
+                        start_char_index=20,
+                        end_char_index=40,
+                    ),
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion, turns=prior_turns)
+    citations = [c for c in turn.contents if isinstance(c, ContentCitation)]
+
+    # The PDF has no URL to attribute -- must stay unresolved, not
+    # borrow the fetched page's URL.
+    assert citations[0].source is None
+    # The fetch keeps its own, correctly-offset URL.
+    assert citations[1].source is not None
+    assert citations[1].source.url == "https://site.example"
+
+
+def test_anthropic_web_fetch_citation_uses_pdf_url_when_present():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+
+    prior_turns = [
+        UserTurn(
+            [
+                ContentPDF(
+                    url="https://docs.example/report.pdf", filename="report.pdf"
+                ),
+                "Summarize this report.",
+            ]
+        ),
+    ]
+
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            TextBlock(
+                type="text",
+                text="The report says X",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the PDF",
+                        document_index=0,
+                        document_title="report.pdf",
+                        start_char_index=0,
+                        end_char_index=18,
+                    ),
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion, turns=prior_turns)
+    citation = next(c for c in turn.contents if isinstance(c, ContentCitation))
+
+    assert citation.source is not None
+    assert citation.source.url == "https://docs.example/report.pdf"
+
+
 def web_fetch_result(url: str, title: str) -> WebFetchToolResultBlock:
     return WebFetchToolResultBlock(
         type="web_fetch_tool_result",
