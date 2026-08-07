@@ -70,6 +70,7 @@ if TYPE_CHECKING:
     from typing import IO
 
     from anthropic.types import (
+        ContentBlock,
         Message,
         MessageParam,
         RawMessageStreamEvent,
@@ -615,7 +616,12 @@ class AnthropicProvider(
             block = completion.content[chunk.index]
             if block.type == "text":
                 # list() widens list[ContentCitation] to the list[Content] return
-                return list(anthropic_citations(block))
+                return list(
+                    anthropic_citations(
+                        block,
+                        fetch_sources=anthropic_fetch_sources(completion.content),
+                    )
+                )
             if block.type == "server_tool_use":
                 request = anthropic_server_tool_request(block)
                 return [request] if request is not None else []
@@ -1042,6 +1048,7 @@ class AnthropicProvider(
             check_finish_reason(finish_reason, "error")
 
         contents = []
+        fetch_sources = anthropic_fetch_sources(completion.content)
 
         # Detect which structured output approach was used:
         # - Old approach: has a _structured_tool_call tool_use block
@@ -1058,7 +1065,7 @@ class AnthropicProvider(
                     contents.append(ContentJson(value=orjson.loads(content.text)))
                 else:
                     contents.append(ContentText(text=content.text))
-                    contents.extend(anthropic_citations(content))
+                    contents.extend(anthropic_citations(content, fetch_sources))
             elif content.type == "tool_use":
                 if uses_old_tool_approach and content.name == "_structured_tool_call":
                     if not isinstance(content.input, dict):
@@ -1544,24 +1551,53 @@ class AnthropicBedrockProvider(AnthropicProvider):
         return res
 
 
-def anthropic_citations(block: "TextBlock") -> list[ContentCitation]:
+def anthropic_citations(
+    block: "TextBlock",
+    fetch_sources: Sequence[WebSource] = (),
+) -> list[ContentCitation]:
     """ContentCitations for one fully-accumulated text block."""
     out: list[ContentCitation] = []
     for c in block.citations or []:
         # `url`/`title` only exist on the web-search/search-result members of the
         # TextCitation union (document citations carry `document_title` instead).
         url = getattr(c, "url", None)
+        source = None
+        if url:
+            source = WebSource(url=url, title=getattr(c, "title", None))
+        else:
+            document_index = getattr(c, "document_index", None)
+            if (
+                isinstance(document_index, int)
+                and not isinstance(document_index, bool)
+                and 0 <= document_index < len(fetch_sources)
+            ):
+                source = WebSource(
+                    url=fetch_sources[document_index].url,
+                    title=getattr(c, "document_title", None),
+                )
         out.append(
             ContentCitation(
-                source=WebSource(url=url, title=getattr(c, "title", None))
-                if url
-                else None,
+                source=source,
                 # Anthropic scopes a citation to the text block it arrived on.
                 grounded_span=block.text,
                 cited_quote=c.cited_text,
                 extra=c.model_dump(exclude_none=True),
             )
         )
+    return out
+
+
+def anthropic_fetch_sources(contents: Sequence["ContentBlock"]) -> list[WebSource]:
+    """Successful web-fetch sources in the order citations reference them."""
+    from anthropic.types import WebFetchBlock
+
+    out: list[WebSource] = []
+    for block in contents:
+        if block.type != "web_fetch_tool_result":
+            continue
+        content = block.content
+        if isinstance(content, WebFetchBlock):
+            out.append(WebSource(url=content.url, title=content.content.title))
     return out
 
 
