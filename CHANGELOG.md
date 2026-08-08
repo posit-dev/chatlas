@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+## [0.21.0] - 2026-08-04
+
 ### New features
 
 * New `ChatBedrock()` gives full access to AWS Bedrock's model catalog — Nova, Llama, Mistral, DeepSeek, Qwen, plus the GPT-5 family, Grok 4.3, and Gemma 4 — not just Claude, none of which were previously available through chatlas. It replaces `ChatBedrockAnthropic()` as the recommended entrypoint; the right request format (`"converse"`, `"responses"`, or `"messages"`) is picked automatically from the model name, or set `api` explicitly.
