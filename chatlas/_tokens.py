@@ -123,9 +123,11 @@ class TokenPrice(TypedDict):
     """The pricing variant (e.g., "flex", "priority", "batches")"""
 
 
-# Load in pricing pulled from ellmer
+# Load in pricing pulled from ellmer. ellmer's prices.json is an object with
+# metadata (schema_version, min_ellmer_version, updated_at) wrapping the
+# actual price list under "data".
 f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="utf-8")
-pricing_list: list[TokenPrice] = orjson.loads(f)
+pricing_list: list[TokenPrice] = orjson.loads(f)["data"]
 
 
 def get_price_info(name: str, model: str, variant: str = "") -> TokenPrice | None:
