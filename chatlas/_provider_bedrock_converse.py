@@ -548,6 +548,7 @@ class BedrockConverseProvider(
         self,
         chunk: dict,
         completion: Optional[ConverseAccumulator],
+        turns: Sequence[Turn] = (),
     ) -> Sequence[Content]:
         delta_event = chunk.get("contentBlockDelta")
         if delta_event is None:
@@ -621,6 +622,7 @@ class BedrockConverseProvider(
         self,
         completion: ConverseAccumulator,
         has_data_model: bool,
+        turns: Sequence[Turn] = (),
     ) -> AssistantTurn[ConverseResponseTypeDef]:
         # Reassemble into a ConverseResponseTypeDef shape so this can share
         # `_as_turn` with `value_turn` -- matching the pattern
@@ -683,6 +685,7 @@ class BedrockConverseProvider(
         self,
         completion: ConverseResponseTypeDef,
         has_data_model: bool,
+        turns: Sequence[Turn] = (),
     ) -> AssistantTurn[ConverseResponseTypeDef]:
         return self._as_turn(completion, has_data_model)
 

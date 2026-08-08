@@ -278,7 +278,7 @@ class OpenAICompletionsProvider(
 
         return kwargs_full
 
-    def stream_content(self, chunk, completion) -> list[Content]:
+    def stream_content(self, chunk, completion, turns=()) -> list[Content]:
         if not chunk.choices:
             return []
         delta = chunk.choices[0].delta
@@ -302,13 +302,13 @@ class OpenAICompletionsProvider(
             return chunkd
         return merge_dicts(completion, chunkd)
 
-    def stream_turn(self, completion, has_data_model):
+    def stream_turn(self, completion, has_data_model, turns=()):
         delta = completion["choices"][0].pop("delta")
         completion["choices"][0]["message"] = delta
         completion = ChatCompletion.construct(**completion)
         return self._response_as_turn(completion, has_data_model)
 
-    def value_turn(self, completion, has_data_model):
+    def value_turn(self, completion, has_data_model, turns=()):
         return self._response_as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):

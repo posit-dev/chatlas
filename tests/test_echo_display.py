@@ -1512,16 +1512,16 @@ class EchoProvider(Provider[EchoCompletion, FakeChunk, dict[str, Any], AnyTypeDi
             return gen()
         return EchoCompletion(contents)
 
-    def stream_content(self, chunk: FakeChunk, completion) -> list[Content]:
+    def stream_content(self, chunk: FakeChunk, completion, turns=()) -> list[Content]:
         return [chunk.content] if chunk.content is not None else []
 
     def stream_merge_chunks(self, completion, chunk):
         return completion or {}
 
-    def stream_turn(self, completion, has_data_model):
+    def stream_turn(self, completion, has_data_model, turns=()):
         return self._turn_from_current()
 
-    def value_turn(self, completion, has_data_model):
+    def value_turn(self, completion, has_data_model, turns=()):
         return self._turn_from_current()
 
     def _turn_from_current(self) -> AssistantTurn:
@@ -1578,11 +1578,11 @@ class RaisingProvider(EchoProvider):
 
     _calls = 0
 
-    def stream_content(self, chunk: FakeChunk, completion) -> list[Content]:
+    def stream_content(self, chunk: FakeChunk, completion, turns=()) -> list[Content]:
         self._calls += 1
         if self._calls > 1:
             raise RuntimeError("provider blew up mid-stream")
-        return super().stream_content(chunk, completion)
+        return super().stream_content(chunk, completion, turns)
 
 
 def make_chat(

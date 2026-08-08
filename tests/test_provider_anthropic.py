@@ -3,8 +3,10 @@ from typing import Literal, cast
 import httpx
 import pytest
 from anthropic.types import (
+    CitationCharLocation,
     CitationsDelta,
     CitationsWebSearchResultLocation,
+    DocumentBlock,
     Message,
     RawContentBlockDeltaEvent,
     RawContentBlockStartEvent,
@@ -13,6 +15,8 @@ from anthropic.types import (
     TextBlock,
     TextDelta,
     Usage,
+    WebFetchBlock,
+    WebFetchToolResultBlock,
 )
 from chatlas import (
     AssistantTurn,
@@ -31,6 +35,7 @@ from chatlas._content import (
 from chatlas._provider_anthropic import (
     _ANTHROPIC_FINISH_REASON_MAP,
     AnthropicProvider,
+    anthropic_fetch_result,
     serving_model,
 )
 from chatlas._provider_anthropic import (
@@ -234,6 +239,352 @@ def test_anthropic_web_search_citations():
         assert c.grounded_span is not None
         assert c.grounded_span in answer  # answer-side span
         assert c.extra is not None  # raw payload retained
+
+
+def test_anthropic_web_fetch_citation_uses_document_index_for_source():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            web_fetch_result("https://first.example", "First document"),
+            web_fetch_result("https://second.example", "Second document"),
+            TextBlock(
+                type="text",
+                text="Grounded answer",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="second source evidence",
+                        document_index=1,
+                        document_title="Second document",
+                        start_char_index=0,
+                        end_char_index=22,
+                    )
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion)
+    citation = next(c for c in turn.contents if isinstance(c, ContentCitation))
+
+    assert citation.source is not None
+    assert citation.source.url == "https://second.example"
+    assert citation.source.title == "Second document"
+
+
+def test_anthropic_web_fetch_citation_stream_uses_document_index_for_source():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            web_fetch_result("https://first.example", "First document"),
+            web_fetch_result("https://second.example", "Second document"),
+            TextBlock(
+                type="text",
+                text="Grounded answer",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="second source evidence",
+                        document_index=1,
+                        document_title="Second document",
+                        start_char_index=0,
+                        end_char_index=22,
+                    )
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    contents = provider.stream_content(
+        RawContentBlockStopEvent(type="content_block_stop", index=2),
+        completion,
+    )
+    citation = next(c for c in contents if isinstance(c, ContentCitation))
+
+    assert citation.source is not None
+    assert citation.source.url == "https://second.example"
+    assert citation.source.title == "Second document"
+
+
+def test_anthropic_citation_with_url_keeps_its_own_source():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            TextBlock(
+                type="text",
+                text="Grounded answer",
+                citations=[
+                    CitationsWebSearchResultLocation(
+                        type="web_search_result_location",
+                        cited_text="search evidence",
+                        encrypted_index="x",
+                        title="Search result",
+                        url="https://search.example",
+                    )
+                ],
+            )
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion)
+    citation = next(c for c in turn.contents if isinstance(c, ContentCitation))
+
+    assert citation.source is not None
+    assert citation.source.url == "https://search.example"
+    assert citation.source.title == "Search result"
+
+
+def test_anthropic_web_fetch_citation_with_invalid_document_index_has_no_source():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            web_fetch_result("https://first.example", "First document"),
+            TextBlock(
+                type="text",
+                text="Grounded answer",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="missing source evidence",
+                        document_index=1,
+                        document_title="Missing document",
+                        start_char_index=0,
+                        end_char_index=23,
+                    )
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion)
+    citation = next(c for c in turn.contents if isinstance(c, ContentCitation))
+
+    assert citation.source is None
+
+
+def test_anthropic_web_fetch_citation_resolves_across_turns():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+
+    turn_1_fetch = web_fetch_result("https://a.example", "First document")
+    prior_turns = [
+        UserTurn("Look at https://a.example"),
+        AssistantTurn(
+            [
+                anthropic_fetch_result(turn_1_fetch),
+            ],
+            finish_reason="stop",
+        ),
+    ]
+
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            web_fetch_result("https://b.example", "Second document"),
+            TextBlock(
+                type="text",
+                text="Comparing both pages",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim about the first page",
+                        document_index=0,
+                        document_title="First document",
+                        start_char_index=0,
+                        end_char_index=27,
+                    ),
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim about the second page",
+                        document_index=1,
+                        document_title="Second document",
+                        start_char_index=28,
+                        end_char_index=56,
+                    ),
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion, turns=prior_turns)
+    citations = [c for c in turn.contents if isinstance(c, ContentCitation)]
+
+    assert citations[0].source is not None
+    assert citations[0].source.url == "https://a.example"
+    assert citations[1].source is not None
+    assert citations[1].source.url == "https://b.example"
+
+
+def test_anthropic_web_fetch_citation_accounts_for_attached_document():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+
+    prior_turns = [
+        UserTurn(
+            [
+                ContentPDF(data=b"%PDF-1.4 fake", filename="report.pdf"),
+                "Compare this report with https://site.example",
+            ]
+        ),
+    ]
+
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            web_fetch_result("https://site.example", "Site page"),
+            TextBlock(
+                type="text",
+                text="The report and the site disagree",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the PDF",
+                        document_index=0,
+                        document_title="report.pdf",
+                        start_char_index=0,
+                        end_char_index=19,
+                    ),
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the site",
+                        document_index=1,
+                        document_title="Site page",
+                        start_char_index=20,
+                        end_char_index=40,
+                    ),
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion, turns=prior_turns)
+    citations = [c for c in turn.contents if isinstance(c, ContentCitation)]
+
+    # The PDF has no URL to attribute -- must stay unresolved, not
+    # borrow the fetched page's URL.
+    assert citations[0].source is None
+    # The fetch keeps its own, correctly-offset URL.
+    assert citations[1].source is not None
+    assert citations[1].source.url == "https://site.example"
+
+
+def test_anthropic_web_fetch_citation_uses_pdf_url_when_present():
+    provider = AnthropicProvider(
+        model="claude-sonnet-4-5", api_key="dummy", kwargs=None
+    )
+
+    prior_turns = [
+        UserTurn(
+            [
+                ContentPDF(
+                    url="https://docs.example/report.pdf", filename="report.pdf"
+                ),
+                "Summarize this report.",
+            ]
+        ),
+    ]
+
+    completion = Message(
+        id="msg",
+        type="message",
+        role="assistant",
+        model="claude-sonnet-4-5",
+        content=[
+            TextBlock(
+                type="text",
+                text="The report says X",
+                citations=[
+                    CitationCharLocation(
+                        type="char_location",
+                        cited_text="claim from the PDF",
+                        document_index=0,
+                        document_title="report.pdf",
+                        start_char_index=0,
+                        end_char_index=18,
+                    ),
+                ],
+            ),
+        ],
+        stop_reason="end_turn",
+        stop_sequence=None,
+        usage=Usage(input_tokens=1, output_tokens=1),
+    )
+
+    turn = provider._as_turn(completion, turns=prior_turns)
+    citation = next(c for c in turn.contents if isinstance(c, ContentCitation))
+
+    assert citation.source is not None
+    assert citation.source.url == "https://docs.example/report.pdf"
+
+
+def web_fetch_result(url: str, title: str) -> WebFetchToolResultBlock:
+    return WebFetchToolResultBlock(
+        type="web_fetch_tool_result",
+        tool_use_id=f"fetch-{url}",
+        content=WebFetchBlock(
+            type="web_fetch_result",
+            url=url,
+            content=DocumentBlock(
+                type="document",
+                title=title,
+                source={
+                    "type": "text",
+                    "media_type": "text/plain",
+                    "data": "",
+                },
+            ),
+        ),
+    )
 
 
 def test_anthropic_concurrent_streams_dont_share_state():
