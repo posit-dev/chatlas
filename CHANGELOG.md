@@ -38,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `register_mcp_tools_stdio_async()` and `register_mcp_tools_http_stream_async()` no longer fail when an MCP server leaves some tool annotations unset.
 * `ContentCitation`, `ContentToolRequestFetch`, and `ContentToolResponseFetch` now actually render, instead of silently vanishing due to a markdown link-reference parsing quirk.
 * `ChatAnthropic()` (and `ChatBedrockAnthropic()`) now bill refusal-fallback turns at the correct (serving model's) rate rather than the originally requested model's, mirroring [ellmer's equivalent fix](https://github.com/tidyverse/ellmer/pull/1058).
+* `ChatAnthropic()` citations backed by `document_index` (from `tool_web_fetch()` results and document/PDF attachments) now resolve to a source URL, instead of always coming back without one. Anthropic counts that index across every document-shaped block in the whole request, including ones from prior turns, which chatlas wasn't accounting for. (#382)
 
 ### Breaking changes
 
