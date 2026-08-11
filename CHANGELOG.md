@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### Bug fixes
+
+* `Chat.to_solver()` now reports `total_tokens` including cached input tokens, matching what Inspect's own `generate()` path records. Previously the total was just input plus output, so under a prompt-cache hit an eval run through the solver under-reported its total by exactly the number of cached tokens. (#216)
+
 ## [0.21.0] - 2026-08-04
 
 ### New features

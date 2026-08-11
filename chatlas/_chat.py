@@ -1046,6 +1046,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         from ._inspect import (
             inspect_content_as_chatlas,
             inspect_messages_as_turns,
+            tokens_as_inspect_usage,
             try_import_inspect,
         )
 
@@ -1135,12 +1136,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                     turn = turns[i]
                     state.messages.extend(turn.to_inspect_messages(model))
                     if isinstance(turn, AssistantTurn) and turn.tokens:
-                        usage += imodel.ModelUsage(
-                            input_tokens=turn.tokens[0],
-                            output_tokens=turn.tokens[1],
-                            total_tokens=turn.tokens[0] + turn.tokens[1],
-                            input_tokens_cache_read=turn.tokens[2],
-                        )
+                        usage += tokens_as_inspect_usage(turn.tokens)
 
                 last_message = state.messages[-1]
                 if not isinstance(last_message, imodel.ChatMessageAssistant):
