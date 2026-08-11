@@ -46,6 +46,7 @@ class SubmitInputArgs(TypedDict, total=False):
             "claude-sonnet-5",
             "claude-fable-5",
             "claude-mythos-5",
+            "claude-opus-5",
             "claude-opus-4-8",
             "claude-opus-4-7",
             "claude-mythos-preview",
@@ -57,8 +58,6 @@ class SubmitInputArgs(TypedDict, total=False):
             "claude-opus-4-5-20251101",
             "claude-sonnet-4-5",
             "claude-sonnet-4-5-20250929",
-            "claude-opus-4-1",
-            "claude-opus-4-1-20250805",
         ],
         str,
     ]
