@@ -93,6 +93,7 @@ def test_get_token_prices():
     assert pricing is not None
     assert pricing["provider"] == "OpenAI"
     assert pricing["model"] == "gpt-5.4"
+    assert "input" in pricing
     assert isinstance(pricing["input"], (int, float))
     # cached_input and output might be optional
     if "cached_input" in pricing:
@@ -110,6 +111,17 @@ def test_get_token_cost():
     chat = ChatOpenAI(model="ABCD")
     price = get_token_cost(chat.provider.name, chat.provider.model, (10, 50, 0))
     assert price is None
+
+
+def test_get_token_cost_handles_missing_input_price():
+    """Some models (e.g. output-only video generation) have no `input` price."""
+    from chatlas._tokens import pricing_list
+
+    entry = next((p for p in pricing_list if "input" not in p), None)
+    assert entry is not None, "expected at least one price entry without 'input'"
+
+    cost = get_token_cost(entry["provider"], entry["model"], (10, 50, 0))
+    assert cost is not None
 
 
 def test_usage_is_none():
@@ -179,27 +191,27 @@ def test_get_price_info_with_variants():
     # Test baseline (empty variant)
     baseline = get_price_info("OpenAI", "gpt-4o", variant="")
     assert baseline is not None
-    assert baseline["input"] == 2.5
-    assert baseline["output"] == 10
+    assert "input" in baseline and baseline["input"] == 2.5
+    assert "output" in baseline and baseline["output"] == 10
     assert baseline.get("variant", "") == ""
 
     # Test specific variant
     batches = get_price_info("OpenAI", "gpt-4o", variant="batches")
     assert batches is not None
-    assert batches["input"] == 1.25  # 50% discount
-    assert batches["output"] == 5
+    assert "input" in batches and batches["input"] == 1.25  # 50% discount
+    assert "output" in batches and batches["output"] == 5
     assert batches.get("variant") == "batches"
 
     priority = get_price_info("OpenAI", "gpt-4o", variant="priority")
     assert priority is not None
-    assert priority["input"] == 4.25  # Higher price
-    assert priority["output"] == 17
+    assert "input" in priority and priority["input"] == 4.25  # Higher price
+    assert "output" in priority and priority["output"] == 17
     assert priority.get("variant") == "priority"
 
     # Test fallback: non-existent variant should fall back to baseline
     fallback = get_price_info("OpenAI", "gpt-4o", variant="nonexistent_variant")
     assert fallback is not None
-    assert fallback["input"] == 2.5  # Should match baseline
+    assert "input" in fallback and fallback["input"] == 2.5  # Should match baseline
     assert fallback.get("variant", "") == ""
 
     # Test no fallback when variant not specified and model not found

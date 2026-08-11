@@ -115,8 +115,8 @@ class TokenPrice(TypedDict):
     """The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.)"""
     cached_input: NotRequired[float]
     """The cost per user token in USD per million tokens for cached input"""
-    input: float
-    """The cost per user token in USD per million tokens"""
+    input: NotRequired[float]
+    """The cost per user token in USD per million tokens (absent for some output-only models, e.g. video generation)"""
     output: NotRequired[float]
     """The cost per assistant token in USD per million tokens"""
     variant: NotRequired[str]
@@ -208,7 +208,7 @@ def get_token_cost(
     price = get_price_info(name, model, variant)
     if price is None:
         return None
-    input_price = tokens[0] * (price["input"] / 1e6)
+    input_price = tokens[0] * (price.get("input", 0) / 1e6)
     output_price = tokens[1] * (price.get("output", 0) / 1e6)
     cached_price = tokens[2] * (price.get("cached_input", 0) / 1e6)
     return input_price + output_price + cached_price

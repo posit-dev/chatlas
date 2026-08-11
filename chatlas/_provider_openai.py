@@ -381,7 +381,7 @@ class OpenAIProvider(
         args_to_keep = ["input", "model", "tools", "text", "tool_choice", "reasoning"]
         return {arg: kwargs[arg] for arg in args_to_keep if arg in kwargs}
 
-    def stream_content(self, chunk, completion) -> list[Content]:
+    def stream_content(self, chunk, completion, turns=()) -> list[Content]:
         if chunk.type == "response.output_text.delta":
             # https://platform.openai.com/docs/api-reference/responses-streaming/response/output_text/delta
             return [ContentText.model_construct(text=chunk.delta)]
@@ -425,10 +425,10 @@ class OpenAIProvider(
 
         return completion
 
-    def stream_turn(self, completion, has_data_model):
+    def stream_turn(self, completion, has_data_model, turns=()):
         return self._response_as_turn(completion, has_data_model)
 
-    def value_turn(self, completion, has_data_model):
+    def value_turn(self, completion, has_data_model, turns=()):
         return self._response_as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):

@@ -475,7 +475,7 @@ class GoogleProvider(
 
         return kwargs_full
 
-    def stream_content(self, chunk, completion) -> list[Content]:
+    def stream_content(self, chunk, completion, turns=()) -> list[Content]:
         candidates = getattr(chunk, "candidates", None)
         if not candidates:
             return []
@@ -516,13 +516,13 @@ class GoogleProvider(
             merge_dicts(completion, chunkd),  # type: ignore
         )
 
-    def stream_turn(self, completion, has_data_model):
+    def stream_turn(self, completion, has_data_model, turns=()):
         return self._as_turn(
             completion,
             has_data_model,
         )
 
-    def value_turn(self, completion, has_data_model):
+    def value_turn(self, completion, has_data_model, turns=()):
         completion = cast("GenerateContentResponseDict", completion.model_dump())
         return self._as_turn(completion, has_data_model)
 

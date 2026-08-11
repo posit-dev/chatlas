@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [UNRELEASED]
 
+### Bug fixes
+
+* `ChatAnthropic()` citations backed by `document_index` (from `tool_web_fetch()` results and document/PDF attachments) now resolve to a source URL, instead of always coming back without one. Anthropic counts that index across every document-shaped block in the whole request, including ones from prior turns, which chatlas wasn't accounting for. (#382)
+* Token cost lookups (`.get_cost()`, `token_usage()`) no longer crash on models with no input price (e.g. output-only video generation models on Bedrock), and read ellmer's current pricing data format, which now wraps the price list in a versioned envelope rather than a bare array. (#382)
+
+### Breaking changes
+
+* Custom `Provider` implementations must accept a `turns` keyword argument on `.stream_content()`, `.stream_turn()`, and `.value_turn()`. chatlas passes the complete request history to these hooks so providers can resolve response references to content from earlier turns. (#382)
+
 ## [0.21.0] - 2026-08-04
 
 ### New features
