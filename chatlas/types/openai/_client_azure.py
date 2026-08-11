@@ -10,22 +10,22 @@ import openai.auth._workload
 
 
 class ChatAzureClientArgs(TypedDict, total=False):
-    azure_endpoint: str | None
-    azure_deployment: str | None
-    api_version: str | None
+    azure_endpoint: Optional[str]
+    azure_deployment: Optional[str]
+    api_version: Optional[str]
     api_key: Union[str, Callable[[], Awaitable[str]], None]
-    admin_api_key: str | None
-    workload_identity: openai.auth._workload.WorkloadIdentity | None
-    azure_ad_token: str | None
-    organization: str | None
-    project: str | None
-    webhook_secret: str | None
-    base_url: str | None
-    websocket_base_url: str | httpx.URL | None
+    admin_api_key: Optional[str]
+    workload_identity: Optional[openai.auth._workload.WorkloadIdentity]
+    azure_ad_token: Optional[str]
+    organization: Optional[str]
+    project: Optional[str]
+    webhook_secret: Optional[str]
+    base_url: Optional[str]
+    websocket_base_url: Union[str, httpx.URL, None]
     timeout: float | openai.Timeout | None | openai.NotGiven
     max_retries: int
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
-    http_client: httpx.AsyncClient | None
+    http_client: Optional[httpx.AsyncClient]
     _strict_response_validation: bool
     _enforce_credentials: bool

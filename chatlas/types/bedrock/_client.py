@@ -64,6 +64,6 @@ class ChatClientArgs(TypedDict, total=False):
     limits: httpx.Limits
     max_redirects: int
     event_hooks: Optional[Mapping[str, list[Callable[..., Any]]]]
-    transport: httpx.BaseTransport | httpx.AsyncBaseTransport | None
+    transport: Optional[httpx.AsyncBaseTransport]
     trust_env: bool
     default_encoding: Union[str, Callable[[bytes], str]]

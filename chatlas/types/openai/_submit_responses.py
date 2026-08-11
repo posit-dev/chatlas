@@ -124,7 +124,6 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-5.6-sol",
             "gpt-5.6-terra",
             "gpt-5.6-luna",
-            "gpt-5.5",
             "gpt-5.4",
             "gpt-5.4-mini",
             "gpt-5.4-nano",
@@ -295,5 +294,5 @@ class SubmitInputArgs(TypedDict, total=False):
     user: str | openai.Omit
     extra_headers: Optional[Mapping[str, Union[str, openai.Omit]]]
     extra_query: Optional[Mapping[str, object]]
-    extra_body: object | None
+    extra_body: Optional[object]
     timeout: float | openai.Timeout | None | openai.NotGiven
