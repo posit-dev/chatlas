@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "min_ellmer_version": "0.5.0",
-  "updated_at": "2026-08-03T09:30:30Z",
+  "updated_at": "2026-08-10T07:17:57Z",
   "data": [
     {
       "provider": "AWS/Bedrock",
@@ -3241,25 +3241,25 @@
       "provider": "Azure/OpenAI",
       "model": "eu/gpt-5.6-luna",
       "variant": "",
-      "input": 1.1,
-      "output": 6.6,
-      "cached_input": 0.11
+      "input": 0.22,
+      "output": 1.32,
+      "cached_input": 0.022
     },
     {
       "provider": "Azure/OpenAI",
       "model": "eu/gpt-5.6-luna",
       "variant": "above_272k_tokens",
-      "input": 2.2,
-      "output": 9.9,
-      "cached_input": 0.22
+      "input": 0.44,
+      "output": 1.98,
+      "cached_input": 0.044
     },
     {
       "provider": "Azure/OpenAI",
       "model": "eu/gpt-5.6-luna",
       "variant": "priority",
-      "input": 2.75,
-      "output": 16.5,
-      "cached_input": 0.275
+      "input": 0.55,
+      "output": 3.3,
+      "cached_input": 0.055
     },
     {
       "provider": "Azure/OpenAI",
@@ -3289,25 +3289,25 @@
       "provider": "Azure/OpenAI",
       "model": "eu/gpt-5.6-terra",
       "variant": "",
-      "input": 2.75,
-      "output": 16.5,
-      "cached_input": 0.275
+      "input": 2.2,
+      "output": 13.2,
+      "cached_input": 0.22
     },
     {
       "provider": "Azure/OpenAI",
       "model": "eu/gpt-5.6-terra",
       "variant": "above_272k_tokens",
-      "input": 5.5,
-      "output": 24.75,
-      "cached_input": 0.55
+      "input": 4.4,
+      "output": 19.8,
+      "cached_input": 0.44
     },
     {
       "provider": "Azure/OpenAI",
       "model": "eu/gpt-5.6-terra",
       "variant": "priority",
-      "input": 6.875,
-      "output": 41.25,
-      "cached_input": 0.6875
+      "input": 5.5,
+      "output": 33,
+      "cached_input": 0.55
     },
     {
       "provider": "Azure/OpenAI",
@@ -4301,33 +4301,33 @@
       "provider": "Azure/OpenAI",
       "model": "gpt-5.6-luna",
       "variant": "",
-      "input": 1,
-      "output": 6,
-      "cached_input": 0.1
+      "input": 0.2,
+      "output": 1.2,
+      "cached_input": 0.02
     },
     {
       "provider": "Azure/OpenAI",
       "model": "gpt-5.6-luna",
       "variant": "above_272k_tokens",
-      "input": 2,
-      "output": 9,
-      "cached_input": 0.2
+      "input": 0.4,
+      "output": 1.8,
+      "cached_input": 0.04
     },
     {
       "provider": "Azure/OpenAI",
       "model": "gpt-5.6-luna",
       "variant": "above_272k_tokens_priority",
-      "input": 4,
-      "output": 18,
-      "cached_input": 0.4
+      "input": 0.8,
+      "output": 3.6,
+      "cached_input": 0.08
     },
     {
       "provider": "Azure/OpenAI",
       "model": "gpt-5.6-luna",
       "variant": "priority",
-      "input": 2,
-      "output": 12,
-      "cached_input": 0.2
+      "input": 0.4,
+      "output": 2.4,
+      "cached_input": 0.04
     },
     {
       "provider": "Azure/OpenAI",
@@ -4365,33 +4365,33 @@
       "provider": "Azure/OpenAI",
       "model": "gpt-5.6-terra",
       "variant": "",
-      "input": 2.5,
-      "output": 15,
-      "cached_input": 0.25
+      "input": 2,
+      "output": 12,
+      "cached_input": 0.2
     },
     {
       "provider": "Azure/OpenAI",
       "model": "gpt-5.6-terra",
       "variant": "above_272k_tokens",
-      "input": 5,
-      "output": 22.5,
-      "cached_input": 0.5
+      "input": 4,
+      "output": 18,
+      "cached_input": 0.4
     },
     {
       "provider": "Azure/OpenAI",
       "model": "gpt-5.6-terra",
       "variant": "above_272k_tokens_priority",
-      "input": 10,
-      "output": 45,
-      "cached_input": 1
+      "input": 8,
+      "output": 36,
+      "cached_input": 0.8
     },
     {
       "provider": "Azure/OpenAI",
       "model": "gpt-5.6-terra",
       "variant": "priority",
-      "input": 5,
-      "output": 30,
-      "cached_input": 0.5
+      "input": 4,
+      "output": 24,
+      "cached_input": 0.4
     },
     {
       "provider": "Azure/OpenAI",
@@ -4905,25 +4905,25 @@
       "provider": "Azure/OpenAI",
       "model": "us/gpt-5.6-luna",
       "variant": "",
-      "input": 1.1,
-      "output": 6.6,
-      "cached_input": 0.11
+      "input": 0.22,
+      "output": 1.32,
+      "cached_input": 0.022
     },
     {
       "provider": "Azure/OpenAI",
       "model": "us/gpt-5.6-luna",
       "variant": "above_272k_tokens",
-      "input": 2.2,
-      "output": 9.9,
-      "cached_input": 0.22
+      "input": 0.44,
+      "output": 1.98,
+      "cached_input": 0.044
     },
     {
       "provider": "Azure/OpenAI",
       "model": "us/gpt-5.6-luna",
       "variant": "priority",
-      "input": 2.75,
-      "output": 16.5,
-      "cached_input": 0.275
+      "input": 0.55,
+      "output": 3.3,
+      "cached_input": 0.055
     },
     {
       "provider": "Azure/OpenAI",
@@ -4953,25 +4953,25 @@
       "provider": "Azure/OpenAI",
       "model": "us/gpt-5.6-terra",
       "variant": "",
-      "input": 2.75,
-      "output": 16.5,
-      "cached_input": 0.275
+      "input": 2.2,
+      "output": 13.2,
+      "cached_input": 0.22
     },
     {
       "provider": "Azure/OpenAI",
       "model": "us/gpt-5.6-terra",
       "variant": "above_272k_tokens",
-      "input": 5.5,
-      "output": 24.75,
-      "cached_input": 0.55
+      "input": 4.4,
+      "output": 19.8,
+      "cached_input": 0.44
     },
     {
       "provider": "Azure/OpenAI",
       "model": "us/gpt-5.6-terra",
       "variant": "priority",
-      "input": 6.875,
-      "output": 41.25,
-      "cached_input": 0.6875
+      "input": 5.5,
+      "output": 33,
+      "cached_input": 0.55
     },
     {
       "provider": "Azure/OpenAI",
@@ -5640,6 +5640,21 @@
       "input": 0.3,
       "output": 2.5,
       "cached_input": 0
+    },
+    {
+      "provider": "Google/Gemini",
+      "model": "gemini-robotics-er-1.6-preview",
+      "variant": "",
+      "input": 1,
+      "output": 5
+    },
+    {
+      "provider": "Google/Gemini",
+      "model": "gemini-robotics-er-2-preview",
+      "variant": "",
+      "input": 2,
+      "output": 10,
+      "cached_input": 0.2
     },
     {
       "provider": "Google/Vertex",
@@ -6955,6 +6970,14 @@
     },
     {
       "provider": "OpenAI",
+      "model": "gpt-4.1-2025-04-14",
+      "variant": "priority",
+      "input": 3.5,
+      "output": 14,
+      "cached_input": 0.875
+    },
+    {
+      "provider": "OpenAI",
       "model": "gpt-4.1-mini",
       "variant": "",
       "input": 0.4,
@@ -6993,6 +7016,14 @@
     },
     {
       "provider": "OpenAI",
+      "model": "gpt-4.1-mini-2025-04-14",
+      "variant": "priority",
+      "input": 0.7,
+      "output": 2.8,
+      "cached_input": 0.175
+    },
+    {
+      "provider": "OpenAI",
       "model": "gpt-4.1-nano",
       "variant": "",
       "input": 0.1,
@@ -7028,6 +7059,14 @@
       "variant": "batches",
       "input": 0.05,
       "output": 0.2
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-4.1-nano-2025-04-14",
+      "variant": "priority",
+      "input": 0.2,
+      "output": 0.8,
+      "cached_input": 0.05
     },
     {
       "provider": "OpenAI",
@@ -7090,6 +7129,14 @@
     },
     {
       "provider": "OpenAI",
+      "model": "gpt-4o-2024-08-06",
+      "variant": "priority",
+      "input": 4.25,
+      "output": 17,
+      "cached_input": 2.125
+    },
+    {
+      "provider": "OpenAI",
       "model": "gpt-4o-2024-11-20",
       "variant": "",
       "input": 2.5,
@@ -7102,6 +7149,14 @@
       "variant": "batches",
       "input": 1.25,
       "output": 5
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-4o-2024-11-20",
+      "variant": "priority",
+      "input": 4.25,
+      "output": 17,
+      "cached_input": 2.125
     },
     {
       "provider": "OpenAI",
@@ -7161,6 +7216,14 @@
       "variant": "batches",
       "input": 0.075,
       "output": 0.3
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-4o-mini-2024-07-18",
+      "variant": "priority",
+      "input": 0.25,
+      "output": 1,
+      "cached_input": 0.125
     },
     {
       "provider": "OpenAI",
@@ -7489,6 +7552,12 @@
       "input": 0.025,
       "output": 0.2,
       "cached_input": 0.0025
+    },
+    {
+      "provider": "OpenAI",
+      "model": "gpt-5-nano-2025-08-07",
+      "variant": "priority",
+      "input": 2.5
     },
     {
       "provider": "OpenAI",
@@ -8541,6 +8610,22 @@
     },
     {
       "provider": "OpenAI",
+      "model": "o3-2025-04-16",
+      "variant": "flex",
+      "input": 1,
+      "output": 4,
+      "cached_input": 0.25
+    },
+    {
+      "provider": "OpenAI",
+      "model": "o3-2025-04-16",
+      "variant": "priority",
+      "input": 3.5,
+      "output": 14,
+      "cached_input": 0.875
+    },
+    {
+      "provider": "OpenAI",
       "model": "o3-deep-research",
       "variant": "",
       "input": 10,
@@ -8644,6 +8729,22 @@
       "input": 1.1,
       "output": 4.4,
       "cached_input": 0.275
+    },
+    {
+      "provider": "OpenAI",
+      "model": "o4-mini-2025-04-16",
+      "variant": "flex",
+      "input": 0.55,
+      "output": 2.2,
+      "cached_input": 0.1375
+    },
+    {
+      "provider": "OpenAI",
+      "model": "o4-mini-2025-04-16",
+      "variant": "priority",
+      "input": 2,
+      "output": 8,
+      "cached_input": 0.5
     },
     {
       "provider": "OpenAI",
