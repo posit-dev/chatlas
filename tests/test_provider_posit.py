@@ -2,7 +2,7 @@ import asyncio
 import json
 import time
 from pathlib import Path
-from typing import Any, Optional, cast
+from typing import Any, Optional
 
 import httpx
 import httpx2
@@ -17,12 +17,12 @@ from chatlas._provider_posit import (
     PositCredentials,
     PositHttpx2Auth,
     PositOpenAIProvider,
-    _make_posit_error_hook,
-    _make_posit_error_hook_async,
     _posit_error_message,
     list_models_posit,
-    make_posit_httpx2_error_hook,
-    make_posit_httpx2_error_hook_async,
+    make_posit_anthropic_error_hook,
+    make_posit_anthropic_error_hook_async,
+    make_posit_openai_error_hook,
+    make_posit_openai_error_hook_async,
 )
 from openai import AsyncOpenAI, OpenAI, OpenAIError
 
@@ -300,7 +300,7 @@ def test_anthropic_error_hook_propagates_through_client_send():
         http_client=httpx.Client(
             auth=PositAuth(lambda: "test-token"),
             transport=httpx.MockTransport(handler),
-            event_hooks={"response": [_make_posit_error_hook(AnthropicError)]},
+            event_hooks={"response": [make_posit_anthropic_error_hook(AnthropicError)]},
         ),
     )
 
@@ -327,7 +327,9 @@ async def test_anthropic_error_hook_propagates_through_async_client_send():
         http_client=httpx.AsyncClient(
             auth=PositAuth(lambda: "test-token"),
             transport=httpx.MockTransport(handler),
-            event_hooks={"response": [_make_posit_error_hook_async(AnthropicError)]},
+            event_hooks={
+                "response": [make_posit_anthropic_error_hook_async(AnthropicError)]
+            },
         ),
     )
 
@@ -336,29 +338,6 @@ async def test_anthropic_error_hook_propagates_through_async_client_send():
             model="claude-sonnet-4-6",
             max_tokens=10,
             messages=[{"role": "user", "content": "hi"}],
-        )
-
-
-def test_openai_error_hook_propagates_through_client_send():
-    def handler(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(402, json={}, request=request)
-
-    client = OpenAI(
-        api_key="not-used",
-        base_url="https://gateway.posit.ai/openai/v1",
-        http_client=cast(
-            Any,
-            httpx.Client(
-                auth=PositAuth(lambda: "test-token"),
-                transport=httpx.MockTransport(handler),
-                event_hooks={"response": [_make_posit_error_hook(OpenAIError)]},
-            ),
-        ),
-    )
-
-    with pytest.raises(OpenAIError, match="credits are depleted"):
-        client.chat.completions.create(
-            model="qwen3-8b", messages=[{"role": "user", "content": "hi"}]
         )
 
 
@@ -400,7 +379,7 @@ def test_openai_httpx2_error_hook_propagates_through_client_send():
         http_client=httpx2.Client(
             auth=PositHttpx2Auth(lambda: "test-token"),
             transport=httpx2.MockTransport(handler),
-            event_hooks={"response": [make_posit_httpx2_error_hook(OpenAIError)]},
+            event_hooks={"response": [make_posit_openai_error_hook(OpenAIError)]},
         ),
     )
 
@@ -424,7 +403,7 @@ async def test_openai_httpx2_error_hook_propagates_through_async_client_send():
         http_client=httpx2.AsyncClient(
             auth=PositHttpx2Auth(lambda: "test-token"),
             transport=httpx2.MockTransport(handler),
-            event_hooks={"response": [make_posit_httpx2_error_hook_async(OpenAIError)]},
+            event_hooks={"response": [make_posit_openai_error_hook_async(OpenAIError)]},
         ),
     )
 
@@ -451,7 +430,7 @@ def test_unrecognized_gateway_error_passes_through_unchanged():
         http_client=httpx.Client(
             auth=PositAuth(lambda: "test-token"),
             transport=httpx.MockTransport(handler),
-            event_hooks={"response": [_make_posit_error_hook(AnthropicError)]},
+            event_hooks={"response": [make_posit_anthropic_error_hook(AnthropicError)]},
         ),
     )
 
