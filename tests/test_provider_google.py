@@ -387,6 +387,30 @@ def test_google_grounding_metadata_matches_streamed_content():
     ]
 
 
+def test_google_stream_keeps_citations_next_to_text():
+    provider = GoogleProvider(
+        model="gemini-2.5-flash",
+        api_key="dummy",
+        name="Google/Gemini",
+        kwargs=None,
+    )
+    chunk = _grounding_chunk(
+        "A grounded answer.",
+        "https://a.com",
+        "A",
+        "grounded answer source",
+    )
+
+    contents = provider.stream_content(chunk, completion=None)
+
+    assert [type(content) for content in contents] == [
+        ContentText,
+        ContentCitation,
+        ContentToolRequestSearch,
+        ContentToolResponseSearch,
+    ]
+
+
 def test_google_late_grounding_metadata_not_dropped():
     """Metadata on a later candidate must survive into the final turn.
 

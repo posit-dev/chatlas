@@ -496,16 +496,18 @@ class GoogleProvider(
         grounding_metadata = getattr(candidate, "grounding_metadata", None)
         url_context_metadata = getattr(candidate, "url_context_metadata", None)
 
-        grounding_contents: list[Content] = []
+        activity_contents: list[Content] = []
+        citation_contents: list[Content] = []
+
         if grounding_metadata is not None:
             gm_dict = grounding_metadata.model_dump()
-            grounding_contents.extend(google_search_contents(gm_dict))
-            grounding_contents.extend(google_grounding_citations(gm_dict))
+            citation_contents.extend(google_grounding_citations(gm_dict))
+            activity_contents.extend(google_search_contents(gm_dict))
         if url_context_metadata is not None:
             uc_dict = url_context_metadata.model_dump()
-            grounding_contents.extend(google_url_context_contents(uc_dict))
+            activity_contents.extend(google_url_context_contents(uc_dict))
 
-        return part_contents + grounding_contents
+        return part_contents + citation_contents + activity_contents
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()
