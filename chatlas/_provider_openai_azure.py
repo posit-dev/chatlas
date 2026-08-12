@@ -89,9 +89,7 @@ def ChatAzureOpenAI(
         - `"scale"`: batch-like pricing for high-volume use.
         - `"priority"`: faster and more expensive.
     kwargs
-        Additional arguments to pass to the `openai.AzureOpenAI()` client
-        constructor. Use `httpx2.Client` or `httpx2.AsyncClient` for a custom
-        `http_client`.
+        Additional arguments to pass to the `openai.AzureOpenAI()` client constructor.
 
     Returns
     -------
