@@ -3,9 +3,11 @@ from typing import Any, cast, get_args, get_type_hints
 
 import httpx
 import httpx2
-from chatlas import ChatAzureOpenAI, ChatOpenAI
+import pytest
+from chatlas import ChatAzureOpenAI, ChatOpenAI, ChatOpenAICompletions
 from chatlas._provider_openai import OpenAIProvider
 from chatlas._provider_openai_azure import OpenAIAzureProvider
+from chatlas._provider_openai_completions import OpenAICompletionsProvider
 from chatlas.types.openai import ChatAzureClientArgs, ChatClientArgs
 
 
@@ -41,6 +43,59 @@ def test_openai_routes_native_async_client():
     assert_openai_client_routed(httpx2.AsyncClient(), is_async=True)
 
 
+def test_openai_native_sync_client_performs_request():
+    requests: list[httpx2.Request] = []
+
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        requests.append(request)
+        return make_chat_completion_response(request)
+
+    client = httpx2.Client(transport=httpx2.MockTransport(handler))
+    chat = ChatOpenAICompletions(
+        model="test-model",
+        api_key="test",
+        kwargs={"http_client": client},
+    )
+    provider = cast(OpenAICompletionsProvider, chat.provider)
+
+    try:
+        response = chat.chat("hello", stream=False, echo="none")
+        assert str(response) == "transport works"
+        assert [str(request.url) for request in requests] == [
+            "https://api.openai.com/v1/chat/completions"
+        ]
+    finally:
+        provider._client.close()
+        asyncio.run(provider._async_client.close())
+
+
+@pytest.mark.asyncio
+async def test_openai_native_async_client_performs_request():
+    requests: list[httpx2.Request] = []
+
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        requests.append(request)
+        return make_chat_completion_response(request)
+
+    client = httpx2.AsyncClient(transport=httpx2.MockTransport(handler))
+    chat = ChatOpenAICompletions(
+        model="test-model",
+        api_key="test",
+        kwargs={"http_client": client},
+    )
+    provider = cast(OpenAICompletionsProvider, chat.provider)
+
+    try:
+        response = await chat.chat_async("hello", stream=False, echo="none")
+        assert await response.get_content() == "transport works"
+        assert [str(request.url) for request in requests] == [
+            "https://api.openai.com/v1/chat/completions"
+        ]
+    finally:
+        provider._client.close()
+        await provider._async_client.close()
+
+
 def test_azure_routes_native_async_client():
     client = httpx2.AsyncClient()
     chat = ChatAzureOpenAI(
@@ -56,6 +111,34 @@ def test_azure_routes_native_async_client():
     finally:
         provider._client.close()
         asyncio.run(provider._async_client.close())
+
+
+def make_chat_completion_response(request: httpx2.Request) -> httpx2.Response:
+    return httpx2.Response(
+        200,
+        request=request,
+        json={
+            "id": "chatcmpl-test",
+            "object": "chat.completion",
+            "created": 0,
+            "model": "test-model",
+            "choices": [
+                {
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": "transport works",
+                    },
+                    "finish_reason": "stop",
+                }
+            ],
+            "usage": {
+                "prompt_tokens": 1,
+                "completion_tokens": 2,
+                "total_tokens": 3,
+            },
+        },
+    )
 
 
 def assert_openai_client_routed(

@@ -117,12 +117,13 @@ def test_connect_without_openai_key(monkeypatch):
 
 
 def test_databricks_async_client_preserves_legacy_httpx_auth():
+    auth = httpx.BasicAuth("user", "password")
     sync_client = OpenAI(
         api_key="no-token",
         base_url="https://workspace.example.com/serving-endpoints",
         http_client=cast(
             Any,
-            httpx.Client(auth=httpx.BasicAuth("user", "password")),
+            httpx.Client(auth=auth),
         ),
     )
     workspace_client = SimpleNamespace(
@@ -138,6 +139,7 @@ def test_databricks_async_client_preserves_legacy_httpx_auth():
 
     try:
         assert isinstance(provider._async_client._client, httpx.AsyncClient)
+        assert provider._async_client._client.auth is auth
     finally:
         provider._client.close()
         asyncio.run(provider._async_client.close())
