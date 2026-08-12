@@ -1,5 +1,12 @@
+import asyncio
+from types import SimpleNamespace
+from typing import Any, cast
+
+import httpx
 import pytest
 from chatlas import ChatDatabricks
+from chatlas._provider_databricks import DatabricksProvider
+from openai import OpenAI
 
 from .conftest import (
     assert_data_extraction,
@@ -107,3 +114,32 @@ def test_connect_without_openai_key(monkeypatch):
     # This should not raise an error
     chat = ChatDatabricks()
     assert chat is not None
+
+
+def test_databricks_async_client_preserves_legacy_httpx_auth():
+    auth = httpx.BasicAuth("user", "password")
+    sync_client = OpenAI(
+        api_key="no-token",
+        base_url="https://workspace.example.com/serving-endpoints",
+        http_client=cast(
+            Any,
+            httpx.Client(auth=auth),
+        ),
+    )
+    workspace_client = SimpleNamespace(
+        serving_endpoints=SimpleNamespace(
+            get_open_ai_client=lambda: sync_client,
+        )
+    )
+
+    provider = DatabricksProvider(
+        model="test",
+        workspace_client=cast(Any, workspace_client),
+    )
+
+    try:
+        assert isinstance(provider._async_client._client, httpx.AsyncClient)
+        assert provider._async_client._client.auth is auth
+    finally:
+        provider._client.close()
+        asyncio.run(provider._async_client.close())

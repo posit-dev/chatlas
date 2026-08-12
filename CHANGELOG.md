@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* OpenAI-based providers now support the OpenAI 3 SDK and its native `httpx2`
+  clients. Custom clients are typed and documented as `httpx2`; legacy `httpx`
+  clients remain supported at runtime during migration. (#387)
 * `ChatAnthropic()` citations backed by `document_index` (from `tool_web_fetch()` results and document/PDF attachments) now resolve to a source URL, instead of always coming back without one. Anthropic counts that index across every document-shaped block in the whole request, including ones from prior turns, which chatlas wasn't accounting for. (#382)
 * Token cost lookups (`.get_cost()`, `token_usage()`) no longer crash on models with no input price (e.g. output-only video generation models on Bedrock), and read ellmer's current pricing data format, which now wraps the price list in a versioned envelope rather than a bare array. (#382)
 

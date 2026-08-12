@@ -9,6 +9,7 @@ from ._chat import Chat
 from ._provider import no_file_management
 from ._provider_openai import OpenAIProvider
 from ._provider_openai_completions import OpenAICompletionsProvider
+from ._provider_openai_generic import create_openai_client
 from ._utils import MISSING, MISSING_TYPE, is_testing, split_http_client_kwargs
 
 if TYPE_CHECKING:
@@ -157,8 +158,8 @@ class OpenAIAzureProvider(OpenAIProvider):
 
         sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
 
-        self._client = AzureOpenAI(**sync_kwargs)  # type: ignore
-        self._async_client = AsyncAzureOpenAI(**async_kwargs)  # type: ignore
+        self._client = create_openai_client(AzureOpenAI, sync_kwargs)
+        self._async_client = create_openai_client(AsyncAzureOpenAI, async_kwargs)
 
 
 def ChatAzureOpenAICompletions(
@@ -226,5 +227,5 @@ class OpenAIAzureCompletionsProvider(OpenAICompletionsProvider):
 
         sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
 
-        self._client = AzureOpenAI(**sync_kwargs)  # type: ignore
-        self._async_client = AsyncAzureOpenAI(**async_kwargs)  # type: ignore
+        self._client = create_openai_client(AzureOpenAI, sync_kwargs)
+        self._async_client = create_openai_client(AsyncAzureOpenAI, async_kwargs)

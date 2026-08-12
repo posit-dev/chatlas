@@ -4,7 +4,7 @@
 
 from typing import Awaitable, Callable, Mapping, Optional, TypedDict, Union
 
-import httpx
+import httpx2
 import openai
 import openai.auth._workload
 
@@ -21,11 +21,11 @@ class ChatAzureClientArgs(TypedDict, total=False):
     project: str | None
     webhook_secret: str | None
     base_url: str | None
-    websocket_base_url: str | httpx.URL | None
+    websocket_base_url: str | httpx2.URL | None
     timeout: float | openai.Timeout | None | openai.NotGiven
     max_retries: int
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
-    http_client: httpx.AsyncClient | None
+    http_client: httpx2.Client | httpx2.AsyncClient | None
     _strict_response_validation: bool
     _enforce_credentials: bool

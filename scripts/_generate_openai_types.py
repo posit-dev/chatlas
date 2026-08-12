@@ -1,9 +1,10 @@
 from pathlib import Path
 
-from _utils import generate_typeddict_code, write_code_to_file
 from openai import AsyncAzureOpenAI, AsyncOpenAI
 from openai.resources.chat import Completions
 from openai.resources.responses import Responses
+
+from _utils import generate_typeddict_code, write_code_to_file
 
 types_dir = Path(__file__).parent.parent / "chatlas" / "types"
 provider_dir = types_dir / "openai"
@@ -48,7 +49,14 @@ def fix_callable_types(text: str):
     return text.replace("Callable[Awaitable[str]]", "Callable[[], Awaitable[str]]")
 
 
-init_args = fix_callable_types(init_args)
+def widen_http_client_type(text: str) -> str:
+    return text.replace(
+        "http_client: httpx2.AsyncClient | None",
+        "http_client: httpx2.Client | httpx2.AsyncClient | None",
+    )
+
+
+init_args = widen_http_client_type(fix_callable_types(init_args))
 
 write_code_to_file(
     init_args,
@@ -65,7 +73,7 @@ init_args = generate_typeddict_code(
     },
 )
 
-init_args = fix_callable_types(init_args)
+init_args = widen_http_client_type(fix_callable_types(init_args))
 
 write_code_to_file(
     init_args,

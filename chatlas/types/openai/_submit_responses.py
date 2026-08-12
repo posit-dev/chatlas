@@ -219,6 +219,9 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-5-pro",
             "gpt-5-pro-2025-10-06",
             "gpt-5.1-codex-max",
+            "gpt-daybreak-blue-latest",
+            "gpt-daybreak-red-latest",
+            "gpt-5.6-cyber",
         ],
         openai.Omit,
     ]

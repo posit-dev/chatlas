@@ -7,6 +7,8 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
   "requests",
+  "httpx",
+  "httpx2",
   "platformdirs",
   "pydantic>=2.0",
   "jinja2",
