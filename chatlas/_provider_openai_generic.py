@@ -6,7 +6,18 @@ import re
 import tempfile
 from abc import abstractmethod
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Generic, Iterable, Literal, Optional
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generic,
+    Iterable,
+    Literal,
+    Mapping,
+    Optional,
+    TypeVar,
+    cast,
+)
 
 import orjson
 from openai import AsyncOpenAI, OpenAI
@@ -34,7 +45,20 @@ if TYPE_CHECKING:
     from .types.openai import ChatClientArgs
 
 
-def openai_models_to_info(models: Iterable["Model"], provider_name: str) -> list[ModelInfo]:
+OpenAIClientT = TypeVar("OpenAIClientT")
+
+
+def create_openai_client(
+    constructor: Callable[..., OpenAIClientT],
+    kwargs: Mapping[str, object],
+) -> OpenAIClientT:
+    # OpenAI supports legacy httpx clients at runtime but omits them from its types.
+    return constructor(**cast(Any, kwargs))
+
+
+def openai_models_to_info(
+    models: Iterable["Model"], provider_name: str
+) -> list[ModelInfo]:
     """Convert OpenAI SDK `Model` objects into chatlas `ModelInfo` dicts.
 
     Shared by `OpenAIAbstractProvider.list_models()` and by providers (like
@@ -122,9 +146,8 @@ class OpenAIAbstractProvider(
         # Avoid passing the wrong sync/async client to the OpenAI constructor.
         sync_kwargs, async_kwargs = split_http_client_kwargs(kwargs_full)
 
-        # TODO: worth bringing in AsyncOpenAI types?
-        self._client = OpenAI(**sync_kwargs)  # type: ignore
-        self._async_client = AsyncOpenAI(**async_kwargs)
+        self._client = create_openai_client(OpenAI, sync_kwargs)
+        self._async_client = create_openai_client(AsyncOpenAI, async_kwargs)
 
     def list_models(self):
         return openai_models_to_info(self._client.models.list(), self.name)

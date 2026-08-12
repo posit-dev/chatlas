@@ -140,7 +140,8 @@ def ChatOpenAI(
         variable.
     kwargs
         Additional arguments to pass to the `openai.OpenAI()` client
-        constructor.
+        constructor. Use `httpx2.Client` or `httpx2.AsyncClient` for a custom
+        `http_client`.
 
     Returns
     -------

@@ -108,6 +108,10 @@ def ChatOpenAICompletions(
         reasoning content is still captured in the turn but dropped from
         subsequent requests. Set to True if your provider requires or benefits
         from seeing prior reasoning in multi-turn conversations.
+    kwargs
+        Additional arguments to pass to the `openai.OpenAI()` client
+        constructor. Use `httpx2.Client` or `httpx2.AsyncClient` for a custom
+        `http_client`.
     """
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
