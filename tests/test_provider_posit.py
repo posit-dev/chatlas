@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import httpx
+import httpx2
 import pytest
 import requests
 from chatlas._provider import ModelInfo
@@ -14,12 +15,16 @@ from chatlas._provider_posit import (
     PositAnthropicProvider,
     PositAuth,
     PositCredentials,
+    PositHttpx2Auth,
     PositOpenAIProvider,
-    _make_posit_error_hook,
-    _make_posit_error_hook_async,
     _posit_error_message,
     list_models_posit,
+    make_posit_anthropic_error_hook,
+    make_posit_anthropic_error_hook_async,
+    make_posit_openai_error_hook,
+    make_posit_openai_error_hook_async,
 )
+from openai import AsyncOpenAI, OpenAI, OpenAIError
 
 
 class _FakeResponse:
@@ -295,7 +300,7 @@ def test_anthropic_error_hook_propagates_through_client_send():
         http_client=httpx.Client(
             auth=PositAuth(lambda: "test-token"),
             transport=httpx.MockTransport(handler),
-            event_hooks={"response": [_make_posit_error_hook(AnthropicError)]},
+            event_hooks={"response": [make_posit_anthropic_error_hook(AnthropicError)]},
         ),
     )
 
@@ -322,7 +327,9 @@ async def test_anthropic_error_hook_propagates_through_async_client_send():
         http_client=httpx.AsyncClient(
             auth=PositAuth(lambda: "test-token"),
             transport=httpx.MockTransport(handler),
-            event_hooks={"response": [_make_posit_error_hook_async(AnthropicError)]},
+            event_hooks={
+                "response": [make_posit_anthropic_error_hook_async(AnthropicError)]
+            },
         ),
     )
 
@@ -334,26 +341,79 @@ async def test_anthropic_error_hook_propagates_through_async_client_send():
         )
 
 
-def test_openai_error_hook_propagates_through_client_send():
-    from openai import OpenAI, OpenAIError
+def test_posit_openai_provider_uses_httpx2_clients():
+    provider = PositOpenAIProvider(
+        base_url="https://gateway.posit.ai",
+        model="qwen3-8b",
+        credentials=lambda: "test-token",
+    )
 
-    def handler(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(402, json={}, request=request)
+    try:
+        assert isinstance(provider._client._client, httpx2.Client)
+        assert isinstance(provider._async_client._client, httpx2.AsyncClient)
+    finally:
+        provider._client.close()
+        asyncio.run(provider._async_client.close())
+
+
+def test_posit_httpx2_auth_sets_bearer_token_and_strips_api_key():
+    auth = PositHttpx2Auth(lambda: "test-token")
+    request = httpx2.Request(
+        "GET", "https://gateway.posit.ai/openai/v1/chat/completions"
+    )
+    request.headers["x-api-key"] = "not-used"
+
+    sent_request = next(auth.sync_auth_flow(request))
+
+    assert sent_request.headers["Authorization"] == "Bearer test-token"
+    assert "x-api-key" not in sent_request.headers
+
+
+def test_openai_httpx2_error_hook_propagates_through_client_send():
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(402, json={}, request=request)
 
     client = OpenAI(
         api_key="not-used",
         base_url="https://gateway.posit.ai/openai/v1",
-        http_client=httpx.Client(
-            auth=PositAuth(lambda: "test-token"),
-            transport=httpx.MockTransport(handler),
-            event_hooks={"response": [_make_posit_error_hook(OpenAIError)]},
+        http_client=httpx2.Client(
+            auth=PositHttpx2Auth(lambda: "test-token"),
+            transport=httpx2.MockTransport(handler),
+            event_hooks={"response": [make_posit_openai_error_hook(OpenAIError)]},
         ),
     )
 
-    with pytest.raises(OpenAIError, match="credits are depleted"):
-        client.chat.completions.create(
-            model="qwen3-8b", messages=[{"role": "user", "content": "hi"}]
-        )
+    try:
+        with pytest.raises(OpenAIError, match="credits are depleted"):
+            client.chat.completions.create(
+                model="qwen3-8b", messages=[{"role": "user", "content": "hi"}]
+            )
+    finally:
+        client.close()
+
+
+@pytest.mark.asyncio
+async def test_openai_httpx2_error_hook_propagates_through_async_client_send():
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(402, json={}, request=request)
+
+    client = AsyncOpenAI(
+        api_key="not-used",
+        base_url="https://gateway.posit.ai/openai/v1",
+        http_client=httpx2.AsyncClient(
+            auth=PositHttpx2Auth(lambda: "test-token"),
+            transport=httpx2.MockTransport(handler),
+            event_hooks={"response": [make_posit_openai_error_hook_async(OpenAIError)]},
+        ),
+    )
+
+    try:
+        with pytest.raises(OpenAIError, match="credits are depleted"):
+            await client.chat.completions.create(
+                model="qwen3-8b", messages=[{"role": "user", "content": "hi"}]
+            )
+    finally:
+        await client.close()
 
 
 def test_unrecognized_gateway_error_passes_through_unchanged():
@@ -370,7 +430,7 @@ def test_unrecognized_gateway_error_passes_through_unchanged():
         http_client=httpx.Client(
             auth=PositAuth(lambda: "test-token"),
             transport=httpx.MockTransport(handler),
-            event_hooks={"response": [_make_posit_error_hook(AnthropicError)]},
+            event_hooks={"response": [make_posit_anthropic_error_hook(AnthropicError)]},
         ),
     )
 

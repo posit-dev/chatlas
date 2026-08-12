@@ -1,10 +1,14 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
+
+import httpx
+from openai import AsyncOpenAI
 
 from ._chat import Chat
 from ._logging import log_model_default
 from ._provider_openai_completions import OpenAICompletionsProvider
+from ._provider_openai_generic import create_openai_client
 
 if TYPE_CHECKING:
     from databricks.sdk import WorkspaceClient
@@ -103,9 +107,6 @@ class DatabricksProvider(OpenAICompletionsProvider):
                 "Install it with `pip install databricks-sdk`."
             )
 
-        import httpx
-        from openai import AsyncOpenAI
-
         super().__init__(
             name=name,
             model=model,
@@ -128,10 +129,16 @@ class DatabricksProvider(OpenAICompletionsProvider):
         # Note also there is a open PR to add async support that does essentially
         # the same thing:
         # https://github.com/databricks/databricks-sdk-py/pull/851
-        self._async_client = AsyncOpenAI(
-            base_url=client.base_url,
-            api_key="no-token",  # A placeholder to pass validations, this will not be used
-            http_client=httpx.AsyncClient(auth=client._client.auth),
+        # Databricks injects a legacy httpx client even though OpenAI types it as
+        # native httpx2. OpenAI 3 retains this as a runtime compatibility path.
+        legacy_auth = cast(httpx.Auth | None, client._client.auth)
+        self._async_client = create_openai_client(
+            AsyncOpenAI,
+            {
+                "base_url": client.base_url,
+                "api_key": "no-token",
+                "http_client": httpx.AsyncClient(auth=legacy_auth),
+            },
         )
 
     def list_models(self):

@@ -10,7 +10,9 @@ from pathlib import Path
 from typing import Any, Callable, Literal, Optional
 
 import httpx
+import httpx2
 import requests
+from openai import AsyncOpenAI, OpenAI, OpenAIError
 from platformdirs import user_cache_dir
 
 from ._chat import Chat
@@ -204,7 +206,26 @@ class PositAuth(httpx.Auth):
         yield request
 
 
-def _make_posit_error_hook(error_cls: type[Exception]):
+class PositHttpx2Auth(httpx2.Auth):
+    def __init__(self, credentials: Callable[[], str]):
+        self._credentials = credentials
+
+    def _apply(self, request: httpx2.Request, token: str) -> None:
+        request.headers.pop("x-api-key", None)
+        request.headers["Authorization"] = f"Bearer {token}"
+
+    def sync_auth_flow(self, request: httpx2.Request):
+        token = self._credentials()
+        self._apply(request, token)
+        yield request
+
+    async def async_auth_flow(self, request: httpx2.Request):
+        token = await asyncio.to_thread(self._credentials)
+        self._apply(request, token)
+        yield request
+
+
+def make_posit_anthropic_error_hook(error_cls: type[Exception]):
     def hook(response: httpx.Response) -> None:
         if response.status_code < 400:
             return
@@ -216,8 +237,32 @@ def _make_posit_error_hook(error_cls: type[Exception]):
     return hook
 
 
-def _make_posit_error_hook_async(error_cls: type[Exception]):
+def make_posit_anthropic_error_hook_async(error_cls: type[Exception]):
     async def hook(response: httpx.Response) -> None:
+        if response.status_code < 400:
+            return
+        await response.aread()
+        message = _posit_error_message(response.status_code, _safe_json(response))
+        if message is not None:
+            raise error_cls(message)
+
+    return hook
+
+
+def make_posit_openai_error_hook(error_cls: type[Exception]):
+    def hook(response: httpx2.Response) -> None:
+        if response.status_code < 400:
+            return
+        response.read()
+        message = _posit_error_message(response.status_code, _safe_json(response))
+        if message is not None:
+            raise error_cls(message)
+
+    return hook
+
+
+def make_posit_openai_error_hook_async(error_cls: type[Exception]):
+    async def hook(response: httpx2.Response) -> None:
         if response.status_code < 400:
             return
         await response.aread()
@@ -294,7 +339,9 @@ class PositAnthropicProvider(AnthropicProvider):
             base_url=flavor_base_url,
             http_client=httpx.Client(
                 auth=auth,
-                event_hooks={"response": [_make_posit_error_hook(AnthropicError)]},
+                event_hooks={
+                    "response": [make_posit_anthropic_error_hook(AnthropicError)]
+                },
             ),
         )
         self._async_client = AsyncAnthropic(
@@ -303,7 +350,7 @@ class PositAnthropicProvider(AnthropicProvider):
             http_client=httpx.AsyncClient(
                 auth=auth,
                 event_hooks={
-                    "response": [_make_posit_error_hook_async(AnthropicError)]
+                    "response": [make_posit_anthropic_error_hook_async(AnthropicError)]
                 },
             ),
         )
@@ -323,28 +370,28 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
     ):
         super().__init__(model=model, api_key="not-used", name=name)
 
-        from openai import AsyncOpenAI, OpenAI, OpenAIError
-
         self._gateway_base_url = base_url.rstrip("/")
         self._credentials = credentials
 
-        auth = PositAuth(credentials)
+        auth = PositHttpx2Auth(credentials)
         flavor_base_url = f"{self._gateway_base_url}/openai/v1"
 
         self._client = OpenAI(
             api_key="not-used",
             base_url=flavor_base_url,
-            http_client=httpx.Client(
+            http_client=httpx2.Client(
                 auth=auth,
-                event_hooks={"response": [_make_posit_error_hook(OpenAIError)]},
+                event_hooks={"response": [make_posit_openai_error_hook(OpenAIError)]},
             ),
         )
         self._async_client = AsyncOpenAI(
             api_key="not-used",
             base_url=flavor_base_url,
-            http_client=httpx.AsyncClient(
+            http_client=httpx2.AsyncClient(
                 auth=auth,
-                event_hooks={"response": [_make_posit_error_hook_async(OpenAIError)]},
+                event_hooks={
+                    "response": [make_posit_openai_error_hook_async(OpenAIError)]
+                },
             ),
         )
 
