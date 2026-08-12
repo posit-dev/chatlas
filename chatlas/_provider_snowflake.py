@@ -356,7 +356,7 @@ class SnowflakeProvider(
 
         return req
 
-    def stream_content(self, chunk, completion) -> list[Content]:
+    def stream_content(self, chunk, completion, turns=()) -> list[Content]:
         if not chunk.choices:
             return []
         delta = chunk.choices[0].delta
@@ -437,7 +437,7 @@ class SnowflakeProvider(
 
         return completion
 
-    def stream_turn(self, completion, has_data_model):
+    def stream_turn(self, completion, has_data_model, turns=()):
         import snowflake.core.cortex.inference_service._generated.models as models
 
         completion_dict = completion.model_dump()
@@ -448,7 +448,7 @@ class SnowflakeProvider(
         )
         return self._as_turn(completion, has_data_model)
 
-    def value_turn(self, completion, has_data_model):
+    def value_turn(self, completion, has_data_model, turns=()):
         return self._as_turn(completion, has_data_model)
 
     def value_tokens(self, completion):

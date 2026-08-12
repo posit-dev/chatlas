@@ -37,14 +37,16 @@ class AccumulatingProvider(Provider):
         super().__init__(name="fake", model="fake-model")
         self._chunks = chunks
         self.seen_completions: list[Optional[dict]] = []
+        self.seen_turns: list[list[tuple[str, str]]] = []
 
     def stream_merge_chunks(self, completion, chunk) -> dict:
         merged = dict(completion or {"text": ""})
         merged["text"] += chunk.text
         return merged
 
-    def stream_content(self, chunk, completion) -> list[Content]:
+    def stream_content(self, chunk, completion, turns=()) -> list[Content]:
         self.seen_completions.append(completion)
+        self.seen_turns.append([(turn.role, turn.text) for turn in turns])
         out: list[Content] = []
         if chunk.text:
             out.append(ContentText.model_construct(text=chunk.text))
@@ -68,7 +70,8 @@ class AccumulatingProvider(Provider):
             return gen()
         raise NotImplementedError
 
-    def stream_turn(self, completion, has_data_model):
+    def stream_turn(self, completion, has_data_model, turns=()):
+        self.seen_turns.append([(turn.role, turn.text) for turn in turns])
         return AssistantTurn(
             contents=[ContentText.model_construct(text=completion["text"])],
             tokens=None,
@@ -78,7 +81,7 @@ class AccumulatingProvider(Provider):
     def list_models(self):
         return []
 
-    def value_turn(self, completion, has_data_model):
+    def value_turn(self, completion, has_data_model, turns=()):
         raise NotImplementedError
 
     def value_tokens(self, completion):
@@ -130,11 +133,19 @@ def test_stream_content_sees_completion_including_current_chunk():
     assert [c["text"] for c in provider.seen_completions if c] == ["a", "ab", "abc"]
 
 
+def test_stream_content_receives_exact_request_turns():
+    provider = AccumulatingProvider([Chunk("a"), Chunk("b")])
+    chat = Chat(provider=provider)
+
+    assert "".join(chat.stream("hi")) == "ab"
+    assert provider.seen_turns == [[("user", "hi")]] * 3
+
+
 def test_multiple_contents_from_one_chunk_are_all_processed():
     provider = AccumulatingProvider([])
     chat = Chat(provider=provider)
     # Bypass chat_perform so this test owns the chunk -> content mapping
-    provider.stream_content = lambda chunk, completion: [  # type: ignore[method-assign]
+    provider.stream_content = lambda chunk, completion, turns=(): [  # type: ignore[method-assign]
         ContentThinkingDelta(thinking="why"),
         ContentText.model_construct(text="what"),
     ]
@@ -156,3 +167,14 @@ async def test_stream_content_sees_completion_including_current_chunk_async():
 
     assert "".join(out) == "ab"
     assert [c["text"] for c in provider.seen_completions if c] == ["a", "ab"]
+
+
+@pytest.mark.asyncio
+async def test_stream_content_receives_exact_request_turns_async():
+    provider = AccumulatingProvider([Chunk("a"), Chunk("b")])
+    chat = Chat(provider=provider)
+
+    out = [x async for x in await chat.stream_async("hi")]
+
+    assert "".join(out) == "ab"
+    assert provider.seen_turns == [[("user", "hi")]] * 3

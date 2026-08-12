@@ -115,17 +115,19 @@ class TokenPrice(TypedDict):
     """The model name (e.g., "gpt-3.5-turbo", "claude-2", etc.)"""
     cached_input: NotRequired[float]
     """The cost per user token in USD per million tokens for cached input"""
-    input: float
-    """The cost per user token in USD per million tokens"""
+    input: NotRequired[float]
+    """The cost per user token in USD per million tokens (absent for some output-only models, e.g. video generation)"""
     output: NotRequired[float]
     """The cost per assistant token in USD per million tokens"""
     variant: NotRequired[str]
     """The pricing variant (e.g., "flex", "priority", "batches")"""
 
 
-# Load in pricing pulled from ellmer
+# Load in pricing pulled from ellmer. ellmer's prices.json is an object with
+# metadata (schema_version, min_ellmer_version, updated_at) wrapping the
+# actual price list under "data".
 f = resources.files("chatlas").joinpath("data/prices.json").read_text(encoding="utf-8")
-pricing_list: list[TokenPrice] = orjson.loads(f)
+pricing_list: list[TokenPrice] = orjson.loads(f)["data"]
 
 
 def get_price_info(name: str, model: str, variant: str = "") -> TokenPrice | None:
@@ -206,7 +208,7 @@ def get_token_cost(
     price = get_price_info(name, model, variant)
     if price is None:
         return None
-    input_price = tokens[0] * (price["input"] / 1e6)
+    input_price = tokens[0] * (price.get("input", 0) / 1e6)
     output_price = tokens[1] * (price.get("output", 0) / 1e6)
     cached_price = tokens[2] * (price.get("cached_input", 0) / 1e6)
     return input_price + output_price + cached_price

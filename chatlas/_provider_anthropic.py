@@ -70,6 +70,7 @@ if TYPE_CHECKING:
     from typing import IO
 
     from anthropic.types import (
+        ContentBlock,
         Message,
         MessageParam,
         RawMessageStreamEvent,
@@ -592,7 +593,7 @@ class AnthropicProvider(
 
         return data_model_tool
 
-    def stream_content(self, chunk, completion) -> list[Content]:
+    def stream_content(self, chunk, completion, turns=()) -> list[Content]:
         if chunk.type == "content_block_delta":
             if chunk.delta.type == "text_delta":
                 return [ContentText.model_construct(text=chunk.delta.text)]
@@ -615,7 +616,14 @@ class AnthropicProvider(
             block = completion.content[chunk.index]
             if block.type == "text":
                 # list() widens list[ContentCitation] to the list[Content] return
-                return list(anthropic_citations(block))
+                return list(
+                    anthropic_citations(
+                        block,
+                        fetch_sources=anthropic_document_sources(
+                            turns, completion.content
+                        ),
+                    )
+                )
             if block.type == "server_tool_use":
                 request = anthropic_server_tool_request(block)
                 return [request] if request is not None else []
@@ -673,11 +681,11 @@ class AnthropicProvider(
 
         return completion
 
-    def stream_turn(self, completion, has_data_model):
-        return self._as_turn(completion, has_data_model)
+    def stream_turn(self, completion, has_data_model, turns=()):
+        return self._as_turn(completion, has_data_model, turns)
 
-    def value_turn(self, completion, has_data_model):
-        return self._as_turn(completion, has_data_model)
+    def value_turn(self, completion, has_data_model, turns=()):
+        return self._as_turn(completion, has_data_model, turns)
 
     def value_tokens(self, completion):
         usage = completion.usage
@@ -1035,13 +1043,19 @@ class AnthropicProvider(
 
         return res
 
-    def _as_turn(self, completion: Message, has_data_model=False) -> AssistantTurn:
+    def _as_turn(
+        self,
+        completion: Message,
+        has_data_model=False,
+        turns: Sequence[Turn] = (),
+    ) -> AssistantTurn:
         finish_reason = normalize_finish_reason(completion.stop_reason)
         if has_data_model:
             # Must precede the JSON parse below; see check_finish_reason().
             check_finish_reason(finish_reason, "error")
 
         contents = []
+        fetch_sources = anthropic_document_sources(turns, completion.content)
 
         # Detect which structured output approach was used:
         # - Old approach: has a _structured_tool_call tool_use block
@@ -1058,7 +1072,7 @@ class AnthropicProvider(
                     contents.append(ContentJson(value=orjson.loads(content.text)))
                 else:
                     contents.append(ContentText(text=content.text))
-                    contents.extend(anthropic_citations(content))
+                    contents.extend(anthropic_citations(content, fetch_sources))
             elif content.type == "tool_use":
                 if uses_old_tool_approach and content.name == "_structured_tool_call":
                     if not isinstance(content.input, dict):
@@ -1544,18 +1558,35 @@ class AnthropicBedrockProvider(AnthropicProvider):
         return res
 
 
-def anthropic_citations(block: "TextBlock") -> list[ContentCitation]:
+def anthropic_citations(
+    block: "TextBlock",
+    fetch_sources: Sequence[Optional[WebSource]] = (),
+) -> list[ContentCitation]:
     """ContentCitations for one fully-accumulated text block."""
     out: list[ContentCitation] = []
     for c in block.citations or []:
         # `url`/`title` only exist on the web-search/search-result members of the
         # TextCitation union (document citations carry `document_title` instead).
         url = getattr(c, "url", None)
+        source = None
+        if url:
+            source = WebSource(url=url, title=getattr(c, "title", None))
+        else:
+            document_index = getattr(c, "document_index", None)
+            if (
+                isinstance(document_index, int)
+                and not isinstance(document_index, bool)
+                and 0 <= document_index < len(fetch_sources)
+            ):
+                resolved = fetch_sources[document_index]
+                if resolved is not None:
+                    source = WebSource(
+                        url=resolved.url,
+                        title=getattr(c, "document_title", None),
+                    )
         out.append(
             ContentCitation(
-                source=WebSource(url=url, title=getattr(c, "title", None))
-                if url
-                else None,
+                source=source,
                 # Anthropic scopes a citation to the text block it arrived on.
                 grounded_span=block.text,
                 cited_quote=c.cited_text,
@@ -1563,6 +1594,47 @@ def anthropic_citations(block: "TextBlock") -> list[ContentCitation]:
             )
         )
     return out
+
+
+def anthropic_document_sources(
+    turns: Sequence[Turn], contents: Sequence["ContentBlock"]
+) -> list[Optional[WebSource]]:
+    """Ordered document slots for `document_index` citations in `contents`.
+
+    Anthropic's `document_index` counts every document-shaped content block
+    across the *whole* request (spanning prior turns), not just this
+    completion's own fetches -- a `web_fetch_tool_result`'s embedded document
+    and a user-attached PDF/text document share one index space. `turns` (the
+    prior history plus the newest user turn) supplies everything that
+    precedes this completion in that space; `contents` supplies this
+    completion's own new fetches, appended last. A slot with no representable
+    URL (e.g. an uploaded PDF) stays `None` so later slots still land on the
+    right index -- it never fabricates a source.
+    """
+    from anthropic.types import WebFetchBlock
+
+    sources: list[Optional[WebSource]] = []
+    for turn in turns:
+        if isinstance(turn, SystemTurn):
+            continue
+        for content in turn.contents:
+            if isinstance(content, ContentToolResponseFetch):
+                if content.status == "success" and anthropic_replayable(content):
+                    sources.append(WebSource(url=content.url))
+            elif isinstance(content, (ContentPDF, ContentDocument)):
+                sources.append(WebSource(url=content.url) if content.url else None)
+            elif isinstance(content, ContentUploaded):
+                if not content.mime_type.startswith("image/"):
+                    sources.append(None)
+
+    for block in contents:
+        if block.type != "web_fetch_tool_result":
+            continue
+        result = block.content
+        if isinstance(result, WebFetchBlock):
+            sources.append(WebSource(url=result.url))
+
+    return sources
 
 
 def anthropic_server_tool_request(

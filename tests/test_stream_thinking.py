@@ -42,20 +42,20 @@ class FakeProvider(Provider):
             return _gen()
         raise NotImplementedError
 
-    def stream_content(self, chunk, completion) -> list[Content]:
+    def stream_content(self, chunk, completion, turns=()) -> list[Content]:
         return [chunk.content] if chunk.content is not None else []
 
     def stream_merge_chunks(self, completion, chunk):
         return completion or {}
 
-    def stream_turn(self, completion, has_data_model):
+    def stream_turn(self, completion, has_data_model, turns=()):
         return AssistantTurn(
             contents=[ContentText.model_construct(text="response")],
             tokens=None,
             completion=None,
         )
 
-    def value_turn(self, completion, has_data_model):
+    def value_turn(self, completion, has_data_model, turns=()):
         raise NotImplementedError
 
     def value_tokens(self, completion):

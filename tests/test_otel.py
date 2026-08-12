@@ -415,12 +415,14 @@ def test_stream_iteration_provider_span_nests_under_chat_span(
         return gen()
 
     chat.provider.chat_perform = streaming_perform  # type: ignore[method-assign]
-    chat.provider.stream_content = lambda chunk, completion: [ContentText(text="hi")]  # type: ignore[method-assign]
+    chat.provider.stream_content = lambda chunk, completion, turns=(): [
+        ContentText(text="hi")
+    ]  # type: ignore[method-assign]
     chat.provider.stream_merge_chunks = (  # type: ignore[method-assign]
         lambda result, chunk: chunk
     )
     chat.provider.stream_turn = (  # type: ignore[method-assign]
-        lambda completion, has_data_model: AssistantTurn("hi")
+        lambda completion, has_data_model, turns=(): AssistantTurn("hi")
     )
 
     list(chat.stream("Say hello."))
@@ -448,12 +450,14 @@ async def test_async_stream_iteration_provider_span_nests_under_chat_span(
         return gen()
 
     chat.provider.chat_perform_async = streaming_perform_async  # type: ignore[method-assign]
-    chat.provider.stream_content = lambda chunk, completion: [ContentText(text="hi")]  # type: ignore[method-assign]
+    chat.provider.stream_content = lambda chunk, completion, turns=(): [
+        ContentText(text="hi")
+    ]  # type: ignore[method-assign]
     chat.provider.stream_merge_chunks = (  # type: ignore[method-assign]
         lambda result, chunk: chunk
     )
     chat.provider.stream_turn = (  # type: ignore[method-assign]
-        lambda completion, has_data_model: AssistantTurn("hi")
+        lambda completion, has_data_model, turns=(): AssistantTurn("hi")
     )
 
     chunks = []
