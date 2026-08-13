@@ -270,17 +270,17 @@ def test_openai_web_search():
     assert cites, "expected ContentCitation items in turn contents"
     assert all(c.source and c.source.url for c in cites)
 
-    # grounded_span should be sliced from the answer text on each turn
-    found_grounded_span = False
     for turn in chat.get_turns():
         answer = "".join(c.text for c in turn.contents if isinstance(c, ContentText))
         for c in turn.contents:
             if not isinstance(c, ContentCitation):
                 continue
-            assert c.grounded_span is not None
-            assert c.grounded_span in answer
-            found_grounded_span = True
-    assert found_grounded_span, "expected at least one citation with grounded_span"
+            assert c.extra is not None
+            marker = answer[c.extra["start_index"] : c.extra["end_index"]]
+            assert marker.startswith("([")
+            assert c.source is not None
+            assert f"]({c.source.url})" in marker
+            assert c.grounded_span is None
 
 
 @pytest.mark.vcr
@@ -296,6 +296,8 @@ def test_openai_web_search_streaming():
     citations = [x for x in items if isinstance(x, ContentCitation)]
     assert citations
     assert all(c.source and c.source.url for c in citations)
+    assert all(c.grounded_span is None for c in citations)
+    assert all(c.extra is not None for c in citations)
     # interleaved: at least one citation arrives before the last item in the stream
     cite_idx = [i for i, x in enumerate(items) if isinstance(x, ContentCitation)]
     assert cite_idx and min(cite_idx) < len(items) - 1

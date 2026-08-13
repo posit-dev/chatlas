@@ -393,9 +393,8 @@ class OpenAIProvider(
                 return [
                     ContentCitation(
                         source=WebSource(url=ann["url"], title=ann.get("title")),
-                        # No grounded_span here: OpenAI streams the annotation
-                        # with start_index/end_index into text that hasn't fully
-                        # arrived yet, so the span is resolved on the final turn.
+                        # OpenAI's offsets delimit the inline citation marker,
+                        # not the answer text supported by the source.
                         extra=ann,
                     )
                 ]
@@ -499,11 +498,9 @@ class OpenAIProvider(
                         for a in x.annotations or []:
                             if not isinstance(a, AnnotationURLCitation):
                                 continue
-                            grounded = x.text[a.start_index : a.end_index] or None
                             contents.append(
                                 ContentCitation(
                                     source=WebSource(url=a.url, title=a.title),
-                                    grounded_span=grounded,
                                     extra=a.model_dump(),
                                 )
                             )
