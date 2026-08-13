@@ -236,26 +236,6 @@ def inspect_content_as_chatlas(content: str | InspectContent) -> Content:
     )
 
 
-def tokens_as_inspect_usage(tokens: tuple[int, int, int]) -> "i_model.ModelUsage":  # pyright: ignore[reportInvalidTypeForm]
-    """Translate a chatlas token count into InspectAI's `ModelUsage`.
-
-    chatlas reports tokens as `(input, output, cached_input)`, where `input`
-    already excludes the cached reads (see `Provider.value_tokens()`). That
-    matches how InspectAI defines `ModelUsage.input_tokens`, so the two map
-    across directly. The *total*, though, counts every token the provider
-    billed for, so the cached reads have to be added back in.
-    """
-    (imodel, _, _) = try_import_inspect()
-
-    input_tokens, output_tokens, cached_tokens = tokens
-    return imodel.ModelUsage(
-        input_tokens=input_tokens,
-        output_tokens=output_tokens,
-        total_tokens=input_tokens + output_tokens + cached_tokens,
-        input_tokens_cache_read=cached_tokens,
-    )
-
-
 def try_import_inspect() -> "tuple[i_model, i_solver, i_tool]":  # pyright: ignore[reportInvalidTypeForm]
     try:
         import inspect_ai.model as imodel

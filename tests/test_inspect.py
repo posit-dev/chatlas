@@ -17,7 +17,6 @@ from chatlas._inspect import (
     chatlas_content_as_inspect,
     inspect_content_as_chatlas,
     inspect_messages_as_turns,
-    tokens_as_inspect_usage,
     turn_as_inspect_messages,
 )
 
@@ -727,31 +726,3 @@ class TestExportEvalEdgeCases:
                 output_file,
                 turns=[AssistantTurn("Hello!")],
             )
-
-
-class TestTokensAsInspectUsage:
-    """chatlas tokens are `(input, output, cached_input)` with `input` already
-    excluding the cached reads, so the total has to add all three back up."""
-
-    def test_total_includes_cached_reads(self):
-        # 60 uncached input + 40 cache reads = the 100 input tokens the
-        # provider billed, plus 20 output.
-        usage = tokens_as_inspect_usage((60, 20, 40))
-        assert usage.input_tokens == 60
-        assert usage.output_tokens == 20
-        assert usage.input_tokens_cache_read == 40
-        assert usage.total_tokens == 120
-
-    def test_total_unchanged_without_a_cache_hit(self):
-        usage = tokens_as_inspect_usage((60, 20, 0))
-        assert usage.total_tokens == 80
-
-    def test_totals_accumulate_over_a_multi_turn_tool_loop(self):
-        # to_solver() sums one ModelUsage per assistant turn.
-        usage = i_model.ModelUsage()
-        for tokens in [(60, 20, 40), (100, 10, 80)]:
-            usage += tokens_as_inspect_usage(tokens)
-        assert usage.input_tokens == 160
-        assert usage.output_tokens == 30
-        assert usage.input_tokens_cache_read == 120
-        assert usage.total_tokens == 310
