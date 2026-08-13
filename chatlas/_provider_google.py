@@ -493,19 +493,33 @@ class GoogleProvider(
                     else:
                         part_contents.append(ContentText.model_construct(text=text))
 
-        grounding_metadata = getattr(candidate, "grounding_metadata", None)
-        url_context_metadata = getattr(candidate, "url_context_metadata", None)
+        if not any(
+            getattr(candidate, "finish_reason", None) is not None
+            for candidate in candidates
+        ):
+            return part_contents
+        if completion is None:
+            return part_contents
 
-        grounding_contents: list[Content] = []
-        if grounding_metadata is not None:
-            gm_dict = grounding_metadata.model_dump()
-            grounding_contents.extend(google_search_contents(gm_dict))
-            grounding_contents.extend(google_grounding_citations(gm_dict))
-        if url_context_metadata is not None:
-            uc_dict = url_context_metadata.model_dump()
-            grounding_contents.extend(google_url_context_contents(uc_dict))
+        activity_contents: list[Content] = []
+        citation_contents: list[Content] = []
 
-        return part_contents + grounding_contents
+        # URL context can arrive before later answer text. Rebuild annotations
+        # from the merged completion so they cannot split a grounded span.
+        for merged_candidate in completion.get("candidates") or []:
+            grounding_metadata = merged_candidate.get("grounding_metadata")
+            if grounding_metadata:
+                citation_contents.extend(
+                    google_grounding_citations(grounding_metadata)
+                )
+                activity_contents.extend(google_search_contents(grounding_metadata))
+            url_context_metadata = merged_candidate.get("url_context_metadata")
+            if url_context_metadata:
+                activity_contents.extend(
+                    google_url_context_contents(url_context_metadata)
+                )
+
+        return part_contents + citation_contents + activity_contents
 
     def stream_merge_chunks(self, completion, chunk):
         chunkd = chunk.model_dump()

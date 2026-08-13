@@ -14,13 +14,22 @@ from chatlas.types import (
     Content,
     ContentCitation,
     ContentText,
+    ContentToolRequestFetch,
     ContentToolRequestSearch,
     ContentToolResponseFetch,
     ContentToolResponseSearch,
     WebSource,
 )
 from google.genai.errors import APIError
-from google.genai.types import GroundingMetadataDict
+from google.genai.types import (
+    FinishReason as GoogleFinishReason,
+)
+from google.genai.types import (
+    GroundingMetadataDict,
+    UrlContextMetadata,
+    UrlMetadata,
+    UrlRetrievalStatus,
+)
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from .conftest import (
@@ -348,6 +357,20 @@ def _plain_chunk(text: str, index: int | None = 0):
     )
 
 
+def _url_context_chunk(text: str, url: str, index: int | None = 0):
+    chunk = _plain_chunk(text, index)
+    assert chunk.candidates
+    chunk.candidates[0].url_context_metadata = UrlContextMetadata(
+        url_metadata=[
+            UrlMetadata(
+                retrieved_url=url,
+                url_retrieval_status=UrlRetrievalStatus.URL_RETRIEVAL_STATUS_SUCCESS,
+            )
+        ]
+    )
+    return chunk
+
+
 def test_google_grounding_metadata_matches_streamed_content():
     """Streaming and final-turn citations agree for Gemini's real response shape.
 
@@ -363,6 +386,8 @@ def test_google_grounding_metadata_matches_streamed_content():
         _plain_chunk("ggplot2 1.0.0 "),
         _grounding_chunk("was released on 2014-05-21.", "https://a.com", "A", "q1"),
     ]
+    assert chunks[-1].candidates
+    chunks[-1].candidates[0].finish_reason = GoogleFinishReason.STOP
 
     streamed: list[Content] = []
     completion = None
@@ -384,6 +409,69 @@ def test_google_grounding_metadata_matches_streamed_content():
         (c.source.url, c.grounded_span)
         for c in turn_cites
         if isinstance(c.source, WebSource)
+    ]
+
+
+def test_google_stream_keeps_citations_next_to_text():
+    provider = GoogleProvider(
+        model="gemini-2.5-flash",
+        api_key="dummy",
+        name="Google/Gemini",
+        kwargs=None,
+    )
+    chunk = _grounding_chunk(
+        "A grounded answer.",
+        "https://a.com",
+        "A",
+        "grounded answer source",
+    )
+    assert chunk.candidates
+    chunk.candidates[0].finish_reason = GoogleFinishReason.STOP
+
+    completion = provider.stream_merge_chunks(None, chunk)
+    contents = provider.stream_content(chunk, completion)
+
+    assert [type(content) for content in contents] == [
+        ContentText,
+        ContentCitation,
+        ContentToolRequestSearch,
+        ContentToolResponseSearch,
+    ]
+
+
+def test_google_stream_defers_early_fetch_until_citations():
+    provider = GoogleProvider(
+        model="gemini-2.5-flash",
+        api_key="dummy",
+        name="Google/Gemini",
+        kwargs=None,
+    )
+    chunks = [
+        _url_context_chunk("A grounded answer was ", "https://a.com"),
+        _grounding_chunk(
+            "released today.",
+            "https://a.com",
+            "A",
+            "grounded answer source",
+        ),
+    ]
+    assert chunks[-1].candidates
+    chunks[-1].candidates[0].finish_reason = GoogleFinishReason.STOP
+
+    contents: list[Content] = []
+    completion = None
+    for chunk in chunks:
+        completion = provider.stream_merge_chunks(completion, chunk)
+        contents.extend(provider.stream_content(chunk, completion))
+
+    assert [type(content) for content in contents] == [
+        ContentText,
+        ContentText,
+        ContentCitation,
+        ContentToolRequestSearch,
+        ContentToolResponseSearch,
+        ContentToolRequestFetch,
+        ContentToolResponseFetch,
     ]
 
 
