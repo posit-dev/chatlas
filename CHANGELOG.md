@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* `ChatGoogle()` and `ChatVertex()` now emit grounded citations immediately after
+  the answer text they support while streaming, before the related web search or
+  URL-fetch activity. This keeps streamed citations attached to their answer
+  text instead of separating them into a later activity segment.
 * OpenAI-based providers now support the OpenAI 3 SDK and its native `httpx2`
   clients. Custom clients are typed and documented as `httpx2`; legacy `httpx`
   clients remain supported at runtime during migration. (#387)

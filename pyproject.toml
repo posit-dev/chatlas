@@ -14,8 +14,7 @@ dependencies = [
   "jinja2",
   "orjson",
   "rich",
-  # OpenAI 3 uses httpx2, while provider adapters still accept httpx clients.
-  "openai<3",
+  "openai",
   "opentelemetry-api>=1.0",
   # `_typing_extensions.py` backfills from here on older interpreters; 3.13+ has
   # everything in `typing`. The floor is the release that added `TypeIs`.
