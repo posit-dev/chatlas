@@ -1138,7 +1138,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         usage += imodel.ModelUsage(
                             input_tokens=turn.tokens[0],
                             output_tokens=turn.tokens[1],
-                            total_tokens=turn.tokens[0] + turn.tokens[1],
+                            total_tokens=turn.tokens[0]
+                            + turn.tokens[1]
+                            + turn.tokens[2],
                             input_tokens_cache_read=turn.tokens[2],
                         )
 
