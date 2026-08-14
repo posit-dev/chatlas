@@ -119,7 +119,7 @@ def supports_structured_outputs(model: str) -> bool:
 
     https://platform.claude.com/docs/en/build-with-claude/structured-outputs
     """
-    return bool(re.match(r"^claude-\w+-4-[5-9](-|$)", model))
+    return bool(re.match(r"^claude-[a-z]+-(4-[5-9]|[5-9]|[1-9]\d)(-|$)", model))
 
 
 StructuredOutputMode = Literal["auto", "native", "tool"]
