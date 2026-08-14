@@ -37,6 +37,7 @@ from chatlas._provider_anthropic import (
     AnthropicProvider,
     anthropic_fetch_result,
     serving_model,
+    supports_structured_outputs,
 )
 from chatlas._provider_anthropic import (
     normalize_finish_reason as anthropic_normalize_finish_reason,
@@ -95,6 +96,19 @@ def test_normalize_finish_reason_passes_through_unknown():
 
 def test_normalize_finish_reason_handles_none():
     assert anthropic_normalize_finish_reason(None) is None
+
+
+@pytest.mark.parametrize(
+    ("model", "expected"),
+    [
+        ("claude-sonnet-4-5", True),
+        ("claude-opus-5", True),
+        ("claude-haiku-10", True),
+        ("claude-3-5-sonnet-20240620", False),
+    ],
+)
+def test_supports_structured_outputs_for_supported_model_names(model, expected):
+    assert supports_structured_outputs(model) is expected
 
 
 def chat_func(system_prompt: str = "", **kwargs):
