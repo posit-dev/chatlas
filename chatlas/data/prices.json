@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "min_ellmer_version": "0.5.0",
-  "updated_at": "2026-08-10T07:17:57Z",
+  "updated_at": "2026-08-17T06:39:03Z",
   "data": [
     {
       "provider": "AWS/Bedrock",
@@ -1740,6 +1740,14 @@
     },
     {
       "provider": "AWS/Bedrock",
+      "model": "openai.gpt-5.6-luna",
+      "variant": "above_272k_tokens",
+      "input": 0.44,
+      "output": 1.98,
+      "cached_input": 0.044
+    },
+    {
+      "provider": "AWS/Bedrock",
       "model": "openai.gpt-5.6-sol",
       "variant": "",
       "input": 5.5,
@@ -1748,11 +1756,27 @@
     },
     {
       "provider": "AWS/Bedrock",
+      "model": "openai.gpt-5.6-sol",
+      "variant": "above_272k_tokens",
+      "input": 11,
+      "output": 49.5,
+      "cached_input": 1.1
+    },
+    {
+      "provider": "AWS/Bedrock",
       "model": "openai.gpt-5.6-terra",
       "variant": "",
       "input": 2.2,
       "output": 13.2,
       "cached_input": 0.22
+    },
+    {
+      "provider": "AWS/Bedrock",
+      "model": "openai.gpt-5.6-terra",
+      "variant": "above_272k_tokens",
+      "input": 4.4,
+      "output": 19.8,
+      "cached_input": 0.44
     },
     {
       "provider": "AWS/Bedrock",
@@ -2848,6 +2872,22 @@
       "input": 1,
       "output": 5,
       "cached_input": 0.1
+    },
+    {
+      "provider": "Anthropic",
+      "model": "claude-mythos-5",
+      "variant": "",
+      "input": 10,
+      "output": 50,
+      "cached_input": 1
+    },
+    {
+      "provider": "Anthropic",
+      "model": "claude-mythos-preview",
+      "variant": "",
+      "input": 10,
+      "output": 50,
+      "cached_input": 1
     },
     {
       "provider": "Anthropic",
@@ -5389,6 +5429,13 @@
     },
     {
       "provider": "Google/Gemini",
+      "model": "gemini-3.1-flash-tts-preview",
+      "variant": "",
+      "input": 1,
+      "output": 20
+    },
+    {
+      "provider": "Google/Gemini",
       "model": "gemini-3.1-pro-preview",
       "variant": "",
       "input": 2,
@@ -5545,6 +5592,37 @@
     },
     {
       "provider": "Google/Gemini",
+      "model": "gemini-3.7-flash",
+      "variant": "",
+      "input": 0.75,
+      "output": 3.75,
+      "cached_input": 0.075
+    },
+    {
+      "provider": "Google/Gemini",
+      "model": "gemini-3.7-flash",
+      "variant": "batches",
+      "input": 0.375,
+      "output": 1.875
+    },
+    {
+      "provider": "Google/Gemini",
+      "model": "gemini-3.7-flash",
+      "variant": "flex",
+      "input": 0.375,
+      "output": 1.875,
+      "cached_input": 0.0375
+    },
+    {
+      "provider": "Google/Gemini",
+      "model": "gemini-3.7-flash",
+      "variant": "priority",
+      "input": 1.35,
+      "output": 6.75,
+      "cached_input": 0.135
+    },
+    {
+      "provider": "Google/Gemini",
       "model": "gemini-embedding-001",
       "variant": "",
       "input": 0.15,
@@ -5655,6 +5733,13 @@
       "input": 2,
       "output": 10,
       "cached_input": 0.2
+    },
+    {
+      "provider": "Google/Gemini",
+      "model": "gemini-robotics-er-2-streaming-preview",
+      "variant": "",
+      "input": 2,
+      "output": 10
     },
     {
       "provider": "Google/Vertex",
@@ -6074,6 +6159,37 @@
     },
     {
       "provider": "Google/Vertex",
+      "model": "gemini-3.7-flash",
+      "variant": "",
+      "input": 0.75,
+      "output": 3.75,
+      "cached_input": 0.075
+    },
+    {
+      "provider": "Google/Vertex",
+      "model": "gemini-3.7-flash",
+      "variant": "batches",
+      "input": 0.375,
+      "output": 1.875
+    },
+    {
+      "provider": "Google/Vertex",
+      "model": "gemini-3.7-flash",
+      "variant": "flex",
+      "input": 0.375,
+      "output": 1.875,
+      "cached_input": 0.0375
+    },
+    {
+      "provider": "Google/Vertex",
+      "model": "gemini-3.7-flash",
+      "variant": "priority",
+      "input": 1.35,
+      "output": 6.75,
+      "cached_input": 0.135
+    },
+    {
+      "provider": "Google/Vertex",
       "model": "gemini-live-2.5-flash-preview-native-audio-09-2025",
       "variant": "",
       "input": 0.3,
@@ -6273,6 +6389,20 @@
     },
     {
       "provider": "Groq",
+      "model": "meta-llama/llama-prompt-guard-2-22m",
+      "variant": "",
+      "input": 0.03,
+      "output": 0.03
+    },
+    {
+      "provider": "Groq",
+      "model": "meta-llama/llama-prompt-guard-2-86m",
+      "variant": "",
+      "input": 0.04,
+      "output": 0.04
+    },
+    {
+      "provider": "Groq",
       "model": "moonshotai/kimi-k2-instruct-0905",
       "variant": "",
       "input": 1,
@@ -6309,6 +6439,13 @@
       "variant": "",
       "input": 0.29,
       "output": 0.59
+    },
+    {
+      "provider": "Groq",
+      "model": "qwen/qwen3.6-27b",
+      "variant": "",
+      "input": 0.6,
+      "output": 3
     },
     {
       "provider": "Mistral",
@@ -6600,6 +6737,13 @@
       "variant": "",
       "input": 0.1,
       "output": 0.3
+    },
+    {
+      "provider": "Mistral",
+      "model": "mistral-small-2603",
+      "variant": "",
+      "input": 0.15,
+      "output": 0.6
     },
     {
       "provider": "Mistral",
@@ -9233,6 +9377,13 @@
       "input": 0.6,
       "output": 3,
       "cached_input": 0.1
+    },
+    {
+      "provider": "OpenRouter",
+      "model": "nvidia/nemotron-3.5-lightning",
+      "variant": "",
+      "input": 0.05,
+      "output": 0.2
     },
     {
       "provider": "OpenRouter",

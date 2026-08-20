@@ -6,11 +6,14 @@
 from typing import Iterable, Literal, Mapping, Optional, Sequence, TypedDict, Union
 
 import anthropic
+import anthropic.types.browser_toolset_20260801_param
 import anthropic.types.cache_control_ephemeral_param
 import anthropic.types.code_execution_tool_20250522_param
 import anthropic.types.code_execution_tool_20250825_param
 import anthropic.types.code_execution_tool_20260120_param
 import anthropic.types.code_execution_tool_20260521_param
+import anthropic.types.computer_toolset_20260801_param
+import anthropic.types.container_params
 import anthropic.types.memory_tool_20250818_param
 import anthropic.types.message_param
 import anthropic.types.output_config_param
@@ -66,7 +69,9 @@ class SubmitInputArgs(TypedDict, total=False):
         None,
         anthropic.Omit,
     ]
-    container: Union[str, None, anthropic.Omit]
+    container: Union[
+        anthropic.types.container_params.ContainerParams, str, None, anthropic.Omit
+    ]
     inference_geo: Union[str, None, anthropic.Omit]
     output_config: (
         anthropic.types.output_config_param.OutputConfigParam | anthropic.Omit
@@ -100,7 +105,9 @@ class SubmitInputArgs(TypedDict, total=False):
                 anthropic.types.code_execution_tool_20250825_param.CodeExecutionTool20250825Param,
                 anthropic.types.code_execution_tool_20260120_param.CodeExecutionTool20260120Param,
                 anthropic.types.code_execution_tool_20260521_param.CodeExecutionTool20260521Param,
+                anthropic.types.browser_toolset_20260801_param.BrowserToolset20260801Param,
                 anthropic.types.memory_tool_20250818_param.MemoryTool20250818Param,
+                anthropic.types.computer_toolset_20260801_param.ComputerToolset20260801Param,
                 anthropic.types.tool_text_editor_20250124_param.ToolTextEditor20250124Param,
                 anthropic.types.tool_text_editor_20250429_param.ToolTextEditor20250429Param,
                 anthropic.types.tool_text_editor_20250728_param.ToolTextEditor20250728Param,

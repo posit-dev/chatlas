@@ -125,6 +125,7 @@ class SubmitInputArgs(TypedDict, total=False):
             "gpt-5.6-terra",
             "gpt-5.6-luna",
             "gpt-5.5",
+            "gpt-5.5-2026-04-23",
             "gpt-5.4",
             "gpt-5.4-mini",
             "gpt-5.4-nano",
@@ -215,6 +216,8 @@ class SubmitInputArgs(TypedDict, total=False):
             "o4-mini-deep-research-2025-06-26",
             "computer-use-preview",
             "computer-use-preview-2025-03-11",
+            "gpt-5.5-pro",
+            "gpt-5.5-pro-2026-04-23",
             "gpt-5-codex",
             "gpt-5-pro",
             "gpt-5-pro-2025-10-06",
@@ -243,7 +246,7 @@ class SubmitInputArgs(TypedDict, total=False):
     reasoning: Union[openai.types.shared_params.reasoning.Reasoning, None, openai.Omit]
     safety_identifier: Union[str, None, openai.Omit]
     service_tier: Union[
-        Literal["auto", "default", "flex", "scale", "priority", "fast"],
+        Literal["auto", "default", "flex", "scale", "priority", "fast", "ultrafast"],
         None,
         openai.Omit,
     ]
