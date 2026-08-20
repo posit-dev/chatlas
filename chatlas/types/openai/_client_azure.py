@@ -15,7 +15,11 @@ class ChatAzureClientArgs(TypedDict, total=False):
     api_version: str | None
     api_key: Union[str, Callable[[], Awaitable[str]], None]
     admin_api_key: str | None
-    workload_identity: openai.auth._workload.WorkloadIdentity | None
+    workload_identity: (
+        openai.auth._workload.WorkloadIdentity
+        | openai.auth._workload.X509WorkloadIdentity
+        | None
+    )
     azure_ad_token: str | None
     organization: str | None
     project: str | None

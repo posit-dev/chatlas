@@ -5,6 +5,7 @@ import warnings
 import pytest
 from chatlas import (
     AssistantTurn,
+    ChatAnthropic,
     ChatOpenAI,
     ChatOpenAICompletions,
     ContentToolRequest,
@@ -14,7 +15,37 @@ from chatlas import (
     UserTurn,
 )
 from chatlas._chat import ToolFailureWarning, finalize_assistant_turn
+from chatlas.types import ContentImageInline, ContentText
 from pydantic import BaseModel
+
+
+def rich_tool_history() -> tuple[list[Turn], ContentToolResult]:
+    request = ContentToolRequest(id="plot-1", name="plot", arguments={})
+    image = ContentImageInline(data="aGVsbG8=", image_content_type="image/png")
+    result = ContentToolResult(
+        value=[ContentText(text="Chart displayed."), image],
+        model_format="as_is",
+        request=request,
+    )
+    return (
+        [
+            UserTurn("plot the data"),
+            AssistantTurn([request]),
+            UserTurn([result]),
+            AssistantTurn("The chart is ready."),
+        ],
+        result,
+    )
+
+
+def assert_rich_tool_result_expanded(turns: list[Turn]) -> None:
+    result_turn = turns[2]
+    assert isinstance(result_turn, UserTurn)
+    assert any(isinstance(x, ContentImageInline) for x in result_turn.contents)
+    assert any(
+        isinstance(x, ContentText) and x.text == '<tool-contents call-id="plot-1">'
+        for x in result_turn.contents
+    )
 
 
 @pytest.mark.vcr
@@ -288,6 +319,71 @@ def test_json_serialize():
     else:
         turns_for_comparison.append(turns[1])
     assert turns_for_comparison == turns_restored
+
+
+def test_chat_normalizes_rich_tool_results_only_for_provider(monkeypatch):
+    history, result = rich_tool_history()
+    chat = ChatAnthropic(model="claude-sonnet-4-5", api_key="dummy")
+    chat.set_turns(history)
+    provider_turns: list[Turn] | None = None
+
+    def chat_perform_mock(*, turns: list[Turn], **_kwargs: object) -> object:
+        nonlocal provider_turns
+        provider_turns = turns
+        return object()
+
+    def value_turn_mock(
+        _completion: object, has_data_model: bool, turns: list[Turn]
+    ) -> AssistantTurn:
+        assert has_data_model is False
+        assert turns is provider_turns
+        return AssistantTurn("done")
+
+    monkeypatch.setattr(chat.provider, "chat_perform", chat_perform_mock)
+    monkeypatch.setattr(chat.provider, "value_turn", value_turn_mock)
+
+    chat.chat("What does it show?", stream=False, echo="none")
+
+    assert provider_turns is not None
+    assert_rich_tool_result_expanded(provider_turns)
+
+    stored_result_turn = chat.get_turns()[2]
+    assert isinstance(stored_result_turn, UserTurn)
+    assert stored_result_turn.contents == [result]
+
+
+@pytest.mark.asyncio
+async def test_chat_async_normalizes_rich_tool_results_only_for_provider(monkeypatch):
+    history, result = rich_tool_history()
+    chat = ChatAnthropic(model="claude-sonnet-4-5", api_key="dummy")
+    chat.set_turns(history)
+    provider_turns: list[Turn] | None = None
+
+    async def chat_perform_async_mock(
+        *, turns: list[Turn], **_kwargs: object
+    ) -> object:
+        nonlocal provider_turns
+        provider_turns = turns
+        return object()
+
+    def value_turn_mock(
+        _completion: object, has_data_model: bool, turns: list[Turn]
+    ) -> AssistantTurn:
+        assert has_data_model is False
+        assert turns is provider_turns
+        return AssistantTurn("done")
+
+    monkeypatch.setattr(chat.provider, "chat_perform_async", chat_perform_async_mock)
+    monkeypatch.setattr(chat.provider, "value_turn", value_turn_mock)
+
+    await chat.chat_async("What does it show?", stream=False, echo="none")
+
+    assert provider_turns is not None
+    assert_rich_tool_result_expanded(provider_turns)
+
+    stored_result_turn = chat.get_turns()[2]
+    assert isinstance(stored_result_turn, UserTurn)
+    assert stored_result_turn.contents == [result]
 
 
 # Chat can be deepcopied/forked
@@ -776,6 +872,47 @@ def test_token_count_complete_includes_history_and_system():
 
     assert new_only > 0
     assert complete > new_only
+
+
+def test_token_count_normalizes_rich_tool_results_for_provider(monkeypatch):
+    history, result = rich_tool_history()
+    chat = ChatAnthropic(model="claude-sonnet-4-5", api_key="dummy")
+    chat.set_turns(history)
+    provider_turns: list[Turn] | None = None
+
+    def token_count_mock(turns: list[Turn], **_kwargs: object) -> int:
+        nonlocal provider_turns
+        provider_turns = turns
+        return 1
+
+    monkeypatch.setattr(chat.provider, "token_count", token_count_mock)
+
+    assert chat.token_count("What does it show?", include="complete") == 1
+    assert provider_turns is not None
+    assert_rich_tool_result_expanded(provider_turns)
+    assert chat.get_turns()[2].contents == [result]
+
+
+@pytest.mark.asyncio
+async def test_token_count_async_normalizes_rich_tool_results_for_provider(
+    monkeypatch,
+):
+    history, result = rich_tool_history()
+    chat = ChatAnthropic(model="claude-sonnet-4-5", api_key="dummy")
+    chat.set_turns(history)
+    provider_turns: list[Turn] | None = None
+
+    async def token_count_async_mock(turns: list[Turn], **_kwargs: object) -> int:
+        nonlocal provider_turns
+        provider_turns = turns
+        return 1
+
+    monkeypatch.setattr(chat.provider, "token_count_async", token_count_async_mock)
+
+    assert await chat.token_count_async("What does it show?", include="complete") == 1
+    assert provider_turns is not None
+    assert_rich_tool_result_expanded(provider_turns)
+    assert chat.get_turns()[2].contents == [result]
 
 
 def test_token_count_invalid_include_raises():

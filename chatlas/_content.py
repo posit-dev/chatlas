@@ -11,6 +11,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    SerializationInfo,
     SerializeAsAny,
     field_serializer,
     field_validator,
@@ -226,6 +227,8 @@ ContentTypeEnum = Literal[
 """
 A discriminated union of all content types.
 """
+
+CONTENT_VALUE_SENTINEL = "__chatlas_content__"
 
 
 class Content(BaseModel):
@@ -494,6 +497,15 @@ class ContentToolResult(Content):
     # "private"
     request: Optional[ContentToolRequest] = None
     content_type: ContentTypeEnum = "tool_result"
+
+    @field_validator("value", mode="before")
+    @classmethod
+    def _validate_value(cls, v: Any) -> Any:
+        return restore_content_value(v)
+
+    @field_serializer("value")
+    def _serialize_value(self, v: Any, info: SerializationInfo) -> Any:
+        return serialize_content_value(v, mode=info.mode)
 
     @field_serializer("error")
     @classmethod
@@ -1262,6 +1274,40 @@ def create_content(data: dict[str, Any]) -> ContentUnion:
         return ContentCitation.model_validate(data)
     else:
         raise ValueError(f"Unknown content type: {ct}")
+
+
+def serialize_content_value(value: Any, *, mode: str) -> Any:
+    """Tag Content objects nested in an arbitrary tool result value."""
+    if isinstance(value, Content):
+        return {CONTENT_VALUE_SENTINEL: value.model_dump(mode=mode)}
+    if isinstance(value, list):
+        return [serialize_content_value(item, mode=mode) for item in value]
+    if isinstance(value, tuple):
+        return tuple(serialize_content_value(item, mode=mode) for item in value)
+    if isinstance(value, dict):
+        return {
+            key: serialize_content_value(item, mode=mode)
+            for key, item in value.items()
+        }
+    return value
+
+
+def restore_content_value(value: Any) -> Any:
+    """Restore tagged Content objects nested in a serialized tool result value."""
+    if isinstance(value, list):
+        return [restore_content_value(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(restore_content_value(item) for item in value)
+    if isinstance(value, dict):
+        if set(value) == {CONTENT_VALUE_SENTINEL}:
+            content = value[CONTENT_VALUE_SENTINEL]
+            if (
+                isinstance(content, dict)
+                and content.get("content_type") in get_args(ContentTypeEnum)
+            ):
+                return create_content(content)
+        return {key: restore_content_value(item) for key, item in value.items()}
+    return value
 
 
 TOOL_CSS = """

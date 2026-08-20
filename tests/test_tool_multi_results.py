@@ -19,7 +19,12 @@ from chatlas._provider_anthropic import AnthropicProvider
 from chatlas._provider_google import GoogleProvider
 from chatlas._provider_openai import OpenAIProvider
 from chatlas._provider_openai_completions import OpenAICompletionsProvider
-from chatlas._turn import AssistantTurn, Turn, UserTurn
+from chatlas._turn import (
+    AssistantTurn,
+    Turn,
+    UserTurn,
+    normalize_turns_for_provider,
+)
 from chatlas.types import ContentImageInline, ContentJson, ContentToolResult
 
 CALL_ID = "call_abc123"
@@ -41,7 +46,9 @@ def tool_turns(func: Any, name: str) -> list[Turn]:
         tool=ToolInfo.from_tool(chat._tools[name]),
     )
     results = list(chat._invoke_tool(request))
-    return [UserTurn("go"), AssistantTurn([request]), UserTurn(results)]
+    return normalize_turns_for_provider(
+        [UserTurn("go"), AssistantTurn([request]), UserTurn(results)]
+    )
 
 
 def anthropic_blocks(turns: list[Turn]) -> list[dict[str, Any]]:
@@ -248,17 +255,19 @@ def test_distinct_requests_are_not_merged(result_ids):
     """Combining must key on the request id, not lump all results together."""
     req_a = ContentToolRequest(id="call_a", name="repl", arguments={})
     req_b = ContentToolRequest(id="call_b", name="repl", arguments={})
-    turns = [
-        UserTurn("go"),
-        AssistantTurn([req_a, req_b]),
-        UserTurn(
-            [
-                ContentToolResult(value="a1", request=req_a),
-                ContentToolResult(value="a2", request=req_a),
-                ContentToolResult(value="b1", request=req_b),
-            ]
-        ),
-    ]
+    turns = normalize_turns_for_provider(
+        [
+            UserTurn("go"),
+            AssistantTurn([req_a, req_b]),
+            UserTurn(
+                [
+                    ContentToolResult(value="a1", request=req_a),
+                    ContentToolResult(value="a2", request=req_a),
+                    ContentToolResult(value="b1", request=req_b),
+                ]
+            ),
+        ]
+    )
 
     assert sorted(result_ids(turns)) == ["call_a", "call_b"]
 

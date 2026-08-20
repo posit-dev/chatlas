@@ -81,6 +81,7 @@ from ._turn import (
     Turn,
     UserTurn,
     check_finish_reason,
+    normalize_turns_for_provider,
     user_turn,
 )
 from ._turn_accumulator import TurnAccumulator
@@ -334,7 +335,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             if x.role != final_turns[-1].role:
                 final_turns.append(x)
             else:
-                final_turns[-1].contents.extend(x.contents)
+                previous = final_turns[-1]
+                final_turns[-1] = previous.model_copy(
+                    update={"contents": [*previous.contents, *x.contents]}
+                )
 
         return final_turns
 
@@ -820,8 +824,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             )
         new_turn = user_turn(*args)
         if include == "complete":
-            return self.get_turns(include_system_prompt=True) + [new_turn]
-        return [new_turn]
+            turns = self.get_turns(include_system_prompt=True) + [new_turn]
+        else:
+            turns = [new_turn]
+        return normalize_turns_for_provider(turns)
 
     def app(
         self,
@@ -2871,6 +2877,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError("Cannot use async tools in a synchronous chat")
 
         request_turns = [*self._turns, user_turn]
+        provider_turns = normalize_turns_for_provider(request_turns)
         chat_span = start_chat_span(self.provider, request_turns, _otel_parent)
         try:
 
@@ -2906,7 +2913,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 with activate_span(chat_span):
                     response = self.provider.chat_perform(
                         stream=True,
-                        turns=request_turns,
+                        turns=provider_turns,
                         tools=self._tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
@@ -2928,7 +2935,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             break
                         result = self.provider.stream_merge_chunks(result, chunk)
                         for content in self.provider.stream_content(
-                            chunk, result, turns=request_turns
+                            chunk, result, turns=provider_turns
                         ):
                             yield from acc.process_content(
                                 content, display_text(content), content_mode, emit
@@ -2940,7 +2947,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         turn = self.provider.stream_turn(
                             result,
                             has_data_model=data_model is not None,
-                            turns=request_turns,
+                            turns=provider_turns,
                         )
                         emit_image_contents(turn, emit)
                         if echo == "all":
@@ -2956,7 +2963,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 with activate_span(chat_span):
                     response = self.provider.chat_perform(
                         stream=False,
-                        turns=request_turns,
+                        turns=provider_turns,
                         tools=self._tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
@@ -2965,7 +2972,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = self.provider.value_turn(
                     response,
                     has_data_model=data_model is not None,
-                    turns=request_turns,
+                    turns=provider_turns,
                 )
                 emit_thinking_contents(turn, emit)
                 emit_web_contents(turn, emit)
@@ -3028,6 +3035,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
         request_turns = [*self._turns, user_turn]
+        provider_turns = normalize_turns_for_provider(request_turns)
         chat_span = start_chat_span(self.provider, request_turns, _otel_parent)
         try:
 
@@ -3063,7 +3071,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 with activate_span(chat_span):
                     response = await self.provider.chat_perform_async(
                         stream=True,
-                        turns=request_turns,
+                        turns=provider_turns,
                         tools=self._tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
@@ -3085,7 +3093,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                             break
                         result = self.provider.stream_merge_chunks(result, chunk)
                         for content in self.provider.stream_content(
-                            chunk, result, turns=request_turns
+                            chunk, result, turns=provider_turns
                         ):
                             for item in acc.process_content(
                                 content, display_text(content), content_mode, emit
@@ -3099,7 +3107,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                         turn = self.provider.stream_turn(
                             result,
                             has_data_model=data_model is not None,
-                            turns=request_turns,
+                            turns=provider_turns,
                         )
                         emit_image_contents(turn, emit)
                         if echo == "all":
@@ -3115,7 +3123,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 with activate_span(chat_span):
                     response = await self.provider.chat_perform_async(
                         stream=False,
-                        turns=request_turns,
+                        turns=provider_turns,
                         tools=self._tools,
                         data_model=data_model,
                         kwargs=all_kwargs,
@@ -3124,7 +3132,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
                 turn = self.provider.value_turn(
                     response,
                     has_data_model=data_model is not None,
-                    turns=request_turns,
+                    turns=provider_turns,
                 )
                 emit_thinking_contents(turn, emit)
                 emit_web_contents(turn, emit)

@@ -14,7 +14,7 @@ from rich.progress import Progress, SpinnerColumn, TextColumn
 from ._chat import Chat
 from ._content import Content
 from ._provider import BatchStatus
-from ._turn import AssistantTurn, Turn, user_turn
+from ._turn import AssistantTurn, Turn, normalize_turns_for_provider, user_turn
 from ._typing_extensions import TypedDict
 
 BatchStage = Literal["submitting", "waiting", "retrieving", "done"]
@@ -155,7 +155,7 @@ class BatchJob:
 
         conversations = []
         for turn in self.user_turns:
-            conversation = existing_turns + [turn]
+            conversation = normalize_turns_for_provider(existing_turns + [turn])
             conversations.append(conversation)
 
         self.batch = self.provider.batch_submit(conversations, self.data_model)

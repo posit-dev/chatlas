@@ -1,10 +1,11 @@
 """Tests for turn content expansion with images and PDFs in tool results."""
 
 import base64
-from typing import Any, cast
+from typing import Any, Sequence, cast
 
 from chatlas import UserTurn
 from chatlas._content import (
+    Content,
     ContentImageInline,
     ContentImageRemote,
     ContentPDF,
@@ -14,12 +15,22 @@ from chatlas._content import (
     ToolInfo,
 )
 from chatlas._provider_anthropic import AnthropicProvider
-from chatlas._turn import AssistantTurn
+from chatlas._turn import (
+    AssistantTurn,
+    normalize_turn_for_provider,
+    normalize_turns_for_provider,
+)
+
+
+def provider_turn(contents: str | Sequence[Content | str]) -> UserTurn:
+    turn = normalize_turn_for_provider(UserTurn(contents))
+    assert isinstance(turn, UserTurn)
+    return turn
 
 
 def test_expand_turn_no_tool_results():
     """Test that turns without tool results are unchanged."""
-    turn = UserTurn([ContentText(text="Hello")])
+    turn = provider_turn([ContentText(text="Hello")])
 
     assert len(turn.contents) == 1
     assert isinstance(turn.contents[0], ContentText)
@@ -36,7 +47,7 @@ def test_expand_turn_tool_result_without_images():
     )
 
     result = ContentToolResult(value="test result", request=request)
-    turn = UserTurn([result])
+    turn = provider_turn([result])
 
     assert len(turn.contents) == 1
     assert isinstance(turn.contents[0], ContentToolResult)
@@ -59,7 +70,7 @@ def test_expand_turn_tool_result_with_single_image():
     )
 
     result = ContentToolResult(value=image, request=request)
-    turn = UserTurn([result])
+    turn = provider_turn([result])
 
     # Should have 4 items: result with placeholder, open tag, image, close tag
     assert len(turn.contents) == 4
@@ -93,7 +104,7 @@ def test_expand_turn_tool_result_with_remote_image():
     image = ContentImageRemote(url="https://example.com/image.png")
 
     result = ContentToolResult(value=image, request=request)
-    turn = UserTurn([result])
+    turn = provider_turn([result])
 
     assert len(turn.contents) == 4
     assert isinstance(turn.contents[0], ContentToolResult)
@@ -113,7 +124,7 @@ def test_expand_turn_tool_result_with_pdf():
     pdf = ContentPDF(data=b"fake pdf data", filename="test.pdf")
 
     result = ContentToolResult(value=pdf, request=request)
-    turn = UserTurn([result])
+    turn = provider_turn([result])
 
     assert len(turn.contents) == 4
     assert isinstance(turn.contents[0], ContentToolResult)
@@ -141,7 +152,7 @@ def test_expand_turn_tool_result_with_list_of_images():
     )
 
     result = ContentToolResult(value=[image1, image2], request=request)
-    turn = UserTurn([result])
+    turn = provider_turn([result])
 
     # Should have: result, open wrapper, (open tag, image1, close tag),
     # (open tag, image2, close tag), close wrapper = 9 items
@@ -199,7 +210,7 @@ def test_expand_turn_multiple_tool_results():
     )
     result2 = ContentToolResult(value=image, request=request2)
 
-    turn = UserTurn([result1, result2])
+    turn = provider_turn([result1, result2])
 
     # First result unchanged (1 item)
     # Second result expanded (4 items)
@@ -233,7 +244,7 @@ def test_expand_turn_preserves_other_content():
     result = ContentToolResult(value=image, request=request)
     text2 = ContentText(text="After")
 
-    turn = UserTurn([text1, result, text2])
+    turn = provider_turn([text1, result, text2])
 
     # Tool result is expanded to 4 items (result, open tag, image, close tag)
     # Only the ContentToolResult itself is reordered to the front
@@ -255,7 +266,7 @@ def test_expand_turn_preserves_other_content():
 
 def test_expand_turn_empty_contents():
     """Test that turns with empty contents are handled gracefully."""
-    turn = UserTurn([])
+    turn = provider_turn([])
 
     assert len(turn.contents) == 0
 
@@ -272,7 +283,7 @@ def tool_request(id: str = "call_1", name: str = "repl") -> ContentToolRequest:
 def test_merge_joins_multiple_text_results():
     """Several text parts for one call arrive as one newline-joined result."""
     request = tool_request()
-    turn = UserTurn(
+    turn = provider_turn(
         [
             ContentToolResult(value="first", request=request),
             ContentToolResult(value="second", request=request),
@@ -288,7 +299,7 @@ def test_merge_leaves_single_result_untouched():
     request = tool_request()
     result = ContentToolResult(value="only", request=request)
 
-    turn = UserTurn([result])
+    turn = provider_turn([result])
 
     assert len(turn.contents) == 1
     assert turn.contents[0] is result
@@ -297,7 +308,7 @@ def test_merge_leaves_single_result_untouched():
 def test_merge_keeps_distinct_requests_separate():
     req_a = tool_request(id="call_a")
     req_b = tool_request(id="call_b")
-    turn = UserTurn(
+    turn = provider_turn(
         [
             ContentToolResult(value="a1", request=req_a),
             ContentToolResult(value="b1", request=req_b),
@@ -317,7 +328,7 @@ def test_merge_keeps_distinct_requests_separate():
 def test_merge_propagates_error_from_any_part():
     """A failure anywhere in the group must not be masked by sibling output."""
     request = tool_request()
-    turn = UserTurn(
+    turn = provider_turn(
         [
             ContentToolResult(value="partial output", request=request),
             ContentToolResult(value=None, error=RuntimeError("boom"), request=request),
@@ -338,7 +349,7 @@ def test_merge_mixed_text_and_image_is_expanded():
         data=base64.b64encode(b"png").decode("utf-8"),
         image_content_type="image/png",
     )
-    turn = UserTurn(
+    turn = provider_turn(
         [
             ContentToolResult(value="stdout", request=request),
             ContentToolResult(value=image, request=request),
@@ -356,7 +367,7 @@ def test_merge_mixed_text_and_image_is_expanded():
 
 def test_merge_keeps_non_result_content_in_relative_order():
     request = tool_request()
-    turn = UserTurn(
+    turn = provider_turn(
         [
             ContentText(text="Before"),
             ContentToolResult(value="one", request=request),
@@ -376,7 +387,7 @@ def test_merge_keeps_non_result_content_in_relative_order():
 
 def test_merge_ignores_results_without_a_request():
     """A result with no request has no id to group on, so it passes through."""
-    turn = UserTurn(
+    turn = provider_turn(
         [
             ContentToolResult(value="orphan a"),
             ContentToolResult(value="orphan b"),
@@ -397,7 +408,7 @@ def test_expanded_content_does_not_push_a_later_result_out_of_position():
         image_content_type="image/png",
     )
 
-    turn = UserTurn(
+    turn = provider_turn(
         [
             ContentToolResult(value=image, request=request_a),
             ContentToolResult(value="text b", request=request_b),
@@ -417,7 +428,7 @@ def test_tool_results_precede_user_authored_content():
         image_content_type="image/png",
     )
 
-    turn = UserTurn(
+    turn = provider_turn(
         [
             ContentText(text="Before"),
             ContentToolResult(value=image, request=request),
@@ -432,7 +443,7 @@ def test_tool_results_precede_user_authored_content():
 
 
 def test_ordering_is_untouched_when_there_are_no_tool_results():
-    turn = UserTurn([ContentText(text="one"), ContentText(text="two")])
+    turn = provider_turn([ContentText(text="one"), ContentText(text="two")])
 
     assert [c.text for c in turn.contents if isinstance(c, ContentText)] == [
         "one",
@@ -449,16 +460,18 @@ def test_anthropic_puts_every_tool_result_block_first():
         image_content_type="image/png",
     )
 
-    turns = [
-        UserTurn("go"),
-        AssistantTurn([request_a, request_b]),
-        UserTurn(
-            [
-                ContentToolResult(value=image, request=request_a),
-                ContentToolResult(value="text b", request=request_b),
-            ]
-        ),
-    ]
+    turns = normalize_turns_for_provider(
+        [
+            UserTurn("go"),
+            AssistantTurn([request_a, request_b]),
+            UserTurn(
+                [
+                    ContentToolResult(value=image, request=request_a),
+                    ContentToolResult(value="text b", request=request_b),
+                ]
+            ),
+        ]
+    )
 
     messages = AnthropicProvider(
         model="claude-sonnet-4-5", api_key="dummy", kwargs=None
@@ -485,20 +498,22 @@ def test_merge_expand_and_reorder_together():
         image_content_type="image/png",
     )
 
-    turns = [
-        UserTurn("go"),
-        AssistantTurn([request_a, request_b]),
-        UserTurn(
-            [
-                ContentText(text="Before"),
-                ContentToolResult(value="here is the plot", request=request_a),
-                ContentToolResult(value=image, request=request_a),
-                ContentText(text="Between"),
-                ContentToolResult(value="text b", request=request_b),
-                ContentText(text="After"),
-            ]
-        ),
-    ]
+    turns = normalize_turns_for_provider(
+        [
+            UserTurn("go"),
+            AssistantTurn([request_a, request_b]),
+            UserTurn(
+                [
+                    ContentText(text="Before"),
+                    ContentToolResult(value="here is the plot", request=request_a),
+                    ContentToolResult(value=image, request=request_a),
+                    ContentText(text="Between"),
+                    ContentToolResult(value="text b", request=request_b),
+                    ContentText(text="After"),
+                ]
+            ),
+        ]
+    )
 
     messages = AnthropicProvider(
         model="claude-sonnet-4-5", api_key="dummy", kwargs=None

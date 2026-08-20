@@ -3,7 +3,7 @@
 # ---------------------------------------------------------
 
 
-from typing import Awaitable, Callable, Mapping, Optional, TypedDict, Union
+from typing import Awaitable, Callable, Literal, Mapping, Optional, TypedDict, Union
 
 import httpx2
 import openai
@@ -14,12 +14,17 @@ import openai.auth._workload
 class ChatClientArgs(TypedDict, total=False):
     api_key: Union[str, Callable[[], Awaitable[str]], None]
     admin_api_key: str | None
-    workload_identity: openai.auth._workload.WorkloadIdentity | None
+    workload_identity: (
+        openai.auth._workload.WorkloadIdentity
+        | openai.auth._workload.X509WorkloadIdentity
+        | None
+    )
     organization: str | None
     project: str | None
     webhook_secret: str | None
     provider: openai._provider._Provider | None
-    base_url: str | httpx2.URL | None
+    base_url: str | httpx2.URL | None | openai.NotGiven
+    data_residency: Optional[Literal["global", "us", "eu", "ae"]]
     websocket_base_url: str | httpx2.URL | None
     timeout: float | openai.Timeout | None | openai.NotGiven
     max_retries: int
