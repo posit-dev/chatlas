@@ -252,6 +252,18 @@ def test_tool_result_content_type_mapping_remains_mapping():
     assert restored_result.value == value
 
 
+def test_tool_result_content_sentinel_mapping_remains_mapping():
+    value = {"__chatlas_content__": "ordinary tool data"}
+    result = ContentToolResult(value=value, model_format="as_is")
+
+    assert result.value == value
+
+    restored = Turn.model_validate_json(UserTurn([result]).model_dump_json())
+    restored_result = restored.contents[0]
+    assert isinstance(restored_result, ContentToolResult)
+    assert restored_result.value == value
+
+
 def test_rich_tool_result_json_round_trip_preserves_nested_mapping_content():
     image = ContentImageInline(
         data="aGVsbG8=",

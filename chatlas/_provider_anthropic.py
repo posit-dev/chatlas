@@ -83,8 +83,8 @@ if TYPE_CHECKING:
         WebFetchToolResultBlock,
         WebSearchToolResultBlock,
     )
-    from anthropic.types.beta.file_metadata import (
-        FileMetadata as AnthropicFileMetadata,
+    from anthropic.types.beta.beta_file_metadata import (
+        BetaFileMetadata as AnthropicFileMetadata,
     )
     from anthropic.types.cache_control_ephemeral_param import CacheControlEphemeralParam
     from anthropic.types.document_block_param import DocumentBlockParam

@@ -9,6 +9,7 @@ from chatlas._content import (
     ContentImageInline,
     ContentPDF,
     ContentUploaded,
+    WebSource,
 )
 from chatlas._provider_openai import OpenAIProvider, as_input_param
 from chatlas._provider_openai import (
@@ -17,8 +18,12 @@ from chatlas._provider_openai import (
 from chatlas.types import ContentCitation, ContentText, ContentToolRequestSearch
 from openai.types.responses import (
     Response,
+    ResponseOutputTextAnnotationAddedEvent,
     ResponseOutputMessage,
     ResponseOutputText,
+)
+from openai.types.responses.response_output_text_annotation_added_event import (
+    AnnotationURLCitation,
 )
 
 from .conftest import (
@@ -77,6 +82,35 @@ def test_normalize_finish_reason_passes_through_unknown_status():
 
 def test_normalize_finish_reason_handles_none():
     assert openai_normalize_finish_reason(None) is None
+
+
+def test_stream_content_handles_url_citation_model():
+    provider = OpenAIProvider(api_key="test", model="gpt-4.1")
+    annotation = AnnotationURLCitation(
+        type="url_citation",
+        url="https://example.com",
+        title="Example",
+        start_index=0,
+        end_index=1,
+    )
+    chunk = ResponseOutputTextAnnotationAddedEvent(
+        type="response.output_text.annotation.added",
+        annotation=annotation,
+        annotation_index=0,
+        content_index=0,
+        item_id="msg_123",
+        output_index=0,
+        sequence_number=1,
+    )
+
+    contents = provider.stream_content(chunk, completion=None)
+
+    assert len(contents) == 1
+    citation = contents[0]
+    assert isinstance(citation, ContentCitation)
+    assert isinstance(citation.source, WebSource)
+    assert citation.source.url == "https://example.com"
+    assert citation.extra == annotation.model_dump()
 
 
 def test_openai_uploaded_serializes_to_input_file():

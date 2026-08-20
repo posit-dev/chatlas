@@ -1301,9 +1301,11 @@ def restore_content_value(value: Any) -> Any:
     if isinstance(value, dict):
         if set(value) == {CONTENT_VALUE_SENTINEL}:
             content = value[CONTENT_VALUE_SENTINEL]
-            if not isinstance(content, dict):
-                raise ValueError("Serialized Content value must be a dictionary.")
-            return create_content(content)
+            if (
+                isinstance(content, dict)
+                and content.get("content_type") in get_args(ContentTypeEnum)
+            ):
+                return create_content(content)
         return {key: restore_content_value(item) for key, item in value.items()}
     return value
 
