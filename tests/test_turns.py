@@ -13,7 +13,13 @@ from chatlas._turn import (
     UserTurn,
     check_finish_reason,
 )
-from chatlas.types import ContentJson, ContentText, ContentToolRequest, ContentToolResult
+from chatlas.types import (
+    ContentImageInline,
+    ContentJson,
+    ContentText,
+    ContentToolRequest,
+    ContentToolResult,
+)
 
 
 def test_system_prompt_applied_correctly():
@@ -173,6 +179,35 @@ def test_get_turns_tool_result_role_assistant():
     assert isinstance(turns[1].contents[1], ContentToolRequest) 
     assert isinstance(turns[1].contents[2], ContentToolResult)
     assert isinstance(turns[1].contents[3], ContentText)
+
+
+def test_get_turns_rich_tool_result_role_assistant():
+    request = ContentToolRequest(id="plot-1", name="plot", arguments={})
+    image = ContentImageInline(
+        data="aGVsbG8=",
+        image_content_type="image/png",
+    )
+    result = ContentToolResult(
+        value=[ContentText(text="Chart displayed."), image],
+        model_format="as_is",
+        request=request,
+    )
+    result_turn = UserTurn([result])
+
+    assert result_turn.contents == [result]
+
+    chat = ChatAnthropic()
+    chat.set_turns(
+        [
+            UserTurn("plot the data"),
+            AssistantTurn([request]),
+            result_turn,
+            AssistantTurn("The chart is ready."),
+        ]
+    )
+
+    turns = chat.get_turns(tool_result_role="assistant")
+    assert [turn.role for turn in turns] == ["user", "assistant"]
 
 
 def test_get_turns_tool_result_role_collapse_consecutive():

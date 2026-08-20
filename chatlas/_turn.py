@@ -6,7 +6,7 @@ import os
 import warnings
 from typing import Any, Generic, Literal, Optional, Sequence, TypeVar, cast
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from ._content import (
     Content,
@@ -266,17 +266,23 @@ class UserTurn(Turn):
     ):
         super().__init__(contents, **kwargs)
 
-    @model_validator(mode="after")
-    def expand_tool_contents(self):
-        contents: list[ContentUnion] = []
-        for x in merge_tool_results(self.contents):
-            if isinstance(x, ContentToolResult):
-                contents.extend(expand_tool_result(x))
-            else:
-                contents.append(x)
 
-        self.contents = tool_results_first(contents)
-        return self
+def normalize_turn_for_provider(turn: Turn) -> Turn:
+    if not isinstance(turn, UserTurn):
+        return turn
+
+    contents: list[ContentUnion] = []
+    for content in merge_tool_results(turn.contents):
+        if isinstance(content, ContentToolResult):
+            contents.extend(expand_tool_result(content))
+        else:
+            contents.append(content)
+
+    return turn.model_copy(update={"contents": tool_results_first(contents)})
+
+
+def normalize_turns_for_provider(turns: Sequence[Turn]) -> list[Turn]:
+    return [normalize_turn_for_provider(turn) for turn in turns]
 
 
 class SystemTurn(Turn):
