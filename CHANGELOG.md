@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* Rich tool results containing images or PDFs remain semantic `ContentToolResult` objects in saved chat history, so restoring a conversation no longer exposes provider-only XML and media as user-authored content.
 * `ChatOpenAI()` web-search citations no longer report the inline Markdown source link as `ContentCitation.grounded_span`; OpenAI's citation offsets identify that marker rather than the answer text it supports. (#388)
 * `ChatAnthropic()` now identifies Claude 5 and later models as supporting native structured output, so automatic mode does not fall back to tools. (#390)
 

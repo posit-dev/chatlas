@@ -12,10 +12,12 @@ from chatlas._turn import (
     Turn,
     UserTurn,
     check_finish_reason,
+    normalize_turn_for_provider,
 )
 from chatlas.types import (
     ContentImageInline,
     ContentJson,
+    ContentPDF,
     ContentText,
     ContentToolRequest,
     ContentToolResult,
@@ -208,6 +210,59 @@ def test_get_turns_rich_tool_result_role_assistant():
 
     turns = chat.get_turns(tool_result_role="assistant")
     assert [turn.role for turn in turns] == ["user", "assistant"]
+    assert chat.get_turns()[1].contents == [request]
+
+
+def test_rich_tool_result_json_round_trip_preserves_content_types():
+    request = ContentToolRequest(id="plot-1", name="plot", arguments={})
+    image = ContentImageInline(
+        data="aGVsbG8=",
+        image_content_type="image/png",
+    )
+    pdf = ContentPDF(data=b"pdf", filename="report.pdf")
+    result = ContentToolResult(
+        value=[ContentText(text="Chart displayed."), image, pdf],
+        model_format="as_is",
+        request=request,
+    )
+
+    restored = Turn.model_validate_json(UserTurn([result]).model_dump_json())
+    restored_result = restored.contents[0]
+    assert isinstance(restored_result, ContentToolResult)
+    assert isinstance(restored_result.value[0], ContentText)
+    assert isinstance(restored_result.value[1], ContentImageInline)
+    assert isinstance(restored_result.value[2], ContentPDF)
+
+    provider_turn = normalize_turn_for_provider(restored)
+    assert any(isinstance(x, ContentImageInline) for x in provider_turn.contents)
+    assert any(isinstance(x, ContentPDF) for x in provider_turn.contents)
+
+
+def test_tool_result_content_type_mapping_remains_mapping():
+    value = {"content_type": "text", "text": "ordinary tool data"}
+    result = ContentToolResult(value=value, model_format="as_is")
+
+    assert isinstance(result.value, dict)
+    assert result.value == value
+
+    restored = Turn.model_validate_json(UserTurn([result]).model_dump_json())
+    restored_result = restored.contents[0]
+    assert isinstance(restored_result, ContentToolResult)
+    assert isinstance(restored_result.value, dict)
+    assert restored_result.value == value
+
+
+def test_rich_tool_result_json_round_trip_preserves_nested_mapping_content():
+    image = ContentImageInline(
+        data="aGVsbG8=",
+        image_content_type="image/png",
+    )
+    result = ContentToolResult(value={"plot": image}, model_format="as_is")
+
+    restored = Turn.model_validate_json(UserTurn([result]).model_dump_json())
+    restored_result = restored.contents[0]
+    assert isinstance(restored_result, ContentToolResult)
+    assert isinstance(restored_result.value["plot"], ContentImageInline)
 
 
 def test_get_turns_tool_result_role_collapse_consecutive():

@@ -8,6 +8,9 @@ from chatlas import (
     ChatGroq,
     ChatOpenAI,
     ChatVertex,
+    ContentToolRequest,
+    ContentToolResult,
+    UserTurn,
 )
 from chatlas._batch_chat import (
     BatchJob,
@@ -17,6 +20,8 @@ from chatlas._batch_chat import (
     batch_chat_text,
 )
 from chatlas._provider import BatchStatus
+from chatlas._turn import Turn
+from chatlas.types import ContentImageInline
 from pydantic import BaseModel
 
 from .conftest import VCR_MATCH_ON_WITHOUT_BODY, make_vcr_config
@@ -135,6 +140,40 @@ def test_can_submit_anthropic_batch():
         assert job.stage == "submitting"
         job.step()
         assert job.stage == "waiting"
+
+
+def test_batch_normalizes_rich_tool_results_for_provider():
+    request = ContentToolRequest(id="plot-1", name="plot", arguments={})
+    image = ContentImageInline(data="aGVsbG8=", image_content_type="image/png")
+    result = ContentToolResult(value=image, model_format="as_is", request=request)
+    chat = ChatAnthropic(model="claude-sonnet-4-5", api_key="dummy")
+    chat.set_turns(
+        [
+            UserTurn("plot the data"),
+            AssistantTurn([request]),
+            UserTurn([result]),
+            AssistantTurn("The chart is ready."),
+        ]
+    )
+    provider_conversations: list[list[Turn]] | None = None
+
+    def batch_submit_mock(
+        conversations: list[list[Turn]], _data_model: type[BaseModel] | None = None
+    ) -> dict[str, str]:
+        nonlocal provider_conversations
+        provider_conversations = conversations
+        return {"id": "123"}
+
+    with tempfile.NamedTemporaryFile() as temp_file:
+        job = BatchJob(chat, ["What does it show?"], temp_file.name, wait=False)
+        job.provider.batch_submit = batch_submit_mock
+        job.step()
+
+    assert provider_conversations is not None
+    provider_result_turn = provider_conversations[0][2]
+    assert isinstance(provider_result_turn, UserTurn)
+    assert any(isinstance(x, ContentImageInline) for x in provider_result_turn.contents)
+    assert chat.get_turns()[2].contents == [result]
 
 
 def test_groq_batch_support_via_inheritance():

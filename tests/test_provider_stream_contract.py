@@ -11,12 +11,15 @@ import pytest
 from chatlas import Chat
 from chatlas._content import (
     Content,
+    ContentImageInline,
     ContentText,
     ContentThinkingDelta,
+    ContentToolRequest,
+    ContentToolResult,
     ContentToolRequestSearch,
 )
 from chatlas._provider import Provider
-from chatlas._turn import AssistantTurn
+from chatlas._turn import AssistantTurn, Turn, UserTurn
 
 
 class Chunk:
@@ -38,6 +41,8 @@ class AccumulatingProvider(Provider):
         self._chunks = chunks
         self.seen_completions: list[Optional[dict]] = []
         self.seen_turns: list[list[tuple[str, str]]] = []
+        self.seen_raw_turns: list[list[Turn]] = []
+        self.perform_turns: list[Turn] | None = None
 
     def stream_merge_chunks(self, completion, chunk) -> dict:
         merged = dict(completion or {"text": ""})
@@ -47,6 +52,7 @@ class AccumulatingProvider(Provider):
     def stream_content(self, chunk, completion, turns=()) -> list[Content]:
         self.seen_completions.append(completion)
         self.seen_turns.append([(turn.role, turn.text) for turn in turns])
+        self.seen_raw_turns.append(turns)
         out: list[Content] = []
         if chunk.text:
             out.append(ContentText.model_construct(text=chunk.text))
@@ -57,11 +63,13 @@ class AccumulatingProvider(Provider):
 
     def chat_perform(self, *, stream, turns, tools, data_model, kwargs):
         if stream:
+            self.perform_turns = turns
             return iter(self._chunks)
         raise NotImplementedError
 
     async def chat_perform_async(self, *, stream, turns, tools, data_model, kwargs):
         if stream:
+            self.perform_turns = turns
 
             async def gen():
                 for c in self._chunks:
@@ -72,6 +80,7 @@ class AccumulatingProvider(Provider):
 
     def stream_turn(self, completion, has_data_model, turns=()):
         self.seen_turns.append([(turn.role, turn.text) for turn in turns])
+        self.seen_raw_turns.append(turns)
         return AssistantTurn(
             contents=[ContentText.model_construct(text=completion["text"])],
             tokens=None,
@@ -141,6 +150,19 @@ def test_stream_content_receives_exact_request_turns():
     assert provider.seen_turns == [[("user", "hi")]] * 3
 
 
+def test_stream_provider_hooks_receive_normalized_rich_tool_results():
+    provider = AccumulatingProvider([Chunk("done")])
+    chat = Chat(provider=provider)
+    result = set_rich_tool_history(chat)
+
+    assert "".join(chat.stream("What does it show?")) == "done"
+
+    assert provider.perform_turns is not None
+    assert_rich_tool_result_expanded(provider.perform_turns)
+    assert all(turns is provider.perform_turns for turns in provider.seen_raw_turns)
+    assert chat.get_turns()[2].contents == [result]
+
+
 def test_multiple_contents_from_one_chunk_are_all_processed():
     provider = AccumulatingProvider([])
     chat = Chat(provider=provider)
@@ -178,3 +200,39 @@ async def test_stream_content_receives_exact_request_turns_async():
 
     assert "".join(out) == "ab"
     assert provider.seen_turns == [[("user", "hi")]] * 3
+
+
+@pytest.mark.asyncio
+async def test_stream_provider_hooks_receive_normalized_rich_tool_results_async():
+    provider = AccumulatingProvider([Chunk("done")])
+    chat = Chat(provider=provider)
+    result = set_rich_tool_history(chat)
+
+    out = [x async for x in await chat.stream_async("What does it show?")]
+
+    assert "".join(out) == "done"
+    assert provider.perform_turns is not None
+    assert_rich_tool_result_expanded(provider.perform_turns)
+    assert all(turns is provider.perform_turns for turns in provider.seen_raw_turns)
+    assert chat.get_turns()[2].contents == [result]
+
+
+def set_rich_tool_history(chat: Chat) -> ContentToolResult:
+    request = ContentToolRequest(id="plot-1", name="plot", arguments={})
+    image = ContentImageInline(data="aGVsbG8=", image_content_type="image/png")
+    result = ContentToolResult(value=image, model_format="as_is", request=request)
+    chat.set_turns(
+        [
+            UserTurn("plot the data"),
+            AssistantTurn([request]),
+            UserTurn([result]),
+            AssistantTurn("The chart is ready."),
+        ]
+    )
+    return result
+
+
+def assert_rich_tool_result_expanded(turns: list[Turn]) -> None:
+    result_turn = turns[2]
+    assert isinstance(result_turn, UserTurn)
+    assert any(isinstance(x, ContentImageInline) for x in result_turn.contents)
