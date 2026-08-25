@@ -18,7 +18,7 @@ import anthropic
 import anthropic._response
 import anthropic.lib.credentials._cache
 import anthropic.lib.credentials._types
-import httpx
+import httpx2
 
 
 class ChatClientArgs(TypedDict, total=False):
@@ -28,12 +28,12 @@ class ChatClientArgs(TypedDict, total=False):
     config: Optional[Mapping[str, Any]]
     profile: str | None
     webhook_key: str | None
-    base_url: str | httpx.URL | None
+    base_url: str | httpx2.URL | None
     timeout: float | anthropic.Timeout | None | anthropic.NotGiven
     max_retries: int
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
-    http_client: httpx.AsyncClient | None
+    http_client: httpx2.AsyncClient | None
     middleware: Optional[
         Sequence[
             Union[

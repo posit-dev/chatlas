@@ -9,7 +9,6 @@ import webbrowser
 from pathlib import Path
 from typing import Any, Callable, Literal, Optional
 
-import httpx
 import httpx2
 import requests
 from openai import AsyncOpenAI, OpenAI, OpenAIError
@@ -182,31 +181,12 @@ def _posit_error_message(
     return None
 
 
-class PositAuth(httpx.Auth):
+class PositHttpx2Auth(httpx2.Auth):
     """
     Turns a bearer-token callable into `Authorization: Bearer` headers on
     every request, overriding any `x-api-key` header a client set by default.
     """
 
-    def __init__(self, credentials: Callable[[], str]):
-        self._credentials = credentials
-
-    def _apply(self, request: httpx.Request, token: str) -> None:
-        request.headers.pop("x-api-key", None)
-        request.headers["Authorization"] = f"Bearer {token}"
-
-    def sync_auth_flow(self, request: httpx.Request):
-        token = self._credentials()
-        self._apply(request, token)
-        yield request
-
-    async def async_auth_flow(self, request: httpx.Request):
-        token = await asyncio.to_thread(self._credentials)
-        self._apply(request, token)
-        yield request
-
-
-class PositHttpx2Auth(httpx2.Auth):
     def __init__(self, credentials: Callable[[], str]):
         self._credentials = credentials
 
@@ -225,31 +205,7 @@ class PositHttpx2Auth(httpx2.Auth):
         yield request
 
 
-def make_posit_anthropic_error_hook(error_cls: type[Exception]):
-    def hook(response: httpx.Response) -> None:
-        if response.status_code < 400:
-            return
-        response.read()
-        message = _posit_error_message(response.status_code, _safe_json(response))
-        if message is not None:
-            raise error_cls(message)
-
-    return hook
-
-
-def make_posit_anthropic_error_hook_async(error_cls: type[Exception]):
-    async def hook(response: httpx.Response) -> None:
-        if response.status_code < 400:
-            return
-        await response.aread()
-        message = _posit_error_message(response.status_code, _safe_json(response))
-        if message is not None:
-            raise error_cls(message)
-
-    return hook
-
-
-def make_posit_openai_error_hook(error_cls: type[Exception]):
+def make_posit_error_hook(error_cls: type[Exception]):
     def hook(response: httpx2.Response) -> None:
         if response.status_code < 400:
             return
@@ -261,7 +217,7 @@ def make_posit_openai_error_hook(error_cls: type[Exception]):
     return hook
 
 
-def make_posit_openai_error_hook_async(error_cls: type[Exception]):
+def make_posit_error_hook_async(error_cls: type[Exception]):
     async def hook(response: httpx2.Response) -> None:
         if response.status_code < 400:
             return
@@ -328,7 +284,7 @@ class PositAnthropicProvider(AnthropicProvider):
         self._gateway_base_url = base_url.rstrip("/")
         self._credentials = credentials
 
-        auth = PositAuth(credentials)
+        auth = PositHttpx2Auth(credentials)
         # The anthropic SDK appends "/v1/messages" to base_url itself, so
         # this must not also include "/v1" (unlike the OpenAI flavor below,
         # whose SDK already includes "/v1" in its default base_url).
@@ -337,20 +293,18 @@ class PositAnthropicProvider(AnthropicProvider):
         self._client = Anthropic(
             api_key="not-used",
             base_url=flavor_base_url,
-            http_client=httpx.Client(
+            http_client=httpx2.Client(
                 auth=auth,
-                event_hooks={
-                    "response": [make_posit_anthropic_error_hook(AnthropicError)]
-                },
+                event_hooks={"response": [make_posit_error_hook(AnthropicError)]},
             ),
         )
         self._async_client = AsyncAnthropic(
             api_key="not-used",
             base_url=flavor_base_url,
-            http_client=httpx.AsyncClient(
+            http_client=httpx2.AsyncClient(
                 auth=auth,
                 event_hooks={
-                    "response": [make_posit_anthropic_error_hook_async(AnthropicError)]
+                    "response": [make_posit_error_hook_async(AnthropicError)]
                 },
             ),
         )
@@ -381,7 +335,7 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
             base_url=flavor_base_url,
             http_client=httpx2.Client(
                 auth=auth,
-                event_hooks={"response": [make_posit_openai_error_hook(OpenAIError)]},
+                event_hooks={"response": [make_posit_error_hook(OpenAIError)]},
             ),
         )
         self._async_client = AsyncOpenAI(
@@ -390,7 +344,7 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
             http_client=httpx2.AsyncClient(
                 auth=auth,
                 event_hooks={
-                    "response": [make_posit_openai_error_hook_async(OpenAIError)]
+                    "response": [make_posit_error_hook_async(OpenAIError)]
                 },
             ),
         )

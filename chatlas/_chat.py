@@ -195,6 +195,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         self._turns: list[Turn] = []
         self.system_prompt = system_prompt
         self.kwargs_chat: SubmitInputArgsT = kwargs_chat or {}
+        self._conversation_id: Optional[str] = None
 
         self._tools: dict[str, Tool | ToolBuiltIn] = {}
         self._on_tool_request_callbacks = CallbackManager()
@@ -488,6 +489,35 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     @model.setter
     def model(self, value: str):
         self.provider.model = value
+
+    @property
+    def conversation_id(self) -> str | None:
+        """
+        A property to get (or set) an identifier for the current conversation.
+
+        When set, it is recorded as the `gen_ai.conversation.id` attribute on
+        OpenTelemetry spans emitted for subsequent model calls. Set to `None`
+        to clear.
+
+        Developer-facing: intended for frameworks that manage conversation
+        history (e.g., Shiny apps). chatlas never generates an identifier on
+        its own.
+
+        Returns
+        -------
+        str | None
+            The conversation identifier (if any).
+        """
+        return self._conversation_id
+
+    @conversation_id.setter
+    def conversation_id(self, value: str | None):
+        if value is not None and not isinstance(value, str):
+            raise TypeError(
+                "conversation_id must be a string or None, "
+                f"not {type(value).__name__}."
+            )
+        self._conversation_id = value
 
     def get_tokens(self) -> list[TokensDict]:
         """
@@ -2690,7 +2720,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> Generator[str | Content, None, None]:
-        agent_span = start_agent_span(self.provider)
+        agent_span = start_agent_span(self.provider, self._conversation_id)
         try:
             user_turn_result: UserTurn | None = user_turn
             while user_turn_result is not None:
@@ -2777,7 +2807,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         *,
         controller: StreamController,
     ) -> AsyncGenerator[str | Content, None]:
-        agent_span = start_agent_span(self.provider)
+        agent_span = start_agent_span(self.provider, self._conversation_id)
         try:
             user_turn_result: UserTurn | None = user_turn
             while user_turn_result is not None:
@@ -2878,7 +2908,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         request_turns = [*self._turns, user_turn]
         provider_turns = normalize_turns_for_provider(request_turns)
-        chat_span = start_chat_span(self.provider, request_turns, _otel_parent)
+        chat_span = start_chat_span(
+            self.provider, request_turns, _otel_parent, self._conversation_id
+        )
         try:
 
             def emit(x: str | Content):
@@ -3036,7 +3068,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
     ) -> AsyncGenerator[str | Content, None]:
         request_turns = [*self._turns, user_turn]
         provider_turns = normalize_turns_for_provider(request_turns)
-        chat_span = start_chat_span(self.provider, request_turns, _otel_parent)
+        chat_span = start_chat_span(
+            self.provider, request_turns, _otel_parent, self._conversation_id
+        )
         try:
 
             def emit(x: str | Content):

@@ -771,14 +771,28 @@ class AnthropicProvider(
 
     def translate_model_params(self, params: StandardModelParams) -> "SubmitInputArgs":
         res: "SubmitInputArgs" = {}
-        if "temperature" in params:
-            res["temperature"] = params["temperature"]
 
-        if "top_p" in params:
-            res["top_p"] = params["top_p"]
-
-        if "top_k" in params:
-            res["top_k"] = params["top_k"]
+        # anthropic>=1.0 removed these sampling parameters from the request
+        # schema; current models ignore them. Forward them via `extra_body`
+        # so older models that still honor them keep working.
+        removed = [p for p in ("temperature", "top_p", "top_k") if p in params]
+        if removed:
+            warnings.warn(
+                f"The {', '.join(removed)} sampling parameter(s) no longer have "
+                "an effect on current Anthropic models. They are forwarded via "
+                "`extra_body` for older models that still honor them; this "
+                "forwarding is deprecated and will be removed in a future release.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            extra_body: dict[str, Any] = {}
+            if "temperature" in params:
+                extra_body["temperature"] = params["temperature"]
+            if "top_p" in params:
+                extra_body["top_p"] = params["top_p"]
+            if "top_k" in params:
+                extra_body["top_k"] = params["top_k"]
+            res["extra_body"] = extra_body
 
         if "max_tokens" in params:
             res["max_tokens"] = params["max_tokens"]

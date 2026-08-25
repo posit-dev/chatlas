@@ -335,6 +335,69 @@ def test_chat_error_recorded_streaming(otel_setup: InMemorySpanExporter):
     )
 
 
+def test_conversation_id_recorded_on_spans(otel_setup: InMemorySpanExporter):
+    # When a conversation id is set on the Chat, both the invoke_agent and chat
+    # spans should carry it as `gen_ai.conversation.id` (the provider call is
+    # forced to fail so the test runs without network; the spans are still
+    # created and finished with their start-time attributes).
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    chat.conversation_id = "conv_123"
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("provider blew up")
+
+    chat.provider.chat_perform = boom  # type: ignore[method-assign]
+
+    with pytest.raises(RuntimeError, match="provider blew up"):
+        chat.chat("Say hello.")
+
+    spans = otel_setup.get_finished_spans()
+    agent_spans = [s for s in spans if s.name == "invoke_agent"]
+    chat_spans = [s for s in spans if s.name.startswith("chat ")]
+    assert len(agent_spans) == 1
+    assert len(chat_spans) == 1
+
+    for span in (*agent_spans, *chat_spans):
+        attrs = span.attributes or {}
+        assert attrs.get("gen_ai.conversation.id") == "conv_123", (
+            f"Expected gen_ai.conversation.id on span {span.name!r}"
+        )
+
+
+def test_conversation_id_absent_by_default(otel_setup: InMemorySpanExporter):
+    # Per the GenAI semantic conventions, no fallback identifier should be
+    # invented when the app hasn't provided one.
+    chat = ChatOpenAI(model="gpt-4o-mini")
+
+    def boom(*args, **kwargs):
+        raise RuntimeError("provider blew up")
+
+    chat.provider.chat_perform = boom  # type: ignore[method-assign]
+
+    with pytest.raises(RuntimeError, match="provider blew up"):
+        chat.chat("Say hello.")
+
+    for span in otel_setup.get_finished_spans():
+        attrs = span.attributes or {}
+        assert "gen_ai.conversation.id" not in attrs, (
+            f"Unexpected gen_ai.conversation.id on span {span.name!r}"
+        )
+
+
+def test_conversation_id_property():
+    chat = ChatOpenAI(model="gpt-4o-mini")
+    assert chat.conversation_id is None
+
+    chat.conversation_id = "conv_123"
+    assert chat.conversation_id == "conv_123"
+
+    chat.conversation_id = None
+    assert chat.conversation_id is None
+
+    with pytest.raises(TypeError, match="conversation_id"):
+        chat.conversation_id = 123  # type: ignore[assignment]
+
+
 def test_noop_without_provider():
     from opentelemetry import trace
     from opentelemetry.trace import NonRecordingSpan

@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changes
+
+- `ChatAnthropic()`, `ChatBedrock()`, and `ChatPosit()` now require `anthropic>=1.0.0`. As a result, custom `http_client`s passed to Anthropic-backed providers must now be `httpx2` clients (rather than `httpx`), matching the anthropic SDK's own requirement.
+- `ChatBedrock()` and `ChatBedrockAnthropic()` now raise at construction if no AWS region can be resolved (from the `aws_region` argument, the `AWS_REGION`/`AWS_DEFAULT_REGION` environment variables, or the AWS profile), rather than silently defaulting to `us-east-1`. This behavior change is inherited from anthropic 1.0.
+- On Anthropic-backed providers, the `temperature`, `top_p`, and `top_k` model parameters are deprecated: anthropic 1.0 removed them from the request schema since current models ignore them. chatlas now forwards them via `extra_body` (with a `DeprecationWarning`) so older models that still honor them keep working; this forwarding will be removed in a future release.
+
+### Added
+
+- `Chat` gains a settable `.conversation_id` property. When set, the identifier is recorded as the `gen_ai.conversation.id` attribute on the OpenTelemetry `chat` and `invoke_agent` spans, allowing backends to group spans belonging to the same conversation (per the OpenTelemetry GenAI semantic conventions). Developer-facing: intended for frameworks that manage conversation history; chatlas never generates an identifier on its own.
+
 ### Bug fixes
 
 * `ChatDatabricks()` no longer crashes on GPT-OSS endpoints that return `message.content` / `delta.content` as a list of typed parts instead of a plain string; text parts are concatenated back into a string and reasoning summaries become `ContentThinking`/`ContentThinkingDelta`, both streaming and non-streaming. (#392)

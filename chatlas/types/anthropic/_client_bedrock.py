@@ -15,7 +15,7 @@ from typing import (
 
 import anthropic
 import anthropic._response
-import httpx
+import httpx2
 
 
 class ChatBedrockClientArgs(TypedDict, total=False):
@@ -25,12 +25,12 @@ class ChatBedrockClientArgs(TypedDict, total=False):
     aws_profile: str | None
     aws_session_token: str | None
     api_key: str | None
-    base_url: str | httpx.URL | None
+    base_url: str | httpx2.URL | None
     timeout: float | anthropic.Timeout | None | anthropic.NotGiven
     max_retries: int
     default_headers: Optional[Mapping[str, str]]
     default_query: Optional[Mapping[str, object]]
-    http_client: httpx.AsyncClient | None
+    http_client: httpx2.AsyncClient | None
     middleware: Optional[
         Sequence[
             Union[
