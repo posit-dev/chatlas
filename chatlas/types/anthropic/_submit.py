@@ -82,7 +82,6 @@ class SubmitInputArgs(TypedDict, total=False):
     system: Union[
         str, Iterable[anthropic.types.text_block_param.TextBlockParam], anthropic.Omit
     ]
-    temperature: float | anthropic.Omit
     thinking: Union[
         anthropic.types.thinking_config_enabled_param.ThinkingConfigEnabledParam,
         anthropic.types.thinking_config_disabled_param.ThinkingConfigDisabledParam,
@@ -124,8 +123,6 @@ class SubmitInputArgs(TypedDict, total=False):
         ],
         anthropic.Omit,
     ]
-    top_k: int | anthropic.Omit
-    top_p: float | anthropic.Omit
     user_profile_id: str | anthropic.Omit
     extra_headers: Optional[Mapping[str, Union[str, anthropic.Omit]]]
     extra_query: Optional[Mapping[str, object]]
