@@ -76,7 +76,7 @@ dev = [
     "pandas",
     "polars",
     "openai",
-    "anthropic[bedrock]>=0.109.1",
+    "anthropic[bedrock]>=1.0.0",
     "google-genai>=1.14.0",
     "numpy>1.24.4",
     "tiktoken",
@@ -108,11 +108,11 @@ eval = [
     "inspect-ai;python_version>='3.10'"
 ]
 # Provider extras ----
-anthropic = ["anthropic>=0.109.1"]
+anthropic = ["anthropic>=1.0.0"]
 # botocore is a direct import (region/credential resolution); the `bedrock`
 # extra of anthropic adds the boto3 session its mantle SigV4 signer needs.
-bedrock = ["botocore", "anthropic[bedrock]>=0.109.1", "openai>=2.50.0"]
-bedrock-anthropic = ["anthropic[bedrock]>=0.109.1"]
+bedrock = ["botocore", "anthropic[bedrock]>=1.0.0", "openai>=2.50.0"]
+bedrock-anthropic = ["anthropic[bedrock]>=1.0.0"]
 databricks = ["databricks-sdk"]
 # Intentionally empty since these providers used to require 
 # an additional openai install, but that's now included 
@@ -123,7 +123,7 @@ ollama = []
 openai = []
 azure-openai = []
 perplexity = []
-posit = ["anthropic>=0.109.1"]
+posit = ["anthropic>=1.0.0"]
 # Version requirement avoids an install issue with recent Python versions.
 # Remove it when snowflake-ml-python can be installed without a requirement.
 snowflake = ["snowflake-ml-python<=1.9.0"]

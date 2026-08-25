@@ -28,6 +28,15 @@ MESSAGES_MODELS = {
     "anthropic.claude-mythos-preview": "messages",
 }
 
+# litellm's coverage of mantle-only Responses models is incomplete/flaky, so
+# the models this feature exists to unlock are maintained by hand (AWS
+# documents them as mantle-only). litellm-derived entries are merged on top.
+RESPONSES_MODELS = {
+    "openai.gpt-5.6-luna": "responses",
+    "openai.gpt-5.6-sol": "responses",
+    "openai.gpt-5.6-terra": "responses",
+}
+
 
 def main() -> None:
     with urllib.request.urlopen(LITELLM_URL) as resp:
@@ -57,7 +66,7 @@ def main() -> None:
             "silently add Converse-servable models to it."
         )
 
-    apis = dict(MESSAGES_MODELS)
+    apis = dict(MESSAGES_MODELS) | dict(RESPONSES_MODELS)
     for provider, model, endpoints in rows:
         if provider != "bedrock_mantle":
             continue

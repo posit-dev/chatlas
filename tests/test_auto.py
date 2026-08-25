@@ -220,6 +220,8 @@ def test_provider_instances(monkeypatch):
     assert isinstance(chat.provider, AnthropicProvider)
 
     monkeypatch.setenv("CHATLAS_CHAT_PROVIDER_MODEL", "bedrock-anthropic")
+    # anthropic>=1.0 resolves the AWS region at client construction
+    monkeypatch.setenv("AWS_REGION", "us-east-1")
     chat = ChatAuto()
     assert isinstance(chat, Chat)
     assert isinstance(chat.provider, AnthropicBedrockProvider)

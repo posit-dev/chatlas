@@ -1,6 +1,7 @@
 from typing import Literal, cast
 
 import httpx
+import httpx2
 import pytest
 from anthropic.types import (
     CitationCharLocation,
@@ -913,7 +914,13 @@ def test_anthropic_image_tool(test_images_dir):
 
 
 def test_anthropic_custom_http_client():
-    ChatAnthropic(kwargs={"http_client": httpx.AsyncClient()})
+    ChatAnthropic(kwargs={"http_client": httpx2.AsyncClient()})
+
+
+def test_anthropic_legacy_httpx_client_rejected():
+    # anthropic>=1.0 only accepts httpx2 clients
+    with pytest.raises(TypeError, match="httpx2"):
+        ChatAnthropic(kwargs={"http_client": httpx.AsyncClient()})
 
 
 @pytest.mark.vcr
