@@ -28,15 +28,21 @@ def capture_content() -> bool:
     ).lower() in ("true", "1")
 
 
-def start_agent_span(provider: Provider[Any, Any, Any, Any]) -> Span:
+def start_agent_span(
+    provider: Provider[Any, Any, Any, Any],
+    conversation_id: Optional[str] = None,
+) -> Span:
+    attributes: dict[str, Any] = {
+        "gen_ai.operation.name": "invoke_agent",
+        "gen_ai.provider.name": provider.name.lower(),
+        "gen_ai.request.model": provider.model,
+    }
+    if conversation_id is not None:
+        attributes["gen_ai.conversation.id"] = conversation_id
     return tracer.start_span(
         "invoke_agent",
         kind=SpanKind.CLIENT,
-        attributes={
-            "gen_ai.operation.name": "invoke_agent",
-            "gen_ai.provider.name": provider.name.lower(),
-            "gen_ai.request.model": provider.model,
-        },
+        attributes=attributes,
     )
 
 
@@ -44,16 +50,22 @@ def start_chat_span(
     provider: Provider[Any, Any, Any, Any],
     turns: list[Turn],
     parent: Optional[Span],
+    conversation_id: Optional[str] = None,
 ) -> Span:
     ctx = trace.set_span_in_context(parent) if parent is not None else None
+    attributes: dict[str, Any] = {
+        "gen_ai.operation.name": "chat",
+        "gen_ai.provider.name": provider.name.lower(),
+        "gen_ai.request.model": provider.model,
+    }
+    if conversation_id is not None:
+        # Per the GenAI semantic conventions, only set when a conversation
+        # identifier is readily available; never invent a fallback value.
+        attributes["gen_ai.conversation.id"] = conversation_id
     span = tracer.start_span(
         f"chat {provider.model}",
         kind=SpanKind.CLIENT,
-        attributes={
-            "gen_ai.operation.name": "chat",
-            "gen_ai.provider.name": provider.name.lower(),
-            "gen_ai.request.model": provider.model,
-        },
+        attributes=attributes,
         context=ctx,
     )
 
