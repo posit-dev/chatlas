@@ -3,6 +3,7 @@ from datetime import date
 from importlib import resources
 
 import httpx
+import httpx2
 import pytest
 from chatlas import Chat, ChatBedrock
 from chatlas._provider_bedrock import (
@@ -332,7 +333,8 @@ class TestNativeSdkClients:
         assert chat.provider._client._use_sigv4 is True
 
     def test_messages_provider_accepts_a_custom_http_client(self):
-        http_client = httpx.Client()
+        # The messages API is served by the anthropic SDK, which requires httpx2
+        http_client = httpx2.Client()
         chat = ChatBedrock(
             model="anthropic.claude-haiku-4-5",
             api="messages",

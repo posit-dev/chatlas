@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 
+## [Unreleased]
+
+### Changes
+
+- `ChatAnthropic()`, `ChatBedrock()`, and `ChatPosit()` now require `anthropic>=1.0.0`. As a result, custom `http_client`s passed to Anthropic-backed providers must now be `httpx2` clients (rather than `httpx`), matching the anthropic SDK's own requirement.
 ## [0.21.2] - 2026-08-20
 
 ### Bug fixes

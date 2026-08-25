@@ -4,7 +4,6 @@ import time
 from pathlib import Path
 from typing import Any, Optional
 
-import httpx
 import httpx2
 import pytest
 import requests
@@ -13,16 +12,13 @@ from chatlas._provider_posit import (
     OAUTH_SCOPE,
     ChatPosit,
     PositAnthropicProvider,
-    PositAuth,
     PositCredentials,
     PositHttpx2Auth,
     PositOpenAIProvider,
     _posit_error_message,
     list_models_posit,
-    make_posit_anthropic_error_hook,
-    make_posit_anthropic_error_hook_async,
-    make_posit_openai_error_hook,
-    make_posit_openai_error_hook_async,
+    make_posit_error_hook,
+    make_posit_error_hook_async,
 )
 from openai import AsyncOpenAI, OpenAI, OpenAIError
 
@@ -261,46 +257,21 @@ def test_posit_error_message_returns_none_for_unrecognized_errors():
     assert _posit_error_message(403, {"error_type": "something_else"}) is None
 
 
-def test_posit_auth_sets_bearer_token_and_strips_api_key():
-    auth = PositAuth(lambda: "test-token")
-    request = httpx.Request("GET", "https://gateway.posit.ai/anthropic/v1/messages")
-    request.headers["x-api-key"] = "not-used"
-
-    flow = auth.sync_auth_flow(request)
-    sent_request = next(flow)
-
-    assert sent_request.headers["Authorization"] == "Bearer test-token"
-    assert "x-api-key" not in sent_request.headers
-
-
-def test_posit_auth_async_sets_bearer_token():
-    async def run() -> httpx.Request:
-        auth = PositAuth(lambda: "test-token")
-        request = httpx.Request(
-            "GET", "https://gateway.posit.ai/openai/v1/chat/completions"
-        )
-        flow = auth.async_auth_flow(request)
-        return await flow.__anext__()
-
-    sent_request = asyncio.run(run())
-    assert sent_request.headers["Authorization"] == "Bearer test-token"
-
-
 def test_anthropic_error_hook_propagates_through_client_send():
     from anthropic import Anthropic, AnthropicError
 
-    def handler(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(
             403, json={"error_type": "prism_account_not_found"}, request=request
         )
 
     client = Anthropic(
         api_key="not-used",
         base_url="https://gateway.posit.ai/anthropic/v1",
-        http_client=httpx.Client(
-            auth=PositAuth(lambda: "test-token"),
-            transport=httpx.MockTransport(handler),
-            event_hooks={"response": [make_posit_anthropic_error_hook(AnthropicError)]},
+        http_client=httpx2.Client(
+            auth=PositHttpx2Auth(lambda: "test-token"),
+            transport=httpx2.MockTransport(handler),
+            event_hooks={"response": [make_posit_error_hook(AnthropicError)]},
         ),
     )
 
@@ -316,19 +287,19 @@ def test_anthropic_error_hook_propagates_through_client_send():
 async def test_anthropic_error_hook_propagates_through_async_client_send():
     from anthropic import AnthropicError, AsyncAnthropic
 
-    def handler(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(
             403, json={"error_type": "prism_account_not_found"}, request=request
         )
 
     client = AsyncAnthropic(
         api_key="not-used",
         base_url="https://gateway.posit.ai/anthropic/v1",
-        http_client=httpx.AsyncClient(
-            auth=PositAuth(lambda: "test-token"),
-            transport=httpx.MockTransport(handler),
+        http_client=httpx2.AsyncClient(
+            auth=PositHttpx2Auth(lambda: "test-token"),
+            transport=httpx2.MockTransport(handler),
             event_hooks={
-                "response": [make_posit_anthropic_error_hook_async(AnthropicError)]
+                "response": [make_posit_error_hook_async(AnthropicError)]
             },
         ),
     )
@@ -379,7 +350,7 @@ def test_openai_httpx2_error_hook_propagates_through_client_send():
         http_client=httpx2.Client(
             auth=PositHttpx2Auth(lambda: "test-token"),
             transport=httpx2.MockTransport(handler),
-            event_hooks={"response": [make_posit_openai_error_hook(OpenAIError)]},
+            event_hooks={"response": [make_posit_error_hook(OpenAIError)]},
         ),
     )
 
@@ -403,7 +374,7 @@ async def test_openai_httpx2_error_hook_propagates_through_async_client_send():
         http_client=httpx2.AsyncClient(
             auth=PositHttpx2Auth(lambda: "test-token"),
             transport=httpx2.MockTransport(handler),
-            event_hooks={"response": [make_posit_openai_error_hook_async(OpenAIError)]},
+            event_hooks={"response": [make_posit_error_hook_async(OpenAIError)]},
         ),
     )
 
@@ -419,18 +390,18 @@ async def test_openai_httpx2_error_hook_propagates_through_async_client_send():
 def test_unrecognized_gateway_error_passes_through_unchanged():
     from anthropic import Anthropic, APIStatusError
 
-    def handler(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(500, json={"error": {"message": "boom"}}, request=request)
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        return httpx2.Response(500, json={"error": {"message": "boom"}}, request=request)
 
     from anthropic import AnthropicError
 
     client = Anthropic(
         api_key="not-used",
         base_url="https://gateway.posit.ai/anthropic/v1",
-        http_client=httpx.Client(
-            auth=PositAuth(lambda: "test-token"),
-            transport=httpx.MockTransport(handler),
-            event_hooks={"response": [make_posit_anthropic_error_hook(AnthropicError)]},
+        http_client=httpx2.Client(
+            auth=PositHttpx2Auth(lambda: "test-token"),
+            transport=httpx2.MockTransport(handler),
+            event_hooks={"response": [make_posit_error_hook(AnthropicError)]},
         ),
     )
 
