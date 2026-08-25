@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `Chat` gains a settable `.conversation_id` property. When set, the identifier is recorded as the `gen_ai.conversation.id` attribute on the OpenTelemetry `chat` and `invoke_agent` spans, allowing backends to group spans belonging to the same conversation (per the OpenTelemetry GenAI semantic conventions). Developer-facing: intended for frameworks that manage conversation history; chatlas never generates an identifier on its own.
+
+### Bug fixes
+
+* `ChatDatabricks()` no longer crashes on GPT-OSS endpoints that return `message.content` / `delta.content` as a list of typed parts instead of a plain string; text parts are concatenated back into a string and reasoning summaries become `ContentThinking`/`ContentThinkingDelta`, both streaming and non-streaming. (#392)
+
 ## [0.21.2] - 2026-08-20
 
 ### Bug fixes

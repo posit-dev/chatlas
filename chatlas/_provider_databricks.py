@@ -1,20 +1,45 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import httpx
 from openai import AsyncOpenAI
 
 from ._chat import Chat
+from ._content import Content
 from ._logging import log_model_default
 from ._provider_openai_completions import OpenAICompletionsProvider
 from ._provider_openai_generic import create_openai_client
+from ._turn import AssistantTurn
 
 if TYPE_CHECKING:
     from databricks.sdk import WorkspaceClient
 
     from ._provider_openai_completions import ChatCompletion
     from .types.openai import SubmitInputArgs
+
+
+def _normalize_content_parts(parts: list[Any]) -> tuple[Optional[str], Optional[str]]:
+    """Split a Databricks GPT-OSS typed content array into (text, reasoning).
+
+    GPT-OSS endpoints can return `message.content` / `delta.content` as a list
+    of typed parts (`{"type": "text", ...}`, `{"type": "reasoning", ...}`)
+    rather than the plain string the OpenAI-compatible parser assumes. Text
+    parts are concatenated back into a string; reasoning summaries are
+    concatenated into a separate string so callers can feed it into the
+    existing `reasoning` handling. Unrecognized part types are ignored, per
+    this provider's own scope (no generic typed-content support).
+    """
+    text = ""
+    reasoning = ""
+    for part in parts:
+        part_type = part.get("type") if isinstance(part, dict) else None
+        if part_type == "text":
+            text += part.get("text") or ""
+        elif part_type == "reasoning":
+            for summary in part.get("summary") or []:
+                reasoning += summary.get("text") or ""
+    return (text or None), (reasoning or None)
 
 
 def ChatDatabricks(
@@ -158,3 +183,28 @@ class DatabricksProvider(OpenAICompletionsProvider):
             del kwargs2["stream_options"]
 
         return kwargs2
+
+    # GPT-OSS endpoints can return delta.content as a list of typed parts
+    # instead of a plain string; normalize it in place, then reuse the base
+    # class's existing string/reasoning handling.
+    def stream_content(self, chunk, completion, turns=()) -> list[Content]:
+        delta = chunk.choices[0].delta if chunk.choices else None
+        if delta is not None and isinstance(delta.content, list):
+            text, reasoning = _normalize_content_parts(delta.content)
+            delta.content = text
+            if reasoning:
+                setattr(delta, "reasoning", reasoning)
+        return super().stream_content(chunk, completion, turns)
+
+    # Same normalization for the non-streaming/completed-response path.
+    @staticmethod
+    def _response_as_turn(
+        completion: "ChatCompletion", has_data_model: bool
+    ) -> AssistantTurn["ChatCompletion"]:
+        message = completion.choices[0].message
+        if isinstance(message.content, list):
+            text, reasoning = _normalize_content_parts(message.content)
+            message.content = text
+            if reasoning:
+                setattr(message, "reasoning", reasoning)
+        return OpenAICompletionsProvider._response_as_turn(completion, has_data_model)
