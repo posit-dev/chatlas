@@ -152,12 +152,12 @@ def test_translate_model_params_anthropic():
         "stop_sequences": ["STOP"],
     }
 
-    result = provider.translate_model_params(params)
+    with pytest.warns(DeprecationWarning, match="no longer have an effect"):
+        result = provider.translate_model_params(params)
 
     expected = {
-        "temperature": 0.7,
-        "top_p": 0.95,
-        "top_k": 50,
+        # anthropic>=1.0 dropped sampling parameters; forwarded via extra_body
+        "extra_body": {"temperature": 0.7, "top_p": 0.95, "top_k": 50},
         "max_tokens": 200,
         "stop_sequences": ["STOP"],
     }
@@ -500,10 +500,13 @@ def test_anthropic_model_params_integration():
     )
 
     # Test that provider.translate_model_params converts them correctly
-    provider_args = chat.provider.translate_model_params(chat._standard_model_params)
+    with pytest.warns(DeprecationWarning, match="no longer have an effect"):
+        provider_args = chat.provider.translate_model_params(
+            chat._standard_model_params
+        )
 
-    assert provider_args["temperature"] == 0.4
-    assert provider_args["top_k"] == 20
+    # anthropic>=1.0 dropped sampling parameters; forwarded via extra_body
+    assert provider_args["extra_body"] == {"temperature": 0.4, "top_k": 20}
     assert provider_args["max_tokens"] == 75
     assert provider_args["stop_sequences"] == ["END", "STOP"]
 
