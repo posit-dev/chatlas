@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 
+## [Unreleased]
+
+### Added
+
+- `ChatOllama()` gains an `options` parameter for passing Ollama model options (e.g. `options={"num_ctx": 8192}` to increase the context window size) through to the request body (#327).
+
+### Changes
+
+- The `model=None` error message in `ChatOllama()` now reads "Available models" instead of "Locally installed models", since `base_url` may point at a remote endpoint (#166).
+
 ## [0.22.0] - 2026-08-25
 
 ### Changes

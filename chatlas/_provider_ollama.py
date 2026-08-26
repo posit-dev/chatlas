@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 import urllib.request
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 import orjson
 
@@ -23,6 +23,7 @@ def ChatOllama(
     *,
     system_prompt: Optional[str] = None,
     base_url: str = "http://localhost:11434",
+    options: Optional[dict[str, Any]] = None,
     reasoning_effort: "ReasoningEffort" = None,
     seed: int | None | MISSING_TYPE = MISSING,
     kwargs: Optional["ChatClientArgs"] = None,
@@ -72,6 +73,10 @@ def ChatOllama(
         A system prompt to set the behavior of the assistant.
     base_url
         The base URL to the endpoint; the default uses ollama's API.
+    options
+        Additional Ollama model options (e.g. `{"num_ctx": 8192}` to increase
+        the context window size, which defaults to 2048). These are passed
+        through to the request body of Ollama's OpenAI-compatible endpoint.
     reasoning_effort
         Enables extended "thinking" for models that support it (e.g. qwen3,
         gpt-oss). Which values are accepted is model-dependent -- qwen3 only
@@ -103,7 +108,7 @@ def ChatOllama(
         models = ollama_model_info(base_url)
         model_ids = [m["id"] for m in models]
         raise ValueError(
-            f"Must specify model. Locally installed models: {', '.join(model_ids)}"
+            f"Must specify model. Available models: {', '.join(model_ids)}"
         )
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
@@ -111,6 +116,8 @@ def ChatOllama(
     kwargs_chat: "SubmitInputArgs" = {}
     if reasoning_effort is not None:
         kwargs_chat["reasoning_effort"] = reasoning_effort
+    if options is not None:
+        kwargs_chat["extra_body"] = options
 
     return Chat(
         provider=OllamaProvider(
