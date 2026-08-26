@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-import urllib.parse
 import urllib.request
 from typing import TYPE_CHECKING, Any, Optional
 
@@ -78,8 +77,6 @@ def ChatOllama(
         Additional Ollama model options (e.g. `{"num_ctx": 8192}` to increase
         the context window size, which defaults to 2048). These are passed
         through to the request body of Ollama's OpenAI-compatible endpoint.
-        See <https://docs.ollama.com/api/chat#request-body-options> for
-        available options.
     reasoning_effort
         Enables extended "thinking" for models that support it (e.g. qwen3,
         gpt-oss). Which values are accepted is model-dependent -- qwen3 only
@@ -104,32 +101,15 @@ def ChatOllama(
 
     base_url = re.sub("/+$", "", base_url)
 
-    is_local = is_local_ollama(base_url)
-
-    models = ollama_model_info(base_url)
-    if models is None:
-        if is_local:
-            raise RuntimeError("Can't find locally running ollama.")
-        raise RuntimeError(f"Can't connect to ollama at {base_url}.")
-
-    model_ids = [m["id"] for m in models]
+    if not has_ollama(base_url):
+        raise RuntimeError("Can't find locally running ollama.")
 
     if model is None:
-        raise ValueError(f"Must specify model. Available models: {', '.join(model_ids)}")
-
-    # Model ids have any ":latest" tag stripped, so normalize the same way
-    if re.sub(":latest$", "", model) not in model_ids:
-        if is_local:
-            raise ValueError(
-                f"Model '{model}' is not installed locally. "
-                f"Run `ollama pull {model}` in your terminal to install it. "
-                f"Locally installed models: {', '.join(model_ids)}"
-            )
+        models = ollama_model_info(base_url)
+        model_ids = [m["id"] for m in models]
         raise ValueError(
-            f"Model '{model}' is not available on {base_url}. "
-            f"Available models: {', '.join(model_ids)}"
+            f"Must specify model. Available models: {', '.join(model_ids)}"
         )
-
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
 
@@ -166,20 +146,11 @@ class OllamaProvider(OpenAICompletionsProvider):
         self.base_url = base_url
 
     def list_models(self):
-        return ollama_model_info(self.base_url) or []
+        return ollama_model_info(self.base_url)
 
 
-def ollama_model_info(base_url: str) -> Optional[list[ModelInfo]]:
-    """
-    Retrieve model info from ollama's `/api/tags` endpoint.
-
-    Returns `None` if the endpoint can't be reached.
-    """
-    try:
-        response = urllib.request.urlopen(url=f"{base_url}/api/tags")
-    except Exception:
-        return None
-
+def ollama_model_info(base_url: str) -> list[ModelInfo]:
+    response = urllib.request.urlopen(url=f"{base_url}/api/tags")
     data = orjson.loads(response.read())
     models = data.get("models", [])
     if not models:
@@ -198,11 +169,9 @@ def ollama_model_info(base_url: str) -> Optional[list[ModelInfo]]:
     return res
 
 
-def is_local_ollama(base_url: str) -> bool:
-    """Whether `base_url` points at a locally running ollama instance."""
-    host = urllib.parse.urlparse(base_url).hostname
-    return host in ("localhost", "127.0.0.1", "::1")
-
-
 def has_ollama(base_url):
-    return ollama_model_info(base_url) is not None
+    try:
+        urllib.request.urlopen(url=f"{base_url}/api/tags")
+        return True
+    except Exception:
+        return False

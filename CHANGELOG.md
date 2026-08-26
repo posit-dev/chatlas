@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 
-- `ChatOllama()` now validates the supplied `model` against the models reported by the Ollama endpoint, and its error messages distinguish between local and remote endpoints: connection failures and unknown models now give `ollama pull`-style guidance only for local URLs, and remote URLs get endpoint-specific messages (#393, #166).
+- The `model=None` error message in `ChatOllama()` now reads "Available models" instead of "Locally installed models", since `base_url` may point at a remote endpoint (#166).
 
 ## [0.22.0] - 2026-08-25
 

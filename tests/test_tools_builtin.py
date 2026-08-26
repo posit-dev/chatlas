@@ -412,8 +412,7 @@ class TestUnsupportedProviders:
     def test_openai_compatible_provider_rejects_web_search(self, monkeypatch):
         """Providers inheriting the completions provider inherit the rejection."""
         monkeypatch.setattr(
-            "chatlas._provider_ollama.ollama_model_info",
-            lambda base_url: [{"id": "llama3.2"}],
+            "chatlas._provider_ollama.has_ollama", lambda base_url: True
         )
         chat = ChatOllama(model="llama3.2")
         with pytest.raises(ValueError, match="`web_search`.*not supported by Ollama"):
