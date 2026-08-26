@@ -109,7 +109,7 @@ def ChatOllama(
         raise ValueError(
             f"Must specify model. Available models: {', '.join(model_ids)}"
         )
-    elif model not in model_ids:
+    elif re.sub(":latest$", "", model) not in model_ids:
         if is_local:
             raise ValueError(
                 f"Model {model!r} is not installed locally. "

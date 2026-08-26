@@ -99,3 +99,14 @@ def test_ollama_unavailable_model_remote_guidance(monkeypatch):
             model="not-a-real-model",
             base_url="http://remote-host.example.com:11434",
         )
+
+
+def test_ollama_model_with_explicit_latest_tag_accepted(monkeypatch):
+    """ollama_model_info() strips ':latest', so a model requested with the
+    tag users copy straight from `ollama list` must still match."""
+    monkeypatch.setattr("chatlas._provider_ollama.has_ollama", lambda base_url: True)
+    monkeypatch.setattr(
+        "chatlas._provider_ollama.ollama_model_info", lambda base_url: _MODELS
+    )
+
+    ChatOllama(model="llama3.2:latest", base_url="http://localhost:11434")
