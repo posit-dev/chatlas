@@ -414,6 +414,10 @@ class TestUnsupportedProviders:
         monkeypatch.setattr(
             "chatlas._provider_ollama.has_ollama", lambda base_url: True
         )
+        monkeypatch.setattr(
+            "chatlas._provider_ollama.ollama_model_info",
+            lambda base_url: [{"id": "llama3.2", "created_at": "x", "size": 1}],
+        )
         chat = ChatOllama(model="llama3.2")
         with pytest.raises(ValueError, match="`web_search`.*not supported by Ollama"):
             chat.register_tool(tool_web_search())
