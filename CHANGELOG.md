@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 
+## [Unreleased]
+
+### Added
+
+- `ChatOllama()` gains an `options` parameter for passing Ollama model options (e.g. `options={"num_ctx": 8192}` to increase the context window size) through to the request body (#327).
+
+### Changes
+
+- `ChatOllama()` now validates the supplied `model` against the models reported by the Ollama endpoint, and its error messages distinguish between local and remote endpoints: connection failures and unknown models now give `ollama pull`-style guidance only for local URLs, and remote URLs get endpoint-specific messages (#393, #166).
+
 ## [0.22.0] - 2026-08-25
 
 ### Changes
