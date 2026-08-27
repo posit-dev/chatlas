@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -->
 
 
+## [Unreleased]
+
+### Bug fixes
+
+* `ChatOllama()` now distinguishes a remote endpoint it can't reach from a genuinely missing local install, and validates a supplied `model` against `/api/tags` at construction time instead of only when `model` is omitted. (#393)
+
 ## [0.22.0] - 2026-08-25
 
 ### Changes

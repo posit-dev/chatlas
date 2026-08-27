@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import urllib.request
 from typing import TYPE_CHECKING, Optional
+from urllib.parse import urlparse
 
 import orjson
 
@@ -66,7 +67,7 @@ def ChatOllama(
     Parameters
     ----------
     model
-        The model to use for the chat. If `None`, a list of locally installed
+        The model to use for the chat. If `None`, a list of available
         models will be printed.
     system_prompt
         A system prompt to set the behavior of the assistant.
@@ -95,15 +96,29 @@ def ChatOllama(
     """
 
     base_url = re.sub("/+$", "", base_url)
+    is_local = is_local_ollama(base_url)
 
     if not has_ollama(base_url):
-        raise RuntimeError("Can't find locally running ollama.")
+        if is_local:
+            raise RuntimeError("Can't find locally running ollama.")
+        raise RuntimeError(f"Can't connect to ollama at {base_url}.")
+
+    model_ids = [m["id"] for m in ollama_model_info(base_url)]
 
     if model is None:
-        models = ollama_model_info(base_url)
-        model_ids = [m["id"] for m in models]
         raise ValueError(
-            f"Must specify model. Locally installed models: {', '.join(model_ids)}"
+            f"Must specify model. Available models: {', '.join(model_ids)}"
+        )
+    elif re.sub(":latest$", "", model) not in model_ids:
+        if is_local:
+            raise ValueError(
+                f"Model {model!r} is not installed locally. "
+                f"Run `ollama pull {model}` to install it. "
+                f"Available models: {', '.join(model_ids)}"
+            )
+        raise ValueError(
+            f"Model {model!r} is not available on {base_url}. "
+            f"Available models: {', '.join(model_ids)}"
         )
     if isinstance(seed, MISSING_TYPE):
         seed = 1014 if is_testing() else None
@@ -168,3 +183,8 @@ def has_ollama(base_url):
         return True
     except Exception:
         return False
+
+
+def is_local_ollama(base_url: str) -> bool:
+    host = urlparse(base_url).hostname
+    return host in ("localhost", "127.0.0.1", "::1")

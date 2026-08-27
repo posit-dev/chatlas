@@ -51,12 +51,20 @@ def test_maybe_write_roundtrip(tmp_path):
 
 def test_files_accessor_type(monkeypatch):
     monkeypatch.setattr("chatlas._provider_ollama.has_ollama", lambda base_url: True)
+    monkeypatch.setattr(
+        "chatlas._provider_ollama.ollama_model_info",
+        lambda base_url: [{"id": "llama3.1", "created_at": "x", "size": 1}],
+    )
     chat = ChatOllama(model="llama3.1")
     assert isinstance(chat.files, FileManager)
 
 
 def test_unsupported_provider_raises(monkeypatch):
     monkeypatch.setattr("chatlas._provider_ollama.has_ollama", lambda base_url: True)
+    monkeypatch.setattr(
+        "chatlas._provider_ollama.ollama_model_info",
+        lambda base_url: [{"id": "llama3.1", "created_at": "x", "size": 1}],
+    )
     chat = ChatOllama(model="llama3.1")
     with pytest.raises(NotImplementedError, match="file management"):
         chat.files.upload("some.pdf")
