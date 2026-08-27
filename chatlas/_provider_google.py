@@ -626,6 +626,14 @@ class GoogleProvider(
 
         if isinstance(content, ContentText):
             return Part.from_text(text=content.text)
+        elif isinstance(content, ContentThinking):
+            # Replay the thought (with its signature, if any) so multi-turn
+            # conversations with thinking models don't 400 (#403).
+            return Part(
+                text=content.thinking,
+                thought=True,
+                thought_signature=(content.extra or {}).get("thought_signature"),  # type: ignore
+            )
         elif isinstance(content, ContentJson):
             text = orjson.dumps(content.value).decode("utf-8")
             return Part.from_text(text=text)
@@ -745,7 +753,13 @@ class GoogleProvider(
                 if has_data_model:
                     contents.append(ContentJson(value=orjson.loads(text)))
                 elif part.get("thought"):
-                    contents.append(ContentThinking(thinking=text))
+                    thinking_extra: dict[str, object] = {}
+                    thought_signature = part.get("thought_signature")
+                    if thought_signature is not None:
+                        thinking_extra["thought_signature"] = thought_signature
+                    contents.append(
+                        ContentThinking(thinking=text, extra=thinking_extra)
+                    )
                 else:
                     contents.append(ContentText(text=text))
             function_call = part.get("function_call")
