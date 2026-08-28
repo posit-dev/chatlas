@@ -51,9 +51,22 @@ def _is_connect_gateway_url(url: str) -> bool:
         url_parsed.scheme.lower() == server_parsed.scheme.lower()
         and (url_parsed.hostname or "").lower()
         == (server_parsed.hostname or "").lower()
-        and url_parsed.port == server_parsed.port
+        and _port(url_parsed) == _port(server_parsed)
         and url_parsed.path.startswith("/__gateway__/")
     )
+
+
+def _port(parsed) -> Optional[int]:
+    # Treat an omitted port as the scheme's default so that, e.g.,
+    # https://host and https://host:443 compare equal
+    if parsed.port is not None:
+        return parsed.port
+    scheme = parsed.scheme.lower()
+    if scheme == "https":
+        return 443
+    if scheme == "http":
+        return 80
+    return None
 
 
 def _connect_viewer_token() -> Optional[str]:
@@ -70,4 +83,9 @@ def _connect_viewer_token() -> Optional[str]:
     http_conn = getattr(session, "http_conn", None)
     if http_conn is None:
         return None
-    return http_conn.headers.get(CONNECT_VIEWER_TOKEN_HEADER.lower())
+    headers = http_conn.headers
+    # starlette's Headers lookup is case-insensitive, but don't rely on it:
+    # try the canonical casing first, then lowercase
+    return headers.get(CONNECT_VIEWER_TOKEN_HEADER) or headers.get(
+        CONNECT_VIEWER_TOKEN_HEADER.lower()
+    )

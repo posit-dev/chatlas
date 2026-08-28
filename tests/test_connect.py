@@ -1,8 +1,6 @@
-import os
 from types import SimpleNamespace
 
 import pytest
-
 from chatlas import ChatAnthropic, ChatOpenAI
 from chatlas._connect import (
     CONNECT_VIEWER_TOKEN_HEADER,
@@ -51,6 +49,8 @@ def test_gateway_url_matching(connect_env):
     assert not _is_connect_gateway_url("https://connect.example.com/content/123")
     # Port must match
     assert not _is_connect_gateway_url("https://connect.example.com:8443/__gateway__/x")
+    # An explicit default port is equivalent to an omitted one
+    assert _is_connect_gateway_url("https://connect.example.com:443/__gateway__/x")
 
 
 def test_session_token_not_read_when_not_on_connect(monkeypatch):
@@ -68,6 +68,10 @@ def test_viewer_token_read_from_shiny_session(connect_env, monkeypatch):
         )
     )
     monkeypatch.setattr(shiny, "get_current_session", lambda: session)
+    assert _connect_viewer_token() == "shiny-token"
+
+    # Header containers that preserve original casing are also handled
+    session.http_conn.headers = {CONNECT_VIEWER_TOKEN_HEADER: "shiny-token"}
     assert _connect_viewer_token() == "shiny-token"
 
 
