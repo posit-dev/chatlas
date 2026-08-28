@@ -1066,6 +1066,87 @@ class TestConverseDispatch:
             provider._client.base_url
         )
 
+    def test_converse_base_url_defaults_to_endpoint_env_var(self, monkeypatch):
+        from chatlas import ChatBedrock
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        monkeypatch.setenv(
+            "AWS_ENDPOINT_URL_BEDROCK_RUNTIME", "https://bedrock.example.com"
+        )
+        chat = ChatBedrock(model="amazon.nova-pro-v1:0", aws_region="us-west-2")
+        provider = cast(BedrockConverseProvider, chat.provider)
+
+        assert str(provider._client.base_url) == "https://bedrock.example.com"
+
+    def test_explicit_base_url_outranks_endpoint_env_var(self, monkeypatch):
+        from chatlas import ChatBedrock
+        from chatlas._provider_bedrock_converse import BedrockConverseProvider
+
+        monkeypatch.setenv(
+            "AWS_ENDPOINT_URL_BEDROCK_RUNTIME", "https://bedrock.example.com"
+        )
+        chat = ChatBedrock(
+            model="amazon.nova-pro-v1:0",
+            aws_region="us-west-2",
+            base_url="https://explicit.example.com",
+        )
+        provider = cast(BedrockConverseProvider, chat.provider)
+
+        assert str(provider._client.base_url) == "https://explicit.example.com"
+
+    def test_mantle_base_url_ignores_runtime_endpoint_env_var(self, monkeypatch):
+        from chatlas._provider_bedrock import bedrock_base_url
+
+        monkeypatch.setenv(
+            "AWS_ENDPOINT_URL_BEDROCK_RUNTIME", "https://bedrock.example.com"
+        )
+
+        assert bedrock_base_url("messages", "us-west-2") == (
+            "https://bedrock-mantle.us-west-2.api.aws/anthropic"
+        )
+        assert bedrock_base_url("responses", "us-west-2") == (
+            "https://bedrock-mantle.us-west-2.api.aws/openai/v1"
+        )
+
+    def test_mantle_base_url_defaults_to_mantle_endpoint_env_var(
+        self, monkeypatch
+    ):
+        from chatlas._provider_bedrock import bedrock_base_url
+
+        # Trailing slash is stripped before the API-specific path is appended.
+        monkeypatch.setenv(
+            "AWS_ENDPOINT_URL_BEDROCK_MANTLE", "https://mantle.example.com/"
+        )
+
+        assert bedrock_base_url("messages", "us-west-2") == (
+            "https://mantle.example.com/anthropic"
+        )
+        assert bedrock_base_url("responses", "us-west-2") == (
+            "https://mantle.example.com/openai/v1"
+        )
+        # The runtime (converse) endpoint is a different AWS service, so it
+        # ignores the mantle override.
+        assert bedrock_base_url("converse", "us-west-2") == (
+            "https://bedrock-runtime.us-west-2.amazonaws.com"
+        )
+
+    def test_models_base_url_follows_mantle_endpoint_env_var(self, monkeypatch):
+        from chatlas._provider_bedrock import (
+            bedrock_base_url,
+            bedrock_models_base_url,
+        )
+
+        monkeypatch.setenv(
+            "AWS_ENDPOINT_URL_BEDROCK_MANTLE", "https://mantle.example.com"
+        )
+
+        assert bedrock_models_base_url(
+            bedrock_base_url("responses", "us-west-2")
+        ) == "https://mantle.example.com/v1"
+        assert bedrock_models_base_url(
+            bedrock_base_url("messages", "us-west-2")
+        ) == "https://mantle.example.com/v1"
+
     def test_explicit_converse_forwards_config_without_validating_credentials(
         self, monkeypatch
     ):

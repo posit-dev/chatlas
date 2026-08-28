@@ -211,7 +211,10 @@ def ChatAnthropic(
         variable.
     kwargs
         Additional arguments to pass to the `anthropic.Anthropic()` client
-        constructor.
+        constructor. Note that the client defaults `base_url` to the
+        `ANTHROPIC_BASE_URL` environment variable when it is set, so setting
+        that variable is enough to route requests through a proxy or
+        gateway.
 
     Returns
     -------
