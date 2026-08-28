@@ -17,6 +17,7 @@ from openai.types.chat import (
 from pydantic import BaseModel
 
 from ._chat import Chat
+from ._connect import connect_viewer_headers
 from ._content import (
     Content,
     ContentDocument,
@@ -35,7 +36,6 @@ from ._content import (
 from ._content_file import ensure_bytes
 from ._logging import log_model_default
 from ._merge import merge_dicts
-from ._connect import connect_viewer_headers
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema

@@ -18,6 +18,7 @@ import orjson
 from pydantic import BaseModel
 
 from ._chat import Chat
+from ._connect import connect_viewer_headers
 from ._content import (
     PROVIDER_ANNOTATION_TYPES,
     Content,
@@ -44,7 +45,6 @@ from ._content import (
 from ._content_file import ensure_bytes
 from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
-from ._connect import connect_viewer_headers
 from ._provider import (
     BatchStatus,
     ModelInfo,

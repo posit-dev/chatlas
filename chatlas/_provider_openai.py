@@ -23,6 +23,7 @@ from openai.types.responses.response_output_text_annotation_added_event import (
 from pydantic import BaseModel
 
 from ._chat import Chat
+from ._connect import connect_viewer_headers
 from ._content import (
     PROVIDER_ANNOTATION_TYPES,
     Content,
@@ -47,7 +48,6 @@ from ._content import (
 from ._content_file import ensure_bytes
 from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
-from ._connect import connect_viewer_headers
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
