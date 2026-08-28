@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changes
+
+- `ChatBedrock()` with `api="converse"` now defaults `base_url` to the `AWS_ENDPOINT_URL_BEDROCK_RUNTIME` environment variable when set, matching the official AWS SDKs. Similarly, `ChatAnthropic()` respects the `ANTHROPIC_BASE_URL` environment variable (via the anthropic SDK). Setting these variables is enough to route requests through a proxy or gateway, so you don't have to pass `base_url` on every call.
+
 ### Bug fixes
 
 * `ChatOllama()` now distinguishes a remote endpoint it can't reach from a genuinely missing local install, and validates a supplied `model` against `/api/tags` at construction time instead of only when `model` is omitted. (#393)

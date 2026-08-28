@@ -107,9 +107,13 @@ def ChatBedrock(
     aws_region
         The AWS region to use. Defaults to the region from your AWS config.
     base_url
-        Override the endpoint URL. Needed to reach mantle's other
-        OpenAI-compatible path, `/v1`, which serves older open-weight models
-        like `gpt-oss` and rejects the models `/openai/v1` serves.
+        Override the endpoint URL. For `api="converse"`, the default is the
+        `AWS_ENDPOINT_URL_BEDROCK_RUNTIME` environment variable if set
+        (matching the official AWS SDKs), and the standard
+        `bedrock-runtime` endpoint for your region otherwise. For the mantle
+        APIs, an override is needed to reach mantle's other OpenAI-compatible
+        path, `/v1`, which serves older open-weight models like `gpt-oss` and
+        rejects the models `/openai/v1` serves.
     max_tokens
         Maximum number of tokens to generate, defaulting to 4096 when
         `api="converse"` or `api="messages"`. Passing this when `api="responses"` raises, since
@@ -453,7 +457,12 @@ def bedrock_api_for_model(model: Optional[str]) -> BedrockAPI:
 
 def bedrock_base_url(api: BedrockAPI, region: str) -> str:
     if api == "converse":
-        return f"https://bedrock-runtime.{region}.amazonaws.com"
+        # Match the official AWS SDKs, which read the service-specific
+        # endpoint override AWS_ENDPOINT_URL_BEDROCK_RUNTIME.
+        return os.environ.get(
+            "AWS_ENDPOINT_URL_BEDROCK_RUNTIME",
+            f"https://bedrock-runtime.{region}.amazonaws.com",
+        )
 
     host = MANTLE_HOST.format(region=region)
     if api == "messages":
