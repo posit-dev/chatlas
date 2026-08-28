@@ -17,6 +17,7 @@ from openai.types.chat import (
 from pydantic import BaseModel
 
 from ._chat import Chat
+from ._connect import connect_viewer_headers
 from ._content import (
     Content,
     ContentDocument,
@@ -275,6 +276,12 @@ class OpenAICompletionsProvider(
 
         if stream and "stream_options" not in kwargs_full:
             kwargs_full["stream_options"] = {"include_usage": True}
+
+        viewer_headers = connect_viewer_headers(str(self._client.base_url))
+        if viewer_headers:
+            headers = dict(kwargs_full.get("extra_headers") or {})
+            headers.update(viewer_headers)
+            kwargs_full["extra_headers"] = headers
 
         return kwargs_full
 

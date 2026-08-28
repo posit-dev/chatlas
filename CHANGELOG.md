@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### New features
+
+* When running on Posit Connect, chatlas now forwards the Shiny viewer's session token to Connect's LLM gateway (as a `Posit-Connect-User-Session-Token` header) so gateway usage can be attributed to the viewer. This happens automatically for Shiny content and only affects requests to the gateway.
+
 ### Changes
 
 - `ChatBedrock()` now defaults `base_url` to the official AWS SDKs' endpoint override environment variables when set: `AWS_ENDPOINT_URL_BEDROCK_RUNTIME` for `api="converse"`, and `AWS_ENDPOINT_URL_BEDROCK_MANTLE` for `api="messages"` and `api="responses"`. Similarly, `ChatAnthropic()` respects the `ANTHROPIC_BASE_URL` environment variable (via the anthropic SDK). Setting these variables is enough to route requests through a proxy or gateway, so you don't have to pass `base_url` on every call.

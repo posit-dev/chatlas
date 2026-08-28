@@ -613,6 +613,7 @@ def make_vcr_config(match_on: list[str] = VCR_MATCH_ON_DEFAULT) -> dict:
             "x-stainless-retry-count",
             "user-agent",
             "cookie",
+            "posit-connect-user-session-token",
             # AWS Bedrock headers
             "x-amz-sso_bearer_token",
             "X-Amz-Security-Token",

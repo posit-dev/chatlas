@@ -23,6 +23,7 @@ from openai.types.responses.response_output_text_annotation_added_event import (
 from pydantic import BaseModel
 
 from ._chat import Chat
+from ._connect import connect_viewer_headers
 from ._content import (
     PROVIDER_ANNOTATION_TYPES,
     Content,
@@ -343,6 +344,12 @@ class OpenAIProvider(
 
         if include:
             kwargs_full["include"] = include
+
+        viewer_headers = connect_viewer_headers(str(self._client.base_url))
+        if viewer_headers:
+            headers = dict(kwargs_full.get("extra_headers") or {})
+            headers.update(viewer_headers)
+            kwargs_full["extra_headers"] = headers
 
         return kwargs_full
 
