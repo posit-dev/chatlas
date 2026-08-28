@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import json
 import sys
@@ -32,10 +33,12 @@ def vcr_config():
 
 
 import inspect_ai.model as i_model
+import inspect_ai.tool as i_tool
 from inspect_ai import Task
 from inspect_ai import eval as inspect_eval
 from inspect_ai.dataset import Sample, json_dataset
 from inspect_ai.scorer import model_graded_qa
+from inspect_ai.solver import TaskState
 
 MODEL = "claude-haiku-4-5-20251001"
 SCORER_MODEL = f"anthropic/{MODEL}"
@@ -726,3 +729,125 @@ class TestExportEvalEdgeCases:
                 output_file,
                 turns=[AssistantTurn("Hello!")],
             )
+
+
+class TestStringMessageContent:
+    """
+    InspectAI types `ChatMessage.content` as `str | list[Content]`, and messages
+    that InspectAI itself builds carry the `str` form.
+    """
+
+    def test_str_content_is_not_split_into_characters(self):
+        messages = [
+            i_model.ChatMessageUser(content="What is 2+2?"),
+            i_model.ChatMessageAssistant(content="4"),
+        ]
+
+        turns = inspect_messages_as_turns(messages)
+
+        assert len(turns) == 2
+        assert [len(t.contents) for t in turns] == [1, 1]
+        assert turns[0].text == "What is 2+2?"
+        assert turns[1].text == "4"
+
+    def test_str_content_on_a_system_message(self):
+        turns = inspect_messages_as_turns(
+            [i_model.ChatMessageSystem(content="You are terse.")]
+        )
+
+        assert len(turns) == 1
+        assert len(turns[0].contents) == 1
+        assert turns[0].text == "You are terse."
+
+    def test_list_content_still_works(self):
+        messages = [
+            i_model.ChatMessageUser(content=[i_model.ContentText(text="What is 2+2?")]),
+        ]
+
+        turns = inspect_messages_as_turns(messages)
+
+        assert len(turns) == 1
+        assert len(turns[0].contents) == 1
+        assert turns[0].text == "What is 2+2?"
+
+    def test_str_content_alongside_a_tool_call(self):
+        messages = [
+            i_model.ChatMessageAssistant(
+                content="Let me look that up.",
+                tool_calls=[
+                    i_tool.ToolCall(
+                        id="call-1", function="get_weather", arguments={"city": "Paris"}
+                    )
+                ],
+            ),
+        ]
+
+        turns = inspect_messages_as_turns(messages)
+
+        assert len(turns) == 1
+        assert len(turns[0].contents) == 2
+        assert isinstance(turns[0].contents[0], ContentToolRequest)
+        assert turns[0].text == "Let me look that up."
+
+
+class TestSolverSystemPrompt:
+    """
+    `.to_solver()` reads a system prompt out of the InspectAI message state.
+    """
+
+    @staticmethod
+    def _recording_chat():
+        recorded = {}
+
+        class RecordingChat(Chat):
+            async def chat_async(self, *args, echo="output", stream=True, kwargs=None):
+                recorded["system_prompt"] = self.system_prompt
+                recorded["turn_texts"] = [
+                    t.text for t in self.get_turns(include_system_prompt=False)
+                ]
+                self.set_turns(
+                    self.get_turns(include_system_prompt=False)
+                    + [UserTurn(list(args)), AssistantTurn("4")]
+                )
+                return None
+
+        chat = RecordingChat(chat_func().provider)
+        return chat, recorded
+
+    @staticmethod
+    def _run(solver, messages):
+        state = TaskState(
+            model=SCORER_MODEL,
+            sample_id=1,
+            epoch=1,
+            input=messages,
+            messages=list(messages),
+        )
+        asyncio.run(solver(state, None))
+
+    def test_system_prompt_is_the_message_text(self):
+        chat, recorded = self._recording_chat()
+
+        self._run(
+            chat.to_solver(),
+            [
+                i_model.ChatMessageSystem(content=SYSTEM_DEFAULT),
+                i_model.ChatMessageUser(content="What is 2+2?"),
+            ],
+        )
+
+        assert recorded["system_prompt"] == SYSTEM_DEFAULT
+
+    def test_prior_turns_survive_str_content(self):
+        chat, recorded = self._recording_chat()
+
+        self._run(
+            chat.to_solver(),
+            [
+                i_model.ChatMessageUser(content="What is 2+2?"),
+                i_model.ChatMessageAssistant(content="It is 4."),
+                i_model.ChatMessageUser(content="And 3+3?"),
+            ],
+        )
+
+        assert recorded["turn_texts"] == ["What is 2+2?", "It is 4."]

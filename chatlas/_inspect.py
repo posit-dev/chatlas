@@ -121,6 +121,21 @@ def turn_as_inspect_messages(
     raise ValueError(f"Unknown turn role: {turn.role}")
 
 
+def message_contents(msg: ChatMessage) -> list[str | InspectContent]:
+    """
+    Get an InspectAI ChatMessage's content as a list.
+
+    InspectAI types `ChatMessage.content` as `str | list[Content]`, and a message
+    that InspectAI itself builds (from a dataset sample, or from a previous
+    solver) usually carries the `str` form. Iterating that directly yields one
+    character at a time, so normalize it here.
+    """
+    content = msg.content
+    if isinstance(content, str):
+        return [content]
+    return list(content)
+
+
 def inspect_messages_as_turns(messages: list[ChatMessage]) -> list[Turn]:
     """Translate InspectAI ChatMessages into chatlas Turns."""
     (imodel, _, _) = try_import_inspect()
@@ -128,10 +143,10 @@ def inspect_messages_as_turns(messages: list[ChatMessage]) -> list[Turn]:
     turns: list[Turn] = []
     for msg in messages:
         if isinstance(msg, imodel.ChatMessageSystem):
-            contents = [inspect_content_as_chatlas(x) for x in msg.content]
+            contents = [inspect_content_as_chatlas(x) for x in message_contents(msg)]
             turn = SystemTurn(contents=contents)
         elif isinstance(msg, imodel.ChatMessageUser):
-            contents = [inspect_content_as_chatlas(x) for x in msg.content]
+            contents = [inspect_content_as_chatlas(x) for x in message_contents(msg)]
             turn = UserTurn(contents=contents)
         elif isinstance(msg, imodel.ChatMessageAssistant):
             contents: list[Content] = []
@@ -140,7 +155,7 @@ def inspect_messages_as_turns(messages: list[ChatMessage]) -> list[Turn]:
                 contents.append(
                     ContentToolRequest(id=x.id, name=x.function, arguments=x.arguments)
                 )
-            for content in msg.content:
+            for content in message_contents(msg):
                 contents.append(inspect_content_as_chatlas(content))
             turn = AssistantTurn(contents=contents)
         elif isinstance(msg, imodel.ChatMessageTool):

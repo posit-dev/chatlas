@@ -1134,7 +1134,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
                 # Set the system prompt on the chat instance
                 if len(system_messages) == 1:
-                    chat_instance.system_prompt = str(system_messages[0])
+                    chat_instance.system_prompt = system_messages[0].text
                 elif len(system_messages) > 1:
                     raise ValueError(
                         "Multiple system prompts detected in `.to_solver()`, but chatlas only "
