@@ -627,6 +627,56 @@ def test_google_thought_signature_roundtrip():
     assert part.thought_signature == fake_signature
 
 
+def test_google_thinking_roundtrip():
+    """ContentThinking must replay as a thought Part on later turns (#403)."""
+    from chatlas._content import ContentThinking
+    from chatlas._provider_google import GoogleProvider
+
+    provider = GoogleProvider(
+        model="gemini-2.5-flash-preview-04-17",
+        api_key="dummy",
+        kwargs=None,
+    )
+
+    fake_signature = b"abc123signature"
+    message = {
+        "candidates": [
+            {
+                "content": {
+                    "parts": [
+                        {
+                            "text": "Let me think...",
+                            "thought": True,
+                            "thought_signature": fake_signature,
+                        },
+                        {"text": "The answer is 42."},
+                    ]
+                },
+                "finish_reason": "STOP",
+            }
+        ],
+        "usage_metadata": {
+            "prompt_token_count": 10,
+            "candidates_token_count": 5,
+        },
+    }
+
+    turn = provider._as_turn(message, has_data_model=False)
+    assert len(turn.contents) == 2
+    thinking = turn.contents[0]
+    assert isinstance(thinking, ContentThinking)
+    assert thinking.thinking == "Let me think..."
+    assert thinking.extra.get("thought_signature") == fake_signature
+
+    # Replaying the turn's contents (as happens on the next chat turn)
+    # must not raise "Unknown content type" and must preserve the signature.
+    parts = [provider._as_part_type(c) for c in turn.contents]
+    assert parts[0].text == "Let me think..."
+    assert parts[0].thought is True
+    assert parts[0].thought_signature == fake_signature
+    assert parts[1].text == "The answer is 42."
+
+
 def test_normalize_retrieval_status():
     from chatlas._provider_google import normalize_retrieval_status
 
