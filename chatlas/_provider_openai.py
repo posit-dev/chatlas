@@ -47,6 +47,7 @@ from ._content import (
 from ._content_file import ensure_bytes
 from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
+from ._connect import connect_viewer_headers
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_completions import load_tool_request_args
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
@@ -343,6 +344,12 @@ class OpenAIProvider(
 
         if include:
             kwargs_full["include"] = include
+
+        viewer_headers = connect_viewer_headers(str(self._client.base_url))
+        if viewer_headers:
+            headers = dict(kwargs_full.get("extra_headers") or {})
+            headers.update(viewer_headers)
+            kwargs_full["extra_headers"] = headers
 
         return kwargs_full
 

@@ -35,6 +35,7 @@ from ._content import (
 from ._content_file import ensure_bytes
 from ._logging import log_model_default
 from ._merge import merge_dicts
+from ._connect import connect_viewer_headers
 from ._provider import StandardModelParamNames, StandardModelParams
 from ._provider_openai_generic import BatchResult, OpenAIAbstractProvider
 from ._tools import Tool, ToolBuiltIn, basemodel_to_param_schema
@@ -275,6 +276,12 @@ class OpenAICompletionsProvider(
 
         if stream and "stream_options" not in kwargs_full:
             kwargs_full["stream_options"] = {"include_usage": True}
+
+        viewer_headers = connect_viewer_headers(str(self._client.base_url))
+        if viewer_headers:
+            headers = dict(kwargs_full.get("extra_headers") or {})
+            headers.update(viewer_headers)
+            kwargs_full["extra_headers"] = headers
 
         return kwargs_full
 

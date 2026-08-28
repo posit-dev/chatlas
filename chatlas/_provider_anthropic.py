@@ -44,6 +44,7 @@ from ._content import (
 from ._content_file import ensure_bytes
 from ._files import FileMetadata, maybe_write, open_binary
 from ._logging import log_model_default
+from ._connect import connect_viewer_headers
 from ._provider import (
     BatchStatus,
     ModelInfo,
@@ -562,6 +563,12 @@ class AnthropicProvider(
         if has_uploaded(turns):
             headers = dict(kwargs_full.get("extra_headers") or {})
             headers.setdefault("anthropic-beta", "files-api-2025-04-14")
+            kwargs_full["extra_headers"] = headers
+
+        viewer_headers = connect_viewer_headers(str(self._client.base_url))
+        if viewer_headers:
+            headers = dict(kwargs_full.get("extra_headers") or {})
+            headers.update(viewer_headers)
             kwargs_full["extra_headers"] = headers
 
         return kwargs_full
