@@ -107,7 +107,13 @@ def ChatBedrock(
     aws_region
         The AWS region to use. Defaults to the region from your AWS config.
     base_url
-        Override the endpoint URL. Needed to reach mantle's other
+        Override the endpoint URL. The default is the standard endpoint for
+        the selected `api` and your region, honoring the official AWS SDKs'
+        endpoint override environment variables:
+        `AWS_ENDPOINT_URL_BEDROCK_RUNTIME` for `"converse"`, and
+        `AWS_ENDPOINT_URL_BEDROCK_MANTLE` for `"messages"` and `"responses"`
+        (which append their API-specific path to the override). For the
+        mantle APIs, an override is also needed to reach mantle's other
         OpenAI-compatible path, `/v1`, which serves older open-weight models
         like `gpt-oss` and rejects the models `/openai/v1` serves.
     max_tokens
@@ -451,11 +457,25 @@ def bedrock_api_for_model(model: Optional[str]) -> BedrockAPI:
     return MODEL_APIS.get(CROSS_REGION_PREFIX.sub("", model), "converse")
 
 
-def bedrock_base_url(api: BedrockAPI, region: str) -> str:
-    if api == "converse":
-        return f"https://bedrock-runtime.{region}.amazonaws.com"
+def aws_endpoint_url(var: str, default: str) -> str:
+    """An AWS service endpoint override env var, or `default` when unset."""
+    url = os.environ.get(var, "")
+    return url.rstrip("/") if url else default
 
-    host = MANTLE_HOST.format(region=region)
+
+def bedrock_base_url(api: BedrockAPI, region: str) -> str:
+    # Match the official AWS SDKs, which read service-specific endpoint
+    # overrides: AWS_ENDPOINT_URL_BEDROCK_RUNTIME for the runtime (converse)
+    # service and AWS_ENDPOINT_URL_BEDROCK_MANTLE for mantle.
+    if api == "converse":
+        return aws_endpoint_url(
+            "AWS_ENDPOINT_URL_BEDROCK_RUNTIME",
+            f"https://bedrock-runtime.{region}.amazonaws.com",
+        )
+
+    host = aws_endpoint_url(
+        "AWS_ENDPOINT_URL_BEDROCK_MANTLE", MANTLE_HOST.format(region=region)
+    )
     if api == "messages":
         # The Anthropic SDK appends "/v1/messages" itself, so the "/v1" is
         # deliberately absent here.
