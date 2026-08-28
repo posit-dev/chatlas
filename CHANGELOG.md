@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* `ChatGoogle()` no longer raises `ValueError: Unknown content type: ContentThinking` on the second and later turns when `reasoning` is enabled; thinking content is now replayed to the model as thought parts, and the `thought_signature` on thought parts is preserved (previously only tool-call parts kept it). (#403)
 * `ChatOllama()` now distinguishes a remote endpoint it can't reach from a genuinely missing local install, and validates a supplied `model` against `/api/tags` at construction time instead of only when `model` is omitted. (#393)
 
 ## [0.22.0] - 2026-08-25
