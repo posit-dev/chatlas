@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 
 BedrockAPI = Literal["converse", "messages", "responses"]
 
-DEFAULT_MODEL = "us.anthropic.claude-sonnet-4-6"
+DEFAULT_MODEL = "us.anthropic.claude-sonnet-5"
 
 MANTLE_HOST = "https://bedrock-mantle.{region}.api.aws"
 
@@ -98,7 +98,7 @@ def ChatBedrock(
         A system prompt to set the behavior of the assistant.
     model
         The model to use for the chat. Defaults to
-        `"us.anthropic.claude-sonnet-4-6"`.
+        `"us.anthropic.claude-sonnet-5"`.
     api
         Which Bedrock API to use. The default, `None`, picks the API from
         `model`.
@@ -183,7 +183,9 @@ def ChatBedrock(
             )
         return Chat(
             provider=BedrockResponsesProvider(
-                model=model,
+                # Converse needs the cross-region inference prefix, but mantle
+                # rejects it on the model id in the request.
+                model=bedrock_strip_region_prefix(model),
                 aws_profile=aws_profile,
                 aws_region=region,
                 base_url=base_url,
@@ -215,7 +217,9 @@ def ChatBedrock(
 
     return Chat(
         provider=BedrockMessagesProvider(
-            model=model,
+            # Converse needs the cross-region inference prefix, but mantle
+            # rejects it on the model id in the request.
+            model=bedrock_strip_region_prefix(model),
             aws_profile=aws_profile,
             aws_region=region,
             base_url=base_url,
@@ -455,6 +459,19 @@ def bedrock_api_for_model(model: Optional[str]) -> BedrockAPI:
     if not model:
         return "converse"
     return MODEL_APIS.get(CROSS_REGION_PREFIX.sub("", model), "converse")
+
+
+def bedrock_strip_region_prefix(model: str) -> str:
+    """
+    Strip a cross-region inference prefix (e.g. `"us."`) from `model`.
+
+    Converse needs the prefix on the model id it's sent, since that's how it
+    picks the inference profile. Mantle's Anthropic and OpenAI-compatible
+    endpoints have no such concept and 404 if the prefix is included, so it
+    must be stripped from the model id used in requests to `"messages"` and
+    `"responses"`.
+    """
+    return CROSS_REGION_PREFIX.sub("", model)
 
 
 def aws_endpoint_url(var: str, default: str) -> str:

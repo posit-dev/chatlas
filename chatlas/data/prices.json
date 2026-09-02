@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "min_ellmer_version": "0.5.0",
-  "updated_at": "2026-08-24T06:42:01Z",
+  "updated_at": "2026-09-02T12:13:24Z",
   "data": [
     {
       "provider": "AWS/Bedrock",
@@ -63,6 +63,13 @@
     },
     {
       "provider": "AWS/Bedrock",
+      "model": "amazon.nova-2-sonic-v1:0",
+      "variant": "",
+      "input": 0.33,
+      "output": 2.75
+    },
+    {
+      "provider": "AWS/Bedrock",
       "model": "amazon.nova-lite-v1:0",
       "variant": "",
       "input": 0.06,
@@ -81,6 +88,13 @@
       "variant": "",
       "input": 0.8,
       "output": 3.2
+    },
+    {
+      "provider": "AWS/Bedrock",
+      "model": "amazon.nova-sonic-v1:0",
+      "variant": "",
+      "input": 0.06,
+      "output": 0.24
     },
     {
       "provider": "AWS/Bedrock",
@@ -218,6 +232,14 @@
       "input": 10,
       "output": 50,
       "cached_input": 1
+    },
+    {
+      "provider": "AWS/Bedrock",
+      "model": "anthropic.claude-fable-5-1",
+      "variant": "",
+      "input": 10,
+      "output": 50,
+      "cached_input": 0.25
     },
     {
       "provider": "AWS/Bedrock",
@@ -1106,6 +1128,14 @@
     },
     {
       "provider": "AWS/Bedrock",
+      "model": "eu.anthropic.claude-fable-5-1",
+      "variant": "",
+      "input": 11,
+      "output": 55,
+      "cached_input": 0.275
+    },
+    {
+      "provider": "AWS/Bedrock",
       "model": "eu.anthropic.claude-haiku-4-5-20251001-v1:0",
       "variant": "",
       "input": 1.1,
@@ -1289,6 +1319,14 @@
     },
     {
       "provider": "AWS/Bedrock",
+      "model": "global.anthropic.claude-fable-5-1",
+      "variant": "",
+      "input": 10,
+      "output": 50,
+      "cached_input": 0.25
+    },
+    {
+      "provider": "AWS/Bedrock",
       "model": "global.anthropic.claude-haiku-4-5-20251001-v1:0",
       "variant": "",
       "input": 1,
@@ -1417,17 +1455,17 @@
       "provider": "AWS/Bedrock",
       "model": "global.openai.gpt-5.6-sol",
       "variant": "",
-      "input": 5,
-      "output": 30,
-      "cached_input": 0.5
+      "input": 4,
+      "output": 20,
+      "cached_input": 0.4
     },
     {
       "provider": "AWS/Bedrock",
       "model": "global.openai.gpt-5.6-sol",
       "variant": "above_272k_tokens",
-      "input": 10,
-      "output": 45,
-      "cached_input": 1
+      "input": 8,
+      "output": 30,
+      "cached_input": 0.8
     },
     {
       "provider": "AWS/Bedrock",
@@ -1864,11 +1902,35 @@
     },
     {
       "provider": "AWS/Bedrock",
+      "model": "openai.gpt-5.4",
+      "variant": "above_272k_tokens",
+      "input": 5.5,
+      "output": 24.75,
+      "cached_input": 0.55
+    },
+    {
+      "provider": "AWS/Bedrock",
       "model": "openai.gpt-5.5",
       "variant": "",
       "input": 5.5,
       "output": 33,
       "cached_input": 0.55
+    },
+    {
+      "provider": "AWS/Bedrock",
+      "model": "openai.gpt-5.5",
+      "variant": "above_272k_tokens",
+      "input": 11,
+      "output": 49.5,
+      "cached_input": 1.1
+    },
+    {
+      "provider": "AWS/Bedrock",
+      "model": "openai.gpt-5.6-cyber",
+      "variant": "",
+      "input": 13.75,
+      "output": 82.5,
+      "cached_input": 1.375
     },
     {
       "provider": "AWS/Bedrock",
@@ -2663,6 +2725,14 @@
     },
     {
       "provider": "AWS/Bedrock",
+      "model": "us.anthropic.claude-fable-5-1",
+      "variant": "",
+      "input": 11,
+      "output": 55,
+      "cached_input": 0.275
+    },
+    {
+      "provider": "AWS/Bedrock",
       "model": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
       "variant": "",
       "input": 1.1,
@@ -2912,17 +2982,17 @@
       "provider": "AWS/Bedrock",
       "model": "us.openai.gpt-5.6-sol",
       "variant": "",
-      "input": 5.5,
-      "output": 33,
-      "cached_input": 0.55
+      "input": 4.4,
+      "output": 22,
+      "cached_input": 0.44
     },
     {
       "provider": "AWS/Bedrock",
       "model": "us.openai.gpt-5.6-sol",
       "variant": "above_272k_tokens",
-      "input": 11,
-      "output": 49.5,
-      "cached_input": 1.1
+      "input": 8.8,
+      "output": 33,
+      "cached_input": 0.88
     },
     {
       "provider": "AWS/Bedrock",
@@ -3081,6 +3151,14 @@
       "input": 10,
       "output": 50,
       "cached_input": 1
+    },
+    {
+      "provider": "Anthropic",
+      "model": "claude-fable-5-1",
+      "variant": "",
+      "input": 10,
+      "output": 50,
+      "cached_input": 0.25
     },
     {
       "provider": "Anthropic",
@@ -3497,10 +3575,18 @@
     {
       "provider": "Azure/OpenAI",
       "model": "eu/gpt-5.6",
+      "variant": "above_272k_tokens_priority",
+      "input": 22,
+      "output": 99,
+      "cached_input": 2.2
+    },
+    {
+      "provider": "Azure/OpenAI",
+      "model": "eu/gpt-5.6",
       "variant": "priority",
-      "input": 13.75,
-      "output": 82.5,
-      "cached_input": 1.375
+      "input": 11,
+      "output": 66,
+      "cached_input": 1.1
     },
     {
       "provider": "Azure/OpenAI",
@@ -3521,10 +3607,18 @@
     {
       "provider": "Azure/OpenAI",
       "model": "eu/gpt-5.6-luna",
+      "variant": "above_272k_tokens_priority",
+      "input": 0.88,
+      "output": 3.96,
+      "cached_input": 0.088
+    },
+    {
+      "provider": "Azure/OpenAI",
+      "model": "eu/gpt-5.6-luna",
       "variant": "priority",
-      "input": 0.55,
-      "output": 3.3,
-      "cached_input": 0.055
+      "input": 0.44,
+      "output": 2.64,
+      "cached_input": 0.044
     },
     {
       "provider": "Azure/OpenAI",
@@ -3545,10 +3639,18 @@
     {
       "provider": "Azure/OpenAI",
       "model": "eu/gpt-5.6-sol",
+      "variant": "above_272k_tokens_priority",
+      "input": 22,
+      "output": 99,
+      "cached_input": 2.2
+    },
+    {
+      "provider": "Azure/OpenAI",
+      "model": "eu/gpt-5.6-sol",
       "variant": "priority",
-      "input": 13.75,
-      "output": 82.5,
-      "cached_input": 1.375
+      "input": 11,
+      "output": 66,
+      "cached_input": 1.1
     },
     {
       "provider": "Azure/OpenAI",
@@ -3569,10 +3671,18 @@
     {
       "provider": "Azure/OpenAI",
       "model": "eu/gpt-5.6-terra",
+      "variant": "above_272k_tokens_priority",
+      "input": 8.8,
+      "output": 39.6,
+      "cached_input": 0.88
+    },
+    {
+      "provider": "Azure/OpenAI",
+      "model": "eu/gpt-5.6-terra",
       "variant": "priority",
-      "input": 5.5,
-      "output": 33,
-      "cached_input": 0.55
+      "input": 4.4,
+      "output": 26.4,
+      "cached_input": 0.44
     },
     {
       "provider": "Azure/OpenAI",
@@ -5176,10 +5286,18 @@
     {
       "provider": "Azure/OpenAI",
       "model": "us/gpt-5.6",
+      "variant": "above_272k_tokens_priority",
+      "input": 22,
+      "output": 99,
+      "cached_input": 2.2
+    },
+    {
+      "provider": "Azure/OpenAI",
+      "model": "us/gpt-5.6",
       "variant": "priority",
-      "input": 13.75,
-      "output": 82.5,
-      "cached_input": 1.375
+      "input": 11,
+      "output": 66,
+      "cached_input": 1.1
     },
     {
       "provider": "Azure/OpenAI",
@@ -5200,10 +5318,18 @@
     {
       "provider": "Azure/OpenAI",
       "model": "us/gpt-5.6-luna",
+      "variant": "above_272k_tokens_priority",
+      "input": 0.88,
+      "output": 3.96,
+      "cached_input": 0.088
+    },
+    {
+      "provider": "Azure/OpenAI",
+      "model": "us/gpt-5.6-luna",
       "variant": "priority",
-      "input": 0.55,
-      "output": 3.3,
-      "cached_input": 0.055
+      "input": 0.44,
+      "output": 2.64,
+      "cached_input": 0.044
     },
     {
       "provider": "Azure/OpenAI",
@@ -5224,10 +5350,18 @@
     {
       "provider": "Azure/OpenAI",
       "model": "us/gpt-5.6-sol",
+      "variant": "above_272k_tokens_priority",
+      "input": 22,
+      "output": 99,
+      "cached_input": 2.2
+    },
+    {
+      "provider": "Azure/OpenAI",
+      "model": "us/gpt-5.6-sol",
       "variant": "priority",
-      "input": 13.75,
-      "output": 82.5,
-      "cached_input": 1.375
+      "input": 11,
+      "output": 66,
+      "cached_input": 1.1
     },
     {
       "provider": "Azure/OpenAI",
@@ -5248,10 +5382,18 @@
     {
       "provider": "Azure/OpenAI",
       "model": "us/gpt-5.6-terra",
+      "variant": "above_272k_tokens_priority",
+      "input": 8.8,
+      "output": 39.6,
+      "cached_input": 0.88
+    },
+    {
+      "provider": "Azure/OpenAI",
+      "model": "us/gpt-5.6-terra",
       "variant": "priority",
-      "input": 5.5,
-      "output": 33,
-      "cached_input": 0.55
+      "input": 4.4,
+      "output": 26.4,
+      "cached_input": 0.44
     },
     {
       "provider": "Azure/OpenAI",
@@ -5418,7 +5560,7 @@
       "variant": "",
       "input": 0.1,
       "output": 0.4,
-      "cached_input": 0.025
+      "cached_input": 0.01
     },
     {
       "provider": "Google/Gemini",
@@ -5432,22 +5574,22 @@
       "provider": "Google/Gemini",
       "model": "gemini-2.5-flash-native-audio-latest",
       "variant": "",
-      "input": 0.3,
-      "output": 2.5
+      "input": 0.5,
+      "output": 2
     },
     {
       "provider": "Google/Gemini",
       "model": "gemini-2.5-flash-native-audio-preview-09-2025",
       "variant": "",
-      "input": 0.3,
-      "output": 2.5
+      "input": 0.5,
+      "output": 2
     },
     {
       "provider": "Google/Gemini",
       "model": "gemini-2.5-flash-native-audio-preview-12-2025",
       "variant": "",
-      "input": 0.3,
-      "output": 2.5
+      "input": 0.5,
+      "output": 2
     },
     {
       "provider": "Google/Gemini",
@@ -5455,14 +5597,14 @@
       "variant": "",
       "input": 0.3,
       "output": 2.5,
-      "cached_input": 0.075
+      "cached_input": 0.03
     },
     {
       "provider": "Google/Gemini",
       "model": "gemini-2.5-flash-preview-tts",
       "variant": "",
-      "input": 0.3,
-      "output": 2.5
+      "input": 0.5,
+      "output": 10
     },
     {
       "provider": "Google/Gemini",
@@ -5498,17 +5640,9 @@
       "provider": "Google/Gemini",
       "model": "gemini-2.5-pro-preview-tts",
       "variant": "",
-      "input": 1.25,
-      "output": 10,
+      "input": 1,
+      "output": 20,
       "cached_input": 0.125
-    },
-    {
-      "provider": "Google/Gemini",
-      "model": "gemini-2.5-pro-preview-tts",
-      "variant": "above_200k_tokens",
-      "input": 2.5,
-      "output": 15,
-      "cached_input": 0.25
     },
     {
       "provider": "Google/Gemini",
@@ -5837,6 +5971,20 @@
     },
     {
       "provider": "Google/Gemini",
+      "model": "gemini-3.5-transcribe",
+      "variant": "",
+      "input": 2,
+      "output": 12
+    },
+    {
+      "provider": "Google/Gemini",
+      "model": "gemini-3.5-transcribe-live",
+      "variant": "",
+      "input": 3.5,
+      "output": 21
+    },
+    {
+      "provider": "Google/Gemini",
       "model": "gemini-3.6-flash",
       "variant": "",
       "input": 0.75,
@@ -5960,9 +6108,16 @@
       "provider": "Google/Gemini",
       "model": "gemini-live-2.5-flash-preview-native-audio-09-2025",
       "variant": "",
-      "input": 0.3,
+      "input": 0.5,
       "output": 2,
       "cached_input": 0.075
+    },
+    {
+      "provider": "Google/Gemini",
+      "model": "gemini-omni-1.1-flash",
+      "variant": "",
+      "input": 1.5,
+      "output": 9
     },
     {
       "provider": "Google/Gemini",
@@ -6016,6 +6171,20 @@
       "variant": "",
       "input": 2,
       "output": 10
+    },
+    {
+      "provider": "Google/Gemini",
+      "model": "nano-banana-pro-preview",
+      "variant": "",
+      "input": 2,
+      "output": 12
+    },
+    {
+      "provider": "Google/Gemini",
+      "model": "nano-banana-pro-preview",
+      "variant": "batches",
+      "input": 1,
+      "output": 6
     },
     {
       "provider": "Google/Vertex",
@@ -6107,7 +6276,7 @@
       "variant": "",
       "input": 0.1,
       "output": 0.4,
-      "cached_input": 0.025
+      "cached_input": 0.01
     },
     {
       "provider": "Google/Vertex",
@@ -6123,7 +6292,7 @@
       "variant": "",
       "input": 0.3,
       "output": 2.5,
-      "cached_input": 0.075
+      "cached_input": 0.03
     },
     {
       "provider": "Google/Vertex",
@@ -6145,17 +6314,9 @@
       "provider": "Google/Vertex",
       "model": "gemini-2.5-pro-preview-tts",
       "variant": "",
-      "input": 1.25,
-      "output": 10,
+      "input": 1,
+      "output": 20,
       "cached_input": 0.125
-    },
-    {
-      "provider": "Google/Vertex",
-      "model": "gemini-2.5-pro-preview-tts",
-      "variant": "above_200k_tokens",
-      "input": 2.5,
-      "output": 15,
-      "cached_input": 0.25
     },
     {
       "provider": "Google/Vertex",
@@ -6422,7 +6583,7 @@
       "variant": "flex",
       "input": 0.15,
       "output": 1.25,
-      "cached_input": 0.02
+      "cached_input": 0.015
     },
     {
       "provider": "Google/Vertex",
@@ -6496,9 +6657,16 @@
     },
     {
       "provider": "Google/Vertex",
+      "model": "gemini-live-2.5-flash-native-audio",
+      "variant": "",
+      "input": 0.5,
+      "output": 2
+    },
+    {
+      "provider": "Google/Vertex",
       "model": "gemini-live-2.5-flash-preview-native-audio-09-2025",
       "variant": "",
-      "input": 0.3,
+      "input": 0.5,
       "output": 2,
       "cached_input": 0.075
     },
@@ -6656,7 +6824,7 @@
       "variant": "flex",
       "input": 0.15,
       "output": 1.25,
-      "cached_input": 0.02
+      "cached_input": 0.015
     },
     {
       "provider": "Google/Vertex",
@@ -6769,6 +6937,13 @@
       "output": 3
     },
     {
+      "provider": "Groq",
+      "model": "qwen/qwen3.8-27b",
+      "variant": "",
+      "input": 0.8,
+      "output": 4
+    },
+    {
       "provider": "Mistral",
       "model": "codestral-2405",
       "variant": "",
@@ -6780,26 +6955,30 @@
       "model": "codestral-2508",
       "variant": "",
       "input": 0.3,
-      "output": 0.9
+      "output": 0.9,
+      "cached_input": 0.03
     },
     {
       "provider": "Mistral",
       "model": "codestral-embed",
       "variant": "",
-      "input": 0.15
+      "input": 0.15,
+      "cached_input": 0.015
     },
     {
       "provider": "Mistral",
       "model": "codestral-embed-2505",
       "variant": "",
-      "input": 0.15
+      "input": 0.15,
+      "cached_input": 0.015
     },
     {
       "provider": "Mistral",
       "model": "codestral-latest",
       "variant": "",
       "input": 0.3,
-      "output": 0.9
+      "output": 0.9,
+      "cached_input": 0.03
     },
     {
       "provider": "Mistral",
@@ -6923,42 +7102,104 @@
     },
     {
       "provider": "Mistral",
-      "model": "ministral-3-14b-2512",
+      "model": "ministral-14b-2512",
       "variant": "",
       "input": 0.2,
       "output": 0.2
     },
     {
       "provider": "Mistral",
+      "model": "ministral-14b-latest",
+      "variant": "",
+      "input": 0.2,
+      "output": 0.2
+    },
+    {
+      "provider": "Mistral",
+      "model": "ministral-3-14b-2512",
+      "variant": "",
+      "input": 0.2,
+      "output": 0.2,
+      "cached_input": 0.02
+    },
+    {
+      "provider": "Mistral",
       "model": "ministral-3-3b-2512",
       "variant": "",
       "input": 0.1,
-      "output": 0.1
+      "output": 0.1,
+      "cached_input": 0.01
     },
     {
       "provider": "Mistral",
       "model": "ministral-3-8b-2512",
       "variant": "",
       "input": 0.15,
-      "output": 0.15
+      "output": 0.15,
+      "cached_input": 0.015
+    },
+    {
+      "provider": "Mistral",
+      "model": "ministral-3b-2512",
+      "variant": "",
+      "input": 0.1,
+      "output": 0.1
+    },
+    {
+      "provider": "Mistral",
+      "model": "ministral-3b-latest",
+      "variant": "",
+      "input": 0.1,
+      "output": 0.1
     },
     {
       "provider": "Mistral",
       "model": "ministral-8b-2512",
       "variant": "",
       "input": 0.15,
-      "output": 0.15
+      "output": 0.15,
+      "cached_input": 0.015
     },
     {
       "provider": "Mistral",
       "model": "ministral-8b-latest",
       "variant": "",
       "input": 0.15,
-      "output": 0.15
+      "output": 0.15,
+      "cached_input": 0.015
+    },
+    {
+      "provider": "Mistral",
+      "model": "mistral-code-agent-latest",
+      "variant": "",
+      "input": 0.4,
+      "output": 2
+    },
+    {
+      "provider": "Mistral",
+      "model": "mistral-code-fim-latest",
+      "variant": "",
+      "input": 0.3,
+      "output": 0.9,
+      "cached_input": 0.03
+    },
+    {
+      "provider": "Mistral",
+      "model": "mistral-code-latest",
+      "variant": "",
+      "input": 0.3,
+      "output": 0.9,
+      "cached_input": 0.03
     },
     {
       "provider": "Mistral",
       "model": "mistral-embed",
+      "variant": "",
+      "input": 0.1
+    },
+    {
+      "provider": "Mistral",
+      "model": "mistral-embed-2312",
       "variant": "",
       "input": 0.1
     },
@@ -6988,21 +7229,24 @@
       "model": "mistral-large-2512",
       "variant": "",
       "input": 0.5,
-      "output": 1.5
+      "output": 1.5,
+      "cached_input": 0.05
     },
     {
       "provider": "Mistral",
       "model": "mistral-large-3",
       "variant": "",
       "input": 0.5,
-      "output": 1.5
+      "output": 1.5,
+      "cached_input": 0.05
     },
     {
       "provider": "Mistral",
       "model": "mistral-large-latest",
       "variant": "",
       "input": 0.5,
-      "output": 1.5
+      "output": 1.5,
+      "cached_input": 0.05
     },
     {
       "provider": "Mistral",
@@ -7037,6 +7281,14 @@
       "model": "mistral-medium-2604",
       "variant": "",
       "input": 1.5,
+      "output": 7.5,
+      "cached_input": 0.15
+    },
+    {
+      "provider": "Mistral",
+      "model": "mistral-medium-3",
+      "variant": "",
+      "input": 1.5,
       "output": 7.5
     },
     {
@@ -7051,14 +7303,24 @@
       "model": "mistral-medium-3-5",
       "variant": "",
       "input": 1.5,
-      "output": 7.5
+      "output": 7.5,
+      "cached_input": 0.15
+    },
+    {
+      "provider": "Mistral",
+      "model": "mistral-medium-3.5",
+      "variant": "",
+      "input": 1.5,
+      "output": 7.5,
+      "cached_input": 0.15
     },
     {
       "provider": "Mistral",
       "model": "mistral-medium-latest",
       "variant": "",
       "input": 1.5,
-      "output": 7.5
+      "output": 7.5,
+      "cached_input": 0.15
     },
     {
       "provider": "Mistral",
@@ -7072,7 +7334,8 @@
       "model": "mistral-small-2603",
       "variant": "",
       "input": 0.15,
-      "output": 0.6
+      "output": 0.6,
+      "cached_input": 0.015
     },
     {
       "provider": "Mistral",
@@ -7086,7 +7349,8 @@
       "model": "mistral-small-latest",
       "variant": "",
       "input": 0.15,
-      "output": 0.6
+      "output": 0.6,
+      "cached_input": 0.015
     },
     {
       "provider": "Mistral",
@@ -7094,6 +7358,30 @@
       "variant": "",
       "input": 0.25,
       "output": 0.25
+    },
+    {
+      "provider": "Mistral",
+      "model": "mistral-vibe-cli-fast",
+      "variant": "",
+      "input": 0.15,
+      "output": 0.6,
+      "cached_input": 0.015
+    },
+    {
+      "provider": "Mistral",
+      "model": "mistral-vibe-cli-latest",
+      "variant": "",
+      "input": 1.5,
+      "output": 7.5,
+      "cached_input": 0.15
+    },
+    {
+      "provider": "Mistral",
+      "model": "mistral-vibe-cli-with-tools",
+      "variant": "",
+      "input": 1.5,
+      "output": 7.5,
+      "cached_input": 0.15
     },
     {
       "provider": "Mistral",
@@ -7157,6 +7445,20 @@
       "variant": "",
       "input": 2,
       "output": 6
+    },
+    {
+      "provider": "Mistral",
+      "model": "voxtral-small-2507",
+      "variant": "",
+      "input": 0.1,
+      "output": 0.4
+    },
+    {
+      "provider": "Mistral",
+      "model": "voxtral-small-latest",
+      "variant": "",
+      "input": 0.1,
+      "output": 0.4
     },
     {
       "provider": "Mistral",

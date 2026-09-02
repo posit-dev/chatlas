@@ -1044,7 +1044,7 @@ class TestConverseDispatch:
 
         chat = ChatBedrock(aws_region="us-east-1")
 
-        assert chat.provider.model == "us.anthropic.claude-sonnet-4-6"
+        assert chat.provider.model == "us.anthropic.claude-sonnet-5"
         assert isinstance(chat.provider, BedrockConverseProvider)
 
     def test_claude_routes_to_converse_not_mantle(self):
