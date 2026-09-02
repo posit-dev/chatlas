@@ -196,6 +196,17 @@ class DatabricksProvider(OpenAICompletionsProvider):
                 setattr(delta, "reasoning", reasoning)
         return super().stream_content(chunk, completion, turns)
 
+    # The streaming loop merges each chunk before it yields its content, so the
+    # typed array reaches `model_dump()` unless it is normalized here as well.
+    def stream_merge_chunks(self, completion, chunk):
+        delta = chunk.choices[0].delta if chunk.choices else None
+        if delta is not None and isinstance(delta.content, list):
+            text, reasoning = _normalize_content_parts(delta.content)
+            delta.content = text
+            if reasoning:
+                setattr(delta, "reasoning", reasoning)
+        return super().stream_merge_chunks(completion, chunk)
+
     # Same normalization for the non-streaming/completed-response path.
     @staticmethod
     def _response_as_turn(
