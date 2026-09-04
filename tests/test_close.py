@@ -1,4 +1,5 @@
 import sys
+import warnings
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -22,6 +23,19 @@ async def test_chat_close_async_closes_mcp_and_provider():
         await chat.close_async()
         chat._mcp_manager.close_sessions.assert_awaited_once()
         mock_close.assert_awaited_once()
+
+
+def test_chat_close_warns_with_open_mcp_sessions():
+    chat = ChatOpenAI(model="gpt-4o")
+    chat._mcp_manager._mcp_sessions["fake"] = MagicMock()
+    with patch.object(chat.provider, "close"):
+        with pytest.warns(UserWarning, match="MCP server sessions"):
+            chat.close()
+        # No warning once sessions are gone
+        chat._mcp_manager._mcp_sessions.clear()
+        with warnings.catch_warnings():
+            warnings.simplefilter("error")
+            chat.close()
 
 
 def test_chat_context_manager():
@@ -112,9 +126,6 @@ async def test_google_provider_close_async():
     from chatlas import ChatGoogle
 
     chat = ChatGoogle(model="gemini-2.5-flash")
-    aclose = getattr(chat.provider._client.aio, "aclose", None)
-    if aclose is None:
-        pytest.skip("google-genai version lacks aio.aclose()")
     with patch.object(
         chat.provider._client.aio, "aclose", new=AsyncMock()
     ) as mock_close:

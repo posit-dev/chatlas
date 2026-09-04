@@ -219,7 +219,8 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Safe to call multiple times. Providers only close resources they
         created themselves; clients or connections supplied by the caller are
-        left open.
+        left open. Emits a warning if MCP server sessions are still open,
+        since those can only be closed asynchronously.
 
         Examples
         --------
@@ -232,6 +233,14 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         session.on_ended(chat.close)
         ```
         """
+        if self._mcp_manager.has_open_sessions:
+            warnings.warn(
+                "Chat.close() cannot close MCP server sessions (that requires "
+                "close_async()); MCP sessions are still open. Use "
+                "`await chat.close_async()` instead, or close them first with "
+                "`await chat.cleanup_mcp_tools()`.",
+                stacklevel=2,
+            )
         self.provider.close()
 
     async def close_async(self) -> None:
