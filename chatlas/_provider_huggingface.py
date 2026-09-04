@@ -125,7 +125,7 @@ def ChatHuggingFace(
         api_key = os.getenv("HUGGINGFACE_API_KEY")
 
     if model is None:
-        model = log_model_default("meta-llama/Llama-3.1-8B-Instruct")
+        model = log_model_default("Qwen/Qwen3-235B-A22B-Instruct-2507")
 
     return Chat(
         provider=HuggingFaceProvider(
