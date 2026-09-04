@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 
 * `ChatDatabricks()` no longer drops the assistant's reply from the conversation when a GPT-OSS endpoint streams typed content. The typed part array was merged into the accumulated completion before it was normalized, so every later text delta was appended to it one character at a time and the finished turn came back empty. (#409)
+* `params(top_k=)` is no longer sent as `top_logprobs` for OpenAI-based providers (the two are unrelated; OpenAI has no `top_k` sampling parameter). `top_k` is now dropped with the standard unsupported-parameter warning (#412)
 * `.to_solver()` no longer corrupts the system prompt or the prior turns it reads out of Inspect AI's message state. The system prompt was being set to the `repr()` of the `ChatMessageSystem` object rather than its text, and message content arriving in Inspect AI's `str` form (rather than as a list of `Content`) was iterated one character at a time. (#407)
 * `ChatGoogle()` no longer raises `ValueError: Unknown content type: ContentThinking` on the second and later turns when `reasoning` is enabled; thinking content is now replayed to the model as thought parts, and the `thought_signature` on thought parts is preserved (previously only tool-call parts kept it). (#403)
 * `ChatOllama()` now distinguishes a remote endpoint it can't reach from a genuinely missing local install, and validates a supplied `model` against `/api/tags` at construction time instead of only when `model` is omitted. (#393)
