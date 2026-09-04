@@ -149,6 +149,13 @@ class OpenAIAbstractProvider(
         self._client = create_openai_client(OpenAI, sync_kwargs)
         self._async_client = create_openai_client(AsyncOpenAI, async_kwargs)
 
+    def close(self) -> None:
+        self._client.close()
+
+    async def close_async(self) -> None:
+        self.close()
+        await self._async_client.close()
+
     def list_models(self):
         return openai_models_to_info(self._client.models.list(), self.name)
 

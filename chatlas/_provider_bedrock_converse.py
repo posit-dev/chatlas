@@ -447,6 +447,13 @@ class BedrockConverseProvider(
             auth=auth, base_url=resolved_base_url, **async_client_kwargs
         )
 
+    def close(self) -> None:
+        self._client.close()
+
+    async def close_async(self) -> None:
+        self.close()
+        await self._async_client.aclose()
+
     def list_models(self) -> list[ModelInfo]:
         # boto3 should come via the `bedrock` extra's `anthropic[bedrock]`,
         # same precondition as AnthropicBedrockProvider.list_models().

@@ -24,7 +24,6 @@ from typing import (
     Sequence,
     TypeVar,
     Union,
-    cast,
     overload,
 )
 
@@ -206,6 +205,66 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         # Chat input parameters from `set_model_params()`
         self._standard_model_params: StandardModelParams = {}
+
+    def close(self) -> None:
+        """
+        Release resources held by this chat's provider (e.g., HTTP connection
+        pools, database sessions).
+
+        This is useful in long-lived applications (e.g., Shiny, FastAPI) that
+        create a `Chat` per session and need to release resources when the
+        session ends. Note that MCP server sessions can only be closed
+        asynchronously -- use `close_async()` if MCP tools are registered.
+
+        Safe to call multiple times. Providers only close resources they
+        created themselves; clients or connections supplied by the caller are
+        left open. Emits a warning if MCP server sessions are still open,
+        since those can only be closed asynchronously.
+
+        Examples
+        --------
+        In a Shiny app, close the chat when the session ends:
+
+        ```python
+        from chatlas import ChatSnowflake
+
+        chat = ChatSnowflake(model="llama3.1-70b")
+        session.on_ended(chat.close)
+        ```
+        """
+        if self._mcp_manager.has_open_sessions:
+            warnings.warn(
+                "Chat.close() cannot close MCP server sessions (that requires "
+                "close_async()); MCP sessions are still open. Use "
+                "`await chat.close_async()` instead, or close them first with "
+                "`await chat.cleanup_mcp_tools()`.",
+                stacklevel=2,
+            )
+        self.provider.close()
+
+    async def close_async(self) -> None:
+        """
+        Asynchronous variant of `close()`.
+
+        In addition to releasing the provider's resources, this also closes
+        any MCP server sessions registered via
+        `register_mcp_tools_stdio_async()` or
+        `register_mcp_tools_http_stream_async()`.
+        """
+        await self._mcp_manager.close_sessions()
+        await self.provider.close_async()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args: Any) -> None:
+        self.close()
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *args: Any) -> None:
+        await self.close_async()
 
     def list_models(self) -> list[ModelInfo]:
         """
@@ -2648,7 +2707,7 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
             raise ValueError("The filename must have a `.jsonl` extension.")
 
         if turns is None:
-            turns = cast(list[Turn], self.get_turns(include_system_prompt=False))
+            turns = self.get_turns(include_system_prompt=False)
 
         if any(isinstance(x, SystemTurn) for x in turns):
             raise ValueError("System prompts are not allowed in eval input turns.")

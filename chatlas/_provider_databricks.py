@@ -97,7 +97,10 @@ def ChatDatabricks(
         choosing a model for all but the most casual use.
     workspace_client
         A `databricks.sdk.WorkspaceClient()` to use for the connection. If not
-        provided, a new client will be created.
+        provided, a new client will be created. Note that calling
+        [`Chat.close()`](`chatlas.Chat.close`) does not close a
+        caller-supplied `WorkspaceClient` -- it only closes the OpenAI-compatible
+        client that chatlas derives from it.
 
     Returns
     -------
