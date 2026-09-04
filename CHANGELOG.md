@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### New features
 
+* `Chat` gains `close()` and `close_async()` methods (plus context-manager support) for releasing resources held by the provider -- HTTP connection pools, the Snowflake Snowpark session/connection, and (via `close_async()`) MCP server sessions. This is useful in long-lived applications like Shiny that create a chat per user session: `session.on_ended(chat.close)`. Providers only close resources they created themselves; caller-supplied clients are left open.
+
 * When running on Posit Connect, chatlas now forwards the Shiny viewer's session token to Connect's LLM gateway (as a `Posit-Connect-User-Session-Token` header) so gateway usage can be attributed to the viewer. This happens automatically for Shiny content and only affects requests to the gateway.
 
 ### Changes

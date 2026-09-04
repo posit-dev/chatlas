@@ -279,6 +279,16 @@ class GoogleProvider(
 
         self._client = genai.Client(**kwargs_full)
 
+    def close(self) -> None:
+        self._client.close()
+
+    async def close_async(self) -> None:
+        self.close()
+        # `aio.aclose()` was added in a later version of google-genai.
+        aclose = getattr(self._client.aio, "aclose", None)
+        if aclose is not None:
+            await aclose()
+
     def list_models(self):
         models = self._client.models.list()
 

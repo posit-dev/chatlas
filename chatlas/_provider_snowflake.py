@@ -76,6 +76,11 @@ def ChatSnowflake(
 
     https://docs.snowflake.com/en/user-guide/snowflake-cortex/llm-functions
 
+    Each `ChatSnowflake()` holds an underlying Snowpark session (and Snowflake
+    connection). In long-lived applications that create a chat per session
+    (e.g., Shiny), call [`Chat.close()`](`chatlas.Chat.close`) when the session
+    ends to release it -- for example, `session.on_ended(chat.close)`.
+
     Prerequisites
     -------------
 
@@ -201,8 +206,14 @@ class SnowflakeProvider(
             }
         )
 
-        session = Session.builder.configs(configs).create()
-        self._cortex_service = Root(session).cortex_inference_service
+        self._session = Session.builder.configs(configs).create()
+        self._cortex_service = Root(self._session).cortex_inference_service
+
+    def close(self) -> None:
+        """
+        Close the underlying Snowpark session (and its Snowflake connection).
+        """
+        self._session.close()
 
     def list_models(self):
         raise NotImplementedError(

@@ -403,6 +403,13 @@ class AnthropicProvider(
         self._client = Anthropic(**sync_kwargs)  # type: ignore
         self._async_client = AsyncAnthropic(**async_kwargs)
 
+    def close(self) -> None:
+        self._client.close()
+
+    async def close_async(self) -> None:
+        self.close()
+        await self._async_client.close()
+
     def list_models(self):
         models = self._client.models.list()
 
