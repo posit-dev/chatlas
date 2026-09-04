@@ -891,10 +891,13 @@ class AnthropicProvider(
                 or anthropic_replayable(c)
             ]
 
-            # Drop empty assistant turns to avoid an API error
-            # (all messages must have non-empty content)
+            # An assistant turn with no content can't simply be dropped:
+            # doing so could produce two consecutive user messages,
+            # violating the API's user/assistant alternation requirement.
+            # Send a placeholder instead (the API also requires all
+            # messages to have non-empty content).
             if turn.role == "assistant" and len(content) == 0:
-                continue
+                content = [{"type": "text", "text": "[empty string]"}]
 
             # Add cache control to the last content block in the last turn
             # https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-automatic-prefix-checking-works
