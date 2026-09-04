@@ -187,14 +187,28 @@ class DatabricksProvider(OpenAICompletionsProvider):
     # GPT-OSS endpoints can return delta.content as a list of typed parts
     # instead of a plain string; normalize it in place, then reuse the base
     # class's existing string/reasoning handling.
+    @staticmethod
+    def _normalize_delta_content(delta: Any) -> None:
+        if delta is None or not isinstance(delta.content, list):
+            return
+        text, reasoning = _normalize_content_parts(delta.content)
+        delta.content = text
+        if reasoning:
+            setattr(delta, "reasoning", reasoning)
+
     def stream_content(self, chunk, completion, turns=()) -> list[Content]:
-        delta = chunk.choices[0].delta if chunk.choices else None
-        if delta is not None and isinstance(delta.content, list):
-            text, reasoning = _normalize_content_parts(delta.content)
-            delta.content = text
-            if reasoning:
-                setattr(delta, "reasoning", reasoning)
+        if chunk.choices:
+            self._normalize_delta_content(chunk.choices[0].delta)
         return super().stream_content(chunk, completion, turns)
+
+    # The streaming loop merges chunks before extracting content, so the same
+    # normalization must happen here too. Otherwise the inherited merger would
+    # serialize the typed list (emitting a PydanticSerializationUnexpectedValue
+    # warning) and let it pollute the accumulated completion.
+    def stream_merge_chunks(self, completion, chunk):
+        if chunk.choices:
+            self._normalize_delta_content(chunk.choices[0].delta)
+        return super().stream_merge_chunks(completion, chunk)
 
     # Same normalization for the non-streaming/completed-response path.
     @staticmethod

@@ -285,3 +285,46 @@ def test_stream_content_preserves_plain_string_content():
         assert result == [ContentText(text="partial text")]
     finally:
         provider._client.close()
+
+
+def test_stream_merge_chunks_normalizes_typed_content_array():
+    """Typed delta.content lists are normalized before merging (#409)."""
+    import warnings
+
+    from openai.types.chat import ChatCompletionChunk
+    from openai.types.chat.chat_completion_chunk import ChoiceDelta
+
+    provider = _databricks_provider()
+    try:
+        typed_chunk = ChatCompletionChunk.model_construct(
+            choices=[
+                {
+                    "index": 0,
+                    "delta": ChoiceDelta.model_construct(
+                        content=[
+                            {
+                                "type": "reasoning",
+                                "summary": [{"text": "thinking"}],
+                            }
+                        ]
+                    ),
+                }
+            ]
+        )
+        text_chunk = ChatCompletionChunk.model_construct(
+            choices=[
+                {"index": 0, "delta": ChoiceDelta.model_construct(content="answer")}
+            ]
+        )
+
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            completion = provider.stream_merge_chunks(None, typed_chunk)
+            completion = provider.stream_merge_chunks(completion, text_chunk)
+
+        delta = completion["choices"][0]["delta"]
+        assert delta["content"] == "answer"
+        assert delta["reasoning"] == "thinking"
+        assert caught == []
+    finally:
+        provider._client.close()
