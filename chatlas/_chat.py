@@ -24,7 +24,6 @@ from typing import (
     Sequence,
     TypeVar,
     Union,
-    cast,
     overload,
 )
 
