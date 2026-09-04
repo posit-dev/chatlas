@@ -884,7 +884,7 @@ class AnthropicProvider(
             if not isinstance(turn, (UserTurn, AssistantTurn)):
                 raise ValueError(f"Unknown role {turn.role}")
 
-            content = [
+            content: list[ContentBlockParam] = [
                 self._as_content_block(c)
                 for c in turn.contents
                 if not isinstance(c, PROVIDER_ANNOTATION_TYPES)
@@ -897,7 +897,9 @@ class AnthropicProvider(
             # Send a placeholder instead (the API also requires all
             # messages to have non-empty content).
             if turn.role == "assistant" and len(content) == 0:
-                content = [{"type": "text", "text": "[empty string]"}]
+                content = [
+                    cast("TextBlockParam", {"type": "text", "text": "[empty string]"})
+                ]
 
             # Add cache control to the last content block in the last turn
             # https://docs.claude.com/en/docs/build-with-claude/prompt-caching#how-automatic-prefix-checking-works
