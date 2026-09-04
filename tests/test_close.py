@@ -166,6 +166,17 @@ def test_snowflake_provider_close():
     assert session.close.call_count == 2
 
 
+def test_snowflake_provider_close_ownership():
+    from chatlas import ChatSnowflake
+
+    snowflake, session = _make_mock_snowflake_modules()
+    with patch.dict(sys.modules, {"snowflake": snowflake, "snowflake.snowpark": snowflake.snowpark, "snowflake.core": snowflake.core}):
+        chat = ChatSnowflake(model="llama3.1-70b", session=session)
+    chat.close()
+    # A caller-supplied session is not closed.
+    session.close.assert_not_called()
+
+
 def test_databricks_provider_close_ownership():
     from chatlas import ChatDatabricks
 
