@@ -113,6 +113,17 @@ def test_set_model_params_anthropic_unsupported():
         chat.set_model_params(frequency_penalty=0.1)
 
 
+def test_translate_model_params_openai_drops_top_k():
+    """OpenAI has no top_k sampling param; it must not map to top_logprobs (#412)."""
+    chat = ChatOpenAI()
+    provider = chat.provider
+
+    result = provider.translate_model_params({"top_k": 50})  # type: ignore
+
+    assert "top_logprobs" not in result
+    assert "top_k" not in result
+
+
 def test_translate_model_params_openai():
     """Test OpenAI provider's translate_model_params method."""
     chat = ChatOpenAI()
