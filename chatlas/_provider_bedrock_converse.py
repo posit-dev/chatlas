@@ -324,6 +324,12 @@ def as_converse_messages(turns: list[Turn]) -> list[MessageUnionTypeDef]:
         for c in turn.contents:
             content.append(as_converse_content(c, document_index=index))
             index += 1
+
+        # Converse requires non-empty content, and dropping the turn instead
+        # would leave two consecutive user messages.
+        if role == "assistant" and not content:
+            content = [{"text": "[empty string]"}]
+
         messages.append({"role": role, "content": content})
     return messages
 

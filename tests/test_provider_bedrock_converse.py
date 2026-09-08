@@ -452,6 +452,28 @@ class TestContentSerialization:
         with pytest.raises(ValueError, match="Unknown role"):
             as_converse_messages([turn])
 
+    def test_empty_assistant_turn_gets_a_placeholder(self):
+        from chatlas._provider_bedrock_converse import as_converse_messages
+        from chatlas._turn import AssistantTurn, UserTurn
+
+        turns = [
+            UserTurn("Don't say anything"),
+            AssistantTurn([]),
+            UserTurn("What did I just say?"),
+        ]
+        messages = as_converse_messages(turns)
+
+        assert [m["role"] for m in messages] == ["user", "assistant", "user"]
+        assert messages[1]["content"] == [{"text": "[empty string]"}]
+
+    def test_empty_user_turn_is_left_alone(self):
+        from chatlas._provider_bedrock_converse import as_converse_messages
+        from chatlas._turn import UserTurn
+
+        messages = as_converse_messages([UserTurn([])])
+
+        assert messages[0]["content"] == []
+
 
 class TestRequestTransport:
     def binary_request(self) -> "ConverseRequestTypeDef":
