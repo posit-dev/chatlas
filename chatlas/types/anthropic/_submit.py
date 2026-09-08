@@ -126,6 +126,7 @@ class SubmitInputArgs(TypedDict, total=False):
         anthropic.Omit,
     ]
     user_profile_id: str | anthropic.Omit
+    workspace_id: str | anthropic.Omit
     extra_headers: Optional[Mapping[str, Union[str, anthropic.Omit]]]
     extra_query: Optional[Mapping[str, object]]
     extra_body: object | None
