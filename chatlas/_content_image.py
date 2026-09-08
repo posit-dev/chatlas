@@ -156,7 +156,7 @@ def content_image_file(
                 "Install it with `pip install pillow-heif`, or pass "
                 "`resize='none'` to send the original bytes without resizing."
             )
-        pillow_heif.register_heif_opener()
+        pillow_heif.register_heif_opener()  # pyright: ignore[reportPrivateImportUsage]
 
     if resize == "none":
         with open(path, "rb") as image_file:
