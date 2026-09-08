@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import copy
 import inspect
 import os
@@ -555,14 +554,10 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         if new_provider is not old_provider:
             # A provider swap (e.g., ChatPosit switching API flavors)
             # abandons the old provider, so release its HTTP clients.
-            # Best-effort for async resources: schedule close_async()
-            # when an event loop is running.
-            try:
-                loop = asyncio.get_running_loop()
-            except RuntimeError:
-                old_provider.close()
-            else:
-                loop.create_task(old_provider.close_async())
+            # Only sync resources are closed deterministically: async
+            # clients can't be closed from sync code (their transport
+            # requires a running event loop), so they're left to GC.
+            old_provider.close()
         self.provider = new_provider
 
     @property
