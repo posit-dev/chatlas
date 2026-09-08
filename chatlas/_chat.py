@@ -552,11 +552,6 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
         old_provider = self.provider
         new_provider = old_provider.set_model(value)
         if new_provider is not old_provider:
-            # A provider swap (e.g., ChatPosit switching API flavors)
-            # abandons the old provider, so release its HTTP clients.
-            # Only sync resources are closed deterministically: async
-            # clients can't be closed from sync code (their transport
-            # requires a running event loop), so they're left to GC.
             old_provider.close()
         self.provider = new_provider
 
