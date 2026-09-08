@@ -1145,3 +1145,41 @@ def test_anthropic_value_cost_prices_fallback_at_serving_models_rate():
 
     # opus-4-8 rates ($5/$25 per 1M), not fable-5's ($10/$50).
     assert cost == pytest.approx((1000 * 5 + 50 * 25) / 1e6)
+
+
+def test_anthropic_message_params_drop_unsigned_thinking_blocks():
+    from chatlas._content import ContentText, ContentThinking
+
+    provider = AnthropicProvider(model="claude-sonnet-4-5", api_key="dummy")
+
+    # Thinking without a signature (e.g., reasoning from a non-Claude model,
+    # replayed after a provider switch) can't be sent to the API, so it's
+    # dropped; the text content of the turn is kept.
+    turns = [
+        UserTurn("hi"),
+        AssistantTurn(
+            [ContentThinking(thinking="hmm"), ContentText(text="hello")]
+        ),
+        UserTurn("again"),
+    ]
+    messages = provider._as_message_params(turns)
+    assert messages[1]["content"] == [{"text": "hello", "type": "text"}]
+
+    # Signed thinking (Claude's own) is preserved.
+    turns[1] = AssistantTurn(
+        [
+            ContentThinking(thinking="hmm", extra={"signature": "sig"}),
+            ContentText(text="hello"),
+        ]
+    )
+    messages = provider._as_message_params(turns)
+    assert messages[1]["content"][0] == {
+        "type": "thinking",
+        "thinking": "hmm",
+        "signature": "sig",
+    }
+
+    # A turn consisting solely of unsigned thinking is dropped entirely.
+    turns[1] = AssistantTurn([ContentThinking(thinking="hmm")])
+    messages = provider._as_message_params(turns)
+    assert len(messages) == 2

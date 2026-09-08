@@ -309,6 +309,19 @@ class PositAnthropicProvider(AnthropicProvider):
             ),
         )
 
+    def set_model(
+        self, value: str
+    ) -> "PositAnthropicProvider | PositOpenAIProvider":
+        if value.startswith("claude"):
+            self._model = value
+            return self
+        return PositOpenAIProvider(
+            base_url=self._gateway_base_url,
+            model=value,
+            credentials=self._credentials,
+            cache=self._cache,
+        )
+
     def list_models(self) -> list[ModelInfo]:
         return list_models_posit(self._gateway_base_url, self._credentials)
 
@@ -320,12 +333,16 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
         base_url: str,
         model: str,
         credentials: Callable[[], str],
+        cache: Literal["5m", "1h", "none"] = "5m",
         name: str = "Posit",
     ):
         super().__init__(model=model, api_key="not-used", name=name)
 
         self._gateway_base_url = base_url.rstrip("/")
         self._credentials = credentials
+        # Inert on this flavor (caching is Claude-only); stored so the
+        # setting survives a round trip through `set_model()`.
+        self._cache = cache
 
         auth = PositHttpx2Auth(credentials)
         flavor_base_url = f"{self._gateway_base_url}/openai/v1"
@@ -348,6 +365,19 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
                 },
             ),
         )
+
+    def set_model(
+        self, value: str
+    ) -> "PositAnthropicProvider | PositOpenAIProvider":
+        if value.startswith("claude"):
+            return PositAnthropicProvider(
+                base_url=self._gateway_base_url,
+                model=value,
+                credentials=self._credentials,
+                cache=self._cache,
+            )
+        self._model = value
+        return self
 
     def list_models(self) -> list[ModelInfo]:
         return list_models_posit(self._gateway_base_url, self._credentials)
@@ -445,6 +475,7 @@ def ChatPosit(
             base_url=base_url,
             model=model,
             credentials=token_provider,
+            cache=cache,
         )
 
     return Chat(provider=provider, system_prompt=system_prompt)

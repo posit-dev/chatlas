@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Bug fixes
 
 * `ChatBedrock()` (with the default `api="converse"`) no longer sends assistant turns with an empty `content` array, which Converse rejects. This happens when a response carries no content blocks, for example when a guardrail intervenes before the model produces any. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#426)
+* `ChatPosit()` now switches API flavors when `chat.model` is set to a model from the other family: setting a non-Claude model on a Claude-backed chat (or vice versa) swaps the underlying provider so requests use the correct wire format and gateway endpoint, rather than failing with a mismatched request. The `cache` setting is preserved across flavor switches. (Mirrors tidyverse/ellmer#1139.)
+* Anthropic-backed providers (`ChatAnthropic()`, `ChatPosit()`, etc.) now drop thinking blocks that lack a signature (e.g., reasoning emitted by a non-Claude model) when replaying conversation history, instead of failing with `Invalid signature in thinking block`.
 
 
 ## [0.23.0] - 2026-09-04

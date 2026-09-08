@@ -894,8 +894,11 @@ class AnthropicProvider(
             content = [
                 self._as_content_block(c)
                 for c in turn.contents
-                if not isinstance(c, PROVIDER_ANNOTATION_TYPES)
-                or anthropic_replayable(c)
+                if (
+                    not isinstance(c, PROVIDER_ANNOTATION_TYPES)
+                    or anthropic_replayable(c)
+                )
+                and self._is_replayable_thinking(c)
             ]
 
             # Drop empty assistant turns to avoid an API error
@@ -914,6 +917,15 @@ class AnthropicProvider(
             role = "user" if isinstance(turn, UserTurn) else "assistant"
             messages.append({"role": role, "content": content})
         return messages
+
+    @staticmethod
+    def _is_replayable_thinking(content: Content) -> bool:
+        # Thinking blocks without a signature (e.g., reasoning emitted by a
+        # non-Claude model, replayed after a provider switch) are rejected by
+        # the API ("Invalid `signature` in `thinking` block"), so drop them.
+        if not isinstance(content, ContentThinking):
+            return True
+        return bool((content.extra or {}).get("signature"))
 
     @staticmethod
     def _as_content_block(content: Content) -> "ContentBlockParam":
