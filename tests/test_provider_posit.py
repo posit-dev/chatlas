@@ -612,3 +612,44 @@ def test_chat_posit_set_model_openai_start_honors_cache_on_switch():
 
     assert isinstance(chat.provider, PositAnthropicProvider)
     assert chat.provider._cache == "none"
+
+
+def test_chat_posit_set_model_preserves_custom_name_across_family_switches():
+    provider = PositAnthropicProvider(
+        base_url="https://gateway.posit.ai",
+        model="claude-sonnet-4-6",
+        credentials=lambda: "test-token",
+        name="Custom",
+    )
+
+    openai_provider = provider.set_model("qwen3-8b")
+    assert isinstance(openai_provider, PositOpenAIProvider)
+    assert openai_provider.name == "Custom"
+
+    anthropic_provider = openai_provider.set_model("claude-sonnet-4-6")
+    assert isinstance(anthropic_provider, PositAnthropicProvider)
+    assert anthropic_provider.name == "Custom"
+
+
+def test_chat_posit_set_model_closes_old_provider_on_family_switch():
+    chat = ChatPosit(model="claude-sonnet-4-6", credentials=lambda: "test-token")
+    old_provider = chat.provider
+
+    chat.model = "qwen3-8b"
+
+    assert old_provider._client.is_closed()
+
+    chat = ChatPosit(model="qwen3-8b", credentials=lambda: "test-token")
+    old_provider = chat.provider
+
+    chat.model = "claude-sonnet-4-6"
+
+    assert old_provider._client.is_closed()
+
+
+def test_chat_posit_set_model_within_family_does_not_close_provider():
+    chat = ChatPosit(model="claude-sonnet-4-6", credentials=lambda: "test-token")
+
+    chat.model = "claude-opus-4-1"
+
+    assert not chat.provider._client.is_closed()

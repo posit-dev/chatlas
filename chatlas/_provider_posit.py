@@ -318,6 +318,7 @@ class PositAnthropicProvider(AnthropicProvider):
             model=value,
             credentials=self._credentials,
             cache=self._cache,
+            name=self.name,
         )
 
     def list_models(self) -> list[ModelInfo]:
@@ -371,6 +372,7 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
                 model=value,
                 credentials=self._credentials,
                 cache=self._cache,
+                name=self.name,
             )
         self._model = value
         return self

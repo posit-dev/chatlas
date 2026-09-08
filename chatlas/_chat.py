@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import copy
 import inspect
 import os
@@ -549,7 +550,20 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     @model.setter
     def model(self, value: str):
-        self.provider = self.provider.set_model(value)
+        old_provider = self.provider
+        new_provider = old_provider.set_model(value)
+        if new_provider is not old_provider:
+            # A provider swap (e.g., ChatPosit switching API flavors)
+            # abandons the old provider, so release its HTTP clients.
+            # Best-effort for async resources: schedule close_async()
+            # when an event loop is running.
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                old_provider.close()
+            else:
+                loop.create_task(old_provider.close_async())
+        self.provider = new_provider
 
     @property
     def conversation_id(self) -> str | None:
