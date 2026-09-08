@@ -197,7 +197,7 @@ class Provider(
     def model(self, value: str):
         self._model = value
 
-    def set_model(self, value: str) -> "Provider[Any, Any]":
+    def set_model(self, value: str) -> "Provider[Any, Any, Any, Any]":
         """
         Set the model used by the provider.
 

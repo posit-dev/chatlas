@@ -309,9 +309,7 @@ class PositAnthropicProvider(AnthropicProvider):
             ),
         )
 
-    def set_model(
-        self, value: str
-    ) -> "PositAnthropicProvider | PositOpenAIProvider":
+    def set_model(self, value: str) -> "PositAnthropicProvider | PositOpenAIProvider":
         if value.startswith("claude"):
             self._model = value
             return self
@@ -342,7 +340,7 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
         self._credentials = credentials
         # Inert on this flavor (caching is Claude-only); stored so the
         # setting survives a round trip through `set_model()`.
-        self._cache = cache
+        self._cache: Literal["5m", "1h", "none"] = cache
 
         auth = PositHttpx2Auth(credentials)
         flavor_base_url = f"{self._gateway_base_url}/openai/v1"
@@ -366,9 +364,7 @@ class PositOpenAIProvider(OpenAICompletionsProvider):
             ),
         )
 
-    def set_model(
-        self, value: str
-    ) -> "PositAnthropicProvider | PositOpenAIProvider":
+    def set_model(self, value: str) -> "PositAnthropicProvider | PositOpenAIProvider":
         if value.startswith("claude"):
             return PositAnthropicProvider(
                 base_url=self._gateway_base_url,
