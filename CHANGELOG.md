@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Bug fixes
 
+* `ChatSnowflake()` now supports Anthropic extended thinking content (e.g. from `claude-sonnet-5`) in both streaming and non-streaming responses. Previously, the thinking deltas sent by Snowflake Cortex raised `ValueError: Unexpected streaming delta type: anthropic`.
+
 * `ChatBedrock()` (with the default `api="converse"`) no longer sends assistant turns with an empty `content` array, which Converse rejects. This happens when a response carries no content blocks, for example when a guardrail intervenes before the model produces any. A `"[empty string]"` placeholder is sent instead, matching how empty text content is already normalized. (#426)
 
 
