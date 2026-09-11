@@ -299,11 +299,15 @@ def as_converse_content(
                     "Bedrock Converse redacted reasoning content must be bytes."
                 )
             return {"reasoningContent": {"redactedContent": redacted_content}}
+        signature = extra.get("signature")
+        if not signature:
+            # Claude models reject unsigned reasoning, so replay it as text
+            return {"text": str(content)}
         return {
             "reasoningContent": {
                 "reasoningText": {
                     "text": content.thinking,
-                    "signature": extra.get("signature", ""),
+                    "signature": signature,
                 }
             }
         }
