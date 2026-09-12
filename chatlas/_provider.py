@@ -197,6 +197,24 @@ class Provider(
     def model(self, value: str):
         self._model = value
 
+    def set_model(self, value: str) -> "Provider[Any, Any, Any, Any]":
+        """
+        Set the model used by the provider.
+
+        The default implementation just updates the model name and returns
+        the provider unchanged. Providers that dispatch to a different API
+        flavor based on the model name (e.g., Posit AI) override this to
+        return a different provider instance when the new model belongs to
+        another flavor.
+
+        Returns
+        -------
+        Provider
+            The provider to use for subsequent requests (possibly `self`).
+        """
+        self._model = value
+        return self
+
     def close(self) -> None:
         """
         Release resources held by this provider (e.g., HTTP connection pools,

@@ -474,6 +474,22 @@ class TestContentSerialization:
 
         assert messages[0]["content"] == []
 
+    def test_unsigned_thinking_is_replayed_as_text(self):
+        from chatlas._content import ContentThinking
+        from chatlas._provider_bedrock_converse import as_converse_content
+
+        assert as_converse_content(ContentThinking(thinking="hmm")) == {
+            "text": "<thinking>\nhmm\n</thinking>\n"
+        }
+
+        assert as_converse_content(
+            ContentThinking(thinking="hmm", extra={"signature": "sig"})
+        ) == {
+            "reasoningContent": {
+                "reasoningText": {"text": "hmm", "signature": "sig"}
+            }
+        }
+
 
 class TestRequestTransport:
     def binary_request(self) -> "ConverseRequestTypeDef":

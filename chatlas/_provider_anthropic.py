@@ -892,7 +892,7 @@ class AnthropicProvider(
                 raise ValueError(f"Unknown role {turn.role}")
 
             content = [
-                self._as_content_block(c)
+                self._as_content_block(self._as_replayable_content(c))
                 for c in turn.contents
                 if not isinstance(c, PROVIDER_ANNOTATION_TYPES)
                 or anthropic_replayable(c)
@@ -914,6 +914,15 @@ class AnthropicProvider(
             role = "user" if isinstance(turn, UserTurn) else "assistant"
             messages.append({"role": role, "content": content})
         return messages
+
+    @staticmethod
+    def _as_replayable_content(content: Content) -> Content:
+        # The API rejects unsigned thinking blocks, so replay them as text
+        if isinstance(content, ContentThinking) and not (content.extra or {}).get(
+            "signature"
+        ):
+            return ContentText(text=str(content))
+        return content
 
     @staticmethod
     def _as_content_block(content: Content) -> "ContentBlockParam":

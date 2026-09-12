@@ -536,7 +536,9 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
         Setting this updates the model for subsequent requests. The model name
         is not validated, so make sure it's a valid model for the chat's
-        provider.
+        provider. Note that some providers (e.g., `ChatPosit()`) dispatch to a
+        different API flavor based on the model name; setting a model from
+        another flavor swaps out the underlying provider accordingly.
 
         Returns
         -------
@@ -547,7 +549,11 @@ class Chat(Generic[SubmitInputArgsT, CompletionT]):
 
     @model.setter
     def model(self, value: str):
-        self.provider.model = value
+        old_provider = self.provider
+        new_provider = old_provider.set_model(value)
+        if new_provider is not old_provider:
+            old_provider.close()
+        self.provider = new_provider
 
     @property
     def conversation_id(self) -> str | None:
